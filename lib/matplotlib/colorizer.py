@@ -372,12 +372,12 @@ class _ColorizerInterface:
         """
         Return the values (min, max) that are mapped to the colormap limits.
 
-        This function is not available for multivariate data.
-        Use `.Colorizer.get_clim` via the .colorizer property instead.
+        This function only works for scalar data. For multivariate data
+        use `.Colorizer.get_clim` via the ``.colorizer`` property instead.
         """
         if self._colorizer.norm.n_components > 1:
-            raise AttributeError("get_clim() cannot be used with a multi-component "
-                                 "colormap. Use .colorizer.get_clim() instead")
+            raise RuntimeError("get_clim() cannot be used with a multi-component "
+                               "colormap. Use .colorizer.get_clim() instead")
         return self.colorizer.norm.vmin, self.colorizer.norm.vmax
 
     def set_clim(self, vmin=None, vmax=None):
@@ -399,8 +399,8 @@ class _ColorizerInterface:
         # If the norm's limits are updated self.changed() will be called
         # through the callbacks attached to the norm
         if self._colorizer.norm.n_components > 1:
-            raise AttributeError("set_clim() cannot be used with a multi-component "
-                                 "colormap. Use .colorizer.set_clim() instead")
+            raise RuntimeError("set_clim() cannot be used with a multi-component "
+                               "colormap. Use .colorizer.set_clim() instead")
         self._colorizer.set_clim(vmin, vmax)
 
     def get_alpha(self):
@@ -674,9 +674,8 @@ cmap : str, `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`\
     The Colormap instance or registered colormap name used to map
     data values to colors.
 
-    Multivariate data is only accepted if a multivariate colormap
-    (`~matplotlib.colors.BivarColormap` or `~matplotlib.colors.MultivarColormap`)
-    is used.""",
+    Multivariate colormaps (`~matplotlib.colors.BivarColormap` or
+    `~matplotlib.colors.MultivarColormap`) require multivariate data.""",
     norm_doc="""\
 norm : str or `~matplotlib.colors.Normalize`, optional
     The normalization method used to scale scalar data to the [0, 1] range

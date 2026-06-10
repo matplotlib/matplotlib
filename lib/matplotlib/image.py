@@ -369,6 +369,9 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             - a (M, N) array interpreted as scalar (greyscale) image,
               with one of the dtypes `~numpy.float32`, `~numpy.float64`,
               `~numpy.float128`, `~numpy.uint16` or `~numpy.uint8`.
+            - a (M, N) structured array with K fields for multivariate colormapping.
+              This must be used with a `.BivarColormap` (K=2) or generally with a
+              K-component `.MultivarColormap`.
             - (M, N, 4) RGBA image with a dtype of `~numpy.float32`,
               `~numpy.float64`, `~numpy.float128`, or `~numpy.uint8`.
 

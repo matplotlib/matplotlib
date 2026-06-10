@@ -2220,7 +2220,7 @@ def test_get_set_clim_raises():
     colorizing_artist = ax.imshow((x_0, x_1), cmap='BiPeak', interpolation='nearest')
 
     # test get_clim
-    with pytest.raises(AttributeError,
+    with pytest.raises(RuntimeError,
                        match=("cannot be used with a multi-component")):
         colorizing_artist.get_clim()
 
@@ -2228,7 +2228,7 @@ def test_get_set_clim_raises():
     assert_array_almost_equal(colorizing_artist.colorizer.get_clim(), res)
 
     # test set_clim
-    with pytest.raises(AttributeError,
+    with pytest.raises(RuntimeError,
                        match=("cannot be used with a multi-component")):
         colorizing_artist.set_clim(vmin=(1, 1))
 

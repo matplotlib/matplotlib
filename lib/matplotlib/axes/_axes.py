@@ -6238,7 +6238,9 @@ or pandas.DataFrame
             - (M, N): an image with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (K, M, N): if coupled with a cmap that supports K scalars
+            - (K, M, N): a K-component M*N image for multivariate colormapping.
+              This must be used with a `.BivarColormap` (K=2) or generally with a
+              K-component `.MultivarColormap`.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6251,7 +6253,7 @@ or pandas.DataFrame
 
         %(multi_cmap_doc)s
 
-            This parameter is ignored if *X* is RGB(A).
+            Scalar colormaps are ignored if *X* is RGB(A).
 
         %(multi_norm_doc)s
 
@@ -6811,7 +6813,9 @@ or pandas.DataFrame
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (K, M, N): if coupled with a cmap that supports K scalars
+            - (K, M, N): a K-component M*N mesh for multivariate colormapping.
+              This must be used with a `.BivarColormap` (K=2) or generally with a
+              K-component `.MultivarColormap`.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
