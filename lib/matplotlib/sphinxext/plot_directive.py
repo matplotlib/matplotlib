@@ -203,6 +203,7 @@ import jinja2  # Sphinx dependency.
 
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
+from sphinx.util import logging
 
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
@@ -212,6 +213,8 @@ from matplotlib import _pylab_helpers, cbook
 matplotlib.use("agg")
 
 __version__ = 2
+
+_log = logging.getLogger(__name__)
 
 
 # -----------------------------------------------------------------------------
@@ -947,11 +950,11 @@ def run(arguments, content, options, state_machine, state, lineno):
                                      code_includes=source_file_includes)
         errors = []
     except PlotError as err:
+        message = "Exception occurred in plotting {}\n from {}:\n{}".format(
+            output_base, source_file_name, err)
+        _log.warning(message, location=(source_file_name, lineno))
         reporter = state.memo.reporter
-        sm = reporter.system_message(
-            2, "Exception occurred in plotting {}\n from {}:\n{}".format(
-                output_base, source_file_name, err),
-            line=lineno)
+        sm = reporter.system_message(2, message, line=lineno)
         results = [(code, [])]
         errors = [sm]
 
