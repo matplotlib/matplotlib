@@ -179,7 +179,11 @@ class PdfFile:
     ) -> Reference: ...
     def embedTTF(
         self,
-        filename: Iterable[str | pathlib.Path | bytes] | str | pathlib.Path | bytes,
+        filename: Iterable[str | bytes | os.PathLike | FontPath]
+        | str
+        | bytes
+        | os.PathLike
+        | FontPath,
         subset_index: int,
         charmap: dict[int, int],
     ) -> Reference: ...
@@ -359,9 +363,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def capstyle_cmd(self, style: CapStyleType) -> _CommandType: ...
     def joinstyle_cmd(self, style: JoinStyleType) -> _CommandType: ...
     def linewidth_cmd(self, width: float) -> _CommandType: ...
-    def dash_cmd(
-        self, dashes: tuple[float, Sequence[float]]
-    ) -> _CommandType: ...
+    def dash_cmd(self, dashes: tuple[float, Sequence[float]]) -> _CommandType: ...
     def alpha_cmd(
         self, alpha: int, forced: bool, effective_alphas: int
     ) -> _CommandType: ...
@@ -408,7 +410,7 @@ class FigureCanvasPdf(FigureCanvasBase):
     def get_default_filetype(cls) -> str: ...  # type: ignore[override]
     def print_pdf(
         self,
-        filename: PdfPages | IO[Any],
+        filename: PdfPages | str | os.PathLike | IO[Any],
         *,
         bbox_inches_restore: _RectangleType | None = None,
         metadata: _MetadataDict | None = None,
