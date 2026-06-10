@@ -1,5 +1,4 @@
 import os
-import pathlib
 import types
 from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime
