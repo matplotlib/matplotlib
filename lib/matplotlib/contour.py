@@ -478,8 +478,8 @@ class ContourLabeler:
         label_width = self._get_nth_label_width(level)
         rotation, path = self._split_path_and_get_label_rotation(
             path, idx_vtx_min, proj, label_width, inline_spacing)
-        self.add_label(*proj, rotation, self.labelLevelList[idx_level_min],
-                       self.labelCValueList[idx_level_min])
+        self.add_label(*proj, rotation, self.labelLevelList[level],
+                       self.labelCValueList[level])
 
         if inline:
             self._paths[idx_level_min] = path
