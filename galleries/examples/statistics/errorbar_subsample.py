@@ -6,6 +6,8 @@ Errorbar subsampling
 The parameter *errorevery* of `.Axes.errorbar` can be used to draw error bars
 only on a subset of data points. This is particularly useful if there are many
 data points with similar errors.
+
+.. redirect-from:: /gallery/lines_bars_and_markers/errorbar_subsample
 """
 
 import matplotlib.pyplot as plt
