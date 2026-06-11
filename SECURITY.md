@@ -8,8 +8,9 @@ versions.
 
 | Version | Supported          |
 | ------- | ------------------ |
+| 3.11.x  | :white_check_mark: |
 | 3.10.x  | :white_check_mark: |
-| 3.9.x   | :white_check_mark: |
+| 3.9.x   | :x:                |
 | 3.8.x   | :x:                |
 | 3.7.x   | :x:                |
 | 3.6.x   | :x:                |
