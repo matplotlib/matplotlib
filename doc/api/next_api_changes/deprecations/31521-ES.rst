@@ -1,7 +1,0 @@
-Font hinting factor is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Due to internal changes to support complex text rendering, the hinting factor on fonts is
-no longer used. Setting the ``text.hinting_factor`` rcParam to any value other than None
-is deprecated, and the rcParam will be removed in the future. Likewise, passing the
-``hinting_factor`` argument to the `.FT2Font` constructor is deprecated.

@@ -1,2 +1,0 @@
-``font_manager.findfont`` logs if selected font weight does not match requested
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

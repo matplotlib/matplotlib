@@ -1,6 +1,0 @@
-``relim()`` now accounts for Collection artists
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Previously, `~.axes.Axes.relim` did not recalculate data limits for
-`.Collection` artists (e.g. those created by `~.axes.Axes.scatter`).
-Calling ``ax.relim()`` followed by ``ax.autoscale_view()`` now correctly
-includes scatter plots and other collections in the axes limits.

@@ -1,4 +1,0 @@
-``font_manager.is_opentype_cff_font`` is deprecated
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-There is no replacement.
