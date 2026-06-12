@@ -36,8 +36,8 @@ def _isolated_tk_test(success_count, func=None):
         reason="missing tkinter"
     )
     @pytest.mark.skipif(
-        sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
-        reason="$DISPLAY is unset"
+        not _c_internal_utils.display_is_valid(),
+        reason="Display is unavailable"
     )
     @functools.wraps(func)
     def test_func():

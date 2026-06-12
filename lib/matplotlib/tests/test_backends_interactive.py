@@ -59,6 +59,8 @@ def _get_available_interactive_backends():
                                      not _c_internal_utils.display_is_valid())
     _is_linux_and_xdisplay_invalid = (sys.platform == "linux" and
                                       not _c_internal_utils.xdisplay_is_valid())
+    _is_macos_and_display_invalid = (sys.platform == "darwin" and
+                                     not _c_internal_utils.display_is_valid())
     envs = []
     for deps, env in [
             *[([qt_api],
@@ -85,6 +87,8 @@ def _get_available_interactive_backends():
             reason = "$DISPLAY is unset"
         elif _is_linux_and_display_invalid:
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
+        elif _is_macos_and_display_invalid:
+            reason = "Display is unavailable"
         elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
             reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
@@ -451,9 +455,8 @@ def qt5_and_qt6_pairs():
             yield from ([qt5, qt6], [qt6, qt5])
 
 
-@pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.display_is_valid(),
-    reason="$DISPLAY and $WAYLAND_DISPLAY are unset")
+@pytest.mark.skipif(not _c_internal_utils.display_is_valid(),
+                    reason='Display is unavailable')
 @pytest.mark.parametrize('host, mpl', [*qt5_and_qt6_pairs()])
 def test_cross_Qt_imports(host, mpl):
     try:
