@@ -7543,6 +7543,18 @@ def test_title_location_roundtrip():
         ax.set_title('fail', loc='foo')
 
 
+@pytest.mark.parametrize("kwargs", [
+    {"font": "DejaVu Sans", "fontsize": 20},
+    {"fontsize": 20, "font": "DejaVu Sans"},
+    {"font": mfont_manager.FontProperties(family="DejaVu Sans"), "fontsize": 20},
+    {"fontsize": 20, "font": mfont_manager.FontProperties(family="DejaVu Sans")},
+])
+def test_title_fontproperties_kwarg_precedence(kwargs):
+    fig, ax = plt.subplots()
+    title = ax.set_title("Title", **kwargs)
+    assert title.get_fontsize() == 20
+
+
 @pytest.mark.parametrize('sharex', [True, False])
 def test_title_location_shared(sharex):
     fig, axs = plt.subplots(2, 1, sharex=sharex)
