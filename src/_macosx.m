@@ -440,7 +440,6 @@ static void
 FigureCanvas_dealloc(FigureCanvas* self)
 {
     BEGIN_OBJC_ENTRY
-    NSLog(@"FigureCanvas_dealloc");
     [self->view setCanvas: NULL];
     self->view = nil;
     END_OBJC_ENTRY
