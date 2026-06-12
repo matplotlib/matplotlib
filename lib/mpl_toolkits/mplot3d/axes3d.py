@@ -470,7 +470,7 @@ class Axes3D(Axes):
         locator = self.get_axes_locator()
         self.apply_aspect(locator(self, renderer) if locator else None)
 
-        # add the projection matrix to the renderer
+        # add the projection matrix to the axes
         self.M = self.get_proj()
         self.invM = np.linalg.inv(self.M)
 
