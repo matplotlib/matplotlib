@@ -214,15 +214,7 @@ class Axes(_AxesBase):
         title.update(default)
         if fontdict is not None:
             title.update(fontdict)
-        # Apply complete font properties before individual font properties so
-        # the latter take precedence regardless of keyword argument order.
-        fontproperties = {
-            key: value for key, value in kwargs.items()
-            if key in {"font", "font_properties", "fontproperties"}}
-        title._internal_update(fontproperties)
-        title._internal_update({
-            key: value for key, value in kwargs.items()
-            if key not in fontproperties})
+        title._internal_update(kwargs)
         return title
 
     def get_legend_handles_labels(self, legend_handler_map=None):
