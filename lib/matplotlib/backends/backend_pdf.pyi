@@ -408,8 +408,8 @@ class PdfPages:
 
 class FigureCanvasPdf(FigureCanvasBase):
     filetypes: dict[str, str]
-    # FIXME: `get_default_filetype` does not inherit from `FigureCanvasBase` correctly
-    def get_default_filetype(cls) -> str: ...  # type: ignore[override]
+    @classmethod
+    def get_default_filetype(cls) -> str: ...
     def print_pdf(
         self,
         filename: PdfPages | str | os.PathLike | IO[Any],
