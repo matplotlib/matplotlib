@@ -1,6 +1,0 @@
-Default *style* parameter of ``image_comparison``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-The *style* parameter of the `.image_comparison` decorator will become 'mpl20' in
-Matplotlib 3.13. Not passing it and relying on the previous default will warn until the
-change occurs.

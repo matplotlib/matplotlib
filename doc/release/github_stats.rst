@@ -2,17 +2,17 @@
 
 .. _github-stats:
 
-GitHub statistics for 3.11.0 (May 12, 2026)
+GitHub statistics for 3.11.0 (Jun 11, 2026)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2026/05/12
+GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2026/06/11
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 257 issues and merged 812 pull requests.
+We closed 284 issues and merged 936 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/96?closed=1>`__
 
-The following 266 authors contributed 4674 commits.
+The following 246 authors contributed 3054 commits.
 
 * 34j
 * Aaratrika-Shelly
@@ -21,39 +21,32 @@ The following 266 authors contributed 4674 commits.
 * Abhiroop Batabyal
 * Abitamim Bharmal
 * Adam Ormondroyd
-* AdamOrmondroyd
 * Aditya Singh
-* aditya-singh597
 * AdrashDec
 * Aishling Cooke
 * Alan Burlot
 * Albert Y. Shih
 * ALBIN BABU VARGHESE
-* albus-droid
 * Alexandra Khoo
 * Allison
-* alphanoobie
-* AMAN KUSHWAHA
 * Aman Kushwaha
 * Aman Nijjar
 * Aman Parganiha
 * Aman Srivastava
 * Amisha Mehta
-* amishamehta99
 * Amitesh Singh
 * Anabelle VanDenburgh
 * Andrea Alberti
-* Andres Gutierrrez
 * Andrew Landau
 * Andrés Gutierrez
 * Anselm Hahn
-* anTon
 * Anton
 * Antony Lee
 * Archil Jain
 * Arnaud Patard
+* arshsmith
+* Atharva Kulkarni
 * Barbier--Darnal Joseph
-* beelauuu
 * Ben Greiner
 * Ben Root
 * Bodhi Silberling
@@ -62,11 +55,10 @@ The following 266 authors contributed 4674 commits.
 * BriAnna Foreman
 * brk
 * Carlos Ramos Carreño
-* Cemonix
 * Chaoyi Hu
 * Charlie Thornton
+* Charlie Tonneslan
 * Chirag Sharma
-* Chirag3841
 * chrisjbillington
 * Christine P. Chai
 * clairefio
@@ -78,7 +70,6 @@ The following 266 authors contributed 4674 commits.
 * Corenthin ZOZOR
 * cvanelteren
 * Daniel Weiss
-* Danny
 * David Lowry-Duda
 * David Stansby
 * dependabot[bot]
@@ -104,7 +95,6 @@ The following 266 authors contributed 4674 commits.
 * Francisco Cardozo
 * G Karthik Koundinya
 * G\. D\. McBain
-* G26Karthik
 * ganglike
 * Geoffrey Thomas
 * Gguidini
@@ -112,6 +102,7 @@ The following 266 authors contributed 4674 commits.
 * guillermodotn
 * hannah
 * Hannan7812
+* hansu650
 * Hasan Rashid
 * Hassan Kibirige
 * heinrich5991
@@ -129,25 +120,20 @@ The following 266 authors contributed 4674 commits.
 * James Addison
 * Javier Pérez Robles
 * jaya prajapati
-* jayaprajapatii
 * Jaylon
 * Jimmy Shah
 * jocelynvj
 * JOD
-* joddeepesh-cloud
 * Jody Klymak
 * Johannes Kopton
 * Jonas Drotleff
 * Jonathan Reimer
 * Jouni K. Seppänen
 * Julian Chen
-* Kaustbh
-* Kaustubh
+* Kaustubh Desale
 * kdpenner
-* Khushi_29
 * Khushikela29
 * KIU Shueng Chuan
-* konmenel
 * Kris Rubiano
 * kusch lionel
 * Kyle Martin
@@ -162,13 +148,13 @@ The following 266 authors contributed 4674 commits.
 * lilfer
 * litchi
 * Logan Pageler
-* Logan-Pageler
 * Lucas Gruwez
+* lucaznch
 * Lucx33
 * Luka Aladashvili
 * Lukas Hergt
-* lukashergt
 * Lumberbot (aka Jack)
+* Lumir Balhar
 * Lívia Lutz
 * m-sahare
 * Mafalda Botelho
@@ -179,7 +165,6 @@ The following 266 authors contributed 4674 commits.
 * Marco Barbosa
 * Marco Gorelli
 * Marie
-* Marten H. van Kerkwijk
 * Marten Henric van Kerkwijk
 * martincornejo
 * masih.khatibzdeh
@@ -190,9 +175,7 @@ The following 266 authors contributed 4674 commits.
 * MengAiDev
 * Milan Gittler
 * MiniX16
-* Miriam
 * Miriam Simone
-* miriamsimone
 * MKhatibzadeh
 * Mohit Pal
 * Moniza Kidwai
@@ -217,28 +200,24 @@ The following 266 authors contributed 4674 commits.
 * Parsa Homayouni
 * Patrick Seitz
 * Pedro Marques
-* pedrom2002
 * Pieter Eendebak
 * Pirzada Ahmad Faraz
-* pirzada-ahmadfaraz
 * Praful Gulani
-* Pranav
 * Pranav Raghu
 * pre-commit-ci[bot]
 * proximalf
 * q33566
 * Qian Zhang
-* r3kste
 * Rafael Katri
-* Rahul
 * Rahul Monani
+* Rahul Rathnavel K
 * Raphael Erik Hviding
 * Raphael Quast
 * RETHICK CB
 * Ricardo Peres
+* Ricci Adams
 * RogueRebel33
 * Roman
-* Roman A
 * Ruth Comer
 * ruvilonix
 * Ryan May
@@ -246,18 +225,17 @@ The following 266 authors contributed 4674 commits.
 * Sai Chaitanya, Sanivada
 * saikarna913
 * Sanchit Rishi
-* Saumya
+* Saumya Agrawal
 * Scott Shambaugh
 * Sebastien Wieckowski
+* SharadhNaidu
 * Siddharth_Savani
 * Sonu Singh
-* star1327p
 * statxc
 * Stefan van der Walt
 * Stefan Vujadinovic
 * Steve Berardi
 * Steve Nicholson
-* tfpf
 * Thomas A Caswell
 * thomashopkins32
 * Tiago Marques
@@ -269,22 +247,147 @@ The following 266 authors contributed 4674 commits.
 * Trygve Magnus Ræder
 * Ubuntu
 * Vagner Messias
+* Valentin Bruch
 * Vedant Madane
 * Victor Liu
 * Vidya
 * Vikash Kumar
 * Vishal Pankaj Chandratreya
 * Vraj Rajpura
-* Weh Andreas
 * Wiliam
+* Xianxiang Li
 * Yuepeng Gu
+* Zhang Maiyun
 * Zhongqi LUO
 * ZPyrolink
 
 GitHub issues and pull requests:
 
-Pull Requests (812):
+Pull Requests (936):
 
+* :ghpull:`31873`: Backport PR #31706 on branch v3.11.x (Fix clabel manual index)
+* :ghpull:`31706`: Fix clabel manual index
+* :ghpull:`31872`: Backport PR #31868 on branch v3.11.x (DOC: Move errorbar examples to the statistics sections)
+* :ghpull:`31868`: DOC: Move errorbar examples to the statistics sections
+* :ghpull:`31871`: Backport PR #31870 on branch v3.11.x (Update axes_units.py)
+* :ghpull:`31870`: Update axes_units.py
+* :ghpull:`31854`: Add typing interface file and type hints for ``backends.backend_pdf``
+* :ghpull:`31866`: Backport PR #31769 on branch v3.11.x (Fix several MacOS memory management bugs)
+* :ghpull:`31864`: Backport PR #31859 on branch v3.11.x (FIX: reject out-of-range charmap index in FT2Font.set_charmap)
+* :ghpull:`31862`: Backport PR #31482 on branch v3.11.x (TYP: Add type information to the data parameter of plot functions)
+* :ghpull:`31865`: Add DataParamType to API docs
+* :ghpull:`31859`: FIX: reject out-of-range charmap index in FT2Font.set_charmap
+* :ghpull:`31482`: TYP: Add type information to the data parameter of plot functions
+* :ghpull:`31852`: Backport PR #31539 on branch v3.11.x (DOC: Build against 3.11.0 of mpl-sphinx-theme)
+* :ghpull:`31861`: Backport PR #31844 on branch v3.11.x (FIX: snap near-integer arc windings to a full circle on polar plots (#20388, #26972))
+* :ghpull:`31844`: FIX: snap near-integer arc windings to a full circle on polar plots (#20388, #26972)
+* :ghpull:`31769`: Fix several MacOS memory management bugs
+* :ghpull:`31727`: DOC: Prepare What's New page for 3.11
+* :ghpull:`31849`: Backport PR #31837 on branch v3.11.x (DOC: reorder subplots, axes, and figures examples)
+* :ghpull:`31851`: Backport PR #31605 on branch v3.11.x (DOC: Consolidate shared axis examples)
+* :ghpull:`31539`: DOC: Build against 3.11.0 of mpl-sphinx-theme
+* :ghpull:`31847`: Backport PR #31833 on branch v3.11.x (DOC: reorder ticks examples)
+* :ghpull:`31850`: Backport PR #31831 on branch v3.11.x (DOC: Use warnings instead of exceptions in gallery order)
+* :ghpull:`31848`: Backport PR #31838 on branch v3.11.x (DOC: reorder text, labels and annotations examples)
+* :ghpull:`31843`: Backport PR #31836 on branch v3.11.x (DOC: reorder images examples)
+* :ghpull:`31845`: Backport PR #31835 on branch v3.11.x (DOC: reorder lines, bars, and markers examples)
+* :ghpull:`31846`: Backport PR #31832 on branch v3.11.x (DOC: reorder statistics examples)
+* :ghpull:`31831`: DOC: Use warnings instead of exceptions in gallery order
+* :ghpull:`31837`: DOC: reorder subplots, axes, and figures examples
+* :ghpull:`31838`: DOC: reorder text, labels and annotations examples
+* :ghpull:`31833`: DOC: reorder ticks examples
+* :ghpull:`31832`: DOC: reorder statistics examples
+* :ghpull:`31835`: DOC: reorder lines, bars, and markers examples
+* :ghpull:`31836`: DOC: reorder images examples
+* :ghpull:`31841`: Backport PR #31825 on branch v3.11.x (Partially revert "Fix test_RcParams_class on Python 3.15")
+* :ghpull:`31840`: Backport PR #31834 on branch v3.11.x (DOC: Add missing gallery order for Plot types > Gridded data)
+* :ghpull:`31825`: Partially revert "Fix test_RcParams_class on Python 3.15"
+* :ghpull:`31834`: DOC: Add missing gallery order for Plot types > Gridded data
+* :ghpull:`31839`: Backport PR #31731 on branch v3.11.x (DOC: Correct shading behavior descriptions in pcolor/pcolormesh)
+* :ghpull:`31731`: DOC: Correct shading behavior descriptions in pcolor/pcolormesh
+* :ghpull:`31830`: Backport PR #31829 on branch v3.11.x (DOC: Fix gallery order)
+* :ghpull:`31828`: Backport PR #31765 on branch v3.11.x (DOC: Move multiple yaxis example from Spines to Subplots, axes and figures)
+* :ghpull:`31829`: DOC: Fix gallery order
+* :ghpull:`31765`: DOC: Move multiple yaxis example from Spines to Subplots, axes and figures
+* :ghpull:`31826`: Backport PR #31691 on branch v3.11.x (DOC: Add a warning on methods to access Tick parts (lines, labels, grid))
+* :ghpull:`31824`: Backport PR #31815 on branch v3.11.x (Update mailmap to latest commit)
+* :ghpull:`31823`: Backport PR #31819 on branch v3.11.x (FIX: use data values in bar_label)
+* :ghpull:`31822`: Backport PR #31685 on branch v3.11.x (FIX: Handle height units in broken_barh())
+* :ghpull:`31691`: DOC: Add a warning on methods to access Tick parts (lines, labels, grid)
+* :ghpull:`31816`: Backport PR #31661 on branch v3.11.x (BLD: add more static analysis)
+* :ghpull:`31815`: Update mailmap to latest commit
+* :ghpull:`31819`: FIX: use data values in bar_label
+* :ghpull:`31685`: FIX: Handle height units in broken_barh()
+* :ghpull:`31821`: Backport PR #31714 on branch v3.11.x (DOC: Add file-based listed gallery order for examples)
+* :ghpull:`31714`: DOC: Add file-based listed gallery order for examples
+* :ghpull:`31817`: Bump zizmorcore/zizmor-action from 0.5.4 to 0.5.6 in the actions group
+* :ghpull:`31661`: BLD: add more static analysis
+* :ghpull:`31814`: Backport PR #31760 on branch v3.11.x (DOC: Reorder examples subgalleries)
+* :ghpull:`31760`: DOC: Reorder examples subgalleries
+* :ghpull:`31812`: Backport PR #31807 on branch v3.11.x (Bump https://github.com/pre-commit/mirrors-mypy from v1.20.2 to 2.1.0)
+* :ghpull:`31811`: Backport PR #31808 on branch v3.11.x (Bump https://github.com/python-jsonschema/check-jsonschema from 0.37.1 to 0.37.2)
+* :ghpull:`31810`: Backport PR #31806 on branch v3.11.x (Bump https://github.com/astral-sh/ruff-pre-commit from v0.15.12 to 0.15.15)
+* :ghpull:`31782`: Bump the actions group across 1 directory with 4 updates
+* :ghpull:`31807`: Bump https://github.com/pre-commit/mirrors-mypy from v1.20.2 to 2.1.0
+* :ghpull:`31808`: Bump https://github.com/python-jsonschema/check-jsonschema from 0.37.1 to 0.37.2
+* :ghpull:`31806`: Bump https://github.com/astral-sh/ruff-pre-commit from v0.15.12 to 0.15.15
+* :ghpull:`31805`: Backport PR #31801 on branch v3.11.x (DOC: Document tick objects)
+* :ghpull:`31801`: DOC: Document tick objects
+* :ghpull:`31800`: Backport PR #31784 on branch v3.11.x (Fix tests on Python 3.15)
+* :ghpull:`31784`: Fix tests on Python 3.15
+* :ghpull:`31790`: Backport PR #31708 on branch v3.11.x (DOC: Improve multiline example)
+* :ghpull:`31708`: DOC: Improve multiline example
+* :ghpull:`31781`: Backport PR #31718 on branch v3.11.x (BUG: Fix box_handle_props initialization in PolygonSelector)
+* :ghpull:`31777`: Backport PR #31737 on branch v3.11.x (BUG: Don't try to show / autoscale 3D data that lies outside the axis valid scale range)
+* :ghpull:`31783`: Backport PR #31780 on branch v3.11.x (Update timezone test to only use past dates)
+* :ghpull:`31780`: Update timezone test to only use past dates
+* :ghpull:`31779`: Doc/tweak api notes
+* :ghpull:`31718`: BUG: Fix box_handle_props initialization in PolygonSelector
+* :ghpull:`31737`: BUG: Don't try to show / autoscale 3D data that lies outside the axis valid scale range
+* :ghpull:`31775`: Backport PR #31773 on branch v3.11.x (Update dates.py to correct .scale)
+* :ghpull:`31774`: Backport PR #31707 on branch v3.11.x (Fix violinplot crash on empty datasets (#31700))
+* :ghpull:`31773`: Update dates.py to correct .scale
+* :ghpull:`31771`: Backport PR #31764 on branch v3.11.x (DOC: Move engineering formatter example from Text to Ticks)
+* :ghpull:`31764`: DOC: Move engineering formatter example from Text to Ticks
+* :ghpull:`31707`: Fix violinplot crash on empty datasets (#31700)
+* :ghpull:`31762`: Backport PR #31758 on branch v3.11.x (Fix invalid format string in set_xticklabels error message.)
+* :ghpull:`31761`: Backport PR #31759 on branch v3.11.x (DOC: Move "Date tick labels" example from "Texts" to "Ticks")
+* :ghpull:`31758`: Fix invalid format string in set_xticklabels error message.
+* :ghpull:`31759`: DOC: Move "Date tick labels" example from "Texts" to "Ticks"
+* :ghpull:`31757`: Backport PR #31745 on branch v3.11.x ([Doc]: Consolidate top and right ticks example)
+* :ghpull:`31756`: Backport PR #31720 on branch v3.11.x (DOC: Add axis sharing section to subplot_mosaic guide)
+* :ghpull:`31745`: [Doc]: Consolidate top and right ticks example
+* :ghpull:`31720`: DOC: Add axis sharing section to subplot_mosaic guide
+* :ghpull:`31753`: Backport PR #31750 on branch v3.11.x (BUG: Fix non-square wireframe 3D plotting)
+* :ghpull:`31750`: BUG: Fix non-square wireframe 3D plotting
+* :ghpull:`31749`: DOC: minor fixes for v3.11 api changes
+* :ghpull:`31744`: Backport PR #31741 on branch v3.11.x (Drop duplicate 'the the' in two doc comments)
+* :ghpull:`31736`: Backport PR #31692 on branch v3.11.x (DOC: Remove Tick object details from artist tutorial)
+* :ghpull:`31692`: DOC: Remove Tick object details from artist tutorial
+* :ghpull:`31734`: Backport PR #31587 on branch v3.11.x (FIX: scatter with ls="" crashes on PDF savefig)
+* :ghpull:`31729`: Backport PR #31722 on branch v3.11.x (Log import failure tracebacks during backend autodetection fallback.)
+* :ghpull:`31722`: Log import failure tracebacks during backend autodetection fallback.
+* :ghpull:`31587`: FIX: scatter with ls="" crashes on PDF savefig
+* :ghpull:`31724`: Backport PR #31721 on branch v3.11.x (Improve some example titles.)
+* :ghpull:`31721`: Improve some example titles.
+* :ghpull:`31713`: Backport PR #31705 on branch v3.11.x (DOC: Remove "Multiple lines using pyplot")
+* :ghpull:`31705`: DOC: Remove "Multiple lines using pyplot"
+* :ghpull:`31709`: Backport PR #31704 on branch v3.11.x (DOC: Remove pyplot text example)
+* :ghpull:`31704`: DOC: Remove pyplot text example
+* :ghpull:`31698`: Backport PR #31696 on branch v3.11.x (DOC: correct some outdated points in Artist tutorial)
+* :ghpull:`31696`: DOC: correct some outdated points in Artist tutorial
+* :ghpull:`31689`: Backport PR #31666 on branch v3.11.x (plt.stairs: fix unit handling for orientation="horizontal")
+* :ghpull:`31666`: plt.stairs: fix unit handling for orientation="horizontal"
+* :ghpull:`31683`: Backport PR #31497 on branch v3.11.x (DOC: Clarify SVG hyperlink behavior in gallery hyperlinks example)
+* :ghpull:`31497`: DOC: Clarify SVG hyperlink behavior in gallery hyperlinks example
+* :ghpull:`31675`: Backport PR #31672 on branch v3.11.x (Backport an additional fix to qhull printf strings)
+* :ghpull:`31681`: Backport PR #31677 on branch v3.11.x (MNT: Make a note that setuptools-scm can be unpinned)
+* :ghpull:`31677`: MNT: Make a note that setuptools-scm can be unpinned
+* :ghpull:`31676`: Backport PR #31673 on branch v3.11.x (DOC: Explain the technical background of autoscaling)
+* :ghpull:`31642`: DOC: Prepare API changes for 3.11
+* :ghpull:`31673`: DOC: Explain the technical background of autoscaling
+* :ghpull:`31672`: Backport an additional fix to qhull printf strings
+* :ghpull:`31664`: docs: clarify markevery float spacing
 * :ghpull:`31662`: Backport PR #31659 on branch v3.11.x (ci: Re-arrange AppVeyor pipeline)
 * :ghpull:`31659`: ci: Re-arrange AppVeyor pipeline
 * :ghpull:`31658`: Backport PR #31578 on branch v3.11.x (FIX: URL links in SVG should have target='_blank')
@@ -317,6 +420,7 @@ Pull Requests (812):
 * :ghpull:`31626`: Backport PR #25478 on branch v3.11.x ([BUG] Fix alpha bug on 3D PathCollection plots.)
 * :ghpull:`31625`: DOC: Inline ScalarMappable reStructuredText entries
 * :ghpull:`25478`: [BUG] Fix alpha bug on 3D PathCollection plots.
+* :ghpull:`31605`: DOC: Consolidate shared axis examples
 * :ghpull:`31611`: Backport PR #31608 on branch v3.11.x (Remove outdated comment re: implementation of hinting_factor.)
 * :ghpull:`31608`: Remove outdated comment re: implementation of hinting_factor.
 * :ghpull:`31602`: Backport PR #31599 on branch v3.11.x (Bump the actions group with 2 updates)
@@ -1098,8 +1202,34 @@ Pull Requests (812):
 * :ghpull:`29079`: DOC: Replaced colormap for colorblindness
 * :ghpull:`29077`: DOC: Replaced green with blue for colorblindness
 
-Issues (257):
+Issues (284):
 
+* :ghissue:`31702`: [Bug]: manual positioning fails for ax.clabel
+* :ghissue:`31480`: [ENH]: ``Axes.plot`` typing
+* :ghissue:`31589`: Downstream issues with 3.11.0rc1
+* :ghissue:`31575`: [Doc]: Add guidance how to deal with unstable text rendering in downstream tests (such as the changes in 3.11.0rc1)
+* :ghissue:`26972`: [Bug]: set_theta_offset removes grid outline
+* :ghissue:`20388`: Radial grid missing in polar plots with ax.set_theta_direction(-1) and ax.set_theta_zero_location
+* :ghissue:`31751`: [Bug]: macOS backend lacks several autorelease pools
+* :ghissue:`31755`: [Bug]: macOS backend leaks objects in wake_on_fd_write
+* :ghissue:`31106`: [Bug]: macOS Tahoe (v26) MacOSX backend leaves "ghost" window
+* :ghissue:`31108`: Bump version of labeler action when available (>6.0.1)
+* :ghissue:`31288`: [Bug]: Cannot change xlabel after drawing custom axes with xlabel
+* :ghissue:`25133`: [Bug]: broken_barh does not handle categorical axes very well
+* :ghissue:`31754`: [Bug]: macOS backend leaks NSTrackingArea
+* :ghissue:`31697`: [Doc]: Explain ephemeral nature of ticks and tick_params vs. the properties of individual ticks
+* :ghissue:`31429`: Incompatibility with Python 3.15 alpha 7
+* :ghissue:`31726`: [Bug]: Corruption of 3D surface plot at log scale with negative or zero values (v3.11.0rc2)
+* :ghissue:`31700`: [Bug]: violinplot crashes on empty datasets
+* :ghissue:`31723`: [Doc]: Consolidate docs for moving ticks and axes labels to the top & right
+* :ghissue:`31699`: [Doc]: Add a section on axis sharing to subplot_mosaic guide
+* :ghissue:`31742`: [Bug]: 3D wireframe plot error output (3.11.0rc2)
+* :ghissue:`31682`: [Doc]: Artist tutorial should not encourage working with tick objects
+* :ghissue:`31585`: [Bug]: Different behaviour between showing and savefig PDF
+* :ghissue:`31452`: [Doc]: svg links example should show the svgs?
+* :ghissue:`21653`: [Bug]: bbox computed incorrectly when using a superscript
+* :ghissue:`14177`: a bug that latex expression with subscripts exceeds bbox
+* :ghissue:`27842`: [DOC]: clarify that ``markevery[float]`` considers path length along drawn line
 * :ghissue:`23290`: [Bug]: Constrained Layout scaling of layouts with submerged spines
 * :ghissue:`31622`: [Bug]: ``tight`` and ``constrained`` layouts honouring invisible parts of ``floating_axis``
 * :ghissue:`31624`: [MNT]: PolarTransform deprecation didn't warn
@@ -1210,6 +1340,7 @@ Issues (257):
 * :ghissue:`30463`: [Doc]: Two sources of a gallery figure for normal and high-DPI screen are different
 * :ghissue:`28983`: [Doc]: outdated links for violin/boxplot
 * :ghissue:`30857`: [Bug]: ValueError: The 'color' keyword argument must have one color per dataset
+* :ghissue:`25032`: [MNT]: Specify ordering in file in gallery folder
 * :ghissue:`29332`: [ENH]: Typing: broaden acceptable floats
 * :ghissue:`23633`: [MNT]: Deprecated / discourage less used Axes methods forwarding to Axis methods
 * :ghissue:`21496`: [MNT]: MultiCursor should not take canvas as first parameter

@@ -5,7 +5,7 @@ What's new in Matplotlib 3.10.0 (December 13, 2024)
 ===================================================
 
 For a list of all of the issues and pull requests since the last revision, see the
-:ref:`github-stats`.
+:ref:`github-stats-3_10_0`.
 
 .. contents:: Table of Contents
    :depth: 4
@@ -15,6 +15,8 @@ For a list of all of the issues and pull requests since the last revision, see t
 
 Accessible Colors
 =================
+
+.. _whats-new-3-10-0-petroff10:
 
 New more-accessible color cycle
 -------------------------------
