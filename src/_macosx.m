@@ -191,7 +191,7 @@ static int wait_for_stdin() {
 - (void)otherMouseDragged:(NSEvent*)event;
 - (void)setRubberband:(NSRect)rect;
 - (void)removeRubberband;
-- (const char*)convertKeyEvent:(NSEvent*)event;
+- (NSString*)convertKeyEvent:(NSEvent*)event;
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
@@ -1607,7 +1607,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     rubberband = NSZeroRect;
 }
 
-- (const char*)convertKeyEvent:(NSEvent*)event
+- (NSString*)convertKeyEvent:(NSEvent*)event
 {
     NSMutableString* returnkey = [NSMutableString string];
     if (keyChangeControl) {
@@ -1694,12 +1694,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         [returnkey setString: [returnkey substringToIndex:[returnkey length] - 1]];
     }
 
-    return [returnkey UTF8String];
+    return returnkey;
 }
 
 - (void)keyDown:(NSEvent*)event
 {
-    const char* s = [self convertKeyEvent: event];
+    const char* s = [[self convertKeyEvent: event] UTF8String];
     NSPoint location = [[self window] mouseLocationOutsideOfEventStream];
     location = [self convertPoint: location fromView: nil];
     int x = location.x * device_scale,
@@ -1717,7 +1717,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)keyUp:(NSEvent*)event
 {
-    const char* s = [self convertKeyEvent: event];
+    const char* s = [[self convertKeyEvent: event] UTF8String];
     NSPoint location = [[self window] mouseLocationOutsideOfEventStream];
     location = [self convertPoint: location fromView: nil];
     int x = location.x * device_scale,
