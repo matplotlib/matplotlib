@@ -1961,4 +1961,3 @@ def test_pre_draw_event_inset_axes_geometry_finalized():
     fig.canvas.draw()
 
     assert positions['pre'] == positions['draw']
-
