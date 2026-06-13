@@ -315,11 +315,11 @@ class FigureBase(Artist):
         ----------
         t : str
             The %(name)s text.
-        x : float, default: %(x0)s
+        x : float, default: :rc:`%(x0)s`
             The x location of the text in figure coordinates.
-        y : float, default: %(y0)s
+        y : float, default: :rc:`%(y0)s`
             The y location of the text in figure coordinates.
-        horizontalalignment, ha : {'center', 'left', 'right'}, default: %(ha)s
+        horizontalalignment, ha : {'center', 'left', 'right'}, default: :rc:`%(ha)s`
             The horizontal alignment of the text relative to (*x*, *y*).
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
 default: %(va)s
@@ -354,14 +354,14 @@ default: %(va)s
             autopos = y is None
         elif info['name'] == '_supylabel':
             autopos = x is None
-        if x is None:
-            x = info['x0']
-        if y is None:
-            y = info['y0']
+        x = mpl._val_or_rc(x, info['x0'])
+        y = mpl._val_or_rc(y, info['y0'])
 
         kwargs = cbook.normalize_kwargs(kwargs, Text)
-        kwargs.setdefault('horizontalalignment', info['ha'])
-        kwargs.setdefault('verticalalignment', info['va'])
+        kwargs.setdefault('horizontalalignment',
+                          mpl.rcParams[info['ha']])
+        kwargs.setdefault('verticalalignment',
+                          mpl.rcParams[info['va']])
         kwargs.setdefault('rotation', info['rotation'])
 
         if 'fontproperties' not in kwargs:
@@ -387,13 +387,18 @@ default: %(va)s
         self.texts.remove(label)
         setattr(self, name, None)
 
-    @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
-                             va='top', rc='title')
+    @_docstring.Substitution(x0='figure.title_x', y0='figure.title_y',
+                             name='super title',
+                             ha='figure.title_horizontalalignment',
+                             va='figure.title_verticalalignment', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0,
+        info = {'name': '_suptitle',
+                'x0': 'figure.title_x', 'y0': 'figure.title_y',
+                'ha': 'figure.title_horizontalalignment',
+                'va': 'figure.title_verticalalignment',
+                'rotation': 0,
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
@@ -402,13 +407,18 @@ default: %(va)s
         text_obj = self._suptitle
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.5, y0=0.01, name='super xlabel', ha='center',
-                             va='bottom', rc='label')
+    @_docstring.Substitution(x0='figure.label_x', y0='figure.label_y',
+                             name='super xlabel',
+                             ha='figure.label_horizontalalignment',
+                             va='figure.label_verticalalignment', rc='label')
     @_docstring.copy(_suplabels)
     def supxlabel(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_supxlabel', 'x0': 0.5, 'y0': 0.01,
-                'ha': 'center', 'va': 'bottom', 'rotation': 0,
+        info = {'name': '_supxlabel',
+                'x0': 'figure.label_x', 'y0': 'figure.label_y',
+                'ha': 'figure.label_horizontalalignment',
+                'va': 'figure.label_verticalalignment',
+                'rotation': 0,
                 'size': 'figure.labelsize', 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
 
@@ -417,13 +427,18 @@ default: %(va)s
         text_obj = self._supxlabel
         return "" if text_obj is None else text_obj.get_text()
 
-    @_docstring.Substitution(x0=0.02, y0=0.5, name='super ylabel', ha='left',
-                             va='center', rc='label')
+    @_docstring.Substitution(x0='figure.label_x', y0='figure.label_y',
+                             name='super ylabel',
+                             ha='figure.label_horizontalalignment',
+                             va='figure.label_verticalalignment', rc='label')
     @_docstring.copy(_suplabels)
     def supylabel(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_supylabel', 'x0': 0.02, 'y0': 0.5,
-                'ha': 'left', 'va': 'center', 'rotation': 'vertical',
+        info = {'name': '_supylabel',
+                'x0': 'figure.label_x', 'y0': 'figure.label_y',
+                'ha': 'figure.label_horizontalalignment',
+                'va': 'figure.label_verticalalignment',
+                'rotation': 'vertical',
                 'rotation_mode': 'anchor', 'size': 'figure.labelsize',
                 'weight': 'figure.labelweight'}
         return self._suplabels(t, info, **kwargs)
