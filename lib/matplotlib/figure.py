@@ -322,7 +322,7 @@ class FigureBase(Artist):
         horizontalalignment, ha : {'center', 'left', 'right'}, default: :rc:`%(ha)s`
             The horizontal alignment of the text relative to (*x*, *y*).
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
-default: %(va)s
+default: :rc:`%(va)s`
             The vertical alignment of the text relative to (*x*, *y*).
         fontsize, size : default: :rc:`figure.%(rc)ssize`
             The font size of the text. See `.Text.set_size` for possible
