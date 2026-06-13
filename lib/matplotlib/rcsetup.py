@@ -1349,10 +1349,18 @@ _validators = {
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
+    "figure.title_x":    validate_float,
+    "figure.title_y":    validate_float,
+    "figure.title_horizontalalignment": ["center", "left", "right"],
+    "figure.title_verticalalignment": ["top", "center", "bottom", "baseline"],
 
     # figure labels
     "figure.labelsize":   validate_fontsize,
     "figure.labelweight": validate_fontweight,
+    "figure.label_x":    validate_float,
+    "figure.label_y":    validate_float,
+    "figure.label_horizontalalignment": ["center", "left", "right"],
+    "figure.label_verticalalignment": ["top", "center", "bottom", "baseline"],
 
     # figure size in inches: width by height
     "figure.figsize":          _listify_validator(validate_float, n=2),
