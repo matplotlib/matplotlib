@@ -3277,11 +3277,8 @@ None}, default: None
                         pass
                         # ValueError can occur when resizing a window.
 
-                # Notify callbacks that a draw is about to happen, so they can
-                # modify the figure before rendering occurs.
-                DrawEvent("pre_draw_event", self.canvas, renderer)._process()
-
                 artists = self._get_draw_artists(renderer)
+                DrawEvent("pre_draw_event", self.canvas, renderer)._process()
 
                 self.patch.draw(renderer)
                 mimage._draw_list_compositing_images(
