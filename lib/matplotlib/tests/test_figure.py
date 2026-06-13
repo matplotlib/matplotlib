@@ -1900,3 +1900,88 @@ def test_figsize_both_none():
 def test_figsize_invalid_unit():
     with pytest.raises(ValueError, match="Invalid unit 'um'"):
         plt.figure(figsize=(6, 4, "um"))
+
+
+
+def test_suptitle_rcparams():
+    """Test that suptitle respects figure.title_* rcParams."""
+    rc = {
+        'figure.title_x': 0.3,
+        'figure.title_y': 0.9,
+        'figure.title_horizontalalignment': 'left',
+        'figure.title_verticalalignment': 'bottom',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.suptitle("test")
+        assert t.get_position() == (0.3, 0.9)
+        assert t.get_horizontalalignment() == 'left'
+        assert t.get_verticalalignment() == 'bottom'
+
+
+def test_suptitle_rcparams_override():
+    """Test that explicit kwargs override rcParams for suptitle."""
+    rc = {
+        'figure.title_x': 0.3,
+        'figure.title_y': 0.9,
+        'figure.title_horizontalalignment': 'left',
+        'figure.title_verticalalignment': 'bottom',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.suptitle("test", x=0.7, y=0.5,
+                         horizontalalignment='right',
+                         verticalalignment='top')
+        assert t.get_position() == (0.7, 0.5)
+        assert t.get_horizontalalignment() == 'right'
+        assert t.get_verticalalignment() == 'top'
+
+
+def test_supxlabel_rcparams():
+    """Test that supxlabel respects figure.label_* rcParams."""
+    rc = {
+        'figure.label_x': 0.3,
+        'figure.label_y': 0.02,
+        'figure.label_horizontalalignment': 'left',
+        'figure.label_verticalalignment': 'top',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.supxlabel("test")
+        assert t.get_position() == (0.3, 0.02)
+        assert t.get_horizontalalignment() == 'left'
+        assert t.get_verticalalignment() == 'top'
+
+
+def test_supylabel_rcparams():
+    """Test that supylabel respects figure.label_* rcParams."""
+    rc = {
+        'figure.label_x': 0.01,
+        'figure.label_y': 0.6,
+        'figure.label_horizontalalignment': 'right',
+        'figure.label_verticalalignment': 'bottom',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.supylabel("test")
+        assert t.get_position() == (0.01, 0.6)
+        assert t.get_horizontalalignment() == 'right'
+        assert t.get_verticalalignment() == 'bottom'
+
+
+def test_suplabel_rcparams_override():
+    """Test that explicit kwargs override rcParams for supxlabel/supylabel."""
+    rc = {
+        'figure.label_x': 0.3,
+        'figure.label_y': 0.02,
+        'figure.label_horizontalalignment': 'left',
+        'figure.label_verticalalignment': 'top',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.supxlabel("test", x=0.8, y=0.1,
+                          horizontalalignment='right',
+                          verticalalignment='center')
+        assert t.get_position() == (0.8, 0.1)
+        assert t.get_horizontalalignment() == 'right'
+        assert t.get_verticalalignment() == 'center'
