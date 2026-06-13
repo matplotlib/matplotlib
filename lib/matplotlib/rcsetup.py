@@ -2774,6 +2774,30 @@ _DEFINITION = [
         description="weight of the figure title"
     ),
     _Param(
+        "figure.title_x",
+        default=0.5,
+        validator=validate_float,
+        description="x location of the figure title in figure coordinates"
+    ),
+    _Param(
+        "figure.title_y",
+        default=0.98,
+        validator=validate_float,
+        description="y location of the figure title in figure coordinates"
+    ),
+    _Param(
+        "figure.title_horizontalalignment",
+        default="center",
+        validator=["center", "left", "right"],
+        description="horizontal alignment of the figure title"
+    ),
+    _Param(
+        "figure.title_verticalalignment",
+        default="top",
+        validator=["top", "center", "bottom", "baseline"],
+        description="vertical alignment of the figure title"
+    ),
+    _Param(
         "figure.labelsize",
         default="large",
         validator=validate_fontsize,
