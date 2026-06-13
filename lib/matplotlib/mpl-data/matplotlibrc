@@ -607,10 +607,6 @@
 #figure.title_verticalalignment: top       # vertical alignment of the figure title
 #figure.labelsize:   large     # size of the figure label (``Figure.sup[x|y]label()``)
 #figure.labelweight: normal    # weight of the figure label
-#figure.label_x:     0.5      # x location of the figure label in figure coordinates
-#figure.label_y:     0.01     # y location of the figure label (supxlabel) in figure coordinates
-#figure.label_horizontalalignment: center  # horizontal alignment of the figure label
-#figure.label_verticalalignment: bottom    # vertical alignment of the figure label (supxlabel)
 #figure.figsize:     6.4, 4.8  # figure size in inches
 #figure.dpi:         100       # figure dots per inch
 #figure.facecolor:   white     # figure face color
