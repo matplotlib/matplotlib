@@ -2772,27 +2772,7 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure title"
-    ),,
-    _Param(
-        "figure.title_x",
-        default=0.5,
-        validator=validate_float,
     ),
-    _Param(
-        "figure.title_y",
-        default=0.98,
-        validator=validate_float,
-    ),
-    _Param(
-        "figure.title_horizontalalignment",
-        default="center",
-        validator=["center", "left", "right"],
-    ),
-    _Param(
-        "figure.title_verticalalignment",
-        default="top",
-        validator=["top", "center", "bottom", "baseline"],
-    )
     _Param(
         "figure.labelsize",
         default="large",
@@ -2804,11 +2784,489 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure label"
-    ),,
+    ),
     _Param(
+        "figure.figsize",
+        default=[6.4, 4.8],
+        validator=_listify_validator(validate_float, n=2),
+        description="figure size in inches"
+    ),
     _Param(
+        "figure.dpi",
+        default=100.0,
+        validator=validate_float, description="figure dots per inch"
+    ),
     _Param(
+        "figure.facecolor",
+        default="white",
+        validator=validate_color, description="figure face color"
+    ),
     _Param(
+        "figure.edgecolor",
+        default="white",
+        validator=validate_color, description="figure edge color"
+    ),
+    _Param(
+        "figure.frameon",
+        default=True,
+        validator=validate_bool, description="enable figure frame"
+    ),
+    _Param(
+        "figure.max_open_warning",
+        default=20,
+        validator=validate_int,
+        description="The maximum number of figures to open through the pyplot "
+                    "interface before emitting a warning. If less than one this "
+                    "feature is disabled."
+    ),
+    _Param(
+        "figure.raise_window",
+        default=True,
+        validator=validate_bool,
+        description="Raise the GUI window to front when show() is called. If set to "
+                    "False, we currently do not take any further actions and whether "
+                    "the window appears on the front may depend on the GUI framework "
+                    "and window manager."
+    ),
+    _Param(
+        "figure.subplot.left",
+        default=0.125,
+        validator=validate_float,
+        description="the left side of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.right",
+        default=0.9,
+        validator=validate_float,
+        description="the right side of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.bottom",
+        default=0.11,
+        validator=validate_float,
+        description="the bottom of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.top",
+        default=0.88,
+        validator=validate_float,
+        description="the top of the subplots of the figure"
+    ),
+    _Param(
+        "figure.subplot.wspace",
+        default=0.2,
+        validator=validate_float,
+        description="the amount of width reserved for space between subplots, "
+                    "expressed as a fraction of the average axis width"
+    ),
+    _Param(
+        "figure.subplot.hspace",
+        default=0.2,
+        validator=validate_float,
+        description="the amount of height reserved for space between subplots, "
+                    "expressed as a fraction of the average axis height"
+    ),
+    _Param(
+        "figure.autolayout",
+        default=False,
+        validator=validate_bool,
+        description="When True, automatically adjust subplot parameters to make the "
+                    "plot fit the figure using `~.Figure.tight_layout`"
+    ),
+    _Param(
+        "figure.constrained_layout.use",
+        default=False,
+        validator=validate_bool,
+        description="When True, automatically make plot elements fit on the figure. "
+                    '(Not compatible with "figure.autolayout", above).'
+    ),
+    _Param(
+        "figure.constrained_layout.h_pad",
+        default=0.04167,
+        validator=validate_float,
+        description="Padding (in inches) around axes; defaults to 3/72 inches, "
+                    "i.e. 3 points"
+    ),
+    _Param(
+        "figure.constrained_layout.w_pad",
+        default=0.04167,
+        validator=validate_float,
+        description="Padding (in inches) around axes; defaults to 3/72 inches, "
+                    "i.e. 3 points"
+    ),
+    _Param(
+        "figure.constrained_layout.hspace",
+        default=0.02,
+        validator=validate_float,
+        description="Spacing between subplots, relative to the subplot sizes.  Much "
+                    "smaller than for tight_layout (figure.subplot.hspace, "
+                    "figure.subplot.wspace) as constrained_layout already takes "
+                    "surrounding texts (titles, labels, # ticklabels) into account."
+    ),
+    _Param(
+        "figure.constrained_layout.wspace",
+        default=0.02,
+        validator=validate_float,
+        description="Spacing between subplots, relative to the subplot sizes.  Much "
+                    "smaller than for tight_layout (figure.subplot.hspace, "
+                    "figure.subplot.wspace) as constrained_layout already takes "
+                    "surrounding texts (titles, labels, # ticklabels) into account."
+    ),
+    _Section("Images"),
+    _Param(
+        "image.aspect",
+        default="equal",
+        validator=validate_aspect,
+        description="{equal, auto} or a number"
+    ),
+    _Param(
+        "image.interpolation",
+        default="auto",
+        validator=validate_string,
+        description="see help(imshow) for options"
+    ),
+    _Param(
+        "image.interpolation_stage",
+        default="auto",
+        validator=["auto", "data", "rgba"],
+        description="see help(imshow) for options"
+    ),
+    _Param(
+        "image.cmap",
+        default="viridis",
+        validator=_validate_cmap,
+        description="A colormap name (plasma, magma, etc.)"
+    ),
+    _Param(
+        "image.lut",
+        default=256,
+        validator=validate_int,
+        description="the size of the colormap lookup table"
+    ),
+    _Param(
+        "image.origin",
+        default="upper",
+        validator=["upper", "lower"], description="{lower, upper}"
+    ),
+    _Param(
+        "image.resample",
+        default=True,
+        validator=validate_bool
+    ),
+    _Param(
+        "image.composite_image",
+        default=True,
+        validator=validate_bool,
+        description="When True, all the images on a set of axes are combined into a "
+                    "single composite image before saving a figure as a vector "
+                    "graphics file, such as a PDF."
+    ),
+    _Section("Contour plots"),
+    _Param(
+        "contour.negative_linestyle",
+        default="dashed",
+        validator=_validate_linestyle,
+        description="string or on-off ink sequence"
+    ),
+    _Param(
+        "contour.corner_mask",
+        default=True,
+        validator=validate_bool, description="{True, False}"
+    ),
+    _Param(
+        "contour.linewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="{float, None} Size of the contour line widths. If set to None, it "
+                    'falls back to "line.linewidth".'
+    ),
+    _Param(
+        "contour.algorithm",
+        default="mpl2014",
+        validator=["mpl2005", "mpl2014", "serial", "threaded"],
+        description="{mpl2005, mpl2014, serial, threaded}"
+    ),
+    _Section("Errorbar plots"),
+    _Param(
+        "errorbar.capsize",
+        default=0.0,
+        validator=validate_float,
+        description="length of end cap on error bars in pixels"
+    ),
+    _Param(
+        "errorbar.capthick",
+        default=None,
+        validator=validate_float_or_None,
+        description="thickness of end cap on error bars in points."),
+    _Param(
+        "errorbar.elinewidth",
+        default=None,
+        validator=validate_float_or_None,
+        description="line width of the error bar lines in points."
+    ),
+    _Section("Histogram plots"),
+    _Param(
+        "hist.bins",
+        default=10,
+        validator=validate_hist_bins,
+        description="The default number of histogram bins or 'auto'."
+    ),
+    _Section("Scatter plots"),
+    _Param(
+        "scatter.marker",
+        default="o",
+        validator=_validate_marker,
+        description="The default marker type for scatter plots."
+    ),
+    _Param(
+        "scatter.edgecolors",
+        default="face",
+        validator=validate_string,
+        description="The default edge colors for scatter plots."
+    ),
+    _Section("AGG rendering"),
+    _Param(
+        "agg.path.chunksize",
+        default=0,
+        validator=validate_int,
+        description="0 to disable; values in the range 10000 to 100000 can improve "
+                    "speed slightly and prevent an Agg rendering failure when plotting "
+                    "very large data sets, especially if they are very gappy. It may "
+                    "cause minor artifacts, though. A value of 20000 is probably a "
+                    "good starting point."
+    ),
+    _Section("Paths"),
+    _Param(
+        "path.simplify",
+        default=True,
+        validator=validate_bool,
+        description='When True, simplify paths by removing "invisible" points to '
+                    'reduce file size and increase rendering speed',
+    ),
+    _Param(
+        "path.simplify_threshold",
+        default=0.111111111111,
+        validator=_validate_greaterequal0_lessequal1,
+        description="The threshold of similarity below which vertices will be removed "
+                    "in the simplification process."
+    ),
+    _Param(
+        "path.snap",
+        default=True,
+        validator=validate_bool,
+        description="When True, rectilinear axis-aligned paths will be snapped to the "
+                    "nearest pixel when certain criteria are met. When False, paths "
+                    "will never be snapped."
+    ),
+    _Param(
+        "path.sketch",
+        default=None,
+        validator=validate_sketch,
+        description="May be None, or a tuple of the form:"
+                    "path.sketch: (scale, length, randomness)"
+                    "- *scale* is the amplitude of the wiggle perpendicular to the line"
+                    "  (in pixels)."
+                    "- *length* is the length of the wiggle along the line (in pixels)."
+                    "- *randomness* is the factor by which the length is  randomly "
+                    "  scaled."
+    ),
+    _Param(
+        "path.effects",
+        default=[],
+        validator=validate_anylist
+    ),
+    _Section("Saving figures"),
+    _Param(
+        "savefig.dpi",
+        default="figure",
+        validator=validate_dpi,
+        description="figure dots per inch or 'figure'"
+    ),
+    _Param(
+        "savefig.facecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="figure face color when saving"
+    ),
+    _Param(
+        "savefig.edgecolor",
+        default="auto",
+        validator=validate_color_or_auto,
+        description="figure edge color when saving"
+    ),
+    _Param(
+        "savefig.format",
+        default="png",
+        validator=validate_string, description="{png, ps, pdf, svg}"
+    ),
+    _Param(
+        "savefig.bbox",
+        default=None,
+        validator=validate_bbox,
+        description="{tight, standard} 'tight' is incompatible with generating frames "
+                    "for animation"
+    ),
+    _Param(
+        "savefig.pad_inches",
+        default=0.1,
+        validator=validate_float,
+        description="padding to be used, when bbox is set to 'tight'"
+    ),
+    _Param(
+        "savefig.directory",
+        default="~",
+        validator=_validate_pathlike,
+        description="default directory in savefig dialog, gets updated after "
+                    "interactive saves, unless set to the empty string (i.e. the "
+                    "current directory); use '.' to start at the current directory but "
+                    "update after interactive saves"
+    ),
+    _Param(
+        "savefig.transparent",
+        default=False,
+        validator=validate_bool,
+        description="whether figures are saved with a transparent background by default"
+
+    ),
+    _Param(
+        "savefig.orientation",
+        default="portrait",
+        validator=["landscape", "portrait"],
+        description="orientation of saved figure, for PostScript output only"
+    ),
+    _Subsection("Mac OSX backend parameters"),
+    _Param(
+        "macosx.window_mode",
+        default="system",
+        validator=["system", "tab", "window"],
+        description="How to open new figures (system, tab, window) system uses "
+                    "the MacOS system preferences"
+    ),
+    _Subsection("Tk backend parameters"),
+    _Param(
+        "tk.window_focus",
+        default=False,
+        validator=validate_bool,
+        description="Maintain shell focus for TkAgg"
+    ),
+    _Subsection("PS backend parameters"),
+    _Param(
+        "ps.papersize",
+        default="letter",
+        validator=_ignorecase(
+            ["figure", "letter", "legal", "ledger",
+             *[f"{ab}{i}" for ab in "ab" for i in range(11)],
+             ],
+        ),
+        description="{figure, letter, legal, ledger, A0-A10, B0-B10}"
+    ),
+    _Param(
+        "ps.useafm",
+        default=False,
+        validator=validate_bool,
+        description="use AFM fonts, results in small files"
+    ),
+    _Param(
+        "ps.usedistiller",
+        default=None,
+        validator=validate_ps_distiller,
+        description="{ghostscript, xpdf, None} Experimental: may produce smaller "
+                    "files. xpdf intended for production of publication quality files, "
+                    "but requires ghostscript, xpdf and ps2eps"
+    ),
+    _Param(
+        "ps.distiller.res",
+        default=6000,
+        validator=validate_int, description="dpi"
+    ),
+    _Param(
+        "ps.fonttype",
+        default=3,
+        validator=validate_fonttype,
+        description="Output Type 3 (Type3) or Type 42 (TrueType)"
+    ),
+    _Subsection("PDF backend parameters"),
+    _Param(
+        "pdf.compression",
+        default=6,
+        validator=validate_int,
+        description="integer from 0 to 9 0 disables compression (good for debugging)"
+    ),
+    _Param(
+        "pdf.fonttype",
+        default=3,
+        validator=validate_fonttype,
+        description="Output Type 3 (Type3) or Type 42 (TrueType)"
+    ),
+    _Param(
+        "pdf.use14corefonts",
+        default=False,
+        validator=validate_bool
+    ),
+    _Param(
+        "pdf.inheritcolor",
+        default=False,
+        validator=validate_bool
+    ),
+    _Subsection("SVG backend parameters"),
+    _Param(
+        "svg.image_inline",
+        default=True,
+        validator=validate_bool,
+        description="Write raster image data directly into the SVG file"
+    ),
+    _Param(
+        "svg.fonttype",
+        default="path",
+        validator=["none", "path"],
+        description="How to handle SVG fonts: "
+                    "path: Embed characters as paths -- supported by most SVG "
+                    "      renderers"
+                    "none: Assume fonts are installed on the machine where the SVG "
+                    "will be viewed."
+    ),
+    _Param(
+        "svg.hashsalt",
+        default=None,
+        validator=validate_string_or_None,
+        description="If not None, use this string as hash salt instead of uuid4"
+    ),
+    _Param(
+        "svg.id",
+        default=None,
+        validator=validate_string_or_None,
+        description="If not None, use this string as the value for the `id` attribute "
+                    "in the top <svg> tag"
+    ),
+    _Subsection("PGF parameters"),
+    _Param(
+        "pgf.rcfonts",
+        default=True,
+        validator=validate_bool
+    ),
+    _Param(
+        "pgf.preamble",
+        default="",
+        validator=validate_string,
+        description="See text.latex.preamble for documentation"
+    ),
+    _Param(
+        "pgf.texsystem",
+        default="xelatex",
+        validator=["xelatex", "lualatex", "pdflatex"]
+    ),
+    _Subsection("Docstring parameters"),
+    _Param(
+        "docstring.hardcopy",
+        default=False,
+        validator=validate_bool,
+        description="set this when you want to generate hardcopy docstring"
+    ),
+    _Section(
+        "Interactive keymaps",
+        description="Default key mappings for interactive navigation. See "
+                    ":ref:`key-event-handling`."
+    ),
     _Param(
         "keymap.fullscreen",
         default=["f", "ctrl+f"],
