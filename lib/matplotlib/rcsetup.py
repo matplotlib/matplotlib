@@ -2776,7 +2776,27 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure title"
+    ),,
+    _Param(
+        "figure.title_x",
+        default=0.5,
+        validator=validate_float,
     ),
+    _Param(
+        "figure.title_y",
+        default=0.98,
+        validator=validate_float,
+    ),
+    _Param(
+        "figure.title_horizontalalignment",
+        default="center",
+        validator=["center", "left", "right"],
+    ),
+    _Param(
+        "figure.title_verticalalignment",
+        default="top",
+        validator=["top", "center", "bottom", "baseline"],
+    )
     _Param(
         "figure.labelsize",
         default="large",
@@ -2788,7 +2808,27 @@ _DEFINITION = [
         default="normal",
         validator=validate_fontweight,
         description="weight of the figure label"
+    ),,
+    _Param(
+        "figure.label_x",
+        default=0.5,
+        validator=validate_float,
     ),
+    _Param(
+        "figure.label_y",
+        default=0.01,
+        validator=validate_float,
+    ),
+    _Param(
+        "figure.label_horizontalalignment",
+        default="center",
+        validator=["center", "left", "right"],
+    ),
+    _Param(
+        "figure.label_verticalalignment",
+        default="bottom",
+        validator=["top", "center", "bottom", "baseline"],
+    )
     _Param(
         "figure.figsize",
         default=[6.4, 4.8],
