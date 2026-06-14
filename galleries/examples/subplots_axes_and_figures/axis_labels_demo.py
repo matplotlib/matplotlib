@@ -11,10 +11,10 @@ import matplotlib.pyplot as plt
 
 fig, ax = plt.subplots()
 
-sc = ax.scatter([1, 2], [1, 2], c=[1, 2])
+ax.scatter([1, 2], [1, 2], c=[1, 2])
 ax.set_ylabel('YLabel', loc='top')
 ax.set_xlabel('XLabel', loc='left')
-cbar = fig.colorbar(sc)
+cbar = ax.colorbar()
 cbar.set_label("ZLabel", loc='top')
 
 plt.show()
