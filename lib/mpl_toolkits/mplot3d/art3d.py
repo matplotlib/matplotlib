@@ -448,7 +448,51 @@ def _paths_to_3d_segments_with_codes(paths, zs=0, zdir='z'):
 
 
 class Collection3D(Collection):
-    """A collection of 3D paths."""
+    """
+    A collection of 3D paths.
+
+    .. note:: Use `get_verts_and_codes3d` and `set_verts_and_codes3d` to
+              obtain and set collection geometry in data coordinates.
+              `get_paths` returns projected 2D paths.
+    """
+
+    def set_verts_and_codes3d(self, verts_codes, *, axlim_clip=None):
+        """
+        Set the collection geometry in 3D space.
+
+        Parameters
+        ----------
+        verts_codes : sequence of (verts, codes)
+            Sequence where *verts* is a (N, 3) array-like in data coordinates
+            and *codes* are the corresponding path codes.
+        axlim_clip : bool or None, default: None
+            Whether to hide paths with a vertex outside the axes view limits.
+            If *None*, preserve the current setting.
+        """
+        verts_codes_3d = []
+        for verts, codes in verts_codes:
+            verts = np.asanyarray(verts)
+            if verts.size == 0:
+                verts = np.empty((0, 3), dtype=float)
+            _api.check_shape((None, 3), verts=verts)
+            verts_codes_3d.append((verts, codes))
+        self._3dverts_codes = verts_codes_3d
+        if axlim_clip is None:
+            axlim_clip = getattr(self, "_axlim_clip", False)
+        self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def get_verts_and_codes3d(self):
+        """
+        Get the collection geometry in 3D data coordinates.
+
+        Returns
+        -------
+        verts_codes : list of (verts, codes)
+            Sequence where *verts* is a (N, 3) array-like and *codes* are the
+            corresponding path codes.
+        """
+        return self._3dverts_codes
 
     def do_3d_projection(self):
         """Project the points according to renderer matrix."""
@@ -471,19 +515,24 @@ class Collection3D(Collection):
 def collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
     """Convert a `.Collection` to a `.Collection3D` object."""
     zs = np.broadcast_to(zs, len(col.get_paths()))
-    col._3dverts_codes = [
+    verts_codes = [
         (np.column_stack(juggle_axes(
             *np.column_stack([p.vertices, np.broadcast_to(z, len(p.vertices))]).T,
             zdir)),
          p.codes)
         for p, z in zip(col.get_paths(), zs)]
     col.__class__ = cbook._make_class_factory(Collection3D, "{}3D")(type(col))
-    col._axlim_clip = axlim_clip
+    col.set_verts_and_codes3d(verts_codes, axlim_clip=axlim_clip)
 
 
 class Line3DCollection(LineCollection):
     """
     A collection of 3D lines.
+
+    .. note:: Use `get_segments3d` and `set_segments3d` to obtain and set the
+              collection segments in data coordinates. `~.LineCollection.get_segments`
+              returns the projected 2D segments. `set_segments` remains a
+              backward-compatible alias for `set_segments3d`.
     """
     def __init__(self, lines, axlim_clip=False, **kwargs):
         super().__init__(lines, **kwargs)
@@ -522,8 +571,31 @@ class Line3DCollection(LineCollection):
         """
         Set 3D segments.
         """
+        self.set_segments3d(segments)
+
+    def set_segments3d(self, segments):
+        """
+        Set the collection segments in 3D space.
+
+        Parameters
+        ----------
+        segments : sequence of (N, 3) array-like
+            The 3D line segments to draw.
+        """
         self._segments3d = segments
         super().set_segments([])
+        self.stale = True
+
+    def get_segments3d(self):
+        """
+        Get the collection segments in 3D data coordinates.
+
+        Returns
+        -------
+        segments : sequence of (N, 3) array-like
+            The 3D line segments.
+        """
+        return self._segments3d
 
     def do_3d_projection(self):
         """
@@ -598,6 +670,10 @@ def line_collection_2d_to_3d(col, zs=0, zdir='z', axlim_clip=False):
 class Patch3D(Patch):
     """
     3D patch object.
+
+    .. note:: Use `get_verts3d` and `set_verts3d` to obtain and set the
+              patch vertices in data coordinates. `get_path` returns the
+              projected 2D path.
     """
 
     def __init__(self, *args, zs=(), zdir='z', axlim_clip=False, **kwargs):
@@ -637,10 +713,42 @@ class Patch3D(Patch):
 
             .. versionadded:: 3.10
         """
-        zs = np.broadcast_to(zs, len(verts))
-        self._segment3d = [juggle_axes(x, y, z, zdir)
-                           for ((x, y), z) in zip(verts, zs)]
+        self.set_verts3d(
+            _planar_patch_to_3d(verts, zs=zs, zdir=zdir),
+            axlim_clip=axlim_clip,
+        )
+
+    def set_verts3d(self, verts, *, axlim_clip=None):
+        """
+        Set the patch vertices in 3D space.
+
+        Parameters
+        ----------
+        verts : (N, 3) array-like
+            The patch vertices in data coordinates.
+        axlim_clip : bool or None, default: None
+            Whether to hide patches with a vertex outside the axes view limits.
+            If *None*, preserve the current setting.
+        """
+        if axlim_clip is None:
+            axlim_clip = getattr(self, "_axlim_clip", False)
+        self._verts3d = np.asanyarray(verts)
+        self._segment3d = self._verts3d
         self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def get_verts3d(self):
+        """
+        Get the patch vertices in 3D data coordinates.
+
+        Returns
+        -------
+        verts : (N, 3) array-like
+            The patch vertices in data coordinates.
+        """
+        if hasattr(self, "_verts3d"):
+            return self._verts3d
+        return np.asanyarray(self._segment3d)
 
     def get_path(self):
         # docstring inherited
@@ -669,6 +777,10 @@ class Patch3D(Patch):
 class PathPatch3D(Patch3D):
     """
     3D PathPatch object.
+
+    .. note:: Use `get_verts_and_codes3d` and `set_verts_and_codes3d` to
+              obtain and set the path patch geometry in data coordinates.
+              ``get_path`` returns the projected 2D path.
     """
 
     def __init__(self, path, *, zs=(), zdir='z', axlim_clip=False, **kwargs):
@@ -709,9 +821,53 @@ class PathPatch3D(Patch3D):
 
             .. versionadded:: 3.10
         """
-        Patch3D.set_3d_properties(self, path.vertices, zs=zs, zdir=zdir,
-                                  axlim_clip=axlim_clip)
-        self._code3d = path.codes
+        self.set_verts_and_codes3d(
+            _planar_patch_to_3d(path.vertices, zs=zs, zdir=zdir),
+            path.codes,
+            axlim_clip=axlim_clip,
+        )
+
+    def set_verts_and_codes3d(self, verts, codes, *, axlim_clip=None):
+        """
+        Set the path patch geometry in 3D space.
+
+        Parameters
+        ----------
+        verts : (N, 3) array-like
+            The path vertices in data coordinates.
+        codes : array-like or None
+            The corresponding path codes.
+        axlim_clip : bool or None, default: None
+            Whether to hide path patches with a point outside the axes view limits.
+            If *None*, preserve the current setting.
+        """
+        self.set_verts3d(verts, axlim_clip=axlim_clip)
+        self._code3d = codes
+        self.stale = True
+
+    def get_codes3d(self):
+        """
+        Get the path codes associated with the 3D vertices.
+
+        Returns
+        -------
+        codes : array-like or None
+            The path codes.
+        """
+        return self._code3d
+
+    def get_verts_and_codes3d(self):
+        """
+        Get the path patch geometry in 3D data coordinates.
+
+        Returns
+        -------
+        verts : (N, 3) array-like
+            The path vertices in data coordinates.
+        codes : array-like or None
+            The corresponding path codes.
+        """
+        return self.get_verts3d(), self.get_codes3d()
 
     def do_3d_projection(self):
         s = self._segment3d
@@ -737,6 +893,17 @@ def _get_patch_verts(patch):
     return polygons[0] if len(polygons) else np.array([])
 
 
+def _planar_patch_to_3d(verts, zs=0, zdir='z'):
+    """Return planar patch vertices as explicit 3D data coordinates."""
+    verts = np.asanyarray(verts)
+    if verts.size == 0:
+        return np.empty((0, 3), dtype=float)
+    verts = np.atleast_2d(verts)
+    zs = np.broadcast_to(zs, len(verts))
+    xs, ys, zs = juggle_axes(verts[:, 0], verts[:, 1], zs, zdir)
+    return np.column_stack([xs, ys, zs])
+
+
 def patch_2d_to_3d(patch, z=0, zdir='z', axlim_clip=False):
     """Convert a `.Patch` to a `.Patch3D` object."""
     verts = _get_patch_verts(patch)
@@ -757,6 +924,10 @@ def pathpatch_2d_to_3d(pathpatch, z=0, zdir='z'):
 class Patch3DCollection(PatchCollection):
     """
     A collection of 3D patches.
+
+    .. note:: Use `get_offsets3d` and `set_offsets3d` to obtain and set the
+              collection offsets in data coordinates. `~.Collection.get_offsets`
+              and `~.Collection.set_offsets` access the projected 2D offsets.
     """
 
     def __init__(
@@ -855,11 +1026,45 @@ class Patch3DCollection(PatchCollection):
         else:
             xs = []
             ys = []
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
-        self._z_markers_idx = slice(-1)
-        self._vzs = None
+        self.set_offsets3d(xs, ys, zs, zdir=zdir)
         self._axlim_clip = axlim_clip
         self.stale = True
+
+    def set_offsets3d(self, xs, ys, zs, *, zdir='z'):
+        """
+        Set the collection offsets in 3D space.
+
+        Parameters
+        ----------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, default: 'z'
+            Plane to plot patches orthogonal to.
+            See `.get_dir_vector` for a description of the values.
+        """
+        xs = np.asanyarray(xs)
+        ys = np.asanyarray(ys)
+        zs = np.asanyarray(np.atleast_1d(zs))
+        self._offsets3d_data = (xs, ys, zs)
+        self._zdir = zdir
+        self._offsets3d = juggle_axes(xs, ys, zs, zdir)
+        self._z_markers_idx = slice(-1)
+        self._vzs = None
+        self.stale = True
+
+    def get_offsets3d(self):
+        """
+        Get the collection offsets in 3D data coordinates.
+
+        Returns
+        -------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        """
+        if hasattr(self, "_offsets3d_data"):
+            return self._offsets3d_data
+        # Backward compatibility for instances that pre-date get_offsets3d.
+        return _backjuggle_axes(*self._offsets3d, getattr(self, "_zdir", "z"))
 
     def do_3d_projection(self):
         mask = _scale_invalid_mask(*self._offsets3d, self.axes)
@@ -941,6 +1146,10 @@ def _get_data_scale(X, Y, Z):
 class Path3DCollection(PathCollection):
     """
     A collection of 3D paths.
+
+    .. note:: Use `get_offsets3d` and `set_offsets3d` to obtain and set the
+              collection offsets in data coordinates. `~.Collection.get_offsets`
+              and `~.Collection.set_offsets` access the projected 2D offsets.
     """
 
     def __init__(
@@ -1019,8 +1228,7 @@ class Path3DCollection(PathCollection):
         else:
             xs = []
             ys = []
-        self._zdir = zdir
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self.set_offsets3d(xs, ys, zs, zdir=zdir)
         # In the base draw methods we access the attributes directly which
         # means we cannot resolve the shuffling in the getter methods like
         # we do for the edge and face colors.
@@ -1033,16 +1241,46 @@ class Path3DCollection(PathCollection):
         # Grab the current sizes and linewidths to preserve them.
         self._sizes3d = self._sizes
         self._linewidths3d = np.array(self._linewidths)
-        xs, ys, zs = self._offsets3d
-
-        # Sort the points based on z coordinates
-        # Performance optimization: Create a sorted index array and reorder
-        # points and point properties according to the index array
-        self._z_markers_idx = slice(-1)
-        self._vzs = None
 
         self._axlim_clip = axlim_clip
         self.stale = True
+
+    def set_offsets3d(self, xs, ys, zs, *, zdir='z'):
+        """
+        Set the collection offsets in 3D space.
+
+        Parameters
+        ----------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        zdir : {'x', 'y', 'z', '-x', '-y', '-z'}, default: 'z'
+            Plane to plot paths orthogonal to.
+            See `.get_dir_vector` for a description of the values.
+        """
+        xs = np.asanyarray(xs)
+        ys = np.asanyarray(ys)
+        zs = np.asanyarray(np.atleast_1d(zs))
+        self._offsets3d_data = (xs, ys, zs)
+        self._zdir = zdir
+        self._offsets3d = juggle_axes(xs, ys, zs, zdir)
+        self._z_markers_idx = slice(-1)
+        self._vzs = None
+        self._offset_zordered = None
+        self.stale = True
+
+    def get_offsets3d(self):
+        """
+        Get the collection offsets in 3D data coordinates.
+
+        Returns
+        -------
+        xs, ys, zs : array-like
+            The x, y, and z coordinates of the collection offsets.
+        """
+        if hasattr(self, "_offsets3d_data"):
+            return self._offsets3d_data
+        # Backward compatibility for instances that pre-date get_offsets3d.
+        return _backjuggle_axes(*self._offsets3d, getattr(self, "_zdir", "z"))
 
     def set_sizes(self, sizes, dpi=72.0):
         super().set_sizes(sizes, dpi)
@@ -1230,6 +1468,12 @@ class Poly3DCollection(PolyCollection):
     """
     A collection of 3D polygons.
 
+    .. note:: Use `get_verts3d`, `set_verts3d`, `get_verts_and_codes3d`,
+              and `set_verts_and_codes3d` to obtain and set the collection
+              geometry in data coordinates. ``get_paths`` returns the projected
+              2D paths. `set_verts` and `set_verts_and_codes` remain
+              backward-compatible aliases for the 3D setters.
+
     .. note::
         **Filling of 3D polygons**
 
@@ -1380,18 +1624,85 @@ class Poly3DCollection(PolyCollection):
             Whether the polygon should be closed by adding a CLOSEPOLY
             connection at the end.
         """
+        self.set_verts3d(verts, closed=closed)
+
+    def set_verts3d(self, verts, closed=True):
+        """
+        Set the collection vertices in 3D space.
+
+        Parameters
+        ----------
+        verts : list of (N, 3) array-like
+            The sequence of polygons in data coordinates.
+        closed : bool, default: True
+            Whether the polygon should be closed by adding a CLOSEPOLY
+            connection at the end.
+        """
         self._get_vector(verts)
-        # 2D verts will be updated at draw time
+        self._verts3d_data = verts
+        self._codes3d = None
+        self._codes3d_data = None
+        # 2D verts will be updated at draw time.
         super().set_verts([], False)
         self._closed = closed
+        self.stale = True
+
+    def get_verts3d(self):
+        """
+        Get the collection vertices in 3D data coordinates.
+
+        Returns
+        -------
+        verts : list of (N, 3) array-like or ndarray
+            The collection vertices in data coordinates.
+        """
+        if hasattr(self, "_verts3d_data"):
+            return self._verts3d_data
+        if np.isscalar(self._invalid_vertices) and not self._invalid_vertices:
+            return self._faces
+        invalid_vertices = np.broadcast_to(
+            self._invalid_vertices, self._faces.shape[:-1]
+        )
+        return [face[~mask] for face, mask in zip(self._faces, invalid_vertices)]
 
     def set_verts_and_codes(self, verts, codes):
         """Set 3D vertices with path codes."""
-        # set vertices with closed=False to prevent PolyCollection from
-        # setting path codes
-        self.set_verts(verts, closed=False)
-        # and set our own codes instead.
+        self.set_verts_and_codes3d(verts, codes)
+
+    def set_verts_and_codes3d(self, verts, codes):
+        """Set the collection vertices and path codes in 3D space."""
+        # Set vertices with closed=False to prevent PolyCollection from
+        # setting path codes.
+        self.set_verts3d(verts, closed=False)
+        # And set our own codes instead.
         self._codes3d = codes
+        self._codes3d_data = codes
+
+    def get_codes3d(self):
+        """
+        Get the path codes associated with the 3D vertices.
+
+        Returns
+        -------
+        codes : array-like or None
+            The path codes.
+        """
+        if hasattr(self, "_codes3d_data"):
+            return self._codes3d_data
+        return self._codes3d
+
+    def get_verts_and_codes3d(self):
+        """
+        Get the collection geometry in 3D data coordinates.
+
+        Returns
+        -------
+        verts : list of (N, 3) array-like or ndarray
+            The collection vertices in data coordinates.
+        codes : array-like or None
+            The corresponding path codes.
+        """
+        return self.get_verts3d(), self.get_codes3d()
 
     def set_3d_properties(self, axlim_clip=False):
         # Force the collection to initialize the face and edgecolors
@@ -1590,6 +1901,17 @@ def juggle_axes(xs, ys, zs, zdir):
         return rotate_axes(xs, ys, zs, zdir)
     else:
         return xs, ys, zs
+
+
+def _backjuggle_axes(xs, ys, zs, zdir):
+    """Invert `juggle_axes` for data stored in 3D coordinates."""
+    if cbook._str_equal(zdir, 'x') or cbook._str_equal(zdir, '-x'):
+        return ys, zs, xs
+    if cbook._str_equal(zdir, 'y'):
+        return xs, zs, ys
+    if cbook._str_equal(zdir, '-y'):
+        return zs, xs, ys
+    return xs, ys, zs
 
 
 def rotate_axes(xs, ys, zs, zdir):
