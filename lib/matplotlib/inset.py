@@ -8,7 +8,8 @@ from matplotlib.patches import ConnectionPatch, PathPatch, Rectangle
 from matplotlib.path import Path
 
 
-_shared_properties = ('alpha', 'edgecolor', 'linestyle', 'linewidth')
+_shared_properties = (
+    'alpha', 'clip_on', 'edgecolor', 'linestyle', 'linewidth')
 
 
 class InsetIndicator(artist.Artist):
@@ -89,6 +90,10 @@ class InsetIndicator(artist.Artist):
     def set_alpha(self, alpha):
         # docstring inherited
         self._shared_setter('alpha', alpha)
+
+    def set_clip_on(self, clip_on):
+        # docstring inherited
+        self._shared_setter('clip_on', clip_on)
 
     def set_edgecolor(self, color):
         """
