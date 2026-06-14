@@ -221,15 +221,45 @@ class _FigureManagerGTK(FigureManagerBase):
         self.window.show()
         self.canvas.draw()
         if mpl.rcParams["figure.raise_window"]:
-            meth_name = {3: "get_window", 4: "get_surface"}[self._gtk_ver]
-            if getattr(self.window, meth_name)():
-                self.window.present()
-            else:
-                # If this is called by a callback early during init,
-                # self.window (a GtkWindow) may not have an associated
-                # low-level GdkWindow (on GTK3) or GdkSurface (on GTK4) yet,
-                # and present() would crash.
-                _api.warn_external("Cannot raise window yet to be setup")
+            self.raise_window()
+
+    def raise_window(self, *, with_focus=False):
+        # docstring inherited
+        #
+        # Known limitation on macOS: there GTK runs on the Quartz backend, and
+        # the present()/raise_() calls below do not lift the window above other
+        # applications or change focus (macOS only does that for the active
+        # application). Implementing it would require getting the native
+        # NSWindow from GDK -- gdk_quartz_window_get_nswindow() on GTK3, and
+        # there is no clear public way to do it on GTK4 -- and then calling
+        # orderFrontRegardless/activate on it, as the Qt, Tk and wx backends do.
+        # GTK is primarily a Linux backend and is rarely used on macOS, so this
+        # is left unimplemented and documented as a known limitation. The calls
+        # below work on GTK's usual platforms (X11 and, best-effort, Wayland).
+        meth_name = {3: "get_window", 4: "get_surface"}[self._gtk_ver]
+        surface = getattr(self.window, meth_name)()
+        if not surface:
+            # If this is called by a callback early during init,
+            # self.window (a GtkWindow) may not have an associated
+            # low-level GdkWindow (on GTK3) or GdkSurface (on GTK4) yet,
+            # and present()/raise_() would crash.
+            _api.warn_external("Cannot raise window yet to be setup")
+            return
+        if with_focus:
+            # present() raises the window and gives it keyboard focus. On
+            # Wayland this goes through the xdg-activation protocol and is
+            # best-effort (the compositor may ignore it without a token).
+            self.window.present()
+        elif self._gtk_ver == 3:
+            # GTK3 exposes a low-level raise that only changes the stacking
+            # order, without transferring keyboard focus (on X11; on Wayland
+            # the compositor controls stacking, so this is a no-op).
+            surface.raise_()
+        else:
+            # GTK4 (GdkSurface) has no way to raise without activating, so fall
+            # back to present(). This may transfer focus; raising and focusing
+            # cannot be separated on this toolkit.
+            self.window.present()
 
     def full_screen_toggle(self):
         is_fullscreen = {

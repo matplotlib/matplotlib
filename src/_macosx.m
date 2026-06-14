@@ -781,6 +781,39 @@ FigureManager_dealloc(FigureManager* self)
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
+/* Force the application to the foreground so a figure window can take focus.
+ *
+ * -[NSApplication activateIgnoringOtherApps:] was deprecated in macOS 14 in
+ * favor of the argument-less -[NSApplication activate]. We deliberately keep
+ * the deprecated call: -activate only brings the app forward when the system
+ * considers it appropriate -- in practice, in response to a user action. When
+ * called programmatically with no user action behind it (e.g. from a timer or
+ * a script), it does nothing, leaving the app in the background without
+ * keyboard focus. -activateIgnoringOtherApps: activates unconditionally, which
+ * is what with_focus=True requires, and there is no non-deprecated in-process
+ * API that does the same.
+ *
+ * The only non-deprecated alternative is to have another process (e.g. System
+ * Events, via an Apple event / AppleScript) bring us frontmost. That works, but
+ * it requires the user to grant an Automation/Accessibility permission and adds
+ * a fragile scripting dependency -- too heavy to justify while the direct call
+ * still exists. We will reconsider it only if and when activateIgnoringOtherApps:
+ * is *removed* (not merely deprecated), at which point it would likely be the
+ * only remaining option, asking the user for authorization once.
+ *
+ * With the pragmas below, the deprecation warning is suppressed; it only fires
+ * when building with a deployment target >= 14 and is silent at matplotlib's
+ * 10.12 target anyway.
+ */
+static void
+activate_application(void)
+{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [NSApp activateIgnoringOtherApps: YES];
+#pragma clang diagnostic pop
+}
+
 static PyObject*
 FigureManager__show(FigureManager* self)
 {
@@ -791,10 +824,23 @@ FigureManager__show(FigureManager* self)
 }
 
 static PyObject*
-FigureManager__raise(FigureManager* self)
+FigureManager__raise(FigureManager* self, PyObject* args, PyObject* kwds)
 {
+    int with_focus = 0;
+    static char* kwlist[] = {"with_focus", NULL};
+    if (!PyArg_ParseTupleAndKeywords(args, kwds, "|p", kwlist, &with_focus)) {
+        return NULL;
+    }
     BEGIN_OBJC_ENTRY
-    [self->window orderFrontRegardless];
+    if (with_focus) {
+        // Bring the application forward and give the window keyboard focus,
+        // matching the focus-stealing behavior of the Qt and GTK backends.
+        activate_application();
+        [self->window makeKeyAndOrderFront: nil];
+    } else {
+        // Raise the window in the stacking order without stealing focus.
+        [self->window orderFrontRegardless];
+    }
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
 }
@@ -942,7 +988,7 @@ static PyTypeObject FigureManagerType = {
          METH_NOARGS},
         {"_raise",
          (PyCFunction)FigureManager__raise,
-         METH_NOARGS},
+         METH_VARARGS | METH_KEYWORDS},
         {"destroy",
          (PyCFunction)FigureManager_destroy,
          METH_NOARGS},
@@ -1898,7 +1944,7 @@ show(PyObject* self)
     // Iterating over -[NSApp windows] will add the windows to the topmost
     // autorelease pool, wrap in @autoreleasepool as -[NSApp run] is long-running.
     @autoreleasepool {
-        [NSApp activateIgnoringOtherApps: YES];
+        activate_application();
         NSArray *windowsArray = [NSApp windows];
         NSEnumerator *enumerator = [windowsArray objectEnumerator];
         NSWindow *window;
