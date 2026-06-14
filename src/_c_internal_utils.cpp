@@ -28,6 +28,10 @@
 #else
 #define UNUSED_ON_NON_WINDOWS Py_UNUSED
 #endif
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -90,6 +94,16 @@ mpl_display_is_valid(void)
         }
     }
     return false;
+#elif defined(__APPLE__)
+    CFDictionaryRef session_info;
+
+    session_info = CGSessionCopyCurrentDictionary();
+    if (session_info == NULL) {
+        return false;
+    }
+
+    CFRelease(session_info);
+    return true;
 #else
     return true;
 #endif
@@ -198,6 +212,8 @@ PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
         On Linux, returns True if either $DISPLAY is set and XOpenDisplay(NULL)
         succeeds, or $WAYLAND_DISPLAY is set and wl_display_connect(NULL)
         succeeds.
+
+        On macOS, returns True if CGSessionCopyCurrentDictionary is not NULL.
 
         On other platforms, always returns True.)""");
     m.def(
