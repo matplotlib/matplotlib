@@ -1272,7 +1272,7 @@ class Animation:
         self._resize_id = self._fig.canvas.mpl_connect('resize_event',
                                                        self._on_resize)
 
-    def to_html5_video(self, embed_limit=None):
+    def to_html5_video(self, embed_limit=None, _writer_cls=None):
         """
         Convert the animation to an HTML5 ``<video>`` tag.
 
@@ -1315,10 +1315,11 @@ class Animation:
                 path = Path(tmpdir, "temp.m4v")
                 # We create a writer manually so that we can get the
                 # appropriate size for the tag
-                Writer = writers[mpl.rcParams['animation.writer']]
-                writer = Writer(codec='h264',
-                                bitrate=mpl.rcParams['animation.bitrate'],
-                                fps=1000. / self._interval)
+                if _writer_cls is None:
+                    _writer_cls = writers[mpl.rcParams['animation.writer']]
+                writer = _writer_cls(codec='h264',
+                                     bitrate=mpl.rcParams['animation.bitrate'],
+                                     fps=1000. / self._interval)
                 self.save(str(path), writer=writer)
                 # Now open and base64 encode.
                 vid64 = base64.encodebytes(path.read_bytes())
@@ -1397,10 +1398,19 @@ class Animation:
     def _repr_html_(self):
         """IPython display hook for rendering."""
         fmt = mpl.rcParams['animation.html']
+        if fmt == 'none':
+            return
+        kwargs = {}
+        if fmt == 'auto':
+            if writers.is_available('ffmpeg'):
+                fmt = 'html5'
+                kwargs['_writer_cls'] = writers['ffmpeg']
+            else:
+                fmt = 'jshtml'
         if fmt == 'html5':
-            return self.to_html5_video()
+            return self.to_html5_video(**kwargs)
         elif fmt == 'jshtml':
-            return self.to_jshtml()
+            return self.to_jshtml(**kwargs)
 
     def pause(self):
         """Pause the animation."""
