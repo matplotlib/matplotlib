@@ -1900,3 +1900,38 @@ def test_figsize_both_none():
 def test_figsize_invalid_unit():
     with pytest.raises(ValueError, match="Invalid unit 'um'"):
         plt.figure(figsize=(6, 4, "um"))
+
+
+
+def test_suptitle_rcparams():
+    """Test that suptitle respects figure.title_* rcParams."""
+    rc = {
+        'figure.title_x': 0.3,
+        'figure.title_y': 0.9,
+        'figure.title_horizontalalignment': 'left',
+        'figure.title_verticalalignment': 'bottom',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.suptitle("test")
+        assert t.get_position() == (0.3, 0.9)
+        assert t.get_horizontalalignment() == 'left'
+        assert t.get_verticalalignment() == 'bottom'
+
+
+def test_suptitle_rcparams_override():
+    """Test that explicit kwargs override rcParams for suptitle."""
+    rc = {
+        'figure.title_x': 0.3,
+        'figure.title_y': 0.9,
+        'figure.title_horizontalalignment': 'left',
+        'figure.title_verticalalignment': 'bottom',
+    }
+    with plt.rc_context(rc=rc):
+        fig = plt.figure()
+        t = fig.suptitle("test", x=0.7, y=0.5,
+                         horizontalalignment='right',
+                         verticalalignment='top')
+        assert t.get_position() == (0.7, 0.5)
+        assert t.get_horizontalalignment() == 'right'
+        assert t.get_verticalalignment() == 'top'
