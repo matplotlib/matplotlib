@@ -3,22 +3,13 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include <Python.h>
 
-/* Proper way to check for the OS X version we are compiling for, from
- * https://developer.apple.com/library/archive/documentation/DeveloperTools/Conceptual/cross_development/Using/using.html
 
- * Renamed symbols cause deprecation warnings, so define macros for the new
- * names if we are compiling on an older SDK */
-#if __MAC_OS_X_VERSION_MIN_REQUIRED < 101400
-#define NSButtonTypeMomentaryLight           NSMomentaryLightButton
-#define NSButtonTypePushOnPushOff            NSPushOnPushOffButton
-#define NSBezelStyleShadowlessSquare         NSShadowlessSquareBezelStyle
-#define CGContext                            graphicsPort
+#if !__has_feature(objc_arc_fields)
+#error "The macOS backend requires ARC C struct fields support (objc_arc_fields)."
 #endif
-
 
 /* Various NSApplicationDefined event subtypes */
 #define STOP_EVENT_LOOP 2
-#define WINDOW_CLOSING 3
 
 
 /* When calling into Objective-C from Python, wrap the calls with
@@ -47,13 +38,11 @@
     }
 
 
-/* Variable for our delegate since it has a +1 reference count.
-   Not needed under manual reference count, but standard practice
-   under ARC. */
+/* Variable for our delegate since it needs a +1 reference count. */
 static id<NSApplicationDelegate> appDelegate = nil;
 
-/* Keep track of number of windows present
-   Needed to know when to stop the NSApp */
+/* Variables to keep track of state and window count for show() */
+static BOOL IsRunningFromShow = NO;
 static long FigureWindowCount = 0;
 
 /* Keep track of modifier key states for flagsChanged
@@ -175,27 +164,19 @@ static int wait_for_stdin() {
 @end
 
 @interface Window : NSWindow
-{   PyObject* manager;
-}
-- (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager;
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
-- (BOOL)closeButtonPressed;
+@property (nonatomic, assign) PyObject* manager;
 @end
 
 @interface View : NSView <NSWindowDelegate>
-{   PyObject* canvas;
-    NSRect rubberband;
+{   NSRect rubberband;
     @public double device_scale;
 }
-- (void)dealloc;
 - (void)drawRect:(NSRect)rect;
 - (void)updateDevicePixelRatio:(double)scale;
 - (void)windowDidChangeBackingProperties:(NSNotification*)notification;
 - (void)windowDidResize:(NSNotification*)notification;
-- (View*)initWithFrame:(NSRect)rect;
-- (void)setCanvas: (PyObject*)newCanvas;
-- (void)windowWillClose:(NSNotification*)notification;
-- (BOOL)windowShouldClose:(NSNotification*)notification;
+- (instancetype)initWithFrame:(NSRect)rect;
 - (void)mouseEntered:(NSEvent*)event;
 - (void)mouseExited:(NSEvent*)event;
 - (void)mouseDown:(NSEvent*)event;
@@ -210,12 +191,13 @@ static int wait_for_stdin() {
 - (void)otherMouseDragged:(NSEvent*)event;
 - (void)setRubberband:(NSRect)rect;
 - (void)removeRubberband;
-- (const char*)convertKeyEvent:(NSEvent*)event;
+- (NSString*)convertKeyEvent:(NSEvent*)event;
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
 - (void)scrollWheel:(NSEvent *)event;
 - (BOOL)acceptsFirstResponder;
 - (void)flagsChanged:(NSEvent*)event;
+@property (nonatomic, assign) PyObject* canvas;
 @end
 
 /* ---------------------------- Python classes ---------------------------- */
@@ -303,10 +285,10 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
                     object: fh
                      queue: nil
                 usingBlock: ^(NSNotification* note) {
+                    NSFileHandle* strongFileHandle __attribute__((unused)) = fh;
                     PyGILState_STATE gstate = PyGILState_Ensure();
                     PyErr_CheckSignals();
                     PyGILState_Release(gstate);
-                    [fh release];
                     [[NSNotificationCenter defaultCenter] removeObserver:notificationID];
                 }];
     [fh waitForDataInBackgroundAndNotify];
@@ -390,7 +372,7 @@ PyObject* mpl_modifiers(NSEvent* event)
 
 typedef struct {
     PyObject_HEAD
-    View* view;
+    __strong View* view;
 } FigureCanvas;
 
 static PyTypeObject FigureCanvasType;
@@ -402,8 +384,6 @@ FigureCanvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 
     lazy_init();
     FigureCanvas *self = (FigureCanvas*)type->tp_alloc(type, 0);
-    if (!self) { return NULL; }
-    self->view = [View alloc];
     return (PyObject*)self;
 
     END_OBJC_ENTRY
@@ -414,10 +394,8 @@ static int
 FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 {
     BEGIN_OBJC_ENTRY
-    if (!self->view) {
-        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
-        return -1;
-    }
+    View *view;
+    NSTrackingArea *trackingArea;
     PyObject *builtins = NULL,
              *super_obj = NULL,
              *super_init = NULL,
@@ -436,17 +414,17 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
         goto exit;
     }
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
-    self->view = [self->view initWithFrame: rect];
-    self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+    view = [[View alloc] initWithFrame: rect];
+    view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
-    NSTrackingArea* area = [[NSTrackingArea alloc] initWithRect: rect
-                                                        options: opts
-                                                          owner: self->view
-                                                       userInfo: nil];
-    [self->view addTrackingArea: area];
-    [area release];
-    [self->view setCanvas: (PyObject*)self];
+    trackingArea = [[NSTrackingArea alloc] initWithRect: rect
+                                                options: opts
+                                                  owner: view
+                                               userInfo: nil];
+    [view addTrackingArea:trackingArea];
+    [view setCanvas: (PyObject*)self];
+    self->view = view;
 
 exit:
     Py_XDECREF(super_obj);
@@ -463,7 +441,7 @@ FigureCanvas_dealloc(FigureCanvas* self)
 {
     BEGIN_OBJC_ENTRY
     [self->view setCanvas: NULL];
-    [self->view release];
+    self->view = nil;
     END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -472,7 +450,7 @@ static PyObject*
 FigureCanvas_repr(FigureCanvas* self)
 {
     return PyUnicode_FromFormat("FigureCanvas object %p wrapping NSView %p",
-                               (void*)self, (void*)(self->view));
+                               (void*)self, (__bridge void*)(self->view));
 }
 
 static PyObject*
@@ -666,7 +644,7 @@ static PyTypeObject FigureManagerType;  // forward declaration, needed in destro
 
 typedef struct {
     PyObject_HEAD
-    Window* window;
+    __strong Window* window;
 } FigureManager;
 
 static PyObject*
@@ -684,15 +662,10 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
 
     lazy_init();
-    Window* window = [Window alloc];
-    if (!window) { return NULL; }
     FigureManager *self = (FigureManager*)type->tp_alloc(type, 0);
     if (!self) {
-        [window release];
         return NULL;
     }
-    self->window = window;
-    ++FigureWindowCount;
     return (PyObject*)self;
     END_OBJC_ENTRY
     return NULL;
@@ -723,20 +696,22 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 
     NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, width, height);
 
-    self->window = [self->window initWithContentRect: rect
-                                         styleMask: NSWindowStyleMaskTitled
-                                                  | NSWindowStyleMaskClosable
-                                                  | NSWindowStyleMaskResizable
-                                                  | NSWindowStyleMaskMiniaturizable
-                                           backing: NSBackingStoreBuffered
-                                             defer: YES
-                                       withManager: (PyObject*)self];
-    Window* window = self->window;
+    Window* window = [[Window alloc] initWithContentRect: rect
+                                               styleMask: NSWindowStyleMaskTitled
+                                                        | NSWindowStyleMaskClosable
+                                                        | NSWindowStyleMaskResizable
+                                                        | NSWindowStyleMaskMiniaturizable
+                                                 backing: NSBackingStoreBuffered
+                                                   defer: YES];
     [window setDelegate: view];
+    [window setManager: (PyObject*)self];
     [window makeFirstResponder: view];
     [window setReleasedWhenClosed:NO];
     [[window contentView] addSubview: view];
     [view updateDevicePixelRatio: [window backingScaleFactor]];
+
+    self->window = window;
+    ++FigureWindowCount;
 
     END_OBJC_ENTRY
     return 0;
@@ -767,16 +742,29 @@ static PyObject*
 FigureManager_repr(FigureManager* self)
 {
     return PyUnicode_FromFormat("FigureManager object %p wrapping NSWindow %p",
-                               (void*) self, (void*)(self->window));
+                               (void*) self, (__bridge void*)(self->window));
+}
+
+static void
+FigureManager__closeAndClearWindow(FigureManager* self)
+{
+    if (self->window) {
+        [self->window close];
+        [self->window setDelegate:nil];
+        [self->window setManager:NULL];
+
+        self->window = nil;
+        if (--FigureWindowCount == 0 && IsRunningFromShow) {
+            [NSApp stop:nil];
+        }
+    }
 }
 
 static void
 FigureManager_dealloc(FigureManager* self)
 {
     BEGIN_OBJC_ENTRY
-    [self->window close];
-    [self->window setDelegate:nil];
-    [self->window release];
+    FigureManager__closeAndClearWindow(self);
     END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -803,10 +791,7 @@ static PyObject*
 FigureManager_destroy(FigureManager* self)
 {
     BEGIN_OBJC_ENTRY
-    [self->window close];
-    [self->window setDelegate:nil];
-    [self->window release];
-    self->window = NULL;
+    FigureManager__closeAndClearWindow(self);
 
     // call super(self, FigureManager).destroy() - it seems we need the
     // explicit arguments, and just super() doesn't work in the C API.
@@ -849,7 +834,7 @@ FigureManager_set_icon(PyObject* null, PyObject* args) {
         PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
         return NULL;
     }
-    NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
+    NSImage* image = [[NSImage alloc] initByReferencingFile: ns_icon_path];
     if (!image) {
         PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
         return NULL;
@@ -977,12 +962,7 @@ static PyTypeObject FigureManagerType = {
 @end
 
 @interface NavigationToolbar2Handler : NSObject
-{   PyObject* toolbar;
-    NSButton* panbutton;
-    NSButton* zoombutton;
-}
-- (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)toolbar;
-- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons;
+- (void)installCallbacks:(SEL[7])actions forButtons:(__strong NSButton*[7])buttons;
 - (void)home:(id)sender;
 - (void)back:(id)sender;
 - (void)forward:(id)sender;
@@ -990,54 +970,50 @@ static PyTypeObject FigureManagerType = {
 - (void)zoom:(id)sender;
 - (void)configure_subplots:(id)sender;
 - (void)save_figure:(id)sender;
+@property (nonatomic, assign) PyObject *toolbar;
+@property (nonatomic, readonly) NSButton *panButton;
+@property (nonatomic, readonly) NSButton *zoomButton;
 @end
 
 typedef struct {
     PyObject_HEAD
-    NSTextView* messagebox;
-    NavigationToolbar2Handler* handler;
+    __strong NSTextView* messagebox;
+    __strong NavigationToolbar2Handler* handler;
     int height;
 } NavigationToolbar2;
 
 @implementation NavigationToolbar2Handler
-- (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
-{
-    self = [self init];
-    if (!self) { return nil; }
-    toolbar = theToolbar;
-    return self;
-}
 
-- (void)installCallbacks:(SEL[7])actions forButtons:(NSButton*[7])buttons
+- (void)installCallbacks:(SEL[7])actions forButtons:(__strong NSButton*[7])buttons
 {
     for (int i = 0; i < 7; i++) {
         SEL action = actions[i];
         NSButton* button = buttons[i];
         [button setTarget: self];
         [button setAction: action];
-        if (action == @selector(pan:)) { panbutton = button; }
-        if (action == @selector(zoom:)) { zoombutton = button; }
+        if (action == @selector(pan:)) { _panButton = button; }
+        if (action == @selector(zoom:)) { _zoomButton = button; }
     }
 }
 
--(void)home:(id)sender { gil_call_method(toolbar, "home"); }
--(void)back:(id)sender { gil_call_method(toolbar, "back"); }
--(void)forward:(id)sender { gil_call_method(toolbar, "forward"); }
+-(void)home:(id)sender { gil_call_method(_toolbar, "home"); }
+-(void)back:(id)sender { gil_call_method(_toolbar, "back"); }
+-(void)forward:(id)sender { gil_call_method(_toolbar, "forward"); }
 
 -(void)pan:(id)sender
 {
-    if ([sender state]) { [zoombutton setState:NO]; }
-    gil_call_method(toolbar, "pan");
+    if ([sender state]) { [_zoomButton setState:NO]; }
+    gil_call_method(_toolbar, "pan");
 }
 
 -(void)zoom:(id)sender
 {
-    if ([sender state]) { [panbutton setState:NO]; }
-    gil_call_method(toolbar, "zoom");
+    if ([sender state]) { [_panButton setState:NO]; }
+    gil_call_method(_toolbar, "zoom");
 }
 
--(void)configure_subplots:(id)sender { gil_call_method(toolbar, "configure_subplots"); }
--(void)save_figure:(id)sender { gil_call_method(toolbar, "save_figure"); }
+-(void)configure_subplots:(id)sender { gil_call_method(_toolbar, "configure_subplots"); }
+-(void)save_figure:(id)sender { gil_call_method(_toolbar, "save_figure"); }
 @end
 
 static PyObject*
@@ -1045,14 +1021,7 @@ NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     BEGIN_OBJC_ENTRY
     lazy_init();
-    NavigationToolbar2Handler* handler = [NavigationToolbar2Handler alloc];
-    if (!handler) { return NULL; }
     NavigationToolbar2 *self = (NavigationToolbar2*)type->tp_alloc(type, 0);
-    if (!self) {
-        [handler release];
-        return NULL;
-    }
-    self->handler = handler;
     return (PyObject*)self;
     END_OBJC_ENTRY
     return NULL;
@@ -1144,13 +1113,13 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         [buttons[i] setImagePosition: NSImageOnly];
         [buttons[i] setToolTip: tooltip];
         [[window contentView] addSubview: buttons[i]];
-        [buttons[i] release];
-        [image release];
         rect.origin.x += rect.size.width + gap;
     }
 
-    self->handler = [self->handler initWithToolbar: (PyObject*)self];
-    [self->handler installCallbacks: actions forButtons: buttons];
+    NavigationToolbar2Handler *handler;
+    handler = [[NavigationToolbar2Handler alloc] init];
+    [handler setToolbar:(PyObject*)self];
+    [handler installCallbacks: actions forButtons: buttons];
 
     NSFont* font = [NSFont systemFontOfSize: 0.0];
     // rect.origin.x is now at the far right edge of the buttons
@@ -1170,6 +1139,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     [[window contentView] addSubview: messagebox];
     [[window contentView] display];
 
+    self->handler = handler;
     self->messagebox = messagebox;
     END_OBJC_ENTRY
     return 0;
@@ -1179,8 +1149,9 @@ static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
     BEGIN_OBJC_ENTRY
-    [self->handler release];
-    [self->messagebox release];
+    [self->handler setToolbar:NULL];
+    self->handler = nil;
+    self->messagebox = nil;
     END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
@@ -1284,16 +1255,6 @@ choose_save_file(PyObject* unused, PyObject* args)
 }
 
 @implementation Window
-- (Window*)initWithContentRect:(NSRect)rect styleMask:(unsigned int)mask backing:(NSBackingStoreType)bufferingType defer:(BOOL)deferCreation withManager: (PyObject*)theManager
-{
-    self = [super initWithContentRect: rect
-                            styleMask: mask
-                              backing: bufferingType
-                                defer: deferCreation];
-    manager = theManager;
-    Py_INCREF(manager);
-    return self;
-}
 
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen
 {
@@ -1305,45 +1266,16 @@ choose_save_file(PyObject* unused, PyObject* args)
     return suggested;
 }
 
-- (BOOL)closeButtonPressed
-{
-    gil_call_method(manager, "_close_button_pressed");
-    return YES;
-}
-
-- (void)close
-{
-    [super close];
-    --FigureWindowCount;
-    if (!FigureWindowCount) [NSApp stop: self];
-    /* This is needed for show(), which should exit from [NSApp run]
-     * after all windows are closed.
-     */
-    // For each new window, we have incremented the manager reference, so
-    // we need to bring that down during close and not just dealloc.
-    Py_DECREF(manager);
-}
 @end
 
 @implementation View
-- (View*)initWithFrame:(NSRect)rect
+- (instancetype)initWithFrame:(NSRect)rect
 {
-    self = [super initWithFrame: rect];
-    rubberband = NSZeroRect;
-    device_scale = 1;
+    if (self = [super initWithFrame: rect]) {
+        rubberband = NSZeroRect;
+        device_scale = 1;
+    }
     return self;
-}
-
-- (void)dealloc
-{
-    FigureCanvas* fc = (FigureCanvas*)canvas;
-    if (fc) { fc->view = NULL; }
-    [super dealloc];
-}
-
-- (void)setCanvas: (PyObject*)newCanvas
-{
-    canvas = newCanvas;
 }
 
 static void _buffer_release(void* info, const void* data, size_t size) {
@@ -1428,7 +1360,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     CGContextRef cr = [[NSGraphicsContext currentContext] CGContext];
 
-    if (!(renderer = PyObject_CallMethod(canvas, "get_renderer", ""))
+    if (!(renderer = PyObject_CallMethod(_canvas, "get_renderer", ""))
         || !(renderer_buffer = PyObject_CallMethod(renderer, "buffer_rgba", ""))) {
         PyErr_Print();
         goto exit;
@@ -1465,7 +1397,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     PyGILState_STATE gstate = PyGILState_Ensure();
 
     device_scale = scale;
-    if (!(change = PyObject_CallMethod(canvas, "_set_device_pixel_ratio", "d", device_scale))) {
+    if (!(change = PyObject_CallMethod(_canvas, "_set_device_pixel_ratio", "d", device_scale))) {
         PyErr_Print();
         goto exit;
     }
@@ -1473,8 +1405,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         // Notify that there was a resize_event that took place
         process_event(
             "ResizeEvent", "{s:s, s:O}",
-            "name", "resize_event", "canvas", canvas);
-        gil_call_method(canvas, "draw_idle");
+            "name", "resize_event", "canvas", _canvas);
+        gil_call_method(_canvas, "draw_idle");
         [self setNeedsDisplay: YES];
     }
 
@@ -1504,7 +1436,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* result = PyObject_CallMethod(
-            canvas, "resize", "ii", width, height);
+            _canvas, "resize", "ii", width, height);
     if (result)
         Py_DECREF(result);
     else
@@ -1515,32 +1447,21 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)windowWillClose:(NSNotification*)notification
 {
-    process_event(
-        "CloseEvent", "{s:s, s:O}",
-        "name", "close_event", "canvas", canvas);
+    // A view should not be the delegate of a window, this check
+    // will go away with next refactor
+    Window *window = (Window *)[self window];
+    if ([window isKindOfClass:[Window class]]) {
+        gil_call_method([window manager], "_handle_window_will_close");
+    }
 }
 
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
-    NSWindow* window = [self window];
-    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
-    // nil for these constant, valid arguments; guard defensively anyway.
-    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                        location: NSZeroPoint
-                                   modifierFlags: 0
-                                       timestamp: 0.0
-                                    windowNumber: 0
-                                         context: nil
-                                         subtype: WINDOW_CLOSING
-                                           data1: 0
-                                           data2: 0];
-    if (event) {
-        [NSApp postEvent: event atStart: true];
-    }
-    if ([window respondsToSelector: @selector(closeButtonPressed)]) {
-        BOOL closed = [((Window*) window) closeButtonPressed];
-        /* If closed, the window has already been closed via the manager. */
-        if (closed) { return NO; }
+    // A view should not be the delegate of a window, this check
+    // will go away with next refactor
+    Window *window = (Window *)[self window];
+    if ([window isKindOfClass:[Window class]]) {
+        gil_call_method([window manager], "_handle_window_should_close");
     }
     return YES;
 }
@@ -1554,7 +1475,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     process_event(
         "LocationEvent", "{s:s, s:O, s:i, s:i, s:N}",
-        "name", "figure_enter_event", "canvas", canvas, "x", x, "y", y,
+        "name", "figure_enter_event", "canvas", _canvas, "x", x, "y", y,
         "modifiers", mpl_modifiers(event));
 }
 
@@ -1567,7 +1488,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     process_event(
         "LocationEvent", "{s:s, s:O, s:i, s:i, s:N}",
-        "name", "figure_leave_event", "canvas", canvas, "x", x, "y", y,
+        "name", "figure_leave_event", "canvas", _canvas, "x", x, "y", y,
         "modifiers", mpl_modifiers(event));
 }
 
@@ -1608,7 +1529,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     }
     process_event(
         "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:i, s:N}",
-        "name", "button_press_event", "canvas", canvas, "x", x, "y", y,
+        "name", "button_press_event", "canvas", _canvas, "x", x, "y", y,
         "button", button, "dblclick", dblclick, "modifiers", mpl_modifiers(event));
 }
 
@@ -1633,7 +1554,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     }
     process_event(
         "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:N}",
-        "name", "button_release_event", "canvas", canvas, "x", x, "y", y,
+        "name", "button_release_event", "canvas", _canvas, "x", x, "y", y,
         "button", button, "modifiers", mpl_modifiers(event));
 }
 
@@ -1646,7 +1567,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     process_event(
         "MouseEvent", "{s:s, s:O, s:i, s:i, s:N, s:N}",
-        "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
+        "name", "motion_notify_event", "canvas", _canvas, "x", x, "y", y,
         "buttons", mpl_buttons(), "modifiers", mpl_modifiers(event));
 }
 
@@ -1659,7 +1580,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     process_event(
         "MouseEvent", "{s:s, s:O, s:i, s:i, s:N, s:N}",
-        "name", "motion_notify_event", "canvas", canvas, "x", x, "y", y,
+        "name", "motion_notify_event", "canvas", _canvas, "x", x, "y", y,
         "buttons", mpl_buttons(), "modifiers", mpl_modifiers(event));
 }
 
@@ -1686,7 +1607,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     rubberband = NSZeroRect;
 }
 
-- (const char*)convertKeyEvent:(NSEvent*)event
+- (NSString*)convertKeyEvent:(NSEvent*)event
 {
     NSMutableString* returnkey = [NSMutableString string];
     if (keyChangeControl) {
@@ -1773,12 +1694,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         [returnkey setString: [returnkey substringToIndex:[returnkey length] - 1]];
     }
 
-    return [returnkey UTF8String];
+    return returnkey;
 }
 
 - (void)keyDown:(NSEvent*)event
 {
-    const char* s = [self convertKeyEvent: event];
+    const char* s = [[self convertKeyEvent: event] UTF8String];
     NSPoint location = [[self window] mouseLocationOutsideOfEventStream];
     location = [self convertPoint: location fromView: nil];
     int x = location.x * device_scale,
@@ -1786,17 +1707,17 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     if (s) {
         process_event(
             "KeyEvent", "{s:s, s:O, s:s, s:i, s:i}",
-            "name", "key_press_event", "canvas", canvas, "key", s, "x", x, "y", y);
+            "name", "key_press_event", "canvas", _canvas, "key", s, "x", x, "y", y);
     } else {
         process_event(
             "KeyEvent", "{s:s, s:O, s:O, s:i, s:i}",
-            "name", "key_press_event", "canvas", canvas, "key", Py_None, "x", x, "y", y);
+            "name", "key_press_event", "canvas", _canvas, "key", Py_None, "x", x, "y", y);
     }
 }
 
 - (void)keyUp:(NSEvent*)event
 {
-    const char* s = [self convertKeyEvent: event];
+    const char* s = [[self convertKeyEvent: event] UTF8String];
     NSPoint location = [[self window] mouseLocationOutsideOfEventStream];
     location = [self convertPoint: location fromView: nil];
     int x = location.x * device_scale,
@@ -1804,11 +1725,11 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     if (s) {
         process_event(
             "KeyEvent", "{s:s, s:O, s:s, s:i, s:i}",
-            "name", "key_release_event", "canvas", canvas, "key", s, "x", x, "y", y);
+            "name", "key_release_event", "canvas", _canvas, "key", s, "x", x, "y", y);
     } else {
         process_event(
             "KeyEvent", "{s:s, s:O, s:O, s:i, s:i}",
-            "name", "key_release_event", "canvas", canvas, "key", Py_None, "x", x, "y", y);
+            "name", "key_release_event", "canvas", _canvas, "key", Py_None, "x", x, "y", y);
     }
 }
 
@@ -1825,7 +1746,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     int y = (int)round(point.y * device_scale - 1);
     process_event(
         "MouseEvent", "{s:s, s:O, s:i, s:i, s:i, s:N}",
-        "name", "scroll_event", "canvas", canvas,
+        "name", "scroll_event", "canvas", _canvas,
         "x", x, "y", y, "step", step, "modifiers", mpl_modifiers(event));
 }
 
@@ -1908,7 +1829,9 @@ show(PyObject* self)
     }
 
     Py_BEGIN_ALLOW_THREADS
+    IsRunningFromShow = YES;
     [NSApp run];
+    IsRunningFromShow = NO;
     Py_END_ALLOW_THREADS
 
     END_OBJC_ENTRY
@@ -1917,8 +1840,8 @@ show(PyObject* self)
 
 typedef struct {
     PyObject_HEAD
-    NSTimer* timer;
-
+    __strong NSTimer* timer;
+    BOOL shouldInvalidate;
 } Timer;
 
 static PyObject*
@@ -1927,10 +1850,6 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     BEGIN_OBJC_ENTRY
     lazy_init();
     Timer* self = (Timer*)type->tp_alloc(type, 0);
-    if (!self) {
-        return NULL;
-    }
-    self->timer = NULL;
     return (PyObject*) self;
     END_OBJC_ENTRY
     return NULL;
@@ -1940,13 +1859,24 @@ static PyObject*
 Timer_repr(Timer* self)
 {
     return PyUnicode_FromFormat("Timer object %p wrapping NSTimer %p",
-                               (void*) self, (void*)(self->timer));
+                               (void*) self, (__bridge void*)(self->timer));
+}
+
+static void
+Timer__timer_stop_impl(Timer* self)
+{
+    if (self->shouldInvalidate) {
+        [self->timer invalidate];
+        self->shouldInvalidate = NO;
+    }
+    self->timer = nil;
 }
 
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
     BEGIN_OBJC_ENTRY
+    NSTimer *timer;
     NSTimeInterval interval;
     PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
     int single;
@@ -1962,20 +1892,27 @@ Timer__timer_start(Timer* self, PyObject* args)
         goto exit;
     }
 
+    // Stop any previous timers if start() was called multiple times
+    Timer__timer_stop_impl(self);
+
     // hold a reference to the timer so we can invalidate/stop it later
-    self->timer = [NSTimer timerWithTimeInterval: interval
-                                         repeats: !single
-                                           block: ^(NSTimer *timer) {
+    timer = [NSTimer timerWithTimeInterval: interval
+                                   repeats: !single
+                                     block: ^(NSTimer *timer) {
         gil_call_method((PyObject*)self, "_on_timer");
         if (single) {
             // A single-shot timer will be automatically invalidated when it fires, so
             // we shouldn't do it ourselves when the object is deleted.
-            self->timer = NULL;
+            self->shouldInvalidate = NO;
         }
     }];
+
     // Schedule the timer on the main run loop which is needed
     // when updating the UI from a background thread
-    [[NSRunLoop mainRunLoop] addTimer: self->timer forMode: NSRunLoopCommonModes];
+    [[NSRunLoop mainRunLoop] addTimer: timer forMode: NSRunLoopCommonModes];
+
+    self->timer = timer;
+    self->shouldInvalidate = YES;
 
 exit:
     Py_XDECREF(py_interval);
@@ -1983,15 +1920,6 @@ exit:
     Py_XDECREF(py_on_timer);
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
-}
-
-static void
-Timer__timer_stop_impl(Timer* self)
-{
-    if (self->timer) {
-        [self->timer invalidate];
-        self->timer = NULL;
-    }
 }
 
 static PyObject*
