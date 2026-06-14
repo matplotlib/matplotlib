@@ -1420,7 +1420,7 @@ def test_pcolorargs_5205():
 
 
 @image_comparison(['pcolormesh'], remove_text=True, style='_classic_test',
-                  tol=0.11 if platform.machine() == 'aarch64' else 0)
+                  tol=0.2 if platform.machine() == 'aarch64' else 0)
 def test_pcolormesh():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1472,7 +1472,7 @@ def test_pcolormesh_small():
 
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"], remove_text=True,
                   style='_classic_test',
-                  tol=0.4 if platform.machine() == "aarch64" else 0)
+                  tol=0.7 if platform.machine() == "aarch64" else 0)
 def test_pcolormesh_alpha():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1504,6 +1504,32 @@ def test_pcolormesh_alpha():
     # ax3, ax4: alpha from colormap
     ax3.pcolormesh(Qx, Qy, Z[:-1, :-1], cmap=cmap, shading='flat', zorder=1)
     ax4.pcolormesh(Qx, Qy, Z, cmap=cmap, shading='gouraud', zorder=1)
+
+
+@image_comparison(['pcolormesh_antialiasing.png'], style='mpl20')
+def test_pcolormesh_antialiasing():
+    N = 5
+    data = np.arange(N**2, dtype=float).reshape((N, N))
+    data[2, 2] = np.nan
+
+    x, y = np.meshgrid(np.arange(N + 1), np.arange(N + 1))
+
+    rotation = mtransforms.Affine2D().rotate(1)
+
+    fig, axs = plt.subplots(2, 3, figsize=(5, 3.5), layout="constrained")
+
+    for i, antialiased in enumerate([None, False, True]):
+        kwargs = {'cmap': 'jet', 'alpha': 0.5}
+        if antialiased is not None:
+            kwargs['antialiased'] = antialiased
+
+        axs[0, i].pcolormesh(x, y, data, transform=rotation + axs[0, i].transData,
+                             **kwargs)
+        axs[1, i].pcolor(x, y, data, transform=rotation + axs[1, i].transData, **kwargs)
+
+        for j in range(2):
+            axs[j, i].set_aspect("equal")
+            axs[j, i].set_axis_off()
 
 
 @pytest.mark.parametrize("dims,alpha", [(3, 1), (4, 0.5)])

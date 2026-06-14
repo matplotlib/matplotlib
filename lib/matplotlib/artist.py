@@ -20,6 +20,13 @@ from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, Transform
 _log = logging.getLogger(__name__)
 
 
+_BLEND_MODES_PDFSPEC = ["normal", "multiply", "screen", "overlay",
+                        "darken", "lighten", "color dodge", "color burn",
+                        "hard light", "soft light", "difference", "exclusion",
+                        "hue", "saturation", "color", "luminosity"]
+_BLEND_MODES_PORTERDUFF = ["knockout", "clear", "erase", "atop", "xor", "plus"]
+
+
 def _prevent_rasterization(draw):
     # We assume that by default artists are not allowed to rasterize (unless
     # its draw method is explicitly decorated). If it is being drawn after a
@@ -201,6 +208,7 @@ Supported properties are
         self._visible = True
         self._animated = False
         self._alpha = None
+        self._blend_mode = "normal"
         self.clipbox = None
         self._clippath = None
         self._clipon = True
@@ -1233,6 +1241,7 @@ Supported properties are
         self._transformSet = other._transformSet
         self._visible = other._visible
         self._alpha = other._alpha
+        self._blend_mode = other._blend_mode
         self.clipbox = other.clipbox
         self._clipon = other._clipon
         self._clippath = other._clippath
@@ -1473,6 +1482,30 @@ Supported properties are
                 ax._mouseover_set.discard(self)
 
     mouseover = property(get_mouseover, set_mouseover)  # backcompat.
+
+    def set_blend_mode(self, blend_mode):
+        """
+        Set the blend mode for compositing - not supported on all backends.
+
+        See :ref:`blend-modes` for details.
+
+        Parameters
+        ----------
+        blend_mode : str
+            The allowed values are:
+            "normal", "multiply", "screen", "overlay",
+            "darken", "lighten", "color dodge", "color burn",
+            "hard light", "soft light", "difference", "exclusion",
+            "hue", "saturation", "color", "luminosity",
+            "knockout", "clear", "erase", "atop", "xor", and "plus".
+        """
+        if blend_mode not in _BLEND_MODES_PDFSPEC + _BLEND_MODES_PORTERDUFF:
+            raise ValueError(f"{blend_mode} is not a supported blend mode")
+        self._blend_mode = blend_mode
+
+    def get_blend_mode(self):
+        """Return the blend mode for compositing - not supported on all backends."""
+        return self._blend_mode
 
 
 def _get_tightbbox_for_layout_only(obj, *args, **kwargs):

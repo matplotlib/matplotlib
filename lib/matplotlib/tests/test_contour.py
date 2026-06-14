@@ -896,3 +896,23 @@ def test_clabel_manual_subset():
     cs = ax.contour([[1, 2], [3, 4]], levels=[1.5, 2.5, 3.5])
     # Attempt to label only one specific level manually
     ax.clabel(cs, levels=[2.5], manual=[(0.5, 0.5)])
+
+
+@image_comparison(['contourf_antialiasing.png'], style='mpl20')
+def test_contourf_antialiasing():
+    x = np.arange(1, 6)
+    y = x.reshape(-1, 1)
+    data = (x * y).astype(float)
+    data[2, 2] = np.nan
+
+    fig, axs = plt.subplots(1, 3, figsize=(5, 2), layout="constrained")
+
+    for i, antialiased in enumerate([None, False, True]):
+        kwargs = {'cmap': 'jet', 'alpha': 0.5}
+        if antialiased is not None:
+            kwargs['antialiased'] = antialiased
+
+        axs[i].contourf(data, levels=np.arange(1, 25, 1), extend="both", **kwargs)
+
+        axs[i].set_aspect("equal")
+        axs[i].set_axis_off()

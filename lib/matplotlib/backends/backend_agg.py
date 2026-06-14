@@ -21,6 +21,7 @@ Still TODO:
 .. _Anti-Grain Geometry: http://agg.sourceforge.net/antigrain.com
 """
 
+import logging
 from contextlib import nullcontext
 import math
 
@@ -30,7 +31,7 @@ from PIL import features
 import matplotlib as mpl
 from matplotlib import _api, cbook
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
 from matplotlib.dviread import Dvi
 from matplotlib.font_manager import fontManager as _fontManager, get_font
 from matplotlib.ft2font import LoadFlags, RenderMode
@@ -38,6 +39,9 @@ from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
 from matplotlib.backends._backend_agg import RendererAgg as _RendererAgg
+
+
+_log = logging.getLogger(__name__)
 
 
 def get_hinting_flag():
@@ -69,7 +73,11 @@ class RendererAgg(RendererBase):
         self.width = width
         self.height = height
         self._renderer = _RendererAgg(int(width), int(height), dpi)
-        self._filter_renderers = []
+        self._group_states = []
+        self._contourf_plus_blend_group = True
+        self._pcolor_plus_blend_group = True
+
+        self._override_blend_mode_to_knockout = False
 
         self._update_methods()
         self.mathtext_parser = MathTextParser('path')
@@ -85,12 +93,14 @@ class RendererAgg(RendererBase):
         self.__init__(state['width'], state['height'], state['dpi'])
 
     def _update_methods(self):
-        self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
         self.draw_markers = self._renderer.draw_markers
         self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
+
+    def new_gc(self):
+        return GraphicsContextAgg(self)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
@@ -297,6 +307,17 @@ class RendererAgg(RendererBase):
              for text in page.text),
             ((box.x, box.y, box.width, box.height) for box in page.boxes))
 
+    def draw_gouraud_triangles(self, gc, triangles_array, colors_array, transform):
+        # docstring inherited
+        # The Gouraud triangles are rendered into an isolated buffer using the "plus"
+        # blend mode in order to get the colors of the edges and vertices correct.
+        # Afterwards, the isolated buffer is blended into the primary buffer using the
+        # specified blend mode.
+        self.open_blend_group(gc.get_blend_mode())
+        self._renderer._draw_gouraud_triangles(gc, triangles_array, colors_array,
+                                               transform)
+        self.close_blend_group()
+
     def get_canvas_width_height(self):
         # docstring inherited
         return self.width, self.height
@@ -375,12 +396,12 @@ class RendererAgg(RendererBase):
         """
         Start filtering. It simply creates a new canvas (the old one is saved).
         """
-        self._filter_renderers.append(self._renderer)
+        self._group_states.append(("filter", self._renderer, None, None))
         self._renderer = _RendererAgg(int(self.width), int(self.height),
                                       self.dpi)
         self._update_methods()
 
-    def stop_filter(self, post_processing):
+    def stop_filter(self, post_processing, *, blend_mode="normal"):
         """
         Save the current canvas as an image and apply post processing.
 
@@ -396,23 +417,81 @@ class RendererAgg(RendererBase):
              return new_image, offset_x, offset_y
 
         The saved renderer is restored and the returned image from
-        post_processing is plotted (using draw_image) on it.
+        post_processing is plotted (using draw_image) on it, using the blend
+        mode specified by ``blend_mode``.
         """
         orig_img = np.asarray(self.buffer_rgba())
         slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
         cropped_img = orig_img[slice_y, slice_x]
 
-        self._renderer = self._filter_renderers.pop()
+        group_type, self._renderer, group_blend_mode, alpha = self._group_states.pop()
+        if group_type != "filter":
+            raise RuntimeError("Cannot stop filtering because it includes a blend "
+                               "group that has not been closed.")
         self._update_methods()
 
         if cropped_img.size:
             img, ox, oy = post_processing(cropped_img / 255, self.dpi)
             gc = self.new_gc()
+            gc.set_blend_mode(blend_mode)
             if img.dtype.kind == 'f':
                 img = np.asarray(img * 255., np.uint8)
             self._renderer.draw_image(
                 gc, slice_x.start + ox, int(self.height) - slice_y.stop + oy,
                 img[::-1])
+
+    def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        # docstring inherited
+        self._group_states.append(("blend", self._renderer, blend_mode, alpha,
+                                   self._override_blend_mode_to_knockout))
+
+        if knockout and blend_mode is None:
+            _log.warning("A non-isolated blend group cannot also be a knockout blend "
+                         "group in the Agg backend.  Falling back to a non-knockout "
+                         "blend group.")
+            knockout = False
+
+        if blend_mode is not None:
+            self._renderer = _RendererAgg(int(self.width), int(self.height), self.dpi)
+            self._update_methods()
+            self._override_blend_mode_to_knockout = knockout
+
+    def close_blend_group(self):
+        # docstring inherited
+        group_type, renderer, blend_mode, alpha, override = self._group_states.pop()
+        self._override_blend_mode_to_knockout = override
+        if group_type != "blend":
+            raise RuntimeError("Cannot close the blend group because it includes a "
+                               "filter that has been started but not yet stopped.")
+
+        if blend_mode is not None:
+            orig_img = np.asarray(self.buffer_rgba())
+            slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
+            cropped_img = orig_img[slice_y, slice_x]
+
+            self._renderer = renderer
+            self._update_methods()
+
+            if cropped_img.size:
+                gc = self.new_gc()
+                gc.set_blend_mode(blend_mode)
+                gc.set_alpha(alpha)
+                self._renderer.draw_image(
+                    gc, slice_x.start, int(self.height) - slice_y.stop,
+                    cropped_img[::-1]
+                )
+
+
+class GraphicsContextAgg(GraphicsContextBase):
+    def __init__(self, renderer):
+        super().__init__()
+        self.renderer = renderer
+
+    def set_blend_mode(self, blend_mode):
+        if self.renderer._override_blend_mode_to_knockout:
+            super().set_blend_mode("knockout")
+        else:
+            super().set_blend_mode(blend_mode)
 
 
 class FigureCanvasAgg(FigureCanvasBase):
