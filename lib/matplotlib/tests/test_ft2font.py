@@ -917,6 +917,20 @@ def test_ft2font_loading():
     assert font.get_bitmap_offset() == (0, 0)
 
 
+def test_ft2font_variations_invalid():
+    # Smoke test as we don't have a font that has variations built in.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    with pytest.raises(RuntimeError):
+        font.get_variation_descriptor()
+    with pytest.raises(RuntimeError):
+        font.get_variations()
+    with pytest.raises(RuntimeError):
+        font.get_default_variation_style()
+    with pytest.raises(RuntimeError):
+        font.set_variations([0.0])
+
+
 def test_ft2font_drawing():
     expected_str = (
         '          ',
