@@ -31,6 +31,7 @@ via ``do_3d_projection()``, then project to 2D for rendering.
 """
 
 from collections import defaultdict
+from collections.abc import Callable
 import itertools
 import math
 import textwrap
@@ -81,6 +82,15 @@ class Axes3D(Axes):
     _axis_names = ("x", "y", "z")
     Axes._shared_axes["z"] = cbook.Grouper()
     Axes._shared_axes["view"] = cbook.Grouper()
+
+    fmt_zdata: Callable[[float], str] | None
+    """
+    Callable to format the z-data in an interactive window.
+
+    The expected signature is ::
+
+        def fmt(val: float, /) -> str: ...
+    """
 
     def __init__(
         self, fig, rect=None, *args,
@@ -818,7 +828,7 @@ class Axes3D(Axes):
             is not modified.
         view_margin : float or None
             The margin to apply to the bounds. If *None*, the margin is handled
-            by `.set_zlim`.
+            by `~.set_zlim`.
 
         See Also
         --------
