@@ -1,4 +1,6 @@
 """
+.. _examples-step-demo:
+
 =========
 Step Demo
 =========

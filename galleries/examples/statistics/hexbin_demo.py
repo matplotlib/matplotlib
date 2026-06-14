@@ -1,4 +1,6 @@
 """
+.. _examples-hexbin-demo:
+
 =====================
 Hexagonal binned plot
 =====================

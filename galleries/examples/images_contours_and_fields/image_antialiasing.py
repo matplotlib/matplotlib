@@ -1,4 +1,8 @@
 """
+.. _examples-image-antialiasing:
+
+.. _examples-image-resampling:
+
 ================
 Image resampling
 ================

@@ -1,4 +1,6 @@
 """
+.. _plot-types-trisurf3d-simple:
+
 =====================
 plot_trisurf(x, y, z)
 =====================

@@ -1,4 +1,6 @@
 """
+.. _examples-pcolor-demo:
+
 =============
 pcolor images
 =============

@@ -1,4 +1,6 @@
 """
+.. _examples-tricontour-smooth-user:
+
 ======================
 Tricontour Smooth User
 ======================

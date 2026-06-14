@@ -1,3 +1,5 @@
+.. _users-explain-users-guide-axes:
+
 +++++++++++++++++
 Axes and subplots
 +++++++++++++++++

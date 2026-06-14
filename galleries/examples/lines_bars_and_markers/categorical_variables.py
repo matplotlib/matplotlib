@@ -1,4 +1,6 @@
 """
+.. _examples-categorical-variables:
+
 ==============================
 Plotting categorical variables
 ==============================
