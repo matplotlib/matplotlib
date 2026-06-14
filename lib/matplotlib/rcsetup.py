@@ -1128,8 +1128,9 @@ _validators = {
     "mathtext.bf":             validate_font_properties,
     "mathtext.bfit":           validate_font_properties,
     "mathtext.sf":             validate_font_properties,
+    "mathtext.mathfont":       validate_font_properties,
     "mathtext.fontset":        ["dejavusans", "dejavuserif", "cm", "stix",
-                                "stixsans", "custom"],
+                                "stixsans", "unicodemath", "custom"],
     "mathtext.default":        ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default",
                                 "bb", "frak", "scr", "regular", "normal"],
     "mathtext.fallback":       _validate_mathtext_fallback,
@@ -1948,9 +1949,11 @@ _DEFINITION = [
     _Param(
         "mathtext.fontset",
         default="dejavusans",
-        validator=["dejavusans", "dejavuserif", "cm", "stix", "stixsans", "custom"],
+        validator=["dejavusans", "dejavuserif", "cm", "stix", "stixsans", "unicodemath",
+                   "custom"],
         description="Should be 'dejavusans' (default), 'dejavuserif', "
-                    "'cm' (Computer Modern), 'stix', 'stixsans' or 'custom'"
+                    "'cm' (Computer Modern), 'stix', 'stixsans', 'unicodemath' "
+                    "or 'custom'"
     ),
     _Param("mathtext.bf", "sans:bold", validate_font_properties),
     _Param("mathtext.bfit", "sans:italic:bold", validate_font_properties),
@@ -1959,6 +1962,7 @@ _DEFINITION = [
     _Param("mathtext.rm", "sans", validate_font_properties),
     _Param("mathtext.sf", "sans", validate_font_properties),
     _Param("mathtext.tt", "monospace", validate_font_properties),
+    _Param("mathtext.mathfont", "STIX Two Math", validate_font_properties),
     _Param(
         "mathtext.fallback",
         default="cm",
