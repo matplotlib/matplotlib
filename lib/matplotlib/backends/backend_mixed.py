@@ -68,6 +68,10 @@ class MixedModeRenderer:
         # to the underlying C implementation).
         return getattr(self._renderer, attr)
 
+    def is_svg_renderer(self):
+        from matplotlib.backends.backend_svg import RendererSVG
+        return isinstance(self._renderer, RendererSVG)
+
     def start_rasterizing(self):
         """
         Enter "raster" mode.  All subsequent drawing commands (until
