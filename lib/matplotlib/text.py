@@ -262,6 +262,16 @@ class Text(Artist):
             ret.append(self.set_bbox(bbox))
         return ret
 
+    def _internal_update(self, kwargs):
+        # Apply complete font properties first, as they have lowest priority.
+        kwargs = kwargs.copy()
+        fontproperties = {
+            key: kwargs.pop(key) for key in list(kwargs)
+            if key in {"font", "font_properties", "fontproperties"}}
+        ret = super()._internal_update(fontproperties)
+        ret.extend(super()._internal_update(kwargs))
+        return ret
+
     def __getstate__(self):
         d = super().__getstate__()
         # remove the cached _renderer (if it exists)
