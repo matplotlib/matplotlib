@@ -6,7 +6,9 @@
 #include <algorithm>
 #include <cstdio>
 #include <iterator>
+#include <limits>
 #include <map>
+#include <new>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -19,8 +21,18 @@
 FT_Library _ft2Library;
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
+    : m_buffer(nullptr), m_width(width), m_height(height)
 {
+    // Guard against width * height overflowing unsigned long, which would make
+    // calloc allocate a buffer far smaller than m_width * m_height and let
+    // draw_rect_filled write out of bounds.
+    if (width != 0 && height > std::numeric_limits<unsigned long>::max() / width) {
+        throw std::overflow_error("FT2Image dimensions are too large");
+    }
+    m_buffer = (unsigned char *)calloc(width * height, 1);
+    if (m_buffer == nullptr && width != 0 && height != 0) {
+        throw std::bad_alloc();
+    }
 }
 
 FT2Image::~FT2Image()

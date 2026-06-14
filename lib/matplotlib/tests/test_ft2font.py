@@ -35,6 +35,18 @@ def test_ft2image_draw_rect_filled():
             assert np.sum(a) == 255 * filled
 
 
+def test_ft2image_dimension_overflow():
+    import ctypes
+    # Pick width == height such that width * height overflows the C `unsigned
+    # long` used to size the buffer (2**32 on LP64, 2**16 on a 32-bit long).
+    # Without the overflow guard, calloc would under-allocate and
+    # draw_rect_filled would write out of bounds.
+    n = 1 << (ctypes.sizeof(ctypes.c_ulong) * 8 // 2)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        with pytest.raises((OverflowError, MemoryError)):
+            ft2font.FT2Image(n, n)
+
+
 def test_ft2font_dejavu_attrs():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file)
