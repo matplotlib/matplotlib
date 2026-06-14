@@ -131,6 +131,66 @@ PyRendererAgg_draw_image(RendererAgg *self,
     self->draw_image(gc, x, y, image);
 }
 
+//========================================================blender_rgba_pre_plain
+// Blends premultiplied colors into a plain (non-premultiplied) buffer.
+template<class ColorT, class Order>
+struct blender_rgba_pre_plain : agg::conv_rgba_pre<ColorT, Order>
+{
+    typedef ColorT color_type;
+    typedef Order order_type;
+    typedef typename color_type::value_type value_type;
+    typedef typename color_type::calc_type calc_type;
+    typedef typename color_type::long_type long_type;
+
+    // First premultiply the destination buffer, blend pixels using the premultiplied
+    // form of Alvy-Ray Smith's compositing function, then demultiply the destination.
+
+    //--------------------------------------------------------------------
+    static AGG_INLINE void blend_pix(value_type* p,
+                                     value_type cr, value_type cg, value_type cb,
+                                     value_type alpha, agg::cover_type cover)
+    {
+        blend_pix(p,
+            color_type::mult_cover(cr, cover),
+            color_type::mult_cover(cg, cover),
+            color_type::mult_cover(cb, cover),
+            color_type::mult_cover(alpha, cover));
+    }
+
+    //--------------------------------------------------------------------
+    static AGG_INLINE void blend_pix(value_type* p,
+                                     value_type cr, value_type cg, value_type cb,
+                                     value_type alpha)
+    {
+        agg::multiplier_rgba<ColorT, Order>::premultiply(p);
+        p[Order::R] = color_type::prelerp(p[Order::R], cr, alpha);
+        p[Order::G] = color_type::prelerp(p[Order::G], cg, alpha);
+        p[Order::B] = color_type::prelerp(p[Order::B], cb, alpha);
+        p[Order::A] = color_type::prelerp(p[Order::A], alpha, alpha);
+        agg::multiplier_rgba<ColorT, Order>::demultiply(p);
+    }
+};
+
+static void
+PyRendererAgg_draw_text_bgra_image(RendererAgg *self,
+                                   GCAgg &gc,
+                                   int x,
+                                   int y,
+                                   py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj)
+{
+    // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
+    auto image = image_obj.mutable_unchecked<3>();
+
+    gc.alpha = 1.0;
+
+    // FreeType uses premultiplied BGRA, so use a different pixel format than draw_image.
+    using blender_rgba32_pre_plain = blender_rgba_pre_plain<agg::rgba8, agg::order_rgba>;
+    using pixfmt_rgba32_pre_plain = agg::pixfmt_alpha_blend_rgba<blender_rgba32_pre_plain,
+                                                                 agg::rendering_buffer>;
+    self->draw_image<decltype(image), agg::pixfmt_bgra32, pixfmt_rgba32_pre_plain>(
+        gc, x, y, image, true);
+}
+
 static void
 PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    GCAgg &gc,
@@ -227,6 +287,8 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "face"_a = nullptr)
         .def("draw_text_image", &PyRendererAgg_draw_text_image,
              "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
+        .def("draw_text_bgra_image", &PyRendererAgg_draw_text_bgra_image,
+             "gc"_a, "x"_a, "y"_a, "image"_a.noconvert(true))
         .def("draw_image", &PyRendererAgg_draw_image,
              "gc"_a, "x"_a, "y"_a, "image"_a)
         .def("draw_path_collection", &PyRendererAgg_draw_path_collection,
