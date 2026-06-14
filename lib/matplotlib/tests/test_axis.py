@@ -128,3 +128,27 @@ def test_set_ticks_emits_lim_changed():
     ax2.callbacks.connect("ylim_changed", called_polar.append)
     ax2.set_rticks([1, 2, 3])
     assert called_polar
+
+    def test_xtick_label_baselines_alignment():
+
+        fig, ax = plt.subplots(figsize=(3, 3), dpi=300)
+        ax.set_xlim(-0.5, 2.5)
+        ax.set_ylim(-3, 3)
+        labels = [r"$w^{(2)}_1$", r"$w^{(2)}_2$", r"$b^{(2)}$"]
+        ax.set_xticks([0, 1, 2], labels)
+        ax.set_yticks([])
+        ax.tick_params(which="both", length=0)
+        fig.tight_layout()
+
+        fig.canvas.draw()
+        renderer = fig.canvas.get_renderer()
+
+        baselines = []
+        for tick in ax.xaxis.get_major_ticks():
+            label = tick.label1
+            bbox = label.get_window_extent(renderer)
+            _, info, _ = label._get_layout(renderer)
+            descent = info[0][1][2]
+            baselines.append(bbox.y0 + descent)
+
+        assert max(baselines) - min(baselines) < 0.01
