@@ -6069,7 +6069,7 @@ or pandas.DataFrame
 
     def _fill_between_x_or_y(
             self, ind_dir, ind, dep1, dep2=0, *,
-            where=None, interpolate=False, step=None, **kwargs):
+            where=None, interpolate=False, drawstyle=None, step=None, **kwargs):
         # Common implementation between fill_between (*ind_dir*="x") and
         # fill_betweenx (*ind_dir*="y").  *ind* is the independent variable,
         # *dep* the dependent variable.  The docstring below is interpolated
@@ -6121,18 +6121,26 @@ or pandas.DataFrame
             Setting *interpolate* to *True* will calculate the actual
             intersection point and extend the filled region up to this point.
 
-        step : {{'pre', 'post', 'mid'}}, optional
-            Define *step* if the filling should be a step function,
-            i.e. constant in between *{ind}*.  The value determines where the
+        drawstyle : {{'steps', 'steps-pre', 'steps-post', 'steps-mid'}}, optional
+            Define *drawstyle* if the filling should be a step function,
+            i.e. constant in between *t*.  The value determines where the
             step will occur:
 
-            - 'pre': The {dep} value is continued constantly to the left from
-              every *{ind}* position, i.e. the interval ``({ind}[i-1], {ind}[i]]``
-              has the value ``{dep}[i]``.
-            - 'post': The y value is continued constantly to the right from
-              every *{ind}* position, i.e. the interval ``[{ind}[i], {ind}[i+1])``
-              has the value ``{dep}[i]``.
-            - 'mid': Steps occur half-way between the *{ind}* positions.
+            - 'steps-pre' or 'steps': The f value is continued constantly to the left
+              from every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
+              value ``f[i]``.
+            - 'steps-post': The y value is continued constantly to the right from
+              every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
+              value ``f[i]``.
+            - 'steps-mid': Steps occur half-way between the *t* positions.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+
+            .. admonition:: Discouraged
+
+                This parameter is discouraged in favor of *drawstyle*. The effect is the
+                same as the corresponding *drawstyle* value; e.g. ``step='pre'`` is the
+                same as ``drawstyle='steps-pre'``.
 
         Returns
         -------
@@ -6167,7 +6175,8 @@ or pandas.DataFrame
 
         collection = mcoll.FillBetweenPolyCollection(
             ind_dir, ind, dep1, dep2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
+            where=where, interpolate=interpolate,
+            drawstyle=drawstyle, step=step, **kwargs)
 
         self.add_collection(collection)
         return collection
@@ -6178,10 +6187,11 @@ or pandas.DataFrame
             [(ind_dir, ind), (dep_dir, dep1), (dep_dir, dep2)], kwargs))
 
     def fill_between(self, x, y1, y2=0, where=None, interpolate=False,
-                     step=None, **kwargs):
+                     drawstyle=None, step=None, **kwargs):
         return self._fill_between_x_or_y(
             "x", x, y1, y2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
+            where=where, interpolate=interpolate, drawstyle=drawstyle, step=step,
+            **kwargs)
 
     if _fill_between_x_or_y.__doc__:
         fill_between.__doc__ = _fill_between_x_or_y.__doc__.format(
@@ -6192,10 +6202,11 @@ or pandas.DataFrame
         replace_names=["x", "y1", "y2", "where"])
 
     def fill_betweenx(self, y, x1, x2=0, where=None,
-                      step=None, interpolate=False, **kwargs):
+                      drawstyle=None, step=None, interpolate=False, **kwargs):
         return self._fill_between_x_or_y(
             "y", y, x1, x2,
-            where=where, interpolate=interpolate, step=step, **kwargs)
+            where=where, interpolate=interpolate, drawstyle=drawstyle, step=step,
+            **kwargs)
 
     if _fill_between_x_or_y.__doc__:
         fill_betweenx.__doc__ = _fill_between_x_or_y.__doc__.format(
