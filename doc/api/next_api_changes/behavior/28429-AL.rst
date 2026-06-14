@@ -1,0 +1,9 @@
+Tick locating code now ensure that the locator's axis is correctly set
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Tick locators maintain a reference to the Axis on which they are used (so that
+they can e.g. check the size of the Axis to know how many ticks will fit), but
+is problematic if the same locator object is used for multiple Axis.  From now
+on, before calling a locator to determine tick locations, Matplotlib will
+ensure that the locator's axis is correctly (temporarily) set to the correct
+Axis.  This fix can cause a change in behavior if a locator's axis had been
+intentionally set to an artificial value.
