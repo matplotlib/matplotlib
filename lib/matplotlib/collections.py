@@ -1452,6 +1452,16 @@ class FillBetweenPolyCollection(PolyCollection):
         verts = self._make_verts(t, f1, f2, where)
         super().__init__(verts, **kwargs)
 
+    def set_verts(self, verts, closed=True):
+        super().set_verts(verts, closed=closed)
+
+        # Respect global path simplification setting
+        simplify = bool(mpl.rcParams.get("path.simplify", True))
+        for path in self._paths:
+            path.should_simplify = simplify
+
+    set_paths = set_verts
+
     @staticmethod
     def _f_dir_from_t(t_direction):
         """The direction that is other than `t_direction`."""
