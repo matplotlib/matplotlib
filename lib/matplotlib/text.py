@@ -1677,6 +1677,7 @@ class OffsetFrom:
 
 
 class _AnnotationBase:
+    """Mixin class for annotations."""
     def __init__(self,
                  xy,
                  xycoords='data',
