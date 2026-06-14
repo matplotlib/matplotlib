@@ -1,0 +1,4 @@
+``MaxNLocator.default_params``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+... is deprecated.  The default parameter values are now directly given in the
+class' constructor signature.
