@@ -1922,6 +1922,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly(
           "fname", &PyFT2Font_fname,
           "The original filename for this object.")
+        .def_property_readonly(
+          "_fallbacks", [](PyFT2Font *self) { return self->fallbacks; },
+          "The fallback fonts used to find glyphs missing from this font.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             return self.get_image().request();
