@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import MutableSequence
 import itertools
 import pathlib
 import pickle
@@ -649,6 +650,31 @@ def test_warn_external(recwarn):
     basedir = pathlib.Path(__file__).parents[2]
     assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
                                                str(basedir / 'mpl_toolkits')))
+
+
+def test_warn_external_collections_abc(recwarn):
+    # Subclassing a collections ABC can mean users call a method we didn't directly
+    # implement, which in turn calls one we did.  E.g. here extend calls append which
+    # calls insert.  So the stacklevel needs to be 2 higher than standard cases for
+    # warn_external.
+    class UselessSequence(MutableSequence):
+        def __len__(self):
+            return 2
+        def __getitem__(self):
+            return 'foo'
+        def __delitem__(self, index):
+            pass
+        def __setitem__(self, key, item):
+            pass
+        def insert(self, index, item):
+            _api.warn_external("This won't do anything")
+
+    myseq = UselessSequence()
+    myseq.extend([5, 9])
+
+    assert len(recwarn) == 1
+    # Confirm that the warning does not go to the collections.abc module
+    assert 'collection' not in recwarn[0].filename
 
 
 

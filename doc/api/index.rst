@@ -146,6 +146,7 @@ Alphabetical list of modules:
    _type1font.rst
    _tight_bbox_api.rst
    _tight_layout_api.rst
+   axes__base_api.rst
    toolkits/mplot3d.rst
    toolkits/axes_grid1.rst
    toolkits/axisartist.rst
