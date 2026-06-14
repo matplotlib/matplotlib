@@ -92,6 +92,7 @@ fig, (ax1, ax2) = plt.subplots(2, 1)
 ax1.set_title('click on points, rectangles or text', picker=True)
 ax1.set_ylabel('ylabel', picker=True, bbox=dict(facecolor='red'))
 line, = ax1.plot(rand(100), 'o', picker=True, pickradius=5)
+line2, = ax1.plot([0,100],[0,1], 'o-', picker=True, pickradius=5)
 
 # Pick the rectangle.
 ax2.bar(range(10), rand(10), picker=True)
@@ -105,7 +106,11 @@ def onpick1(event):
         xdata = thisline.get_xdata()
         ydata = thisline.get_ydata()
         ind = event.ind
-        print('onpick1 line:', np.column_stack([xdata[ind], ydata[ind]]))
+        print('onpick1 line:',
+              np.column_stack([xdata[ind], ydata[ind]]))
+        vertex_hit = event.vertex_hit
+        print('onpick1 line (vertices):',
+              np.column_stack([xdata[ind[vertex_hit]], ydata[ind[vertex_hit]]]))
     elif isinstance(event.artist, Rectangle):
         patch = event.artist
         print('onpick1 patch:', patch.get_path())
