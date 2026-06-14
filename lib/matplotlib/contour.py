@@ -1054,8 +1054,12 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
-        if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
-            raise ValueError("Contour levels must be increasing")
+
+        # check if filled contours are monotonically increasing:
+        if (self.filled and len(self.levels) > 1 and
+                np.any(np.diff(self.levels) <= 0)):
+            raise ValueError(
+                "Filled contour levels must be monotonically increasing")
 
     def _process_levels(self):
         """
@@ -1521,7 +1525,7 @@ levels : int or array-like, optional
     *n*=7 is the default.
 
     If array-like, draw contour lines at the specified levels.
-    The values must be in increasing order.
+    For filled contours, the values must be in increasing order.
 
     If not specified, a reasonable default is automatically chosen. For
     linear scales, this corresponds to *levels=7*. For logarithmic
@@ -1544,8 +1548,8 @@ colors : :mpltype:`color` or list of :mpltype:`color`, optional
     The colors of the levels, i.e. the lines for `.contour` and the
     areas for `.contourf`.
 
-    The sequence is cycled for the levels in ascending order. If the
-    sequence is shorter than the number of levels, it's repeated.
+    The colors are mapped to the levels in the order specified, repeating as
+    necessary if there are fewer colors than levels.
 
     As a shortcut, a single color may be used in place of one-element lists, i.e.
     ``'red'`` instead of ``['red']`` to color all levels with the same color.
@@ -1666,8 +1670,8 @@ linewidths : float or array-like, default: :rc:`contour.linewidth`
 
     If a number, all levels will be plotted with this linewidth.
 
-    If a sequence, the levels in ascending order will be plotted with
-    the linewidths in the order specified.
+    If a sequence, the linewidths are mapped to the levels in order,
+    repeating as necessary if there are fewer linewidths than levels.
 
     If None, this falls back to :rc:`lines.linewidth`.
 
