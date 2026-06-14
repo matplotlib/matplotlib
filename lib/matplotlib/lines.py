@@ -547,7 +547,9 @@ class Line2D(Artist):
 
             For examples see :ref:`marker_fill_styles`.
         """
-        self.set_marker(MarkerStyle(self._marker.get_marker(), fs))
+        new_marker = self._marker._with_attrs(fillstyle=fs)
+
+        self.set_marker(new_marker)
         self.stale = True
 
     def set_markevery(self, every):
@@ -1221,11 +1223,14 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        marker : marker style string, `~.path.Path` or `~.markers.MarkerStyle`
+        marker : marker style string, `~.path.Path` or `~.MarkerStyle`
             See `~matplotlib.markers` for full description of possible
             arguments.
         """
-        self._marker = MarkerStyle(marker, self._marker.get_fillstyle())
+        if not isinstance(marker, MarkerStyle):
+            marker = MarkerStyle(marker, self._marker.get_fillstyle())
+
+        self._marker = marker
         self.stale = True
 
     def _set_markercolor(self, name, has_rcdefault, val):
