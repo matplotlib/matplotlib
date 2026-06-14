@@ -684,6 +684,23 @@ class Axis(maxis.XAxis):
         # docstring inherited
         if not self.get_visible():
             return
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+
+        # For constrained_layout, the layout engine queries tightbbox before
+        # any draw() call, so tick 2D positions have not been set yet and the
+        # bbox would be degenerate.  Do a no-output draw to initialize them.
+        # M must be computed first if it hasn't been set yet.
+        # The flag is per-axis so each of xaxis/yaxis/zaxis is initialised once.
+        if (not getattr(self, '_tightbbox_initialized', False)
+                and self.get_figure(root=True).get_constrained_layout()):
+            if self.axes.M is None:
+                self.axes.M = self.axes.get_proj()
+                self.axes.invM = np.linalg.inv(self.axes.M)
+            with renderer._draw_disabled():
+                self.draw(renderer)
+            self._tightbbox_initialized = True
+
         # We have to directly access the internal data structures
         # (and hope they are up to date) because at draw time we
         # shift the ticks and their labels around in (x, y) space
