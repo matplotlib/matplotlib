@@ -440,23 +440,59 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
 
     # make margins for figure-level legends:
     for leg in fig.legends:
-        inv_trans_fig = None
-        if leg._outside_loc and leg._bbox_to_anchor is None:
-            if inv_trans_fig is None:
-                inv_trans_fig = fig.transFigure.inverted().transform_bbox
-            bbox = inv_trans_fig(leg.get_tightbbox(renderer))
-            w = bbox.width + 2 * w_pad
-            h = bbox.height + 2 * h_pad
-            legendloc = leg._outside_loc
-            if legendloc == 'lower':
-                layoutgrids[fig].edit_margin_min('bottom', h)
-            elif legendloc == 'upper':
-                layoutgrids[fig].edit_margin_min('top', h)
-            if legendloc == 'right':
-                layoutgrids[fig].edit_margin_min('right', w)
-            elif legendloc == 'left':
-                layoutgrids[fig].edit_margin_min('left', w)
+    # === NEW: handle figure-level texts ===
+        inv_trans_fig = fig.transFigure.inverted().transform_bbox
 
+for text in fig.texts:
+    if not text.get_visible() or not text.get_in_layout():
+        continue
+
+    try:
+        bbox = inv_trans_fig(text.get_tightbbox(renderer))
+    except Exception:
+        continue
+
+    if bbox is None:
+        continue
+
+    w = bbox.width + 2 * w_pad
+    h = bbox.height + 2 * h_pad
+
+    # Expand margins conservatively
+    if bbox.y1 > 1:  # top overflow
+        layoutgrids[fig].edit_margin_min('top', h)
+    if bbox.y0 < 0:  # bottom overflow
+        layoutgrids[fig].edit_margin_min('bottom', h)
+    if bbox.x0 < 0:  # left overflow
+        layoutgrids[fig].edit_margin_min('left', w)
+    if bbox.x1 > 1:  # right overflow
+        layoutgrids[fig].edit_margin_min('right', w)
+
+
+# === NEW: handle general figure legends (not just _outside_loc) ===
+for leg in fig.legends:
+    if not leg.get_visible() or not leg.get_in_layout():
+        continue
+
+    try:
+        bbox = inv_trans_fig(leg.get_tightbbox(renderer))
+    except Exception:
+        continue
+
+    if bbox is None:
+        continue
+
+    w = bbox.width + 2 * w_pad
+    h = bbox.height + 2 * h_pad
+
+    if bbox.y1 > 1:
+        layoutgrids[fig].edit_margin_min('top', h)
+    if bbox.y0 < 0:
+        layoutgrids[fig].edit_margin_min('bottom', h)
+    if bbox.x0 < 0:
+        layoutgrids[fig].edit_margin_min('left', w)
+    if bbox.x1 > 1:
+        layoutgrids[fig].edit_margin_min('right', w)
 
 def make_margin_suptitles(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0):
     # Figure out how large the suptitle is and make the
