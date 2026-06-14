@@ -144,7 +144,7 @@ KeyEventType: TypeAlias = Literal[
     "key_release_event"
 ]
 
-DrawEventType: TypeAlias = Literal["draw_event"]
+DrawEventType: TypeAlias = Literal["draw_event", "pre_draw_event"]
 PickEventType: TypeAlias = Literal["pick_event"]
 ResizeEventType: TypeAlias = Literal["resize_event"]
 CloseEventType: TypeAlias = Literal["close_event"]

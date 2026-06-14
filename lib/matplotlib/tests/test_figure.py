@@ -1900,3 +1900,64 @@ def test_figsize_both_none():
 def test_figsize_invalid_unit():
     with pytest.raises(ValueError, match="Invalid unit 'um'"):
         plt.figure(figsize=(6, 4, "um"))
+
+
+def test_pre_draw_event_emitted():
+    fig, ax = plt.subplots()
+    count = []
+    fig.canvas.mpl_connect('pre_draw_event', lambda e: count.append(1))
+    fig.canvas.draw()
+    assert len(count) == 1
+
+
+def test_pre_draw_event_before_draw_event():
+    fig, ax = plt.subplots()
+    order = []
+    fig.canvas.mpl_connect('pre_draw_event', lambda e: order.append('pre'))
+    fig.canvas.mpl_connect('draw_event', lambda e: order.append('draw'))
+    fig.canvas.draw()
+    assert order == ['pre', 'draw']
+
+
+def test_pre_draw_event_axes_geometry_finalized():
+    fig, axs = plt.subplots(2, 2, constrained_layout=True)
+    for ax in axs.flat:
+        ax.plot([1, 2, 3], [1, 4, 2])
+
+    pre_positions = []
+    draw_positions = []
+
+    def on_pre(event):
+        pre_positions.extend(ax.get_position().bounds for ax in axs.flat)
+
+    def on_draw(event):
+        draw_positions.extend(ax.get_position().bounds for ax in axs.flat)
+
+    fig.canvas.mpl_connect('pre_draw_event', on_pre)
+    fig.canvas.mpl_connect('draw_event', on_draw)
+    fig.canvas.draw()
+
+    assert pre_positions == draw_positions
+
+
+def test_pre_draw_event_inset_axes_geometry_finalized():
+    from mpl_toolkits.axes_grid1.inset_locator import inset_axes as make_inset
+
+    fig, ax = plt.subplots(constrained_layout=True)
+    ax.plot([1, 2, 3], [1, 4, 2])
+    inset = make_inset(ax, width='30%', height='30%', loc='upper right')
+    inset.plot([1, 2, 3], [3, 1, 2])
+
+    positions = {}
+
+    def on_pre(event):
+        positions['pre'] = inset.get_position().bounds
+
+    def on_draw(event):
+        positions['draw'] = inset.get_position().bounds
+
+    fig.canvas.mpl_connect('pre_draw_event', on_pre)
+    fig.canvas.mpl_connect('draw_event', on_draw)
+    fig.canvas.draw()
+
+    assert positions['pre'] == positions['draw']

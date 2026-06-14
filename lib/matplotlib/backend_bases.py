@@ -1730,6 +1730,7 @@ class FigureCanvasBase:
     events = [
         'resize_event',
         'draw_event',
+        'pre_draw_event',
         'key_press_event',
         'key_release_event',
         'button_press_event',
@@ -2333,6 +2334,7 @@ class FigureCanvasBase:
             - 'button_press_event'
             - 'button_release_event'
             - 'draw_event'
+            - 'pre_draw_event'
             - 'key_press_event'
             - 'key_release_event'
             - 'motion_notify_event'

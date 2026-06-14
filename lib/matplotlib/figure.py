@@ -3268,7 +3268,6 @@ None}, default: None
 
         with self._render_lock:
 
-            artists = self._get_draw_artists(renderer)
             try:
                 renderer.open_group('figure', gid=self.get_gid())
                 if self.axes and self.get_layout_engine() is not None:
@@ -3277,6 +3276,9 @@ None}, default: None
                     except ValueError:
                         pass
                         # ValueError can occur when resizing a window.
+
+                artists = self._get_draw_artists(renderer)
+                DrawEvent("pre_draw_event", self.canvas, renderer)._process()
 
                 self.patch.draw(renderer)
                 mimage._draw_list_compositing_images(
