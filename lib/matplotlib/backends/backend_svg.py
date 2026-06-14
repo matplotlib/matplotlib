@@ -683,6 +683,7 @@ class RendererSVG(RendererBase):
             clip = (0.0, 0.0, self.width, self.height)
         else:
             clip = None
+
         return _path.convert_to_string(
             path, transform, clip, simplify, sketch, 6,
             [b'M', b'L', b'Q', b'C', b'z'], False).decode('ascii')
@@ -690,8 +691,14 @@ class RendererSVG(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         trans_and_flip = self._make_flip_transform(transform)
-        clip = (rgbFace is None and gc.get_hatch_path() is None)
-        simplify = path.should_simplify and clip
+        no_hatch = gc.get_hatch_path() is None
+        clip = rgbFace is None and no_hatch
+        fill_between = getattr(path, "_fill_between_simplify", False) and no_hatch
+        if fill_between:
+            simplify = (mpl.rcParams['path.simplify']
+                        and mpl.rcParams['path.simplify_threshold'] > 0)
+        else:
+            simplify = path.should_simplify and clip
         path_data = self._convert_path(
             path, trans_and_flip, clip=clip, simplify=simplify,
             sketch=gc.get_sketch_params())
@@ -762,6 +769,7 @@ class RendererSVG(RendererBase):
             paths, all_transforms, offsets, facecolors, edgecolors)
         should_do_optimization = \
             len_path + 9 * uses_per_path + 3 < (len_path + 5) * uses_per_path
+
         if not should_do_optimization:
             return super().draw_path_collection(
                 gc, master_transform, paths, all_transforms,
