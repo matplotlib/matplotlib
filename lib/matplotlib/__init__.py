@@ -693,6 +693,12 @@ class RcParams(MutableMapping, dict):
 
     validate = rcsetup._validators
 
+    # Class-level backend state: shared across all RcParams instances because
+    # there can only be one active backend at a time.
+    # rcParams["backend"] remains valid API for now, but stores the values here
+    # and not as regular key in the underlying dict.
+    _backend = rcsetup._auto_backend_sentinel
+
     # validate values on the way in
     def __init__(self, *args, **kwargs):
         self.update(*args, **kwargs)
@@ -715,6 +721,9 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
+        if key == "backend":
+            RcParams._backend = val
+            return
         dict.__setitem__(self, key, val)
 
     def _get(self, key):
@@ -736,6 +745,8 @@ class RcParams(MutableMapping, dict):
 
         :meta public:
         """
+        if key == "backend":
+            return RcParams._backend
         return dict.__getitem__(self, key)
 
     def _update_raw(self, other_params):
@@ -753,24 +764,24 @@ class RcParams(MutableMapping, dict):
         """
         if isinstance(other_params, RcParams):
             other_params = dict.items(other_params)
+        else:
+            if "backend" in other_params:
+                # should not happen because we aim to not use "backend" as a regular
+                # key anymore, but keep to ensure we have not overlooked a code path.
+                raise RuntimeError("'backend' must not be passed to _update_raw()")
         dict.update(self, other_params)
 
-    def _ensure_has_backend(self):
-        """
-        Ensure that a "backend" entry exists.
-
-        Normally, the default matplotlibrc file contains *no* entry for "backend" (the
-        corresponding line starts with ##, not #; we fill in _auto_backend_sentinel
-        in that case.  However, packagers can set a different default backend
-        (resulting in a normal `#backend: foo` line) in which case we should *not*
-        fill in _auto_backend_sentinel.
-        """
-        dict.setdefault(self, "backend", rcsetup._auto_backend_sentinel)
-
     def __setitem__(self, key, val):
-        if (key == "backend"
-                and val is rcsetup._auto_backend_sentinel
-                and "backend" in self):
+        if (key == "backend" and val is rcsetup._auto_backend_sentinel):
+            # Don't let caller silently overwrite a real backend with the auto-sentinel
+            # (only internal code via _set() may do that).
+            #
+            # The primary reason for existence was covering internal rcParams logic
+            # since end-users do not have direct access to
+            # rcsetup._auto_backend_sentinel. It is likely that this is not needed
+            # anymore due to removing "backend" from the dict and  making it
+            # a class attribute RcParams._backend`. But to be on the safe side, we
+            # keep this as long as "backend" is a valid key for rcParams.
             return
         valid_key = _api.getitem_checked(
             self.validate, rcParam=key, _error_cls=KeyError
@@ -784,18 +795,19 @@ class RcParams(MutableMapping, dict):
         self._set(key, cval)
 
     def __getitem__(self, key):
-        # In theory, this should only ever be used after the global rcParams
-        # has been set up, but better be safe e.g. in presence of breakpoints.
-        if key == "backend" and self is globals().get("rcParams"):
-            val = self._get(key)
-            if val is rcsetup._auto_backend_sentinel:
+        if key == "backend":
+            # In theory, this should only ever be used after the global rcParams
+            # has been set up, but better be safe e.g. in presence of breakpoints.
+            if (self is globals().get("rcParams")
+                    and RcParams._backend is rcsetup._auto_backend_sentinel):
                 from matplotlib import pyplot as plt
                 plt.switch_backend(rcsetup._auto_backend_sentinel)
-        return self._get(key)
+            return RcParams._backend
+        return dict.__getitem__(self, key)
 
     def _get_backend_or_none(self):
         """Get the requested backend, if any, without triggering resolution."""
-        backend = self._get("backend")
+        backend = RcParams._backend
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __repr__(self):
@@ -992,7 +1004,6 @@ rcParamsDefault = _rc_params_in_file(
     transform=lambda line: line[1:] if line.startswith("#") else line,
     fail_on_error=True)
 rcParamsDefault._update_raw(rcsetup._hardcoded_defaults)
-rcParamsDefault._ensure_has_backend()
 
 rcParams = RcParams()  # The global instance.
 rcParams._update_raw(rcParamsDefault)
@@ -1201,8 +1212,7 @@ def rc_context(rc=None, fname=None):
             plt.plot(x, y)
 
     """
-    orig = dict(rcParams.copy())
-    del orig['backend']
+    orig = rcParams.copy()
     try:
         if fname:
             rc_file(fname)
