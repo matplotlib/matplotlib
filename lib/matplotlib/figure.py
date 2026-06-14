@@ -354,8 +354,10 @@ default: :rc:`%(va)s`
             autopos = y is None
         elif info['name'] == '_supylabel':
             autopos = x is None
-        x = mpl._val_or_rc(x, info['x0']) if isinstance(info['x0'], str) else (x if x is not None else info['x0'])
-        y = mpl._val_or_rc(y, info['y0']) if isinstance(info['y0'], str) else (y if y is not None else info['y0'])
+        if x is None:
+            x = mpl.rcParams[info['x0']] if isinstance(info['x0'], str) else info['x0']
+        if y is None:
+            y = mpl.rcParams[info['y0']] if isinstance(info['y0'], str) else info['y0']
 
         kwargs = cbook.normalize_kwargs(kwargs, Text)
         kwargs.setdefault('horizontalalignment',
