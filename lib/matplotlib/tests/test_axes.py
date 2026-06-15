@@ -10005,12 +10005,22 @@ def test_set_secondary_axis_color():
 
 
 def test_xylim_changed_shared():
-    fig, axs = plt.subplots(2, sharex=True, sharey=True)
+    fig, axs = plt.subplots(3, sharex=True, sharey=True)
     events = []
     axs[1].callbacks.connect("xlim_changed", events.append)
     axs[1].callbacks.connect("ylim_changed", events.append)
     axs[0].set(xlim=[1, 3], ylim=[2, 4])
     assert events == [axs[1], axs[1]]
+
+    axs[0].callbacks.connect("xlim_changed", events.append)
+    axs[0].callbacks.connect("ylim_changed", events.append)
+    events.clear()
+    axs[0].set_xlim(4, 5, emit=False)
+    axs[0].set_ylim(6, 7, emit=False)
+    for ax in axs[1:]:
+        assert ax.get_xlim() == (4, 5)
+        assert ax.get_ylim() == (6, 7)
+    assert events == []
 
 
 @image_comparison(["axhvlinespan_interpolation.png"], style="default")
