@@ -352,6 +352,34 @@ def test_contourf_symmetric_locator():
     assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
 
 
+@pytest.mark.parametrize('z_min', [
+    0.0,        # data minimum exactly on the lowest level
+    -1e-13,     # a floating-point hair below it ...
+    -1.7e-13,   # github issue 21382
+])
+@check_figures_equal()
+def test_contourf_min_at_lowest_level(fig_test, fig_ref, z_min):
+    # The region at the data minimum must be filled even when that minimum is
+    # a floating-point hair below the lowest contour level rather than exactly
+    # equal to it.  Each case must therefore match a clean minimum of zero.
+    levels = [0, 0.5, 1, 1.5, 2]
+    z = np.array([[0., 0., 2.], [0., 0., 1.], [2., 1., z_min]])
+    z_ref = np.array([[0., 0., 2.], [0., 0., 1.], [2., 1., 0.]])
+    fig_test.subplots().contourf(z, levels=levels)
+    fig_ref.subplots().contourf(z_ref, levels=levels)
+
+
+def test_contourf_lowest_level_gap_not_filled():
+    # The floating-point tolerance that fixes issue 21382 must not back-fill a
+    # genuine gap: a user-specified lowest level clearly above the data minimum
+    # marks a region that should stay unfilled, so the lowest interval keeps the
+    # chosen level as its lower bound rather than being extended downwards.
+    z = np.array([[0.2, 0.2, 5.], [0.2, 3., 1.], [5., 1., 0.2]])
+    cs = plt.figure().subplots().contourf(z, levels=[2, 3, 4, 5])
+    lowers, _ = cs._get_lowers_and_uppers()
+    assert lowers[0] == 2
+
+
 def test_circular_contour_warning():
     # Check that almost circular contours don't throw a warning
     x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))

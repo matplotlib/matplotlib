@@ -953,8 +953,18 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         Return ``(lowers, uppers)`` for filled contours.
         """
         lowers = self._levels[:-1]
-        if self.zmin == lowers[0]:
-            # Include minimum values in lowest interval
+        # Include minimum values in the lowest interval.  The lowest level can
+        # end up a hair above the data minimum rather than exactly equal to it,
+        # either because the data minimum is itself the result of a computation
+        # (e.g. a value of -1.7e-13 that should be 0) or because of rounding in
+        # automatic level selection.  A strict equality test misses these cases
+        # and leaves the minimum-valued region unfilled (see #21382), so treat
+        # the level as coincident with the data minimum when it sits within a
+        # floating-point tolerance of it.  The tolerance is scaled to the data
+        # range; a genuine gap (e.g. user-specified levels starting above the
+        # data) is far larger than this and is left untouched.
+        tol = (self.zmax - self.zmin) * 1e-12
+        if 0 <= lowers[0] - self.zmin <= tol:
             lowers = lowers.copy()  # so we don't change self._levels
             if self.logscale:
                 lowers[0] = 0.99 * self.zmin
