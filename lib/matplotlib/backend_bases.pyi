@@ -27,6 +27,7 @@ from .typing import (
     ColorType,
     DrawEventType,
     JoinStyleType,
+    RenderEventType,
     KeyEventType,
     LineStyleType,
     MouseEventType,
@@ -225,6 +226,12 @@ class DrawEvent(Event):
         self, name: str, canvas: FigureCanvasBase, renderer: RendererBase
     ) -> None: ...
 
+class RenderEvent(Event):
+    renderer: RendererBase
+    def __init__(
+        self, name: str, canvas: FigureCanvasBase, renderer: RendererBase
+    ) -> None: ...
+
 class ResizeEvent(Event):
     width: int
     height: int
@@ -389,6 +396,10 @@ class FigureCanvasBase:
 
     @overload
     def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
+
+    @overload
+    def mpl_connect(self, s: RenderEventType, func: Callable[[RenderEvent], Any]) -> int: ...
+
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,
