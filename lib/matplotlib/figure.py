@@ -41,7 +41,8 @@ from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+    DrawEvent, RenderEvent, FigureCanvasBase, NonGuiException, MouseButton,
+    _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -3278,7 +3279,7 @@ None}, default: None
                         # ValueError can occur when resizing a window.
 
                 artists = self._get_draw_artists(renderer)
-                DrawEvent("pre_draw_event", self.canvas, renderer)._process()
+                RenderEvent("pre_render_event", self.canvas, renderer)._process()
 
                 self.patch.draw(renderer)
                 mimage._draw_list_compositing_images(

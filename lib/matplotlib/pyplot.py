@@ -110,6 +110,7 @@ if TYPE_CHECKING:
         KeyEvent,
         MouseEvent,
         PickEvent,
+        RenderEvent,
         ResizeEvent,
     )
     from matplotlib.cm import ScalarMappable
@@ -149,6 +150,7 @@ if TYPE_CHECKING:
         MarkerType,
         MouseEventType,
         PickEventType,
+        RenderEventType,
         RcGroupKeyType,
         RcKeyType,
         ResizeEventType,
@@ -1255,6 +1257,10 @@ def connect(s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
 
 @overload
 def connect(s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
+
+
+@overload
+def connect(s: RenderEventType, func: Callable[[RenderEvent], Any]) -> int: ...
 
 
 @_copy_docstring_and_deprecators(FigureCanvasBase.mpl_connect)

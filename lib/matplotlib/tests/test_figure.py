@@ -1902,24 +1902,24 @@ def test_figsize_invalid_unit():
         plt.figure(figsize=(6, 4, "um"))
 
 
-def test_pre_draw_event_emitted():
+def test_pre_render_event_emitted():
     fig, ax = plt.subplots()
     count = []
-    fig.canvas.mpl_connect('pre_draw_event', lambda e: count.append(1))
+    fig.canvas.mpl_connect('pre_render_event', lambda e: count.append(1))
     fig.canvas.draw()
     assert len(count) == 1
 
 
-def test_pre_draw_event_before_draw_event():
+def test_pre_render_event_before_draw_event():
     fig, ax = plt.subplots()
     order = []
-    fig.canvas.mpl_connect('pre_draw_event', lambda e: order.append('pre'))
+    fig.canvas.mpl_connect('pre_render_event', lambda e: order.append('pre'))
     fig.canvas.mpl_connect('draw_event', lambda e: order.append('draw'))
     fig.canvas.draw()
     assert order == ['pre', 'draw']
 
 
-def test_pre_draw_event_axes_geometry_finalized():
+def test_pre_render_event_axes_geometry_finalized():
     fig, axs = plt.subplots(2, 2, constrained_layout=True)
     for ax in axs.flat:
         ax.plot([1, 2, 3], [1, 4, 2])
@@ -1933,14 +1933,14 @@ def test_pre_draw_event_axes_geometry_finalized():
     def on_draw(event):
         draw_positions.extend(ax.get_position().bounds for ax in axs.flat)
 
-    fig.canvas.mpl_connect('pre_draw_event', on_pre)
+    fig.canvas.mpl_connect('pre_render_event', on_pre)
     fig.canvas.mpl_connect('draw_event', on_draw)
     fig.canvas.draw()
 
     assert pre_positions == draw_positions
 
 
-def test_pre_draw_event_inset_axes_geometry_finalized():
+def test_pre_render_event_inset_axes_geometry_finalized():
     from mpl_toolkits.axes_grid1.inset_locator import inset_axes as make_inset
 
     fig, ax = plt.subplots(constrained_layout=True)
@@ -1956,8 +1956,25 @@ def test_pre_draw_event_inset_axes_geometry_finalized():
     def on_draw(event):
         positions['draw'] = inset.get_position().bounds
 
-    fig.canvas.mpl_connect('pre_draw_event', on_pre)
+    fig.canvas.mpl_connect('pre_render_event', on_pre)
     fig.canvas.mpl_connect('draw_event', on_draw)
     fig.canvas.draw()
 
     assert positions['pre'] == positions['draw']
+
+
+def test_pre_render_event_recursion_safe():
+    fig, ax = plt.subplots()
+
+    count = 0
+
+    def on_pre(event):
+        nonlocal count
+        count += 1
+        if count == 1:
+            fig.canvas.draw()
+
+    fig.canvas.mpl_connect('pre_render_event', on_pre)
+    fig.canvas.draw()
+
+    assert count <= 2
