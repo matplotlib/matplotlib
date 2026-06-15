@@ -105,7 +105,7 @@ _test_path_extents = [(0., 0., 0.75, 1.), (0., 0., 1., 0.5), (0., 1., 1., 1.),
                       (1., 2., 1., 2.)]
 
 
-@pytest.mark.parametrize('path, extents', zip(_test_paths, _test_path_extents))
+@pytest.mark.parametrize('path, extents', list(zip(_test_paths, _test_path_extents)))
 def test_exact_extents(path, extents):
     # notice that if we just looked at the control points to get the bounding
     # box of each curve, we would get the wrong answers. For example, for
