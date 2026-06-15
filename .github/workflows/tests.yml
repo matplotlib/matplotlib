@@ -70,7 +70,7 @@ jobs:
             pygobject-ver: '<3.52.0'
           - name-suffix: "Free-threaded"
             os: ubuntu-22.04
-            python-version: '3.13t'
+            python-version: '3.14t'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
@@ -238,7 +238,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
-          if [[ "${{ matrix.python-version }}" != '3.13t' ]]; then
+          if [[ "${{ matrix.python-version }}" != '3.14t' ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -277,7 +277,7 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
-          fi  # Skip backends on Python 3.13t.
+          fi  # Skip backends on Python 3.14t.
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -317,7 +317,7 @@ jobs:
 
       - name: Run pytest
         run: |
-          if [[ "${{ matrix.python-version }}" == '3.13t' ]]; then
+          if [[ "${{ matrix.python-version }}" == '3.14t' ]]; then
             export PYTHON_GIL=0
           fi
           pytest -rfEsXR -n auto \
