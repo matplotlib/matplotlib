@@ -953,8 +953,29 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         Return ``(lowers, uppers)`` for filled contours.
         """
         lowers = self._levels[:-1]
-        if self.zmin == lowers[0]:
-            # Include minimum values in lowest interval
+        # Include minimum values in the lowest interval.  The lowest level can
+        # end up a hair above the data minimum rather than exactly equal to it,
+        # either because the data minimum is itself the result of a computation
+        # (e.g. a value of -1.7e-13 that should be 0) or because of rounding in
+        # automatic level selection.  A strict equality test misses these cases
+        # and leaves the minimum-valued region unfilled (see #21382), so on a
+        # linear scale treat the level as coincident with the data minimum when
+        # it sits within a small tolerance of it.  The tolerance is scaled to
+        # the data range (as Colorbar._add_solids does) rather than to a fixed
+        # absolute value: the round-off being absorbed grows with the data, and
+        # the operands here are often ~0, so an operand-relative test such as
+        # np.isclose would collapse to its atol and stop adapting.  The 1e-12
+        # factor is a defensive choice, well above double-precision round-off
+        # (~1e-15) yet far below any visible feature, since a real gap spans a
+        # sizeable fraction of the range and so dwarfs the tolerance.  On a log
+        # scale the range spans many decades, so an additive tolerance is not
+        # meaningful and the historical exact test is kept.
+        if self.logscale:
+            coincident = self.zmin == lowers[0]
+        else:
+            tol = (self.zmax - self.zmin) * 1e-12
+            coincident = 0 <= lowers[0] - self.zmin <= tol
+        if coincident:
             lowers = lowers.copy()  # so we don't change self._levels
             if self.logscale:
                 lowers[0] = 0.99 * self.zmin
