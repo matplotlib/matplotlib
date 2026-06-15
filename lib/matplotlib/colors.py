@@ -288,7 +288,15 @@ def same_color(c1, c2):
     """
     Return whether the colors *c1* and *c2* are the same.
 
-    *c1*, *c2* can be single colors or lists/arrays of colors.
+    Parameters
+    ----------
+    c1, c2 : :mpltype:`color` or list of :mpltype:`color` or RGB(A) array
+        If passing multiple colors, *c1* and *c2* must be of the same length. RGB(A)
+        arrays must be of shape (ncolors, 3) or (ncolors, 4).
+
+    Returns
+    -------
+    bool
     """
     c1 = to_rgba_array(c1)
     c2 = to_rgba_array(c2)
