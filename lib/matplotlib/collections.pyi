@@ -13,7 +13,7 @@ from .path import Path
 from .patches import Patch
 from .ticker import Locator, Formatter
 from .tri import Triangulation
-from .typing import ColorType, LineStyleType, CapStyleType, JoinStyleType
+from .typing import ColorType, DrawStyleType, LineStyleType, CapStyleType, JoinStyleType
 
 class Collection(colorizer.ColorizingArtist):
     def __init__(
@@ -124,6 +124,7 @@ class FillBetweenPolyCollection(PolyCollection):
         *,
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
+        drawstyle: DrawStyleType | None = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
         **kwargs,
     ) -> None: ...

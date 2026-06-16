@@ -1384,7 +1384,7 @@ class FillBetweenPolyCollection(PolyCollection):
     """
     def __init__(
             self, t_direction, t, f1, f2, *,
-            where=None, interpolate=False, step=None, **kwargs):
+            where=None, interpolate=False, drawstyle=None, step=None, **kwargs):
         """
         Parameters
         ----------
@@ -1426,18 +1426,26 @@ class FillBetweenPolyCollection(PolyCollection):
             Setting *interpolate* to *True* will calculate the actual
             intersection point and extend the filled region up to this point.
 
-        step : {{'pre', 'post', 'mid'}}, optional
-            Define *step* if the filling should be a step function,
+        drawstyle : {'steps', 'steps-pre', 'steps-post', 'steps-mid'}, optional
+            Define *drawstyle* if the filling should be a step function,
             i.e. constant in between *t*.  The value determines where the
             step will occur:
 
-            - 'pre': The f value is continued constantly to the left from
-              every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
+            - 'steps-pre' or 'steps': The f value is continued constantly to the left
+              from every *t* position, i.e. the interval ``(t[i-1], t[i]]`` has the
               value ``f[i]``.
-            - 'post': The y value is continued constantly to the right from
+            - 'steps-post': The y value is continued constantly to the right from
               every *x* position, i.e. the interval ``[t[i], t[i+1])`` has the
               value ``f[i]``.
-            - 'mid': Steps occur half-way between the *t* positions.
+            - 'steps-mid': Steps occur half-way between the *t* positions.
+
+        step : {{'pre', 'post', 'mid'}}, optional
+
+            .. admonition:: Discouraged
+
+                This parameter is discouraged in favor of *drawstyle*. The effect is the
+                same as the corresponding *drawstyle* value; e.g. ``step='pre'`` is the
+                same as ``drawstyle='steps-pre'``.
 
         **kwargs
             Forwarded to `.PolyCollection`.
@@ -1448,7 +1456,14 @@ class FillBetweenPolyCollection(PolyCollection):
         """
         self.t_direction = t_direction
         self._interpolate = interpolate
-        self._step = step
+        if drawstyle is not None and step is not None:
+            raise ValueError(
+                "Using drawstyle and step simultaneously is not supported as they "
+                "specify the same behavior. It is recommended the more modern "
+                "parameter drawstype for new code.")
+        self._drawstyle = drawstyle
+        if step is not None:
+            self._drawstyle = f"steps-{step}"
         verts = self._make_verts(t, f1, f2, where)
         super().__init__(verts, **kwargs)
 
@@ -1572,8 +1587,8 @@ class FillBetweenPolyCollection(PolyCollection):
         t_slice = t[idx0:idx1]
         f1_slice = f1[idx0:idx1]
         f2_slice = f2[idx0:idx1]
-        if self._step is not None:
-            step_func = cbook.STEP_LOOKUP_MAP["steps-" + self._step]
+        if self._drawstyle is not None:
+            step_func = cbook.STEP_LOOKUP_MAP[self._drawstyle]
             t_slice, f1_slice, f2_slice = step_func(t_slice, f1_slice, f2_slice)
 
         if self._interpolate:

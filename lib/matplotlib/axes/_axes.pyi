@@ -26,7 +26,7 @@ from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
 from matplotlib.transforms import Transform
-from matplotlib.typing import CoordsType
+from matplotlib.typing import CoordsType, DrawStyleType
 import matplotlib.tri as mtri
 import matplotlib.table as mtable
 import matplotlib.stackplot as mstack
@@ -484,6 +484,7 @@ class Axes(_AxesBase):
         y2: ArrayLike | float = ...,
         where: Sequence[bool] | None = ...,
         interpolate: bool = ...,
+        drawstyle: DrawStyleType | None = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
         *,
         data: DataParamType = ...,
@@ -495,6 +496,7 @@ class Axes(_AxesBase):
         x1: ArrayLike | float,
         x2: ArrayLike | float = ...,
         where: Sequence[bool] | None = ...,
+        drawstyle: DrawStyleType | None = ...,
         step: Literal["pre", "post", "mid"] | None = ...,
         interpolate: bool = ...,
         *,
