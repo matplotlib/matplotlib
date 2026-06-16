@@ -315,7 +315,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order_subsectionorder,
     'capture_repr': (),
-    'copyfile_regex': r'(.*\.rst|.*basic_units\.py)',
+    'copyfile_regex': r'(.*\.rst|.*basic_units\.(py|ipynb))',
 }
 
 if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
