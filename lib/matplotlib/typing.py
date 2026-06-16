@@ -145,7 +145,6 @@ KeyEventType: TypeAlias = Literal[
 ]
 
 DrawEventType: TypeAlias = Literal["draw_event"]
-RenderEventType: TypeAlias = Literal["pre_render_event"]
 PickEventType: TypeAlias = Literal["pick_event"]
 ResizeEventType: TypeAlias = Literal["resize_event"]
 CloseEventType: TypeAlias = Literal["close_event"]
@@ -154,7 +153,6 @@ EventType: TypeAlias = Literal[
     MouseEventType,
     KeyEventType,
     DrawEventType,
-    RenderEventType,
     PickEventType,
     ResizeEventType,
     CloseEventType,

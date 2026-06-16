@@ -27,7 +27,6 @@ from .typing import (
     ColorType,
     DrawEventType,
     JoinStyleType,
-    RenderEventType,
     KeyEventType,
     LineStyleType,
     MouseEventType,
@@ -396,10 +395,6 @@ class FigureCanvasBase:
 
     @overload
     def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
-
-    @overload
-    def mpl_connect(self, s: RenderEventType, func: Callable[[RenderEvent], Any]) -> int: ...
-
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,

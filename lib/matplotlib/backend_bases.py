@@ -1245,7 +1245,7 @@ class RenderEvent(Event):
     Attributes
     ----------
     renderer : `RendererBase`
-        The renderer for the draw event.
+        The renderer for the render event.
     """
     def __init__(self, name, canvas, renderer):
         super().__init__(name, canvas)
@@ -1752,7 +1752,6 @@ class FigureCanvasBase:
     events = [
         'resize_event',
         'draw_event',
-        'pre_render_event',
         'key_press_event',
         'key_release_event',
         'button_press_event',
@@ -2356,7 +2355,6 @@ class FigureCanvasBase:
             - 'button_press_event'
             - 'button_release_event'
             - 'draw_event'
-            - 'pre_render_event'
             - 'key_press_event'
             - 'key_release_event'
             - 'motion_notify_event'

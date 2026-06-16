@@ -38,7 +38,6 @@ Events
 .. autodata:: matplotlib.typing.MouseEventType
 .. autodata:: matplotlib.typing.KeyEventType
 .. autodata:: matplotlib.typing.DrawEventType
-.. autodata:: matplotlib.typing.RenderEventType
 .. autodata:: matplotlib.typing.PickEventType
 .. autodata:: matplotlib.typing.ResizeEventType
 .. autodata:: matplotlib.typing.CloseEventType

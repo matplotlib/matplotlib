@@ -1905,7 +1905,7 @@ def test_figsize_invalid_unit():
 def test_pre_render_event_emitted():
     fig, ax = plt.subplots()
     count = []
-    fig.canvas.mpl_connect('pre_render_event', lambda e: count.append(1))
+    fig.canvas.mpl_connect('_pre_render_event', lambda e: count.append(1))
     fig.canvas.draw()
     assert len(count) == 1
 
@@ -1913,7 +1913,7 @@ def test_pre_render_event_emitted():
 def test_pre_render_event_before_draw_event():
     fig, ax = plt.subplots()
     order = []
-    fig.canvas.mpl_connect('pre_render_event', lambda e: order.append('pre'))
+    fig.canvas.mpl_connect('_pre_render_event', lambda e: order.append('pre'))
     fig.canvas.mpl_connect('draw_event', lambda e: order.append('draw'))
     fig.canvas.draw()
     assert order == ['pre', 'draw']
@@ -1933,7 +1933,7 @@ def test_pre_render_event_axes_geometry_finalized():
     def on_draw(event):
         draw_positions.extend(ax.get_position().bounds for ax in axs.flat)
 
-    fig.canvas.mpl_connect('pre_render_event', on_pre)
+    fig.canvas.mpl_connect('_pre_render_event', on_pre)
     fig.canvas.mpl_connect('draw_event', on_draw)
     fig.canvas.draw()
 
@@ -1956,7 +1956,7 @@ def test_pre_render_event_inset_axes_geometry_finalized():
     def on_draw(event):
         positions['draw'] = inset.get_position().bounds
 
-    fig.canvas.mpl_connect('pre_render_event', on_pre)
+    fig.canvas.mpl_connect('_pre_render_event', on_pre)
     fig.canvas.mpl_connect('draw_event', on_draw)
     fig.canvas.draw()
 
@@ -1974,7 +1974,7 @@ def test_pre_render_event_recursion_safe():
         if count == 1:
             fig.canvas.draw()
 
-    fig.canvas.mpl_connect('pre_render_event', on_pre)
+    fig.canvas.mpl_connect('_pre_render_event', on_pre)
     fig.canvas.draw()
 
     assert count <= 2
