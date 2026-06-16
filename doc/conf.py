@@ -299,7 +299,7 @@ sphinx_gallery_conf = {
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'examples_dirs': example_dirs,
     'filename_pattern': '^((?!sgskip).)*$',
-    'ignore_pattern': r'basic_units\.py',
+    'ignore_pattern': r'(__init__|basic_units)\.py',
     'gallery_dirs': gallery_dirs,
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
