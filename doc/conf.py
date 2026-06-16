@@ -299,6 +299,7 @@ sphinx_gallery_conf = {
     'doc_module': ('matplotlib', 'mpl_toolkits'),
     'examples_dirs': example_dirs,
     'filename_pattern': '^((?!sgskip).)*$',
+    'ignore_pattern': r'basic_units\.py',
     'gallery_dirs': gallery_dirs,
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
     'image_srcset': ["2x"],
@@ -314,7 +315,7 @@ sphinx_gallery_conf = {
     'thumbnail_size': (320, 224),
     'within_subsection_order': gallery_order_subsectionorder,
     'capture_repr': (),
-    'copyfile_regex': r'.*\.rst',
+    'copyfile_regex': r'(.*\.rst|.*basic_units\.py)',
 }
 
 if parse_version(sphinx_gallery.__version__) >= parse_version('0.17.0'):
