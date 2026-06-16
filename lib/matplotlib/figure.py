@@ -315,14 +315,14 @@ class FigureBase(Artist):
         ----------
         t : str
             The %(name)s text.
-        x : float, default: :rc:`%(x0)s`
+        x : float, default: %(x0)s
             The x location of the text in figure coordinates.
-        y : float, default: :rc:`%(y0)s`
+        y : float, default: %(y0)s
             The y location of the text in figure coordinates.
-        horizontalalignment, ha : {'center', 'left', 'right'}, default: :rc:`%(ha)s`
+        horizontalalignment, ha : {'center', 'left', 'right'}, default: %(ha)s
             The horizontal alignment of the text relative to (*x*, *y*).
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
-default: :rc:`%(va)s`
+default: %(va)s
             The vertical alignment of the text relative to (*x*, *y*).
         fontsize, size : default: :rc:`figure.%(rc)ssize`
             The font size of the text. See `.Text.set_size` for possible
