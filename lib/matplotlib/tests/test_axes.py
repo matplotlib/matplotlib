@@ -7965,6 +7965,22 @@ def test_title_above_offset(left, center):
         assert ycenter == yleft
 
 
+def test_title_above_hidden_offset():
+    # On an inner subplot with a shared y axis the offset text is hidden, but
+    # it still carries text. It must not be considered when positioning the
+    # title: its tight bbox is non-finite and used to push the title (and the
+    # subplot position computed by tight_layout) to NaN/inf. See #31881.
+    mpl.rcParams['axes.titley'] = None
+    fig, axs = plt.subplots(1, 2, sharey=True, tight_layout=True)
+    for i, ax in enumerate(axs):
+        ax.set_title(f'Subplot {i}')
+        ax.plot(range(10), [1e53] * 10)
+    fig.draw_without_rendering()  # used to raise ValueError (NaN -> int)
+    for ax in axs:
+        assert np.isfinite(ax.title.get_window_extent().ymin)
+        assert np.all(np.isfinite(ax.get_position().bounds))
+
+
 def test_title_no_move_off_page():
     # If an Axes is off the figure (ie. if it is cropped during a save)
     # make sure that the automatic title repositioning does not get done.
