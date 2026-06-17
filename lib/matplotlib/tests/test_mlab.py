@@ -207,8 +207,7 @@ class TestDetrend:
     scope='class')
 class TestSpectral:
     @pytest.fixture(scope='class', autouse=True)
-    @classmethod
-    def stim(cls, request, fstims, iscomplex, sides, len_x, NFFT_density,
+    def stim(self, request, fstims, iscomplex, sides, len_x, NFFT_density,
              nover_density, pad_to_density, pad_to_spectrum):
         Fs = 100.
 
@@ -323,6 +322,11 @@ class TestSpectral:
 
         if iscomplex:
             y = y.astype('complex')
+
+        # Interestingly, the instance on which this fixture is called is not
+        # the same as the one on which a test is run. So we need to modify the
+        # class itself when using a class-scoped fixture.
+        cls = request.cls
 
         cls.Fs = Fs
         cls.sides = sides
