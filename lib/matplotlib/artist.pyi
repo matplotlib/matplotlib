@@ -23,8 +23,8 @@ _T_Artist = TypeVar("_T_Artist", bound=Artist)
 def allow_rasterization(draw): ...
 
 class _XYPair(NamedTuple):
-    x: ArrayLike
-    y: ArrayLike
+    x: list[float]
+    y: list[float]
 
 class Artist:
     zorder: float
