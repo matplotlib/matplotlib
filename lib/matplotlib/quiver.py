@@ -55,8 +55,6 @@ arrow more pointed, reduce *headwidth* or increase *headlength* and
 scale down all the head parameters. You will probably do best to leave
 minshaft alone. To set the position of the arrowhead use *head_pos*.
 
-# TODO MELISSA and to exactly position the head on the shaft use *mid_scale*.
-
 **Arrow styling**
 
 Each arrow is internally represented by a filled polygon with a default edge
@@ -96,7 +94,7 @@ C : 1D or 2D array-like, optional
 angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
-    - 'uv':  Arrow directions are based on
+    - 'uv': Arrow directions are based on
       :ref:`display coordinates <coordinate-systems>`; i.e. a 45° angle will
       always show up as diagonal on the screen, irrespective of figure or Axes
       aspect ratio or Axes data ranges. This is useful when the arrows represent
@@ -539,7 +537,7 @@ class Quiver(mcollections.PolyCollection):
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
                  minshaft=1, minlength=1, units='width', scale_units=None,
                  angles='uv', width=None, color='k', pivot='tail',
-                 head_pos='tip', **kw):
+                 head_pos='tip', **kwargs):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -564,22 +562,17 @@ class Quiver(mcollections.PolyCollection):
         self.width = width
 
         # Checks the boundaries of head_pos if outside range default of 0.5
-        if (head_pos == 0.0) or (head_pos == "tail"):
+        if (head_pos == "tail"):
             self.head_pos = 0.0
-        elif (head_pos == 1.0) or (head_pos == "tip"):
+        elif (head_pos == "tip"):
             self.head_pos = 1.0
         elif (head_pos == "mid") or (head_pos == "middle"):
             self.head_pos = 0.5
-        elif type(head_pos) == float:
-            if 0.0 < head_pos < 1.0:
-                self.head_pos = head_pos
-            else:
-                raise ValueError("'head_pos' must be "
-                                 "a value in the bounds 0<head_pos<1,"
-                                 "or a string in {'tail', 'middle', 'tip'}")
+        elif isinstance(head_pos, float) and (0.0 < head_pos < 1.0):
+            self.head_pos = head_pos
         else:
             raise ValueError("'head_pos' must be "
-                             "a value in the bounds 0head_pos<1,"
+                             "a value in the bounds 0<head_pos<1,"
                              "or a string in {'tail', 'middle', 'tip'}")
 
         if pivot.lower() == 'mid':
@@ -810,10 +803,7 @@ class Quiver(mcollections.PolyCollection):
             Y[:, 3] = np.ones(np.shape(Y[:, 3])) * 0.5
             Y[:, 6] = np.ones(np.shape(Y[:, 6])) * 0.5
             Y[:, 5:-1] *= -1
-        else:
-            raise ValueError("'head_pos' must be "
-                             "a value in the bounds 0<head_pos<1,"
-                             "or a string in {'tail', 'middle', 'tip'}")
+
         X0 = x0[ii_min]
         Y0 = y0[ii_min]
         Y0[3:-1] *= -1
