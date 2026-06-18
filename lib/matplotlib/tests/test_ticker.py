@@ -461,7 +461,7 @@ class TestLogitLocator:
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",
-        zip(ref_basic_limits, ref_basic_major_ticks),
+        list(zip(ref_basic_limits, ref_basic_major_ticks)),
     )
     def test_basic_major(self, lims, expected_low_ticks):
         """
@@ -506,7 +506,7 @@ class TestLogitLocator:
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",
-        zip(ref_basic_limits, ref_basic_major_ticks),
+        list(zip(ref_basic_limits, ref_basic_major_ticks)),
     )
     def test_minor(self, lims, expected_low_ticks):
         """
