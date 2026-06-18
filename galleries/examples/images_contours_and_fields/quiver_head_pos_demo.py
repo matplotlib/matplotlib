@@ -23,17 +23,12 @@ ax.quiverkey(q, X=0.3, Y=1.1, U=10,
 
 plt.show()
 
-#############################################################################
+# %%
 #
-# ------------
+# .. admonition:: References
 #
-# References
-# """"""""""
+#    The use of the following functions, methods, classes and modules is shown
+#    in this example:
 #
-# The use of the following functions and methods is shown in this example:
-
-import matplotlib
-matplotlib.axes.Axes.quiver
-matplotlib.pyplot.quiver
-matplotlib.axes.Axes.quiverkey
-matplotlib.pyplot.quiverkey
+#    - `matplotlib.axes.Axes.quiver` / `matplotlib.pyplot.quiver`
+#    - `matplotlib.axes.Axes.quiverkey` / `matplotlib.pyplot.quiverkey`
