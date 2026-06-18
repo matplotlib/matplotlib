@@ -221,7 +221,7 @@ def baseline_images(request, fontset, index, text):
 
 
 @pytest.mark.parametrize(
-    'index, text', enumerate(math_tests), ids=range(len(math_tests)))
+    'index, text', list(enumerate(math_tests)), ids=range(len(math_tests)))
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
@@ -237,7 +237,7 @@ def test_mathtext_rendering(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
+@pytest.mark.parametrize('index, text', list(enumerate(svgastext_math_tests)),
                          ids=range(len(svgastext_math_tests)))
 @pytest.mark.parametrize('fontset', ['cm', 'dejavusans'])
 @pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
@@ -254,7 +254,7 @@ def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
+@pytest.mark.parametrize('index, text', list(enumerate(lightweight_math_tests)),
                          ids=range(len(lightweight_math_tests)))
 @pytest.mark.parametrize('fontset', ['dejavusans'])
 @pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
@@ -266,7 +266,7 @@ def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
 
 
 @pytest.mark.parametrize(
-    'index, text', enumerate(font_tests), ids=range(len(font_tests)))
+    'index, text', list(enumerate(font_tests)), ids=range(len(font_tests)))
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)

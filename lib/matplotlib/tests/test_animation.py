@@ -181,7 +181,7 @@ def gen_writers():
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@pytest.mark.parametrize('writer, frame_format, output', gen_writers())
+@pytest.mark.parametrize('writer, frame_format, output', list(gen_writers()))
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_save_animation_smoketest(tmp_path, writer, frame_format, output, anim):
     if frame_format is not None:
@@ -201,7 +201,7 @@ def test_save_animation_smoketest(tmp_path, writer, frame_format, output, anim):
     del anim
 
 
-@pytest.mark.parametrize('writer, frame_format, output', gen_writers())
+@pytest.mark.parametrize('writer, frame_format, output', list(gen_writers()))
 def test_grabframe(tmp_path, writer, frame_format, output):
     WriterClass = animation.writers[writer]
 
