@@ -12,7 +12,7 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, TypeAlias, TypeVar, Union
+from typing import Any, Literal, TypeAlias, TypeVar
 from collections.abc import Callable, Mapping
 
 from . import path
@@ -99,19 +99,13 @@ CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
 LogLevel: TypeAlias = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 """Literal type for valid logging levels accepted by `matplotlib.set_loglevel()`."""
 
-CoordsBaseType = Union[
-    str,
-    Artist,
-    Transform,
-    Callable[
-        [RendererBase],
-        Union[Bbox, Transform]
-    ]
-]
-CoordsType = Union[
-    CoordsBaseType,
-    tuple[CoordsBaseType, CoordsBaseType]
-]
+CoordsBaseType: TypeAlias = (
+    str |
+    Artist |
+    Transform |
+    Callable[[RendererBase], Bbox | Transform]
+)
+CoordsType: TypeAlias = CoordsBaseType | tuple[CoordsBaseType, CoordsBaseType]
 
 RcStyleType: TypeAlias = (
     str |
