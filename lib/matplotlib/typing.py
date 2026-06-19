@@ -106,6 +106,7 @@ CoordsBaseType: TypeAlias = (
     Callable[[RendererBase], Bbox | Transform]
 )
 CoordsType: TypeAlias = CoordsBaseType | tuple[CoordsBaseType, CoordsBaseType]
+"""Annotation coordinate systems. See :doc:`/users/explain/text/annotations`."""
 
 RcStyleType: TypeAlias = (
     str |
@@ -132,16 +133,22 @@ MouseEventType: TypeAlias = Literal[
     "axes_enter_event",
     "axes_leave_event",
 ]
+"""Literal type for valid `.MouseEvent` names."""
 
 KeyEventType: TypeAlias = Literal[
     "key_press_event",
     "key_release_event"
 ]
+"""Literal type for valid `.KeyEvent` names."""
 
 DrawEventType: TypeAlias = Literal["draw_event"]
+"""Literal type for valid `.DrawEvent` names."""
 PickEventType: TypeAlias = Literal["pick_event"]
+"""Literal type for valid `.PickEvent` names."""
 ResizeEventType: TypeAlias = Literal["resize_event"]
+"""Literal type for valid `.ResizeEvent` names."""
 CloseEventType: TypeAlias = Literal["close_event"]
+"""Literal type for valid `.CloseEvent` names."""
 
 EventType: TypeAlias = Literal[
     MouseEventType,
@@ -151,6 +158,7 @@ EventType: TypeAlias = Literal[
     ResizeEventType,
     CloseEventType,
 ]
+"""Literal type for all valid events."""
 
 LegendLocType: TypeAlias = (
     Literal[
@@ -518,6 +526,7 @@ RcKeyType: TypeAlias = Literal[
     "ytick.minor.width",
     "ytick.right",
 ]
+"""Valid specifiers for keys in `matplotlib.rcParams` and `matplotlib.rc_context`."""
 
 RcGroupKeyType: TypeAlias = Literal[
     "agg",
@@ -584,3 +593,4 @@ RcGroupKeyType: TypeAlias = Literal[
     "ytick.major",
     "ytick.minor",
 ]
+"""Literal type for valid groups accepted by `matplotlib.rc`."""
