@@ -558,3 +558,32 @@ def test_animation_with_transparency():
     # Check that the alpha channel is not 255, so frame has transparency
     assert frame.getextrema()[3][0] < 255
     plt.close(fig)
+
+def test_animation_paused_start():
+    """Test that paused=True prevents the animation from auto-starting."""
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    def update(frame):
+        return line,
+
+    ani = animation.FuncAnimation(fig, update, frames=5, paused=True)
+    fig.canvas.draw()  # triggers the first draw_event / _start callback
+
+    assert not ani.event_source.is_running()
+    plt.close(fig)
+
+
+def test_animation_default_starts():
+    """Test that the default paused=False still auto-starts."""
+    fig, ax = plt.subplots()
+    line, = ax.plot([], [])
+
+    def update(frame):
+        return line,
+
+    ani = animation.FuncAnimation(fig, update, frames=5)
+    fig.canvas.draw()
+
+    assert ani.event_source.is_running()
+    plt.close(fig)
