@@ -3,7 +3,7 @@ font data tables for truetype and afm computer modern fonts
 """
 
 from __future__ import annotations
-from typing import TypeAlias, overload
+from typing import overload
 
 from .ft2font import CharacterCodeType
 
@@ -1177,9 +1177,8 @@ tex2uni['__angbracketright__'] = tex2uni['rangle']
 # Each element is a 4-tuple of the form:
 #   src_start, src_end, dst_font, dst_start
 
-_EntryTypeIn: TypeAlias = tuple[str, str, str, str | CharacterCodeType]
-_EntryTypeOut: TypeAlias = tuple[CharacterCodeType, CharacterCodeType, str,
-                                 CharacterCodeType]
+type _EntryTypeIn = tuple[str, str, str, str | CharacterCodeType]
+type _EntryTypeOut = tuple[CharacterCodeType, CharacterCodeType, str, CharacterCodeType]
 
 _stix_virtual_fonts: dict[str, dict[str, list[_EntryTypeIn]] | list[_EntryTypeIn]] = {
     'bb': {
