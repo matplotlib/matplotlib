@@ -559,6 +559,7 @@ def test_animation_with_transparency():
     assert frame.getextrema()[3][0] < 255
     plt.close(fig)
 
+
 def test_animation_paused_start():
     """Test that paused=True prevents the animation from auto-starting."""
     fig, ax = plt.subplots()
