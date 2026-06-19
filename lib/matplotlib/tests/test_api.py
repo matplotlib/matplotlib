@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 import re
 import typing
-from typing import Any, TypeVar
+from typing import Any
 
 import numpy as np
 import pytest
@@ -14,8 +14,6 @@ from matplotlib import _api
 
 if typing.TYPE_CHECKING:
     from typing import Self
-
-T = TypeVar('T')
 
 
 def test_unsupported_method():
@@ -108,7 +106,7 @@ def test_warn_deprecated():
 def test_deprecate_privatize_attribute() -> None:
     class C:
         def __init__(self) -> None: self._attr = 1
-        def _meth(self, arg: T) -> T: return arg
+        def _meth[T](self, arg: T) -> T: return arg
         attr: int = _api.deprecate_privatize_attribute("0.0")
         meth: Callable = _api.deprecate_privatize_attribute("0.0")
 

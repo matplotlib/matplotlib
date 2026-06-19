@@ -38,11 +38,6 @@ matplotlib\.figure\.Figure\.set_tight_layout
 matplotlib\.tri\..*TriInterpolator\.__call__
 matplotlib\.tri\..*TriInterpolator\.gradient
 
-# TypeVar used only in type hints
-matplotlib\.backend_bases\.FigureCanvasBase\._T
-matplotlib\.backend_managers\.ToolManager\._T
-matplotlib\.spines\.Spine\._T
-
 # Parameter inconsistency due to 3.10 deprecation
 matplotlib\.figure\.FigureBase\.get_figure
 
