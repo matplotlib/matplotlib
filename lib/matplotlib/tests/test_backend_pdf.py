@@ -112,7 +112,8 @@ def test_indexed_image():
 
     with pikepdf.Pdf.open(buf) as pdf:
         page, = pdf.pages
-        image, = page.images.values()
+        images = page.get_images() if hasattr(page, 'get_images') else page.images
+        image, = images.values()
         pdf_image = pikepdf.PdfImage(image)
         assert pdf_image.indexed
         pil_image = pdf_image.as_pil_image()

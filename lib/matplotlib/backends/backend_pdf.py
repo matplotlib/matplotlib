@@ -1810,13 +1810,15 @@ end"""
              Op.closepath.value],
             True))]
 
-    def writePath(self, path, transform, clip=False, sketch=None):
+    def writePath(self, path, transform, clip=False, sketch=None, simplify=None):
         if clip:
             clip = (0.0, 0.0, self.width * 72, self.height * 72)
-            simplify = path.should_simplify
+            if simplify is None:
+                simplify = path.should_simplify
         else:
             clip = None
-            simplify = False
+            if simplify is None:
+                simplify = False
         cmds = self.pathOperations(path, transform, clip, simplify=simplify,
                                    sketch=sketch)
         self.output(*cmds)
@@ -1947,10 +1949,15 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
         self.check_gc(gc, rgbFace)
+        no_hatch = gc.get_hatch_path() is None
+        clip = rgbFace is None and no_hatch
+        simplify = None
+        if (not clip and no_hatch
+                and getattr(path, "_fill_between_simplify", False)):
+            simplify = (mpl.rcParams['path.simplify']
+                        and mpl.rcParams['path.simplify_threshold'] > 0)
         self.file.writePath(
-            path, transform,
-            rgbFace is None and gc.get_hatch_path() is None,
-            gc.get_sketch_params())
+            path, transform, clip, gc.get_sketch_params(), simplify=simplify)
         self.file.output(self.gc.paint())
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,

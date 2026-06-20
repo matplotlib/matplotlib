@@ -1502,6 +1502,12 @@ class FillBetweenPolyCollection(PolyCollection):
         verts = self._make_verts(t, f1, f2, where)
         self.set_verts(verts)
 
+    def set_verts(self, verts, closed=True):
+        super().set_verts(verts, closed=closed)
+        for path in self._paths:
+            path._fill_between_simplify = True
+    set_paths = set_verts
+
     def get_datalim(self, transData):
         """Calculate the data limits and return them as a `.Bbox`."""
         datalim = transforms.Bbox.null()
