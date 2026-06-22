@@ -331,17 +331,21 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def mousePressEvent(self, event):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
+            mods = self._mpl_modifiers()
             MouseEvent("button_press_event", self,
-                       *self.mouseEventCoords(event), button,
-                       modifiers=self._mpl_modifiers(),
+                       *self.mouseEventCoords(event),
+                       self._remap_darwin_button(button, mods),
+                       modifiers=mods,
                        guiEvent=event)._process()
 
     def mouseDoubleClickEvent(self, event):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
+            mods = self._mpl_modifiers()
             MouseEvent("button_press_event", self,
-                       *self.mouseEventCoords(event), button, dblclick=True,
-                       modifiers=self._mpl_modifiers(),
+                       *self.mouseEventCoords(event),
+                       self._remap_darwin_button(button, mods), dblclick=True,
+                       modifiers=mods,
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
@@ -356,9 +360,11 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def mouseReleaseEvent(self, event):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
+            mods = self._mpl_modifiers()
             MouseEvent("button_release_event", self,
-                       *self.mouseEventCoords(event), button,
-                       modifiers=self._mpl_modifiers(),
+                       *self.mouseEventCoords(event),
+                       self._remap_darwin_button(button, mods),
+                       modifiers=mods,
                        guiEvent=event)._process()
 
     def wheelEvent(self, event):
@@ -423,6 +429,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # State *after* press/release.
         return {button for mask, button in FigureCanvasQT.buttond.items()
                 if _to_int(mask) & buttons}
+
+    @staticmethod
+    def _remap_darwin_button(button, mods):
+        # On macOS, Option+left-click emulates middle-click (mirrors _macosx.m).
+        if sys.platform == "darwin" and button == MouseButton.LEFT and 'alt' in mods:
+            return MouseButton.MIDDLE
+        return button
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
