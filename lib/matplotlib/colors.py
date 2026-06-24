@@ -1233,7 +1233,7 @@ class LinearSegmentedColormap(Colormap):
             except Exception as e2:
                 raise e2 from e
             vals = np.asarray(_vals)
-            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) <= 0):
+            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) < 0):
                 raise ValueError(
                     "the values passed in the (value, color) pairs "
                     "must increase monotonically from 0 to 1."
