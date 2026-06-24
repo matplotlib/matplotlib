@@ -12,6 +12,9 @@
    :undoc-members:
    :show-inheritance:
 
+.. autoclass:: matplotlib.text._AnnotationBase
+   :class-doc-from: class
+
 .. autoclass:: matplotlib.text.Annotation
    :members:
    :undoc-members:
