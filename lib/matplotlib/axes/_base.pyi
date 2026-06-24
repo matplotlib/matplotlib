@@ -67,7 +67,7 @@ class _AxesBase(martist.Artist):
 
     def __init__(
         self,
-        fig: Figure,
+        fig: Figure | SubFigure,
         *args: tuple[float, float, float, float] | Bbox | int,
         facecolor: ColorType | None = ...,
         frameon: bool = ...,
