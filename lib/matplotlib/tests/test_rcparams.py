@@ -681,7 +681,13 @@ def test_rc_aliases(group, option, alias, value):
 
 
 def test_all_params_defined_as_code():
-    assert set(p.name for p in rcsetup._params_list()) == set(mpl.rcParams.keys())
+    params_in_code = {p.name for p in rcsetup._params_list()}
+    # 'backend' is stored in RcParams._backend (a class variable) rather than
+    # in the underlying dict, so it does not appear in rcParams.keys() /
+    # __iter__.  It is still accessible via rcParams['backend'] and
+    # 'backend' in rcParams; it just doesn't show up during iteration.
+    params_in_code.remove("backend")
+    assert params_in_code == set(mpl.rcParams.keys())
 
 
 def test_validators_defined_as_code():
