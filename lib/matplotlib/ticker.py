@@ -1037,10 +1037,6 @@ class LogFormatter(Formatter):
         If a symmetric log scale is in use, its ``linthresh`` and ``linscale``
         parameters must be supplied here.
 
-    legacy_symlog_ticker : bool, default: :rc:`axes.formatter.legacy_symlog_ticker`
-        Whether to use the legacy tick placement algorithm for symlog axes,
-        which is known to cause bad tick placement in some cases.
-
     Notes
     -----
     The `set_locs` method must be called to enable the subsetting
@@ -1066,8 +1062,7 @@ class LogFormatter(Formatter):
 
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
-                 linthresh=None, linscale=None, *,
-                 legacy_symlog_ticker=None):
+                 linthresh=None, linscale=None):
 
         self.set_base(base)
         self.set_label_minor(labelOnlyBase)
@@ -1082,8 +1077,6 @@ class LogFormatter(Formatter):
         self._linscale = linscale
         self._symlogutil = None
         self._firstsublabels = None
-        self._legacy_symlog_ticker = mpl._val_or_rc(
-            legacy_symlog_ticker, 'axes.formatter.legacy_symlog_ticker')
 
     def set_base(self, base):
         """
@@ -1145,26 +1138,10 @@ class LogFormatter(Formatter):
         b = self._base
 
         if self._symlog:
-            if self._legacy_symlog_ticker:
-                # Only count ticks and decades in the logarithmic part of the axis.
-                numdec = numticks = 0
-                if vmin < -self._symlogutil.linthresh:
-                    rhs = min(vmax, -self._symlogutil.linthresh)
-                    numticks += (
-                        math.floor(math.log(abs(rhs), b))
-                        - math.floor(math.nextafter(math.log(abs(vmin), b), -math.inf)))
-                    numdec += math.log(vmin / rhs, b)
-                if vmax > self._symlogutil.linthresh:
-                    lhs = max(vmin, self._symlogutil.linthresh)
-                    numticks += (
-                        math.floor(math.log(vmax, b))
-                        - math.floor(math.nextafter(math.log(lhs, b), -math.inf)))
-                    numdec += math.log(vmax / lhs, b)
-            else:
-                minrdec = self._symlogutil.dec(vmin)
-                maxrdec = self._symlogutil.dec(vmax)
-                numdec = maxrdec - minrdec
-                numticks = np.floor(maxrdec) - np.ceil(minrdec) + 1
+            minrdec = self._symlogutil.dec(vmin)
+            maxrdec = self._symlogutil.dec(vmax)
+            numdec = maxrdec - minrdec
+            numticks = np.floor(maxrdec) - np.ceil(minrdec) + 1
         else:
             lmin = math.log(vmin, b)
             lmax = math.log(vmax, b)
@@ -1220,12 +1197,7 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._symlog and not self._legacy_symlog_ticker:
-            _, firstpow = self._symlogutil.firstdec()
-            below_firstpow = x < firstpow
-        else:
-            below_firstpow = False
-        if below_firstpow:
+        if self._symlog and x < self._symlogutil.firstdec()[1]:
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -1311,12 +1283,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._symlog and not self._legacy_symlog_ticker:
-            _, firstpow = self._symlogutil.firstdec()
-            below_firstpow = x < firstpow
-        else:
-            below_firstpow = False
-        if below_firstpow:
+        if self._symlog and x < self._symlogutil.firstdec()[1]:
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -2813,8 +2780,7 @@ class SymmetricalLogLocator(Locator):
     """
 
     def __init__(self, transform=None, subs=None, numticks=None,
-                 linthresh=None, base=None, linscale=None, *,
-                 legacy_symlog_ticker=None):
+                 linthresh=None, base=None, linscale=None):
         """
         Parameters
         ----------
@@ -2838,10 +2804,6 @@ class SymmetricalLogLocator(Locator):
             already been assigned to an axis using `~.axis.Axis.get_tick_space`, but
             otherwise falls back to 9.
 
-        legacy_symlog_ticker : bool, default: :rc:`axes.formatter.legacy_symlog_ticker`
-            Whether to use the legacy tick placement algorithm for symlog axes,
-            which is known to cause bad tick placement in some cases.
-
         Notes
         -----
         Either *transform*, or all of *base*, *linthresh* and *linscale* must be given.
@@ -2854,8 +2816,6 @@ class SymmetricalLogLocator(Locator):
             else:
                 numticks = 'auto'
         self.numticks = numticks
-        self._legacy_symlog_ticker = mpl._val_or_rc(
-            legacy_symlog_ticker, 'axes.formatter.legacy_symlog_ticker')
 
     def set_params(self, subs=None, numticks=None,
                    base=None, linthresh=None, linscale=None):
@@ -2898,9 +2858,6 @@ class SymmetricalLogLocator(Locator):
         return self.tick_values(vmin, vmax)
 
     def tick_values(self, vmin, vmax):
-        if self._legacy_symlog_ticker:
-            return self._tick_values_legacy(vmin, vmax)
-
         n_request = (
             self.numticks if self.numticks != 'auto' else
             np.clip(self.axis.get_tick_space(), 2, 9) if self.axis is not None else
@@ -3033,107 +2990,6 @@ class SymmetricalLogLocator(Locator):
                 return AutoLocator().tick_values(vmin, vmax)
 
         return self.raise_if_exceeds(ticklocs)
-
-    def _tick_values_legacy(self, vmin, vmax):
-        if self.numticks == 'auto':
-            numticks = 15
-        else:
-            numticks = self.numticks
-        base = self._symlogutil.base
-        linthresh = self._symlogutil.linthresh
-
-        if vmax < vmin:
-            vmin, vmax = vmax, vmin
-
-        # The domain is divided into three sections, only some of
-        # which may actually be present.
-        #
-        # <======== -t ==0== t ========>
-        # aaaaaaaaa    bbbbb   ccccccccc
-        #
-        # a) and c) will have ticks at integral log positions.  The
-        # number of ticks needs to be reduced if there are more
-        # than numticks of them.
-        #
-        # b) has a tick at 0 and only 0 (we assume t is a small
-        # number, and the linear segment is just an implementation
-        # detail and not interesting.)
-        #
-        # We could also add ticks at t, but that seems to usually be
-        # uninteresting.
-        #
-        # "simple" mode is when the range falls entirely within [-t, t]
-        #  -- it should just display (vmin, 0, vmax)
-        if -linthresh <= vmin < vmax <= linthresh:
-            # only the linear range is present
-            return sorted({vmin, 0, vmax})
-
-        # Lower log range is present
-        has_a = (vmin < -linthresh)
-        # Upper log range is present
-        has_c = (vmax > linthresh)
-
-        # Check if linear range is present
-        has_b = (has_a and vmax > -linthresh) or (has_c and vmin < linthresh)
-
-        def get_log_range(lo, hi):
-            lo = np.floor(np.log(lo) / np.log(base))
-            hi = np.ceil(np.log(hi) / np.log(base))
-            return lo, hi
-
-        # Calculate all the ranges, so we can determine striding
-        a_lo, a_hi = (0, 0)
-        if has_a:
-            a_upper_lim = min(-linthresh, vmax)
-            a_lo, a_hi = get_log_range(abs(a_upper_lim), abs(vmin) + 1)
-
-        c_lo, c_hi = (0, 0)
-        if has_c:
-            c_lower_lim = max(linthresh, vmin)
-            c_lo, c_hi = get_log_range(c_lower_lim, vmax + 1)
-
-        # Calculate the total number of integer exponents in a and c ranges
-        total_ticks = (a_hi - a_lo) + (c_hi - c_lo)
-        if has_b:
-            total_ticks += 1
-        stride = max(total_ticks // (numticks - 1), 1)
-
-        decades = []
-        if has_a:
-            decades.extend(-1 * (base ** (np.arange(a_lo, a_hi,
-                                                    stride)[::-1])))
-
-        if has_b:
-            decades.append(0.0)
-
-        if has_c:
-            decades.extend(base ** (np.arange(c_lo, c_hi, stride)))
-
-        # The legacy symlog ticker did not use minor ticks by default,
-        # but they could be obtained explicitly, so we still want to
-        # support them. However, string values were not supported then
-        # but are the default now, so we need to test for it.
-        if isinstance(self._subs, str):
-            # Either 'auto' or 'all'.
-            _first = 2.0 if self._subs == 'auto' else 1.0
-            subs = np.arange(_first, self._symlogutil.base)
-        else:
-            subs = np.asarray(self._subs)
-
-        if len(subs) > 1 or subs[0] != 1.0:
-            ticklocs = []
-            for decade in decades:
-                if decade == 0:
-                    ticklocs.append(decade)
-                else:
-                    ticklocs.extend(subs * decade)
-        else:
-            ticklocs = decades
-
-        # The legacy locator did not use minor ticks, so we don't support them.
-        ticklocs = decades
-
-        return self.raise_if_exceeds(np.array(ticklocs))
 
     def view_limits(self, vmin, vmax):
         """Try to choose the view limits intelligently."""

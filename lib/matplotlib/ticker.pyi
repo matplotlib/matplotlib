@@ -123,8 +123,6 @@ class LogFormatter(Formatter):
         minor_thresholds: tuple[float, float] | None = ...,
         linthresh: float | None = ...,
         linscale: float | None = ...,
-        *,
-        legacy_symlog_ticker: bool | None = ...,
     ) -> None: ...
     def set_base(self, base: float) -> None: ...
     labelOnlyBase: bool
@@ -284,8 +282,6 @@ class SymmetricalLogLocator(Locator):
         linthresh: float | None = ...,
         base: float | None = ...,
         linscale: float | None = ...,
-        *,
-        legacy_symlog_ticker: bool | None = ...,
     ) -> None: ...
     def set_params(
         self,
