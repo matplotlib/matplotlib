@@ -7,7 +7,13 @@ from matplotlib.typing import ColorType, LineStyleType, MarkEveryType
 
 _T = TypeVar("_T")
 
-def _listify_validator(s: Callable[[Any], _T]) -> Callable[[Any], list[_T]]: ...
+def _listify_validator(
+    scalar_validator: Callable[[Any], _T],
+    allow_stringlist: bool = ...,
+    *,
+    n: int | None = ...,
+    doc: str | None = ...,
+) -> Callable[[Any], list[_T]]: ...
 
 class ValidateInStrings:
     key: str
