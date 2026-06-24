@@ -2779,8 +2779,9 @@ class SymmetricalLogLocator(Locator):
     Place ticks spaced linearly near zero and spaced logarithmically beyond a threshold.
     """
 
-    def __init__(self, transform=None, subs=None, numticks=None,
-                 linthresh=None, base=None, linscale=None):
+    def __init__(self, transform=None, subs=None,
+                 linthresh=None, base=None, linscale=None,
+                 *, numticks=None):
         """
         Parameters
         ----------
