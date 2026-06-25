@@ -1081,19 +1081,22 @@ class LogFormatter(Formatter):
         self._linscale = linscale
         # For symlog axes:
         self._firstsublabels = None
+
+    @property
+    def _is_symlog(self):
+        if self._symlogutil is not None:
+            return True
         if self._linthresh is not None and self._linscale is not None:
             self._symlogutil = _SymmetricalLogUtil(base=self._base,
                                                    linthresh=self._linthresh,
                                                    linscale=self._linscale)
-        else:
-            try:
-                self._symlogutil = _SymmetricalLogUtil(self.axis.get_transform())
-            except AttributeError:
-                pass
-
-    @property
-    def _is_symlog(self):
-        return self._symlogutil is not None
+            return True
+        try:
+            self._symlogutil = _SymmetricalLogUtil(self.axis.get_transform())
+            return True
+        except AttributeError:
+            pass
+        return False
 
     def set_base(self, base):
         """
@@ -1103,7 +1106,7 @@ class LogFormatter(Formatter):
            Should always match the base used for :class:`LogLocator`
         """
         self._base = float(base)
-        if self._is_symlog:
+        if self._symlogutil is not None:
             self._symlogutil.base = self._base
 
     def set_label_minor(self, labelOnlyBase):
