@@ -599,6 +599,9 @@ class SymmetricalLogScale(ScaleBase):
         For example, in a log10 scale: ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place
         8 logarithmically spaced minor ticks between each major tick.
 
+        .. versionchanged:: 3.12
+            The default value is now ``'auto'``.
+
     linscale : float, optional
         This allows the linear range ``(-linthresh, linthresh)`` to be
         stretched relative to the logarithmic range. Its value is the number of

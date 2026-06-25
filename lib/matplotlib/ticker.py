@@ -1037,6 +1037,9 @@ class LogFormatter(Formatter):
         If a symmetric log scale is in use, its ``linthresh`` and ``linscale``
         parameters must be supplied here.
 
+        .. versionadded:: 3.12
+            The *linscale* parameter.
+
     Notes
     -----
     The `set_locs` method must be called to enable the subsetting
@@ -2791,6 +2794,9 @@ class SymmetricalLogLocator(Locator):
             The *base*, *linthresh* and *linscale* of the symlog transform, as
             documented for `.SymmetricalLogScale`.  These parameters are only used
             if *transform* is not set.
+
+            .. versionadded:: 3.12
+                The *linscale* parameter.
         subs : None, 'auto', 'all' or sequence of float, default: None
             The multiples of integer powers of the base at which to place ticks.
             The default of ``None`` is equivalent to ``(1.0, )``, i.e. it places
@@ -2804,6 +2810,8 @@ class SymmetricalLogLocator(Locator):
             ``None`` will try to choose intelligently as long as this Locator has
             already been assigned to an axis using `~.axis.Axis.get_tick_space`, but
             otherwise falls back to 9.
+
+            .. versionadded:: 3.12
 
         Notes
         -----
