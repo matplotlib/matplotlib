@@ -1099,7 +1099,7 @@ class LogFormatter(Formatter):
         self.labelOnlyBase = labelOnlyBase
 
     @property
-    def _symlog(self):
+    def _is_symlog(self):
         if self._symlogutil is not None:
             return True
         if self._linthresh is not None and self._linscale is not None:
@@ -1128,7 +1128,7 @@ class LogFormatter(Formatter):
         if vmin > vmax:
             vmin, vmax = vmax, vmin
 
-        if not self._symlog and vmin <= 0:
+        if not self._is_symlog and vmin <= 0:
             # It's probably a colorbar with
             # a format kwarg setting a LogFormatter in the manner
             # that worked with 1.5.x, but that doesn't work now.
@@ -1137,7 +1137,7 @@ class LogFormatter(Formatter):
 
         b = self._base
 
-        if self._symlog:
+        if self._is_symlog:
             minrdec = self._symlogutil.dec(vmin)
             maxrdec = self._symlogutil.dec(vmax)
             numdec = maxrdec - minrdec
@@ -1151,7 +1151,7 @@ class LogFormatter(Formatter):
         if numticks > self.minor_thresholds[0]:
             # Label only bases
             self._sublabels = {1}
-            if self._symlog:
+            if self._is_symlog:
                 self._firstsublabels = {0}
         elif numdec > self.minor_thresholds[1]:
             # Add labels between bases at log-spaced coefficients;
@@ -1160,7 +1160,7 @@ class LogFormatter(Formatter):
             c = np.geomspace(1, b, int(b)//2 + 1)
             self._sublabels = set(np.round(c))
             # For base 10, this yields (1, 2, 3, 4, 6, 10).
-            if self._symlog:
+            if self._is_symlog:
                 # For the linear part of the scale we use an analog selection.
                 c = np.linspace(0, b, int(b)//2 + 1)
                 self._firstsublabels = set(np.round(c))
@@ -1168,10 +1168,10 @@ class LogFormatter(Formatter):
         else:
             # Label all integer multiples of base**n.
             self._sublabels = set(np.arange(1, b + 1))
-            if self._symlog:
+            if self._is_symlog:
                 self._firstsublabels = set(np.arange(0, b + 1))
 
-        if self._symlog:
+        if self._is_symlog:
             _, firstpow = self._symlogutil.firstdec()
             if self._firstsublabels == {0} and -firstpow < vmin < vmax < firstpow:
                 # No minor ticks are being labeled right now and the only major tick is
@@ -1197,7 +1197,7 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._symlog and x < self._symlogutil.firstdec()[1]:
+        if self._is_symlog and x < self._symlogutil.firstdec()[1]:
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -1283,7 +1283,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._symlog and x < self._symlogutil.firstdec()[1]:
+        if self._is_symlog and x < self._symlogutil.firstdec()[1]:
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
