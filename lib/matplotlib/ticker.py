@@ -1075,8 +1075,22 @@ class LogFormatter(Formatter):
         self._sublabels = None
         self._linthresh = linthresh
         self._linscale = linscale
-        self._symlogutil = None
+        # For symlog axes:
         self._firstsublabels = None
+        self._symlogutil = None
+        if self._linthresh is not None and self._linscale is not None:
+            self._symlogutil = _SymmetricalLogUtil(base=self._base,
+                                                   linthresh=self._linthresh,
+                                                   linscale=self._linscale)
+        else:
+            try:
+                self._symlogutil = _SymmetricalLogUtil(self.axis.get_transform())
+            except AttributeError:
+                pass
+
+    @property
+    def _is_symlog(self):
+        return self._symlogutil is not None
 
     def set_base(self, base):
         """
@@ -1097,22 +1111,6 @@ class LogFormatter(Formatter):
             If True, label ticks only at integer powers of base.
         """
         self.labelOnlyBase = labelOnlyBase
-
-    @property
-    def _is_symlog(self):
-        if self._symlogutil is not None:
-            return True
-        if self._linthresh is not None and self._linscale is not None:
-            self._symlogutil = _SymmetricalLogUtil(base=self._base,
-                                                   linthresh=self._linthresh,
-                                                   linscale=self._linscale)
-            return True
-        try:
-            self._symlogutil = _SymmetricalLogUtil(self.axis.get_transform())
-            return True
-        except AttributeError:
-            pass
-        return False
 
     def set_locs(self, locs=None):
         """
