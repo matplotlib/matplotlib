@@ -1066,7 +1066,8 @@ class LogFormatter(Formatter):
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
                  linthresh=None, linscale=None):
-
+        # Create _symlogutil first, since its existence is assumed in set_base().
+        self._symlogutil = None
         self.set_base(base)
         self.set_label_minor(labelOnlyBase)
         if minor_thresholds is None:
@@ -1080,7 +1081,6 @@ class LogFormatter(Formatter):
         self._linscale = linscale
         # For symlog axes:
         self._firstsublabels = None
-        self._symlogutil = None
         if self._linthresh is not None and self._linscale is not None:
             self._symlogutil = _SymmetricalLogUtil(base=self._base,
                                                    linthresh=self._linthresh,
