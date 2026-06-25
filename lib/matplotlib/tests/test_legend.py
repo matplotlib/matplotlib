@@ -2,7 +2,6 @@ import collections
 import io
 import itertools
 import platform
-import sys
 import time
 from unittest import mock
 import warnings
@@ -203,7 +202,7 @@ def test_alpha_rcparam():
 
 
 @image_comparison(['fancy.png'], remove_text=True, style='mpl20',
-                  tol=0.01 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_fancy():
     # using subplot triggers some offsetbox functionality untested elsewhere
     plt.subplot(121)
@@ -665,7 +664,7 @@ def test_empty_bar_chart_with_legend():
 
 
 @image_comparison(['shadow_argument_types.png'], remove_text=True, style='mpl20',
-                  tol=0.028 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_shadow_argument_types():
     # Test that different arguments for shadow work as expected
     fig, ax = plt.subplots()
