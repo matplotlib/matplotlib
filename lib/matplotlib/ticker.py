@@ -1100,6 +1100,8 @@ class LogFormatter(Formatter):
            Should always match the base used for :class:`LogLocator`
         """
         self._base = float(base)
+        if self._is_symlog:
+            self._symlogutil.base = self._base
 
     def set_label_minor(self, labelOnlyBase):
         """
