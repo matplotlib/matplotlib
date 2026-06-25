@@ -1,7 +1,7 @@
 from collections.abc import Buffer
 from enum import Enum, Flag
 from os import PathLike
-from typing import BinaryIO, Literal, NewType, NotRequired, TypeAlias, TypedDict, cast, final, overload
+from typing import BinaryIO, Literal, NewType, NotRequired, TypedDict, cast, final, overload
 
 import numpy as np
 from numpy.typing import NDArray
@@ -12,7 +12,7 @@ __libraqm_version__: str
 
 # We can't change the type hints for standard library chr/ord, so character codes are a
 # simple type alias.
-CharacterCodeType: TypeAlias = int
+type CharacterCodeType = int
 # But glyph indices are internal, so use a distinct type hint.
 GlyphIndexType = NewType('GlyphIndexType', int)
 

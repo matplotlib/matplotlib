@@ -3,7 +3,7 @@ from matplotlib.backend_bases import FigureCanvasBase
 from matplotlib.figure import Figure
 
 from collections.abc import Callable, Iterable
-from typing import Any, TypeVar
+from typing import Any
 
 class ToolEvent:
     name: str
@@ -48,8 +48,7 @@ class ToolManager:
     def get_tool_keymap(self, name: str) -> list[str]: ...
     def update_keymap(self, name: str, key: str | Iterable[str]) -> None: ...
     def remove_tool(self, name: str) -> None: ...
-    _T = TypeVar("_T", bound=backend_tools.ToolBase)
-    def add_tool(self, name: str, tool: type[_T], *args, **kwargs) -> _T: ...
+    def add_tool[T: backend_tools.ToolBase](self, name: str, tool: type[T], *args, **kwargs) -> T: ...
     def trigger_tool(
         self,
         name: str | backend_tools.ToolBase,

@@ -1,5 +1,5 @@
 from collections.abc import Callable, Iterator, MutableMapping
-from typing import Literal, TypeVar, overload
+from typing import Literal, overload
 
 import matplotlib.patches as mpatches
 from matplotlib.axes import Axes
@@ -36,17 +36,16 @@ class Spine(mpatches.Patch):
     def set_bounds(self, low: float | None = ..., high: float | None = ...) -> None: ...
     def get_bounds(self) -> tuple[float, float]: ...
 
-    _T = TypeVar("_T", bound=Spine)
     @classmethod
-    def linear_spine(
-        cls: type[_T],
+    def linear_spine[T: Spine](
+        cls: type[T],
         axes: Axes,
         spine_type: Literal["left", "right", "bottom", "top"],
         **kwargs
-    ) -> _T: ...
+    ) -> T: ...
     @classmethod
-    def arc_spine(
-        cls: type[_T],
+    def arc_spine[T: Spine](
+        cls: type[T],
         axes: Axes,
         spine_type: Literal["left", "right", "bottom", "top"],
         center: tuple[float, float],
@@ -54,11 +53,11 @@ class Spine(mpatches.Patch):
         theta1: float,
         theta2: float,
         **kwargs
-    ) -> _T: ...
+    ) -> T: ...
     @classmethod
-    def circular_spine(
-        cls: type[_T], axes: Axes, center: tuple[float, float], radius: float, **kwargs
-    ) -> _T: ...
+    def circular_spine[T: Spine](
+        cls: type[T], axes: Axes, center: tuple[float, float], radius: float, **kwargs
+    ) -> T: ...
     def set_color(self, c: ColorType | None) -> None: ...
 
 class SpinesProxy:

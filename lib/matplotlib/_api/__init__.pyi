@@ -1,6 +1,5 @@
 from collections.abc import Callable, Generator, Iterable, Mapping, Sequence
-from typing import Any, TypeVar, overload
-from typing import Self
+from typing import Any, Self, overload
 
 from numpy.typing import NDArray
 
@@ -16,15 +15,13 @@ from .deprecation import (  # noqa: F401, re-exported API
     MatplotlibDeprecationWarning as MatplotlibDeprecationWarning,
 )
 
-_T = TypeVar("_T")
-
 class _Unset: ...
 UNSET = _Unset()
 
-class classproperty(Any):
+class classproperty[T](Any):
     def __init__(
         self,
-        fget: Callable[[_T], Any],
+        fget: Callable[[T], Any],
         fset: None = ...,
         fdel: None = ...,
         doc: str | None = None,
@@ -34,7 +31,7 @@ class classproperty(Any):
     @overload
     def __get__(self, instance: object, owner: type[object]) -> Any: ...
     @property
-    def fget(self) -> Callable[[_T], Any]: ...
+    def fget(self) -> Callable[[T], Any]: ...
 
 def check_isinstance(
     types: type | tuple[type | None, ...], /, **kwargs: Any
@@ -42,14 +39,14 @@ def check_isinstance(
 def list_suggestion_error_msg(name: str, potential: Any, values: Sequence[Any]) -> str: ...
 def check_in_list(values: Sequence[Any], /, **kwargs: Any) -> None: ...
 def check_shape(shape: tuple[int | None, ...], /, **kwargs: NDArray) -> None: ...
-def getitem_checked(mapping: Mapping[Any, _T], /, _error_cls: type[Exception] = ..., **kwargs: Any) -> _T: ...
+def getitem_checked[T](mapping: Mapping[Any, T], /, _error_cls: type[Exception] = ..., **kwargs: Any) -> T: ...
 def caching_module_getattr(cls: type) -> Callable[[str], Any]: ...
 @overload
-def define_aliases(
+def define_aliases[T](
     alias_d: dict[str, list[str]], cls: None = ...
-) -> Callable[[type[_T]], type[_T]]: ...
+) -> Callable[[type[T]], type[T]]: ...
 @overload
-def define_aliases(alias_d: dict[str, list[str]], cls: type[_T]) -> type[_T]: ...
+def define_aliases[T](alias_d: dict[str, list[str]], cls: type[T]) -> type[T]: ...
 def select_matching_signature(
     funcs: list[Callable], *args: Any, **kwargs: Any
 ) -> Any: ...

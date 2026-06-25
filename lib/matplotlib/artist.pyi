@@ -15,10 +15,8 @@ from .transforms import (
 import numpy as np
 
 from collections.abc import Callable, Iterable
-from typing import Any, Literal, NamedTuple, TextIO, overload, TypeVar
+from typing import Any, Literal, NamedTuple, TextIO, overload
 from numpy.typing import ArrayLike
-
-_T_Artist = TypeVar("_T_Artist", bound=Artist)
 
 def allow_rasterization(draw): ...
 
@@ -143,11 +141,11 @@ class Artist:
     ) -> list[Artist]: ...
 
     @overload
-    def findobj(
+    def findobj[T: Artist](
         self,
-        match: type[_T_Artist],
+        match: type[T],
         include_self: bool = ...,
-    ) -> list[_T_Artist]: ...
+    ) -> list[T]: ...
 
     def get_cursor_data(self, event: MouseEvent) -> Any: ...
     def format_cursor_data(self, data: Any) -> str: ...

@@ -92,8 +92,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
     import pathlib
     import os
-    from typing import Any, BinaryIO, Literal, TypeVar
-    from typing_extensions import ParamSpec
+    from typing import Any, BinaryIO, Literal
 
     import PIL.Image
     from numpy.typing import ArrayLike
@@ -157,10 +156,6 @@ if TYPE_CHECKING:
     from matplotlib.widgets import SubplotTool
     from matplotlib._api import _Unset
 
-    _P = ParamSpec('_P')
-    _R = TypeVar('_R')
-    _T = TypeVar('_T')
-
 
 # We may not need the following imports here:
 from matplotlib.colors import Normalize
@@ -185,25 +180,25 @@ color_sequences = _color_sequences
 
 
 @overload
-def _copy_docstring_and_deprecators(
+def _copy_docstring_and_deprecators[**P, R](
     method: Any,
     func: Literal[None] = None
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]]: ...
+) -> Callable[[Callable[P, R]], Callable[P, R]]: ...
 
 
 @overload
-def _copy_docstring_and_deprecators(
-    method: Any, func: Callable[_P, _R]) -> Callable[_P, _R]: ...
+def _copy_docstring_and_deprecators[**P, R](
+    method: Any, func: Callable[P, R]) -> Callable[P, R]: ...
 
 
-def _copy_docstring_and_deprecators(
+def _copy_docstring_and_deprecators[**P, R](
     method: Any,
-    func: Callable[_P, _R] | None = None
-) -> Callable[[Callable[_P, _R]], Callable[_P, _R]] | Callable[_P, _R]:
+    func: Callable[P, R] | None = None
+) -> Callable[[Callable[P, R]], Callable[P, R]] | Callable[P, R]:
     if func is None:
-        return cast('Callable[[Callable[_P, _R]], Callable[_P, _R]]',
+        return cast('Callable[[Callable[P, R]], Callable[P, R]]',
                     functools.partial(_copy_docstring_and_deprecators, method))
-    decorators: list[Callable[[Callable[_P, _R]], Callable[_P, _R]]] = [
+    decorators: list[Callable[[Callable[P, R]], Callable[P, R]]] = [
         _docstring.copy(method)
     ]
     # Check whether the definition of *method* includes @_api.rename_parameter
@@ -1910,19 +1905,19 @@ def subplot_mosaic(
 
 
 @overload
-def subplot_mosaic(
-    mosaic: list[HashableList[_T]],
+def subplot_mosaic[T](
+    mosaic: list[HashableList[T]],
     *,
     sharex: bool = ...,
     sharey: bool = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
-    empty_sentinel: _T = ...,
+    empty_sentinel: T = ...,
     subplot_kw: dict[str, Any] | None = ...,
     gridspec_kw: dict[str, Any] | None = ...,
-    per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
+    per_subplot_kw: dict[T | tuple[T, ...], dict[str, Any]] | None = ...,
     **fig_kw: Any
-) -> tuple[Figure, dict[_T, matplotlib.axes.Axes]]: ...
+) -> tuple[Figure, dict[T, matplotlib.axes.Axes]]: ...
 
 
 @overload
@@ -1941,8 +1936,8 @@ def subplot_mosaic(
 ) -> tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]: ...
 
 
-def subplot_mosaic(
-    mosaic: str | list[HashableList[_T]] | list[HashableList[Hashable]],
+def subplot_mosaic[T](
+    mosaic: str | list[HashableList[T]] | list[HashableList[Hashable]],
     *,
     sharex: bool = False,
     sharey: bool = False,
@@ -1952,11 +1947,11 @@ def subplot_mosaic(
     subplot_kw: dict[str, Any] | None = None,
     gridspec_kw: dict[str, Any] | None = None,
     per_subplot_kw: dict[str | tuple[str, ...], dict[str, Any]] |
-                    dict[_T | tuple[_T, ...], dict[str, Any]] |
+                    dict[T | tuple[T, ...], dict[str, Any]] |
                     dict[Hashable | tuple[Hashable, ...], dict[str, Any]] | None = None,
     **fig_kw: Any
 ) -> tuple[Figure, dict[str, matplotlib.axes.Axes]] | \
-     tuple[Figure, dict[_T, matplotlib.axes.Axes]] | \
+     tuple[Figure, dict[T, matplotlib.axes.Axes]] | \
      tuple[Figure, dict[Hashable, matplotlib.axes.Axes]]:
     """
     Build a layout of Axes based on ASCII art or nested lists.

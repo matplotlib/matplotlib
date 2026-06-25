@@ -19,7 +19,7 @@ from matplotlib.text import Text, TextToPath
 from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
+from typing import Any, IO, Literal, NamedTuple, overload
 from numpy.typing import ArrayLike
 from .typing import (
     CapStyleType,
@@ -362,7 +362,6 @@ class FigureCanvasBase:
     @classmethod
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
-    _T = TypeVar("_T", bound=FigureCanvasBase)
 
     @overload
     def mpl_connect(
