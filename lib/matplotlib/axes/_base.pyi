@@ -27,10 +27,8 @@ from cycler import Cycler
 
 import numpy as np
 from numpy.typing import ArrayLike
-from typing import Any, Literal, TypeVar, overload
+from typing import Any, Literal, overload
 from matplotlib.typing import ColorType
-
-_T = TypeVar("_T", bound=Artist)
 
 class _axis_method_wrapper:
     attr_name: str
@@ -67,7 +65,7 @@ class _AxesBase(martist.Artist):
 
     def __init__(
         self,
-        fig: Figure,
+        fig: Figure | SubFigure,
         *args: tuple[float, float, float, float] | Bbox | int,
         facecolor: ColorType | None = ...,
         frameon: bool = ...,
@@ -136,7 +134,7 @@ class _AxesBase(martist.Artist):
     def clear(self) -> None: ...
     def cla(self) -> None: ...
 
-    class ArtistList(Sequence[_T]):
+    class ArtistList[T: Artist](Sequence[T]):
         def __init__(
             self,
             axes: _AxesBase,
@@ -145,21 +143,21 @@ class _AxesBase(martist.Artist):
             invalid_types: type | Iterable[type] | None = ...,
         ) -> None: ...
         def __len__(self) -> int: ...
-        def __iter__(self) -> Iterator[_T]: ...
+        def __iter__(self) -> Iterator[T]: ...
         @overload
-        def __getitem__(self, key: int) -> _T: ...
+        def __getitem__(self, key: int) -> T: ...
         @overload
-        def __getitem__(self, key: slice) -> list[_T]: ...
+        def __getitem__(self, key: slice) -> list[T]: ...
 
         @overload
-        def __add__(self, other: _AxesBase.ArtistList[_T]) -> list[_T]: ...
+        def __add__(self, other: _AxesBase.ArtistList[T]) -> list[T]: ...
         @overload
         def __add__(self, other: list[Any]) -> list[Any]: ...
         @overload
         def __add__(self, other: tuple[Any]) -> tuple[Any]: ...
 
         @overload
-        def __radd__(self, other: _AxesBase.ArtistList[_T]) -> list[_T]: ...
+        def __radd__(self, other: _AxesBase.ArtistList[T]) -> list[T]: ...
         @overload
         def __radd__(self, other: list[Any]) -> list[Any]: ...
         @overload

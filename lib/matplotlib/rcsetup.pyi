@@ -1,13 +1,17 @@
 from cycler import Cycler
 
 from collections.abc import Callable, Iterable
-from typing import Any, Literal, TypeVar
+from typing import Any, Literal
 from matplotlib.typing import ColorType, LineStyleType, MarkEveryType
 
 
-_T = TypeVar("_T")
-
-def _listify_validator(s: Callable[[Any], _T]) -> Callable[[Any], list[_T]]: ...
+def _listify_validator[T](
+    scalar_validator: Callable[[Any], T],
+    allow_stringlist: bool = ...,
+    *,
+    n: int | None = ...,
+    doc: str | None = ...,
+) -> Callable[[Any], list[T]]: ...
 
 class ValidateInStrings:
     key: str

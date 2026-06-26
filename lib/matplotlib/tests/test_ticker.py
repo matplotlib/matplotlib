@@ -41,7 +41,7 @@ class TestMaxNLocator:
 
     @pytest.mark.parametrize('kwargs, errortype, match', [
         ({'foo': 0}, TypeError,
-         re.escape("set_params() got an unexpected keyword argument 'foo'")),
+         re.escape("__init__() got an unexpected keyword argument 'foo'")),
         ({'steps': [2, 1]}, ValueError, "steps argument must be an increasing"),
         ({'steps': 2}, ValueError, "steps argument must be an increasing"),
         ({'steps': [2, 11]}, ValueError, "steps argument must be an increasing"),
@@ -461,7 +461,7 @@ class TestLogitLocator:
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",
-        zip(ref_basic_limits, ref_basic_major_ticks),
+        list(zip(ref_basic_limits, ref_basic_major_ticks)),
     )
     def test_basic_major(self, lims, expected_low_ticks):
         """
@@ -506,7 +506,7 @@ class TestLogitLocator:
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",
-        zip(ref_basic_limits, ref_basic_major_ticks),
+        list(zip(ref_basic_limits, ref_basic_major_ticks)),
     )
     def test_minor(self, lims, expected_low_ticks):
         """

@@ -12,7 +12,7 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal, TypeAlias, TypeVar, Union
+from typing import Any, Literal
 from collections.abc import Callable, Mapping
 
 from . import path
@@ -22,13 +22,13 @@ from .backend_bases import RendererBase
 from .markers import MarkerStyle
 from .transforms import Bbox, Transform
 
-DataParamType: TypeAlias = Mapping[str, Any] | None
+type DataParamType = Mapping[str, Any] | None
 """The type of the *data* parameter in plotting functions."""
 
-RGBColorType: TypeAlias = tuple[float, float, float] | str
+type RGBColorType = tuple[float, float, float] | str
 """Any RGB color specification accepted by Matplotlib."""
 
-RGBAColorType: TypeAlias = (
+type RGBAColorType = (
     str |  # "none" or "#RRGGBBAA"/"#RGBA" hex strings
     tuple[float, float, float, float] |
     # 2 tuple (color, alpha) representations, not infinitely recursive
@@ -39,19 +39,19 @@ RGBAColorType: TypeAlias = (
 )
 """Any RGBA color specification accepted by Matplotlib."""
 
-ColorType: TypeAlias = RGBColorType | RGBAColorType
+type ColorType = RGBColorType | RGBAColorType
 """Any color specification accepted by Matplotlib. See :mpltype:`color`."""
 
-RGBColourType: TypeAlias = RGBColorType
+type RGBColourType = RGBColorType
 """Alias of `.RGBColorType`."""
 
-RGBAColourType: TypeAlias = RGBAColorType
+type RGBAColourType = RGBAColorType
 """Alias of `.RGBAColorType`."""
 
-ColourType: TypeAlias = ColorType
+type ColourType = ColorType
 """Alias of `.ColorType`."""
 
-LineStyleType: TypeAlias = (
+type LineStyleType = (
     Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
             "", "none", " ", "None"] |
     tuple[float, Sequence[float]]
@@ -61,11 +61,10 @@ Any line style specification accepted by Matplotlib.
 See :doc:`/gallery/lines_bars_and_markers/linestyles`.
 """
 
-DrawStyleType: TypeAlias = Literal["default", "steps", "steps-pre", "steps-mid",
-                                   "steps-post"]
+type DrawStyleType = Literal["default", "steps", "steps-pre", "steps-mid", "steps-post"]
 """See :doc:`/gallery/lines_bars_and_markers/step_demo`."""
 
-MarkEveryType: TypeAlias = (
+type MarkEveryType = (
     None |
     int | tuple[int, int] | slice | list[int] |
     float | tuple[float, float] |
@@ -73,7 +72,7 @@ MarkEveryType: TypeAlias = (
 )
 """See :doc:`/gallery/lines_bars_and_markers/markevery_demo`."""
 
-MarkerType: TypeAlias = (
+type MarkerType = (
     path.Path | MarkerStyle | str |  # str required for "$...$" marker
     Literal[
         ".", ",", "o", "v", "^", "<", ">",
@@ -87,33 +86,28 @@ MarkerType: TypeAlias = (
 Marker specification. See :doc:`/gallery/lines_bars_and_markers/marker_reference`.
 """
 
-FillStyleType: TypeAlias = Literal["full", "left", "right", "bottom", "top", "none"]
+type FillStyleType = Literal["full", "left", "right", "bottom", "top", "none"]
 """Marker fill styles. See :doc:`/gallery/lines_bars_and_markers/marker_reference`."""
 
-JoinStyleType: TypeAlias = JoinStyle | Literal["miter", "round", "bevel"]
+type JoinStyleType = JoinStyle | Literal["miter", "round", "bevel"]
 """Line join styles. See :doc:`/gallery/lines_bars_and_markers/joinstyle`."""
 
-CapStyleType: TypeAlias = CapStyle | Literal["butt", "projecting", "round"]
+type CapStyleType = CapStyle | Literal["butt", "projecting", "round"]
 """Line cap styles. See :doc:`/gallery/lines_bars_and_markers/capstyle`."""
 
-LogLevel: TypeAlias = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+type LogLevel = Literal["NOTSET", "DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
 """Literal type for valid logging levels accepted by `matplotlib.set_loglevel()`."""
 
-CoordsBaseType = Union[
-    str,
-    Artist,
-    Transform,
-    Callable[
-        [RendererBase],
-        Union[Bbox, Transform]
-    ]
-]
-CoordsType = Union[
-    CoordsBaseType,
-    tuple[CoordsBaseType, CoordsBaseType]
-]
+type CoordsBaseType = (
+    str |
+    Artist |
+    Transform |
+    Callable[[RendererBase], Bbox | Transform]
+)
+type CoordsType = CoordsBaseType | tuple[CoordsBaseType, CoordsBaseType]
+"""Annotation coordinate systems. See :doc:`/users/explain/text/annotations`."""
 
-RcStyleType: TypeAlias = (
+type RcStyleType = (
     str |
     dict[str, Any] |
     pathlib.Path |
@@ -124,11 +118,10 @@ Valid specifiers for styles as used in `matplotlib.style.use` and
 `matplotlib.style.context`.
 """
 
-_HT = TypeVar("_HT", bound=Hashable)
-HashableList: TypeAlias = list[_HT | "HashableList[_HT]"]
+type HashableList[_HT: Hashable] = list[_HT | HashableList[_HT]]
 """A nested list of Hashable values."""
 
-MouseEventType: TypeAlias = Literal[
+type MouseEventType = Literal[
     "button_press_event",
     "button_release_event",
     "motion_notify_event",
@@ -138,18 +131,24 @@ MouseEventType: TypeAlias = Literal[
     "axes_enter_event",
     "axes_leave_event",
 ]
+"""Literal type for valid `.MouseEvent` names."""
 
-KeyEventType: TypeAlias = Literal[
+type KeyEventType = Literal[
     "key_press_event",
     "key_release_event"
 ]
+"""Literal type for valid `.KeyEvent` names."""
 
-DrawEventType: TypeAlias = Literal["draw_event"]
-PickEventType: TypeAlias = Literal["pick_event"]
-ResizeEventType: TypeAlias = Literal["resize_event"]
-CloseEventType: TypeAlias = Literal["close_event"]
+type DrawEventType = Literal["draw_event"]
+"""Literal type for valid `.DrawEvent` names."""
+type PickEventType = Literal["pick_event"]
+"""Literal type for valid `.PickEvent` names."""
+type ResizeEventType = Literal["resize_event"]
+"""Literal type for valid `.ResizeEvent` names."""
+type CloseEventType = Literal["close_event"]
+"""Literal type for valid `.CloseEvent` names."""
 
-EventType: TypeAlias = Literal[
+type EventType = Literal[
     MouseEventType,
     KeyEventType,
     DrawEventType,
@@ -157,8 +156,9 @@ EventType: TypeAlias = Literal[
     ResizeEventType,
     CloseEventType,
 ]
+"""Literal type for all valid events."""
 
-LegendLocType: TypeAlias = (
+type LegendLocType = (
     Literal[
         # for simplicity, we don't distinguish the between allowed positions for
         # Axes legend and figure legend. It's still better to limit the allowed
@@ -184,7 +184,7 @@ This is a superset of permissible entries. "best" is only applicable to Axes leg
 All the "outside ..." locations are only applicable to figure legends.
 """
 
-RcKeyType: TypeAlias = Literal[
+type RcKeyType = Literal[
     "agg.path.chunksize",
     "animation.bitrate",
     "animation.codec",
@@ -528,8 +528,9 @@ RcKeyType: TypeAlias = Literal[
     "ytick.minor.width",
     "ytick.right",
 ]
+"""Valid specifiers for keys in `matplotlib.rcParams` and `matplotlib.rc_context`."""
 
-RcGroupKeyType: TypeAlias = Literal[
+type RcGroupKeyType = Literal[
     "agg",
     "agg.path",
     "animation",
@@ -594,3 +595,4 @@ RcGroupKeyType: TypeAlias = Literal[
     "ytick.major",
     "ytick.minor",
 ]
+"""Literal type for valid groups accepted by `matplotlib.rc`."""

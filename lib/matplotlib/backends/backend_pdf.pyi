@@ -4,7 +4,7 @@ from collections.abc import Callable, Iterable, Sequence
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
-from typing import IO, Any, Literal, Protocol, Self, TypeAlias
+from typing import IO, Any, Literal, Protocol, Self
 
 import numpy as np
 from _typeshed import ReadableBuffer, SupportsWrite
@@ -29,20 +29,20 @@ from matplotlib.typing import (
 from . import _backend_pdf_ps
 
 # XXX: Some of these might be worth moving to `mpl.typing`
-_CommandType: TypeAlias = list[_SupportsPdfReprExt]
-_CommandFuncType: TypeAlias = Callable[..., _CommandType]
-_RectangleType: TypeAlias = tuple[float, float, float, float] | list[float]
+type _CommandType = list[_SupportsPdfReprExt]
+type _CommandFuncType = Callable[..., _CommandType]
+type _RectangleType = tuple[float, float, float, float] | list[float]
 # struct definition SketchParams in _backend_agg_basic_types.h
-_SketchParamsType: TypeAlias = tuple[float, float, float]
-_HatchType: TypeAlias = str
-_HatchStyleType: TypeAlias = tuple[
+type _SketchParamsType = tuple[float, float, float]
+type _HatchType = str
+type _HatchStyleType = tuple[
     ColorType | None, ColorType | None, _HatchType | None, float
 ]
 
 class _SupportsPdfRepr(Protocol):
     def pdfRepr(self) -> bytes: ...
 
-_SupportsPdfReprExt: TypeAlias = (
+type _SupportsPdfReprExt = (
     _SupportsPdfRepr
     | float
     | np.floating
@@ -59,7 +59,7 @@ _SupportsPdfReprExt: TypeAlias = (
     | BboxBase
 )
 
-_MetadataDict: TypeAlias = dict[str, str | datetime | Name]
+type _MetadataDict = dict[str, str | datetime | Name]
 
 def pdfRepr(obj: _SupportsPdfReprExt) -> bytes: ...
 

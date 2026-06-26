@@ -1828,6 +1828,13 @@ def test_LinearSegmentedColormap_from_list_value_color_tuple():
     )
 
 
+def test_LinearSegmentedColormap_from_list_repeat_values():
+    # Smoke test that we can pass repeated values to make a solid band of color
+    # followed by a linear ramp.
+    value_color_tuples = [(0, "red"), (0.6, "red"), (0.6, "blue"), (1, "green")]
+    mcolors.LinearSegmentedColormap.from_list("lsc", value_color_tuples, N=11)
+
+
 @image_comparison(['test_norm_abc.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.05)
 def test_norm_abc():
