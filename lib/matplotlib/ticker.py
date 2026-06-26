@@ -922,18 +922,14 @@ class _SymmetricalLogUtil:
         if *transform* is not set.
     """
 
-    def __init__(self, transform=None, base=None, linthresh=None, linscale=None):
-        if transform is not None:
-            self.base = transform.base
-            self.linthresh = transform.linthresh
-            self.linscale = transform.linscale
-        elif base is not None and linthresh is not None and linscale is not None:
-            self.base = base
-            self.linthresh = linthresh
-            self.linscale = linscale
-        else:
-            raise ValueError("Either transform, or all of base, linthresh and "
-                             "linscale must be provided.")
+    def __init__(self, base, linthresh, linscale):
+        self.base = base
+        self.linthresh = linthresh
+        self.linscale = linscale
+
+    @classmethod
+    def from_transform(cls, transform):
+        return cls(transform.base, transform.linthresh, transform.linscale)
 
     def _log_b(self, x):
         # Use specialized logs if possible, as they can be more accurate; e.g.
@@ -1087,12 +1083,13 @@ class LogFormatter(Formatter):
         if self._symlogutil is not None:
             return True
         if self._linthresh is not None and self._linscale is not None:
-            self._symlogutil = _SymmetricalLogUtil(base=self._base,
-                                                   linthresh=self._linthresh,
-                                                   linscale=self._linscale)
+            self._symlogutil = _SymmetricalLogUtil(self._base,
+                                                   self._linthresh,
+                                                   self._linscale)
             return True
         try:
-            self._symlogutil = _SymmetricalLogUtil(self.axis.get_transform())
+            self._symlogutil = _SymmetricalLogUtil.from_transform(
+                                                   self.axis.get_transform())
             return True
         except AttributeError:
             pass
@@ -2820,7 +2817,14 @@ class SymmetricalLogLocator(Locator):
         -----
         Either *transform*, or all of *base*, *linthresh* and *linscale* must be given.
         """
-        self._symlogutil = _SymmetricalLogUtil(transform, base, linthresh, linscale)
+        if transform is not None:
+            if any(p is not None for p in (base, linthresh, linscale)):
+                raise ValueError("You must not provide base, linthresh or linscale "
+                                 "explicitly when transform is given.")
+            base = transform.base
+            linthresh = transform.linthresh
+            linscale = transform.linscale
+        self._symlogutil = _SymmetricalLogUtil(base, linthresh, linscale)
         self._set_subs(subs)
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
