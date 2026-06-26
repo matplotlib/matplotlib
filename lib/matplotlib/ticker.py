@@ -927,10 +927,6 @@ class _SymmetricalLogUtil:
         self.linthresh = linthresh
         self.linscale = linscale
 
-    @classmethod
-    def from_transform(cls, transform):
-        return cls(transform.base, transform.linthresh, transform.linscale)
-
     def _log_b(self, x):
         # Use specialized logs if possible, as they can be more accurate; e.g.
         # log(.001) / log(10) = -2.999... (whether math.log or np.log) due to
@@ -1073,27 +1069,30 @@ class LogFormatter(Formatter):
                 minor_thresholds = (1, 0.4)
         self.minor_thresholds = minor_thresholds
         self._sublabels = None
+        # For symlog axes:
         self._linthresh = linthresh
         self._linscale = linscale
-        # For symlog axes:
         self._firstsublabels = None
+        # Instantiate _symlogutil if possible.
+        # If not, we will try again in set_axis().
+        if all(p is not None for p in (base, linthresh, linscale)):
+            self._symlogutil = _SymmetricalLogUtil(base, linthresh, linscale)
 
     @property
     def _is_symlog(self):
-        if self._symlogutil is not None:
-            return True
-        if self._linthresh is not None and self._linscale is not None:
-            self._symlogutil = _SymmetricalLogUtil(self._base,
-                                                   self._linthresh,
-                                                   self._linscale)
-            return True
-        try:
-            self._symlogutil = _SymmetricalLogUtil.from_transform(
-                                                   self.axis.get_transform())
-            return True
-        except AttributeError:
-            pass
-        return False
+        return self._symlogutil is not None
+
+    def set_axis(self, axis):
+        super().set_axis(axis)
+        if self._symlogutil is None:
+            transform = self.axis.get_transform()
+            try:
+                base = transform.base
+                linthresh = transform.linthresh
+                linscale = transform.linscale
+            except AttributeError:
+                return
+            self._symlogutil = _SymmetricalLogUtil(base, linthresh, linscale)
 
     def set_base(self, base):
         """
