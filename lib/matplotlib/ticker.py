@@ -912,6 +912,38 @@ class _SymmetricalLogUtil:
     """
     Helper class for working with symmetrical log scales.
 
+    For log axes, all coordinates with integer logarithm to *base*, termed *decades*,
+    are possible major tick positions. When determining tick positions, the number of
+    decades in the axis range is analyzed and from there tick positions are chosen. For
+    symlog axes, we want to emulate this behavior in the logarithmic part and reasonably
+    extend it to the linear part (as well as mirroring it to the negative part). The
+    logarithmic approach cannot work in the linear part, as there are infinitely many
+    powers of *base* near 0, only some of which we want to label. Thus, we need to pick
+    some power to be the first (i.e. the smallest positive) acceptable major tick
+    position. We assign it the *decade number* 1 and number larger powers of *base*
+    consecutively, with logarithmic interpolation for intermediate values. The
+    coordinate 0 receives the decade number 0, with linear interpolation for coordinates
+    with decade numbers between 0 and 1. Negative decade numbers receive negative decade
+    numbers in an analogous way. Thus, each coordinate has a corresponding decade number
+    and these can serve the same function for symlog axes as the logarithm for log axes,
+    i.e. coordinates with integer decade numbers are possible major tick positions.
+
+    We choose a power of *base* to be an acceptable tick position if its distance from 0
+    on the axis is at least half the size of one decade in the logarithmic regime. In
+    order to evaluate this condition, we introduce the *normalized position* of a
+    coordinate on the axis. It is its distance from 0 normalized to the size of one
+    decade in the logarithmic regime. Thus, coordinates in the linear regime have a
+    normalized position between *-linscale* and *linscale*, while those in the
+    logarithmic regime lie outside that range. Thus, a power of *base* is an acceptable
+    tick position as defined above if it has a normalized position greater than 0.5.
+
+    Note that, for coordinates in the logarithmic regime, the normalized position is
+    identical to the logarithm of the coordinate, except for a constant offset. The same
+    is true for the decade number for coordinates greater than the first decade
+    (i.e. with decade numbers greater than 1). When linthresh is a power of *base* and
+    linscale is 1, the decade number is identical to the normalized position and both
+    are equal to the logarithm in the logarithmic regime.
+
     Parameters
     ----------
     base, linthresh, linscale : float
