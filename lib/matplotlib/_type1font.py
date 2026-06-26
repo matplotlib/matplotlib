@@ -866,17 +866,16 @@ class Type1Font:
         encoding = {code: glyph
                     for code, glyph in self.prop['Encoding'].items()
                     if code in characters}
-        encoding[0] = '.notdef'
         # todo and done include strings (glyph names)
-        todo = set(encoding.values())
+        todo = {'.notdef', *encoding.values()}
         done = set()
         seen_subrs = {0, 1, 2, 3}
         while todo:
             glyph = todo.pop()
             called_glyphs, called_subrs = _CharstringSimulator(self).run(glyph)
+            done.add(glyph)
             todo.update(called_glyphs - done)
             seen_subrs.update(called_subrs)
-            done.add(glyph)
 
         charstrings = self._subset_charstrings(done)
         subrs = self._subset_subrs(seen_subrs)
@@ -949,7 +948,8 @@ class Type1Font:
     def _postscript_encoding(self, encoding):
         """Return a PostScript encoding array for the encoding."""
         return '\n'.join([
-            '/Encoding 256 array\n0 1 255 { 1 index exch /.notdef put} for',
+            '/Encoding 256 array',
+            '0 1 255 { 1 index exch /.notdef put} for',
             *(
                 f'dup {i} /{glyph} put'
                 for i, glyph in sorted(encoding.items())
