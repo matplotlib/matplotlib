@@ -1397,7 +1397,7 @@ def test_subfigure_dpi():
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
                   savefig_kwarg={'facecolor': 'teal'},
-                  tol=0.022 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
