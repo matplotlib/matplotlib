@@ -941,21 +941,21 @@ class _SymmetricalLogUtil:
         It is normalized such that the distance between two logarithmic decades
         is 1 and the position of linthresh is linscale.
         """
-        sign, val = np.sign(val), np.abs(val) / self.linthresh
-        if val > 1:
-            val = self.linscale + self._log_b(val)
-        else:
-            val *= self.linscale
+        sign, val = np.sign(val), np.abs(val)
+        if val > self.linthresh:  # log regime
+            val = self._log_b(val / self.linthresh) + self.linscale
+        else:  # linear regime
+            val = val / self.linthresh * self.linscale
         return sign * val
 
     def unpos(self, val):
         """The inverse of pos."""
         sign, val = np.sign(val), np.abs(val)
-        if val > self.linscale:
-            val = np.power(self.base, val - self.linscale)
-        else:
-            val /= self.linscale
-        return sign * val * self.linthresh
+        if val > self.linscale:  # log regime
+            val = np.power(self.base, val - self.linscale) * self.linthresh
+        else:  # linear regime
+            val = val / self.linscale * self.linthresh
+        return sign * val
 
     def firstdec(self):
         """
