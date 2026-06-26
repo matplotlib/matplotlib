@@ -914,12 +914,9 @@ class _SymmetricalLogUtil:
 
     Parameters
     ----------
-    transform : `~.scale.SymmetricalLogTransform`, optional
-        If set, defines *base*, *linthresh* and *linscale* of the symlog transform.
-    base, linthresh, linscale : float, optional
+    base, linthresh, linscale : float
         The *base*, *linthresh* and *linscale* of the symlog transform, as
-        documented for `.SymmetricalLogScale`.  These parameters are only used
-        if *transform* is not set.
+        documented for `.SymmetricalLogScale`.
     """
 
     def __init__(self, base, linthresh, linscale):
