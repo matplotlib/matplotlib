@@ -966,9 +966,9 @@ class _SymmetricalLogUtil:
 
     def pos(self, val):
         """
-        Calculate the normalized position of the value on the axis.
-        It is normalized such that the distance between two logarithmic decades
-        is 1 and the position of linthresh is linscale.
+        Calculate the normalized position of the value on the axis. It is normalized
+        such that the distance between two logarithmic decades is 1 and the position of
+        linthresh is linscale.
         """
         sign, val = np.sign(val), np.abs(val)
         if val > self.linthresh:  # log regime
@@ -986,40 +986,38 @@ class _SymmetricalLogUtil:
             val = val / self.linscale * self.linthresh
         return sign * val
 
+    def firstdec_exp(self):
+        """Calculate the exponent of the first decade."""
+        return np.ceil(self._log_b(self.unpos(0.5)))
+
     def firstdec(self):
-        """
-        Get the first decade (i.e. first positive major tick candidate).
-        It shall be at least half the width of a logarithmic decade from the
-        origin (i.e. its pos shall be at least 0.5).
-        """
-        firstexp = np.ceil(self._log_b(self.unpos(0.5)))
-        firstpow = np.power(self.base, firstexp)
-        return firstexp, firstpow
+        """Calculate the first decade."""
+        return np.power(self.base, self.firstdec_exp())
 
     def dec(self, val):
         """
-        Calculate the decade number of the value. The first decade to have a
-        position (given by pos) of at least 0.5 is given the number 1, the
-        value 0 is given the decade number 0.
+        Calculate the decade number of the value. The first decade to have a normalized
+        position of at least 0.5 is given the number 1, the value 0 is given the decade
+        number 0.
         """
-        firstexp, firstpow = self.firstdec()
+        firstdec = self.firstdec()
         sign, val = np.sign(val), np.abs(val)
-        if val > firstpow:
-            val = self._log_b(val) - firstexp + 1
+        if val > firstdec:
+            val = self._log_b(val / firstdec) + 1
         else:
-            # We scale linearly in order to get a monotonous mapping between
-            # 0 and 1, though the linear nature is arbitrary.
-            val /= firstpow
+            # We scale linearly in order to get a strictly monotonous mapping
+            # between 0 and 1, though the linear nature is arbitrary.
+            val /= firstdec
         return sign * val
 
     def undec(self, val):
         """The inverse of dec."""
-        firstexp, firstpow = self.firstdec()
+        firstdec = self.firstdec()
         sign, val = np.sign(val), np.abs(val)
         if val > 1:
-            val = np.power(self.base, firstexp + val - 1)
+            val = np.power(self.base, val - 1) * firstdec
         else:
-            val *= firstpow
+            val *= firstdec
         return sign * val
 
 
@@ -1203,11 +1201,11 @@ class LogFormatter(Formatter):
                 self._firstsublabels = set(np.arange(0, b + 1))
 
         if self._is_symlog:
-            _, firstpow = self._symlogutil.firstdec()
-            if self._firstsublabels == {0} and -firstpow < vmin < vmax < firstpow:
+            firstdec = self._symlogutil.firstdec()
+            if self._firstsublabels == {0} and -firstdec < vmin < vmax < firstdec:
                 # No minor ticks are being labeled right now and the only major tick is
                 # at 0. This means the axis scaling cannot be read from the labels.
-                numsteps = int(np.ceil(firstpow / max(-vmin, vmax)))
+                numsteps = int(np.ceil(firstdec / max(-vmin, vmax)))
                 step = int(b / numsteps)
                 self._firstsublabels = set(range(0, int(b) + 1, step))
 
@@ -1228,7 +1226,7 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self._symlogutil.firstdec()[1]:
+        if self._is_symlog and x < self._symlogutil.firstdec():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -1314,7 +1312,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self._symlogutil.firstdec()[1]:
+        if self._is_symlog and x < self._symlogutil.firstdec():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
