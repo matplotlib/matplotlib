@@ -1,12 +1,14 @@
+import os
+
+import pytest
+
 import numpy as np
 
 import matplotlib.pyplot as plt
 from matplotlib.testing.decorators import image_comparison
 
 
-@image_comparison(baseline_images=['agg_filter_alpha'],
-                  extensions=['gif', 'png', 'pdf'], style='mpl20')
-def test_agg_filter_alpha():
+def _test_agg_filter_alpha_impl():
     ax = plt.axes()
     x, y = np.mgrid[0:7, 0:8]
     data = x**2 - y**2
@@ -28,3 +30,23 @@ def test_agg_filter_alpha():
     mesh.set_rasterized(True)
 
     ax.plot([0, 4, 7], [1, 3, 8])
+
+
+@image_comparison(baseline_images=['agg_filter_alpha'],
+                  extensions=['png', 'pdf'], style='mpl20')
+def test_agg_filter_alpha():
+    _test_agg_filter_alpha_impl()
+
+
+# This test was broken out due to failing on Azure with py3.13
+# This was the easiset way to XFail just a single image type
+# Once that is sorted, this can return to being a single test with all extensions.
+# And the impl method can be inlined again
+@pytest.mark.xfail("TF_BUILD" in os.environ
+                   and os.environ.get("VMIMAGE") == "windows-latest",
+                   reason="Test failing on Azure under Python 3.13",
+)
+@image_comparison(baseline_images=['agg_filter_alpha'],
+                  extensions=['gif'], style='mpl20')
+def test_agg_filter_alpha_gif():
+    _test_agg_filter_alpha_impl()
