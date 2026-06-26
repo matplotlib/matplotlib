@@ -1,0 +1,29 @@
+# Fully pinned requirements for Matplotlib v3.11.x bug-fix branch builds.
+# Ensures reproducible CI on the backport branch.
+# Python >= 3.11 required.
+
+# Build system
+meson==1.6.0
+meson-python==0.15.0
+pybind11==2.13.2
+setuptools-scm==8.1.0
+
+# Core dependencies (pinned to minimum supported versions for v3.11.x)
+contourpy==1.0.1
+cycler==0.10.0
+fonttools==4.22.0
+kiwisolver==1.3.1
+numpy==1.25.0
+packaging==20.0
+pillow==9.0.0
+pyparsing==3.0.0
+python-dateutil==2.7.0
+
+# Testing
+pytest==7.0.0
+pytest-cov==4.1.0
+pytest-xdist==3.5.0
+
+# Documentation (optional)
+sphinx==7.3.7
+sphinx-gallery==0.15.0
