@@ -8,12 +8,14 @@ Usage:
     python tools/make_macos_icon.py
 """
 
-import sys
 import os
 import numpy as np
 from PIL import Image, ImageDraw
 import importlib.util
 import io
+import matplotlib.pyplot as plt
+from matplotlib.patches import Rectangle
+
 
 # ── Load make_logo from logos2.py ──────────────────────────────────────────
 _logos2_path = os.path.join(os.path.dirname(__file__),
@@ -21,10 +23,6 @@ _logos2_path = os.path.join(os.path.dirname(__file__),
 spec = importlib.util.spec_from_file_location('logos2', _logos2_path)
 logos2 = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(logos2)
-
-import matplotlib
-import matplotlib.pyplot as plt
-from matplotlib.patches import Rectangle
 
 
 def get_logo_png(size=1024):
@@ -36,20 +34,18 @@ def get_logo_png(size=1024):
     ax.set_position([0.0, 0.0, 1.0, 1.0])  # force full canvas
 
     # Remove the hardcoded white rectangle background
+    white = (1.0, 1.0, 1.0, 1.0)
     for patch in ax.patches:
-        if isinstance(patch, Rectangle) and patch.get_facecolor() == (1.0, 1.0, 1.0, 1.0):
+        if isinstance(patch, Rectangle) and patch.get_facecolor() == white:
             patch.set_visible(False)
 
     ax.spines['polar'].set_visible(False)  # removes blue circle border
     ax.grid(False)                          # removes grid lines
 
     buf = io.BytesIO()
-    fig.savefig(buf, format='png', transparent=True,
-                dpi=100) #""", bbox_inches='tight', pad_inches=0"""
-
+    fig.savefig(buf, format='png', transparent=True, dpi=100)
     plt.close(fig)
     buf.seek(0)
-    #return Image.open(buf).convert('RGBA')
     img = Image.open(buf).convert('RGBA')
 
 # Crop to actual content (non-transparent pixels)
@@ -77,7 +73,8 @@ def make_squircle_mask(size=1024, n=5):
     r = size / 2 * 0.90  # slight inset so edges aren't clipped
 
     xs, ys = np.meshgrid(np.arange(size), np.arange(size))
-    data = (((np.abs(xs - cx) / r) ** n + (np.abs(ys - cy) / r) ** n) <= 1).astype(np.uint8) * 255
+    inside = (((np.abs(xs - cx) / r) ** n + (np.abs(ys - cy) / r) ** n) <= 1)
+    data = inside.astype(np.uint8) * 255
     mask = Image.fromarray(data, mode='L')
 
     return mask
