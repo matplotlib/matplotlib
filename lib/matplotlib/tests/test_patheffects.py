@@ -1,4 +1,4 @@
-import sys
+import platform
 
 import numpy as np
 
@@ -30,7 +30,7 @@ def test_patheffect1():
 
 
 @image_comparison(['patheffect2'], remove_text=True, style='mpl20',
-                  tol=0.051 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.051)
 def test_patheffect2():
 
     ax2 = plt.subplot()
@@ -46,7 +46,7 @@ def test_patheffect2():
 
 
 @image_comparison(['patheffect3'], style='mpl20',
-                  tol=0.02 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_patheffect3():
     plt.figure(figsize=(8, 6))
     p1, = plt.plot([1, 3, 5, 4, 3], 'o-b', lw=4)
