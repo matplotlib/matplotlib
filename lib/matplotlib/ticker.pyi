@@ -103,9 +103,9 @@ class ScalarFormatter(Formatter):
 class _SymmetricalLogUtil:
     def __init__(
         self,
-        base: float = ...,
-        linthresh: float = ...,
-        linscale: float = ...,
+        base: float,
+        linthresh: float,
+        linscale: float,
     ) -> None: ...
     def pos(self, val: float) -> float: ...
     def unpos(self, val: float) -> float: ...
