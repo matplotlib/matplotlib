@@ -26,10 +26,11 @@ def test_usetex():
     kwargs = {"verticalalignment": "baseline", "size": 24,
               "bbox": dict(pad=0, edgecolor="k", facecolor="none")}
     ax.text(0.2, 0.7,
-            # the \LaTeX macro exercises character sizing and placement,
+            # The \LaTeX macro exercises character sizing and placement,
             # \left[ ... \right\} draw some variable-height characters,
-            # \sqrt and \frac draw horizontal rules, \mathrm changes the font
-            r'\LaTeX\ $\left[\int\limits_e^{2e}'
+            # \sqrt and \frac draw horizontal rules, \mathrm changes the font,
+            # the minus sign hits character code 0 in the Type 1 font that LaTeX uses.
+            r'\LaTeX\ $\left[\int\limits_e^{-2e}'
             r'\sqrt\frac{\log^3 x}{x}\,\mathrm{d}x \right\}$',
             **kwargs)
     ax.text(0.2, 0.3, "lg", **kwargs)
