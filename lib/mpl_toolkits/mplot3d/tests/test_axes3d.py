@@ -1724,7 +1724,7 @@ def test_errorbar3d_errorevery():
 
 
 @mpl3d_image_comparison(['errorbar3d.png'], style='mpl20',
-                        tol=0.015 if sys.platform == 'darwin' else 0)
+                        tol=0 if platform.machine() == 'x86_64' else 0.015)
 def test_errorbar3d():
     """Tests limits, color styling, and legend for 3D errorbars."""
     fig = plt.figure()

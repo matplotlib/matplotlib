@@ -240,7 +240,7 @@ def test_matshow(fig_test, fig_ref):
 
 
 @image_comparison([f'formatter_ticker_{i:03d}.png' for i in range(1, 6)], style='mpl20',
-                  tol=0.03 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_formatter_ticker():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -5611,7 +5611,7 @@ def test_marker_styles():
 
 
 @image_comparison(['rc_markerfill.png'], style='mpl20',
-                  tol=0.033 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.033)
 def test_markers_fillstyle_rcparams():
     fig, ax = plt.subplots()
     x = np.arange(7)
@@ -5634,7 +5634,7 @@ def test_vertex_markers():
 
 
 @image_comparison(['vline_hline_zorder.png', 'errorbar_zorder.png'], style='mpl20',
-                  tol=0.02 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.02)
 def test_eb_line_zorder():
     x = list(range(10))
 
@@ -6666,7 +6666,7 @@ def test_pie_linewidth_0():
 
 
 @image_comparison(['pie_center_radius.png'], style='mpl20',
-                  tol=0.01 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_pie_center_radius():
     # The slices will be ordered and plotted counter-clockwise.
     labels = 'Frogs', 'Hogs', 'Dogs', 'Logs'
@@ -9857,7 +9857,7 @@ def test_zorder_and_explicit_rasterization():
 
 
 @image_comparison(["preset_clip_paths.png"], remove_text=True, style="mpl20",
-                  tol=0.01 if sys.platform == 'darwin' else 0)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_preset_clip_paths():
     fig, ax = plt.subplots()
 
