@@ -4,6 +4,7 @@
       - any-glob-to-any-file:
           - '.github/workflows/cibuildwheel.yml'
           - '.github/workflows/wasm.yml'
+          - 'pyproject.toml'
 "CI: Run cygwin":
   - changed-files:
       - any-glob-to-any-file: ['.github/workflows/cygwin.yml']
