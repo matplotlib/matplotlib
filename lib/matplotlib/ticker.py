@@ -1167,15 +1167,15 @@ class LogFormatter(Formatter):
         b = self._base
 
         if self._is_symlog:
-            minrdec = self._symlogutil.dec(vmin)
-            maxrdec = self._symlogutil.dec(vmax)
-            numdec = maxrdec - minrdec
-            numticks = np.floor(maxrdec) - np.ceil(minrdec) + 1
+            mindec = self._symlogutil.dec(vmin)
+            maxdec = self._symlogutil.dec(vmax)
+            numdec = maxdec - mindec
+            numticks = np.floor(maxdec) - np.ceil(mindec) + 1
         else:
-            lmin = math.log(vmin, b)
-            lmax = math.log(vmax, b)
-            numdec = lmax - lmin
-            numticks = math.floor(lmax) - math.ceil(lmin) + 1
+            minlog = math.log(vmin, b)
+            maxlog = math.log(vmax, b)
+            numdec = maxlog - minlog
+            numticks = math.floor(maxlog) - math.ceil(minlog) + 1
 
         if numticks > self.minor_thresholds[0]:
             # Label only bases
@@ -2664,11 +2664,11 @@ class LogLocator(Locator):
         if vmax < vmin:
             vmin, vmax = vmax, vmin
         # Min and max exponents, float and int versions; e.g., if vmin=10^0.3,
-        # vmax=10^6.9, then efmin=0.3, emin=1, emax=6, efmax=6.9, n_avail=6.
-        efmin, efmax = self._log_b([vmin, vmax])
-        emin = math.ceil(efmin)
-        emax = math.floor(efmax)
-        n_avail = emax - emin + 1  # Total number of decade ticks available.
+        # vmax=10^6.9, then minlog=0.3, iminlog=1, imaxlog=6, maxlog=6.9, n_avail=6.
+        minlog, maxlog = self._log_b([vmin, vmax])
+        iminlog = math.ceil(minlog)
+        imaxlog = math.floor(maxlog)
+        n_avail = imaxlog - iminlog + 1  # Total number of decade ticks available.
 
         if isinstance(self._subs, str):
             if n_avail >= 10 or b < 3:
@@ -2686,7 +2686,7 @@ class LogLocator(Locator):
         # lower and the upper limit: QuadContourSet._autolev relies on this.
         if mpl.rcParams["_internal.classic_mode"]:  # keep historic formulas
             stride = max(math.ceil((n_avail - 1) / (n_request - 1)), 1)
-            decades = np.arange(emin - stride, emax + stride + 1, stride)
+            decades = np.arange(iminlog - stride, imaxlog + stride + 1, stride)
         else:
             # *Determine the actual number of ticks*: Find the largest number
             # of ticks, no more than the requested number, that can actually
@@ -2704,11 +2704,11 @@ class LogLocator(Locator):
             else:
                 assert nr == n_request + 1
             if n_request == 0:  # No tick in bounds; two ticks just outside.
-                decades = [emin - 1, emax + 1]
+                decades = [iminlog - 1, imaxlog + 1]
                 stride = decades[1] - decades[0]
             elif n_request == 1:  # A single tick close to center.
-                mid = round((efmin + efmax) / 2)
-                stride = max(mid - (emin - 1), (emax + 1) - mid)
+                mid = round((minlog + maxlog) / 2)
+                stride = max(mid - (iminlog - 1), (imaxlog + 1) - mid)
                 decades = [mid - stride, mid, mid + stride]
             else:
                 # *Determine the stride*: Pick the largest stride that yields
@@ -2737,10 +2737,10 @@ class LogLocator(Locator):
                 # Try to see if we can pick an offset so that ticks are at
                 # integer multiples of the stride while satisfying the bounds
                 # above; if not, fallback to the smallest acceptable offset.
-                offset = (-emin) % stride
+                offset = (-iminlog) % stride
                 if not olo <= offset < ohi:
                     offset = olo
-                decades = range(emin + offset - stride, emax + stride + 1, stride)
+                decades = range(iminlog + offset - stride, imaxlog + stride + 1, stride)
 
         # Guess whether we're a minor locator, based on whether subs include
         # anything other than 1.
@@ -2749,7 +2749,7 @@ class LogLocator(Locator):
             if stride == 1 or n_avail <= 1:
                 # Minor ticks start in the decade preceding the first major tick.
                 ticklocs = np.concatenate([
-                    subs * b**decade for decade in range(emin - 1, emax + 1)])
+                    subs * b**decade for decade in range(iminlog - 1, imaxlog + 1)])
             else:
                 ticklocs = np.array([])
         else:
@@ -2909,19 +2909,19 @@ class SymmetricalLogLocator(Locator):
             vmin, vmax = vmax, vmin
 
         haszero = vmin <= 0 <= vmax
-        minrdec = self._symlogutil.dec(vmin)
-        maxrdec = self._symlogutil.dec(vmax)
-        mindec = math.ceil(minrdec)
-        maxdec = math.floor(maxrdec)
+        mindec = self._symlogutil.dec(vmin)
+        maxdec = self._symlogutil.dec(vmax)
+        imindec = math.ceil(mindec)
+        imaxdec = math.floor(maxdec)
         # Number of decade ticks available.
-        n_avail = maxdec - mindec + 1
+        n_avail = imaxdec - imindec + 1
 
         # Get decades between major ticks.
         # We follow the same logic as LogLocator (see there for more
         # extensive comments), except when 0 is in the axis range.
         if mpl.rcParams['_internal.classic_mode']:
             stride = max(math.ceil((n_avail - 1) / (n_request - 1)), 1)
-            decades = np.arange(mindec - stride, maxdec + stride + 1, stride)
+            decades = np.arange(imindec - stride, imaxdec + stride + 1, stride)
         else:
             # Calculate the minimum possible stride.
             stride = n_avail // (n_request + 1) + 1
@@ -2934,7 +2934,7 @@ class SymmetricalLogLocator(Locator):
                 assert nr == n_request + 1
             if n_request == 0:
                 # No ticks requested or available.
-                decades = [mindec - 1, maxdec + 1]
+                decades = [imindec - 1, imaxdec + 1]
                 if haszero:
                     stride = np.max(np.abs(decades))
                     decades = [-stride, 0, stride]
@@ -2945,8 +2945,8 @@ class SymmetricalLogLocator(Locator):
                 if haszero:
                     mid = 0
                 else:
-                    mid = round((minrdec + maxrdec) / 2)
-                stride = max(mid - (mindec - 1), (maxdec + 1) - mid)
+                    mid = round((mindec + maxdec) / 2)
+                stride = max(mid - (imindec - 1), (imaxdec + 1) - mid)
                 decades = [mid - stride, mid, mid + stride]
             else:
                 # Calculate the largest possible stride
@@ -2955,7 +2955,7 @@ class SymmetricalLogLocator(Locator):
                 if stride < n_avail / n_request:
                     stride = n_avail // n_request
                 # Determine the offset.
-                offset = (-mindec) % stride
+                offset = (-imindec) % stride
                 olo = max(n_avail - stride * n_request, 0)
                 ohi = min(n_avail - stride * (n_request - 1), stride)
                 if not olo <= offset < ohi:
@@ -2965,21 +2965,21 @@ class SymmetricalLogLocator(Locator):
                         # We need the largest stride that will cause an
                         # additional tick to appear on either side.
                         # First, calculate the current number of ticks
-                        # on each side. We already know mindec < 0 < maxdec.
-                        posnum = maxdec // stride
-                        negnum = -mindec // stride
+                        # on each side. We already know imindec < 0 < imaxdec.
+                        posnum = imaxdec // stride
+                        negnum = -imindec // stride
                         # Now calculate the necessary new stride.
-                        posnewstride = maxdec // (posnum + 1)
-                        negnewstride = -mindec // (negnum + 1)
+                        posnewstride = imaxdec // (posnum + 1)
+                        negnewstride = -imindec // (negnum + 1)
                         newstride = max(posnewstride, negnewstride)
-                        if n_request == maxdec // newstride - mindec // newstride + 1:
+                        if n_request == imaxdec // newstride - imindec // newstride + 1:
                             # The new value works out.
                             stride = newstride
-                            offset = (-mindec) % newstride
+                            offset = (-imindec) % newstride
                     else:
                         offset = olo
-                decades = np.arange(mindec + offset - stride,
-                                    maxdec + stride + 1,
+                decades = np.arange(imindec + offset - stride,
+                                    imaxdec + stride + 1,
                                     stride)
 
         if isinstance(self._subs, str):
