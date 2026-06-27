@@ -203,6 +203,31 @@ def test_ft2font_invalid_args(tmp_path):
         ft2font.FT2Font(file, _kerning_factor=123)
 
 
+def test_ft2font_oversized_read():
+    # A file object whose read() returns *more* bytes than requested is
+    # misbehaving: FreeType only sizes its buffer for the requested count, so
+    # an over-long read must be rejected rather than overflow the buffer or be
+    # silently truncated. Verify that such an object causes construction to
+    # fail loudly instead.
+    data = Path(fm.findfont('DejaVu Sans')).read_bytes()
+
+    class OversizedReader:
+        def __init__(self, data):
+            self._data = data
+
+        def seek(self, offset):
+            pass
+
+        def read(self, size):
+            # Ignore the requested size and hand back the whole file, which is
+            # far more than FreeType ever asks for. The initial read(0) probe
+            # in the constructor still gets an empty bytes object.
+            return self._data if size else b''
+
+    with pytest.raises(RuntimeError):
+        ft2font.FT2Font(OversizedReader(data))
+
+
 @pytest.mark.parametrize('name, size, skippable',
                          [('DejaVu Sans', 1, False), ('WenQuanYi Zen Hei', 3, True)])
 def test_ft2font_face_index(name, size, skippable):
@@ -345,6 +370,14 @@ def test_ft2font_charmaps():
     for u, m in examples:
         # Though the encoding is different, the glyph should be the same.
         assert unic[u] == armn[m]
+
+    # Out-of-range charmap indices must be rejected rather than indexing out of
+    # bounds. A negative index previously passed the upper-bound-only check and
+    # read face->charmaps[i] out of bounds.
+    with pytest.raises(RuntimeError, match='exceeds the available number'):
+        font.set_charmap(-1)
+    with pytest.raises(RuntimeError, match='exceeds the available number'):
+        font.set_charmap(font.num_charmaps)
 
 
 _expected_sfnt_names = {

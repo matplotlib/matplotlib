@@ -288,7 +288,15 @@ def same_color(c1, c2):
     """
     Return whether the colors *c1* and *c2* are the same.
 
-    *c1*, *c2* can be single colors or lists/arrays of colors.
+    Parameters
+    ----------
+    c1, c2 : :mpltype:`color` or list of :mpltype:`color` or RGB(A) array
+        If passing multiple colors, *c1* and *c2* must be of the same length. RGB(A)
+        arrays must be of shape (ncolors, 3) or (ncolors, 4).
+
+    Returns
+    -------
+    bool
     """
     c1 = to_rgba_array(c1)
     c2 = to_rgba_array(c2)
@@ -1225,7 +1233,7 @@ class LinearSegmentedColormap(Colormap):
             except Exception as e2:
                 raise e2 from e
             vals = np.asarray(_vals)
-            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) <= 0):
+            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) < 0):
                 raise ValueError(
                     "the values passed in the (value, color) pairs "
                     "must increase monotonically from 0 to 1."

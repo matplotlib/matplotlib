@@ -2717,7 +2717,8 @@ class FigureCanvasPdf(FigureCanvasBase):
     fixed_dpi = 72
     filetypes = {'pdf': 'Portable Document Format'}
 
-    def get_default_filetype(self):
+    @classmethod
+    def get_default_filetype(cls):
         return 'pdf'
 
     def print_pdf(self, filename, *,

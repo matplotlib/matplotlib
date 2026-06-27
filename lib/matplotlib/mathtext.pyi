@@ -1,5 +1,5 @@
 import os
-from typing import Generic, IO, Literal, TypeVar, overload
+from typing import IO, Literal, overload
 
 from matplotlib.font_manager import FontProperties
 from matplotlib.typing import ColorType
@@ -11,16 +11,19 @@ from ._mathtext import (
     get_unicode_index as get_unicode_index,
 )
 
-_ParseType = TypeVar("_ParseType", RasterParse, VectorParse)
-
-class MathTextParser(Generic[_ParseType]):
+class MathTextParser[ParseType: (RasterParse, VectorParse)]:
     @overload
     def __init__(self: MathTextParser[VectorParse], output: Literal["path"]) -> None: ...
     @overload
     def __init__(self: MathTextParser[RasterParse], output: Literal["agg", "raster", "macosx"]) -> None: ...
     def parse(
-        self, s: str, dpi: float = ..., prop: FontProperties | None = ..., *, antialiased: bool | None = ...
-    ) -> _ParseType: ...
+        self,
+        s: str,
+        dpi: float = ...,
+        prop: FontProperties | None = ...,
+        *,
+        antialiased: bool | None = ...,
+    ) -> ParseType: ...
 
 def math_to_image(
     s: str,

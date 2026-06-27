@@ -1187,33 +1187,56 @@ class Legend(Artist):
 
         bbox = Bbox.from_bounds(0, 0, width, height)
 
+        candidate_boxes = []
+        for loc_code in range(1, len(self.codes)):
+            left, bottom = self._get_anchored_bbox(loc_code, bbox,
+                                                   self.get_bbox_to_anchor(),
+                                                   renderer)
+            candidate_boxes.append((loc_code,
+                                    Bbox.from_bounds(left, bottom, width, height)))
+
+        # Every candidate box has the same width and height, with only a handful of
+        # distinct left/bottom edges. For speed we compute each point's membership
+        # in those intervals once, rather than for all 10 candidate boxes.
+        pts = [line.vertices for line in lines]
+        if offsets:
+            pts.append(np.asarray(offsets, dtype=float))
+        pts = np.concatenate(pts) if pts else np.empty((0, 2))
+        x_left = np.unique([box.x0 for _, box in candidate_boxes])
+        y_bottom = np.unique([box.y0 for _, box in candidate_boxes])
+        x, y = pts[:, 0], pts[:, 1]
+        with np.errstate(invalid='ignore'):
+            # Broadcast the (n_edges, 1) edge positions against the (n_points,)
+            # coordinates to get (n_edges, n_points) interval membership arrays.
+            in_x = ((x_left[:, np.newaxis] < x)
+                    & (x < x_left[:, np.newaxis] + width))
+            in_y = ((y_bottom[:, np.newaxis] < y)
+                    & (y < y_bottom[:, np.newaxis] + height))
+
         candidates = []
-        for idx in range(1, len(self.codes)):
-            l, b = self._get_anchored_bbox(idx, bbox,
-                                           self.get_bbox_to_anchor(),
-                                           renderer)
-            legendBox = Bbox.from_bounds(l, b, width, height)
+        for loc_code, legendBox in candidate_boxes:
+            contained_count = np.count_nonzero(
+                in_x[np.where(x_left == legendBox.x0)[0][0]]
+                & in_y[np.where(y_bottom == legendBox.y0)[0][0]])
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
-            badness = (sum(legendBox.count_contains(line.vertices)
-                           for line in lines)
-                       + legendBox.count_contains(offsets)
+            badness = (contained_count
                        + legendBox.count_overlaps(bboxes)
                        + sum(line.intersects_bbox(legendBox, filled=False)
                              for line in lines))
-            # Include the index to favor lower codes in case of a tie.
-            candidates.append((badness, idx, (l, b)))
+            # Include the loc code to favor lower codes in case of a tie.
+            candidates.append((badness, loc_code, (legendBox.x0, legendBox.y0)))
             if badness == 0:
                 break
 
-        _, _, (l, b) = min(candidates)
+        _, _, (left, bottom) = min(candidates)
 
         if self._loc_used_default and time.perf_counter() - start_time > 1:
             _api.warn_external(
                 'Creating legend with loc="best" can be slow with large '
                 'amounts of data.')
 
-        return l, b
+        return left, bottom
 
     def contains(self, mouseevent):
         return self.legendPatch.contains(mouseevent)

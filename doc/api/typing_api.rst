@@ -54,6 +54,7 @@ Other types
 ===========
 
 .. autodata:: matplotlib.typing.CoordsType
+.. autodata:: matplotlib.typing.DataParamType
 .. autodata:: matplotlib.typing.LegendLocType
 .. autodata:: matplotlib.typing.LogLevel
 .. autodata:: matplotlib.typing.HashableList

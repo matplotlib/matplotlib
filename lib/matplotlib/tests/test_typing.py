@@ -50,15 +50,14 @@ def test_typing_aliases_documented():
     # Collect all public module-level assignment names (both annotated and plain).
     defined_types = set()
     for node in ast.iter_child_nodes(tree):
-        if isinstance(node, ast.AnnAssign) and isinstance(node.target, ast.Name):
-            name = node.target.id
-        elif isinstance(node, ast.Assign) and len(node.targets) == 1:
-            target = node.targets[0]
-            name = target.id if isinstance(target, ast.Name) else None
-        else:
-            continue
-        if name is not None and not name.startswith("_"):
-            defined_types.add(name)
+        match node:
+            case (ast.TypeAlias(name=ast.Name(id=name)) |
+                  ast.AnnAssign(target=ast.Name(id=name)) |
+                  ast.Assign(targets=(ast.Name(id=name), ))):
+                if name is not None and not name.startswith("_"):
+                    defined_types.add(name)
+            case _:
+                continue
 
     assert defined_types, "No type definitions found in typing.py"
 
@@ -104,7 +103,8 @@ def test_rcparam_stubs():
         if not name.startswith('_')
     }
 
-    assert {*typing.get_args(RcKeyType)} == runtime_rc_keys
+    assert isinstance(RcKeyType, typing.TypeAliasType)
+    assert {*typing.get_args(RcKeyType.__value__)} == runtime_rc_keys
 
     runtime_rc_group_keys = set()
     for name in runtime_rc_keys:
@@ -112,4 +112,5 @@ def test_rcparam_stubs():
         for i in range(1, len(groups)):
             runtime_rc_group_keys.add('.'.join(groups[:i]))
 
-    assert {*typing.get_args(RcGroupKeyType)} == runtime_rc_group_keys
+    assert isinstance(RcGroupKeyType, typing.TypeAliasType)
+    assert {*typing.get_args(RcGroupKeyType.__value__)} == runtime_rc_group_keys
