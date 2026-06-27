@@ -506,7 +506,7 @@ class RendererBase:
         mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
         """
-        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
+        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX", mtext=mtext)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """

@@ -43,6 +43,18 @@ def test_usetex():
     ax.set_axis_off()
 
 
+def test_usetex_fallback(monkeypatch):
+    # Smoke test that the base draw_tex implementation works.
+    from matplotlib.backend_bases import RendererBase
+    from matplotlib.backends.backend_agg import RendererAgg
+    monkeypatch.setattr(RendererAgg, 'draw_tex', RendererBase.draw_tex)
+
+    plt.rcParams["text.usetex"] = True
+    fig, ax = plt.subplots()
+    ax.text(0, 0, "foo_bar")
+    fig.canvas.draw()
+
+
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_empty(fig_test, fig_ref):
     mpl.rcParams['text.usetex'] = True
