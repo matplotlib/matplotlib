@@ -56,6 +56,12 @@ jobs:
             delete-font-cache: true
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
+          - name-suffix: "(Pinned Requirements)"
+            os: ubuntu-22.04
+            python-version: '3.12'
+            use-pinned-requirements: true
+            # https://github.com/matplotlib/matplotlib/issues/29844
+            pygobject-ver: '<3.52.0'
           - os: ubuntu-22.04
             python-version: '3.12'
             CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
@@ -186,7 +192,8 @@ jobs:
           path: ~/.cache/pip
           key: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{
-            hashFiles('pyproject.toml', 'ci/minver-requirements.txt') }}
+            hashFiles('pyproject.toml', 'ci/minver-requirements.txt',
+                      'ci/requirements/fully-pinned-*.txt') }}
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip
@@ -229,14 +236,24 @@ jobs:
             PRE="--pre"
           fi
 
+          REF_NAME="${{ github.base_ref || github.ref_name }}"
+          BRANCH_PINNED_REQUIREMENTS="ci/requirements/fully-pinned-${REF_NAME}.txt"
+          if [[ -f "${BRANCH_PINNED_REQUIREMENTS}" && "${REF_NAME}" != "main" ]]; then
+            PINNED_REQUIREMENTS="-r ${BRANCH_PINNED_REQUIREMENTS}"
+            PINNED_CONSTRAINTS="-c ${BRANCH_PINNED_REQUIREMENTS}"
+          elif [[ "${{ matrix.use-pinned-requirements }}" == "true" ]]; then
+            PINNED_REQUIREMENTS="-r ci/requirements/fully-pinned-main.txt"
+            PINNED_CONSTRAINTS="-c ci/requirements/fully-pinned-main.txt"
+          fi
+
           # Install dependencies from PyPI.
           # Preinstall build requirements to enable no-build-isolation builds.
           python -m pip install --upgrade $PRE --prefer-binary \
-            --group build --group test ${{ matrix.extra-requirements }}
+            --group build --group test $PINNED_REQUIREMENTS ${{ matrix.extra-requirements }}
 
           # Install optional dependencies from PyPI.
           # Sphinx is needed to run sphinxext tests
-          python -m pip install --upgrade sphinx!=6.1.2
+          python -m pip install --upgrade $PINNED_CONSTRAINTS sphinx!=6.1.2
 
           if [[ "${{ matrix.python-version }}" != '3.14t' ]]; then
           # GUI toolkits are pip-installable only for some versions of Python

@@ -1,0 +1,33 @@
+# Input for generating a fully pinned CI constraints file.
+# Regenerate the matching .txt file with uv pip compile.
+
+contourpy >= 1.2.1
+cycler >= 0.10
+fonttools >= 4.22.0
+kiwisolver >= 1.3.1
+numpy >= 2.0
+packaging >= 20.0
+pillow >= 9
+pyparsing >= 3
+python-dateutil >= 2.7
+meson-python>=0.13.2,!=0.17.*
+pybind11>=2.13.2,!=2.13.3
+setuptools_scm>=7,<10
+meson-python>=0.13.1,!=0.17.*
+setuptools>=64
+black<27
+certifi
+coverage!=6.3
+psutil; sys_platform != 'cygwin'
+pytest!=4.6.0,!=5.4.0,!=8.1.0
+pytest-cov
+pytest-rerunfailures!=16.0
+pytest-timeout
+pytest-xdist
+pytest-xvfb
+tornado
+importlib-resources
+ipython
+ipykernel
+matplotlib-inline<0.1.7
+sphinx!=6.1.2
