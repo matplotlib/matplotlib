@@ -712,6 +712,7 @@ def _pdf_type42_text_metrics(text, *, fontfeatures=None):
         if fontfeatures is not None:
             kwargs["fontfeatures"] = fontfeatures
         ax.set_title(text, **kwargs)
+        ax.set_axis_off()
 
         buffer = io.BytesIO()
         try:
