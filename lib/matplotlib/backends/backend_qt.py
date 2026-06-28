@@ -239,6 +239,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
         self._in_resize_event = False
+        self._pressed_buttons = {}
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
@@ -332,9 +333,11 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
             mods = self._mpl_modifiers()
+            button = self._remap_darwin_button(button, mods)
+            self._pressed_buttons[event.button()] = button
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event),
-                       self._remap_darwin_button(button, mods),
+                       button,
                        modifiers=mods,
                        guiEvent=event)._process()
 
@@ -342,9 +345,11 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
             mods = self._mpl_modifiers()
+            button = self._remap_darwin_button(button, mods)
+            self._pressed_buttons[event.button()] = button
             MouseEvent("button_press_event", self,
                        *self.mouseEventCoords(event),
-                       self._remap_darwin_button(button, mods), dblclick=True,
+                       button, dblclick=True,
                        modifiers=mods,
                        guiEvent=event)._process()
 
@@ -361,9 +366,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
             mods = self._mpl_modifiers()
+            # use the button remapped at the press time, so releasing Option
+            # before the mouse button still reports the press time button
+            button = self._pressed_buttons.pop(
+                event.button(), self._remap_darwin_button(button, mods))
             MouseEvent("button_release_event", self,
                        *self.mouseEventCoords(event),
-                       self._remap_darwin_button(button, mods),
+                       button,
                        modifiers=mods,
                        guiEvent=event)._process()
 
