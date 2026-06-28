@@ -2307,6 +2307,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
         else:
             features = language = None
 
+        # Disable common ligatures by default for PDF output unless user
+        # explicitly set fontfeatures.
+        if features is None:
+            features = ('-liga', '-clig')
+
         # For Type-1 fonts, emit the whole string at once without manual kerning.
         if mpl.rcParams['pdf.use14corefonts']:
             font = self._get_font_afm(prop)

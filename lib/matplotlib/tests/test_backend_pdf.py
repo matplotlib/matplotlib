@@ -705,6 +705,60 @@ def test_scatter_logscale(fig_test, fig_ref):
     ax_ref.set_ylim(100, 1000)
 
 
+def _pdf_type42_text_metrics(text, *, fontfeatures=None):
+    with mpl.rc_context({"pdf.fonttype": 42, "pdf.compression": 9}):
+        fig, ax = plt.subplots()
+        kwargs = {}
+        if fontfeatures is not None:
+            kwargs["fontfeatures"] = fontfeatures
+        ax.set_title(text, **kwargs)
+
+        buffer = io.BytesIO()
+        try:
+            with PdfPages(buffer) as pdf:
+                fig.savefig(pdf, format="pdf")
+                used = pdf._file._character_tracker.used
+                assert len(used) == 1
+                subsets = next(iter(used.values()))
+                subset_count = len(subsets)
+                subset_sizes = [len(charmap) for charmap in subsets]
+        finally:
+            plt.close(fig)
+
+    return buffer.tell(), subset_count, subset_sizes
+
+
+def test_pdf_type42_ligature_size_regression():
+    """Regression test for issue #31955.
+
+    The default Type 42 PDF path should not introduce a ligature-driven size
+    increase relative to explicitly disabling ligatures, while an explicit
+    ligature opt-in should still produce the larger, multi-subset output.
+    """
+    default_size, default_subset_count, default_subset_sizes = (
+        _pdf_type42_text_metrics("Ecoflow")
+    )
+    no_liga_size, no_liga_subset_count, no_liga_subset_sizes = (
+        _pdf_type42_text_metrics("Ecoflow", fontfeatures=["-liga"])
+    )
+    no_fl_size, no_fl_subset_count, no_fl_subset_sizes = (
+        _pdf_type42_text_metrics("Ecolow")
+    )
+    explicit_liga_size, explicit_liga_subset_count, explicit_liga_subset_sizes = (
+        _pdf_type42_text_metrics("Ecoflow", fontfeatures=["liga"])
+    )
+
+    assert default_size == no_liga_size
+    assert default_subset_count == 1
+    assert no_liga_subset_count == 1
+    assert default_subset_sizes == no_liga_subset_sizes
+    assert no_fl_subset_count == 1
+    assert no_fl_size < default_size
+    assert explicit_liga_subset_count > 1
+    assert explicit_liga_size > default_size + 2_500
+    assert explicit_liga_subset_sizes != default_subset_sizes
+
+
 @check_figures_equal(extensions=["pdf"])
 def test_scatter_polar(fig_test, fig_ref):
     """
