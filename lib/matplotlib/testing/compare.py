@@ -100,9 +100,15 @@ class _Converter:
 class _MagickConverter:
     def __call__(self, orig, dest):
         try:
-            subprocess.run(
-                [mpl._get_executable_info("magick").executable, orig, dest],
-                check=True)
+            with TemporaryDirectory() as tmpdirname:
+                # ImageMagick may not be permitted to follow symlinks, so make a copy
+                if orig.is_symlink():
+                    new_orig = tmpdirname + orig.name
+                    shutil.copyfile(orig, new_orig)
+                    orig = new_orig
+                subprocess.run(
+                    [mpl._get_executable_info("magick").executable, orig, dest],
+                    check=True)
         except subprocess.CalledProcessError as e:
             raise _ConverterError() from e
 
