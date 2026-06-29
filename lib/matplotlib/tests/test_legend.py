@@ -663,6 +663,16 @@ def test_empty_bar_chart_with_legend():
     plt.legend()
 
 
+def test_empty_bar_chart_legend_handle_style():
+    # Issue #21506: a bar plot of empty data should still produce a legend
+    # entry styled like the requested bars (consistent with plot()/scatter()),
+    # rather than falling back to the default style and color.
+    fig, ax = plt.subplots()
+    ax.bar([], [], color='red', alpha=0.3, label='empty')
+    handle = ax.legend().legend_handles[0]
+    assert_allclose(handle.get_facecolor(), mpl.colors.to_rgba('red', 0.3))
+
+
 @image_comparison(['shadow_argument_types.png'], remove_text=True, style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_shadow_argument_types():

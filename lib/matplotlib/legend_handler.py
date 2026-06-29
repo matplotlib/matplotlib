@@ -39,6 +39,10 @@ import matplotlib.collections as mcoll
 
 def update_from_first_child(tgt, src):
     first_child = next(iter(src.get_children()), None)
+    if first_child is None:
+        # Containers with no children (e.g. a bar plot of empty data) may carry
+        # a non-drawn sample artist describing the intended style.
+        first_child = getattr(src, '_sample_patch', None)
     if first_child is not None:
         tgt.update_from(first_child)
 

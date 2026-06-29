@@ -2646,6 +2646,23 @@ class Axes(_AxesBase):
         bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
                                      orientation=orientation,
                                      label=bar_container_label)
+        if not patches:
+            # No bars were created (e.g. empty data), so there is no child
+            # artist to carry the requested style into the legend.  Stash a
+            # non-drawn sample Rectangle with the resolved style so the legend
+            # entry still reflects it, consistent with plot()/scatter().
+            # facecolor/edgecolor are not broadcast against the (empty) data,
+            # so they still carry the resolved style; linewidth/hatch were
+            # broadcast and may be exhausted, so fall back to the defaults.
+            sample = mpatches.Rectangle(
+                xy=(0, 0), width=0, height=0,
+                facecolor=next(facecolor),
+                edgecolor=next(edgecolor),
+                linewidth=next(linewidth, None),
+                hatch=next(hatch, None),
+                )
+            sample._internal_update(kwargs)
+            bar_container._sample_patch = sample
         self.add_container(bar_container)
 
         if tick_labels is not None:
