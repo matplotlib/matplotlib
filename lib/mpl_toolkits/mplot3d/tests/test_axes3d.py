@@ -3204,3 +3204,24 @@ def test_plot_surface_log_scale_invalid_values():
 
     zmin, zmax = ax.get_zlim()
     assert 1e-3 < zmin < zmax < 1e3, f"zlim corrupted: {(zmin, zmax)}"
+
+
+def test_axes3d_tightbbox_includes_axis_labels():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.scatter([1], [1], [1])
+
+    fig.draw_without_rendering()
+    renderer = fig._get_renderer()
+    bb_no_labels = ax.get_tightbbox(renderer)
+
+    ax.set_xlabel('X label')
+    ax.set_ylabel('Y label')
+    ax.set_zlabel('Z label')
+
+    fig.draw_without_rendering()
+    bb_full = ax.get_tightbbox(renderer)
+
+    # The full bbox must be strictly larger in at least one dimension than the
+    # bbox not including labels.
+    assert bb_full.width > bb_no_labels.width or bb_full.height > bb_no_labels.height

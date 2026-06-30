@@ -8330,6 +8330,21 @@ def test_tick_padding_tightbbox():
     assert bb.y0 < bb2.y0
 
 
+def test_tightbbox_includes_long_label():
+    fig, ax = plt.subplots()
+
+    renderer = fig._get_renderer()
+    bbox_no_xlabel = ax.get_tightbbox(renderer, for_layout_only=False)
+
+    ax.set_xlabel(
+        'loooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong')
+    bbox_long_xlabel = ax.get_tightbbox(renderer, for_layout_only=False)
+
+    # When for_layout_only is False, the axes tightbbox should encompass its labels even
+    # if they are long enough to extent beyond its limits.
+    assert bbox_long_xlabel.width > bbox_no_xlabel.width
+
+
 def test_inset():
     """
     Ensure that inset_ax argument is indeed optional
