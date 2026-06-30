@@ -912,37 +912,41 @@ class _SymmetricalLogUtil:
     """
     Helper class for working with symmetrical log scales.
 
-    For log axes, all coordinates with integer logarithm to *base*, termed *decades*,
-    are possible major tick positions. When determining tick positions, the number of
-    decades in the axis range is analyzed and from there tick positions are chosen. For
-    symlog axes, we want to emulate this behavior in the logarithmic part and reasonably
-    extend it to the linear part (as well as mirroring it to the negative part). The
-    logarithmic approach cannot work in the linear part, as there are infinitely many
-    powers of *base* near 0, only some of which we want to label. Thus, we need to pick
-    some power to be the first (i.e. the smallest positive) acceptable major tick
+    For log axes, all coordinates with integer logarithm to *base* are possible major
+    tick positions, with the range between two such coordinates (or more generally
+    between two values separated by a factor of *base*) being termed a *decade*. When
+    determining tick positions, the number of decades in the axis range is analyzed and
+    from there tick positions are chosen. For symlog axes, we want to emulate this
+    behavior in the logarithmic part and extend it across the linear part and into
+    the negative part. For simplicity, we only describe our approach for positive half
+    axis here; everything works the same (i.e. mirrored) on the negative side.
+
+    The logarithmic approach cannot work in the linear part, as there are infinitely
+    many powers of *base* near 0, only some of which we want to label. Thus, we need to
+    pick some power to be the first (i.e. the smallest positive) acceptable major tick
     position. We assign it the *decade number* 1 and number larger powers of *base*
     consecutively, with logarithmic interpolation for intermediate values. The
     coordinate 0 receives the decade number 0, with linear interpolation for coordinates
-    with decade numbers between 0 and 1. Negative decade numbers receive negative decade
-    numbers in an analogous way. Thus, each coordinate has a corresponding decade number
-    and these can serve the same function for symlog axes as the logarithm for log axes,
-    i.e. coordinates with integer decade numbers are possible major tick positions.
+    with decade numbers between 0 and 1. Thus, each coordinate has a corresponding
+    decade number and these can serve the same function for symlog axes as the logarithm
+    does for log axes, i.e. coordinates with integer decade numbers are possible major
+    tick positions.
 
     We choose a power of *base* to be an acceptable tick position if its distance from 0
     on the axis is at least half the size of one decade in the logarithmic regime. In
-    order to evaluate this condition, we introduce the *normalized position* of a
-    coordinate on the axis. It is its distance from 0 normalized to the size of one
-    decade in the logarithmic regime. Thus, coordinates in the linear regime have a
-    normalized position between *-linscale* and *linscale*, while those in the
-    logarithmic regime lie outside that range. Thus, a power of *base* is an acceptable
-    tick position as defined above if it has a normalized position greater than 0.5.
+    order to evaluate this condition, we introduce the *axis position* of a coordinate.
+    It is its position on the axis measured from 0, expressed in units of the size of
+    one decade in the logarithmic regime. Thus, coordinates in the linear regime have an
+    axis position below *linscale*, while those in the logarithmic regime lie above that
+    value. Using this metric, a power of *base* is an acceptable tick position as
+    defined above if it has an axis position greater than 0.5.
 
-    Note that, for coordinates in the logarithmic regime, the normalized position is
-    identical to the logarithm of the coordinate, except for a constant offset. The same
-    is true for the decade number for coordinates greater than the first decade
-    (i.e. with decade numbers greater than 1). When linthresh is a power of *base* and
-    linscale is 1, the decade number is identical to the normalized position and both
-    are equal to the logarithm in the logarithmic regime.
+    Note that, for coordinates in the logarithmic regime, the axis position is identical
+    to the logarithm of the coordinate, except for a constant offset. The same is true
+    for the decade number for coordinates greater than the first acceptable major tick
+    position (i.e. with a decade number greater than 1). When *linthresh* is a power of
+    *base* and *linscale* is 1, the decade number is identical to the axis position and
+    in the logarithmic regime both are equal to the logarithm.
 
     Parameters
     ----------
@@ -964,11 +968,11 @@ class _SymmetricalLogUtil:
                 np.log2(x) if self.base == 2 else
                 np.log(x) / np.log(self.base))
 
-    def pos(self, val):
+    def val2axpos(self, val):
         """
-        Calculate the normalized position of the value on the axis. It is normalized
-        such that the distance between two logarithmic decades is 1 and the position of
-        linthresh is linscale.
+        Calculate the axis position of the value on the axis. It is scaled such that
+        the distance between two logarithmic decades is 1 and the position of linthresh
+        is linscale.
         """
         sign, val = np.sign(val), np.abs(val)
         if val > self.linthresh:  # log regime
@@ -977,8 +981,8 @@ class _SymmetricalLogUtil:
             val = val / self.linthresh * self.linscale
         return sign * val
 
-    def unpos(self, val):
-        """The inverse of pos."""
+    def axpos2val(self, val):
+        """The inverse of `.val2axpos`."""
         sign, val = np.sign(val), np.abs(val)
         if val > self.linscale:  # log regime
             val = np.power(self.base, val - self.linscale) * self.linthresh
@@ -986,38 +990,35 @@ class _SymmetricalLogUtil:
             val = val / self.linscale * self.linthresh
         return sign * val
 
-    def firstdec_exp(self):
-        """Calculate the exponent of the first decade."""
-        return np.ceil(self._log_b(self.unpos(0.5)))
+    def firsttickval(self):
+        """Calculate the value of the first acceptable (positive) tick position."""
+        exp = np.ceil(self._log_b(self.axpos2val(0.5)))
+        return np.power(self.base, exp)
 
-    def firstdec(self):
-        """Calculate the first decade."""
-        return np.power(self.base, self.firstdec_exp())
-
-    def dec(self, val):
+    def val2decnum(self, val):
         """
-        Calculate the decade number of the value. The first decade to have a normalized
-        position of at least 0.5 is given the number 1, the value 0 is given the decade
-        number 0.
+        Calculate the decade number of the value. The first integer power of *base* to
+        have an axis position of at least 0.5 is given the number 1, the value 0 is
+        given the number 0.
         """
-        firstdec = self.firstdec()
+        first = self.firsttickval()
         sign, val = np.sign(val), np.abs(val)
-        if val > firstdec:
-            val = self._log_b(val / firstdec) + 1
+        if val > first:
+            val = self._log_b(val / first) + 1
         else:
             # We scale linearly in order to get a strictly monotonous mapping
             # between 0 and 1, though the linear nature is arbitrary.
-            val /= firstdec
+            val /= first
         return sign * val
 
-    def undec(self, val):
-        """The inverse of dec."""
-        firstdec = self.firstdec()
+    def decnum2val(self, val):
+        """The inverse of `.val2decnum`."""
+        first = self.firsttickval()
         sign, val = np.sign(val), np.abs(val)
         if val > 1:
-            val = np.power(self.base, val - 1) * firstdec
+            val = np.power(self.base, val - 1) * first
         else:
-            val *= firstdec
+            val *= first
         return sign * val
 
 
@@ -1167,8 +1168,8 @@ class LogFormatter(Formatter):
         b = self._base
 
         if self._is_symlog:
-            mindec = self._symlogutil.dec(vmin)
-            maxdec = self._symlogutil.dec(vmax)
+            mindec = self._symlogutil.val2decnum(vmin)
+            maxdec = self._symlogutil.val2decnum(vmax)
             numdec = maxdec - mindec
             numticks = np.floor(maxdec) - np.ceil(mindec) + 1
         else:
@@ -1201,11 +1202,11 @@ class LogFormatter(Formatter):
                 self._firstsublabels = set(np.arange(0, b + 1))
 
         if self._is_symlog:
-            firstdec = self._symlogutil.firstdec()
-            if self._firstsublabels == {0} and -firstdec < vmin < vmax < firstdec:
+            first = self._symlogutil.firsttickval()
+            if self._firstsublabels == {0} and -first < vmin < vmax < first:
                 # No minor ticks are being labeled right now and the only major tick is
                 # at 0. This means the axis scaling cannot be read from the labels.
-                numsteps = int(np.ceil(firstdec / max(-vmin, vmax)))
+                numsteps = int(np.ceil(first / max(-vmin, vmax)))
                 step = int(b / numsteps)
                 self._firstsublabels = set(range(0, int(b) + 1, step))
 
@@ -1226,7 +1227,7 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self._symlogutil.firstdec():
+        if self._is_symlog and x < self._symlogutil.firsttickval():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -1312,7 +1313,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self._symlogutil.firstdec():
+        if self._is_symlog and x < self._symlogutil.firsttickval():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -2909,8 +2910,8 @@ class SymmetricalLogLocator(Locator):
             vmin, vmax = vmax, vmin
 
         haszero = vmin <= 0 <= vmax
-        mindec = self._symlogutil.dec(vmin)
-        maxdec = self._symlogutil.dec(vmax)
+        mindec = self._symlogutil.val2decnum(vmin)
+        maxdec = self._symlogutil.val2decnum(vmax)
         imindec = math.ceil(mindec)
         imaxdec = math.floor(maxdec)
         # Number of decade ticks available.
@@ -2998,12 +2999,13 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = []
                 for dec in decades:
                     if dec > 0:
-                        ticklocs.append(subs * self._symlogutil.undec(dec))
+                        ticklocs.append(subs * self._symlogutil.decnum2val(dec))
                     elif dec < 0:
-                        ticklocs.append(np.flip(subs * self._symlogutil.undec(dec)))
+                        ticklocs.append(
+                            np.flip(subs * self._symlogutil.decnum2val(dec)))
                     else:
                         # We add the usual subs as well as the next lower decade.
-                        zeropow = self._symlogutil.undec(1) / self._symlogutil.base
+                        zeropow = self._symlogutil.decnum2val(1) / self._symlogutil.base
                         zeroticks = subs * zeropow
                         if subs[0] != 1.0:
                             # Add the otherwise missing minor tick.
@@ -3018,7 +3020,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = np.array([])
         else:
             # Major locator.
-            ticklocs = np.array([self._symlogutil.undec(dec) for dec in decades])
+            ticklocs = np.array([self._symlogutil.decnum2val(dec) for dec in decades])
 
         if is_minor and stride == 1:
             numticks = ((vmin <= ticklocs) & (ticklocs <= vmax)).sum()
@@ -3037,8 +3039,10 @@ class SymmetricalLogLocator(Locator):
         """Try to choose the view limits intelligently."""
         vmin, vmax = self.nonsingular(vmin, vmax)
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = self._symlogutil.undec(np.floor(self._symlogutil.dec(vmin)))
-            vmax = self._symlogutil.undec(np.ceil(self._symlogutil.dec(vmax)))
+            vmin = self._symlogutil.decnum2val(
+                np.floor(self._symlogutil.val2decnum(vmin)))
+            vmax = self._symlogutil.decnum2val(
+                np.ceil(self._symlogutil.val2decnum(vmax)))
         return vmin, vmax
 
 
