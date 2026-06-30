@@ -1644,13 +1644,17 @@ def test_pcolormesh_switching_shadings():
 
 @check_figures_equal()
 def test_pcolormesh_gouraud_grid_conversion(fig_test, fig_ref):
+    # For X and Y one dimension greater than Z, gouraud converts the
+    # grid representation to match the data shape, by using quad centers.
     Z = np.arange(6).reshape(2, 3)
 
+    # One larger than Z in each dimension.
     x_test = np.array([0, 2, 8, 12])
     y_test = np.array([0, 2, 6])
     ax_test = fig_test.subplots()
     ax_test.pcolormesh(x_test, y_test, Z, shading='gouraud')
 
+    # Same shape as Z.
     x_ref = np.array([1, 5, 10])
     y_ref = np.array([1, 4])
     ax_ref = fig_ref.subplots()

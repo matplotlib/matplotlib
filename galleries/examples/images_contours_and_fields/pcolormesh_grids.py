@@ -124,7 +124,7 @@ _annotate(ax, x, y, "shading='gouraud'; X, Y same shape as Z")
 # In some cases, the user has data defined at the centers of the quadrilaterals
 # with *X* and *Y* one larger than *Z*. ``shading='gouraud'`` also supports
 # this by using the grid quadrilateral centers as the corners of each colored
-# quadrilateral.
+# quadrilateral. This contracts the pseudocolor plot by half a grid cell.
 
 fig, ax = plt.subplots(layout='constrained')
 x = np.arange(ncols + 1)
