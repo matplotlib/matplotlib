@@ -991,7 +991,13 @@ class _SymmetricalLogUtil:
         return sign * val
 
     def firsttickval(self):
-        """Calculate the value of the first acceptable (positive) tick position."""
+        """
+        Calculate the value of the first acceptable (positive) tick position. We define
+        this to the first power of *base* with an axis position of at least 0.5. This
+        ensures that the size of a minor tick in the linear regime is at least the size
+        of the smallest minor tick in the logarithmic regime when *base* is 10:
+            0.5 / 10 > 0.045 ~= -log10(0.9)
+        """
         exp = np.ceil(self._log_b(self.axpos2val(0.5)))
         return np.power(self.base, exp)
 
