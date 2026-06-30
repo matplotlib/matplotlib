@@ -912,6 +912,16 @@ class _SymmetricalLogUtil:
     """
     Helper class for working with symmetrical log scales.
 
+    We define two helper coordinate systems, which will be motivated and defined below:
+    - *decade number* serves to easily identify the powers of *base* that may serve as
+        major tick positions. Such powers are located at integer decade numbers, and the
+        smallest needed power is located at decade number 1.
+    - *axis position* helps to gauge the visual distance between values on the axis.
+        Equal distances in axis position correspond to equal visual distances. It is
+        connected to the axis coordinate by a shift and scale such that the value 0 has
+        the axis position 0 and consecutive logarithmic decades differ by 1 in axis
+        position.
+
     For log axes, all coordinates with integer logarithm to *base* are possible major
     tick positions, with the range between two such coordinates (or more generally
     between two values separated by a factor of *base*) being termed a *decade*. When
