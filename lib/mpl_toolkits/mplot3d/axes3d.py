@@ -4167,8 +4167,10 @@ class Axes3D(Axes):
         if self._axis3don:
             for axis in self._axis_map.values():
                 if axis.get_visible():
-                    axis_bb = martist._get_tightbbox_for_layout_only(
-                        axis, renderer)
+                    if for_layout_only:
+                        axis_bb = martist._get_tightbbox_for_layout_only(axis, renderer)
+                    else:
+                        axis_bb = axis.get_tightbbox(renderer=renderer)
                     if axis_bb:
                         batch.append(axis_bb)
         return mtransforms.Bbox.union(batch)
