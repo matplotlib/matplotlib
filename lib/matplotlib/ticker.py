@@ -1144,18 +1144,6 @@ class LogFormatter(Formatter):
     def _is_symlog(self):
         return self._symlogutil is not None
 
-    def set_axis(self, axis):
-        super().set_axis(axis)
-        if self._symlogutil is None:
-            transform = self.axis.get_transform()
-            try:
-                base = transform.base
-                linthresh = transform.linthresh
-                linscale = transform.linscale
-            except AttributeError:
-                return
-            self._symlogutil = _SymmetricalLogUtil(base, linthresh, linscale)
-
     def set_base(self, base):
         """
         Change the *base* for labeling.
