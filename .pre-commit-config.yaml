@@ -44,7 +44,7 @@ repos:
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: 0671d8ab202c4ac093b78433ae5baf74f3fc7246  # frozen: v0.15.15
+    rev: 745be0411e3c150e246d527e531e5a221b8c3462  # frozen: v0.15.19
     hooks:
       # Run the linter.
       - id: ruff-check
@@ -71,7 +71,7 @@ repos:
       - id: rstcheck
         additional_dependencies:
           - rstcheck-core!=1.3  # https://github.com/rstcheck/rstcheck-core/pull/114#pullrequestreview-4239740896
-          - sphinx>=1.8.1
+          - sphinx>=9.1.0
   - repo: https://github.com/adrienverge/yamllint
     rev: cba56bcde1fdd01c1deb3f945e69764c291a6530  # frozen: v1.38.0
     hooks:
@@ -82,7 +82,7 @@ repos:
     hooks:
       - id: shellcheck
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: a4727cbbcd26d7098e96b9cb738169b59711ae51  # frozen: v1.24.1
+    rev: e3eebf65325ccc992422292cb7a4baee967cf815  # frozen: v1.26.1
     hooks:
       - id: zizmor
   - repo: https://github.com/simple-icons/svglint
@@ -94,7 +94,7 @@ repos:
         # SVG examples are handled in .svglintrc.mjs.
         exclude: '^$'
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: f805888065fdb6162e1f800e50bb9460cbd223d6  # frozen: 0.37.2
+    rev: 5030dca3047414c338091455ac41803200ec1f0f  # frozen: 0.37.3
     hooks:
       # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
       # - id: check-azure-pipelines
