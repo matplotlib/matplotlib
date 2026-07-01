@@ -912,7 +912,7 @@ class _SymmetricalLogUtil:
     """
     Helper class for working with symmetrical log scales.
 
-    We define two helper coordinate systems, which will be motivated and defined below:
+    We define two helper coordinate systems:
     - *decade number* serves to easily identify the powers of *base* that may serve as
         major tick positions. Such powers are located at integer decade numbers, and the
         smallest needed power is located at decade number 1.
@@ -921,6 +921,24 @@ class _SymmetricalLogUtil:
         connected to the axis coordinate by a shift and scale such that the value 0 has
         the axis position 0 and consecutive logarithmic decades differ by 1 in axis
         position.
+
+                     |--------log--------|---------linear----------|--------log--------|
+         coordinate: |-----+-------+-------+----------+----------+-------+-------+-----|
+                         10^-5   10^-4   10^-3        0        10^3    10^4    10^5
+
+      decade number: |-----+-------+-------+----------+----------+-------+-------+-----|
+                          -3      -2      -1          0          1       2       3
+
+      axis position: |---+-------+-------+------------+------------+-------+-------+---|
+                        (ls+2) -(ls+1)   ls           0            ls      ls+1    ls+2
+
+    axis coordinate: |--------------------------------+--------------------------------|
+                     0                               0.5                               1
+                     |--------log--------|---------linear----------|--------log--------|
+
+    Note that, in general, the first tick (decade number 1) may also lie outside the
+    linear regime. Now, let us motivate and define the new coordinate systems more
+    precisely.
 
     For log axes, all coordinates with integer logarithm to *base* are possible major
     tick positions, with the range between two such coordinates (or more generally
