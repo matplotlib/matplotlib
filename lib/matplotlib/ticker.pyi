@@ -100,20 +100,14 @@ class ScalarFormatter(Formatter):
     def format_data_short(self, value: float | np.ma.MaskedArray) -> str: ...
     def format_data(self, value: float) -> str: ...
 
-class _SymmetricalLogUtil:
-    def __init__(
-        self,
-        base: float,
-        linthresh: float,
-        linscale: float,
-    ) -> None: ...
+class _SymmetricalLogMixin:
     def val2axpos(self, val: float) -> float: ...
     def axpos2val(self, val: float) -> float: ...
     def firsttickval(self) -> float: ...
     def val2decnum(self, val: float) -> float: ...
     def decnum2val(self, val: float) -> float: ...
 
-class LogFormatter(Formatter):
+class LogFormatter(_SymmetricalLogMixin, Formatter):
     minor_thresholds: tuple[float, float]
     def __init__(
         self,
@@ -271,7 +265,7 @@ class LogLocator(Locator):
         numticks: int | None = ...,
     ) -> None: ...
 
-class SymmetricalLogLocator(Locator):
+class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
     numticks: int
     def __init__(
         self,

@@ -908,9 +908,9 @@ class ScalarFormatter(Formatter):
             self._format = r'$\mathdefault{%s}$' % self._format
 
 
-class _SymmetricalLogUtil:
+class _SymmetricalLogMixin:
     """
-    Helper class for working with symmetrical log scales.
+    Common methods for working with symmetrical log scales.
 
     We define two helper coordinate systems:
     - *decade number* serves to easily identify the powers of *base* that may serve as
@@ -975,26 +975,15 @@ class _SymmetricalLogUtil:
     position (i.e. with a decade number greater than 1). When *linthresh* is a power of
     *base* and *linscale* is 1, the decade number is identical to the axis position and
     in the logarithmic regime both are equal to the logarithm.
-
-    Parameters
-    ----------
-    base, linthresh, linscale : float
-        The *base*, *linthresh* and *linscale* of the symlog transform, as
-        documented for `.SymmetricalLogScale`.
     """
-
-    def __init__(self, base, linthresh, linscale):
-        self.base = base
-        self.linthresh = linthresh
-        self.linscale = linscale
 
     def _log_b(self, x):
         # Use specialized logs if possible, as they can be more accurate; e.g.
         # log(.001) / log(10) = -2.999... (whether math.log or np.log) due to
         # floating point error.
-        return (np.log10(x) if self.base == 10 else
-                np.log2(x) if self.base == 2 else
-                np.log(x) / np.log(self.base))
+        return (np.log10(x) if self._base == 10 else
+                np.log2(x) if self._base == 2 else
+                np.log(x) / np.log(self._base))
 
     def val2axpos(self, val):
         """
@@ -1003,19 +992,19 @@ class _SymmetricalLogUtil:
         is linscale.
         """
         sign, val = np.sign(val), np.abs(val)
-        if val > self.linthresh:  # log regime
-            val = self._log_b(val / self.linthresh) + self.linscale
+        if val > self._linthresh:  # log regime
+            val = self._log_b(val / self._linthresh) + self._linscale
         else:  # linear regime
-            val = val / self.linthresh * self.linscale
+            val = val / self._linthresh * self._linscale
         return sign * val
 
     def axpos2val(self, val):
         """The inverse of `.val2axpos`."""
         sign, val = np.sign(val), np.abs(val)
-        if val > self.linscale:  # log regime
-            val = np.power(self.base, val - self.linscale) * self.linthresh
+        if val > self._linscale:  # log regime
+            val = np.power(self.base, val - self._linscale) * self._linthresh
         else:  # linear regime
-            val = val / self.linscale * self.linthresh
+            val = val / self._linscale * self._linthresh
         return sign * val
 
     def firsttickval(self):
@@ -1027,7 +1016,7 @@ class _SymmetricalLogUtil:
             0.5 / 10 > 0.045 ~= -log10(0.9)
         """
         exp = np.ceil(self._log_b(self.axpos2val(0.5)))
-        return np.power(self.base, exp)
+        return np.power(self._base, exp)
 
     def val2decnum(self, val):
         """
@@ -1050,13 +1039,13 @@ class _SymmetricalLogUtil:
         first = self.firsttickval()
         sign, val = np.sign(val), np.abs(val)
         if val > 1:
-            val = np.power(self.base, val - 1) * first
+            val = np.power(self._base, val - 1) * first
         else:
             val *= first
         return sign * val
 
 
-class LogFormatter(Formatter):
+class LogFormatter(_SymmetricalLogMixin, Formatter):
     """
     Base class for formatting ticks on a log or symlog scale.
 
@@ -1120,8 +1109,6 @@ class LogFormatter(Formatter):
     def __init__(self, base=10.0, labelOnlyBase=False,
                  minor_thresholds=None,
                  linthresh=None, linscale=None):
-        # Create _symlogutil first, since its existence is assumed in set_base().
-        self._symlogutil = None
         self.set_base(base)
         self.set_label_minor(labelOnlyBase)
         if minor_thresholds is None:
@@ -1135,14 +1122,10 @@ class LogFormatter(Formatter):
         self._linthresh = linthresh
         self._linscale = linscale
         self._firstsublabels = None
-        # Instantiate _symlogutil if possible.
-        # If not, we will try again in set_axis().
-        if all(p is not None for p in (base, linthresh, linscale)):
-            self._symlogutil = _SymmetricalLogUtil(base, linthresh, linscale)
 
     @property
     def _is_symlog(self):
-        return self._symlogutil is not None
+        return all(p is not None for p in (self._base, self._linthresh, self._linscale))
 
     def set_base(self, base):
         """
@@ -1152,8 +1135,6 @@ class LogFormatter(Formatter):
            Should always match the base used for :class:`LogLocator`
         """
         self._base = float(base)
-        if self._symlogutil is not None:
-            self._symlogutil.base = self._base
 
     def set_label_minor(self, labelOnlyBase):
         """
@@ -1190,8 +1171,8 @@ class LogFormatter(Formatter):
         b = self._base
 
         if self._is_symlog:
-            mindec = self._symlogutil.val2decnum(vmin)
-            maxdec = self._symlogutil.val2decnum(vmax)
+            mindec = self.val2decnum(vmin)
+            maxdec = self.val2decnum(vmax)
             numdec = maxdec - mindec
             numticks = np.floor(maxdec) - np.ceil(mindec) + 1
         else:
@@ -1224,7 +1205,7 @@ class LogFormatter(Formatter):
                 self._firstsublabels = set(np.arange(0, b + 1))
 
         if self._is_symlog:
-            first = self._symlogutil.firsttickval()
+            first = self.firsttickval()
             if self._firstsublabels == {0} and -first < vmin < vmax < first:
                 # No minor ticks are being labeled right now and the only major tick is
                 # at 0. This means the axis scaling cannot be read from the labels.
@@ -1249,7 +1230,7 @@ class LogFormatter(Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self._symlogutil.firsttickval():
+        if self._is_symlog and x < self.firsttickval():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -1335,7 +1316,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self._symlogutil.firsttickval():
+        if self._is_symlog and x < self.firsttickval():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -2826,7 +2807,7 @@ class LogLocator(Locator):
         return vmin, vmax
 
 
-class SymmetricalLogLocator(Locator):
+class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
     """
     Place ticks spaced linearly near zero and spaced logarithmically beyond a threshold.
     """
@@ -2873,7 +2854,12 @@ class SymmetricalLogLocator(Locator):
             base = transform.base
             linthresh = transform.linthresh
             linscale = transform.linscale
-        self._symlogutil = _SymmetricalLogUtil(base, linthresh, linscale)
+        elif any(p is None for p in (base, linthresh, linscale)):
+            raise ValueError("Either transform, or all of base, linthresh and "
+                             "linscale must be provided.")
+        self._base = base
+        self._linthresh = linthresh
+        self._linscale = linscale
         self._set_subs(subs)
         if numticks is None:
             if mpl.rcParams['_internal.classic_mode']:
@@ -2890,11 +2876,11 @@ class SymmetricalLogLocator(Locator):
         if subs is not None:
             self._set_subs(subs)
         if base is not None:
-            self._symlogutil.base = float(base)
+            self._base = base
         if linthresh is not None:
-            self._symlogutil.linthresh = float(linthresh)
+            self._linthresh = linthresh
         if linscale is not None:
-            self._symlogutil.linscale = float(linscale)
+            self._linscale = linscale
 
     def _set_subs(self, subs):
         """
@@ -2932,8 +2918,8 @@ class SymmetricalLogLocator(Locator):
             vmin, vmax = vmax, vmin
 
         haszero = vmin <= 0 <= vmax
-        mindec = self._symlogutil.val2decnum(vmin)
-        maxdec = self._symlogutil.val2decnum(vmax)
+        mindec = self.val2decnum(vmin)
+        maxdec = self.val2decnum(vmax)
         imindec = math.ceil(mindec)
         imaxdec = math.floor(maxdec)
         # Number of decade ticks available.
@@ -3008,7 +2994,7 @@ class SymmetricalLogLocator(Locator):
         if isinstance(self._subs, str):
             # Either 'auto' or 'all'.
             _first = 2.0 if self._subs == 'auto' else 1.0
-            subs = np.arange(_first, self._symlogutil.base)
+            subs = np.arange(_first, self._base)
         else:
             subs = self._subs
 
@@ -3021,13 +3007,13 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = []
                 for dec in decades:
                     if dec > 0:
-                        ticklocs.append(subs * self._symlogutil.decnum2val(dec))
+                        ticklocs.append(subs * self.decnum2val(dec))
                     elif dec < 0:
                         ticklocs.append(
-                            np.flip(subs * self._symlogutil.decnum2val(dec)))
+                            np.flip(subs * self.decnum2val(dec)))
                     else:
                         # We add the usual subs as well as the next lower decade.
-                        zeropow = self._symlogutil.decnum2val(1) / self._symlogutil.base
+                        zeropow = self.decnum2val(1) / self._base
                         zeroticks = subs * zeropow
                         if subs[0] != 1.0:
                             # Add the otherwise missing minor tick.
@@ -3042,7 +3028,7 @@ class SymmetricalLogLocator(Locator):
                 ticklocs = np.array([])
         else:
             # Major locator.
-            ticklocs = np.array([self._symlogutil.decnum2val(dec) for dec in decades])
+            ticklocs = np.array([self.decnum2val(dec) for dec in decades])
 
         if is_minor and stride == 1:
             numticks = ((vmin <= ticklocs) & (ticklocs <= vmax)).sum()
@@ -3061,10 +3047,8 @@ class SymmetricalLogLocator(Locator):
         """Try to choose the view limits intelligently."""
         vmin, vmax = self.nonsingular(vmin, vmax)
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = self._symlogutil.decnum2val(
-                np.floor(self._symlogutil.val2decnum(vmin)))
-            vmax = self._symlogutil.decnum2val(
-                np.ceil(self._symlogutil.val2decnum(vmax)))
+            vmin = self.decnum2val(np.floor(self.val2decnum(vmin)))
+            vmax = self.decnum2val(np.ceil(self.val2decnum(vmax)))
         return vmin, vmax
 
 
