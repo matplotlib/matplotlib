@@ -985,7 +985,7 @@ class _SymmetricalLogMixin:
                 np.log2(x) if self._base == 2 else
                 np.log(x) / np.log(self._base))
 
-    def val2axpos(self, val):
+    def _val2axpos(self, val):
         """
         Calculate the axis position of the value on the axis. It is scaled such that
         the distance between two logarithmic decades is 1 and the position of linthresh
@@ -998,8 +998,8 @@ class _SymmetricalLogMixin:
             val = val / self._linthresh * self._linscale
         return sign * val
 
-    def axpos2val(self, val):
-        """The inverse of `.val2axpos`."""
+    def _axpos2val(self, val):
+        """The inverse of `._val2axpos`."""
         sign, val = np.sign(val), np.abs(val)
         if val > self._linscale:  # log regime
             val = np.power(self.base, val - self._linscale) * self._linthresh
@@ -1007,7 +1007,7 @@ class _SymmetricalLogMixin:
             val = val / self._linscale * self._linthresh
         return sign * val
 
-    def firsttickval(self):
+    def _firsttickval(self):
         """
         Calculate the value of the first acceptable (positive) tick position. We define
         this to the first power of *base* with an axis position of at least 0.5. This
@@ -1015,16 +1015,16 @@ class _SymmetricalLogMixin:
         of the smallest minor tick in the logarithmic regime when *base* is 10:
             0.5 / 10 > 0.045 ~= -log10(0.9)
         """
-        exp = np.ceil(self._log_b(self.axpos2val(0.5)))
+        exp = np.ceil(self._log_b(self._axpos2val(0.5)))
         return np.power(self._base, exp)
 
-    def val2decnum(self, val):
+    def _val2decnum(self, val):
         """
         Calculate the decade number of the value. The first integer power of *base* to
         have an axis position of at least 0.5 is given the number 1, the value 0 is
         given the number 0.
         """
-        first = self.firsttickval()
+        first = self._firsttickval()
         sign, val = np.sign(val), np.abs(val)
         if val > first:
             val = self._log_b(val / first) + 1
@@ -1034,9 +1034,9 @@ class _SymmetricalLogMixin:
             val /= first
         return sign * val
 
-    def decnum2val(self, val):
-        """The inverse of `.val2decnum`."""
-        first = self.firsttickval()
+    def _decnum2val(self, val):
+        """The inverse of `._val2decnum`."""
+        first = self._firsttickval()
         sign, val = np.sign(val), np.abs(val)
         if val > 1:
             val = np.power(self._base, val - 1) * first
@@ -1171,8 +1171,8 @@ class LogFormatter(_SymmetricalLogMixin, Formatter):
         b = self._base
 
         if self._is_symlog:
-            mindec = self.val2decnum(vmin)
-            maxdec = self.val2decnum(vmax)
+            mindec = self._val2decnum(vmin)
+            maxdec = self._val2decnum(vmax)
             numdec = maxdec - mindec
             numticks = np.floor(maxdec) - np.ceil(mindec) + 1
         else:
@@ -1205,7 +1205,7 @@ class LogFormatter(_SymmetricalLogMixin, Formatter):
                 self._firstsublabels = set(np.arange(0, b + 1))
 
         if self._is_symlog:
-            first = self.firsttickval()
+            first = self._firsttickval()
             if self._firstsublabels == {0} and -first < vmin < vmax < first:
                 # No minor ticks are being labeled right now and the only major tick is
                 # at 0. This means the axis scaling cannot be read from the labels.
@@ -1230,7 +1230,7 @@ class LogFormatter(_SymmetricalLogMixin, Formatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self.firsttickval():
+        if self._is_symlog and x < self._firsttickval():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -1316,7 +1316,7 @@ class LogFormatterMathtext(LogFormatter):
         exponent = round(fx) if is_x_decade else np.floor(fx)
         coeff = round(b ** (fx - exponent))
 
-        if self._is_symlog and x < self.firsttickval():
+        if self._is_symlog and x < self._firsttickval():
             if self.labelOnlyBase:
                 return ''
             if self._firstsublabels is not None and coeff not in self._firstsublabels:
@@ -2918,8 +2918,8 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
             vmin, vmax = vmax, vmin
 
         haszero = vmin <= 0 <= vmax
-        mindec = self.val2decnum(vmin)
-        maxdec = self.val2decnum(vmax)
+        mindec = self._val2decnum(vmin)
+        maxdec = self._val2decnum(vmax)
         imindec = math.ceil(mindec)
         imaxdec = math.floor(maxdec)
         # Number of decade ticks available.
@@ -3007,13 +3007,13 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
                 ticklocs = []
                 for dec in decades:
                     if dec > 0:
-                        ticklocs.append(subs * self.decnum2val(dec))
+                        ticklocs.append(subs * self._decnum2val(dec))
                     elif dec < 0:
                         ticklocs.append(
-                            np.flip(subs * self.decnum2val(dec)))
+                            np.flip(subs * self._decnum2val(dec)))
                     else:
                         # We add the usual subs as well as the next lower decade.
-                        zeropow = self.decnum2val(1) / self._base
+                        zeropow = self._decnum2val(1) / self._base
                         zeroticks = subs * zeropow
                         if subs[0] != 1.0:
                             # Add the otherwise missing minor tick.
@@ -3028,7 +3028,7 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
                 ticklocs = np.array([])
         else:
             # Major locator.
-            ticklocs = np.array([self.decnum2val(dec) for dec in decades])
+            ticklocs = np.array([self._decnum2val(dec) for dec in decades])
 
         if is_minor and stride == 1:
             numticks = ((vmin <= ticklocs) & (ticklocs <= vmax)).sum()
@@ -3047,8 +3047,8 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
         """Try to choose the view limits intelligently."""
         vmin, vmax = self.nonsingular(vmin, vmax)
         if mpl.rcParams['axes.autolimit_mode'] == 'round_numbers':
-            vmin = self.decnum2val(np.floor(self.val2decnum(vmin)))
-            vmax = self.decnum2val(np.ceil(self.val2decnum(vmax)))
+            vmin = self._decnum2val(np.floor(self._val2decnum(vmin)))
+            vmax = self._decnum2val(np.ceil(self._val2decnum(vmax)))
         return vmin, vmax
 
 
