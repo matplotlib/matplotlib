@@ -1377,19 +1377,22 @@ def test_fill_between_interpolate_nan():
                     interpolate=True, alpha=0.5)
 
 
-# test_symlog and test_symlog2 used to have baseline images in all three
-# formats, but the png and svg baselines got invalidated by the removal of
-# minor tick overstriking.
 @image_comparison(['symlog.pdf'], style='mpl20')
 def test_symlog():
+    fig, axs = plt.subplots(2, figsize=[6.4, 9.6])
+
     x = np.array([0, 1, 2, 4, 6, 9, 12, 24])
     y = np.array([1000000, 500000, 100000, 100, 5, 0, 0, 0])
+    axs[0].plot(x, y)
+    axs[0].set_yscale('symlog')
+    axs[0].set_xscale('linear')
+    axs[0].set_ylim(-1, 10000000)
 
-    fig, ax = plt.subplots()
-    ax.plot(x, y)
-    ax.set_yscale('symlog')
-    ax.set_xscale('linear')
-    ax.set_ylim(-1, 10000000)
+    x = np.linspace(-25, 25, 101)
+    y = np.linspace(0, 2500, 101)
+    axs[1].plot(x, y)
+    axs[1].set_xscale('symlog')
+    axs[1].set_yscale('symlog', linthresh=1, linscale=2)
 
 
 @image_comparison(['symlog2.pdf'], remove_text=True, style='_classic_test')

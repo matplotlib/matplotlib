@@ -599,6 +599,9 @@ class SymmetricalLogScale(ScaleBase):
         For example, in a log10 scale: ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place
         8 logarithmically spaced minor ticks between each major tick.
 
+        .. versionchanged:: 3.12
+            The default value is now ``'auto'``.
+
     linscale : float, optional
         This allows the linear range ``(-linthresh, linthresh)`` to be
         stretched relative to the logarithmic range. Its value is the number of
@@ -610,7 +613,7 @@ class SymmetricalLogScale(ScaleBase):
     name = 'symlog'
 
     @_make_axis_parameter_optional
-    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
+    def __init__(self, axis=None, *, base=10, linthresh=2, subs='auto', linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -620,11 +623,21 @@ class SymmetricalLogScale(ScaleBase):
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
-        axis.set_major_locator(SymmetricalLogLocator(self.get_transform()))
-        axis.set_major_formatter(LogFormatterSciNotation(self.base))
-        axis.set_minor_locator(SymmetricalLogLocator(self.get_transform(),
-                                                     self.subs))
-        axis.set_minor_formatter(NullFormatter())
+        axis.set_major_locator(SymmetricalLogLocator(base=self.base,
+                                                     linthresh=self.linthresh,
+                                                     linscale=self.linscale))
+        axis.set_major_formatter(LogFormatterSciNotation(base=self.base,
+                                                         linthresh=self.linthresh,
+                                                         linscale=self.linscale))
+        axis.set_minor_locator(SymmetricalLogLocator(base=self.base,
+                                                     linthresh=self.linthresh,
+                                                     linscale=self.linscale,
+                                                     subs=self.subs))
+        axis.set_minor_formatter(
+            LogFormatterSciNotation(base=self.base,
+                                    linthresh=self.linthresh,
+                                    linscale=self.linscale,
+                                    labelOnlyBase=(self.subs != 'auto')))
 
     def get_transform(self):
         """Return the `.SymmetricalLogTransform` associated with this scale."""
