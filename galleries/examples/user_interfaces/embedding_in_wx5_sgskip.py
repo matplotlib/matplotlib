@@ -8,7 +8,7 @@ Embed in wx #5
     As a development and debugging aid, you can replace :class:`wx.App`
     by :class:`wx.lib.mixins.inspection.InspectableApp`.
     This adds the capability to start the `Widget Inspection Tool
-    <https://wiki.wxpython.org/How%20to%20use%20Widget%20Inspection%20Tool%20-%20WIT%20%28Phoenix%29>`_
+    <https://docs.wxpython.org/wx.lib.inspection.InspectionTool.html>`_
     via :kbd:`Ctrl-Alt-I`.
 """
 
