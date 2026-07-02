@@ -3,7 +3,7 @@ from .patches import Patch
 from .figure import Figure
 import numpy as np
 from numpy.typing import ArrayLike
-from collections.abc import Iterable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 from typing import Literal
 
 DEBUG: bool
@@ -370,3 +370,9 @@ def offset_copy(
 class _ScaledRotation(Affine2DBase):
     def __init__(self, theta: float, trans_shift: Transform) -> None: ...
     def get_matrix(self) -> np.ndarray: ...
+
+
+class IndirectTransform(Transform):
+    def __init__(self, func: Callable[..., Transform], **kwargs) -> None: ...
+    def transform_non_affine(self, points) -> np.ndarray: ...
+    def transform_affine(self, points) -> np.ndarray: ...
