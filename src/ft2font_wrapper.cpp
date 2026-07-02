@@ -247,6 +247,28 @@ P11X_DECLARE_ENUM(
     {"BOLD", StyleFlags::BOLD},
 );
 
+const char *VarAxisFlags__doc__ = R"""(
+    Flags from an OpenType Variation Axis Record.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-multiple_masters.html#ft_var_axis_flag_xxx>`_.
+
+    .. versionadded:: 3.11
+)""";
+
+enum class VarAxisFlags : FT_UInt {
+#define DECLARE_FLAG(name) name = FT_VAR_AXIS_FLAG_##name
+    DEFAULT = 0,
+    DECLARE_FLAG(HIDDEN)
+#undef DECLARE_FLAG
+};
+
+P11X_DECLARE_ENUM(
+    "VarAxisFlags", "Flag",
+    {"DEFAULT", VarAxisFlags::DEFAULT},
+    {"HIDDEN", VarAxisFlags::HIDDEN},
+);
+
 /**********************************************************************
  * FT2Image
  * */
@@ -1473,6 +1495,214 @@ PyFT2Font__get_type1_encoding_vector(PyFT2Font *self)
 }
 
 /**********************************************************************
+ * Font variations
+ * */
+
+const char *PyVariationAxis__doc__ = R"""(
+    A description of a variation axis.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-multiple_masters.html#ft_var_axis>`_.
+
+    .. versionadded:: 3.11
+
+    Attributes
+    ----------
+    name: str
+        The axis's name.
+    minimum: float
+        The axis's minimum design coordinate.
+    default: float
+        The axis's default design coordinate.
+    maximum: float
+        The axis's maximum design coordinate.
+    tag: int
+        The axis's tag.
+    names: dict
+        The (possibly localized) names for the axis. The dictionary is keyed by
+        (platform_id, encoding_id, language_id) with values of the names. Names are
+        decoded to strings on a best effort basis, otherwise kept as bytes.
+    flags: VarAxisFlags
+        Flags describing this record.
+)""";
+
+struct PyVariationAxis {
+    std::string name;
+    FT_Fixed minimum;
+    FT_Fixed default_;
+    FT_Fixed maximum;
+    FT_ULong tag;
+    py::dict names;
+    VarAxisFlags flags;
+
+    PyVariationAxis(const FT2Font::VariationAxis &info) {
+        FT_UInt name_id, int_flags;
+        std::tie(name, minimum, default_, maximum, tag, name_id, int_flags) = info;
+        flags = static_cast<VarAxisFlags>(int_flags);
+    }
+};
+
+const char *PyVariationNamedStyle__doc__ = R"""(
+    A description of a named style.
+
+    For more information, see `the FreeType documentation
+    <https://freetype.org/freetype2/docs/reference/ft2-multiple_masters.html#ft_var_named_style>`_.
+
+    .. versionadded:: 3.11
+
+    Attributes
+    ----------
+    names: dict
+        The (possibly localized) names for the style. The dictionary is keyed by
+        (platform_id, encoding_id, language_id) with values of the names. Names are
+        decoded to strings on a best effort basis, otherwise kept as bytes.
+    psnames: dict, optional
+        The (possibly localized) PostScript names for the style. The dictionary is keyed
+        by (platform_id, encoding_id, language_id) with values of the names. Names are
+        decoded to strings on a best effort basis, otherwise kept as bytes.
+)""";
+
+struct PyVariationNamedStyle {
+    py::dict names;
+    py::object psnames;
+
+    PyVariationNamedStyle(const FT2Font::VariationNamedStyle &style) {
+        auto psid = std::get<1>(style);
+        if (psid != 65535) {
+            psnames = py::dict();
+        } else {
+            psnames = py::none();
+        }
+    }
+};
+
+const char *PyFT2Font_get_variation_descriptor__doc__ = R"""(
+    Return the variation information of the font.
+
+    .. note::
+        This function only works on fonts that have `.FaceFlags.MULTIPLE_MASTERS` set in
+        their `.face_flags`.
+
+    .. versionadded:: 3.11
+
+    Returns
+    -------
+    axes : list of VariationAxis
+        A model of each axis in design space for Adobe MM fonts, TrueType GX, and
+        OpenType Font Variations.
+    styles : list of VariationNamedStyle
+        A model of each named instance in a TrueType GX or OpenType Font Variations.
+)""";
+
+static auto
+PyFT2Font_get_variation_descriptor(PyFT2Font *self)
+{
+    auto [axes, styles] = self->get_variation_descriptor();
+
+    std::map<FT_UInt, std::vector<py::dict>> all_names;
+
+    std::vector<PyVariationAxis> py_axes;
+    py_axes.reserve(axes.size());
+    for (const auto &axis : axes) {
+        const auto &py_axis = py_axes.emplace_back(axis);
+        all_names[std::get<5>(axis)].push_back(py_axis.names);
+    }
+
+    std::vector<PyVariationNamedStyle> py_styles;
+    py_styles.reserve(styles.size());
+    for (const auto &style : styles) {
+        const auto &py_style = py_styles.emplace_back(style);
+        all_names[std::get<0>(style)].push_back(py_style.names);
+        if (!py_style.psnames.is_none()) {
+            all_names[std::get<1>(style)].push_back(py_style.psnames);
+        }
+    }
+
+    auto encodingTools = py::module_::import("fontTools.misc.encodingTools");
+    auto getEncoding = encodingTools.attr("getEncoding");
+    size_t count = FT_Get_Sfnt_Name_Count(self->get_face());
+    for (FT_UInt i = 0; i < count; ++i) {
+        FT_SfntName sfnt;
+        FT_CHECK(FT_Get_Sfnt_Name, self->get_face(), i, &sfnt);
+
+        const auto &names = all_names.find(sfnt.name_id);
+        if (names == all_names.end()) {
+            continue;
+        }
+
+        auto key = py::make_tuple(sfnt.platform_id, sfnt.encoding_id, sfnt.language_id);
+        auto valb = py::bytes(reinterpret_cast<const char *>(sfnt.string),
+                              sfnt.string_len);
+        auto encoding = getEncoding(sfnt.platform_id, sfnt.encoding_id, sfnt.language_id);
+        py::object val = encoding.is_none() ? valb : valb.attr("decode")(encoding);
+        for (const auto &n : names->second) {
+            n[key] = val;
+        }
+    }
+
+    return std::make_tuple(py_axes, py_styles);
+}
+
+const char *PyFT2Font_get_default_variation_style__doc__ = R"""(
+    Return the default variation style.
+
+    .. note::
+        This function only works on fonts that have `.FaceFlags.MULTIPLE_MASTERS` set in
+        their `.face_flags`.
+
+    .. versionadded:: 3.11
+
+    Returns
+    -------
+    int
+        The index of the default variation style.
+)""";
+
+const char *PyFT2Font_get_variations__doc__ = R"""(
+    Return the current variation settings.
+
+    .. note::
+        This function only works on fonts that have `.FaceFlags.MULTIPLE_MASTERS` set in
+        their `.face_flags`.
+
+    .. versionadded:: 3.11
+
+    Returns
+    -------
+    list of float
+        The current settings, in the same order as the axes returned from
+        `.get_variation_descriptor`.
+)""";
+
+const char *PyFT2Font_set_variations_index__doc__ = R"""(
+    Set the variations from a named style index.
+
+    .. note::
+        This function only works on fonts that have `.FaceFlags.MULTIPLE_MASTERS` set in
+        their `.face_flags`.
+
+    Parameters
+    ----------
+    index: int
+        The index of the named style, in the same order of the styles from
+        `.get_variation_descriptor`.
+)""";
+
+const char *PyFT2Font_set_variations_vector__doc__ = R"""(
+    Set the variations from a list of axis values.
+
+    .. note::
+        This function only works on fonts that have `.FaceFlags.MULTIPLE_MASTERS` set in
+        their `.face_flags`.
+
+    Parameters
+    ----------
+    coords: list of float
+        The variation settings, in the same order as the axes returned from
+        `.get_variation_descriptor`.
+)""";
+
+/**********************************************************************
  * Layout items
  * */
 
@@ -1671,6 +1901,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
     p11x::enums["RenderMode"].attr("__doc__") = RenderMode__doc__;
     p11x::enums["FaceFlags"].attr("__doc__") = FaceFlags__doc__;
     p11x::enums["StyleFlags"].attr("__doc__") = StyleFlags__doc__;
+    p11x::enums["VarAxisFlags"].attr("__doc__") = VarAxisFlags__doc__;
 
     py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
@@ -1756,6 +1987,45 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                         item.glyph_index, item.x, item.y, item.prev_kern);
                 });
 
+    py::class_<PyVariationAxis>(m, "VariationAxis", py::is_final())
+        .def(py::init<>([]() -> PyVariationAxis {
+            // VariationAxis is not useful from Python, so mark it as not constructible.
+            throw std::runtime_error("VariationAxis is not constructible");
+        }))
+        .def_readonly("name", &PyVariationAxis::name, "The axis's name.")
+        .def_readonly("minimum", &PyVariationAxis::minimum,
+                      "The axis's minimum design coordinate.")
+        .def_readonly("default", &PyVariationAxis::default_,
+                      "The axis's default design coordinate.")
+        .def_readonly("maximum", &PyVariationAxis::maximum,
+                      "The axis's maximum design coordinate.")
+        .def_readonly("tag", &PyVariationAxis::tag, "The axis's tag.")
+        .def_readonly("names", &PyVariationAxis::names,
+                      "The axis's names from the name table (may be better than .name).")
+        .def_readonly("flags", &PyVariationAxis::flags, "The axis's flags.")
+        .def("__repr__",
+            [](const PyVariationAxis& info) {
+                return
+                    "VariationAxis(name={!r}, minimum={}, default={}, "_s
+                    "maximum={}, tag={}, names={}, flags={})"_s.format(
+                        info.name, info.minimum, info.default_, info.maximum, info.tag,
+                        info.names, info.flags);
+                });
+
+    py::class_<PyVariationNamedStyle>(m, "VariationNamedStyle", py::is_final())
+        .def(py::init<>([]() -> PyVariationNamedStyle {
+            // VariationNamedStyle is not useful from Python, so mark it as not constructible.
+            throw std::runtime_error("VariationNamedStyle is not constructible");
+        }))
+        .def_readonly("names", &PyVariationNamedStyle::names)
+        .def_readonly("psnames", &PyVariationNamedStyle::psnames)
+        .def("__repr__",
+            [](const PyVariationNamedStyle& style) {
+                return
+                    "VariationNamedStyle(names={!r}, psnames={!r})"_s.format(
+                        style.names, style.psnames);
+                });
+
         auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
@@ -1828,6 +2098,19 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_image", &PyFT2Font::get_image, PyFT2Font_get_image__doc__)
         .def("_get_type1_encoding_vector", &PyFT2Font__get_type1_encoding_vector,
              PyFT2Font__get_type1_encoding_vector__doc__)
+        .def("get_variation_descriptor", &PyFT2Font_get_variation_descriptor,
+             PyFT2Font_get_variation_descriptor__doc__)
+        .def("get_default_variation_style", &PyFT2Font::get_default_variation_style,
+             PyFT2Font_get_default_variation_style__doc__)
+        .def("get_variations", &PyFT2Font::get_variations,
+             PyFT2Font_get_variations__doc__)
+        .def("set_variations",
+             py::overload_cast<FT_UInt>(&PyFT2Font::set_variations), "index"_a,
+             PyFT2Font_set_variations_index__doc__)
+        .def("set_variations",
+             py::overload_cast<std::vector<double>>(&PyFT2Font::set_variations),
+             "coords"_a,
+             PyFT2Font_set_variations_vector__doc__)
 
         .def_property_readonly(
           "postscript_name", [](PyFT2Font *self) {
