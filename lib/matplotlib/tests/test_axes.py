@@ -5484,6 +5484,38 @@ def test_eventplot_defaults():
     axobj.eventplot(data)
 
 
+def test_eventplot_sub_pixel_events_not_dropped():
+    """
+    Event marks shorter than a pixel must still be drawn.
+
+    When an event line is less than a pixel tall, pixel snapping used to round
+    both of its endpoints to the same pixel, collapsing it to a zero-length
+    segment that the Agg renderer drew as nothing.  With many such events most
+    of the data silently disappeared.  Regression test for issue #20243.
+    """
+    n_events = 200
+    # One row of events, each in its own x column so a dropped mark leaves a
+    # detectable empty column.
+    positions = np.linspace(0.02, 0.98, n_events)
+
+    fig, ax = plt.subplots(figsize=(6, 2), dpi=100)  # 600 x 200 px
+    ax.eventplot(positions, linelengths=1, lineoffsets=0, colors='black')
+    ax.set_xlim(0, 1)
+    ax.set_ylim(-200, 200)  # each mark ~0.5 px tall -> would collapse if snapped
+    ax.set_axis_off()
+    fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+
+    fig.canvas.draw()
+    buf = np.asarray(fig.canvas.buffer_rgba())
+
+    # Count image columns containing a mark.  Before the fix this was 0 (every
+    # sub-pixel mark vanished); afterwards each requested mark is rendered.
+    non_white = (buf[:, :, :3] < 128).any(axis=2)
+    cols_with_ink = non_white.any(axis=0).sum()
+
+    assert cols_with_ink >= n_events
+
+
 @pytest.mark.parametrize(('colors'), [
     ('0.5',),  # string color with multiple characters: not OK before #8193 fix
     ('tab:orange', 'tab:pink', 'tab:cyan', 'bLacK'),  # case-insensitive
