@@ -413,7 +413,7 @@ test-command = [
 test-environment = "PIP_PREFER_BINARY=true"
 
 [tool.cibuildwheel.macos.environment]
-MACOSX_DEPLOYMENT_TARGET = "10.12"
+MACOSX_DEPLOYMENT_TARGET = "10.14"
 
 [tool.cibuildwheel.pyodide]
 test-requires = "pytest"
