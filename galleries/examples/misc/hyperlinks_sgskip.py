@@ -7,6 +7,7 @@ This example demonstrates how to set a hyperlinks on various kinds of elements.
 
 This currently only works with the SVG backend.
 
+# sphinx_gallery_thumbnail_path = "_static/hyperlinks.png"
 """
 
 

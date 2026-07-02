@@ -4,6 +4,7 @@ Font indexing
 =============
 
 This example shows how the font tables relate to one another.
+# sphinx_gallery_thumbnail_path = "_static/font_indexing.png"
 """
 
 import os
