@@ -556,6 +556,14 @@ class PathSnapper
     bool m_snap;
     double m_snap_value;
 
+    // Previous vertex, kept so that the first segment of a subpath is not lost
+    // when snapping rounds both of its endpoints onto the same pixel.
+    unsigned m_prev_code;
+    double m_prev_snapped_x;
+    double m_prev_snapped_y;
+    double m_prev_raw_x;
+    double m_prev_raw_y;
+
     static bool should_snap(VertexSource &path, e_snap_mode snap_mode, unsigned total_vertices)
     {
         // If this contains only straight horizontal or vertical lines, it should be
@@ -609,7 +617,12 @@ class PathSnapper
                 e_snap_mode snap_mode,
                 unsigned total_vertices = 15,
                 double stroke_width = 0.0)
-        : m_source(&source)
+        : m_source(&source),
+          m_prev_code(agg::path_cmd_stop),
+          m_prev_snapped_x(0.0),
+          m_prev_snapped_y(0.0),
+          m_prev_raw_x(0.0),
+          m_prev_raw_y(0.0)
     {
         m_snap = should_snap(source, snap_mode, total_vertices);
 
@@ -623,6 +636,7 @@ class PathSnapper
 
     inline void rewind(unsigned path_id)
     {
+        m_prev_code = agg::path_cmd_stop;
         m_source->rewind(path_id);
     }
 
@@ -631,8 +645,36 @@ class PathSnapper
         unsigned code;
         code = m_source->vertex(x, y);
         if (m_snap && agg::is_vertex(code)) {
-            *x = floor(*x + 0.5) + m_snap_value;
-            *y = floor(*y + 0.5) + m_snap_value;
+            double raw_x = *x, raw_y = *y;
+            *x = floor(raw_x + 0.5) + m_snap_value;
+            *y = floor(raw_y + 0.5) + m_snap_value;
+
+            // A short line drawn on its own (an eventplot row, an hlines/vlines
+            // mark, a tick) is a MOVETO followed by a single LINETO.  If it is
+            // less than a pixel long both endpoints snap to the same pixel and
+            // nothing is drawn.  Keep the mark visible by extending the endpoint
+            // one pixel along the segment's dominant axis.  Only the opening
+            // segment of a subpath is treated this way, so polygon outlines
+            // (bars, markers) keep snapping unchanged.
+            if (code == agg::path_cmd_line_to &&
+                m_prev_code == agg::path_cmd_move_to &&
+                *x == m_prev_snapped_x && *y == m_prev_snapped_y) {
+                double dx = raw_x - m_prev_raw_x;
+                double dy = raw_y - m_prev_raw_y;
+                if (dx != 0.0 || dy != 0.0) {
+                    if (fabs(dx) >= fabs(dy)) {
+                        *x += (dx >= 0.0) ? 1.0 : -1.0;
+                    } else {
+                        *y += (dy >= 0.0) ? 1.0 : -1.0;
+                    }
+                }
+            }
+
+            m_prev_code = code;
+            m_prev_snapped_x = *x;
+            m_prev_snapped_y = *y;
+            m_prev_raw_x = raw_x;
+            m_prev_raw_y = raw_y;
         }
         return code;
     }
