@@ -2197,6 +2197,20 @@ class Axes3D(Axes):
     text3D = text
     text2D = Axes.text
 
+    def annotate(self, text, xy, xytext=None, xycoords='data', textcoords=None,
+                 arrowprops=None, annotation_clip=None, *, axlim_clip=False,
+                 **kwargs):
+        a = art3d.Annotation3D(
+            text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
+            arrowprops=arrowprops, annotation_clip=annotation_clip,
+            axlim_clip=axlim_clip, **kwargs)
+        a.set_transform(mtransforms.IdentityTransform())
+        if kwargs.get('clip_on', False) and a.get_clip_path() is None:
+            a.set_clip_path(self.patch)
+        self._add_text(a)
+        return a
+    annotate.__doc__ = art3d.Annotation3D.__init__.__doc__
+
     def plot(self, xs, ys, *args, zdir='z', axlim_clip=False, **kwargs):
         """
         Plot 2D or 3D data.
@@ -2222,8 +2236,8 @@ class Axes3D(Axes):
         had_data = self.has_data()
 
         # `zs` can be passed positionally or as keyword; checking whether
-        # args[0] is a string matches the behavior of 2D `plot` (via
-        # `_process_plot_var_args`).
+        # args[0] is a string matches the behavior of 2D `plot`
+        # (via `_process_plot_var_args`).
         if args and not isinstance(args[0], str):
             zs, *args = args
             if 'zs' in kwargs:
@@ -2278,8 +2292,9 @@ class Axes3D(Axes):
             - 'quad':  A separate quadrilateral polygon is created for each
               pair of subsequent points in the two lines.
             - 'polygon': The two lines are connected to form a single polygon.
-              This is faster and can render more cleanly for simple shapes
-              (e.g. for filling between two lines that lie within a plane).
+              This is faster and can render more cleanly for simple
+              shapes (e.g. for filling between two lines that lie within
+              a plane).
             - 'auto': If the points all lie on the same 3D plane, 'polygon' is
               used. Otherwise, 'quad' is used.
 

@@ -19,6 +19,7 @@ from matplotlib import (
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
+from matplotlib.transforms import Bbox
 from . import proj3d
 
 
@@ -239,6 +240,185 @@ class Text3D(mtext.Text):
     def get_tightbbox(self, renderer=None):
         # Overwriting the 2d Text behavior which is not valid for 3d.
         # For now, just return None to exclude from layout calculation.
+        return None
+
+
+class Annotation3D(mtext.Annotation):
+    """
+    A 3D variant of `.Annotation` that projects its anchor (and optionally the
+    text position) each draw.
+
+    """
+
+    def __init__(self, text, xy,
+                 xytext=None,
+                 xycoords='data',
+                 textcoords=None,
+                 arrowprops=None,
+                 annotation_clip=None,
+                 *, axlim_clip=False,
+                 **kwargs):
+        """
+        Parameters
+        ----------
+        text : str
+            The text of the annotation.
+        xy : (float, float) or (float, float, float)
+            The point to annotate.
+
+            - If a 2-tuple, interpreted like `.Annotation` in the coordinate
+              system given by *xycoords*.
+            - If a 3-tuple, only supported when *xycoords* is ``'data'`` and
+              interpreted as 3D data coordinates.
+        xytext : (float, float) or (float, float, float), optional
+            The position to place the text at.
+
+            - If a 2-tuple, interpreted like `.Annotation` according to
+              *textcoords*.
+            - If a 3-tuple, only supported when the text position is in data
+              coordinates (``textcoords='data'`` or `None` with *xycoords*
+              ``'data'``), and interpreted as 3D data coordinates.
+        xycoords : single or two-tuple of str or `.Artist` or `.Transform` or \
+callable, default: 'data'
+            The coordinate system that *xy* is given in.  See `.Annotation`
+            for a full description of supported values.
+        textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
+or callable, default: value of *xycoords*
+            The coordinate system that *xytext* is given in.  See
+            `.Annotation` for a full description of supported values.
+        arrowprops : dict, optional
+            The properties used to draw a `.FancyArrowPatch` arrow between the
+            positions *xy* and *xytext*.  If *None*, no arrow is drawn.
+        annotation_clip : bool or None, default: None
+            Whether to clip (i.e. not draw) the annotation when the annotated
+            point *xy* is outside the Axes area.
+        axlim_clip : bool, default: False, keyword-only
+            Whether to hide annotations outside the 3D view limits.
+        **kwargs
+            Additional keyword arguments are passed to `.Annotation`.
+
+        Notes
+        -----
+        This class is typically constructed indirectly via
+        `.mpl_toolkits.mplot3d.axes3d.Axes3D.annotate`.
+
+        Returns
+        -------
+        `.Annotation3D`
+            The created annotation.
+        """
+        valid_xycoords = [
+            "figure points", "figure pixels", "figure fraction",
+            "subfigure points", "subfigure pixels", "subfigure fraction",
+            "axes points", "axes pixels", "axes fraction",
+            "data", "polar",
+        ]
+        valid_textcoords = valid_xycoords + [
+            "offset points", "offset pixels", "offset fontsize",
+        ]
+
+        def _check_coords(coords, valid, argname):
+            if isinstance(coords, str):
+                _api.check_in_list(valid, **{argname: coords})
+            elif isinstance(coords, tuple):
+                for c in coords:
+                    if isinstance(c, str):
+                        _api.check_in_list(valid, **{argname: c})
+
+        _check_coords(xycoords, valid_xycoords, "xycoords")
+        if textcoords is not None:
+            _check_coords(textcoords, valid_textcoords, "textcoords")
+
+        xyz = None
+        try:
+            if len(xy) == 3:
+                if xycoords != "data":
+                    raise ValueError("3D *xy* is only supported when "
+                                     "xycoords='data'.")
+                xyz = xy
+                xy = xy[:2]
+        except TypeError:
+            pass
+
+        xyztext = None
+        if xytext is None and xyz is not None:
+            if textcoords is None or textcoords == "data":
+                xyztext = xyz
+        if xytext is not None:
+            try:
+                if len(xytext) == 3:
+                    effective_textcoords = (
+                        xycoords if textcoords is None else textcoords
+                    )
+                    if effective_textcoords != "data":
+                        raise ValueError("3D *xytext* is only supported when "
+                                         "textcoords='data'.")
+                    xyztext = xytext
+                    xytext = xytext[:2]
+            except TypeError:
+                pass
+        super().__init__(
+            text, xy, xytext=xytext, xycoords=xycoords, textcoords=textcoords,
+            arrowprops=arrowprops, annotation_clip=annotation_clip, **kwargs)
+        self.set_3d_properties(xyz, xyztext=xyztext, axlim_clip=axlim_clip)
+        if axlim_clip and xyz is None and xyztext is None:
+            _api.warn_external(
+                "The 'axlim_clip' parameter is ignored for 2D annotated "
+                "positions (xy or xytext must be a 3-tuple in 3D data "
+                "coordinates)."
+            )
+
+    def set_3d_properties(self, xyz, xyztext=None, axlim_clip=False):
+        self._xyz = xyz
+        self._xyztext = xyztext
+        self._axlim_clip = axlim_clip
+        self.stale = True
+
+    def _project_xyz(self, xyz, renderer):
+        x, y, z = xyz
+        x = float(self.axes.convert_xunits(x))
+        y = float(self.axes.convert_yunits(y))
+        z = float(self.axes.convert_zunits(z))
+
+        if self._axlim_clip and _viewlim_mask(x, y, z, self.axes):
+            return np.nan, np.nan
+
+        if getattr(self.axes, "M", None) is None:
+            # get_window_extent() can be called outside of a normal draw path;
+            # ensure a projection matrix exists.
+            self.axes.M = self.axes.get_proj()
+        tx, ty, tz, vis = proj3d._scale_proj_transform_clip(x, y, z, self.axes)
+        if not np.any(vis):
+            return np.nan, np.nan
+        return float(tx), float(ty)
+
+    def _update_projection(self, renderer):
+        valid = True
+        if self._xyz is not None:
+            self.xy = self._project_xyz(self._xyz, renderer)
+            valid &= np.isfinite(self.xy).all()
+        if self._xyztext is not None and self.anncoords == "data":
+            pos = self._project_xyz(self._xyztext, renderer)
+            self.set_position(pos)
+            valid &= np.isfinite(pos).all()
+        return valid
+
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        if not self._update_projection(renderer):
+            return
+        super().draw(renderer)
+
+    def get_window_extent(self, renderer=None):
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+        if not self._update_projection(renderer):
+            return Bbox.null()
+        return super().get_window_extent(renderer)
+
+    def get_tightbbox(self, renderer=None):
+        if self._xyz is None and self._xyztext is None:
+            return super().get_tightbbox(renderer)
         return None
 
 
