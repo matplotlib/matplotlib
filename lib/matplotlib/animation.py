@@ -883,9 +883,9 @@ class Animation:
     FuncAnimation,  ArtistAnimation
     """
 
-    def __init__(self, fig, event_source, blit=False):
+    def __init__(self, fig, event_source, blit=False, *, paused=False):
         self._draw_was_started = False
-
+        self._paused_at_start = paused
         self._fig = fig
         # Disables blitting for backends that don't support it.  This
         # allows users to request it if available, but still have a
@@ -934,7 +934,8 @@ class Animation:
         # Now do any initial draw
         self._init_draw()
         # Actually start the event_source.
-        self.event_source.start()
+        if not self._paused_at_start:
+            self.event_source.start()
 
     def _stop(self, *args):
         # On stop we disconnect all of our events.

@@ -1072,6 +1072,7 @@ class TimerBase:
         # Set .interval and not ._interval to go through the property setter.
         self.interval = 1000 if interval is None else interval
         self.single_shot = False
+        self._running = False
 
     def __del__(self):
         """Need to stop timer and possibly disconnect timer."""
@@ -1080,10 +1081,16 @@ class TimerBase:
     def start(self):
         """Start the timer."""
         self._timer_start()
+        self._running = True
 
     def stop(self):
         """Stop the timer."""
         self._timer_stop()
+        self._running = False
+
+    def is_running(self):
+        """Return whether the timer is currently running."""
+        return self._running
 
     def _timer_start(self):
         pass
