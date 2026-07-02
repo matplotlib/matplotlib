@@ -1304,7 +1304,9 @@ class _AxesBase(martist.Artist):
         self.xaxis.major = other.xaxis.major  # Ticker instances holding
         self.xaxis.minor = other.xaxis.minor  # locator and formatter.
         x0, x1 = other.get_xlim()
-        self.set_xlim(x0, x1, emit=False, auto=other.get_autoscalex_on())
+        self.xaxis._set_lim(
+            x0, x1, emit=False, auto=other.get_autoscalex_on(),
+            propagate=False)
         self.xaxis._scale = other.xaxis._scale
 
     def sharey(self, other):
@@ -1323,7 +1325,9 @@ class _AxesBase(martist.Artist):
         self.yaxis.major = other.yaxis.major  # Ticker instances holding
         self.yaxis.minor = other.yaxis.minor  # locator and formatter.
         y0, y1 = other.get_ylim()
-        self.set_ylim(y0, y1, emit=False, auto=other.get_autoscaley_on())
+        self.yaxis._set_lim(
+            y0, y1, emit=False, auto=other.get_autoscaley_on(),
+            propagate=False)
         self.yaxis._scale = other.yaxis._scale
 
     def __clear(self):
