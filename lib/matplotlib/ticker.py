@@ -912,6 +912,9 @@ class _SymmetricalLogMixin:
     """
     Common methods for working with symmetrical log scales.
 
+    The mixin is used in `.LogFormatter` and `.SymmetricalLogLocator`. It relies
+    on the private attributes ``_base``, ``_linthresh`` and ``_linscale``.
+
     We define two helper coordinate systems:
     - *decade number* serves to easily identify the powers of *base* that may serve as
         major tick positions. Such powers are located at integer decade numbers, and the
