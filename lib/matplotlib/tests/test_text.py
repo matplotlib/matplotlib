@@ -2,6 +2,7 @@ from datetime import datetime
 import gc
 import inspect
 import io
+from pathlib import Path
 import warnings
 
 import numpy as np
@@ -1317,3 +1318,37 @@ def test_draw_text_as_path_fallback(monkeypatch):
     _test_complex_shaping(subfig[0])
     _test_text_features(subfig[1])
     _test_text_language(subfig[2])
+
+
+@image_comparison(['colour.png'], remove_text=False, style='mpl20')
+def test_colour_fonts():
+    zwj = '\U0000200D'
+    adult = '\U0001F9D1'
+    man = '\U0001F468'
+    woman = '\U0001F469'
+    science = '\U0001F52C'
+    technology = '\U0001F4BB'
+    skin_tones = ['', *(chr(0x1F3FB + i) for i in range(5))]
+
+    text = '\n'.join([
+        ''.join(person + tone + zwj + occupation for tone in skin_tones)
+        for person in [adult, man, woman]
+        for occupation in [science, technology]
+    ])
+
+    # To generate the subsetted test file, save the latest
+    # OpenMoji-color-glyf_colr_0.ttf from
+    # https://github.com/hfg-gmuend/openmoji/tree/master/font to the data directory,
+    # set this condition to True, and run the test.
+    path = Path(__file__).parent / 'data/OpenMoji-color-glyf_colr_0.ttf'
+    if False:
+        from matplotlib.testing import _generate_font_subset
+        _generate_font_subset(path, text)
+    path = path.with_stem(path.stem + '-subset')
+    if not path.exists():
+        pytest.xfail(f'Test font {path} is not available')
+
+    fig = plt.figure()
+    fig.text(0.5, 0.5, text,
+             font=FontProperties(fname=path), fontsize=48, linespacing=0.9,
+             horizontalalignment='center', verticalalignment='center')
