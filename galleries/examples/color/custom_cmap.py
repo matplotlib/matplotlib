@@ -122,9 +122,9 @@ for n_bin, ax in zip(n_bins, axs.flat):
     # Create the colormap
     cmap = LinearSegmentedColormap.from_list(cmap_name, colors, N=n_bin)
     # Fewer bins will result in "coarser" colomap interpolation
-    im = ax.imshow(Z, origin='lower', cmap=cmap)
+    ax.imshow(Z, origin='lower', cmap=cmap)
+    ax.colorbar()
     ax.set_title("N bins: %s" % n_bin)
-    fig.colorbar(im, ax=ax)
 
 
 # %%
@@ -226,11 +226,11 @@ mpl.colormaps.register(LinearSegmentedColormap('BlueRedAlpha', cdict4))
 fig, axs = plt.subplots(2, 2, figsize=(6, 9))
 fig.subplots_adjust(left=0.02, bottom=0.06, right=0.95, top=0.94, wspace=0.05)
 
-im1 = axs[0, 0].imshow(Z, cmap=blue_red1)
-fig.colorbar(im1, ax=axs[0, 0])
+axs[0, 0].imshow(Z, cmap=blue_red1)
+axs[0, 0].colorbar()
 
-im2 = axs[1, 0].imshow(Z, cmap='BlueRed2')
-fig.colorbar(im2, ax=axs[1, 0])
+axs[1, 0].imshow(Z, cmap='BlueRed2')
+axs[1, 0].colorbar()
 
 # Now we will set the third cmap as the default.  One would
 # not normally do this in the middle of a script like this;
@@ -238,8 +238,8 @@ fig.colorbar(im2, ax=axs[1, 0])
 
 plt.rcParams['image.cmap'] = 'BlueRed3'
 
-im3 = axs[0, 1].imshow(Z)
-fig.colorbar(im3, ax=axs[0, 1])
+axs[0, 1].imshow(Z)
+axs[0, 1].colorbar()
 axs[0, 1].set_title("Alpha = 1")
 
 # Or as yet another variation, we can replace the rcParams
@@ -252,12 +252,12 @@ axs[0, 1].set_title("Alpha = 1")
 # Draw a line with low zorder so it will be behind the image.
 axs[1, 1].plot([0, 10 * np.pi], [0, 20 * np.pi], color='c', lw=20, zorder=-1)
 
-im4 = axs[1, 1].imshow(Z)
-fig.colorbar(im4, ax=axs[1, 1])
+im = axs[1, 1].imshow(Z)
+axs[1, 1].colorbar()
 
 # Here it is: changing the colormap for the current image and its
 # colorbar after they have been plotted.
-im4.set_cmap('BlueRedAlpha')
+im.set_cmap('BlueRedAlpha')
 axs[1, 1].set_title("Varying alpha")
 
 fig.suptitle('Custom Blue-Red colormaps', fontsize=16)

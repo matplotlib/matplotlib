@@ -33,8 +33,8 @@ axs[0].streamplot(X, Y, U, V, density=[0.5, 1])
 axs[0].set_title('Varying Density')
 
 # Varying color along a streamline
-strm = axs[1].streamplot(X, Y, U, V, color=U, linewidth=2, cmap='autumn')
-fig.colorbar(strm.lines)
+axs[1].streamplot(X, Y, U, V, color=U, linewidth=2, cmap='autumn')
+axs[1].colorbar()
 axs[1].set_title('Varying Color')
 
 #  Varying line width along a streamline
@@ -45,9 +45,9 @@ axs[2].set_title('Varying Line Width')
 # Controlling the starting points of the streamlines
 seed_points = np.array([[-2, -1, 0, 1, 2, -1], [-2, -1,  0, 1, 2, 2]])
 
-strm = axs[3].streamplot(X, Y, U, V, color=U, linewidth=2,
-                         cmap='autumn', start_points=seed_points.T)
-fig.colorbar(strm.lines)
+axs[3].streamplot(X, Y, U, V, color=U, linewidth=2,
+                  cmap='autumn', start_points=seed_points.T)
+axs[3].colorbar()
 axs[3].set_title('Controlling Starting Points')
 
 # Displaying the starting points with blue symbols.
