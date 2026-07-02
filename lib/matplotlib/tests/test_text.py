@@ -776,6 +776,86 @@ def test_fontproperties_kwarg_precedence():
     assert text2.get_size() == 40.0
 
 
+def test_set_font_str_is_partial_update():
+    """set_font(str) must update only the family, preserving size/weight/style."""
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, 'hello')
+    t.set_fontsize(20)
+    t.set_fontweight('bold')
+    t.set_fontstyle('italic')
+
+    t.set_font('DejaVu Serif')
+
+    assert t.get_fontfamily() == ['DejaVu Serif']
+    assert t.get_fontsize() == 20, "set_font(str) must not reset the font size"
+    assert t.get_fontweight() == 'bold', "set_font(str) must not reset the font weight"
+    assert t.get_fontstyle() == 'italic', "set_font(str) must not reset the font style"
+
+
+def test_set_font_fontconfig_pattern_is_partial_update():
+    """set_font(fontconfig_pattern) updates only the properties named in the pattern."""
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, 'hello')
+    t.set_fontsize(20)
+    t.set_fontweight('bold')
+
+    # Pattern specifies family and size but NOT weight.
+    t.set_font('DejaVu Serif:size=14')
+
+    assert t.get_fontfamily() == ['DejaVu Serif']
+    assert t.get_fontsize() == 14, "set_font(pattern) must update size from pattern"
+    assert t.get_fontweight() == 'bold', (
+        "set_font(pattern) must not reset properties absent from the pattern"
+    )
+
+
+def test_set_fontproperties_str_resets_all():
+    """set_fontproperties(str) must replace ALL font properties (reset to defaults)."""
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, 'hello')
+    t.set_fontsize(20)
+    t.set_fontweight('bold')
+
+    default_size = FontProperties().get_size_in_points()
+    default_weight = FontProperties().get_weight()
+
+    t.set_fontproperties('DejaVu Serif')
+
+    assert t.get_fontfamily() == ['DejaVu Serif']
+    assert t.get_fontsize() == default_size, (
+        "set_fontproperties(str) must reset size to the FontProperties default"
+    )
+    assert t.get_fontweight() == default_weight, (
+        "set_fontproperties(str) must reset weight to the FontProperties default"
+    )
+
+
+def test_set_font_with_fontproperties_object_replaces_all():
+    """set_font(FontProperties()) falls through to set_fontproperties (full replace)."""
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, 'hello')
+    t.set_fontsize(20)
+    t.set_fontweight('bold')
+
+    fp = FontProperties(family='DejaVu Serif', size=12)
+    t.set_font(fp)
+
+    assert t.get_fontfamily() == ['DejaVu Serif']
+    assert t.get_fontsize() == 12
+    # weight was not set in fp → reset to its default
+    assert t.get_fontweight() == FontProperties().get_weight()
+
+
+def test_set_font_via_kwarg():
+    """The ``font`` keyword argument must reach set_font (partial-update path)."""
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, 'hello', fontsize=20, font='DejaVu Serif:bold')
+
+    assert t.get_fontfamily() == ['DejaVu Serif']
+    assert t.get_fontweight() == 'bold'
+    assert t.get_fontsize() == 20, "font= kwarg must not reset size"
+
+
 def test_transform_rotates_text():
     ax = plt.gca()
     transform = mtransforms.Affine2D().rotate_deg(30)
