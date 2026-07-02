@@ -35,11 +35,13 @@ Widget classes
    RangeSlider
    TextBox
    _SelectorWidget
+   _PolygonalSelector
    RectangleSelector
    EllipseSelector
    Lasso
    LassoSelector
    PolygonSelector
+   PolylineSelector
    SpanSelector
    SubplotTool
 
