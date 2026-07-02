@@ -1,4 +1,6 @@
 """
+.. _examples-histogram-histtypes:
+
 ================================================================
 Demo of the histogram function's different ``histtype`` settings
 ================================================================

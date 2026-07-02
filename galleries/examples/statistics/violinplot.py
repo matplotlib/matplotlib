@@ -1,4 +1,6 @@
 """
+.. _examples-violinplot:
+
 ==================
 Violin plot basics
 ==================

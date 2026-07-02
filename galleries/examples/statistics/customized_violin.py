@@ -1,4 +1,6 @@
 """
+.. _examples-customized-violin:
+
 =========================
 Violin plot customization
 =========================

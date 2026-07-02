@@ -1,4 +1,6 @@
 """
+.. _examples-contour-demo:
+
 ============
 Contour Demo
 ============

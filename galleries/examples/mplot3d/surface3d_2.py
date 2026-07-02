@@ -1,4 +1,6 @@
 """
+.. _examples-surface3d-2:
+
 ========================
 3D surface (solid color)
 ========================

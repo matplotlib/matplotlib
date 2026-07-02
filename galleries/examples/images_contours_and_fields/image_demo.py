@@ -1,4 +1,6 @@
 """
+.. _examples-image-demo:
+
 ========================
 Many ways to plot images
 ========================

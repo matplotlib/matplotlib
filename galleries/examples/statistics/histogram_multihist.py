@@ -1,4 +1,6 @@
 """
+.. _examples-histogram-multihist:
+
 =====================================================
 The histogram (hist) function with multiple data sets
 =====================================================

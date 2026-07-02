@@ -1,4 +1,6 @@
 """
+.. _examples-trisurf3d:
+
 ======================
 Triangular 3D surfaces
 ======================
