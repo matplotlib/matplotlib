@@ -68,7 +68,7 @@ ax.set(
 )
 
 # Set zoom and angle view
-ax.view_init(40, -30, 0)
+ax.view_init(elev=40, azim=-30, roll=0)
 ax.set_box_aspect(None, zoom=0.9)
 
 # Colorbar
