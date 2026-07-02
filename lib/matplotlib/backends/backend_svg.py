@@ -299,6 +299,32 @@ def _check_is_iterable_of_str(infos, key):
                         f'iterable of str, not {type(infos)}.')
 
 
+def _svg_blend_mode(mpl_blend_mode):
+    supported_blend_modes = {
+        "normal": "normal",
+        "multiply": "multiply",
+        "screen": "screen",
+        "overlay": "overlay",
+        "darken": "darken",
+        "lighten": "lighten",
+        "color dodge": "color-dodge",
+        "color burn": "color-burn",
+        "hard light": "hard-light",
+        "soft light": "soft-light",
+        "difference": "difference",
+        "exclusion": "exclusion",
+        "hue": "hue",
+        "saturation": "saturation",
+        "color": "color",
+        "luminosity": "luminosity",
+    }
+    if mpl_blend_mode in supported_blend_modes:
+        return supported_blend_modes[mpl_blend_mode]
+    _log.warning(f"The '{mpl_blend_mode}' blend mode is not supported by the SVG "
+                 f"backend. Falling back to the 'normal' blend mode.")
+    return "normal"
+
+
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
                  *, metadata=None):
@@ -322,6 +348,7 @@ class RendererSVG(RendererBase):
         self._hatchd = {}
         self._has_gouraud = False
         self._n_gradients = 0
+        self._group_states = []
 
         super().__init__()
         self._glyph_map = dict()
@@ -590,6 +617,8 @@ class RendererSVG(RendererBase):
 
         if forced_alpha and gc.get_alpha() != 1.0:
             attrib['opacity'] = _short_float_fmt(gc.get_alpha())
+        if (blend_mode := _svg_blend_mode(gc.get_blend_mode())) != "normal":
+            attrib["mix-blend-mode"] = blend_mode
 
         offset, seq = gc.get_dashes()
         if seq is not None:
@@ -638,6 +667,11 @@ class RendererSVG(RendererBase):
             _, oid = clip
         return {'clip-path': f'url(#{oid})'}
 
+    def _get_blendmode_attr(self, gc):
+        if (blend_mode := _svg_blend_mode(gc.get_blend_mode())) != "normal":
+            return {"style": f"mix-blend-mode: {blend_mode}"}
+        return {}
+
     def _write_clips(self):
         if not len(self._clipd):
             return
@@ -661,16 +695,48 @@ class RendererSVG(RendererBase):
             writer.end('clipPath')
         writer.end('defs')
 
+    def _open_group(self, group_type, s, *, gid=None, blend_mode=None, alpha=None):
+        self._group_states.append((group_type, s))
+        if gid is None:
+            self._groupd[s] = self._groupd.get(s, 0) + 1
+            gid = f"{s}_{self._groupd[s]:d}"
+
+        attrib = {'id': gid}
+        if blend_mode is not None and alpha is not None:
+            attrib['style'] = ("isolation: isolate; "
+                               f"mix-blend-mode: {_svg_blend_mode(blend_mode)}; "
+                               f"opacity: {alpha}")
+
+        self.writer.start('g', attrib=attrib)
+
     def open_group(self, s, gid=None):
         # docstring inherited
-        if gid:
-            self.writer.start('g', id=gid)
-        else:
-            self._groupd[s] = self._groupd.get(s, 0) + 1
-            self.writer.start('g', id=f"{s}_{self._groupd[s]:d}")
+        self._open_group('group', s, gid=gid)
 
     def close_group(self, s):
         # docstring inherited
+        group_type, current_s = self._group_states.pop()
+        if s != current_s:
+            raise RuntimeError(f"Cannot close group element '{s}' because the open "
+                               f"group element is '{current_s}'.")
+        if group_type != 'group':
+            raise RuntimeError(f"Cannot close group element '{s}' because it includes "
+                               "a blend group that has not been closed.")
+        self.writer.end('g')
+
+    def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        #docstring inherited
+        if knockout:
+            _log.warning("Knockout blend groups are not supported by the SVG backend. "
+                         "Falling back to a non-knockout blend group.")
+        self._open_group('blend', 'mplblend', blend_mode=blend_mode, alpha=alpha)
+
+    def close_blend_group(self):
+        # docstring inherited
+        group_type, s = self._group_states.pop()
+        if group_type != 'blend':
+            raise RuntimeError("Cannot close the blend group because group element "
+                               f"'{s}' is in the group and has not been closed.")
         self.writer.end('g')
 
     def option_image_nocomposite(self):
@@ -728,7 +794,7 @@ class RendererSVG(RendererBase):
             writer.end('defs')
             self._markers[dictkey] = oid
 
-        writer.start('g', **self._get_clip_attrs(gc))
+        writer.start('g', **self._get_clip_attrs(gc), **self._get_blendmode_attr(gc))
         if gc.get_url() is not None:
             self.writer.start('a', {'xlink:href': gc.get_url(), 'target': '_blank'})
         trans_and_flip = self._make_flip_transform(trans)
@@ -790,8 +856,9 @@ class RendererSVG(RendererBase):
             if url is not None:
                 writer.start('a', attrib={'xlink:href': url, 'target': '_blank'})
             clip_attrs = self._get_clip_attrs(gc0)
-            if clip_attrs:
-                writer.start('g', **clip_attrs)
+            blendmode_attr = self._get_blendmode_attr(gc0)
+            if clip_attrs or blendmode_attr:
+                writer.start('g', **clip_attrs, **blendmode_attr)
             attrib = {
                 'xlink:href': f'#{path_id}',
                 'x': _short_float_fmt(xo),
@@ -913,7 +980,7 @@ class RendererSVG(RendererBase):
     def draw_gouraud_triangles(self, gc, triangles_array, colors_array,
                                transform):
         writer = self.writer
-        writer.start('g', **self._get_clip_attrs(gc))
+        writer.start('g', **self._get_clip_attrs(gc), **self._get_blendmode_attr(gc))
         transform = transform.frozen()
         trans_and_flip = self._make_flip_transform(transform)
 
@@ -959,10 +1026,11 @@ class RendererSVG(RendererBase):
             return
 
         clip_attrs = self._get_clip_attrs(gc)
-        if clip_attrs:
+        blendmode_attr = self._get_blendmode_attr(gc)
+        if clip_attrs or blendmode_attr:
             # Can't apply clip-path directly to the image because the image has
             # a transformation, which would also be applied to the clip-path.
-            self.writer.start('g', **clip_attrs)
+            self.writer.start('g', **clip_attrs, **blendmode_attr)
 
         url = gc.get_url()
         if url is not None:
@@ -1282,10 +1350,11 @@ class RendererSVG(RendererBase):
         # docstring inherited
 
         clip_attrs = self._get_clip_attrs(gc)
-        if clip_attrs:
+        blendmode_attr = self._get_blendmode_attr(gc)
+        if clip_attrs or blendmode_attr:
             # Cannot apply clip-path directly to the text, because
             # it has a transformation
-            self.writer.start('g', **clip_attrs)
+            self.writer.start('g', **clip_attrs, **blendmode_attr)
 
         if gc.get_url() is not None:
             self.writer.start('a', {'xlink:href': gc.get_url(), 'target': '_blank'})
