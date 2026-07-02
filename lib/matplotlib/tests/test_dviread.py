@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 import shutil
 import sys
+from unittest import mock
 
 from matplotlib import cbook, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
@@ -147,3 +148,67 @@ def test_dviread_pk(tmp_path):
         ],
     }]
     assert data == correct
+
+
+@pytest.mark.parametrize("readline, write_error, expected", [
+    (b"/texmf/pdftex.map\n", None, "/texmf/pdftex.map"),  # normal result
+    (b"nil\n", None, ""),                                 # luatex ok, not found
+    (b"", None, None),                                    # process died (EOF)
+    (b"unused", BrokenPipeError, None),                   # dead pipe on write
+])
+def test_luatexkpsewhich_search(readline, write_error, expected):
+    # None => luatex unusable (triggers fallback); "" => file missing.  See #31984.
+    proc = mock.Mock()
+    proc.poll.return_value = None  # pretend the process is alive (no restart)
+    proc.stdin.write.side_effect = write_error
+    proc.stdout.readline.return_value = readline
+    lk = object.__new__(dr._LuatexKpsewhich)
+    lk._proc = proc
+    assert lk.search("pdftex.map") == expected
+
+
+def test_find_tex_file_fallback_to_kpsewhich(monkeypatch):
+    # A luatex that starts but never returns a usable result (search() -> None)
+    # must not prevent falling back to kpsewhich.  Regression test for #31983.
+    class _UnusableLuatex:
+        def search(self, filename):
+            return None
+
+    monkeypatch.setattr(dr, "_LuatexKpsewhich", _UnusableLuatex)
+
+    commands = []
+
+    def fake_check_and_log_subprocess(command, logger, **kwargs):
+        commands.append(command)
+        return "/texmf/pdftex.map\n"
+
+    monkeypatch.setattr(
+        cbook, "_check_and_log_subprocess", fake_check_and_log_subprocess)
+
+    dr.find_tex_file.cache_clear()
+    try:
+        assert dr.find_tex_file("pdftex.map") == "/texmf/pdftex.map"
+    finally:
+        dr.find_tex_file.cache_clear()
+    assert commands and commands[0][0] == "kpsewhich"
+
+
+def test_find_tex_file_no_fallback_when_luatex_reports_missing(monkeypatch):
+    # search() -> "" (luatex works, file missing) must not trigger kpsewhich.
+    class _WorkingLuatex:
+        def search(self, filename):
+            return ""
+
+    monkeypatch.setattr(dr, "_LuatexKpsewhich", _WorkingLuatex)
+
+    def fail_if_called(command, logger, **kwargs):
+        raise AssertionError("kpsewhich should not be called")
+
+    monkeypatch.setattr(cbook, "_check_and_log_subprocess", fail_if_called)
+
+    dr.find_tex_file.cache_clear()
+    try:
+        with pytest.raises(FileNotFoundError):
+            dr.find_tex_file("missing.tfm")
+    finally:
+        dr.find_tex_file.cache_clear()

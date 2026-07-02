@@ -1267,10 +1267,16 @@ class _LuatexKpsewhich:
     def search(self, filename):
         if self._proc.poll() is not None:  # Dead, restart it.
             self._proc = self._new_proc()
-        self._proc.stdin.write(os.fsencode(filename) + b"\n")
-        self._proc.stdin.flush()
-        out = self._proc.stdout.readline().rstrip()
-        return None if out == b"nil" else os.fsdecode(out)
+        try:
+            self._proc.stdin.write(os.fsencode(filename) + b"\n")
+            self._proc.stdin.flush()
+            out = self._proc.stdout.readline().rstrip()
+        except OSError:  # luatex started but is now unusable.
+            return None
+        if out == b"":  # Empty read: luatex died; unusable.
+            return None
+        # "nil" => file missing but luatex works; return "" (not None).
+        return "" if out == b"nil" else os.fsdecode(out)
 
 
 @lru_cache
@@ -1280,7 +1286,8 @@ def find_tex_file(filename):
 
     The kpathsea library, provided by most existing TeX distributions, both
     on Unix-like systems and on Windows (MikTeX), is invoked via a long-lived
-    luatex process if luatex is installed, or via kpsewhich otherwise.
+    luatex process if luatex is installed and working, or via kpsewhich
+    otherwise.
 
     .. _kpathsea: https://www.tug.org/kpathsea/
 
@@ -1304,9 +1311,10 @@ def find_tex_file(filename):
     except (FileNotFoundError, OSError):
         lk = None  # Fallback to directly calling kpsewhich, as below.
 
+    path = None
     if lk:
         path = lk.search(filename)
-    else:
+    if path is None:  # luatex unavailable or unusable; fall back to kpsewhich.
         if sys.platform == 'win32':
             # On Windows only, kpathsea can use utf-8 for cmd args and output.
             # The `command_line_encoding` environment variable is set to force
