@@ -339,8 +339,10 @@ class Text(Artist):
     def get_rotation(self):
         """Return the text angle in degrees in the range [0, 360)."""
         if self.get_transform_rotates_text():
-            return self.get_transform().transform_angles(
+            angle = self.get_transform().transform_angles(
                 [self._rotation], [self.get_unitless_position()]).item(0) % 360
+            # `(tiny_negative) % 360` can float-round to exactly 360.0.
+            return 0.0 if angle == 360 else angle
         else:
             return self._rotation
 
@@ -757,23 +759,29 @@ class Text(Artist):
         Return the distance from the given points to the boundaries of a
         rotated box, in pixels.
         """
-        if rotation > 270:
-            quad = rotation - 270
-            h1 = (y0 - figure_box.y0) / math.cos(math.radians(quad))
-            h2 = (figure_box.x1 - x0) / math.cos(math.radians(90 - quad))
-        elif rotation > 180:
-            quad = rotation - 180
-            h1 = (x0 - figure_box.x0) / math.cos(math.radians(quad))
-            h2 = (y0 - figure_box.y0) / math.cos(math.radians(90 - quad))
-        elif rotation > 90:
-            quad = rotation - 90
-            h1 = (figure_box.y1 - y0) / math.cos(math.radians(quad))
-            h2 = (x0 - figure_box.x0) / math.cos(math.radians(90 - quad))
-        else:
-            h1 = (figure_box.x1 - x0) / math.cos(math.radians(rotation))
-            h2 = (figure_box.y1 - y0) / math.cos(math.radians(90 - rotation))
+        # Branch bounds are inclusive at the cardinals so each cardinal lands
+        # in a branch where quad=0 — there cos(0)=1 and sin(0)=0 exactly,
+        # avoiding the float noise that cos(radians(90)) would introduce.
+        # sin(radians(x)) replaces cos(radians(90 - x)) so the div-by-0
+        # propagates to +inf, and fmin discards it (and any 0/0 NaN at corners).
+        with np.errstate(divide="ignore", invalid="ignore"):
+            if rotation >= 270:
+                quad = rotation - 270
+                h1 = (y0 - figure_box.y0) / np.cos(np.radians(quad))
+                h2 = (figure_box.x1 - x0) / np.sin(np.radians(quad))
+            elif rotation >= 180:
+                quad = rotation - 180
+                h1 = (x0 - figure_box.x0) / np.cos(np.radians(quad))
+                h2 = (y0 - figure_box.y0) / np.sin(np.radians(quad))
+            elif rotation >= 90:
+                quad = rotation - 90
+                h1 = (figure_box.y1 - y0) / np.cos(np.radians(quad))
+                h2 = (x0 - figure_box.x0) / np.sin(np.radians(quad))
+            else:
+                h1 = (figure_box.x1 - x0) / np.cos(np.radians(rotation))
+                h2 = (figure_box.y1 - y0) / np.sin(np.radians(rotation))
 
-        return min(h1, h2)
+        return np.fmin(h1, h2)
 
     def _get_rendered_text_width(self, text):
         """
