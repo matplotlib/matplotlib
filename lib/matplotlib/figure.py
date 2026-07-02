@@ -355,13 +355,19 @@ default: %(va)s
         elif info['name'] == '_supylabel':
             autopos = x is None
         if x is None:
-            x = info['x0']
+            x = mpl.rcParams[info['x0']] if isinstance(info['x0'], str) else info['x0']
         if y is None:
-            y = info['y0']
+            y = mpl.rcParams[info['y0']] if isinstance(info['y0'], str) else info['y0']
 
         kwargs = cbook.normalize_kwargs(kwargs, Text)
-        kwargs.setdefault('horizontalalignment', info['ha'])
-        kwargs.setdefault('verticalalignment', info['va'])
+        kwargs.setdefault('horizontalalignment',
+                          mpl.rcParams[info['ha']]
+                          if info['ha'] in mpl.rcParams
+                          else info['ha'])
+        kwargs.setdefault('verticalalignment',
+                          mpl.rcParams[info['va']]
+                          if info['va'] in mpl.rcParams
+                          else info['va'])
         kwargs.setdefault('rotation', info['rotation'])
 
         if 'fontproperties' not in kwargs:
@@ -387,13 +393,18 @@ default: %(va)s
         self.texts.remove(label)
         setattr(self, name, None)
 
-    @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
-                             va='top', rc='title')
+    @_docstring.Substitution(x0='figure.title_x', y0='figure.title_y',
+                             name='super title',
+                             ha='figure.title_horizontalalignment',
+                             va='figure.title_verticalalignment', rc='title')
     @_docstring.copy(_suplabels)
     def suptitle(self, t, **kwargs):
         # docstring from _suplabels...
-        info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
-                'ha': 'center', 'va': 'top', 'rotation': 0,
+        info = {'name': '_suptitle',
+                'x0': 'figure.title_x', 'y0': 'figure.title_y',
+                'ha': 'figure.title_horizontalalignment',
+                'va': 'figure.title_verticalalignment',
+                'rotation': 0,
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
         return self._suplabels(t, info, **kwargs)
 
