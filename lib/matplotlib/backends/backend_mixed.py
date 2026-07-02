@@ -86,6 +86,18 @@ class MixedModeRenderer:
                                                self._raster_renderer)
             self._bbox_inches_restore = r
 
+    def get_image_magnification(self):
+        """
+        Return the magnification factor for rasterized content.
+
+        When using `.MixedModeRenderer`, the figure DPI is set to the vector
+        renderer's DPI (typically 72 for PDF/SVG/PS) but rasterized content
+        is drawn at ``self.dpi`` (the user's requested DPI). This factor
+        converts from vector-space display coordinates to raster-space pixel
+        coordinates.
+        """
+        return self.dpi / self._figdpi
+
     def stop_rasterizing(self):
         """
         Exit "raster" mode.  All of the drawing that was done since
