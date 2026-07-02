@@ -72,6 +72,32 @@ def test_axis_positions():
         ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
 
 
+def test_set_aspect_datalim_restores_limits():
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    ax.plot([0,1], [0,2], [0,3])
+
+    fig.canvas.draw()
+    default_limits = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    fig.canvas.draw()
+    equal_limits = ax.get_w_lims()
+
+    ax.set_aspect('auto', adjustable='datalim')
+    fig.canvas.draw()
+    final_limits = ax.get_w_lims()
+
+    # equal should change limits
+    assert not np.allclose(default_limits, equal_limits)
+
+    # auto should restore original limits
+    assert np.allclose(default_limits, final_limits)
+
+
+
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
 def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
