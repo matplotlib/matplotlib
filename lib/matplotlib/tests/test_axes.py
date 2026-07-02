@@ -1784,6 +1784,72 @@ def test_pcolorauto(fig_test, fig_ref, snap):
     ax.pcolormesh(x2, y2, Z, snap=snap)
 
 
+@check_figures_equal()
+def test_mixed_shading(fig_test, fig_ref):
+    x = np.arange(0, 10)  # edges for X (length 10)
+    y = np.arange(0, 4)   # edges for Y (length 4)
+    np.random.seed(19680801)
+    Z = np.random.randn(3, 9)
+
+    # test: X specified at centers, Y at edges, shading=('nearest', 'flat')
+    ax_test = fig_test.subplots()
+    x_centers = x[:-1] + np.diff(x) / 2
+    ax_test.pcolormesh(x_centers, y, Z, shading=('nearest', 'flat'))
+
+    # ref: both X and Y at edges, shading='flat'
+    ax_ref = fig_ref.subplots()
+    ax_ref.pcolormesh(x, y, Z, shading='flat')
+
+
+@check_figures_equal()
+def test_mixed_shading_yx(fig_test, fig_ref):
+    x = np.arange(0, 10)
+    y = np.arange(0, 4)
+    np.random.seed(19680801)
+    Z = np.random.randn(3, 9)
+
+    # test: X at edges, Y at centers, shading=('flat', 'nearest')
+    ax_test = fig_test.subplots()
+    y_centers = y[:-1] + np.diff(y) / 2
+    ax_test.pcolormesh(x, y_centers, Z, shading=('flat', 'nearest'))
+
+    # ref: both at edges, shading='flat'
+    ax_ref = fig_ref.subplots()
+    ax_ref.pcolormesh(x, y, Z, shading='flat')
+
+
+@check_figures_equal()
+def test_mixed_shading_auto(fig_test, fig_ref):
+    x = np.arange(0, 10)
+    y = np.arange(0, 4)
+    np.random.seed(19680801)
+    Z = np.random.randn(3, 9)
+
+    # test: shading='auto'
+    ax_test = fig_test.subplots()
+    x_centers = x[:-1] + np.diff(x) / 2
+    ax_test.pcolormesh(x_centers, y, Z, shading='auto')
+
+    # ref: shading=('nearest', 'flat')
+    ax_ref = fig_ref.subplots()
+    ax_ref.pcolormesh(x_centers, y, Z, shading=('nearest', 'flat'))
+
+
+def test_mixed_shading_errors():
+    fig, ax = plt.subplots()
+    Z = np.random.randn(3, 9)
+    # Check that mixing gouraud and other shadings raises ValueError
+    with pytest.raises(ValueError, match="cannot be mixed with other shading"):
+        ax.pcolormesh(Z, shading=('gouraud', 'flat'))
+    with pytest.raises(ValueError, match="cannot be mixed with other shading"):
+        ax.pcolormesh(Z, shading=('nearest', 'gouraud'))
+    # Check that invalid string raises ValueError
+    with pytest.raises(
+        ValueError, match="'invalid' is not a valid value for shading_x"
+    ):
+        ax.pcolormesh(Z, shading=('invalid', 'flat'))
+
+
 @image_comparison(['canonical'], style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_canonical():

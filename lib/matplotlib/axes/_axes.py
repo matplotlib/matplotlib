@@ -6462,23 +6462,52 @@ or pandas.DataFrame
         # - reset shading if shading='auto' to flat or nearest
         #   depending on size;
 
+        # Check and normalize shading parameter:
+        if isinstance(shading, str):
+            shading = shading.lower()
+            shading_x = shading_y = shading
+        else:
+            try:
+                shading_x, shading_y = shading
+                if isinstance(shading_x, str):
+                    shading_x = shading_x.lower()
+                if isinstance(shading_y, str):
+                    shading_y = shading_y.lower()
+            except (ValueError, TypeError) as e:
+                raise ValueError(
+                    "shading must be a string or a 2-tuple of strings"
+                ) from e
+
         _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
-        try:
-            _api.check_in_list(_valid_shading, shading=shading)
-        except ValueError:
-            _api.warn_external(f"shading value '{shading}' not in list of "
-                               f"valid values {_valid_shading}. Setting "
-                               "shading='auto'.")
-            shading = 'auto'
+        _api.check_in_list(_valid_shading, shading_x=shading_x)
+        _api.check_in_list(_valid_shading, shading_y=shading_y)
+
+        if (
+            (shading_x == 'gouraud' or shading_y == 'gouraud')
+            and shading_x != shading_y
+        ):
+            raise ValueError(
+                "shading='gouraud' cannot be mixed with other shading types."
+            )
 
         if len(args) == 1:
             C = np.asanyarray(args[0])
             nrows, ncols = C.shape[:2]
-            if shading in ['gouraud', 'nearest']:
-                X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
+
+            grid_shading_x = 'flat' if shading_x == 'auto' else shading_x
+            grid_shading_y = 'flat' if shading_y == 'auto' else shading_y
+
+            if grid_shading_x in ['gouraud', 'nearest']:
+                x_grid = np.arange(ncols)
             else:
-                X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
-                shading = 'flat'
+                x_grid = np.arange(ncols + 1)
+
+            if grid_shading_y in ['gouraud', 'nearest']:
+                y_grid = np.arange(nrows)
+            else:
+                y_grid = np.arange(nrows + 1)
+
+            X, Y = np.meshgrid(x_grid, y_grid)
         elif len(args) == 3:
             # Check x and y for bad data...
             C = np.asanyarray(args[2])
@@ -6509,61 +6538,81 @@ or pandas.DataFrame
             raise TypeError(f'Incompatible X, Y inputs to {funcname}; '
                             f'see help({funcname})')
 
-        if shading == 'auto':
-            if ncols == Nx and nrows == Ny:
-                shading = 'nearest'
+        if shading_x == 'auto':
+            if ncols == Nx:
+                shading_x = 'nearest'
             else:
-                shading = 'flat'
+                shading_x = 'flat'
+        if shading_y == 'auto':
+            if nrows == Ny:
+                shading_y = 'nearest'
+            else:
+                shading_y = 'flat'
 
-        if shading == 'flat':
-            if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError(f"Dimensions of C {C.shape} should"
-                                f" be one smaller than X({Nx}) and Y({Ny})"
-                                f" while using shading='flat'"
-                                f" see help({funcname})")
-        else:    # ['nearest', 'gouraud']:
+        if shading_x == 'gouraud':
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError('Dimensions of C %s are incompatible with'
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
-            if shading == 'nearest':
-                # grid is specified at the center, so define corners
-                # at the midpoints between the grid centers and then use the
-                # flat algorithm.
-                def _interp_grid(X, require_monotonicity=False):
-                    # helper for below. To ensure the cell edges are calculated
-                    # correctly, when expanding columns, the monotonicity of
-                    # X coords needs to be checked. When expanding rows, the
-                    # monotonicity of Y coords needs to be checked.
-                    if np.shape(X)[1] > 1:
-                        dX = np.diff(X, axis=1) * 0.5
-                        if (require_monotonicity and
-                                not (np.all(dX >= 0) or np.all(dX <= 0))):
-                            _api.warn_external(
-                                f"The input coordinates to {funcname} are "
-                                "interpreted as cell centers, but are not "
-                                "monotonically increasing or decreasing. "
-                                "This may lead to incorrectly calculated cell "
-                                "edges, in which case, please supply "
-                                f"explicit cell edges to {funcname}.")
+            shading = 'gouraud'
+        else:
+            if shading_x == 'flat' and Nx != ncols + 1:
+                raise TypeError(f"Dimensions of C {C.shape} should be one smaller than "
+                                f"X ({Nx}) along the X-axis while using shading='flat'")
+            if shading_x == 'nearest' and Nx != ncols:
+                raise TypeError(
+                    f"Dimensions of C {C.shape} should be equal to "
+                    f"X ({Nx}) along the X-axis while using "
+                    "shading='nearest'"
+                )
 
-                        hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
-                        X = hstack((X[:, [0]] - dX[:, [0]],
-                                    X[:, :-1] + dX,
-                                    X[:, [-1]] + dX[:, [-1]]))
-                    else:
-                        # This is just degenerate, but we can't reliably guess
-                        # a dX if there is just one value.
-                        X = np.hstack((X, X))
-                    return X
+            if shading_y == 'flat' and Ny != nrows + 1:
+                raise TypeError(f"Dimensions of C {C.shape} should be one smaller than "
+                                f"Y ({Ny}) along the Y-axis while using shading='flat'")
+            if shading_y == 'nearest' and Ny != nrows:
+                raise TypeError(
+                    f"Dimensions of C {C.shape} should be equal to "
+                    f"Y ({Ny}) along the Y-axis while using "
+                    "shading='nearest'"
+                )
 
-                if ncols == Nx:
-                    X = _interp_grid(X, require_monotonicity=True)
-                    Y = _interp_grid(Y)
-                if nrows == Ny:
-                    X = _interp_grid(X.T).T
-                    Y = _interp_grid(Y.T, require_monotonicity=True).T
-                shading = 'flat'
+            # grid is specified at the center, so define corners
+            # at the midpoints between the grid centers and then use the
+            # flat algorithm.
+            def _interp_grid(X, require_monotonicity=False):
+                # helper for below. To ensure the cell edges are calculated
+                # correctly, when expanding columns, the monotonicity of
+                # X coords needs to be checked. When expanding rows, the
+                # monotonicity of Y coords needs to be checked.
+                if np.shape(X)[1] > 1:
+                    dX = np.diff(X, axis=1) * 0.5
+                    if (require_monotonicity and
+                            not (np.all(dX >= 0) or np.all(dX <= 0))):
+                        _api.warn_external(
+                            f"The input coordinates to {funcname} are "
+                            "interpreted as cell centers, but are not "
+                            "monotonically increasing or decreasing. "
+                            "This may lead to incorrectly calculated cell "
+                            "edges, in which case, please supply "
+                            f"explicit cell edges to {funcname}.")
+
+                    hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
+                    X = hstack((X[:, [0]] - dX[:, [0]],
+                                X[:, :-1] + dX,
+                                X[:, [-1]] + dX[:, [-1]]))
+                else:
+                    # This is just degenerate, but we can't reliably guess
+                    # a dX if there is just one value.
+                    X = np.hstack((X, X))
+                return X
+
+            if shading_x == 'nearest':
+                X = _interp_grid(X, require_monotonicity=True)
+                Y = _interp_grid(Y)
+            if shading_y == 'nearest':
+                X = _interp_grid(X.T).T
+                Y = _interp_grid(Y.T, require_monotonicity=True).T
+            shading = 'flat'
 
         C = cbook.safe_masked_invalid(C, copy=True)
         return X, Y, C, shading
@@ -6623,7 +6672,7 @@ or pandas.DataFrame
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
-        shading : {'flat', 'nearest', 'auto'}, default: :rc:`pcolor.shading`
+        shading : {'flat', 'nearest', 'auto'} or 2-tuple, default: :rc:`pcolor.shading`
             The fill style for the quadrilateral. Possible values:
 
             - 'flat': A solid color is used for each quad. The color of the
@@ -6635,6 +6684,10 @@ or pandas.DataFrame
               dimensions of *X* and *Y* must be the same as *C*.
             - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
               larger than *C*.  Choose 'nearest' if dimensions are the same.
+
+            Additionally, a 2-tuple of strings `(shading_x, shading_y)` can be
+            passed to specify different shading types for the X and Y axes
+            individually.
 
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
@@ -6717,7 +6770,8 @@ or pandas.DataFrame
 
         if shading is None:
             shading = mpl.rcParams['pcolor.shading']
-        shading = shading.lower()
+        if isinstance(shading, str):
+            shading = shading.lower()
         X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
                                             kwargs=kwargs)
         linewidths = (0.25,)
@@ -6850,7 +6904,7 @@ or pandas.DataFrame
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
+        shading : {'flat', 'nearest', 'gouraud', 'auto'} or 2-tuple, optional
             The fill style for the quadrilateral; defaults to
             :rc:`pcolor.shading`. Possible values:
 
@@ -6868,6 +6922,11 @@ or pandas.DataFrame
               Gouraud shading is used, *edgecolors* is ignored.
             - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
               larger than *C*.  Choose 'nearest' if dimensions are the same.
+
+            Additionally, a 2-tuple of strings `(shading_x, shading_y)` can be
+            passed to specify different shading types for the X and Y axes
+            individually. Note that 'gouraud' cannot be mixed with other shading
+            types.
 
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
@@ -6953,7 +7012,9 @@ or pandas.DataFrame
         `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
 
         """
-        shading = mpl._val_or_rc(shading, 'pcolor.shading').lower()
+        shading = mpl._val_or_rc(shading, 'pcolor.shading')
+        if isinstance(shading, str):
+            shading = shading.lower()
         kwargs.setdefault('edgecolors', 'none')
 
         X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
