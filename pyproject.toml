@@ -6,14 +6,12 @@ authors = [
 ]
 description = "Python plotting package"
 readme = "README.md"
-license = { file = "LICENSE/LICENSE" }
-dynamic = ["version"]
+dynamic = ["version", "license", "license-files"]
 classifiers=[
     "Development Status :: 5 - Production/Stable",
     "Framework :: Matplotlib",
     "Intended Audience :: Science/Research",
     "Intended Audience :: Education",
-    "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
@@ -35,7 +33,7 @@ dependencies = [
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
     "numpy >= 2.0",
-    "packaging >= 20.0",
+    "packaging >= 23.2",
     "pillow >= 9",
     "pyparsing >= 3",
     "python-dateutil >= 2.7",
@@ -56,9 +54,7 @@ requires-python = ">=3.12"
 build-backend = "mesonpy"
 # Also keep in sync with dependency groups below.
 requires = [
-    # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
-    # you really need it and aren't using an sdist.
-    "meson-python>=0.13.2,!=0.17.*",
+    "meson-python>=0.18.0",
     "pybind11>=2.13.2,!=2.13.3",
     # setuptools_scm 10 breaks versioning in editable installs. You can remove this pin
     # if you're a downstream distributor just building wheels or your equivalent.
@@ -79,7 +75,7 @@ build = [
     "python-dateutil >= 2.7",
 
     # Should be the same as `[build-system] requires` above.
-    "meson-python>=0.13.1,!=0.17.*",
+    "meson-python>=0.18.0",
     "pybind11>=2.13.2,!=2.13.3",
     "setuptools_scm>=7,<10",
     # Not required by us but setuptools_scm without a version, so _if_
@@ -407,7 +403,7 @@ manylinux-x86_64-image = "manylinux2014"
 
 before-build = "rm -rf {package}/build"
 test-command = [
-    # "python {package}/ci/check_wheel_licenses.py {wheel}",
+    "python {package}/ci/check_wheel_licenses.py {wheel}",
     "python {package}/ci/check_version_number.py",
 ]
 test-environment = "PIP_PREFER_BINARY=true"
