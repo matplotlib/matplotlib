@@ -1,0 +1,10 @@
+``contourf`` now fills the region at the data minimum
+-----------------------------------------------------
+
+`~matplotlib.axes.Axes.contourf` previously left the lowest-valued region
+unfilled when the data minimum fell a tiny floating-point step below the
+lowest contour level instead of being exactly equal to it (for example, a
+computed value of ``-1.7e-13`` that was meant to be ``0``). On a linear scale
+the lowest level is now treated as coincident with the data minimum when it
+lies within a small tolerance of it, so that region is filled as expected.
+Log-scaled contours are unchanged.

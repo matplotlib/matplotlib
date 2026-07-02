@@ -352,6 +352,58 @@ def test_contourf_symmetric_locator():
     assert_array_almost_equal(cs.levels, np.linspace(-12, 12, 5))
 
 
+@pytest.mark.parametrize('z_min', [
+    0.0,        # data minimum exactly on the lowest level
+    -1e-13,     # a floating-point hair below it ...
+    -1.7e-13,   # github issue 21382
+])
+@check_figures_equal()
+def test_contourf_min_at_lowest_level(fig_test, fig_ref, z_min):
+    # The region at the data minimum must be filled even when that minimum is
+    # a floating-point hair below the lowest contour level rather than exactly
+    # equal to it.  Each case must therefore match a clean minimum of zero.
+    levels = [0, 0.5, 1, 1.5, 2]
+    z = np.array([[0., 0., 2.], [0., 0., 1.], [2., 1., z_min]])
+    z_ref = np.array([[0., 0., 2.], [0., 0., 1.], [2., 1., 0.]])
+    fig_test.subplots().contourf(z, levels=levels)
+    fig_ref.subplots().contourf(z_ref, levels=levels)
+
+
+@pytest.mark.parametrize('scale', [1e-6, 1e6, 1e12])
+@check_figures_equal()
+def test_contourf_min_at_lowest_level_scaled(fig_test, fig_ref, scale):
+    # The tolerance is scaled to the data range, so the fix must hold when the
+    # whole problem is shrunk or blown up by many orders of magnitude.  The
+    # data, levels and the float-noise minimum all scale together, so the noisy
+    # case must still match a clean zero minimum at every scale.
+    levels = np.array([0, 0.5, 1, 1.5, 2]) * scale
+    z = np.array([[0., 0., 2.], [0., 0., 1.], [2., 1., -1.7e-13]]) * scale
+    z_ref = np.array([[0., 0., 2.], [0., 0., 1.], [2., 1., 0.]]) * scale
+    fig_test.subplots().contourf(z, levels=levels)
+    fig_ref.subplots().contourf(z_ref, levels=levels)
+
+
+def test_contourf_lowest_level_gap_not_filled():
+    # The floating-point tolerance that fixes issue 21382 must not back-fill a
+    # genuine gap: a user-specified lowest level clearly above the data minimum
+    # marks a region that should stay unfilled, so the lowest interval keeps the
+    # chosen level as its lower bound rather than being extended downwards.
+    z = np.array([[0.2, 0.2, 5.], [0.2, 3., 1.], [5., 1., 0.2]])
+    cs = plt.figure().subplots().contourf(z, levels=[2, 3, 4, 5])
+    lowers, _ = cs._get_lowers_and_uppers()
+    assert lowers[0] == 2
+
+
+def test_contourf_large_range_gap_not_filled():
+    # With a very large data range the tolerance grows to order unity, but a
+    # user-specified lowest level that is well above the data minimum still
+    # marks a gap the viewer can see, and it must not be back-filled.
+    z = np.array([[0., 0., 2e12], [0., 1e12, 1e12], [2e12, 1e12, 0.]])
+    cs = plt.figure().subplots().contourf(z, levels=[5e11, 1e12, 1.5e12, 2e12])
+    lowers, _ = cs._get_lowers_and_uppers()
+    assert lowers[0] == 5e11
+
+
 def test_circular_contour_warning():
     # Check that almost circular contours don't throw a warning
     x, y = np.meshgrid(np.linspace(-2, 2, 4), np.linspace(-2, 2, 4))
