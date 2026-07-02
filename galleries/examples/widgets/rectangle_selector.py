@@ -28,6 +28,12 @@ def select_callback(eclick, erelease):
     print(f"The buttons you used were: {eclick.button} {erelease.button}")
 
 
+def onselect_callback(eclick, erelease):
+    """Additional callback registered via on_select."""
+    extent = (eclick.xdata, erelease.xdata, eclick.ydata, erelease.ydata)
+    print(f"Extents: {extent}")
+
+
 def toggle_selector(event):
     print('Key pressed.')
     if event.key == 't':
@@ -59,6 +65,11 @@ for ax, selector_class in zip(axs, [RectangleSelector, EllipseSelector]):
         spancoords='pixels',
         interactive=True))
     fig.canvas.mpl_connect('key_press_event', toggle_selector)
+
+# Register additional callbacks using on_select
+for selector in selectors:
+    selector.on_select(onselect_callback)
+
 axs[0].set_title("Press 't' to toggle the selectors on and off.\n"
                  + axs[0].get_title())
 plt.show()
@@ -72,3 +83,4 @@ plt.show()
 #
 #    - `matplotlib.widgets.RectangleSelector`
 #    - `matplotlib.widgets.EllipseSelector`
+#    - `matplotlib.widgets.RectangleSelector.on_select`
