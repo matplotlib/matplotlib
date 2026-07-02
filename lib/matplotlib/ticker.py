@@ -1128,7 +1128,8 @@ class LogFormatter(_SymmetricalLogMixin, Formatter):
 
     @property
     def _is_symlog(self):
-        return all(p is not None for p in (self._base, self._linthresh, self._linscale))
+        # self._base cannot be None, so we don't need to check it.
+        return all(p is not None for p in (self._linthresh, self._linscale))
 
     def set_base(self, base):
         """
