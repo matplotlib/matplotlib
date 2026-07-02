@@ -211,8 +211,18 @@ def _test_interactive_impl():
         import asyncio
         asyncio.set_event_loop(asyncio.new_event_loop())
 
+    def _quit(*args):
+        # Smoke-test raise_window on a realized window: every backend must
+        # accept with_focus and run all three forms without error. (The actual
+        # raise/focus behaviour is platform-dependent and verified manually.)
+        manager = fig.canvas.manager
+        manager.raise_window()
+        manager.raise_window(with_focus=False)
+        manager.raise_window(with_focus=True)
+        KeyEvent("key_press_event", fig.canvas, "q")._process()
+
     timer = fig.canvas.new_timer(1.)  # Test that floats are cast to int.
-    timer.add_callback(KeyEvent("key_press_event", fig.canvas, "q")._process)
+    timer.add_callback(_quit)
     # Trigger quitting upon draw.
     fig.canvas.mpl_connect("draw_event", lambda event: timer.start())
     fig.canvas.mpl_connect("close_event", print)
