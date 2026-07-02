@@ -1230,6 +1230,28 @@ class DrawEvent(Event):
         self.renderer = renderer
 
 
+class RenderEvent(Event):
+    """
+    An event triggered after layout and geometry calculations, but before
+    rendering begins.
+
+    Callbacks subscribed to this event observe finalized artist positions and
+    tick locations. Unlike `.DrawEvent`, this event fires before any rendering
+    has occurred, so blitting is not applicable.
+
+    A RenderEvent has a number of special attributes in addition to those
+    defined by the parent `Event` class.
+
+    Attributes
+    ----------
+    renderer : `RendererBase`
+        The renderer for the render event.
+    """
+    def __init__(self, name, canvas, renderer):
+        super().__init__(name, canvas)
+        self.renderer = renderer
+
+
 class ResizeEvent(Event):
     """
     An event triggered by a canvas resize.

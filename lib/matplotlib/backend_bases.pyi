@@ -225,6 +225,12 @@ class DrawEvent(Event):
         self, name: str, canvas: FigureCanvasBase, renderer: RendererBase
     ) -> None: ...
 
+class RenderEvent(Event):
+    renderer: RendererBase
+    def __init__(
+        self, name: str, canvas: FigureCanvasBase, renderer: RendererBase
+    ) -> None: ...
+
 class ResizeEvent(Event):
     width: int
     height: int
