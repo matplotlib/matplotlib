@@ -1500,7 +1500,7 @@ class Text(Artist):
 
             If font is a str, this now only updates aspects of the font that are
             specified in the pattern. Previously this was equivalent to
-            `.set_fontproperties`, which resets all non-specified aspectes to
+            `.set_fontproperties`, which resets all non-specified aspects to
             their default.
 
             If you want to have the full reset, please use `.set_fontproperties`
