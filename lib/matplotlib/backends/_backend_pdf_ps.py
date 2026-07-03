@@ -149,7 +149,7 @@ class GlyphMap:
         ----------
         charcode : CharacterCodeType
             The character code to record.
-        glyph : GlyphIndexType
+        glyph_index : GlyphIndexType
             The corresponding glyph index to record.
         subset : int
             The subset in which the subset character code resides.
