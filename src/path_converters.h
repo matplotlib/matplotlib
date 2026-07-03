@@ -564,11 +564,17 @@ class PathSnapper
     double m_prev_raw_x;
     double m_prev_raw_y;
 
+    bool m_has_next;
+    unsigned m_next_code;
+    double m_next_x;
+    double m_next_y;
+
     static bool should_snap(VertexSource &path, e_snap_mode snap_mode, unsigned total_vertices)
     {
         // If this contains only straight horizontal or vertical lines, it should be
         // snapped to the nearest pixels
-        double x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+        double x0 = 0.0, y0 = 0.0;
+        double x1 = 0.0, y1 = 0.0;
         unsigned code;
 
         switch (snap_mode) {
@@ -576,34 +582,34 @@ class PathSnapper
             if (total_vertices > 1024) {
                 return false;
             }
-
-            code = path.vertex(&x0, &y0);
-            if (code == agg::path_cmd_stop) {
-                return false;
-            }
-
-            while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
-                switch (code) {
-                case agg::path_cmd_curve3:
-                case agg::path_cmd_curve4:
-                    return false;
-                case agg::path_cmd_line_to:
-                    if (fabs(x0 - x1) >= 1e-4 && fabs(y0 - y1) >= 1e-4) {
-                        return false;
-                    }
-                }
-                x0 = x1;
-                y0 = y1;
-            }
-
-            return true;
+            break;
         case SNAP_FALSE:
             return false;
         case SNAP_TRUE:
             return true;
         }
 
-        return false;
+        code = path.vertex(&x0, &y0);
+        if (code == agg::path_cmd_stop) {
+            return false;
+        }
+
+        while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
+            if (agg::is_curve(code)) {
+                return false;
+            }
+            if (agg::is_line_to(code)) {
+                double dx = fabs(x1 - x0);
+                double dy = fabs(y1 - y0);
+                if (dx > 1e-4 && dy > 1e-4) {
+                    return false;
+                }
+            }
+            x0 = x1;
+            y0 = y1;
+        }
+
+        return true;
     }
 
   public:
@@ -622,7 +628,11 @@ class PathSnapper
           m_prev_snapped_x(0.0),
           m_prev_snapped_y(0.0),
           m_prev_raw_x(0.0),
-          m_prev_raw_y(0.0)
+          m_prev_raw_y(0.0),
+          m_has_next(false),
+          m_next_code(agg::path_cmd_stop),
+          m_next_x(0.0),
+          m_next_y(0.0)
     {
         m_snap = should_snap(source, snap_mode, total_vertices);
 
@@ -636,6 +646,7 @@ class PathSnapper
 
     inline void rewind(unsigned path_id)
     {
+        m_has_next = false;
         m_prev_code = agg::path_cmd_stop;
         m_source->rewind(path_id);
     }
@@ -643,7 +654,15 @@ class PathSnapper
     inline unsigned vertex(double *x, double *y)
     {
         unsigned code;
-        code = m_source->vertex(x, y);
+        if (m_has_next) {
+            code = m_next_code;
+            *x = m_next_x;
+            *y = m_next_y;
+            m_has_next = false;
+        } else {
+            code = m_source->vertex(x, y);
+        }
+
         if (m_snap && agg::is_vertex(code)) {
             double raw_x = *x, raw_y = *y;
             *x = floor(raw_x + 0.5) + m_snap_value;
@@ -653,19 +672,25 @@ class PathSnapper
             // mark, a tick) is a MOVETO followed by a single LINETO.  If it is
             // less than a pixel long both endpoints snap to the same pixel and
             // nothing is drawn.  Keep the mark visible by extending the endpoint
-            // one pixel along the segment's dominant axis.  Only the opening
-            // segment of a subpath is treated this way, so polygon outlines
-            // (bars, markers) keep snapping unchanged.
-            if (code == agg::path_cmd_line_to &&
-                m_prev_code == agg::path_cmd_move_to &&
+            // one pixel along the segment's dominant axis.  Only an isolated
+            // subpath is treated this way, so polygon outlines (bars, markers)
+            // keep snapping unchanged.
+            if (agg::is_line_to(code) &&
+                agg::is_move_to(m_prev_code) &&
                 *x == m_prev_snapped_x && *y == m_prev_snapped_y) {
-                double dx = raw_x - m_prev_raw_x;
-                double dy = raw_y - m_prev_raw_y;
-                if (dx != 0.0 || dy != 0.0) {
-                    if (fabs(dx) >= fabs(dy)) {
-                        *x += (dx >= 0.0) ? 1.0 : -1.0;
-                    } else {
-                        *y += (dy >= 0.0) ? 1.0 : -1.0;
+                
+                m_next_code = m_source->vertex(&m_next_x, &m_next_y);
+                m_has_next = true;
+
+                if (!agg::is_vertex(m_next_code) || agg::is_move_to(m_next_code)) {
+                    double dx = raw_x - m_prev_raw_x;
+                    double dy = raw_y - m_prev_raw_y;
+                    if (dx != 0.0 || dy != 0.0) {
+                        if (fabs(dx) >= fabs(dy)) {
+                            *x += (dx >= 0.0) ? 1.0 : -1.0;
+                        } else {
+                            *y += (dy >= 0.0) ? 1.0 : -1.0;
+                        }
                     }
                 }
             }
