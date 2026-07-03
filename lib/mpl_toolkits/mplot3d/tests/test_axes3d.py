@@ -72,6 +72,31 @@ def test_axis_positions():
         ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
 
 
+@mpl3d_image_comparison(['axis_positions_inverted.png'], remove_text=False,
+                        style='mpl20')
+def test_axis_positions_inverted():
+    # Regression test for https://github.com/matplotlib/matplotlib/issues/31989
+    # Check the visual placement of axes, ticks and labels for
+    # every combination of inverted x, y and z axes.
+    combinations = list(itertools.product([False, True], repeat=3))
+    fig, axs = plt.subplots(2, 4, figsize=(10, 6),
+                            subplot_kw={'projection': '3d'})
+    for ax, (invert_x, invert_y, invert_z) in zip(axs.flatten(), combinations):
+        # Plot an asymmetric line so that inverting an axis visibly mirrors the data,
+        # ensuring the projection is exercised for every inversion combination
+        ax.plot([0, 1, 1], [0, 0, 1], [0, 1, 1])
+        if invert_x:
+            ax.invert_xaxis()
+        if invert_y:
+            ax.invert_yaxis()
+        if invert_z:
+            ax.invert_zaxis()
+        title = (f'{"-" if invert_x else ""}x, '
+                 f'{"-" if invert_y else ""}y, '
+                 f'{"-" if invert_z else ""}z')
+        ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
+
+
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
 def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
