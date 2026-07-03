@@ -1005,7 +1005,7 @@ class _SymmetricalLogMixin:
         """The inverse of `._val2axpos`."""
         sign, val = np.sign(val), np.abs(val)
         if val > self._linscale:  # log regime
-            val = np.power(self.base, val - self._linscale) * self._linthresh
+            val = np.power(self._base, val - self._linscale) * self._linthresh
         else:  # linear regime
             val = val / self._linscale * self._linthresh
         return sign * val
