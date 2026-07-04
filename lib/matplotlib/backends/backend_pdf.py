@@ -2011,16 +2011,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
-            # Compute the extent of each marker path to enable per-marker
-            # bounds checking. This allows us to skip markers that are
-            # completely outside the visible canvas while preserving markers
-            # that are partially visible.
-            if len(path.vertices):
-                bbox = path.get_extents(transform)
-                # Store half-width and half-height for efficient bounds checking
-                path_extents.append((bbox.width / 2, bbox.height / 2))
-            else:
-                path_extents.append((0, 0))
+            # Compute each transformed path's exact bounds for per-marker
+            # canvas checks.  Offsets are not necessarily full canvas-space
+            # centers, e.g. for collections using AffineDeltaTransform, so
+            # cull based on the final path bounds translated by the offset.
+            path_extents.append(path.get_extents(transform).frozen())
 
         # Create a mapping from path_id to extent for efficient lookup
         path_extent_map = dict(zip(path_codes, path_extents))
@@ -2036,26 +2031,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
-            # Optimization: Fast path for markers with centers inside canvas.
-            # This avoids the dictionary lookup for the common case where
-            # markers are visible, improving performance for large scatter plots.
-            if 0 <= xo <= canvas_width and 0 <= yo <= canvas_height:
-                # Marker center is inside canvas - definitely render it
-                self.check_gc(gc0, rgbFace)
-                dx, dy = xo - lastx, yo - lasty
-                output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
-                       Op.use_xobject)
-                lastx, lasty = xo, yo
-                continue
-
-            # Marker center is outside canvas - check if partially visible.
-            # Skip markers completely outside visible canvas bounds to reduce
-            # PDF file size. Use per-marker extents to handle large markers
-            # correctly: only skip if the marker's bounding box doesn't
-            # intersect the canvas at all.
-            extent_x, extent_y = path_extent_map[path_id]
-            if not (-extent_x <= xo <= canvas_width + extent_x
-                    and -extent_y <= yo <= canvas_height + extent_y):
+            # Skip markers completely outside the canvas to reduce PDF size.
+            # Use the translated path bounds, not the offset alone: the offset
+            # need not be the marker center in canvas coordinates.
+            bbox = path_extent_map[path_id]
+            if (bbox.x1 + xo < 0 or bbox.x0 + xo > canvas_width
+                    or bbox.y1 + yo < 0 or bbox.y0 + yo > canvas_height):
                 continue
 
             self.check_gc(gc0, rgbFace)
