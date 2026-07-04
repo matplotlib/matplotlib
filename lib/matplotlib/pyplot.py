@@ -2157,9 +2157,10 @@ def subplot_tool(targetfig: Figure | None = None) -> object | None:
 
     Returns
     -------
-    The subplot tool window. May be a `~matplotlib.widgets.SubplotTool`
-    (widgets backend), a backend-native dialog (e.g. Qt), or `None` for
-    backends that use the toolmanager.
+    `~matplotlib.widgets.SubplotTool` or None
+        The subplot tool window. Returns a `~matplotlib.widgets.SubplotTool`
+        for the widgets backend, a backend-native dialog (e.g. Qt) for other
+        backends, or `None` for backends using the toolmanager.
     """
     if targetfig is None:
         targetfig = gcf()
