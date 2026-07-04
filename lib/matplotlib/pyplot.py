@@ -2151,7 +2151,7 @@ def twiny(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     return ax1
 
 
-def subplot_tool(targetfig: Figure | None = None) -> Any:
+def subplot_tool(targetfig: Figure | None = None) -> object | None:
     """
     Launch a subplot tool window for a figure.
 
