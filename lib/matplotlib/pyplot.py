@@ -92,7 +92,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
     import pathlib
     import os
-    from typing import Any, BinaryIO, Literal
+    from typing import BinaryIO, Literal
 
     import PIL.Image
     from numpy.typing import ArrayLike
