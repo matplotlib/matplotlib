@@ -316,6 +316,10 @@ jobs:
         if: matrix.delete-font-cache
 
       - name: Run pytest
+        env:
+          PYTEST_ADDOPTS: >-
+            ${{ (contains(github.event.pull_request.labels.*.name, 'ci:verbose') ||
+                 contains(github.event.head_commit.message, '[verbose]')) && '-vv' || '' }}
         run: |
           if [[ "${{ matrix.python-version }}" == '3.14t' ]]; then
             export PYTHON_GIL=0

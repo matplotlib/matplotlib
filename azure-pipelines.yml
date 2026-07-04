@@ -92,6 +92,15 @@ stages:
             displayName: 'print pip'
 
           - bash: |
+              echo "##vso[task.setvariable variable=PYTEST_ADDOPTS]-vv"
+            displayName: 'Enable verbose logging'
+            condition: |
+              or(
+                contains(variables['Build.SourceVersionMessage'], '[verbose]'),
+                contains(variables['System.PullRequest.Labels'], 'ci:verbose')
+              )
+
+          - bash: |
               set -e
               SESSION_ID=$(python -c "import uuid; print(uuid.uuid4(), end='')")
               echo "Coverage session ID: ${SESSION_ID}"
