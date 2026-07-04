@@ -54,7 +54,7 @@ import logging
 import sys
 import threading
 import time
-from typing import IO, TYPE_CHECKING, cast, overload
+from typing import Any, IO, TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -153,7 +153,6 @@ if TYPE_CHECKING:
         ResizeEventType,
         LogLevel
     )
-    from matplotlib.widgets import SubplotTool
     from matplotlib._api import _Unset
 
 
@@ -2152,13 +2151,15 @@ def twiny(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     return ax1
 
 
-def subplot_tool(targetfig: Figure | None = None) -> SubplotTool | None:
+def subplot_tool(targetfig: Figure | None = None) -> Any:
     """
     Launch a subplot tool window for a figure.
 
     Returns
     -------
-    `matplotlib.widgets.SubplotTool`
+    The subplot tool window. May be a `~matplotlib.widgets.SubplotTool`
+    (widgets backend), a backend-native dialog (e.g. Qt), or `None` for
+    backends that use the toolmanager.
     """
     if targetfig is None:
         targetfig = gcf()
