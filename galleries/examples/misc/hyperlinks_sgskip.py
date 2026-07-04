@@ -6,10 +6,9 @@ Hyperlinks
 This example demonstrates how to set a hyperlinks on various kinds of elements.
 
 This currently only works with the SVG backend.
-
-# sphinx_gallery_thumbnail_path = "_static/hyperlinks.png"
 """
 
+# sphinx_gallery_thumbnail_path = "_static/hyperlinks.png"
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -36,13 +35,8 @@ Z1 = np.exp(-X**2 - Y**2)
 Z2 = np.exp(-(X - 1)**2 - (Y - 1)**2)
 Z = (Z1 - Z2) * 2
 
-im = plt.imshow(Z, interpolation='bilinear', cmap="gray",
-                origin='lower', extent=(-3, 3, -3, 3))
-
+fig, ax = plt.subplots()
+im = ax.imshow(Z, interpolation='bilinear', origin='lower',
+               extent=[-3, 3, -3, 3])
 im.set_url('https://www.google.com/')
-fig.savefig('image.svg')
-
-# %%
-# .. raw:: html
-#
-#    <object data="../../_static/image.svg" type="image/svg+xml"></object>
+fig.savefig('imshow.svg')

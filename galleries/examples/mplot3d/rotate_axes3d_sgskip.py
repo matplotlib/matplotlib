@@ -11,6 +11,7 @@ See :doc:`wire3d_animation` for another example of animating a 3D plot.
 intentionally takes a long time to run)
 """
 
+# sphinx_gallery_thumbnail_path = "_static/rotate_axes3d.png"
 import matplotlib.pyplot as plt
 
 from matplotlib import animation
@@ -31,32 +32,14 @@ ax.set_zlabel('z')
 
 # Rotate the axes and update
 def animate(angle):
-    # Normalize the angle to the range [-180, 180] for display
+    # Normalize the angle to the range
     angle_norm = (angle + 180) % 360 - 180
-
-    # Cycle through a full rotation of elevation, then azimuth, roll, and all
-    elev = azim = roll = 0
-    if angle <= 360:
-        elev = angle_norm
-    elif angle <= 360*2:
-        azim = angle_norm
-    elif angle <= 360*3:
-        roll = angle_norm
-    else:
-        elev = azim = roll = angle_norm
-
-    # Update the axis view and title
-    ax.view_init(elev, azim, roll)
-    ax.set_title(f'Elevation: {elev}°, Azimuth: {azim}°, Roll: {roll}°')
+    # Update the axis view
+    ax.view_init(elev=20, azim=angle_norm)
+    return fig,
 
 
-ani = animation.FuncAnimation(fig, animate, interval=25, frames=360*4)
+# Create the animation
+anim = animation.FuncAnimation(fig, animate, frames=360, interval=30, blit=True)
 
 plt.show()
-
-# %%
-# .. tags::
-#    plot-type: 3D,
-#    component: animation,
-#    level: advanced,
-#    internal: high-bandwidth

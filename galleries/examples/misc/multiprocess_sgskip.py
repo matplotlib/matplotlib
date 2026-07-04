@@ -7,9 +7,9 @@ Demo of using multiprocessing for generating data in one process and
 plotting in another.
 
 Written by Robert Cimrman
-# sphinx_gallery_thumbnail_path = "_static/multiprocess.png"
 """
 
+# sphinx_gallery_thumbnail_path = "_static/multiprocess.png"
 import multiprocessing as mp
 import time
 
@@ -61,20 +61,6 @@ class ProcessPlotter:
         print('...done')
         plt.show()
 
-# %%
-#
-# Plotting class
-# ==============
-#
-# This class uses multiprocessing to spawn a process to run code from the
-# class above. When initialized, it creates a pipe and an instance of
-# ``ProcessPlotter`` which will be run in a separate process.
-#
-# When run from the command line, the parent process sends data to the spawned
-# process which is then plotted via the callback function specified in
-# ``ProcessPlotter:__call__``.
-#
-
 
 class NBPlot:
     def __init__(self):
@@ -84,24 +70,20 @@ class NBPlot:
             target=self.plotter, args=(plotter_pipe,), daemon=True)
         self.plot_process.start()
 
-    def plot(self, finished=False):
+    def plot(self, x, y, finished=False):
         send = self.plot_pipe.send
         if finished:
             send(None)
         else:
-            data = np.random.random(2)
-            send(data)
-
-
-def main():
-    pl = NBPlot()
-    for _ in range(10):
-        pl.plot()
-        time.sleep(0.5)
-    pl.plot(finished=True)
+            send((x, y))
 
 
 if __name__ == '__main__':
-    if plt.get_backend() == "MacOSX":
-        mp.set_start_method("forkserver")
-    main()
+    np.random.seed(19680801)
+    pl = NBPlot()
+    for ii in range(20):
+        x = ii
+        y = np.random.random()
+        pl.plot(x, y)
+        time.sleep(0.5)
+    pl.plot(0, 0, True)

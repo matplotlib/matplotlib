@@ -8,9 +8,9 @@ Interactively selecting data points with the lasso tool.
 This examples plots a scatter plot. You can then select a few points by drawing
 a lasso loop around the points on the graph. To draw, just click
 on the graph, hold, and drag it around the points you need to select.
-# sphinx_gallery_thumbnail_path = "_static/lasso_selector_demo.png"
 """
 
+# sphinx_gallery_thumbnail_path = "_static/lasso_selector_demo.png"
 
 import numpy as np
 
@@ -22,26 +22,19 @@ class SelectFromCollection:
     """
     Select indices from a matplotlib collection using `LassoSelector`.
 
-    Selected indices are saved in the `ind` attribute. This tool fades out the
-    points that are not part of the selection (i.e., reduces their alpha
-    values). If your collection has alpha < 1, this tool will permanently
-    alter the alpha values.
-
-    Note that this tool selects collection objects based on their *origins*
-    (i.e., `offsets`).
+    The selected indices are saved in the `.ind` attribute. This tool highlights
+    selected points by fading other points out.
 
     Parameters
     ----------
     ax : `~matplotlib.axes.Axes`
         Axes to interact with.
-    collection : `matplotlib.collections.Collection` subclass
+    collection : `~matplotlib.collections.Collection`
         Collection you want to select from.
-    alpha_other : 0 <= float <= 1
-        To highlight a selection, this tool sets all selected points to an
-        alpha value of 1 and non-selected points to *alpha_other*.
+    alpha_other : float, optional
+        Alpha for unselected points. By default, 0.1.
     """
-
-    def __init__(self, ax, collection, alpha_other=0.3):
+    def __init__(self, ax, collection, alpha_other=0.1):
         self.canvas = ax.figure.canvas
         self.collection = collection
         self.alpha_other = alpha_other
@@ -75,9 +68,6 @@ class SelectFromCollection:
 
 
 if __name__ == '__main__':
-    import matplotlib.pyplot as plt
-
-    # Fixing random state for reproducibility
     np.random.seed(19680801)
 
     data = np.random.rand(100, 2)
@@ -88,25 +78,9 @@ if __name__ == '__main__':
     pts = ax.scatter(data[:, 0], data[:, 1], s=80)
     selector = SelectFromCollection(ax, pts)
 
-    def accept(event):
-        if event.key == "enter":
-            print("Selected points:")
-            print(selector.xys[selector.ind])
-            selector.disconnect()
-            ax.set_title("")
-            fig.canvas.draw()
-
-    fig.canvas.mpl_connect("key_press_event", accept)
-    ax.set_title("Press enter to accept selected points.")
+    print("Select points by drawing a lasso around them.")
+    print("Close the figure to exit.")
 
     plt.show()
 
-# %%
-#
-# .. admonition:: References
-#
-#    The use of the following functions, methods, classes and modules is shown
-#    in this example:
-#
-#    - `matplotlib.widgets.LassoSelector`
-#    - `matplotlib.path.Path`
+    selector.disconnect()
