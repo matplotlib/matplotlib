@@ -600,6 +600,7 @@ def test_overlay_manager_registration():
 
     assert line.get_animated() is False
 
+
 def test_overlay_manager_fallback_draw():
     from matplotlib.lines import Line2D
     from unittest.mock import patch
@@ -614,6 +615,7 @@ def test_overlay_manager_fallback_draw():
     with patch.object(canvas, 'draw_idle') as mock_draw_idle:
         canvas._overlay_manager.update()
         mock_draw_idle.assert_called_once()
+
 
 @pytest.mark.xfail(reason="Phase 2 native compositing not yet implemented")
 def test_overlay_manager_native_compositing():

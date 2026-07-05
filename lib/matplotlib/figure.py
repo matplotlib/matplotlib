@@ -3258,7 +3258,7 @@ None}, default: None
         toolbar = self.canvas.toolbar
         if toolbar is not None:
             toolbar.update()
-            
+
         if hasattr(self.canvas, '_overlay_manager'):
             self.canvas._overlay_manager.clear()
 
