@@ -1758,6 +1758,8 @@ class FigureCanvasBase:
         return (hasattr(cls, "copy_from_bbox")
                 and hasattr(cls, "restore_region"))
 
+    supports_overlay = False
+
     def __init__(self, figure=None):
         from matplotlib.figure import Figure
         self._fix_ipython_backend2gui()
@@ -1774,6 +1776,9 @@ class FigureCanvasBase:
         self.mouse_grabber = None  # the Axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+        # Initialize the overlay manager for this canvas
+        OverlayManager(self)
+        
         # We don't want to scale up the figure DPI more than once.
         figure._original_dpi = getattr(figure, '_original_dpi', figure.dpi)
         self._device_pixel_ratio = 1
@@ -1987,6 +1992,16 @@ class FigureCanvasBase:
         if not self._is_idle_drawing:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
+
+    def draw_overlay(self):
+        """
+        Draw the overlay layer without triggering a full figure redraw.
+
+        By default, this safely falls back to `draw_idle()`. GUI backends that
+        support native overlay compositing should
+        override this method for native speed.
+        """
+        self.draw_idle()
 
     @property
     def device_pixel_ratio(self):
@@ -3735,3 +3750,68 @@ class ShowBase(_Backend):
 
     def __call__(self, block=None):
         return self.show(block=block)
+
+
+from typing import List
+import matplotlib.artist as _artist
+
+class OverlayManager:
+    """
+    Opt-in manager for high-frequency interactive overlays.
+    Maintains a dedicated registry for overlay artists to isolate them
+    from the main draw tree for faster rendering in supported backends.
+    """
+    def __init__(self, canvas):
+        # Manager holds a weak reference to the canvas
+        self._canvas = weakref.proxy(canvas)
+        
+        self._artists = []
+        
+        # Canvas holds a strong reference to the manager
+        canvas._overlay_manager = self
+
+    def _get_live_artists(self) -> List[_artist.Artist]:
+        """
+        Returns a clean list of live artists sorted by z-order.
+        """
+        live_refs = []
+        live_artists = []
+        for ref in self._artists:
+            art = ref()
+            # Strict verification: art must exist in memory AND be attached to a layout tree
+            if art is not None and (getattr(art, 'axes', None) is not None or getattr(art, 'figure', None) is not None):
+                live_refs.append(ref)
+                live_artists.append(art)
+                
+        # update the internal registry to only keep valid references
+        self._artists = live_refs
+        
+        # Sort by z-order for Phase 2 rendering
+        return sorted(live_artists, key=lambda a: a.get_zorder())
+
+    def add_artist(self, artist: _artist.Artist):
+        """Add a standard Artist to the overlay layer."""
+        if getattr(artist, 'axes', None) is None and getattr(artist, 'figure', None) is None:
+            raise ValueError("Artist must be added to an Axes or Figure before adding to OverlayManager.")
+            
+        if getattr(self._canvas, 'supports_overlay', False):
+            artist.set_animated(True)
+            # Store as a weak reference
+            self._artists.append(weakref.ref(artist))
+        else:
+            # fallback is to draw_idle()
+            artist.set_animated(False) 
+
+    def remove_artist(self, artist: _artist.Artist):
+        """Remove a standard Artist from the overlay layer."""
+        # Cleanly rebuild the list, dropping dead references and the specified artist
+        self._artists = [ref for ref in self._artists if ref() is not None and ref() is not artist]
+
+    def clear(self):
+        """Wipe all overlay artists."""
+        self._artists.clear()
+
+    def update(self):
+        """Trigger the canvas to redraw the overlay layer."""
+        self._canvas.draw_overlay()
+

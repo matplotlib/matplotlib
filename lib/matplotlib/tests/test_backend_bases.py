@@ -581,3 +581,61 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     # Check if twin-axes are properly triggered
     assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
     assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
+
+
+def test_overlay_manager_registration():
+    from matplotlib.lines import Line2D
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    
+    assert hasattr(canvas, "_overlay_manager")
+    
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+    
+    canvas._overlay_manager.add_artist(line)
+    
+    live_artists = canvas._overlay_manager._get_live_artists()
+    assert line not in live_artists
+    
+    assert line.get_animated() is False
+
+def test_overlay_manager_fallback_draw():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+    
+    canvas._overlay_manager.add_artist(line)
+    
+    # Mock draw_idle
+    with patch.object(canvas, 'draw_idle') as mock_draw_idle:
+        canvas._overlay_manager.update()
+        mock_draw_idle.assert_called_once()
+
+@pytest.mark.xfail(reason="Phase 2 native compositing not yet implemented")
+def test_overlay_manager_native_compositing():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    
+    class MockNativeCanvas(FigureCanvasBase):
+        supports_overlay = True
+
+    fig = Figure()
+    canvas = MockNativeCanvas(fig)
+    ax = fig.subplots()
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+    
+    canvas._overlay_manager.add_artist(line)
+    
+    # Because supports_overlay is True, the artist should be set to animated
+    assert line.get_animated() is True
+    
+    # Mock draw_idle
+    with patch.object(canvas, 'draw_idle') as mock_draw_idle:
+        canvas._overlay_manager.update()
+        mock_draw_idle.assert_not_called()
+
