@@ -2035,36 +2035,32 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 gc, path_codes, offsets, offset_trans,
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
+            m = master_transform.get_matrix()
+            tx = m[0, 2]
+            ty = m[1, 2]
 
+            xo2 = xo + tx
+            yo2 = yo + ty
             # Optimization: Fast path for markers with centers inside canvas.
             # This avoids the dictionary lookup for the common case where
             # markers are visible, improving performance for large scatter plots.
             if 0 <= xo <= canvas_width and 0 <= yo <= canvas_height:
-                # Marker center is inside canvas - definitely render it
                 self.check_gc(gc0, rgbFace)
                 dx, dy = xo - lastx, yo - lasty
                 output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
                        Op.use_xobject)
                 lastx, lasty = xo, yo
                 continue
-
-            # Marker center is outside canvas - check if partially visible.
-            # Skip markers completely outside visible canvas bounds to reduce
-            # PDF file size. Use per-marker extents to handle large markers
-            # correctly: only skip if the marker's bounding box doesn't
-            # intersect the canvas at all.
             extent_x, extent_y = path_extent_map[path_id]
-            if not (-extent_x <= xo <= canvas_width + extent_x
-                    and -extent_y <= yo <= canvas_height + extent_y):
+            if not (-extent_x <= xo2 <= canvas_width + extent_x
+                    and -extent_y <= yo2 <= canvas_height + extent_y):
                 continue
-
             self.check_gc(gc0, rgbFace)
             dx, dy = xo - lastx, yo - lasty
             output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
-                   Op.use_xobject)
+                Op.use_xobject)
             lastx, lasty = xo, yo
         output(*self.gc.pop())
-
     def draw_markers(self, gc, marker_path, marker_trans, path, trans,
                      rgbFace=None):
         # docstring inherited
