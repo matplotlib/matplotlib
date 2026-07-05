@@ -640,4 +640,3 @@ def test_overlay_manager_native_compositing():
     with patch.object(canvas, 'draw_idle') as mock_draw_idle:
         canvas._overlay_manager.update()
         mock_draw_idle.assert_not_called()
-
