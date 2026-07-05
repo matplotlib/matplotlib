@@ -3454,9 +3454,11 @@ class ArrowStyle(_Style):
             head_width : float, default: 0.2
                 Width of the arrow head, relative to *mutation_size*.
             widthA, widthB : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *scaleA* and *scaleB*,
+                which default to *mutation_size*.
             lengthA, lengthB : float, default: 0.2
-                Length of the bracket.
+                Length of the bracket, relative to *scaleA* and *scaleB*,
+                which default to *mutation_size*.
             angleA, angleB : float, default: 0
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
@@ -3707,9 +3709,9 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *mutation_size*.
             lengthA : float, default: 0.2
-                Length of the bracket.
+                Length of the bracket, relative to *mutation_size*.
             angleA : float, default: 0 degrees
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
@@ -3726,9 +3728,9 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthB : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *mutation_size*.
             lengthB : float, default: 0.2
-                Length of the bracket.
+                Length of the bracket, relative to *mutation_size*.
             angleB : float, default: 0 degrees
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
@@ -3747,9 +3749,9 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA, widthB : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *mutation_size*.
             lengthA, lengthB : float, default: 0.2
-                Length of the bracket.
+                Length of the bracket, relative to *mutation_size*.
             angleA, angleB : float, default: 0 degrees
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
@@ -3767,7 +3769,7 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA, widthB : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *mutation_size*.
             angleA, angleB : float, default: 0 degrees
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
@@ -3788,9 +3790,9 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthA : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *mutation_size*.
             lengthA : float, default: 0.2
-                Length of the bracket.
+                Length of the bracket, relative to *mutation_size*.
             angleA : float, default: 0 degrees
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
@@ -3810,9 +3812,9 @@ class ArrowStyle(_Style):
             Parameters
             ----------
             widthB : float, default: 1.0
-                Width of the bracket.
+                Width of the bracket, relative to *mutation_size*.
             lengthB : float, default: 0.2
-                Length of the bracket.
+                Length of the bracket, relative to *mutation_size*.
             angleB : float, default: 0 degrees
                 Orientation of the bracket, as a counterclockwise angle.
                 0 degrees means perpendicular to the line.
