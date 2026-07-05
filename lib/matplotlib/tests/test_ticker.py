@@ -634,6 +634,40 @@ class TestSymmetricalLogLocator:
         assert sym._subs == [2.0]
         assert sym.numticks == 8
 
+    def test_mixin(self):
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=20, linscale=3)
+
+        assert_almost_equal(sym._val2axpos(20), 3)
+        assert_almost_equal(sym._val2axpos(-200), -4)
+        assert_almost_equal(sym._val2axpos(20000000), 9)
+        assert_almost_equal(sym._val2axpos(0), 0)
+        assert_almost_equal(sym._val2axpos(1), 0.15)
+        assert_almost_equal(sym._val2axpos(-4), -0.6)
+
+        assert_almost_equal(sym._axpos2val(5), 2000)
+        assert_almost_equal(sym._axpos2val(-3.5), -63.2455532033676)
+        assert_almost_equal(sym._axpos2val(0.5), 3.3333333333333)
+
+        assert_almost_equal(sym._firsttickval(), 10)
+
+        assert_almost_equal(sym._val2decnum(0), 0)
+        assert_almost_equal(sym._val2decnum(-100), -2)
+        assert_almost_equal(sym._val2decnum(316.227766016838), 2.5)
+        assert_almost_equal(sym._val2decnum(5), 0.5)
+        assert_almost_equal(sym._val2decnum(20), 1.30102999566398)
+
+        assert_almost_equal(sym._decnum2val(-1), -10)
+        assert_almost_equal(sym._decnum2val(2), 100)
+        assert_almost_equal(sym._decnum2val(0.1), 1)
+        assert_almost_equal(sym._decnum2val(0), 0)
+        assert_almost_equal(sym._decnum2val(1.5), 31.6227766016838)
+
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=20, linscale=15)
+        assert_almost_equal(sym._firsttickval(), 1)
+
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=20, linscale=0.8)
+        assert_almost_equal(sym._firsttickval(), 100)
+
     @pytest.mark.parametrize(
             'vmin, vmax, expected',
             [
