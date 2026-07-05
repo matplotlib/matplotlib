@@ -3779,7 +3779,10 @@ class OverlayManager:
         for ref in self._artists:
             art = ref()
             # Strict verification: art must exist in memory AND be attached to a layout tree
-            if art is not None and (getattr(art, 'axes', None) is not None or getattr(art, 'figure', None) is not None):
+            if art is not None and (
+                getattr(art, 'axes', None) is not None
+                or getattr(art, 'figure', None) is not None
+            ):
                 live_refs.append(ref)
                 live_artists.append(art)
                 

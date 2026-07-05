@@ -587,17 +587,17 @@ def test_overlay_manager_registration():
     from matplotlib.lines import Line2D
     fig, ax = plt.subplots()
     canvas = fig.canvas
-    
+
     assert hasattr(canvas, "_overlay_manager")
-    
+
     line = Line2D([0, 1], [0, 1])
     ax.add_line(line)
-    
+
     canvas._overlay_manager.add_artist(line)
-    
+
     live_artists = canvas._overlay_manager._get_live_artists()
     assert line not in live_artists
-    
+
     assert line.get_animated() is False
 
 def test_overlay_manager_fallback_draw():
@@ -607,9 +607,9 @@ def test_overlay_manager_fallback_draw():
     canvas = fig.canvas
     line = Line2D([0, 1], [0, 1])
     ax.add_line(line)
-    
+
     canvas._overlay_manager.add_artist(line)
-    
+
     # Mock draw_idle
     with patch.object(canvas, 'draw_idle') as mock_draw_idle:
         canvas._overlay_manager.update()
@@ -619,7 +619,7 @@ def test_overlay_manager_fallback_draw():
 def test_overlay_manager_native_compositing():
     from matplotlib.lines import Line2D
     from unittest.mock import patch
-    
+
     class MockNativeCanvas(FigureCanvasBase):
         supports_overlay = True
 
@@ -628,12 +628,12 @@ def test_overlay_manager_native_compositing():
     ax = fig.subplots()
     line = Line2D([0, 1], [0, 1])
     ax.add_line(line)
-    
+
     canvas._overlay_manager.add_artist(line)
-    
+
     # Because supports_overlay is True, the artist should be set to animated
     assert line.get_animated() is True
-    
+
     # Mock draw_idle
     with patch.object(canvas, 'draw_idle') as mock_draw_idle:
         canvas._overlay_manager.update()

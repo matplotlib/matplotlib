@@ -314,6 +314,9 @@ class FigureCanvasBase:
 
     @_api.classproperty
     def supports_blit(cls) -> bool: ...
+    
+    supports_overlay: bool
+    def draw_overlay(self) -> None: ...
 
     figure: Figure
     manager: None | FigureManagerBase
@@ -525,3 +528,6 @@ class _Backend:
 
 class ShowBase(_Backend):
     def __call__(self, block: bool | None = ...) -> None: ...
+
+class OverlayManager:
+    def __init__(self, canvas: FigureCanvasBase) -> None: ...
