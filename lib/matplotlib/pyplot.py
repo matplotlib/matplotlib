@@ -54,7 +54,7 @@ import logging
 import sys
 import threading
 import time
-from typing import Any, IO, TYPE_CHECKING, cast, overload
+from typing import IO, TYPE_CHECKING, cast, overload
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -92,7 +92,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
     import pathlib
     import os
-    from typing import BinaryIO, Literal
+    from typing import Any, BinaryIO, Literal
 
     import PIL.Image
     from numpy.typing import ArrayLike
@@ -2157,10 +2157,10 @@ def subplot_tool(targetfig: Figure | None = None) -> object | None:
 
     Returns
     -------
-    `~matplotlib.widgets.SubplotTool` or None
-        The subplot tool window. Returns a `~matplotlib.widgets.SubplotTool`
-        for the widgets backend, a backend-native dialog (e.g. Qt) for other
-        backends, or `None` for backends using the toolmanager.
+    object or None
+        The subplot tool window: a `~matplotlib.widgets.SubplotTool` for the
+        widgets backend, an implementation-specific value for other backends
+        (e.g. a Qt dialog), or `None` for backends using the toolmanager.
     """
     if targetfig is None:
         targetfig = gcf()
