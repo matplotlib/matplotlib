@@ -1,10 +1,10 @@
 """
-.. _plot_unstructuredgrid:
+.. _plotting_unstructuredgrid:
 
 Unstructured data
 =================
 
-Unlike :ref:`structured grids <plot_gridded>`, unstructured data are not
+Unlike :ref:`structured grids <plotting_gridded>`, unstructured data are not
 sampled on a regular grid. In this case, :math:`x` and :math:`y` are
 one-dimensional arrays of the same length, and :math:`z = f(x, y)` is also
 one-dimensional. For example, consider a temperature field

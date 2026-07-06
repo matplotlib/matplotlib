@@ -1,4 +1,5 @@
 """
+.. _plotting_statistical:
 
 Statistical plots
 =================

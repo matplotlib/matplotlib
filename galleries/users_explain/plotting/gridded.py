@@ -1,5 +1,5 @@
 """
-.. _plot_gridded:
+.. _plotting_gridded:
 
 Gridded data
 ============
