@@ -11,6 +11,16 @@ in the :ref:`gallery` gallery, and general advice about :ref:`users_guide_axes`
 and :ref:`users-guide-artists` can be found in other sections of :ref:`the
 user's guide <users-guide-index>`.
 
+The sections below are organized by the structure of the data you have, rather
+than by the name of the plotting method, so the first question to ask is what
+your data looks like.  If you have pairs of :math:`x` and :math:`y` values, see
+:ref:`Pairwise x-y data <plotting_pairwise>`.  If instead you want to summarize the
+distribution of a dataset, see :ref:`Statistical plots <plotting_statistical>`.
+Data sampled on a regular two-dimensional grid is covered in :ref:`Gridded data
+<plotting_gridded>`, while data sampled at scattered points is covered in
+:ref:`Unstructured data <plotting_unstructuredgrid>`.  Finally, :ref:`3D and
+volumetric data <plotting_threed>` covers three-dimensional plots.
+
 .. grid:: 1 1 2 2
 
     .. grid-item-card::

@@ -1,8 +1,8 @@
 """
 .. _plotting_pairwise:
 
-Pairwise data
-=============
+Pairwise x-y data
+=================
 
 The most common plot type is a simple y versus x plot.  Typically we
 will have arrays :math:`x_i` and :math:`y_i` of equal size that we want to plot

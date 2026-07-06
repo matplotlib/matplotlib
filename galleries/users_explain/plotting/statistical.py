@@ -11,6 +11,12 @@ will automatically calculate the statistics for you, such as binning and
 aggregating the data for histograms, or quartiles and outliers for boxplots.
 Statistical computation is usually done by underlying `numpy` methods.
 
+Unlike the other sections in this guide, which are grouped by the shape of your
+data, these plots are grouped by intent: each carries out a statistical analysis
+and plots the result.  Some methods act on 1-D data (for example,
+`~.axes.Axes.hist` and `~.axes.Axes.violinplot`), while others act on 2-D data
+(for example, `~.axes.Axes.hexbin` and `~.axes.Axes.hist2d`).
+
 """
 
 # %%
