@@ -618,7 +618,7 @@ def test_overlay_manager_fallback_draw():
 
 
 @pytest.mark.xfail(reason="Phase 2 native compositing not yet implemented")
-def test_overlay_manager_native_compositing():
+def test_overlay_manager_native_routing():
     from matplotlib.lines import Line2D
     from unittest.mock import patch
 
@@ -640,3 +640,58 @@ def test_overlay_manager_native_compositing():
     with patch.object(canvas, 'draw_idle') as mock_draw_idle:
         canvas._overlay_manager.update()
         mock_draw_idle.assert_not_called()
+
+
+def test_overlay_manager_draw_skipping():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    import matplotlib.pyplot as plt
+
+    class MockNativeCanvas(FigureCanvasAgg):
+        supports_overlay = True
+
+    fig, ax = plt.subplots()
+    canvas = MockNativeCanvas(fig)
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    renderer = canvas.get_renderer()
+
+    # 1. Standard draw - artist should be drawn normally
+    with patch.object(line, 'draw') as mock_draw:
+        fig.draw(renderer)
+        mock_draw.assert_called_once()
+
+    # 2. Add to overlay - artist should now be skipped in standard draw
+    canvas._overlay_manager.add_artist(line)
+    with patch.object(line, 'draw') as mock_draw:
+        fig.draw(renderer)
+        mock_draw.assert_not_called()
+
+
+@pytest.mark.xfail(reason="Native backend draw loops not yet implemented for overlays")
+def test_overlay_manager_native_draw_execution():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    from matplotlib.backends.backend_agg import FigureCanvasAgg
+    import matplotlib.pyplot as plt
+
+    class MockNativeCanvas(FigureCanvasAgg):
+        supports_overlay = True
+
+        def draw_overlay(self):
+            # not implemented to actually draw the artists
+            pass
+
+    fig, ax = plt.subplots()
+    canvas = MockNativeCanvas(fig)
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    canvas._overlay_manager.add_artist(line)
+
+    # 3. Draw in overlay - artist should be drawn
+    with patch.object(line, 'draw') as mock_draw:
+        canvas.draw_overlay()
+        mock_draw.assert_called_once()
