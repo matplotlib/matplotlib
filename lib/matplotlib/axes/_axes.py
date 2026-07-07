@@ -3288,6 +3288,20 @@ or pandas.DataFrame
            boxplot(values, positions=..., tick_labels=...)
 
         """
+        # grouped_bar() controls the label and color of each dataset's bars via the
+        # dedicated *labels* and *colors* parameters, and passes them positionally to
+        # bar(). A 'label' or 'color' in kwargs would therefore be passed to bar()
+        # twice, raising an opaque "multiple values for keyword argument" TypeError.
+        # Reject them early with an actionable message pointing to the plural
+        # parameters (see #30739).
+        for kwarg, alternative in [("color", "colors"), ("label", "labels")]:
+            if kwarg in kwargs:
+                raise TypeError(
+                    f"grouped_bar() got an unexpected keyword argument '{kwarg}'. "
+                    f"grouped_bar() sets the {kwarg} of each dataset's bars "
+                    f"internally; use '{alternative}' to control the per-dataset "
+                    f"{kwarg}s.")
+
         if cbook._is_pandas_dataframe(heights):
             if labels is None:
                 labels = heights.columns.tolist()

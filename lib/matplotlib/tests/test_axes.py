@@ -2315,6 +2315,20 @@ def test_grouped_bar_hatch_sequence():
             assert rect.get_hatch() == hatch
 
 
+@pytest.mark.parametrize("kwarg, alternative", [("label", "labels"),
+                                                ("color", "colors")])
+def test_grouped_bar_reject_singular_label_color(kwarg, alternative):
+    # grouped_bar() passes the per-dataset label/color to bar() itself, so a
+    # 'label' or 'color' in kwargs would be passed twice and raise an opaque
+    # "multiple values for keyword argument" TypeError. It should instead fail
+    # early with a message pointing to the plural parameter. See #30739.
+    fig, ax = plt.subplots()
+    heights = [np.array([1, 2]), np.array([2, 3])]
+    with pytest.raises(TypeError, match=f"unexpected keyword argument '{kwarg}'.*"
+                                        f"use '{alternative}'"):
+        ax.grouped_bar(heights, **{kwarg: "dataset"})
+
+
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
     data = np.random.rand(5, 2)
