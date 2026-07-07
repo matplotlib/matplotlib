@@ -493,6 +493,8 @@ class _ColorizerInterface:
         # to use for a number given a norm, and n, where n is the
         # number of colors in  the colormap.
         normed = norm(data)
+        if isinstance(norm, colors.NoNorm):
+            normed = np.asarray(normed, dtype=float)
         if np.isfinite(normed):
             if isinstance(norm, colors.BoundaryNorm):
                 # not an invertible normalization mapping
