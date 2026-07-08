@@ -560,7 +560,7 @@ class PathSnapper
     {
         // If this contains only straight horizontal or vertical lines, it should be
         // snapped to the nearest pixels
-        double x0 = 0, y0 = 0, x1 = 0, y1 = 0;
+        double x_start = 0, y_start = 0, x0 = 0, y0 = 0, x1 = 0, y1 = 0;
         unsigned code;
 
         switch (snap_mode) {
@@ -574,6 +574,10 @@ class PathSnapper
                 return false;
             }
 
+            // Store the initial vertex in case the path gets closed
+            x_start = x0;
+            y_start = y0;
+
             while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
                 switch (code) {
                 case agg::path_cmd_curve3:
@@ -583,6 +587,17 @@ class PathSnapper
                     if (fabs(x0 - x1) >= 1e-4 && fabs(y0 - y1) >= 1e-4) {
                         return false;
                     }
+                    break;
+                case (agg::path_cmd_end_poly | agg::path_flags_close):
+                    if (fabs(x0 - x_start) >= 1e-4 && fabs(y0 - y_start) >= 1e-4) {
+                        return false;
+                    }
+                    break;
+                case agg::path_cmd_move_to:
+                    // Update the initial vertex for a new sub-path
+                    x_start = x1;
+                    y_start = y1;
+                    break;
                 }
                 x0 = x1;
                 y0 = y1;
