@@ -5,8 +5,9 @@ Font indexing
 
 This example shows how the font tables relate to one another.
 """
-
 # sphinx_gallery_thumbnail_path = "_static/font_indexing.png"
+
+
 import os
 
 import matplotlib
@@ -25,31 +26,13 @@ for ccode, glyphind in codes:
     name = font.get_glyph_name(glyphind)
     coded[name] = ccode
     glyphd[name] = glyphind
+    # print(glyphind, ccode, hex(int(ccode)), name)
 
-
-# A mapping of characters to what they are
-# caron = "a letter v-shaped sign placed over a letter to indicate a change of "
-#         "pronunciation"
-
-
-chars = {
-    'LATIN SMALL LETTER A WITH DIAERESIS': ('\u00e4', 'A with umlaut'),
-    'LATIN SMALL LETTER A WITH MACRON': ('\u0101', 'A with macron'),
-    'LATIN SMALL LETTER A WITH CIRCUMFLEX': ('\u00e2', 'A with circumflex'),
-    'LATIN SMALL LETTER A WITH CARON': ('\u01ce', 'A with caron'),
-}
-
-# iterate over the font glyphs
-for long_name, (char, short) in chars.items():
-    try:
-        code = coded[long_name]
-    except KeyError:
-        continue
-    glyph = font.load_char(
-        code,
-        flags=matplotlib.ft2font.LOAD_NO_HINTING |
-              matplotlib.ft2font.LOAD_NO_BITMAP)
-    print(f'{short}\n   glyph {glyphd[long_name]}, char code {code}')
-    print(f'   {glyph.bbox}')
-    print(f'   advanced x: {glyph.linear_vert_advance}')
-    print()
+code = coded['A']
+glyph = font.load_char(code)
+print(glyph.bbox)
+print(glyphd['A'], glyphd['V'], coded['A'], coded['V'])
+print('AV', font.get_kerning(glyphd['A'], glyphd['V'], Kerning.DEFAULT))
+print('AV', font.get_kerning(glyphd['A'], glyphd['V'], Kerning.UNFITTED))
+print('AV', font.get_kerning(glyphd['A'], glyphd['V'], Kerning.UNSCALED))
+print('AT', font.get_kerning(glyphd['A'], glyphd['T'], Kerning.UNSCALED))

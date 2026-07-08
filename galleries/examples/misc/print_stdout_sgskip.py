@@ -6,9 +6,11 @@ Print image to stdout
 print png to standard out
 
 usage: python print_stdout.py > somefile.png
-"""
 
+"""
 # sphinx_gallery_thumbnail_path = "_static/print_stdout.png"
+
+
 import sys
 
 import matplotlib
