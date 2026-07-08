@@ -61,6 +61,7 @@ def figure_edit(axes, parent=None):
             )
             for name, axis in axis_map.items()
         ]),
+        ('Show legend', axes.legend_ is not None and axes.legend_.get_visible()),
         ('(Re-)Generate automatic legend', False),
     ]
 
@@ -196,6 +197,7 @@ def figure_edit(axes, parent=None):
         title = general.pop(0)
         axes.title.set_text(title)
         generate_legend = general.pop()
+        show_legend = general.pop()
 
         for i, (name, axis) in enumerate(axis_map.items()):
             axis_min = general[4*i]
@@ -270,6 +272,9 @@ def figure_edit(axes, parent=None):
             new_legend = axes.legend(ncols=ncols, **kwargs)
             if new_legend:
                 new_legend.set_draggable(draggable)
+
+        if axes.legend_ is not None:
+            axes.legend_.set_visible(show_legend)
 
         # Redraw
         figure = axes.get_figure()
