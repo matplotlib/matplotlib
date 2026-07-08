@@ -248,11 +248,26 @@ def figure_edit(axes, parent=None):
         if generate_legend:
             draggable = None
             ncols = 1
+            kwargs = {}
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
+                kwargs = {
+                    'loc': old_legend._loc_real,
+                    'title': old_legend.get_title().get_text(),
+                    'frameon': old_legend.get_frame_on(),
+                    'shadow': old_legend.shadow,
+                }
+                
+                # Clone frame properties if the frame exists
+                frame = old_legend.get_frame()
+                if frame is not None:
+                    kwargs['edgecolor'] = frame.get_edgecolor()
+                    kwargs['facecolor'] = frame.get_facecolor()
+                    kwargs['framealpha'] = frame.get_alpha()
+            
+            new_legend = axes.legend(ncols=ncols, **kwargs)
             if new_legend:
                 new_legend.set_draggable(draggable)
 
