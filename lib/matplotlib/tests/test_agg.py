@@ -13,8 +13,9 @@ from matplotlib import (
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
+from matplotlib.patches import PathPatch, Polygon
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import IdentityTransform
 
 
@@ -394,3 +395,40 @@ def test_rendered_height_floating_point_precision():
     assert fig.bbox.height < 203  # due to floating-point precision
     fig.canvas.draw()
     assert fig.canvas.buffer_rgba().shape == (203, 100, 4)
+
+
+@check_figures_equal()
+def test_path_autosnap(fig_test, fig_ref):
+    axt = fig_test.subplots()
+    axr = fig_ref.subplots()
+
+    square = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+    triangle1 = np.array([[0, 2], [1, 2], [0, 3]])
+    triangle2 = np.array([[0, 4], [1, 4], [1, 3]])
+
+    # A square should autosnap
+    axt.add_patch(Polygon(square, snap=None))
+    axr.add_patch(Polygon(square, snap=True))
+
+    # A triangle with the diagonal as one of the line segments should not autosnap
+    axt.add_patch(Polygon(triangle1, snap=None))
+    axr.add_patch(Polygon(triangle1, snap=False))
+
+    # A triangle with the diagonal as the closing line segment should not autosnap
+    axt.add_patch(Polygon(triangle2, snap=None))
+    axr.add_patch(Polygon(triangle2, snap=False))
+
+    # A path of multiple polygons should autosnap if each polygon would autosnap
+    multiple1 = Path.make_compound_path(Polygon(square + [[2, 0]]).get_path(),
+                                        Polygon(square + [[2, 2]]).get_path())
+    axt.add_patch(PathPatch(multiple1, edgecolor='none', snap=None))
+    axr.add_patch(PathPatch(multiple1, edgecolor='none', snap=True))
+
+    # A path of multiple polygons should not autosnap if any polygon would not autosnap
+    multiple2 = Path.make_compound_path(Polygon(square + [[4, 0]]).get_path(),
+                                        Polygon(triangle1 + [[4, 0]]).get_path())
+    axt.add_patch(PathPatch(multiple2, edgecolor='none', snap=None))
+    axr.add_patch(PathPatch(multiple2, edgecolor='none', snap=False))
+
+    axt.autoscale_view()
+    axr.autoscale_view()
