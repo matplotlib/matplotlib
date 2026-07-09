@@ -198,7 +198,7 @@ class InsetIndicator(artist.Artist):
                 p = ConnectionPatch(
                     xyA=xy_inset_ax, coordsA=self._inset_ax.transAxes,
                     xyB=xy_data, coordsB=self.rectangle.get_data_transform(),
-                    arrowstyle="-",
+                    arrowstyle="-", clip_on=self.get_clip_on(),
                     edgecolor=self._edgecolor, alpha=self.get_alpha(),
                     linestyle=self._linestyle, linewidth=self._linewidth)
                 self._connectors.append(p)
