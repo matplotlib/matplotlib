@@ -107,6 +107,8 @@ def test_zoom_inset_connector_styles():
     # Make one visible connector a different style
     indicator.connectors[1].set_linestyle('dashed')
     indicator.connectors[1].set_color('blue')
+    indicator.connectors[1].set_clip_box(axs[0].bbox)
+    indicator.connectors[1].set_clip_on(True)
 
 
 @image_comparison(['zoom_inset_transform.png'], remove_text=True, style='mpl20',
