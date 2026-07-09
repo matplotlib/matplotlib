@@ -2570,18 +2570,28 @@ class _AxesBase(martist.Artist):
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
-        p = patch.get_path()
-        # Get all vertices on the path
-        # Loop through each segment to get extrema for Bezier curve sections
-        vertices = []
-        for curve, code in p.iter_bezier(simplify=False):
-            # Get distance along the curve of any extrema
-            _, dzeros = curve.axis_aligned_extrema()
-            # Calculate vertices of start, end and any extrema in between
-            vertices.append(curve([0, *dzeros, 1]))
 
-        if len(vertices):
-            vertices = np.vstack(vertices)
+        # Fast-path curve-free paths, like Path.get_extents does
+        p = patch.get_path()
+        if p.codes is None:
+            vertices = p.vertices
+        elif not ((p.codes == p.CURVE3) | (p.codes == p.CURVE4)).any():
+            # Optimization for the straight line case.
+            # Instead of iterating through each curve, consider
+            # each line segment's end-points
+            ignore = (p.codes == p.STOP) | (p.codes == p.CLOSEPOLY)
+            vertices = p.vertices[~ignore] if ignore.any() else p.vertices
+        else:
+            # Loop through each segment to get extrema for Bezier curve sections
+            vertices = []
+            for curve, code in p.iter_bezier(simplify=False):
+                # Get distance along the curve of any extrema
+                _, dzeros = curve.axis_aligned_extrema()
+                # Calculate vertices of start, end and any extrema in between
+                vertices.append(curve([0, *dzeros, 1]))
+
+            if len(vertices):
+                vertices = np.vstack(vertices)
 
         patch_trf = patch.get_transform()
         updatex, updatey = patch_trf.contains_branch_separately(self.transData)

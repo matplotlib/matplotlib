@@ -644,13 +644,13 @@ class Path:
             self = transform.transform_path(self)
         if self.codes is None:
             xys = self.vertices
-        elif len(np.intersect1d(self.codes, [Path.CURVE3, Path.CURVE4])) == 0:
+        elif not ((self.codes == Path.CURVE3)
+                  | (self.codes == Path.CURVE4)).any():
             # Optimization for the straight line case.
             # Instead of iterating through each curve, consider
             # each line segment's end-points
-            # (recall that STOP and CLOSEPOLY vertices are ignored)
-            xys = self.vertices[np.isin(self.codes,
-                                        [Path.MOVETO, Path.LINETO])]
+            ignore = (self.codes == Path.STOP) | (self.codes == Path.CLOSEPOLY)
+            xys = self.vertices[~ignore] if ignore.any() else self.vertices
         else:
             xys = []
             for curve, code in self.iter_bezier(**kwargs):
@@ -660,7 +660,9 @@ class Path:
                 xys.append(curve([0, *dzeros, 1]))
             xys = np.concatenate(xys)
         if len(xys):
-            return Bbox([xys.min(axis=0), xys.max(axis=0)])
+            x = xys[:, 0]
+            y = xys[:, 1]
+            return Bbox([[x.min(), y.min()], [x.max(), y.max()]])
         else:
             return Bbox.null()
 
