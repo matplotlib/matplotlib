@@ -8,6 +8,7 @@ This backend depends on cairocffi or pycairo.
 
 import functools
 import gzip
+import itertools
 import math
 
 import numpy as np
@@ -248,13 +249,15 @@ class RendererCairo(RendererBase):
         if angle:
             ctx.rotate(np.deg2rad(-angle))
 
-        for font, fontsize, idx, ox, oy in glyphs:
+        for (font, fontsize), font_glyphs in itertools.groupby(
+                glyphs, key=lambda info: (info[0], info[1])):
             ctx.new_path()
-            ctx.move_to(ox, -oy)
-            ctx.select_font_face(
-                *_cairo_font_args_from_font_prop(ttfFontProperty(font)))
+            ctx.select_font_face(*_cairo_font_args_from_font_prop(ttfFontProperty(font)))
             ctx.set_font_size(self.points_to_pixels(fontsize))
-            ctx.show_text(chr(idx))
+            ctx.show_glyphs([
+                (glyph_index, ox, -oy)
+                for _font, _size, _ccode, glyph_index, ox, oy in font_glyphs
+            ])
 
         for ox, oy, w, h in rects:
             ctx.new_path()
@@ -342,7 +345,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         return self.ctx.get_antialias()
 
     def set_capstyle(self, cs):
-        self.ctx.set_line_cap(_api.check_getitem(self._capd, capstyle=cs))
+        self.ctx.set_line_cap(_api.getitem_checked(self._capd, capstyle=cs))
         self._capstyle = cs
 
     def set_clip_rectangle(self, rectangle):
@@ -385,7 +388,7 @@ class GraphicsContextCairo(GraphicsContextBase):
         return self.ctx.get_source().get_rgba()[:3]
 
     def set_joinstyle(self, js):
-        self.ctx.set_line_join(_api.check_getitem(self._joind, joinstyle=js))
+        self.ctx.set_line_join(_api.getitem_checked(self._joind, joinstyle=js))
         self._joinstyle = js
 
     def set_linewidth(self, w):

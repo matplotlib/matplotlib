@@ -12,6 +12,7 @@ r"""
 .. redirect-from:: /gallery/userdemo/connect_simple01
 .. redirect-from:: /gallery/userdemo/connectionstyle_demo
 .. redirect-from:: /tutorials/text/annotations
+.. redirect-from:: /gallery/text_labels_and_annotations/annotate_transform
 
 .. _annotations:
 
@@ -230,20 +231,20 @@ t = ax.text(0.5, 0.5, "Direction",
 # The arguments are the name of the box style with its attributes as
 # keyword arguments. Currently, following box styles are implemented:
 #
-# ==========   ==============   ==========================
+# ==========   ==============   ====================================
 # Class        Name             Attrs
-# ==========   ==============   ==========================
+# ==========   ==============   ====================================
 # Circle       ``circle``       pad=0.3
-# DArrow       ``darrow``       pad=0.3
+# DArrow       ``darrow``       pad=0.3,head_width=1.5,head_angle=90
 # Ellipse      ``ellipse``      pad=0.3
-# LArrow       ``larrow``       pad=0.3
-# RArrow       ``rarrow``       pad=0.3
+# LArrow       ``larrow``       pad=0.3,head_width=1.5,head_angle=90
+# RArrow       ``rarrow``       pad=0.3,head_width=1.5,head_angle=90
 # Round        ``round``        pad=0.3,rounding_size=None
 # Round4       ``round4``       pad=0.3,rounding_size=None
 # Roundtooth   ``roundtooth``   pad=0.3,tooth_size=None
 # Sawtooth     ``sawtooth``     pad=0.3,tooth_size=None
 # Square       ``square``       pad=0.3
-# ==========   ==============   ==========================
+# ==========   ==============   ====================================
 #
 # .. figure:: /gallery/shapes_and_collections/images/sphx_glr_fancybox_demo_001.png
 #    :target: /gallery/shapes_and_collections/fancybox_demo.html
@@ -696,6 +697,50 @@ fig.subplots_adjust(top=0.8)
 # Note that, unlike in `.Legend`, the ``bbox_transform`` is set to
 # `.IdentityTransform` by default
 #
+# .. _annotations-bbox:
+#
+# Using an Artist as an annotation
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# `.AnnotationBbox` uses artists in `.OffsetBox` container artists as the annotations
+# and supports positioning these annotations using the same coordinate systems as the
+# other annotation methods. For more examples, see
+# :doc:`/gallery/text_labels_and_annotations/demo_annotation_box`
+
+from matplotlib.offsetbox import AnnotationBbox, DrawingArea, OffsetImage
+from matplotlib.patches import Annulus
+
+fig, ax = plt.subplots()
+
+text = ax.text(.2, .8, "Green!", color='green')
+
+da = DrawingArea(20, 20)
+annulus = Annulus((10, 10), 10, 5, color='tab:green')
+da.add_artist(annulus)
+
+# position annulus relative to text
+ab1 = AnnotationBbox(da, xy=(.5, 0),
+                     xybox=(.5, .25),
+                     xycoords=text,
+                     boxcoords=(text, "data"),
+                     arrowprops=dict(arrowstyle="->"),
+                     bboxprops=dict(alpha=0.5))
+ax.add_artist(ab1)
+
+N = 25
+arr = np.repeat(np.linspace(0, 1, N), N).reshape(N, N)
+im = OffsetImage(arr, cmap='Greens')
+im.image.axes = ax
+
+# position gradient relative to text and annulus
+ab2 = AnnotationBbox(im, xy=(.5, 0),
+                     xybox=(.75, 0),
+                     xycoords=text,
+                     boxcoords=('data', annulus),
+                     arrowprops=dict(arrowstyle="->"),
+                     bboxprops=dict(alpha=0.5))
+ax.add_artist(ab2)
+
+# %%%%
 # .. _annotating_coordinate_systems:
 #
 # Coordinate systems for annotations

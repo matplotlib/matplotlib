@@ -161,11 +161,26 @@ plot_color_gradients('Sequential',
 # an excellent example of this).
 
 plot_color_gradients('Sequential (2)',
-                     ['binary', 'gist_yarg', 'gist_gray', 'gray', 'bone',
-                      'pink', 'spring', 'summer', 'autumn', 'winter', 'cool',
-                      'Wistia', 'hot', 'afmhot', 'gist_heat', 'copper'])
+                     ['gray', 'bone', 'pink', 'spring', 'summer', 'autumn',
+                      'winter', 'cool', 'Wistia', 'hot', 'afmhot', 'gist_heat',
+                      'copper'])
 
 # %%
+# .. admonition:: Discouraged
+#
+#    For backward compatibility we additionally support the following colormap
+#    names, which are identical to other builtin colormaps. Their use is
+#    discouraged. Use the suggested replacement instead.
+#
+#    =========  =================================
+#    Colormap   Use identical replacement instead
+#    =========  =================================
+#    gist_gray 	gray
+#    gist_yarg 	gray_r
+#    binary 	gray_r
+#    =========  =================================
+#
+#
 # Diverging
 # ---------
 #
@@ -215,9 +230,9 @@ plot_color_gradients('Cyclic', ['twilight', 'twilight_shifted', 'hsv'])
 # These would not be good options for use as perceptual colormaps.
 
 plot_color_gradients('Qualitative',
-                     ['Pastel1', 'Pastel2', 'Paired', 'Accent', 'Dark2',
-                      'Set1', 'Set2', 'Set3', 'tab10', 'tab20', 'tab20b',
-                      'tab20c'])
+                     ['Pastel1', 'Pastel2', 'Paired', 'Accent', 'okabe_ito',
+                      'Dark2', 'Set1', 'Set2', 'Set3', 'tab10', 'tab20',
+                      'tab20b', 'tab20c'])
 
 # %%
 # Miscellaneous
@@ -436,7 +451,7 @@ for cmap_category, cmap_list in cmaps.items():
 # ==========
 #
 # .. _Third-party colormaps: https://matplotlib.org/mpl-third-party/#colormaps-and-styles
-# .. [Ware] http://ccom.unh.edu/sites/default/files/publications/Ware_1988_CGA_Color_sequences_univariate_maps.pdf
+# .. [Ware] https://dl.acm.org/doi/10.1109/38.7760
 # .. [Moreland] http://www.kennethmoreland.com/color-maps/ColorMapsExpanded.pdf
 # .. [list-colormaps] https://gist.github.com/endolith/2719900#id7
 # .. [mycarta-banding] https://mycarta.wordpress.com/2012/10/14/the-rainbow-is-deadlong-live-the-rainbow-part-4-cie-lab-heated-body/

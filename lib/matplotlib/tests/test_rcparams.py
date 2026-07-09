@@ -13,6 +13,7 @@ from matplotlib import _api, _c_internal_utils
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import numpy as np
+from matplotlib import rcsetup
 from matplotlib.rcsetup import (
     validate_bool,
     validate_color,
@@ -72,32 +73,27 @@ def test_rcparams(tmp_path):
 
 
 def test_RcParams_class():
-    rc = mpl.RcParams({'font.cursive': ['Apple Chancery',
-                                        'Textile',
-                                        'Zapf Chancery',
-                                        'cursive'],
+    rc = mpl.RcParams({'font.cursive': ['Zapf Chancery', 'cursive'],
                        'font.family': 'sans-serif',
                        'font.weight': 'normal',
                        'font.size': 12})
 
     expected_repr = """
-RcParams({'font.cursive': ['Apple Chancery',
-                           'Textile',
-                           'Zapf Chancery',
-                           'cursive'],
+RcParams({'font.cursive': ['Zapf Chancery', 'cursive'],
           'font.family': ['sans-serif'],
           'font.size': 12.0,
           'font.weight': 'normal'})""".lstrip()
 
-    assert expected_repr == repr(rc)
+    actual_repr = repr(rc)
+    assert actual_repr == expected_repr
 
     expected_str = """
-font.cursive: ['Apple Chancery', 'Textile', 'Zapf Chancery', 'cursive']
+font.cursive: ['Zapf Chancery', 'cursive']
 font.family: ['sans-serif']
 font.size: 12.0
 font.weight: normal""".lstrip()
 
-    assert expected_str == str(rc)
+    assert str(rc) == expected_str
 
     # test the find_all functionality
     assert ['font.cursive', 'font.size'] == sorted(rc.find_all('i[vz]'))
@@ -274,16 +270,23 @@ def generate_validator_testcases(valid):
                       cycler('linestyle', ['-', '--'])),
                      (cycler(mew=[2, 5]),
                       cycler('markeredgewidth', [2, 5])),
+                     ("2 * cycler('color', 'rgb')", 2 * cycler('color', 'rgb')),
+                     ("2 * cycler('color', 'r' + 'gb')", 2 * cycler('color', 'rgb')),
+                     ("cycler(c='r' + 'gb', lw=[1, 2, 3])",
+                      cycler('color', 'rgb') + cycler('linewidth', [1, 2, 3])),
+                     ("cycler('color', 'rgb') * 2", cycler('color', 'rgb') * 2),
+                     ("concat(cycler('color', 'rgb'), cycler('color', 'cmk'))",
+                      cycler('color', list('rgbcmk'))),
+                     ("cycler('color', 'rgbcmk')[:3]", cycler('color', list('rgb'))),
+                     ("cycler('color', 'rgb')[::-1]", cycler('color', list('bgr'))),
                      ),
-         # This is *so* incredibly important: validate_cycler() eval's
-         # an arbitrary string! I think I have it locked down enough,
-         # and that is what this is testing.
-         # TODO: Note that these tests are actually insufficient, as it may
-         # be that they raised errors, but still did an action prior to
-         # raising the exception. We should devise some additional tests
-         # for that...
+         # validate_cycler() parses an arbitrary string using a safe
+         # AST-based parser (no eval). These tests verify that only valid
+         # cycler expressions are accepted.
          'fail': ((4, ValueError),  # Gotta be a string or Cycler object
                   ('cycler("bleh, [])', ValueError),  # syntax error
+                  ("cycler('color', 'rgb') * * cycler('color', 'rgb')",  # syntax error
+                  ValueError),
                   ('Cycler("linewidth", [1, 2, 3])',
                    ValueError),  # only 'cycler()' function is allowed
                   # do not allow dunder in string literals
@@ -296,6 +299,9 @@ def generate_validator_testcases(valid):
                   ("cycler('c', [j.\u000c__class__(j) for j in ['r', 'b']])",
                    ValueError),
                   ("cycler('c', [j.__class__(j).lower() for j in ['r', 'b']])",
+                   ValueError),
+                  # list comprehensions are arbitrary code, even if "safe"
+                  ("cycler('color', [x for x in ['r', 'g', 'b']])",
                    ValueError),
                   ('1 + 2', ValueError),  # doesn't produce a Cycler object
                   ('os.system("echo Gotcha")', ValueError),  # os not available
@@ -438,7 +444,7 @@ def generate_validator_testcases(valid):
 
 
 @pytest.mark.parametrize('validator, arg, target',
-                         generate_validator_testcases(True))
+                         list(generate_validator_testcases(True)))
 def test_validator_valid(validator, arg, target):
     res = validator(arg)
     if isinstance(target, np.ndarray):
@@ -451,7 +457,7 @@ def test_validator_valid(validator, arg, target):
 
 
 @pytest.mark.parametrize('validator, arg, exception_type',
-                         generate_validator_testcases(False))
+                         list(generate_validator_testcases(False)))
 def test_validator_invalid(validator, arg, exception_type):
     with pytest.raises(exception_type):
         validator(arg)
@@ -672,3 +678,21 @@ def test_rc_aliases(group, option, alias, value):
 
     rcParams_key = f"{group}.{option}"
     assert mpl.rcParams[rcParams_key] == value
+
+
+def test_all_params_defined_as_code():
+    assert set(p.name for p in rcsetup._params_list()) == set(mpl.rcParams.keys())
+
+
+def test_validators_defined_as_code():
+    for param in rcsetup._params_list():
+        validator = rcsetup._convert_validator_spec(param.name, param.validator)
+        assert validator == rcsetup._validators[param.name]
+
+
+def test_defaults_as_code():
+    for param in rcsetup._params_list():
+        if param.name == 'backend':
+            # backend has special handling and no meaningful default
+            continue
+        assert param.default == mpl.rcParamsDefault[param.name], param.name

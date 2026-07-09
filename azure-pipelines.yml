@@ -49,11 +49,8 @@ stages:
       - job: Pytest
         strategy:
           matrix:
-            Windows_py311:
-              vmImage: 'windows-2022'  # Keep one job pinned to the oldest image
-              python.version: '3.11'
             Windows_py312:
-              vmImage: 'windows-latest'
+              vmImage: 'windows-2022'  # Keep one job pinned to the oldest image
               python.version: '3.12'
             Windows_py313:
               vmImage: 'windows-latest'
@@ -74,8 +71,8 @@ stages:
 
           - bash: |
               python -m pip install --upgrade pip
-              python -m pip install --upgrade -r requirements/dev/build-requirements.txt
-              python -m pip install -r requirements/testing/all.txt -r requirements/testing/extra.txt
+              python -m pip install --upgrade --group build
+              python -m pip install --prefer-binary --group test --group test-extra
             displayName: 'Install dependencies with pip'
 
           - bash: |

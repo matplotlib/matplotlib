@@ -9,16 +9,64 @@ subdir('agg24-svn')
 if get_option('system-freetype')
   freetype_dep = dependency('freetype2', version: '>=9.11.3')
 else
-  # This is the version of FreeType to use when building a local version. It
-  # must match the value in `lib/matplotlib.__init__.py`. Also update the docs
-  # in `docs/devel/dependencies.rst`. Bump the cache key in
-  # `.circleci/config.yml` when changing requirements.
-  LOCAL_FREETYPE_VERSION = '2.6.1'
-
   freetype_proj = subproject(
-    f'freetype-@LOCAL_FREETYPE_VERSION@',
-    default_options: ['default_library=static'])
+    'freetype2',
+    default_options: [
+      'default_library=static',
+      'brotli=disabled',
+      'bzip2=disabled',
+      get_option('system-libraqm') ? 'harfbuzz=disabled' : 'harfbuzz=static',
+      'mmap=auto',
+      'png=disabled',
+      'tests=disabled',
+      'zlib=internal',
+  ])
   freetype_dep = freetype_proj.get_variable('freetype_dep')
+endif
+
+if get_option('system-libraqm')
+  libraqm_dep = dependency('raqm', version: '>=0.10.4')
+else
+  subproject('harfbuzz',
+    default_options: [
+      'default_library=static',
+      'benchmark=disabled',
+      'cairo=disabled',
+      'chafa=disabled',
+      'coretext=disabled',
+      'directwrite=disabled',
+      'docs=disabled',
+      'doc_tests=false',
+      'fontations=disabled',
+      'freetype=enabled',
+      'gdi=disabled',
+      'glib=disabled',
+      'gobject=disabled',
+      'gpu=disabled',
+      'gpu_demo=disabled',
+      'harfrust=disabled',
+      'icu=disabled',
+      'introspection=disabled',
+      'kbts=disabled',
+      'png=disabled',
+      'raster=disabled',
+      'subset=disabled',
+      'tests=disabled',
+      'utilities=disabled',
+      'vector=disabled',
+      'wasm=disabled',
+      'zlib=disabled',
+    ]
+  )
+  subproject('sheenbidi', default_options: ['default_library=static'])
+  libraqm_proj = subproject('libraqm',
+    default_options: [
+      'default_library=static',
+      'sheenbidi=true',
+      'tests=false',
+    ]
+  )
+  libraqm_dep = libraqm_proj.get_variable('libraqm_dep')
 endif
 
 if get_option('system-qhull')

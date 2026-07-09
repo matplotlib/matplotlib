@@ -5,6 +5,8 @@ Ribbon box
 
 """
 
+from PIL import Image
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -16,8 +18,9 @@ from matplotlib.transforms import Bbox, BboxTransformTo, TransformedBbox
 
 class RibbonBox:
 
-    original_image = plt.imread(
-        cbook.get_sample_data("Minduka_Present_Blue_Pack.png"))
+    # Image.open reads this image as 8-bit; divide by 255 to convert to 0-1.
+    original_image = np.asarray(Image.open(
+        cbook.get_sample_data("Minduka_Present_Blue_Pack.png"))) / 255
     cut_location = 70
     b_and_h = original_image[:, :, 2:3]
     color = original_image[:, :, 2:3] - original_image[:, :, 0:1]

@@ -24,8 +24,24 @@ Default values and styling
 ==========================
 
 .. py:data:: rcParams
+   :type: RcParams
 
-   An instance of `RcParams` for handling default Matplotlib values.
+   The global configuration settings for Matplotlib.
+
+   This is a dictionary-like variable that stores the current configuration
+   settings.  Many of the values control styling, but others control
+   various aspects of Matplotlib's behavior.
+
+   See :doc:`/users/explain/configuration` for a full list of config
+   parameters.
+
+   See :ref:`customizing` for usage information.
+
+   Notes
+   -----
+   This object is also available as ``plt.rcParams`` via the
+   `matplotlib.pyplot` module (which by convention is imported as ``plt``).
+
 
 .. autoclass:: RcParams
    :no-members:

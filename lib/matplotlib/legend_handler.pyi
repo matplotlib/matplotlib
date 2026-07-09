@@ -1,12 +1,11 @@
 from collections.abc import Callable, Sequence
+
+from numpy.typing import ArrayLike
+
 from matplotlib.artist import Artist
 from matplotlib.legend import Legend
 from matplotlib.offsetbox import OffsetBox
 from matplotlib.transforms import Transform
-
-from typing import TypeVar
-
-from numpy.typing import ArrayLike
 
 def update_from_first_child(tgt: Artist, src: Artist) -> None: ...
 
@@ -144,8 +143,6 @@ class HandlerLineCollection(HandlerLine2D):
         trans: Transform,
     ) -> Sequence[Artist]: ...
 
-_T = TypeVar("_T", bound=Artist)
-
 class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     def __init__(
         self,
@@ -167,13 +164,13 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     def update_prop(
         self, legend_handle, orig_handle: Artist, legend: Legend
     ) -> None: ...
-    def create_collection(
+    def create_collection[T: Artist](
         self,
-        orig_handle: _T,
+        orig_handle: T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
         offset_transform: Transform,
-    ) -> _T: ...
+    ) -> T: ...
     def create_artists(
         self,
         legend: Legend,
@@ -187,22 +184,22 @@ class HandlerRegularPolyCollection(HandlerNpointsYoffsets):
     ) -> Sequence[Artist]: ...
 
 class HandlerPathCollection(HandlerRegularPolyCollection):
-    def create_collection(
+    def create_collection[T: Artist](
         self,
-        orig_handle: _T,
+        orig_handle: T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
         offset_transform: Transform,
-    ) -> _T: ...
+    ) -> T: ...
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
-    def create_collection(
+    def create_collection[T: Artist](
         self,
-        orig_handle: _T,
+        orig_handle: T,
         sizes: Sequence[float] | None,
         offsets: Sequence[float] | None,
         offset_transform: Transform,
-    ) -> _T: ...
+    ) -> T: ...
 
 class HandlerErrorbar(HandlerLine2D):
     def __init__(

@@ -30,8 +30,7 @@ on:
     - cron: "47 5 * * 6"
   workflow_dispatch:
 
-permissions:
-  contents: read
+permissions: {}
 
 env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
@@ -47,6 +46,8 @@ jobs:
 
   test-cygwin:
     runs-on: windows-latest
+    permissions:
+      contents: read
     name: Python 3.${{ matrix.python-minor-version }} on Cygwin
     # Enable these when Cygwin has Python 3.12.
     if: >-
@@ -79,12 +80,12 @@ jobs:
       - name: Fix line endings
         run: git config --global core.autocrlf input
 
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5.0.0
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
 
-      - uses: cygwin/cygwin-install-action@f2009323764960f80959895c7bc3bb30210afe4d  # v6
+      - uses: cygwin/cygwin-install-action@3f0a3f9f988f7e96b8c18098ae05eaec175f5b52  # v6
         with:
           packages: >-
             ccache gcc-g++ gdb git graphviz libcairo-devel libffi-devel
@@ -140,21 +141,21 @@ jobs:
         # FreeType build fails with bash, succeeds with dash
 
       - name: Cache pip
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: C:\cygwin\home\runneradmin\.cache\pip
-          key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('requirements/*/*.txt') }}
+          key: Cygwin-py3.${{ matrix.python-minor-version }}-pip-${{ hashFiles('pyproject.toml') }}
           restore-keys: ${{ matrix.os }}-py3.${{ matrix.python-minor-version }}-pip-
 
       - name: Cache ccache
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: C:\cygwin\home\runneradmin\.ccache
           key: Cygwin-py3.${{ matrix.python-minor-version }}-ccache-${{ hashFiles('src/*') }}
           restore-keys: Cygwin-py3.${{ matrix.python-minor-version }}-ccache-
 
       - name: Cache Matplotlib
-        uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809  # v4.2.4
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             C:\cygwin\home\runneradmin\.cache\matplotlib
@@ -174,15 +175,9 @@ jobs:
       - name: Install Python dependencies
         shell: bash.exe -eo pipefail -o igncr "{0}"
         run: |
-          python -m pip install --upgrade pip setuptools wheel
-          python -m pip install kiwisolver 'numpy>=1.22,<1.26' pillow importlib_resources
-          grep -v -F -e psutil requirements/testing/all.txt >requirements_test.txt
-          python -m pip install meson-python pybind11
+          python -m pip install --group build 'numpy>=1.25,<1.26'
           export PATH="/usr/local/bin:$PATH"
-          python -m pip install --no-build-isolation 'contourpy>=1.0.1'
-          python -m pip install --upgrade cycler fonttools \
-              packaging pyparsing python-dateutil setuptools-scm \
-              -r requirements_test.txt sphinx ipython
+          python -m pip install --upgrade --group test sphinx ipython
           python -m pip install --upgrade pycairo 'cairocffi>=0.8' PyGObject &&
              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
              echo 'PyGObject is available' ||
@@ -191,10 +186,6 @@ jobs:
              python -c 'import PyQt5.QtCore' &&
              echo 'PyQt5 is available' ||
              echo 'PyQt5 is not available'
-          python -mpip install --upgrade pyside2 &&
-              python -c 'import PySide2.QtCore' &&
-              echo 'PySide2 is available' ||
-              echo 'PySide2 is not available'
           python -m pip uninstall --yes wxpython || echo 'wxPython already uninstalled'
 
       - name: Install Matplotlib

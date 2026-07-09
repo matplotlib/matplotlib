@@ -15,6 +15,7 @@ from numpy.testing import (assert_array_equal, assert_approx_equal,
                            assert_array_almost_equal)
 import pytest
 
+import matplotlib as mpl
 from matplotlib import _api, cbook
 import matplotlib.colors as mcolors
 from matplotlib.cbook import delete_masked_points, strip_math
@@ -294,6 +295,127 @@ class Test_callback_registry:
 
     @pytest.mark.parametrize('pickle', [True, False])
     @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func(self, pickle, cls):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = cls()
+
+        # test that we can add a callback
+        self.connect(self.signal, mini_me.dummy, pickle)
+        self.is_not_empty()
+
+        # disconnect by function reference
+        self.callbacks.disconnect(mini_me.dummy, signal=self.signal)
+
+        # check we now have no callbacks registered
+        self.is_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func_wrong(self, pickle, cls):
+        # ensure we start with an empty registry
+        self.is_empty()
+
+        # create a class for testing
+        mini_me = cls()
+
+        # test that we can add a callback
+        self.connect(self.signal, mini_me.dummy, pickle)
+        self.is_not_empty()
+
+        # try to disconnect with wrong signal - should do nothing
+        self.callbacks.disconnect(mini_me.dummy, signal='wrong_signal')
+
+        # check we still have callbacks registered
+        self.is_not_empty()
+
+        # try to disconnect with wrong function - should do nothing
+        mini_me2 = cls()
+        self.callbacks.disconnect(mini_me2.dummy, signal=self.signal)
+
+        # check we still have callbacks registered
+        self.is_not_empty()
+
+    def test_callback_disconnect_func_redefined(self):
+        # Test that redefining a function name doesn't affect disconnect.
+        # When you redefine a function, it creates a new function object,
+        # so disconnect should not disconnect the original.
+        self.is_empty()
+
+        def func():
+            pass
+
+        self.callbacks.connect(self.signal, func)
+        self.is_not_empty()
+
+        # Redefine func - this creates a new function object
+        def func():
+            pass
+
+        # Try to disconnect with the redefined function
+        self.callbacks.disconnect(func, signal=self.signal)
+
+        # Original callback should still be registered
+        self.is_not_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func_all_signals(self, pickle, cls):
+        # Test disconnecting a callback from all signals at once
+        self.is_empty()
+
+        mini_me = cls()
+
+        # Connect to multiple signals
+        self.callbacks.connect('signal1', mini_me.dummy)
+        self.callbacks.connect('signal2', mini_me.dummy)
+        assert len(list(self.callbacks._func_cid_map)) == 2
+
+        # Disconnect from all signals at once (no signal specified)
+        self.callbacks.disconnect(mini_me.dummy)
+
+        # All callbacks should be removed
+        self.is_empty()
+
+    def test_disconnect_cid_with_signal_raises(self):
+        # Passing signal with a cid should raise an error
+        self.is_empty()
+        cid = self.callbacks.connect(self.signal, lambda: None)
+        with pytest.raises(ValueError, match="signal cannot be specified"):
+            self.callbacks.disconnect(cid, signal=self.signal)
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
+    def test_callback_disconnect_func_selective(self, pickle, cls):
+        # Test selectively disconnecting a callback from one signal
+        # while keeping it connected to another
+        self.is_empty()
+
+        mini_me = cls()
+
+        # Connect same function to multiple signals
+        self.callbacks.connect('signal1', mini_me.dummy)
+        self.callbacks.connect('signal2', mini_me.dummy)
+        assert len(list(self.callbacks._func_cid_map)) == 2
+
+        # Disconnect from only signal1
+        self.callbacks.disconnect(mini_me.dummy, signal='signal1')
+
+        # Should still have one callback registered (on signal2)
+        assert len(list(self.callbacks._func_cid_map)) == 1
+        assert 'signal2' in self.callbacks.callbacks
+        assert 'signal1' not in self.callbacks.callbacks
+
+        # Disconnect from signal2
+        self.callbacks.disconnect(mini_me.dummy, signal='signal2')
+
+        # Now all should be removed
+        self.is_empty()
+
+    @pytest.mark.parametrize('pickle', [True, False])
+    @pytest.mark.parametrize('cls', [Hashable, Unhashable])
     def test_registration_on_non_empty_registry(self, pickle, cls):
         # ensure we start with an empty registry
         self.is_empty()
@@ -480,46 +602,54 @@ def test_resize_sequence():
     assert_array_equal(cbook._resize_sequence(arr, 5), [1, 2, 3, 1, 2])
 
 
-fail_mapping: tuple[tuple[dict, dict], ...] = (
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['b']}}),
-    ({'a': 1, 'b': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-)
+fail_mapping: list[tuple[dict, dict]] = [
+    ({"a": 1, "b": 2}, {"a": ["b"]}),
+    ({"a": 1, "b": 2}, {"a": ["a", "b"]}),
+]
 
-pass_mapping: tuple[tuple[Any, dict, dict], ...] = (
+pass_mapping: list[tuple[Any, dict, dict]] = [
     (None, {}, {}),
-    ({'a': 1, 'b': 2}, {'a': 1, 'b': 2}, {}),
-    ({'b': 2}, {'a': 2}, {'alias_mapping': {'a': ['a', 'b']}}),
-)
+    ({"a": 1, "b": 2}, {"a": 1, "b": 2}, {}),
+    ({"b": 2}, {"a": 2}, {"a": ["a", "b"]}),
+]
 
 
-@pytest.mark.parametrize('inp, kwargs_to_norm', fail_mapping)
-def test_normalize_kwargs_fail(inp, kwargs_to_norm):
-    with pytest.raises(TypeError), _api.suppress_matplotlib_deprecation_warning():
-        cbook.normalize_kwargs(inp, **kwargs_to_norm)
+@pytest.mark.parametrize('inp, alias_def', fail_mapping)
+def test_normalize_kwargs_fail(inp, alias_def):
+
+    @_api.define_aliases(alias_def)
+    class Type(mpl.artist.Artist):
+        def get_a(self): return None
+
+    with pytest.raises(TypeError):
+        cbook.normalize_kwargs(inp, Type)
 
 
-@pytest.mark.parametrize('inp, expected, kwargs_to_norm',
-                         pass_mapping)
-def test_normalize_kwargs_pass(inp, expected, kwargs_to_norm):
-    with _api.suppress_matplotlib_deprecation_warning():
-        # No other warning should be emitted.
-        assert expected == cbook.normalize_kwargs(inp, **kwargs_to_norm)
+@pytest.mark.parametrize('inp, expected, alias_def', pass_mapping)
+def test_normalize_kwargs_pass(inp, expected, alias_def):
+
+    @_api.define_aliases(alias_def)
+    class Type(mpl.artist.Artist):
+        def get_a(self): return None
+
+    assert expected == cbook.normalize_kwargs(inp, Type)
+    old_alias_map = {}
+    for alias, prop in Type._alias_to_prop.items():
+        old_alias_map.setdefault(prop, []).append(alias)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        assert expected == cbook.normalize_kwargs(inp, old_alias_map)
 
 
 def test_warn_external(recwarn):
     _api.warn_external("oops")
     assert len(recwarn) == 1
-    if sys.version_info[:2] >= (3, 12):
-        # With Python 3.12, we let Python figure out the stacklevel using the
-        # `skip_file_prefixes` argument, which cannot exempt tests, so just confirm
-        # the filename is not in the package.
-        basedir = pathlib.Path(__file__).parents[2]
-        assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
-                                                   str(basedir / 'mpl_toolkits')))
-    else:
-        # On older Python versions, we manually calculated the stacklevel, and had an
-        # exception for our own tests.
-        assert recwarn[0].filename == __file__
+    # Since Python 3.12, we let Python figure out the stacklevel using the
+    # `skip_file_prefixes` argument, which cannot exempt tests, so just confirm
+    # the filename is not in the package.
+    basedir = pathlib.Path(__file__).parents[2]
+    assert not recwarn[0].filename.startswith((str(basedir / 'matplotlib'),
+                                               str(basedir / 'mpl_toolkits')))
+
 
 
 def test_warn_external_frame_embedded_python():
@@ -622,6 +752,7 @@ def test_grouper():
     g.join(*objs)
     assert set(list(g)[0]) == set(objs)
     assert set(g.get_siblings(a)) == set(objs)
+    assert a not in g.get_siblings(a, include_self=False)
 
     for other in objs[1:]:
         assert g.joined(a, other)
@@ -1059,6 +1190,37 @@ def test_unpack_to_numpy_from_tensorflow():
     tf_tensor = tensorflow.Tensor(data)
 
     result = cbook._unpack_to_numpy(tf_tensor)
+    assert isinstance(result, np.ndarray)
+    # compare results, do not check for identity: the latter would fail
+    # if not mocked, and the implementation does not guarantee it
+    # is the same Python object, just the same values.
+    assert_array_equal(result, data)
+
+
+def test_unpack_to_numpy_from_mlx():
+    """
+    Test that mlx arrays are converted to NumPy arrays.
+
+    We don't want to create a dependency on mlx in the test suite, so we mock it.
+    """
+    class Array:
+        def __init__(self, data):
+            self.data = data
+
+        def __array__(self):
+            return self.data
+
+    # mlx is something peculiar
+    # class `array` is in `mlx.core`
+    mlx_core = ModuleType('mlx.core')
+    mlx_core.array = Array
+
+    sys.modules['mlx.core'] = mlx_core
+
+    data = np.arange(10)
+    mlx_array = mlx_core.array(data)
+
+    result = cbook._unpack_to_numpy(mlx_array)
     assert isinstance(result, np.ndarray)
     # compare results, do not check for identity: the latter would fail
     # if not mocked, and the implementation does not guarantee it

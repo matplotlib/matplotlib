@@ -18,7 +18,7 @@ from subprocess import check_output
 
 from gh_api import (
     get_paged_request, make_auth_header, get_pull_request, is_pull_request,
-    get_milestone_id, get_issues_list, get_authors,
+    get_milestones, get_issues_list, get_authors,
 )
 # -----------------------------------------------------------------------------
 # Globals
@@ -28,6 +28,8 @@ ISO8601 = "%Y-%m-%dT%H:%M:%SZ"
 PER_PAGE = 100
 
 REPORT_TEMPLATE = """\
+.. redirect-from:: /users/github_stats
+
 .. _github-stats:
 
 {title}
@@ -205,6 +207,7 @@ if __name__ == "__main__":
             since -= td
 
     since = round_hour(since)
+    end_date = datetime.today()  # will be overwritten for closed milestones
 
     milestone = opts.milestone
     project = opts.project
@@ -212,8 +215,15 @@ if __name__ == "__main__":
     print(f'fetching GitHub stats since {since} (tag: {tag}, milestone: {milestone})',
           file=sys.stderr)
     if milestone:
-        milestone_id = get_milestone_id(project=project, milestone=milestone,
-                                        auth=True)
+        all_milestones = get_milestones(project=project, auth=True)
+        for ms in all_milestones:
+            if ms['title'] == milestone:
+                milestone_id = ms['number']
+                if ms.get('closed_at') is not None:
+                    end_date = datetime.fromisoformat(ms['closed_at'])
+                break
+        else:
+            raise ValueError(f"milestone {milestone} not found")
         issues_and_pulls = get_issues_list(project=project, milestone=milestone_id,
                                            state='closed', auth=True)
         issues, pulls = split_pulls(issues_and_pulls, project=project)
@@ -228,16 +238,18 @@ if __name__ == "__main__":
     n_issues, n_pulls = map(len, (issues, pulls))
     n_total = n_issues + n_pulls
     since_day = since.strftime("%Y/%m/%d")
-    today = datetime.today()
 
     title = (f'GitHub statistics for {milestone.lstrip("v")} '
-             f'{today.strftime("(%b %d, %Y)")}')
+             f'{end_date.strftime("(%b %d, %Y)")}')
 
     ncommits = 0
     all_authors = []
     if tag:
         # print git info, in addition to GitHub info:
         since_tag = f'{tag}..'
+        if milestone:
+            if check_output(['git', 'tag', '-l', milestone]).strip():
+                since_tag += milestone
         cmd = ['git', 'log', '--oneline', since_tag]
         ncommits += len(check_output(cmd).splitlines())
 
@@ -248,7 +260,8 @@ if __name__ == "__main__":
     pr_authors = []
     for pr in pulls:
         pr_authors.extend(get_authors(pr))
-    ncommits = len(pr_authors) + ncommits - len(pulls)
+    if not tag:
+        ncommits = len(pr_authors) + ncommits - len(pulls)
     author_cmd = ['git', 'check-mailmap'] + pr_authors
     with_email = check_output(author_cmd,
                               encoding='utf-8', errors='replace').splitlines()
@@ -272,7 +285,7 @@ if __name__ == "__main__":
     # Print summary report we can directly include into release notes.
     print(REPORT_TEMPLATE.format(title=title, title_underline='=' * len(title),
                                  since_day=since_day, tag=tag,
-                                 today=today.strftime('%Y/%m/%d'),
+                                 today=end_date.strftime('%Y/%m/%d'),
                                  n_issues=n_issues, n_pulls=n_pulls,
                                  milestone=milestone_str,
                                  nauthors=len(unique_authors), ncommits=ncommits,

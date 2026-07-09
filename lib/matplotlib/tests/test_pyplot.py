@@ -532,3 +532,42 @@ def assert_same_signature(func1, func2):
 
 def test_setloglevel_signature():
     assert_same_signature(plt.set_loglevel, mpl.set_loglevel)
+
+
+def test_subplots_reuse_existing_figure_error():
+    """Test interaction of plt.subplots(num=...) with existing figures."""
+    # Create a figure with a specific number first.
+    fig = plt.figure(1)
+
+    # Case 1: Reusing without clear=True should raise ValueError
+    with pytest.raises(ValueError, match="already exists"):
+        plt.subplots(num=1)
+
+    # Case 2: Reusing WITH clear=True should work fine (no error)
+    fig_new, axs = plt.subplots(num=1, clear=True)
+    assert fig_new is fig
+
+    # Case 3: Test passing the actual Figure object (The "Narrow Check")
+    with pytest.raises(ValueError, match="cannot be a FigureBase instance"):
+        plt.subplots(num=fig)
+
+    plt.close(1)
+
+
+def test_subplot_mosaic_reuse_existing_figure_error():
+    """Test that plt.subplot_mosaic raises ValueError when reusing a figure."""
+    fig = plt.figure(2)
+
+    # 1. Test passing the existing figure number
+    with pytest.raises(ValueError, match="already exists"):
+        plt.subplot_mosaic([['A']], num=2)
+
+    # 2. Test passing the actual Figure object
+    with pytest.raises(ValueError, match="cannot be a FigureBase instance"):
+        plt.subplot_mosaic([['A']], num=fig)
+
+    # 3. Test that clear=True allows reuse without error
+    fig_new, axd = plt.subplot_mosaic([['A']], num=2, clear=True)
+    assert fig_new is fig
+
+    plt.close(2)

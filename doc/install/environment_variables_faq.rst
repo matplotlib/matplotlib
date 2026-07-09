@@ -29,6 +29,11 @@ Environment variables
   used to find a base directory in which the :file:`matplotlib` subdirectory is
   created.
 
+.. envvar:: MPL_IGNORE_SYSTEM_FONTS
+
+  When this variable is set, Matplotlib will update its font cache only with its own
+  directories. This can be used to limit subprocess usage for querying system fonts.
+
 .. envvar:: PATH
 
   The list of directories searched to find executable programs.

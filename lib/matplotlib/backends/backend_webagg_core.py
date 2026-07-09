@@ -202,7 +202,7 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
 
     def set_cursor(self, cursor):
         # docstring inherited
-        cursor = _api.check_getitem({
+        cursor = _api.getitem_checked({
             backend_tools.Cursors.HAND: 'pointer',
             backend_tools.Cursors.POINTER: 'default',
             backend_tools.Cursors.SELECT_REGION: 'crosshair',
@@ -349,8 +349,11 @@ class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
     handle_key_press = handle_key_release = _handle_key
 
     def handle_toolbar_button(self, event):
-        # TODO: Be more suspicious of the input
-        getattr(self.toolbar, event['name'])()
+        name = event['name']
+        for item in self.toolbar.toolitems:
+            if item[3] is not None and name == item[3]:
+                getattr(self.toolbar, name)()
+                break
 
     def handle_refresh(self, event):
         if self.manager:

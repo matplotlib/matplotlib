@@ -2,7 +2,9 @@
 Classes for including text in a figure.
 """
 
+from collections.abc import Sequence
 import functools
+import itertools
 import logging
 import math
 from numbers import Real
@@ -11,9 +13,9 @@ import weakref
 import numpy as np
 
 import matplotlib as mpl
-from . import _api, artist, cbook, _docstring
+from . import _api, artist, cbook, _docstring, colors as mcolors
 from .artist import Artist
-from .font_manager import FontProperties
+from .font_manager import FontProperties, fontManager, get_font
 from .patches import FancyArrowPatch, FancyBboxPatch, Rectangle
 from .textpath import TextPath, TextToPath  # noqa # Logically located here
 from .transforms import (
@@ -23,58 +25,110 @@ from .transforms import (
 _log = logging.getLogger(__name__)
 
 
-def _get_textbox(text, renderer):
+@functools.lru_cache(maxsize=128)
+def _rotate(theta):
     """
-    Calculate the bounding box of the text.
-
-    The bbox position takes text rotation into account, but the width and
-    height are those of the unrotated box (unlike `.Text.get_window_extent`).
+    Return an Affine2D object that rotates by the given angle in radians.
     """
-    # TODO : This function may move into the Text class as a method. As a
-    # matter of fact, the information from the _get_textbox function
-    # should be available during the Text._get_layout() call, which is
-    # called within the _get_textbox. So, it would better to move this
-    # function as a method with some refactoring of _get_layout method.
+    return Affine2D().rotate(theta)
 
-    projected_xs = []
-    projected_ys = []
 
-    theta = np.deg2rad(text.get_rotation())
-    tr = Affine2D().rotate(-theta)
-
-    _, parts, d = text._get_layout(renderer)
-
-    for t, wh, x, y in parts:
-        w, h = wh
-
-        xt1, yt1 = tr.transform((x, y))
-        yt1 -= d
-        xt2, yt2 = xt1 + w, yt1 + h
-
-        projected_xs.extend([xt1, xt2])
-        projected_ys.extend([yt1, yt2])
-
-    xt_box, yt_box = min(projected_xs), min(projected_ys)
-    w_box, h_box = max(projected_xs) - xt_box, max(projected_ys) - yt_box
-
-    x_box, y_box = Affine2D().rotate(theta).transform((xt_box, yt_box))
-
-    return x_box, y_box, w_box, h_box
+def _rotate_point(angle, x, y):
+    """
+    Rotate point (x, y) by rotation angle in degrees
+    """
+    if angle == 0:
+        return (x, y)
+    angle_rad = math.radians(angle)
+    cos, sin = math.cos(angle_rad), math.sin(angle_rad)
+    return (cos * x - sin * y, sin * x + cos * y)
 
 
 def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
     """Call ``renderer.get_text_width_height_descent``, caching the results."""
-    # Cached based on a copy of fontprop so that later in-place mutations of
-    # the passed-in argument do not mess up the cache.
-    return _get_text_metrics_with_cache_impl(
-        weakref.ref(renderer), text, fontprop.copy(), ismath, dpi)
+
+    # hit the outer cache layer and get the function to compute the metrics
+    # for this renderer instance
+    get_text_metrics = _get_text_metrics_function(renderer)
+    # call the function to compute the metrics and return
+    #
+    # We pass a copy of the fontprop because FontProperties is both mutable and
+    # has a `__hash__` that depends on that mutable state.  This is not ideal
+    # as it means the hash of an object is not stable over time which leads to
+    # very confusing behavior when used as keys in dictionaries or hashes.
+    return get_text_metrics(text, fontprop.copy(), ismath, dpi)
 
 
-@functools.lru_cache(4096)
-def _get_text_metrics_with_cache_impl(
-        renderer_ref, text, fontprop, ismath, dpi):
-    # dpi is unused, but participates in cache invalidation (via the renderer).
-    return renderer_ref().get_text_width_height_descent(text, fontprop, ismath)
+def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary()):
+    """
+    Helper function to provide a two-layered cache for font metrics
+
+
+    To get the rendered size of a size of string we need to know:
+      - what renderer we are using
+      - the current dpi of the renderer
+      - the string
+      - the font properties
+      - is it math text or not
+
+    We do this as a two-layer cache with the outer layer being tied to a
+    renderer instance and the inner layer handling everything else.
+
+    The outer layer is implemented as `.WeakKeyDictionary` keyed on the
+    renderer.  As long as someone else is holding a hard ref to the renderer
+    we will keep the cache alive, but it will be automatically dropped when
+    the renderer is garbage collected.
+
+    The inner layer is provided by an lru_cache with a large maximum size (such
+    that we expect very few cache misses in actual use cases).  As the
+    dpi is mutable on the renderer, we need to explicitly include it as part of
+    the cache key on the inner layer even though we do not directly use it (it is
+    used in the method call on the renderer).
+
+    This function takes a renderer and returns a function that can be used to
+    get the font metrics.
+
+    Parameters
+    ----------
+    input_renderer : maplotlib.backend_bases.RendererBase
+        The renderer to set the cache up for.
+
+    _cache : dict, optional
+        We are using the mutable default value to attach the cache to the function.
+
+        In principle you could pass a different dict-like to this function to inject
+        a different cache, but please don't.  This is an internal function not meant to
+        be reused outside of the narrow context we need it for.
+
+        There is a possible race condition here between threads, we may need to drop the
+        mutable default and switch to a threadlocal variable in the future.
+
+    """
+    if (_text_metrics := _cache.get(input_renderer, None)) is None:
+        # We are going to include this in the closure we put as values in the
+        # cache.  Closing over a hard-ref would create an unbreakable reference
+        # cycle.
+        renderer_ref = weakref.ref(input_renderer)
+
+        # define the function locally to get a new lru_cache per renderer
+        @functools.lru_cache(4096)
+        # dpi is unused, but participates in cache invalidation (via the renderer).
+        def _text_metrics(text, fontprop, ismath, dpi):
+            # this should never happen under normal use, but this is a better error to
+            # raise than an AttributeError on `None`
+            if (local_renderer := renderer_ref()) is None:
+                raise RuntimeError(
+                    "Trying to get text metrics for a renderer that no longer exists.  "
+                    "This should never happen and is evidence of a bug elsewhere."
+                    )
+            # do the actual method call we need and return the result
+            return local_renderer.get_text_width_height_descent(text, fontprop, ismath)
+
+        # stash the function for later use.
+        _cache[input_renderer] = _text_metrics
+
+    # return the inner function
+    return _text_metrics
 
 
 @_docstring.interpd
@@ -136,6 +190,8 @@ class Text(Artist):
         super().__init__()
         self._x, self._y = x, y
         self._text = ''
+        self._features = None
+        self.set_language(None)
         self._reset_visual_defaults(
             text=text,
             color=color,
@@ -185,7 +241,7 @@ class Text(Artist):
         self._bbox_patch = None  # a FancyBboxPatch instance
         self._renderer = None
         if linespacing is None:
-            linespacing = 1.2  # Maybe use rcParam later.
+            linespacing = 'normal'  # Maybe use rcParam later.
         self.set_linespacing(linespacing)
         self.set_rotation_mode(rotation_mode)
         self.set_antialiased(mpl._val_or_rc(antialiased, 'text.antialiased'))
@@ -281,10 +337,10 @@ class Text(Artist):
         return (np.abs(size_accum - std_x)).argmin()
 
     def get_rotation(self):
-        """Return the text angle in degrees between 0 and 360."""
+        """Return the text angle in degrees in the range [0, 360)."""
         if self.get_transform_rotates_text():
             return self.get_transform().transform_angles(
-                [self._rotation], [self.get_unitless_position()]).item(0)
+                [self._rotation], [self.get_unitless_position()]).item(0) % 360
         else:
             return self._rotation
 
@@ -359,26 +415,65 @@ class Text(Artist):
 
     def _get_layout(self, renderer):
         """
-        Return the extent (bbox) of the text together with
-        multiple-alignment information. Note that it returns an extent
-        of a rotated text when necessary.
+        Return
+
+        - the rotated, axis-aligned text bbox;
+        - a list of ``(line, (width, ascent, descent), xy)`` tuples for each line;
+        - a ``(xy, (width, height))` pair of the lower-left corner and size of the
+          rotated, *text-aligned* text box (i.e. describing how to draw the
+          text-surrounding box).
         """
         thisx, thisy = 0.0, 0.0
         lines = self._get_wrapped_text().split("\n")  # Ensures lines is not empty.
 
-        ws = []
-        hs = []
+        # Reminder:  The ascent (a) goes from the baseline to the top and the
+        # descent (d) from the baseline to the bottom; both are (typically)
+        # nonnegative.  The height h is the sum, h = a + d.
+        wads = []  # (width, ascents, descents)
         xs = []
         ys = []
 
-        # Full vertical extent of font, including ascenders and descenders:
-        _, lp_h, lp_d = _get_text_metrics_with_cache(
-            renderer, "lp", self._fontproperties,
-            ismath="TeX" if self.get_usetex() else False,
-            dpi=self.get_figure(root=True).dpi)
-        min_dy = (lp_h - lp_d) * self._linespacing
+        min_ascent = min_descent = line_gap = None
+        dpi = self.get_figure(root=True).dpi
+        # Determine full vertical extent of font, including ascenders and descenders:
+        if not self.get_usetex():
+            if hasattr(renderer, '_get_font_height_metrics'):
+                # TODO: This is a temporary internal method call (for _backend_pdf_ps to
+                # support AFM files) until we design a proper API for the backends.
+                min_ascent, min_descent, line_gap = renderer._get_font_height_metrics(
+                    self._fontproperties)
+            if min_ascent is None:
+                font = get_font(fontManager._find_fonts_by_props(self._fontproperties))
+                possible = [
+                    ('OS/2', 'sTypoLineGap', 'sTypoAscender', 'sTypoDescender'),
+                    ('hhea', 'lineGap', 'ascent', 'descent')
+                ]
+                for table_name, linegap_key, ascent_key, descent_key in possible:
+                    table = font.get_sfnt_table(table_name)
+                    if table is None:
+                        continue
+                    # Rescale to font size/DPI if the metrics were available.
+                    fontsize = self._fontproperties.get_size_in_points()
+                    units_per_em = font.get_sfnt_table('head')['unitsPerEm']
+                    scale = 1 / units_per_em * fontsize * dpi / 72
+                    line_gap = table[linegap_key] * scale
+                    min_ascent = table[ascent_key] * scale
+                    min_descent = -table[descent_key] * scale
+                    break
+        if None in (min_ascent, min_descent):
+            # Fallback to font measurement.
+            _, h, min_descent = _get_text_metrics_with_cache(
+                renderer, "lp", self._fontproperties,
+                ismath="TeX" if self.get_usetex() else False,
+                dpi=dpi)
+            min_ascent = h - min_descent
+            line_gap = 0
 
-        for i, line in enumerate(lines):
+        # Don't increase text height too much if it's not multiple lines.
+        if len(lines) == 1:
+            line_gap = 0
+
+        for line in lines:
             clean_line, ismath = self._preprocess_math(line)
             if clean_line:
                 w, h, d = _get_text_metrics_with_cache(
@@ -387,25 +482,27 @@ class Text(Artist):
             else:
                 w = h = d = 0
 
-            # For multiline text, increase the line spacing when the text
-            # net-height (excluding baseline) is larger than that of a "l"
-            # (e.g., use of superscripts), which seems what TeX does.
-            h = max(h, lp_h)
-            d = max(d, lp_d)
+            a = h - d
 
-            ws.append(w)
-            hs.append(h)
+            if self.get_usetex() or self._linespacing == 'normal':
+                # To ensure good linespacing, pretend that the ascent / descent of all
+                # lines is at least as large as the measured sizes.
+                a = max(a, min_ascent) + line_gap / 2
+                d = max(d, min_descent) + line_gap / 2
+            else:
+                # If using a fixed line spacing, then every line's spacing will be
+                # determined by the font metrics of the first available font.
+                line_height = self._linespacing * (min_ascent + min_descent)
+                leading = line_height - (a + d)
+                a += leading / 2
+                d += leading / 2
 
             # Metrics of the last line that are needed later:
-            baseline = (h - d) - thisy
+            baseline = a - thisy
 
-            if i == 0:
-                # position at baseline
-                thisy = -(h - d)
-            else:
-                # put baseline a good distance from bottom of previous line
-                thisy -= max(min_dy, (h - d) * self._linespacing)
+            thisy -= a
 
+            wads.append((w, a, d))
             xs.append(thisx)  # == 0.
             ys.append(thisy)
 
@@ -415,14 +512,12 @@ class Text(Artist):
         descent = d
 
         # Bounding box definition:
+        ws = [w for w, a, d in wads]
         width = max(ws)
         xmin = 0
         xmax = width
         ymax = 0
         ymin = ys[-1] - descent  # baseline of last line minus its descent
-
-        # get the rotation matrix
-        M = Affine2D().rotate_deg(self.get_rotation())
 
         # now offset the individual text lines within the box
         malign = self._get_multialignment()
@@ -436,18 +531,19 @@ class Text(Artist):
                              for x, y, w in zip(xs, ys, ws)]
 
         # the corners of the unrotated bounding box
-        corners_horiz = np.array(
-            [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)])
-
+        corners_horiz = [(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin)]
+        size_horiz = (xmax - xmin, ymax - ymin)
         # now rotate the bbox
-        corners_rotated = M.transform(corners_horiz)
+        angle = self.get_rotation()
+        rotate = functools.partial(_rotate_point, angle)
+        corners_rotated = [rotate(x, y) for x, y in corners_horiz]
+
         # compute the bounds of the rotated box
-        xmin = corners_rotated[:, 0].min()
-        xmax = corners_rotated[:, 0].max()
-        ymin = corners_rotated[:, 1].min()
-        ymax = corners_rotated[:, 1].max()
-        width = xmax - xmin
-        height = ymax - ymin
+        xs, ys = zip(*corners_rotated)
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        width_rot = xmax - xmin
+        height_rot = ymax - ymin
 
         # Now move the box to the target position offset the display
         # bbox by alignment
@@ -456,63 +552,53 @@ class Text(Artist):
 
         rotation_mode = self.get_rotation_mode()
         if rotation_mode != "anchor":
-            angle = self.get_rotation()
             if rotation_mode == 'xtick':
                 halign = self._ha_for_angle(angle)
             elif rotation_mode == 'ytick':
                 valign = self._va_for_angle(angle)
             # compute the text location in display coords and the offsets
             # necessary to align the bbox with that location
-            if halign == 'center':
-                offsetx = (xmin + xmax) / 2
-            elif halign == 'right':
-                offsetx = xmax
-            else:
-                offsetx = xmin
-
-            if valign == 'center':
-                offsety = (ymin + ymax) / 2
-            elif valign == 'top':
-                offsety = ymax
-            elif valign == 'baseline':
-                offsety = ymin + descent
-            elif valign == 'center_baseline':
-                offsety = ymin + height - baseline / 2.0
-            else:
-                offsety = ymin
+            offsetx = (
+                xmin if halign == "left" else
+                xmax if halign == "right" else
+                (xmin + xmax) / 2  # halign == "center"
+            )
+            offsety = (
+                ymin if valign == "bottom" else
+                ymax if valign == "top" else
+                (ymin + ymax) / 2 if valign == "center" else
+                ymin + descent if valign == "baseline" else
+                ymin + height_rot - baseline / 2  # valign == "center_baseline"
+            )
         else:
             xmin1, ymin1 = corners_horiz[0]
             xmax1, ymax1 = corners_horiz[2]
-
-            if halign == 'center':
-                offsetx = (xmin1 + xmax1) / 2.0
-            elif halign == 'right':
-                offsetx = xmax1
-            else:
-                offsetx = xmin1
-
-            if valign == 'center':
-                offsety = (ymin1 + ymax1) / 2.0
-            elif valign == 'top':
-                offsety = ymax1
-            elif valign == 'baseline':
-                offsety = ymax1 - baseline
-            elif valign == 'center_baseline':
-                offsety = ymax1 - baseline / 2.0
-            else:
-                offsety = ymin1
-
-            offsetx, offsety = M.transform((offsetx, offsety))
+            offsetx = (
+                xmin1 if halign == "left" else
+                xmax1 if halign == "right" else
+                (xmin1 + xmax1) / 2  # halign == "center"
+            )
+            offsety = (
+                ymin1 if valign == "bottom" else
+                ymax1 if valign == "top" else
+                (ymin1 + ymax1) / 2 if valign == "center" else
+                ymax1 - baseline if valign == "baseline" else
+                ymax1 - baseline / 2  # valign == "center_baseline"
+            )
+            offsetx, offsety = rotate(offsetx, offsety)
 
         xmin -= offsetx
         ymin -= offsety
 
-        bbox = Bbox.from_bounds(xmin, ymin, width, height)
+        bbox_rot = Bbox.from_bounds(xmin, ymin, width_rot, height_rot)
 
         # now rotate the positions around the first (x, y) position
-        xys = M.transform(offset_layout) - (offsetx, offsety)
+        xys = [(x - offsetx, y - offsety)
+               for x, y in itertools.starmap(rotate, offset_layout)]
+        x, y = corners_rotated[0]
+        xy_corner = (x - offsetx, y - offsety)
 
-        return bbox, list(zip(lines, zip(ws, hs), *xys.T)), descent
+        return bbox_rot, list(zip(lines, wads, xys)), (xy_corner, size_horiz)
 
     def set_bbox(self, rectprops):
         """
@@ -584,7 +670,7 @@ class Text(Artist):
             posy = float(self.convert_yunits(self._y))
             posx, posy = self.get_transform().transform((posx, posy))
 
-            x_box, y_box, w_box, h_box = _get_textbox(self, renderer)
+            _, _, ((x_box, y_box), (w_box, h_box)) = self._get_layout(renderer)
             self._bbox_patch.set_bounds(0., 0., w_box, h_box)
             self._bbox_patch.set_transform(
                 Affine2D()
@@ -651,11 +737,11 @@ class Text(Artist):
         # Calculate available width based on text alignment
         alignment = self.get_horizontalalignment()
         self.set_rotation_mode('anchor')
-        rotation = self.get_rotation()
+        angle = self.get_rotation()
 
-        left = self._get_dist_to_box(rotation, x0, y0, figure_box)
+        left = self._get_dist_to_box(angle, x0, y0, figure_box)
         right = self._get_dist_to_box(
-            (180 + rotation) % 360, x0, y0, figure_box)
+            (180 + angle) % 360, x0, y0, figure_box)
 
         if alignment == 'left':
             line_width = left
@@ -764,66 +850,65 @@ class Text(Artist):
 
         renderer.open_group('text', self.get_gid())
 
-        with self._cm_set(text=self._get_wrapped_text()):
-            bbox, info, descent = self._get_layout(renderer)
-            trans = self.get_transform()
+        bbox, info, _ = self._get_layout(renderer)
+        trans = self.get_transform()
 
-            # don't use self.get_position here, which refers to text
-            # position in Text:
-            x, y = self._x, self._y
-            if np.ma.is_masked(x):
-                x = np.nan
-            if np.ma.is_masked(y):
-                y = np.nan
-            posx = float(self.convert_xunits(x))
-            posy = float(self.convert_yunits(y))
-            posx, posy = trans.transform((posx, posy))
-            if np.isnan(posx) or np.isnan(posy):
-                return  # don't throw a warning here
-            if not np.isfinite(posx) or not np.isfinite(posy):
-                _log.warning("posx and posy should be finite values")
-                return
-            canvasw, canvash = renderer.get_canvas_width_height()
+        # don't use self.get_position here, which refers to text
+        # position in Text:
+        x, y = self._x, self._y
+        if np.ma.is_masked(x):
+            x = np.nan
+        if np.ma.is_masked(y):
+            y = np.nan
+        posx = float(self.convert_xunits(x))
+        posy = float(self.convert_yunits(y))
+        posx, posy = trans.transform((posx, posy))
+        if np.isnan(posx) or np.isnan(posy):
+            return  # don't throw a warning here
+        if not np.isfinite(posx) or not np.isfinite(posy):
+            _log.warning("posx and posy should be finite values")
+            return
+        canvasw, canvash = renderer.get_canvas_width_height()
 
-            # Update the location and size of the bbox
-            # (`.patches.FancyBboxPatch`), and draw it.
-            if self._bbox_patch:
-                self.update_bbox_position_size(renderer)
-                self._bbox_patch.draw(renderer)
+        # Update the location and size of the bbox
+        # (`.patches.FancyBboxPatch`), and draw it.
+        if self._bbox_patch:
+            self.update_bbox_position_size(renderer)
+            self._bbox_patch.draw(renderer)
 
-            gc = renderer.new_gc()
-            gc.set_foreground(self.get_color())
-            gc.set_alpha(self.get_alpha())
-            gc.set_url(self._url)
-            gc.set_antialiased(self._antialiased)
-            self._set_gc_clip(gc)
+        gc = renderer.new_gc()
+        gc.set_foreground(mcolors.to_rgba(self.get_color()), isRGBA=True)
+        gc.set_alpha(self.get_alpha())
+        gc.set_url(self._url)
+        gc.set_antialiased(self._antialiased)
+        gc.set_snap(self.get_snap())
+        self._set_gc_clip(gc)
 
-            angle = self.get_rotation()
+        angle = self.get_rotation()
 
-            for line, wh, x, y in info:
+        for line, wad, (x, y) in info:
 
-                mtext = self if len(info) == 1 else None
-                x = x + posx
-                y = y + posy
-                if renderer.flipy():
-                    y = canvash - y
-                clean_line, ismath = self._preprocess_math(line)
+            mtext = self if len(info) == 1 else None
+            x = x + posx
+            y = y + posy
+            if renderer.flipy():
+                y = canvash - y
+            clean_line, ismath = self._preprocess_math(line)
 
-                if self.get_path_effects():
-                    from matplotlib.patheffects import PathEffectRenderer
-                    textrenderer = PathEffectRenderer(
-                        self.get_path_effects(), renderer)
-                else:
-                    textrenderer = renderer
+            if self.get_path_effects():
+                from matplotlib.patheffects import PathEffectRenderer
+                textrenderer = PathEffectRenderer(self.get_path_effects(), renderer)
+            else:
+                textrenderer = renderer
 
-                if self.get_usetex():
-                    textrenderer.draw_tex(gc, x, y, clean_line,
-                                          self._fontproperties, angle,
-                                          mtext=mtext)
-                else:
-                    textrenderer.draw_text(gc, x, y, clean_line,
-                                           self._fontproperties, angle,
-                                           ismath=ismath, mtext=mtext)
+            if self.get_usetex():
+                textrenderer.draw_tex(gc, x, y, clean_line,
+                                      self._fontproperties, angle,
+                                      mtext=mtext)
+            else:
+                textrenderer.draw_text(gc, x, y, clean_line,
+                                       self._fontproperties, angle,
+                                       ismath=ismath, mtext=mtext)
 
         gc.restore()
         renderer.close_group('text')
@@ -846,6 +931,12 @@ class Text(Artist):
         .font_manager.FontProperties.get_family
         """
         return self._fontproperties.get_family()
+
+    def get_fontfeatures(self):
+        """
+        Return a tuple of font feature tags to enable.
+        """
+        return self._features
 
     def get_fontname(self):
         """
@@ -982,11 +1073,22 @@ class Text(Artist):
                 "want to call 'figure.draw_without_rendering()' first.")
 
         with cbook._setattr_cm(fig, dpi=dpi):
-            bbox, info, descent = self._get_layout(self._renderer)
+            bbox, _, _ = self._get_layout(self._renderer)
             x, y = self.get_unitless_position()
             x, y = self.get_transform().transform((x, y))
             bbox = bbox.translated(x, y)
             return bbox
+
+    def get_tightbbox(self, renderer=None):
+        if not self.get_visible() or self.get_text() == "":
+            return Bbox.null()
+        # Exclude text at data coordinates outside the valid domain of the axes
+        # scales (e.g., negative coordinates with a log scale).
+        if (self.axes
+                and self.get_transform() == self.axes.transData
+                and not self.axes._point_in_data_domain(*self.get_unitless_position())):
+            return Bbox.null()
+        return super().get_tightbbox(renderer)
 
     def set_backgroundcolor(self, color):
         """
@@ -1058,17 +1160,25 @@ class Text(Artist):
 
     def set_linespacing(self, spacing):
         """
-        Set the line spacing as a multiple of the font size.
-
-        The default line spacing is 1.2.
+        Set the line spacing.
 
         Parameters
         ----------
-        spacing : float (multiple of font size)
+        spacing : 'normal' or float, default: 'normal'
+            If 'normal', then the line spacing is automatically determined by font
+            metrics for each line individually.
+
+            If a float, then line spacing will be fixed to this multiple of the font
+            size for every line.
         """
-        _api.check_isinstance(Real, spacing=spacing)
+        if not cbook._str_equal(spacing, 'normal'):
+            _api.check_isinstance(Real, spacing=spacing)
         self._linespacing = spacing
         self.stale = True
+
+    def get_linespacing(self):
+        """Get the line spacing."""
+        return self._linespacing
 
     def set_fontfamily(self, fontname):
         """
@@ -1092,6 +1202,39 @@ class Text(Artist):
         .font_manager.FontProperties.set_family
         """
         self._fontproperties.set_family(fontname)
+        self.stale = True
+
+    def set_fontfeatures(self, features):
+        """
+        Set the feature tags to enable on the font.
+
+        Parameters
+        ----------
+        features : list of str, or tuple of str, or None
+            A list of feature tags to be used with the associated font. These strings
+            are eventually passed to HarfBuzz, and so all `string formats supported by
+            hb_feature_from_string()
+            <https://harfbuzz.github.io/harfbuzz-hb-common.html#hb-feature-from-string>`__
+            are supported. Note though that subranges are not explicitly supported and
+            behaviour may change in the future.
+
+            For example, if your desired font includes Stylistic Sets which enable
+            various typographic alternates including one that you do not wish to use
+            (e.g., Contextual Ligatures), then you can pass the following to enable one
+            and not the other::
+
+                fp.set_features([
+                    'ss01',  # Use Stylistic Set 1.
+                    '-clig',  # But disable Contextural Ligatures.
+                ])
+
+            Available font feature tags may be found at
+            https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
+        """
+        _api.check_isinstance((Sequence, None), features=features)
+        if features is not None:
+            features = tuple(features)
+        self._features = features
         self.stale = True
 
     def set_fontvariant(self, variant):
@@ -1421,6 +1564,42 @@ class Text(Artist):
         elif 190 < angle < 260 or 10 < angle < 80:
             return 'baseline' if anchor_at_left else 'top'
         return 'top' if anchor_at_left else 'baseline'
+
+    def get_language(self):
+        """Return the language this Text is in."""
+        return self._language
+
+    def set_language(self, language):
+        """
+        Set the language of the text.
+
+        Parameters
+        ----------
+        language : str or None
+            The language of the text in a format accepted by libraqm, namely `a BCP47
+            language code <https://www.w3.org/International/articles/language-tags/>`_.
+
+            If None, then defaults to :rc:`text.language`.
+        """
+        _api.check_isinstance((Sequence, str, None), language=language)
+        language = mpl._val_or_rc(language, 'text.language')
+
+        if not cbook.is_scalar_or_string(language):
+            language = tuple(language)
+            for val in language:
+                if not isinstance(val, tuple) or len(val) != 3:
+                    raise TypeError('language must be list of tuple, not {language!r}')
+                sublang, start, end = val
+                if not isinstance(sublang, str):
+                    raise TypeError(
+                        'sub-language specification must be str, not {sublang!r}')
+                if not isinstance(start, int):
+                    raise TypeError('start location must be int, not {start!r}')
+                if not isinstance(end, int):
+                    raise TypeError('end location must be int, not {end!r}')
+
+        self._language = language
+        self.stale = True
 
 
 class OffsetFrom:

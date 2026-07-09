@@ -439,7 +439,7 @@ class AxesDivider(Divider):
         **kwargs
             All extra keywords arguments are passed to the created axes.
         """
-        create_axes, pack_start = _api.check_getitem({
+        create_axes, pack_start = _api.getitem_checked({
             "left": (self.new_horizontal, True),
             "right": (self.new_horizontal, False),
             "bottom": (self.new_vertical, True),

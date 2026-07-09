@@ -14,9 +14,9 @@
 
 .. _installing_for_devs:
 
-=====================================
-Setting up Matplotlib for development
-=====================================
+=================
+Development setup
+=================
 
 To set up Matplotlib for development follow these steps:
 
@@ -38,7 +38,7 @@ Set up development environment
 ==============================
 
 You can either work locally on your machine, or online in
-`GitHub Codespaces <github-codespaces_>`_, a cloud-based in-browser development
+`GitHub Codespaces`_, a cloud-based in-browser development
 environment.
 
 
@@ -119,8 +119,8 @@ code, as described in :ref:`development-workflow`.
    * `GitHub-Contributing to a Project
      <https://git-scm.com/book/en/v2/GitHub-Contributing-to-a-Project>`_
    * `GitHub Skills <https://skills.github.com/>`_
-   * :ref:`using-git`
-   * :ref:`git-resources`
+   * :external+scipy:ref:`using-git`
+   * :external+scipy:ref:`git-resources`
    * `Installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
    * `Managing remote repositories
      <https://docs.github.com/en/get-started/getting-started-with-git/managing-remote-repositories>`_
@@ -177,7 +177,8 @@ setup.
 
       Install the Python dependencies with ::
 
-        pip install -r requirements/dev/dev-requirements.txt
+        pip install -U pip  # You may skip this step if pip 25.1 is already available.
+        pip install --group dev
 
       Remember to activate the environment whenever you start working on Matplotlib!
 
@@ -219,7 +220,7 @@ need to be installed when working in codespaces.
 Create GitHub Codespace :octicon:`codespaces`
 ---------------------------------------------
 
-`GitHub Codespaces <github-codespaces_>`_ is a cloud-based
+`GitHub Codespaces`_ is a cloud-based
 in-browser development environment that comes with the appropriate setup to
 contribute to Matplotlib.
 
@@ -260,7 +261,7 @@ Use the "Extensions" icon in the activity bar to install the "Live Server"
 extension. Locate the ``doc/build/html`` folder in the Explorer, right click
 the file you want to open and select "Open with Live Server."
 
-.. _`github-codespaces`: https://docs.github.com/codespaces
+.. _Github Codespaces: https://docs.github.com/codespaces
 
 .. _development-install:
 
@@ -270,7 +271,7 @@ Install Matplotlib in editable mode
 Install Matplotlib in editable mode from the :file:`matplotlib` directory using the
 command ::
 
-    python -m pip install --verbose --no-build-isolation --editable ".[dev]"
+    python -m pip install --verbose --no-build-isolation --group dev --editable .
 
 The 'editable/develop mode' builds everything and places links in your Python environment
 so that Python will be able to import Matplotlib from your development source directory.
@@ -282,7 +283,7 @@ have :ghpull:`26621` in its history (log), you will have to reinstall from sourc
 each time you change any compiled extension code.
 
 If the installation is not working, please consult the :ref:`troubleshooting guide <troubleshooting-faq>`.
-If the guide does not offer a solution, please reach out via `chat <https://gitter.im/matplotlib/matplotlib>`_
+If the guide does not offer a solution, please reach out via `discourse <https://discourse.matplotlib.org>`_
 or :ref:`open an issue <submitting-a-bug-report>`.
 
 
@@ -322,7 +323,7 @@ you are aware of the existing issues beforehand.
 
 Install pre-commit hooks
 ========================
-`pre-commit <https://pre-commit.com/>`_ hooks save time in the review process by
+`prek <https://prek.j178.dev/>`_ hooks save time in the review process by
 identifying issues with the code before a pull request is formally opened. Most
 hooks can also aide in fixing the errors, and the checks should have
 corresponding :ref:`development workflow <development-workflow>` and
@@ -333,8 +334,8 @@ committed files, import order, and incorrect branching.
 
 Install pre-commit hooks ::
 
-    python -m pip install pre-commit
-    pre-commit install
+    python -m pip install prek
+    prek install
 
 Hooks are run automatically after the ``git commit`` stage of the
 :ref:`editing workflow<edit-flow>`. When a hook has found and fixed an error in a
@@ -343,11 +344,11 @@ file, that file must be *staged and committed* again.
 Hooks can also be run manually. All the hooks can be run, in order as
 listed in ``.pre-commit-config.yaml``, against the full codebase with ::
 
-    pre-commit run --all-files
+    prek run --all-files
 
-To run a particular hook manually, run ``pre-commit run`` with the hook id ::
+To run a particular hook manually, run ``prek run`` with the hook id ::
 
-    pre-commit run <hook id> --all-files
+    prek run <hook id> --all-files
 
 
 Please note that the ``mypy`` pre-commit hook cannot check the :ref:`type-hints`

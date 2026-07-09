@@ -19,8 +19,7 @@ _log = logging.getLogger(__name__)
 
 def set_font_settings_for_testing():
     mpl.rcParams['font.family'] = 'DejaVu Sans'
-    mpl.rcParams['text.hinting'] = 'none'
-    mpl.rcParams['text.hinting_factor'] = 8
+    mpl.rcParams['text.hinting'] = 'default'
 
 
 def set_reproducibility_for_testing():
@@ -87,11 +86,23 @@ def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
 
     Raises
     ------
+    pytest.skip
+        If running on emscripten, which does not support subprocesses.
     pytest.xfail
         If platform is Cygwin and subprocess reports a fork() failure.
     """
+    if sys.platform == 'emscripten':
+        import pytest
+        pytest.skip('emscripten does not support subprocesses')
     if capture_output:
         stdout = stderr = subprocess.PIPE
+    # Add CREATE_NO_WINDOW flag on Windows to prevent console window overhead
+    # This is added in an attempt to fix flaky timeouts of subprocesses on Windows
+    if sys.platform == 'win32':
+        if 'creationflags' not in kwargs:
+            kwargs['creationflags'] = subprocess.CREATE_NO_WINDOW
+        else:
+            kwargs['creationflags'] |= subprocess.CREATE_NO_WINDOW
     try:
         proc = subprocess.run(
             command, env=env,
@@ -144,13 +155,26 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
             f"_module = importlib.util.module_from_spec(_spec);"
             f"_spec.loader.exec_module(_module);"
             f"_module.{target}()",
-            *args
+            *args,
         ],
-        env={**os.environ, "SOURCE_DATE_EPOCH": "0", **(extra_env or {})},
-        timeout=timeout, check=True,
+        env={
+            **os.environ,
+            "SOURCE_DATE_EPOCH": "0",
+            # subprocess_run_helper sets SOURCE_DATE_EPOCH=0 above, so for a dirty tree,
+            # the version will have the date 19700101 which breaks pickle tests with a
+            # warning if the working tree is dirty.
+            #
+            # This will also avoid at least one additional subprocess call for
+            # setuptools-scm query git, so we tell the subprocess what version
+            # to report as the test process.
+            "SETUPTOOLS_SCM_PRETEND_VERSION_FOR_MATPLOTLIB": mpl.__version__,
+            **(extra_env or {}),
+        },
+        timeout=timeout,
+        check=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True
+        text=True,
     )
     return proc
 
@@ -176,7 +200,8 @@ def _check_for_pgf(texsystem):
         """, encoding="utf-8")
         try:
             subprocess.check_call(
-                [texsystem, "-halt-on-error", str(tex_path)], cwd=tmpdir,
+                [texsystem, "-halt-on-error", "-no-shell-escape",
+                 str(tex_path)], cwd=tmpdir,
                 stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except (OSError, subprocess.CalledProcessError):
             return False
@@ -187,7 +212,7 @@ def _has_tex_package(package):
     try:
         mpl.dviread.find_tex_file(f"{package}.sty")
         return True
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         return False
 
 
@@ -269,11 +294,13 @@ def _gen_multi_font_text():
     latin1_supplement = [chr(x) for x in range(start, 0xFF+1)]
     latin_extended_A = [chr(x) for x in range(0x100, 0x17F+1)]
     latin_extended_B = [chr(x) for x in range(0x180, 0x24F+1)]
+    non_basic_multilingual_plane = [chr(x) for x in range(0x1F600, 0x1F610)]
     count = itertools.count(start - 0xA0)
     non_basic_characters = '\n'.join(
         ''.join(line)
         for _, line in itertools.groupby(  # Replace with itertools.batched for Py3.12+.
-            [*latin1_supplement, *latin_extended_A, *latin_extended_B],
+            [*latin1_supplement, *latin_extended_A, *latin_extended_B,
+             *non_basic_multilingual_plane],
             key=lambda x: next(count) // 32)  # 32 characters per line.
     )
     test_str = f"""There are basic characters

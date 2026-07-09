@@ -3,9 +3,9 @@ matplotlib\.backends\..*
 matplotlib\.tests(\..*)?
 matplotlib\.pylab(\..*)?
 matplotlib\._.*
-matplotlib\.rcsetup\._listify_validator
 matplotlib\.rcsetup\._validate_linestyle
 matplotlib\.ft2font\.Glyph
+matplotlib\.ft2font\.LayoutItem
 matplotlib\.testing\.jpl_units\..*
 matplotlib\.sphinxext(\..*)?
 
@@ -28,7 +28,6 @@ matplotlib\.ticker\.LogitLocator\.nonsingular
 
 # Stdlib/Enum considered inconsistent (no fault of ours, I don't think)
 matplotlib\.backend_bases\._Mode\.__new__
-matplotlib\.units\.Number\.__hash__
 
 # 3.6 Pending deprecations
 matplotlib\.figure\.Figure\.set_constrained_layout
@@ -39,11 +38,6 @@ matplotlib\.figure\.Figure\.set_tight_layout
 matplotlib\.tri\..*TriInterpolator\.__call__
 matplotlib\.tri\..*TriInterpolator\.gradient
 
-# TypeVar used only in type hints
-matplotlib\.backend_bases\.FigureCanvasBase\._T
-matplotlib\.backend_managers\.ToolManager\._T
-matplotlib\.spines\.Spine\._T
-
 # Parameter inconsistency due to 3.10 deprecation
 matplotlib\.figure\.FigureBase\.get_figure
 
@@ -52,3 +46,7 @@ matplotlib\.inset\.InsetIndicator\.__getitem__
 
 # only defined in stubs; not present at runtime
 matplotlib\.animation\.EventSourceProtocol
+
+# Avoid a regression in NewType handling for stubtest
+# https://github.com/python/mypy/issues/19877
+matplotlib\.ft2font\.GlyphIndexType\.__init__

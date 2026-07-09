@@ -97,6 +97,7 @@ terrain: colors.Colormap
 winter: colors.Colormap
 Accent: colors.Colormap
 Dark2: colors.Colormap
+okabe_ito: colors.Colormap
 Paired: colors.Colormap
 Pastel1: colors.Colormap
 Pastel2: colors.Colormap
@@ -188,6 +189,7 @@ terrain_r: colors.Colormap
 winter_r: colors.Colormap
 Accent_r: colors.Colormap
 Dark2_r: colors.Colormap
+okabe_ito_r: colors.Colormap
 Paired_r: colors.Colormap
 Pastel1_r: colors.Colormap
 Pastel2_r: colors.Colormap

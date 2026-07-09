@@ -10,6 +10,7 @@ the ``colorspacious`` third-party module.
 import functools
 from pathlib import Path
 
+from PIL import Image
 import colorspacious
 
 import numpy as np
@@ -103,7 +104,7 @@ def setup(figure):
             break
     if pkg == "gi":
         _setup_gtk(tb)
-    elif pkg in ("PyQt5", "PySide2", "PyQt6", "PySide6"):
+    elif pkg in ("PyQt5", "PyQt6", "PySide6"):
         _setup_qt(tb)
     elif pkg == "tkinter":
         _setup_tk(tb)
@@ -289,8 +290,7 @@ if __name__ == '__main__':
     fig.colorbar(imt)
 
     # A sample image
-    with cbook.get_sample_data('grace_hopper.jpg') as image_file:
-        photo = plt.imread(image_file)
+    photo = Image.open(cbook.get_sample_data("grace_hopper.jpg"))
     axd['photo'].imshow(photo)
 
     th = np.linspace(0, 2*np.pi, 1024)

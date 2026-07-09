@@ -2,14 +2,19 @@
 name: 'Label inactive PRs'
 on:
   schedule:
-    - cron: '30 1 * * 1,3,5'
+    - cron: '30 1 * * 1'
+
+permissions: {}
 
 jobs:
   stale:
     if: github.repository == 'matplotlib/matplotlib'
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
     steps:
-      - uses: actions/stale@3a9db7e6a41a89f618792c92c0e97cc736e1b13f  # v10.0.0
+      - uses: actions/stale@eb5cf3af3ac0a1aa4c9c45633dd1ae542a27a899  # v10.3.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 20
@@ -36,3 +41,4 @@ jobs:
           ascending: true
           exempt-issue-labels: "keep"
           exempt-pr-labels: "keep,status: orphaned PR"
+          sort-by: updated

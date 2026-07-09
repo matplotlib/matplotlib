@@ -16,6 +16,7 @@ from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
+from matplotlib.patches import Rectangle
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import Bbox, Affine2D, Transform, TransformedBbox
 import matplotlib.ticker as mticker
@@ -23,7 +24,19 @@ import matplotlib.ticker as mticker
 import pytest
 
 
-@image_comparison(['interp_alpha.png'], remove_text=True)
+@pytest.fixture
+def nonaffine_identity():
+    """Non-affine identity transform for compositing with any affine transform"""
+    class NonAffineIdentityTransform(Transform):
+        input_dims = 2
+        output_dims = 2
+
+        def inverted(self):
+            return self
+    return NonAffineIdentityTransform()
+
+
+@image_comparison(['interp_alpha.png'], remove_text=True, style='_classic_test')
 def test_alpha_interp():
     """Test the interpolation of the alpha channel on RGBA images"""
     fig, (axl, axr) = plt.subplots(1, 2)
@@ -36,8 +49,8 @@ def test_alpha_interp():
     axr.imshow(img, interpolation="bilinear")
 
 
-@image_comparison(['interp_nearest_vs_none'],
-                  extensions=['pdf', 'svg'], remove_text=True)
+@image_comparison(['interp_nearest_vs_none'], tol=3.7,  # For Ghostscript 10.06+.
+                  extensions=['pdf', 'svg'], remove_text=True, style='mpl20')
 def test_interp_nearest_vs_none():
     """Test the effect of "nearest" and "none" interpolation"""
     # Setting dpi to something really small makes the difference very
@@ -55,7 +68,7 @@ def test_interp_nearest_vs_none():
 
 
 @pytest.mark.parametrize('suppressComposite', [False, True])
-@image_comparison(['figimage'], extensions=['png', 'pdf'])
+@image_comparison(['figimage'], extensions=['png', 'pdf'], style='_classic_test')
 def test_figimage(suppressComposite):
     fig = plt.figure(figsize=(2, 2), dpi=100)
     fig.suppressComposite = suppressComposite
@@ -214,8 +227,8 @@ def test_imsave_rgba_origin(origin):
 
 
 @pytest.mark.parametrize("fmt", ["png", "pdf", "ps", "eps", "svg"])
-def test_imsave_fspath(fmt):
-    plt.imsave(Path(os.devnull), np.array([[0, 1]]), format=fmt)
+def test_imsave_fspath(fmt, tmp_path):
+    plt.imsave(tmp_path / f'unused.{fmt}', np.array([[0, 1]]), format=fmt)
 
 
 def test_imsave_color_alpha():
@@ -265,7 +278,7 @@ def test_imsave_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
-@image_comparison(['image_alpha'], remove_text=True)
+@image_comparison(['image_alpha'], remove_text=True, style='_classic_test')
 def test_image_alpha():
     np.random.seed(0)
     Z = np.random.rand(6, 6)
@@ -452,6 +465,43 @@ def test_format_cursor_data(data, text):
     assert im.format_cursor_data(im.get_cursor_data(event)) == text
 
 
+@pytest.mark.parametrize(
+    "data, text", [
+        ([[[10001, 10000]], [[0, 0]]], "[10001.000, 0.000]"),
+        ([[[.123, .987]], [[0.1, 0]]], "[0.123, 0.100]"),
+        ([[[np.nan, 1, 2]], [[0, 0, 0]]], "[]"),
+    ])
+def test_format_cursor_data_multinorm(data, text):
+    from matplotlib.backend_bases import MouseEvent
+    fig, ax = plt.subplots()
+    cmap_bivar = mpl.bivar_colormaps['BiOrangeBlue']
+    cmap_multivar = mpl.multivar_colormaps['2VarAddA']
+
+    # This is a test for ColorizingArtist._format_cursor_data_override()
+    # with data with multiple channels.
+    # It includes a workaround so that we can test this functionality
+    # before the MultiVar/BiVariate colormaps and MultiNorm are exposed
+    # via the top-level methods (ax.imshow())
+    # i.e. we here set the hidden variables _cmap and _norm
+    # and use set_array() on the ColorizingArtist rather than the _ImageBase
+    # but this workaround should be replaced by:
+    #  `ax.imshow(data, cmap=cmap_bivar, vmin=(0,0), vmax=(1,1))`
+    # once the functionality is available.
+    # see https://github.com/matplotlib/matplotlib/issues/14168
+    im = ax.imshow([[0, 1]])
+    im.colorizer._cmap = cmap_bivar
+    im.colorizer._norm = colors.MultiNorm([im.norm, im.norm])
+    mpl.colorizer.ColorizingArtist.set_array(im, data)
+
+    xdisp, ydisp = ax.transData.transform([0, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+    im.colorizer._cmap = cmap_multivar
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+
 @image_comparison(['image_clip'], style='mpl20')
 def test_image_clip():
     d = [[1, 2], [3, 4]]
@@ -503,7 +553,7 @@ def test_imshow_10_10_5():
         ax.imshow(arr)
 
 
-@image_comparison(['no_interpolation_origin'], remove_text=True)
+@image_comparison(['no_interpolation_origin'], remove_text=True, style='_classic_test')
 def test_no_interpolation_origin():
     fig, axs = plt.subplots(2)
     axs[0].imshow(np.arange(100).reshape((2, 50)), origin="lower",
@@ -511,7 +561,8 @@ def test_no_interpolation_origin():
     axs[1].imshow(np.arange(100).reshape((2, 50)), interpolation='none')
 
 
-@image_comparison(['image_shift'], remove_text=True, extensions=['pdf', 'svg'])
+@image_comparison(['image_shift'], extensions=['pdf', 'svg'], remove_text=True,
+                  style='_classic_test')
 def test_image_shift():
     imgData = [[1 / x + 1 / y for x in range(1, 100)] for y in range(1, 100)]
     tMin = 734717.945208
@@ -562,7 +613,8 @@ def test_image_composite_background():
     ax.set_xlim(0, 12)
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True, tol=0.07)
+@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test',
+                  tol=0.07)
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -829,7 +881,7 @@ def test_load_from_url():
         plt.imread(file)
 
 
-@image_comparison(['log_scale_image'], remove_text=True)
+@image_comparison(['log_scale_image'], remove_text=True, style='_classic_test')
 def test_log_scale_image():
     Z = np.zeros((10, 10))
     Z[::2] = 1
@@ -840,7 +892,7 @@ def test_log_scale_image():
     ax.set(yscale='log')
 
 
-@image_comparison(['rotate_image'], remove_text=True)
+@image_comparison(['rotate_image'], remove_text=True, style='_classic_test')
 def test_rotate_image():
     delta = 0.25
     x = y = np.arange(-3.0, 3.0, delta)
@@ -900,7 +952,8 @@ def test_image_preserve_size2():
                        np.identity(n, bool)[::-1])
 
 
-@image_comparison(['mask_image_over_under.png'], remove_text=True, tol=1.0)
+@image_comparison(['mask_image_over_under.png'], remove_text=True,
+                  style='_classic_test', tol=1.0)
 def test_mask_image_over_under():
 
     delta = 0.025
@@ -932,7 +985,7 @@ def test_mask_image_over_under():
                  orientation='horizontal', ax=ax2, aspect=10)
 
 
-@image_comparison(['mask_image'], remove_text=True)
+@image_comparison(['mask_image'], remove_text=True, style='_classic_test')
 def test_mask_image():
     # Test mask image two ways: Using nans and using a masked array.
 
@@ -958,7 +1011,7 @@ def test_mask_image_all():
     fig.canvas.draw_idle()  # would emit a warning
 
 
-@image_comparison(['imshow_endianess.png'], remove_text=True)
+@image_comparison(['imshow_endianess.png'], remove_text=True, style='_classic_test')
 def test_imshow_endianess():
     x = np.arange(10)
     X, Y = np.meshgrid(x, x)
@@ -1437,7 +1490,7 @@ def test_nonuniform_logscale():
         ax.add_image(im)
 
 
-@image_comparison(['rgba_antialias.png'], style='mpl20', remove_text=True, tol=0.02)
+@image_comparison(['rgba_antialias.png'], style='mpl20', remove_text=True)
 def test_rgba_antialias():
     fig, axs = plt.subplots(2, 2, figsize=(3.5, 3.5), sharex=False,
                             sharey=False, constrained_layout=True)
@@ -1518,7 +1571,7 @@ def test_downsample_interpolation_stage(fig_test, fig_ref):
     # Fixing random state for reproducibility
     np.random.seed(19680801)
 
-    grid = np.random.rand(4000, 4000)
+    grid = np.random.rand(400, 400)
     ax = fig_ref.subplots()
     ax.imshow(grid, interpolation='auto', cmap='viridis',
               interpolation_stage='rgba')
@@ -1546,7 +1599,7 @@ def test_rc_interpolation_stage():
     'dim, size, msg', [['row', 2**23, r'2\*\*23 columns'],
                        ['col', 2**24, r'2\*\*24 rows']])
 @check_figures_equal()
-def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
+def test_large_image(fig_test, fig_ref, dim, size, msg, origin, high_memory):
     # Check that Matplotlib downsamples images that are too big for AGG
     # See issue #19276. Currently the fix only works for png output but not
     # pdf or svg output.
@@ -1565,10 +1618,12 @@ def test_large_image(fig_test, fig_ref, dim, size, msg, origin):
     with pytest.warns(UserWarning,
                       match=f'Data with more than {msg} cannot be '
                       'accurately displayed.'):
-        fig_test.canvas.draw()
+        with io.BytesIO() as buffer:
+            # Write to a buffer to trigger the warning
+            fig_test.savefig(buffer)
 
-    array = np.zeros((1, 2))
-    array[:, 1] = 1
+    array = np.zeros((1, size // 2 + 1))
+    array[:, array.size // 2:] = 1
     if dim == 'col':
         array = array.T
     im = ax_ref.imshow(array, vmin=0, vmax=1, aspect='auto',
@@ -1625,35 +1680,45 @@ def test__resample_valid_output():
 @pytest.mark.parametrize("data, interpolation, expected",
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),
+     (np.array([[0.1, 0.2, 0.3, 0.4, 0.5, 0.6]]), mimage.NEAREST,
+      np.array([[0.1, 0.2, 0.2, 0.3, 0.4, 0.4, 0.5, 0.6, 0.6]])),
      (np.array([[0.1, 0.3, 0.2]]), mimage.BILINEAR,
-      np.array([[0.1, 0.1, 0.15078125, 0.21096191, 0.27033691,
-                 0.28476562, 0.2546875, 0.22460938, 0.20002441, 0.20002441]])),
+      np.array([[0.1, 0.1, 0.15, 0.21, 0.27, 0.285, 0.255, 0.225, 0.2, 0.2]])),
+     (np.array([[0.1, 0.9]]), mimage.BILINEAR,
+      np.array([[0.1, 0.1, 0.1, 0.1, 0.1, 0.14, 0.22, 0.3, 0.38, 0.46,
+                 0.54, 0.62, 0.7, 0.78, 0.86, 0.9, 0.9, 0.9, 0.9, 0.9]])),
+     (np.array([[0.1, 0.1]]), mimage.BILINEAR, np.full((1, 10), 0.1)),
+     # Test at the subpixel level
+     (np.array([[0.1, 0.9]]), mimage.NEAREST,
+      np.concatenate([np.full(512, 0.1), np.full(512, 0.9)]).reshape(1, -1)),
+     (np.array([[0.1, 0.9]]), mimage.BILINEAR,
+      np.concatenate([np.full(256, 0.1),
+                      np.linspace(0.5, 256, 512).astype(int) / 256 * 0.8 + 0.1,
+                      np.full(256, 0.9)]).reshape(1, -1)),
     ]
 )
-def test_resample_nonaffine(data, interpolation, expected):
-    # Test that equivalent affine and nonaffine transforms resample the same
+def test_resample_nonaffine(data, interpolation, expected, nonaffine_identity):
+    # Test that both affine and nonaffine transforms resample to the correct answer
+
+    # If the array is constant, the tolerance can be tight
+    # Otherwise, the tolerance is limited by the subpixel approach in the agg backend
+    atol = 0 if np.all(data == data.ravel()[0]) else 2e-3
 
     # Create a simple affine transform for scaling the input array
     affine_transform = Affine2D().scale(sx=expected.shape[1] / data.shape[1], sy=1)
 
     affine_result = np.empty_like(expected)
     mimage.resample(data, affine_result, affine_transform, interpolation=interpolation)
-    assert_allclose(affine_result, expected)
+    assert_allclose(affine_result, expected, atol=atol)
 
     # Create a nonaffine version of the same transform
     # by compositing with a nonaffine identity transform
-    class NonAffineIdentityTransform(Transform):
-        input_dims = 2
-        output_dims = 2
-
-        def inverted(self):
-           return self
-    nonaffine_transform = NonAffineIdentityTransform() + affine_transform
+    nonaffine_transform = nonaffine_identity + affine_transform
 
     nonaffine_result = np.empty_like(expected)
     mimage.resample(data, nonaffine_result, nonaffine_transform,
                     interpolation=interpolation)
-    assert_allclose(nonaffine_result, expected, atol=5e-3)
+    assert_allclose(nonaffine_result, expected, atol=atol)
 
 
 def test_axesimage_get_shape():
@@ -1679,8 +1744,8 @@ def test_non_transdata_image_does_not_touch_aspect():
     assert ax.get_aspect() == 2
 
 
-@image_comparison(
-    ['downsampling.png'], style='mpl20', remove_text=True, tol=0.09)
+@image_comparison(['downsampling.png'], style='mpl20', remove_text=True,
+                  tol=0 if platform.machine() == 'x86_64' else 0.07)
 def test_downsampling():
     N = 450
     x = np.arange(N) / N - 0.5
@@ -1714,8 +1779,7 @@ def test_downsampling():
         ax.set_title(f"interpolation='{interp}'\nspace='{space}'")
 
 
-@image_comparison(
-    ['downsampling_speckle.png'], style='mpl20', remove_text=True, tol=0.09)
+@image_comparison(['downsampling_speckle.png'], style='mpl20', remove_text=True)
 def test_downsampling_speckle():
     fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), sharex=True, sharey=True,
                             layout="compressed")
@@ -1804,7 +1868,7 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     axs_ref[0][2].imshow(im_rgba, interpolation_stage=intp_stage)
 
     # When the image already has an alpha channel, multiply it by the
-    # scalar alpha param, or replace it by the array alpha param
+    # alpha param (both scalar and array alpha multiply the existing alpha)
     axs_tst[1][0].imshow(im_rgba)
     axs_ref[1][0].imshow(im_rgb, alpha=array_alpha)
     axs_tst[1][1].imshow(im_rgba, interpolation_stage=intp_stage, alpha=scalar_alpha)
@@ -1816,7 +1880,178 @@ def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_s
     new_array_alpha = np.random.rand(ny, nx)
     axs_tst[1][2].imshow(im_rgba, interpolation_stage=intp_stage, alpha=new_array_alpha)
     axs_ref[1][2].imshow(
-        np.concatenate(  # combine rgb channels with new array alpha
-            (im_rgb, new_array_alpha.reshape((ny, nx, 1))), axis=-1
+        np.concatenate(  # combine rgb channels with multiplied array alpha
+            (im_rgb, array_alpha.reshape((ny, nx, 1))
+             * new_array_alpha.reshape((ny, nx, 1))), axis=-1
         ), interpolation_stage=intp_stage
     )
+
+
+@image_comparison(['nn_pixel_alignment.png'], style='_classic_test')
+def test_nn_pixel_alignment(nonaffine_identity):
+    fig, axs = plt.subplots(2, 3)
+
+    for j, N in enumerate([3, 7, 11]):
+        # In each column, the plots use the same data array
+        data = np.arange(N**2).reshape((N, N)) % 4
+        seps = np.arange(-0.5, N)
+
+        for i in range(2):
+            if i == 0:
+                # Top row uses an affine transform
+                axs[i, j].imshow(data, cmap='Grays', interpolation='nearest')
+            else:
+                # Bottom row uses a non-affine transform
+                axs[i, j].imshow(data, cmap='Grays', interpolation='nearest',
+                                 transform=nonaffine_identity + axs[i, j].transData)
+
+            axs[i, j].set_axis_off()
+            axs[i, j].vlines(seps, -1, N, lw=0.5, color='red', ls='dashed')
+            axs[i, j].hlines(seps, -1, N, lw=0.5, color='red', ls='dashed')
+
+
+@image_comparison(['alignment_half_display_pixels.png'], style='mpl20')
+def test_alignment_half_display_pixels(nonaffine_identity):
+    # All values in this test are chosen carefully so that many display pixels are
+    # aligned with an edge or a corner of an input pixel
+
+    # Layout:
+    # Top row is origin='upper', bottom row is origin='lower'
+    # Column 1: affine transform, anchored at whole pixel
+    # Column 2: affine transform, anchored at half pixel
+    # Column 3: nonaffine transform, anchored at whole pixel
+    # Column 4: nonaffine transform, anchored at half pixel
+    # Column 5: affine transform, anchored at half pixel, interpolation='hanning'
+
+    # Each axes patch is magenta, so seeing a magenta line at an edge of the image
+    # means that the image is not filling the axes
+
+    fig = plt.figure(figsize=(5, 2), dpi=100)
+    fig.set_facecolor('g')
+
+    corner_x = [0.01, 0.199, 0.41, 0.599, 0.809]
+    corner_y = [0.05, 0.53]
+
+    axs = []
+    for cy in corner_y:
+        for ix, cx in enumerate(corner_x):
+            my = cy + 0.0125 if ix in [1, 3, 4] else cy
+            axs.append(fig.add_axes([cx, my, 0.17, 0.425], xticks=[], yticks=[]))
+
+    # Verify that each axes has been created with the correct width/height and that all
+    # four corners are on whole pixels (columns 1 and 3) or half pixels (columns 2, 4,
+    # and 5)
+    for i, ax in enumerate(axs):
+        extents = ax.get_window_extent().extents
+        assert_allclose(extents[2:4] - extents[0:2], 85, rtol=0, atol=1e-13)
+        assert_allclose(extents % 1, 0.5 if i % 5 in [1, 3, 4] else 0,
+                        rtol=0, atol=1e-13)
+
+    N = 10
+
+    data = np.arange(N**2).reshape((N, N)) % 9
+    seps = np.arange(-0.5, N)
+
+    for i, ax in enumerate(axs):
+        ax.set_facecolor('m')
+
+        transform = nonaffine_identity + ax.transData if i % 4 >= 2 else ax.transData
+        ax.imshow(data, cmap='Blues',
+                  interpolation='hanning' if i % 5 == 4 else 'nearest',
+                  origin='upper' if i >= 5 else 'lower',
+                  transform=transform)
+
+        ax.vlines(seps, -0.5, N - 0.5, lw=0.5, color='red', ls=(0, (2, 4)))
+        ax.hlines(seps, -0.5, N - 0.5, lw=0.5, color='red', ls=(0, (2, 4)))
+
+        for spine in ax.spines:
+            ax.spines[spine].set_linestyle((0, (5, 10)))
+
+
+@image_comparison(['image_bounds_handling.png'], style='_classic_test', tol=0.006)
+def test_image_bounds_handling(nonaffine_identity):
+    # TODO: The second and third panels in the bottom row show that the handling of
+    # image bounds is bugged for non-affine transforms and non-nearest-neighbor
+    # interpolation.  If this bug gets fixed, the baseline image should be updated.
+
+    fig, axs = plt.subplots(2, 3)
+
+    N = 11
+
+    for j, interpolation in enumerate(['nearest', 'hanning', 'bilinear']):
+        data = np.arange(N**2).reshape((N, N))
+        data = data / N**2 + (data % 4) / 6
+        rotation = Affine2D().rotate_around(N/2-0.5, N/2-0.5, 1)
+
+        for i in range(2):
+            transform = rotation + axs[i, j].transData
+            if i == 1:
+                # Bottom row uses a non-affine transform
+                transform = nonaffine_identity + transform
+
+            axs[i, j].imshow(data, cmap='Grays', interpolation=interpolation,
+                             transform=transform)
+
+            axs[i, j].set_axis_off()
+            box = Rectangle((-0.5, -0.5), N, N,
+                            edgecolor='red', facecolor='none', lw=0.5, ls='dashed',
+                            transform=rotation + axs[i, j].transData)
+            axs[i, j].add_artist(box)
+
+
+@image_comparison(['rgba_clean_edges.png'], style='_classic_test', tol=0.003)
+def test_rgba_clean_edges():
+    np.random.seed(19680801+9)  # same as in test_upsampling()
+    data = np.random.rand(8, 8)
+    data = np.stack([data, data])
+    data[1, 2:4, 2:4] = np.nan
+
+    rotation = Affine2D().rotate_around(3.5, 3.5, 1)
+
+    fig, axs = plt.subplots(1, 2)
+
+    for i in range(2):
+        # Add background patches to check the fading to non-white colors
+        black = Rectangle((3.75, 2), 5, 5, color='black', zorder=0)
+        gray = Rectangle((0, -2), 3.75, 4, color='gray', zorder=0)
+        partly_black = Rectangle((3.75, -2), 5, 4, fc='black', ec='none',
+                                 alpha=0.5, zorder=0)
+        axs[i].add_patch(black)
+        axs[i].add_patch(gray)
+        axs[i].add_patch(partly_black)
+
+        axs[i].imshow(data[i, ...],
+                      interpolation='bilinear', interpolation_stage='rgba',
+                      transform=rotation + axs[i].transData)
+
+        axs[i].set_axis_off()
+        axs[i].set_xlim(-2.5, 9.5)
+        axs[i].set_ylim(-2.5, 9.5)
+
+
+@image_comparison(['affine_fill_to_edges.png'], style='_classic_test')
+def test_affine_fill_to_edges():
+    # The two rows show the two settings of origin
+    # The three columns show the original and the two mirror flips
+    fig, axs = plt.subplots(2, 3)
+
+    N = 7
+    data = np.arange(N**2).reshape((N, N)) % 3
+
+    transform = [Affine2D(),
+                 Affine2D().translate(0, -N + 1).scale(1, -1),
+                 Affine2D().translate(-N + 1, 0).scale(-1, 1)]
+
+    for j in range(3):
+        for i in range(2):
+            origin = 'upper' if i == 0 else 'lower'
+
+            axs[i, j].imshow(data, cmap='Grays',
+                             interpolation='hanning', origin=origin,
+                             transform=transform[j] + axs[i, j].transData)
+
+            axs[i, j].set_axis_off()
+            axs[i, j].vlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
+            axs[i, j].vlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
+            axs[i, j].hlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
+            axs[i, j].hlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')

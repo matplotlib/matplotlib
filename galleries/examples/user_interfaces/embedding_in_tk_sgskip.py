@@ -4,6 +4,7 @@ Embed in Tk
 ===========
 
 """
+# sphinx_gallery_thumbnail_path = '_static/embedding_in_tk.png'
 
 import tkinter
 

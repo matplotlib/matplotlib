@@ -376,9 +376,16 @@ default: %(va)s
         else:
             suplab = self.text(x, y, t, **kwargs)
             setattr(self, info['name'], suplab)
+            suplab._remove_method = functools.partial(self._remove_suplabel,
+                                                      name=info['name'])
+
         suplab._autopos = autopos
         self.stale = True
         return suplab
+
+    def _remove_suplabel(self, label, name):
+        self.texts.remove(label)
+        setattr(self, name, None)
 
     @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
                              va='top', rc='title')
@@ -947,7 +954,7 @@ default: %(va)s
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
-            siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
+            siblings = grouper.get_siblings(ax, include_self=False)
             if not siblings:  # Axes was not shared along this axis; we're done.
                 continue
             grouper.remove(ax)
@@ -2485,6 +2492,9 @@ class Figure(FigureBase):
             - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
               ``(width, height, "in")``.
 
+            One of *width* or *height* may be ``None``; the respective value is
+            taken from :rc:`figure.figsize`.
+
         dpi : float, default: :rc:`figure.dpi`
             Dots per inch.
 
@@ -2766,7 +2776,7 @@ None}, default: None
 
         .. warning::
 
-            This does not manage an GUI event loop. Consequently, the figure
+            This does not manage a GUI event loop. Consequently, the figure
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
 
@@ -3003,12 +3013,10 @@ None}, default: None
         This is used upon initialization of the Figure, but also
         to reset the canvas when decoupling from pyplot.
         """
-        # check if we have changed the DPI due to hi-dpi screens
-        orig_dpi = getattr(self, '_original_dpi', self._dpi)
         FigureCanvasBase(self)  # Set self.canvas as a side-effect
-        # put it back to what it was
-        if orig_dpi != self._dpi:
-            self.dpi = orig_dpi
+        # undo any high-dpi scaling
+        if self._dpi != self._original_dpi:
+            self.dpi = self._original_dpi
 
     def set_canvas(self, canvas):
         """
@@ -3150,6 +3158,10 @@ None}, default: None
         """
         if h is None:  # Got called with a single pair as argument.
             w, h = w
+        if w is None or h is None:
+            raise ValueError(
+                "Figure.set_size_inches does not accept None; provide both "
+                "width and height explicitly")
         size = np.array([w, h])
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
@@ -3323,8 +3335,9 @@ None}, default: None
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
-        FigureCanvasBase(self)  # Set self.canvas.
-
+        self._set_base_canvas()
+        # force the bounding boxes to respect current dpi
+        self.dpi_scale_trans.clear().scale(self._dpi)
         if restore_to_pylab:
             # lazy import to avoid circularity
             import matplotlib.pyplot as plt
@@ -3757,25 +3770,40 @@ def _parse_figsize(figsize, dpi):
     """
     num_parts = len(figsize)
     if num_parts == 2:
-        return figsize
+        x, y = figsize
     elif num_parts == 3:
         x, y, unit = figsize
         if unit == 'in':
             pass
         elif unit == 'cm':
-            x /= 2.54
-            y /= 2.54
+            if x is not None:
+                x /= 2.54
+            if y is not None:
+                y /= 2.54
         elif unit == 'px':
-            x /= dpi
-            y /= dpi
+            if x is not None:
+                x /= dpi
+            if y is not None:
+                y /= dpi
         else:
             raise ValueError(
                 f"Invalid unit {unit!r} in 'figsize'; "
                 "supported units are 'in', 'cm', 'px'"
             )
-        return x, y
     else:
         raise ValueError(
             "Invalid figsize format, expected (x, y) or (x, y, unit) but got "
             f"{figsize!r}"
         )
+
+    if x is None and y is None:
+        raise ValueError(
+            "figsize=(None, None) is invalid; at least one of width or "
+            "height must be provided")
+
+    default_width, default_height = mpl.rcParams["figure.figsize"]
+    if x is None:
+        x = default_width
+    if y is None:
+        y = default_height
+    return x, y

@@ -1,4 +1,6 @@
 from datetime import datetime
+import gc
+import inspect
 import io
 import warnings
 
@@ -12,7 +14,7 @@ import matplotlib as mpl
 from matplotlib.backend_bases import MouseEvent
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
-from matplotlib.font_manager import FontProperties
+from matplotlib.font_manager import FontProperties, fontManager, get_font
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
@@ -24,7 +26,7 @@ from matplotlib.text import Text, Annotation, OffsetFrom
 pyparsing_version = parse_version(pyparsing.__version__)
 
 
-@image_comparison(['font_styles'])
+@image_comparison(['font_styles'], style='mpl20')
 def test_font_styles():
 
     def find_matplotlib_font(**kw):
@@ -113,7 +115,7 @@ def test_font_styles():
     ax.set_yticks([])
 
 
-@image_comparison(['multiline'])
+@image_comparison(['multiline'], style='mpl20')
 def test_multiline():
     plt.figure()
     ax = plt.subplot(1, 1, 1)
@@ -139,9 +141,6 @@ def test_multiline():
 
 @image_comparison(['multiline2'], style='mpl20')
 def test_multiline2():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, ax = plt.subplots()
 
     ax.set_xlim(0, 1.4)
@@ -208,9 +207,9 @@ def test_antialiasing():
     mpl.rcParams['text.antialiased'] = False  # Should not affect existing text.
 
 
-@image_comparison(['text_contains.png'])
+@image_comparison(['text_contains.png'], style='mpl20')
 def test_contains():
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     ax = plt.axes()
 
     mevent = MouseEvent('button_press_event', fig.canvas, 0.5, 0.5, 1, None)
@@ -266,7 +265,7 @@ def test_annotate_errors(err, xycoords, match):
         fig.canvas.draw()
 
 
-@image_comparison(['titles'])
+@image_comparison(['titles'], style='mpl20')
 def test_titles():
     # left and right side titles
     plt.figure()
@@ -301,7 +300,23 @@ def test_alignment():
     ax.set_yticks([])
 
 
-@image_comparison(['axes_titles.png'])
+@image_comparison(baseline_images=['rotation_anchor.png'], style='mpl20',
+                  remove_text=True)
+def test_rotation_mode_anchor():
+    fig, ax = plt.subplots()
+
+    ax.plot([0, 1], lw=0)
+    ax.axvline(.5, linewidth=.5, color='.5')
+    ax.axhline(.5, linewidth=.5, color='.5')
+
+    N = 4
+    for r in range(N):
+        ax.text(.5, .5, 'pP', color=f'C{r}', size=100,
+                rotation=r/N*360, rotation_mode='anchor',
+                verticalalignment='center_baseline')
+
+
+@image_comparison(['axes_titles.png'], style='mpl20')
 def test_axes_titles():
     # Related to issue #3327
     plt.figure()
@@ -427,14 +442,14 @@ def test_null_rotation_with_rotation_mode(ha, va):
                         t1.get_window_extent(fig.canvas.renderer).get_points())
 
 
-@image_comparison(['text_bboxclip'])
+@image_comparison(['text_bboxclip'], style='mpl20')
 def test_bbox_clipping():
     plt.text(0.9, 0.2, 'Is bbox clipped?', backgroundcolor='r', clip_on=True)
     t = plt.text(0.9, 0.5, 'Is fancy bbox clipped?', clip_on=True)
     t.set_bbox({"boxstyle": "round, pad=0.1"})
 
 
-@image_comparison(['annotation_negative_ax_coords.png'])
+@image_comparison(['annotation_negative_ax_coords.png'], style='mpl20')
 def test_annotation_negative_ax_coords():
     fig, ax = plt.subplots()
 
@@ -462,31 +477,31 @@ def test_annotation_negative_ax_coords():
                 va='top')
 
 
-@image_comparison(['annotation_negative_fig_coords.png'])
+@image_comparison(['annotation_negative_fig_coords.png'], style='mpl20')
 def test_annotation_negative_fig_coords():
     fig, ax = plt.subplots()
 
     ax.annotate('+ pts',
-                xytext=[10, 120], textcoords='figure points',
-                xy=[10, 120], xycoords='figure points', fontsize=32)
+                xytext=[10, 250], textcoords='figure points',
+                xy=[10, 250], xycoords='figure points', fontsize=32)
     ax.annotate('- pts',
-                xytext=[-10, 180], textcoords='figure points',
-                xy=[-10, 180], xycoords='figure points', fontsize=32,
+                xytext=[-10, 310], textcoords='figure points',
+                xy=[-10, 310], xycoords='figure points', fontsize=32,
                 va='top')
     ax.annotate('+ frac',
-                xytext=[0.05, 0.55], textcoords='figure fraction',
-                xy=[0.05, 0.55], xycoords='figure fraction', fontsize=32)
+                xytext=[0.05, 0.5], textcoords='figure fraction',
+                xy=[0.05, 0.5], xycoords='figure fraction', fontsize=32)
     ax.annotate('- frac',
-                xytext=[-0.05, 0.5], textcoords='figure fraction',
-                xy=[-0.05, 0.5], xycoords='figure fraction', fontsize=32,
+                xytext=[-0.05, 0.45], textcoords='figure fraction',
+                xy=[-0.05, 0.45], xycoords='figure fraction', fontsize=32,
                 va='top')
 
     ax.annotate('+ pixels',
                 xytext=[50, 50], textcoords='figure pixels',
                 xy=[50, 50], xycoords='figure pixels', fontsize=32)
     ax.annotate('- pixels',
-                xytext=[-50, 100], textcoords='figure pixels',
-                xy=[-50, 100], xycoords='figure pixels', fontsize=32,
+                xytext=[-50, 150], textcoords='figure pixels',
+                xy=[-50, 150], xycoords='figure pixels', fontsize=32,
                 va='top')
 
 
@@ -513,7 +528,7 @@ def test_text_stale():
     assert not fig.stale
 
 
-@image_comparison(['agg_text_clip.png'])
+@image_comparison(['agg_text_clip.png'], style='mpl20')
 def test_agg_text_clip():
     np.random.seed(1)
     fig, (ax1, ax2) = plt.subplots(2)
@@ -531,7 +546,7 @@ def test_text_size_binding():
     assert sz1 == fp.get_size_in_points()
 
 
-@image_comparison(['font_scaling.pdf'])
+@image_comparison(['font_scaling.pdf'], style='mpl20')
 def test_font_scaling():
     mpl.rcParams['pdf.fonttype'] = 42
     fig, ax = plt.subplots(figsize=(6.4, 12.4))
@@ -576,20 +591,6 @@ def test_nonfinite_pos():
     fig.canvas.draw()
 
 
-def test_hinting_factor_backends():
-    plt.rcParams['text.hinting_factor'] = 1
-    fig = plt.figure()
-    t = fig.text(0.5, 0.5, 'some text')
-
-    fig.savefig(io.BytesIO(), format='svg')
-    expected = t.get_window_extent().intervalx
-
-    fig.savefig(io.BytesIO(), format='png')
-    # Backends should apply hinting_factor consistently (within 10%).
-    np.testing.assert_allclose(t.get_window_extent().intervalx, expected,
-                               rtol=0.1)
-
-
 @needs_usetex
 def test_usetex_is_copied():
     # Indirectly tests that update_from (which is used to copy tick label
@@ -627,7 +628,7 @@ def test_single_artist_usenotex(fmt):
     fig.savefig(io.BytesIO(), format=fmt)
 
 
-@image_comparison(['text_as_path_opacity.svg'])
+@image_comparison(['text_as_path_opacity.svg'], style='_classic_test')
 def test_text_as_path_opacity():
     plt.figure()
     plt.gca().set_axis_off()
@@ -636,7 +637,7 @@ def test_text_as_path_opacity():
     plt.text(0.25, 0.75, 'x', alpha=0.5, color=(0, 0, 0, 1))
 
 
-@image_comparison(['text_as_text_opacity.svg'])
+@image_comparison(['text_as_text_opacity.svg'], style='_classic_test')
 def test_text_as_text_opacity():
     mpl.rcParams['svg.fonttype'] = 'none'
     plt.figure()
@@ -678,8 +679,6 @@ def test_annotation_units(fig_test, fig_ref):
 
 @image_comparison(['large_subscript_title.png'], style='mpl20')
 def test_large_subscript_title():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
     plt.rcParams['axes.titley'] = None
 
     fig, axs = plt.subplots(1, 2, figsize=(9, 2.5), constrained_layout=True)
@@ -716,7 +715,7 @@ def test_wrap(x, rotation, halign):
 
 
 def test_mathwrap():
-    fig = plt.figure(figsize=(6, 4))
+    fig = plt.figure(figsize=(5, 4))
     s = r'This is a very $\overline{\mathrm{long}}$ line of Mathtext.'
     text = fig.text(0, 0.5, s, size=40, wrap=True)
     fig.canvas.draw()
@@ -809,24 +808,6 @@ def test_invalid_color():
         plt.figtext(.5, .5, "foo", c="foobar")
 
 
-@image_comparison(['text_pdf_kerning.pdf'], style='mpl20')
-def test_pdf_kerning():
-    plt.figure()
-    plt.figtext(0.1, 0.5, "ATATATATATATATATATA", size=30)
-
-
-def test_unsupported_script(recwarn):
-    fig = plt.figure()
-    t = fig.text(.5, .5, "\N{BENGALI DIGIT ZERO}")
-    fig.canvas.draw()
-    assert all(isinstance(warn.message, UserWarning) for warn in recwarn)
-    assert (
-        [warn.message.args for warn in recwarn] ==
-        [(r"Glyph 2534 (\N{BENGALI DIGIT ZERO}) missing from font(s) "
-            + f"{t.get_fontname()}.",),
-         (r"Matplotlib currently does not support Bengali natively.",)])
-
-
 # See gh-26152 for more information on this xfail
 @pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
                    reason="Error messages are incorrect with pyparsing 3.1.0")
@@ -857,24 +838,14 @@ def test_parse_math_rcparams():
         fig.canvas.draw()
 
 
-@image_comparison(['text_pdf_font42_kerning.pdf'], style='mpl20')
-def test_pdf_font42_kerning():
-    plt.rcParams['pdf.fonttype'] = 42
-    plt.figure()
-    plt.figtext(0.1, 0.5, "ATAVATAVATAVATAVATA", size=30)
-
-
-@image_comparison(['text_pdf_chars_beyond_bmp.pdf'], style='mpl20')
-def test_pdf_chars_beyond_bmp():
-    plt.rcParams['pdf.fonttype'] = 42
-    plt.rcParams['mathtext.fontset'] = 'stixsans'
-    plt.figure()
-    plt.figtext(0.1, 0.5, "Mass $m$ \U00010308", size=30)
-
-
 @needs_usetex
 def test_metrics_cache():
-    mpl.text._get_text_metrics_with_cache_impl.cache_clear()
+    # dig into the signature to get the mutable default used as a cache
+    renderer_cache = inspect.signature(
+        mpl.text._get_text_metrics_function
+    ).parameters['_cache'].default
+
+    renderer_cache.clear()
 
     fig = plt.figure()
     fig.text(.3, .5, "foo\nbar")
@@ -882,6 +853,8 @@ def test_metrics_cache():
     fig.text(.5, .5, "foo\nbar", usetex=True)
     fig.canvas.draw()
     renderer = fig._get_renderer()
+    assert renderer in renderer_cache
+
     ys = {}  # mapping of strings to where they were drawn in y with draw_tex.
 
     def call(*args, **kwargs):
@@ -897,10 +870,37 @@ def test_metrics_cache():
     # get incorrectly reused by the first TeX string.
     assert len(ys["foo"]) == len(ys["bar"]) == 1
 
-    info = mpl.text._get_text_metrics_with_cache_impl.cache_info()
+    info = renderer_cache[renderer].cache_info()
     # Every string gets a miss for the first layouting (extents), then a hit
     # when drawing, but "foo\nbar" gets two hits as it's drawn twice.
     assert info.hits > info.misses
+
+
+def test_metrics_cache2():
+    # dig into the signature to get the mutable default used as a cache
+    renderer_cache = inspect.signature(
+        mpl.text._get_text_metrics_function
+    ).parameters['_cache'].default
+    gc.collect()
+    renderer_cache.clear()
+
+    def helper():
+        fig, ax = plt.subplots()
+        fig.draw_without_rendering()
+        # show we hit the outer cache
+        assert len(renderer_cache) == 1
+        func = renderer_cache[fig.canvas.get_renderer()]
+        cache_info = func.cache_info()
+        # show we hit the inner cache
+        assert cache_info.currsize > 0
+        assert cache_info.currsize == cache_info.misses
+        assert cache_info.hits > cache_info.misses
+        plt.close(fig)
+
+    helper()
+    gc.collect()
+    # show the outer cache has a lifetime tied to the renderer (via the figure)
+    assert len(renderer_cache) == 0
 
 
 def test_annotate_offset_fontsize():
@@ -1003,8 +1003,16 @@ def test_text_annotation_get_window_extent():
 
     _, _, d = renderer.get_text_width_height_descent(
         'text', annotation._fontproperties, ismath=False)
-    _, _, lp_d = renderer.get_text_width_height_descent(
-        'lp', annotation._fontproperties, ismath=False)
+    font = get_font(fontManager._find_fonts_by_props(annotation._fontproperties))
+    for name, key in [('OS/2', 'sTypoDescender'), ('hhea', 'descent')]:
+        if (table := font.get_sfnt_table(name)) is not None:
+            units_per_em = font.get_sfnt_table('head')['unitsPerEm']
+            fontsize = annotation._fontproperties.get_size_in_points()
+            lp_d = -table[key] / units_per_em * fontsize * figure.dpi / 72
+            break
+    else:
+        _, _, lp_d = renderer.get_text_width_height_descent(
+            'lp', annotation._fontproperties, ismath=False)
     below_line = max(d, lp_d)
 
     # These numbers are specific to the current implementation of Text
@@ -1043,7 +1051,7 @@ def test_text_with_arrow_annotation_get_window_extent():
     assert bbox.width == text_bbox.width + 50.0
     # make sure the annotation text bounding box is same size
     # as the bounding box of the same string as a Text object
-    assert ann_txt_bbox.height == text_bbox.height
+    assert_almost_equal(ann_txt_bbox.height, text_bbox.height)
     assert ann_txt_bbox.width == text_bbox.width
     # compute the expected bounding box of arrow + text
     expected_bbox = mtransforms.Bbox.union([ann_txt_bbox, arrow_bbox])
@@ -1096,10 +1104,9 @@ def test_empty_annotation_get_window_extent():
     assert points[0, 1] == 50.0
 
 
-@image_comparison(baseline_images=['basictext_wrap'],
-                  extensions=['png'])
+@image_comparison(['basictext_wrap.png'], style='mpl20')
 def test_basic_wrap():
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     plt.axis([0, 10, 0, 10])
     t = "This is a really long string that I'd rather have wrapped so that" \
         " it doesn't go outside of the figure, but if it's long enough it" \
@@ -1113,10 +1120,9 @@ def test_basic_wrap():
     plt.text(-1, 0, t, ha='left', rotation=-15, wrap=True)
 
 
-@image_comparison(baseline_images=['fonttext_wrap'],
-                  extensions=['png'])
+@image_comparison(['fonttext_wrap.png'], style='mpl20')
 def test_font_wrap():
-    fig = plt.figure()
+    fig = plt.figure(figsize=(8, 6))
     plt.axis([0, 10, 0, 10])
     t = "This is a really long string that I'd rather have wrapped so that" \
         " it doesn't go outside of the figure, but if it's long enough it" \
@@ -1146,8 +1152,7 @@ def test_va_for_angle():
         assert alignment in ['center', 'top', 'baseline']
 
 
-@image_comparison(baseline_images=['xtick_rotation_mode'],
-                  remove_text=False, extensions=['png'], style='mpl20')
+@image_comparison(['xtick_rotation_mode.png'], remove_text=False, style='mpl20')
 def test_xtick_rotation_mode():
     fig, ax = plt.subplots(figsize=(12, 1))
     ax.set_yticks([])
@@ -1166,8 +1171,7 @@ def test_xtick_rotation_mode():
     plt.subplots_adjust(left=0.01, right=0.99, top=.6, bottom=.4)
 
 
-@image_comparison(baseline_images=['ytick_rotation_mode'],
-                  remove_text=False, extensions=['png'], style='mpl20')
+@image_comparison(['ytick_rotation_mode.png'], remove_text=False, style='mpl20')
 def test_ytick_rotation_mode():
     fig, ax = plt.subplots(figsize=(1, 12))
     ax.set_xticks([])
@@ -1183,3 +1187,133 @@ def test_ytick_rotation_mode():
         tick.set_rotation(angle)
 
     plt.subplots_adjust(left=0.4, right=0.6, top=.99, bottom=.01)
+
+
+def test_text_tightbbox_outside_scale_domain():
+    # Test that text at positions outside the valid domain of axes scales
+    # (e.g., negative coordinates with log scale) returns a null bbox.
+    fig, ax = plt.subplots()
+    ax.set_yscale('log')
+    ax.set_ylim(1, 100)
+
+    invalid_text = ax.text(0, -5, 'invalid')
+    invalid_bbox = invalid_text.get_tightbbox(fig.canvas.get_renderer())
+    assert not np.isfinite(invalid_bbox.width)
+
+
+def _test_complex_shaping(fig):
+    # Raqm is Arabic for writing; note that because Arabic is RTL, the characters here
+    # may seem to be in a different order than expected, but libraqm will order them
+    # correctly for us.
+    text = (
+        'Arabic: \N{Arabic Letter REH}\N{Arabic FATHA}\N{Arabic Letter QAF}'
+        '\N{Arabic SUKUN}\N{Arabic Letter MEEM}')
+    math_signs = '\N{N-ary Product}\N{N-ary Coproduct}\N{N-ary summation}\N{Integral}'
+    text = math_signs + text + math_signs
+    fig.text(0.5, 0.75, text, size=32, ha='center', va='center')
+    # Also check fallback behaviour:
+    # - English should use cmr10
+    # - Math signs should use DejaVu Sans Display (and thus be larger than the rest)
+    # - Arabic should use DejaVu Sans
+    fig.text(0.5, 0.25, text, size=32, ha='center', va='center',
+             family=['cmr10', 'DejaVu Sans Display', 'DejaVu Sans'])
+
+
+@image_comparison(['complex'], extensions=['png', 'pdf', 'svg', 'eps'], style='mpl20')
+def test_complex_shaping():
+    fig = plt.figure(figsize=(6, 2))
+    _test_complex_shaping(fig)
+
+
+def _test_text_features(fig):
+    t = fig.text(1, 0.7, 'Default: fi ffi fl st',
+                 fontsize=32, horizontalalignment='right')
+    assert t.get_fontfeatures() is None
+    t = fig.text(1, 0.4, 'Disabled: fi ffi fl st',
+                 fontsize=32, horizontalalignment='right',
+                 fontfeatures=['-liga'])
+    assert t.get_fontfeatures() == ('-liga', )
+    t = fig.text(1, 0.1, 'Discretionary: fi ffi fl st',
+                 fontsize=32, horizontalalignment='right')
+    t.set_fontfeatures(['dlig'])
+    assert t.get_fontfeatures() == ('dlig', )
+
+
+@image_comparison(['features'], remove_text=False, style='mpl20',
+                  extensions=['png', 'pdf', 'svg', 'eps'])
+def test_text_features():
+    fig = plt.figure(figsize=(5, 1.5))
+    _test_text_features(fig)
+
+
+@pytest.mark.parametrize(
+    'input, match',
+    [
+        ([1, 2, 3], 'must be list of tuple'),
+        ([(1, 2)], 'must be list of tuple'),
+        ([('en', 'foo', 2)], 'start location must be int'),
+        ([('en', 1, 'foo')], 'end location must be int'),
+    ],
+)
+def test_text_language_invalid(input, match):
+    with pytest.raises(TypeError, match=match):
+        Text(0, 0, 'foo', language=input)
+
+
+def _test_text_language(fig):
+    t = fig.text(0, 0.8, 'Default', fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0, 0.55, 'Lang A', fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0, 0.3, 'Lang B', fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0, 0.05, 'Mixed', fontsize=32)
+    assert t.get_language() is None
+
+    # DejaVu Sans supports language-specific glyphs in the Serbian and Macedonian
+    # languages in the Cyrillic alphabet.
+    cyrillic = '\U00000431'
+    t = fig.text(0.4, 0.8, cyrillic, fontsize=32)
+    assert t.get_language() is None
+    t = fig.text(0.4, 0.55, cyrillic, fontsize=32, language='sr')
+    assert t.get_language() == 'sr'
+    t = fig.text(0.4, 0.3, cyrillic, fontsize=32)
+    t.set_language('ru')
+    assert t.get_language() == 'ru'
+    t = fig.text(0.4, 0.05, cyrillic * 4, fontsize=32,
+                 language=[('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4)])
+    assert t.get_language() == (('ru', 0, 1), ('sr', 1, 2), ('ru', 2, 3), ('sr', 3, 4))
+
+    # Or the Sámi family of languages in the Latin alphabet.
+    latin = '\U0000014a'
+    t = fig.text(0.7, 0.8, latin, fontsize=32)
+    assert t.get_language() is None
+    with plt.rc_context({'text.language': 'en'}):
+        t = fig.text(0.7, 0.55, latin, fontsize=32)
+    assert t.get_language() == 'en'
+    t = fig.text(0.7, 0.3, latin, fontsize=32, language='smn')
+    assert t.get_language() == 'smn'
+    # Tuples are not documented, but we'll allow it.
+    t = fig.text(0.7, 0.05, latin * 4, fontsize=32)
+    t.set_language((('en', 0, 1), ('smn', 1, 2), ('en', 2, 3), ('smn', 3, 4)))
+    assert t.get_language() == (
+        ('en', 0, 1), ('smn', 1, 2), ('en', 2, 3), ('smn', 3, 4))
+
+
+@image_comparison(['language'], remove_text=False, style='mpl20',
+                  extensions=['png', 'pdf', 'svg', 'eps'])
+def test_text_language():
+    fig = plt.figure(figsize=(5, 3))
+    _test_text_language(fig)
+
+
+@image_comparison(['draw_text_fallback.png'], style='mpl20')
+def test_draw_text_as_path_fallback(monkeypatch):
+    # Delete RendererAgg.draw_text so that we use the RendererBase.draw_text fallback.
+    monkeypatch.delattr('matplotlib.backends.backend_agg.RendererAgg.draw_text')
+    heights = [2, 1.5, 3]
+    fig = plt.figure(figsize=(6, sum(heights)))
+    subfig = fig.subfigures(3, 1, height_ratios=heights)
+    _test_complex_shaping(subfig[0])
+    _test_text_features(subfig[1])
+    _test_text_language(subfig[2])

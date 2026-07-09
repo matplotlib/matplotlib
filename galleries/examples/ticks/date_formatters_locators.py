@@ -100,3 +100,5 @@ for ax, fmt in zip(axs, formatters):
 #    - `matplotlib.dates.DateFormatter`
 #    - `matplotlib.dates.AutoDateFormatter`
 #    - `matplotlib.dates.ConciseDateFormatter`
+#
+# .. tags:: component: ticks, purpose: reference

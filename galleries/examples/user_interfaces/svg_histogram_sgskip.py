@@ -32,6 +32,7 @@ throughout the generated SVG.
 Author: david.huard@gmail.com
 
 """
+# sphinx_gallery_thumbnail_path = '_static/svg_histogram.svg'
 
 
 from io import BytesIO

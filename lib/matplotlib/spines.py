@@ -206,6 +206,17 @@ class Spine(mpatches.Patch):
             self._position = ('outward', 0.0)  # in points
             self.set_position(self._position)
 
+    def _ensure_transform_is_set(self):
+        # Install the default blended transform if the spine still carries
+        # the placeholder from Spine.__init__. Restricted to the standard
+        # cartesian spines: set_position/get_spine_transform only support
+        # those, and other spines (polar, cartopy's GeoSpine) manage their
+        # own transform.
+        if (self.spine_type in ('left', 'right', 'top', 'bottom')
+                and self._position is None
+                and self._transform is self.axes.transData):
+            self.set_position(('outward', 0.0))
+
     def register_axis(self, axis):
         """
         Register an axis.

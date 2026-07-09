@@ -1,6 +1,6 @@
 from collections.abc import Callable, Hashable, Iterable, Sequence
 import os
-from typing import Any, IO, Literal, TypeVar, overload
+from typing import Any, IO, Literal, overload
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -28,8 +28,6 @@ from matplotlib.transforms import Affine2D, Bbox, BboxBase, Transform
 from mpl_toolkits.mplot3d import Axes3D
 
 from .typing import ColorType, HashableList, LegendLocType
-
-_T = TypeVar("_T")
 
 class FigureBase(Artist):
     artists: list[Artist]
@@ -259,19 +257,19 @@ class FigureBase(Artist):
         gridspec_kw: dict[str, Any] | None = ...,
     ) -> dict[str, Axes]: ...
     @overload
-    def subplot_mosaic(
+    def subplot_mosaic[T](
         self,
-        mosaic: list[HashableList[_T]],
+        mosaic: list[HashableList[T]],
         *,
         sharex: bool = ...,
         sharey: bool = ...,
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
-        empty_sentinel: _T = ...,
+        empty_sentinel: T = ...,
         subplot_kw: dict[str, Any] | None = ...,
-        per_subplot_kw: dict[_T | tuple[_T, ...], dict[str, Any]] | None = ...,
+        per_subplot_kw: dict[T | tuple[T, ...], dict[str, Any]] | None = ...,
         gridspec_kw: dict[str, Any] | None = ...,
-    ) -> dict[_T, Axes]: ...
+    ) -> dict[T, Axes]: ...
     @overload
     def subplot_mosaic(
         self,

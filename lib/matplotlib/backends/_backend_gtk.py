@@ -67,7 +67,7 @@ def _create_application():
 
 
 def mpl_to_gtk_cursor_name(mpl_cursor):
-    return _api.check_getitem({
+    return _api.getitem_checked({
         Cursors.MOVE: "move",
         Cursors.HAND: "pointer",
         Cursors.POINTER: "default",

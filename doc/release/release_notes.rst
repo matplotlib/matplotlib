@@ -13,15 +13,29 @@ Release notes
 
    .. include:: release_notes_next.rst
 
+Version 3.11
+^^^^^^^^^^^^
+.. toctree::
+    :maxdepth: 1
+
+    prev_whats_new/whats_new_3.11.0.rst
+    ../api/prev_api_changes/api_changes_3.11.0.rst
+    github_stats.rst
+
 Version 3.10
 ^^^^^^^^^^^^
 .. toctree::
     :maxdepth: 1
 
     prev_whats_new/whats_new_3.10.0.rst
+    ../api/prev_api_changes/api_changes_3.10.9.rst
+    ../api/prev_api_changes/api_changes_3.10.7.rst
     ../api/prev_api_changes/api_changes_3.10.1.rst
     ../api/prev_api_changes/api_changes_3.10.0.rst
-    github_stats.rst
+    prev_whats_new/github_stats_3.10.9.rst
+    prev_whats_new/github_stats_3.10.8.rst
+    prev_whats_new/github_stats_3.10.7.rst
+    prev_whats_new/github_stats_3.10.6.rst
     prev_whats_new/github_stats_3.10.5.rst
     prev_whats_new/github_stats_3.10.3.rst
     prev_whats_new/github_stats_3.10.1.rst

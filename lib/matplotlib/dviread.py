@@ -121,7 +121,7 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         # control all involved versions and are deeply familiar with the
         # implementation", but a further mapping bug was fixed in luaotfload
         # commit 8f2dca4, first included in v3.23).
-        entry = self._get_pdftexmap_entry()
+        entry = PsfontsMap(find_tex_file("pdftex.map"))[self.font.texname]
         return (_parse_enc(entry.encoding)[self.glyph]
                 if entry.encoding is not None else self.glyph)
 
@@ -719,6 +719,10 @@ class DviFont:
         """A fake filename"""
         return self.texname.decode('latin-1')
 
+    @property
+    def face_index(self):  # For compatibility with FT2Font.
+        return 0
+
     def _get_fontmap(self, string):
         """Get the mapping from characters to the font that includes them.
 
@@ -1022,7 +1026,7 @@ class Tfm:
 
 class TtfMetrics:
     def __init__(self, filename):
-        self._face = font_manager.get_font(filename, hinting_factor=1)
+        self._face = font_manager.get_font(filename)
 
     def get_metrics(self, idx):
         # _mul1220 uses a truncating bitshift for compatibility with dvitype.
@@ -1297,7 +1301,7 @@ def find_tex_file(filename):
 
     try:
         lk = _LuatexKpsewhich()
-    except FileNotFoundError:
+    except (FileNotFoundError, OSError):
         lk = None  # Fallback to directly calling kpsewhich, as below.
 
     if lk:
@@ -1320,7 +1324,7 @@ def find_tex_file(filename):
             path = cbook._check_and_log_subprocess(
                 ['kpsewhich', '-mktex=pk', filename], _log, **kwargs,
             ).rstrip('\n')
-        except (FileNotFoundError, RuntimeError):
+        except (FileNotFoundError, OSError, RuntimeError):
             path = None
 
     if path:

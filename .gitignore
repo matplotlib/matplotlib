@@ -104,6 +104,10 @@ __conda_version__.txt
 lib/png.lib
 lib/z.lib
 
+# uv files #
+############
+uv.lock
+
 # Environments #
 ################
 .env

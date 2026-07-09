@@ -5,7 +5,33 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    cooldown:
+      default-days: 7
     groups:
       actions:
         patterns:
           - "*"
+    labels:
+      - "PR: dependencies"
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 7
+    exclude-paths:
+      - "ci/minver-requirements.txt"
+    labels:
+      - "PR: dependencies"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    cooldown:
+      default-days: 7
+    groups:
+      pre-commit:
+        patterns:
+          - "*"
+    labels:
+      - "PR: dependencies"

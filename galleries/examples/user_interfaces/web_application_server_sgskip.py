@@ -5,7 +5,7 @@ Embed in a web application server (Flask)
 
 When using Matplotlib in a web server it is strongly recommended to not use
 pyplot (pyplot maintains references to the opened figures to make
-`~.matplotlib.pyplot.show` work, but this will cause memory leaks unless the
+`~.pyplot.show` work, but this will cause memory leaks unless the
 figures are properly closed).
 
 Since Matplotlib 3.1, one can directly create figures using the `.Figure`
@@ -45,21 +45,14 @@ def hello():
 # %%
 #
 # Since the above code is a Flask application, it should be run using the
-# `flask command-line tool <https://flask.palletsprojects.com/en/latest/cli/>`_
-# Assuming that the working directory contains this script:
-#
-# Unix-like systems
+# `flask command-line tool <https://flask.palletsprojects.com/en/latest/cli/>`_:
+# run
 #
 # .. code-block:: console
 #
-#  FLASK_APP=web_application_server_sgskip flask run
+#    flask --app web_application_server_sgskip run
 #
-# Windows
-#
-# .. code-block:: console
-#
-#  set FLASK_APP=web_application_server_sgskip
-#  flask run
+# from the directory containing this script.
 #
 #
 # Clickable images for HTML

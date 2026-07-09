@@ -14,8 +14,6 @@ import difflib
 import functools
 import itertools
 import pathlib
-import re
-import sys
 import warnings
 
 from .deprecation import (  # noqa: F401
@@ -33,6 +31,54 @@ class _Unset:
     def __repr__(self):
         return "<UNSET>"
 UNSET = _Unset()
+
+
+class UnsupportedError(RuntimeError):
+    """
+    Raised on inherited methods if the child class does not support the functionality
+    of the base class.
+
+    See `.unsupported_method` for details.
+    """
+
+
+class unsupported_method:
+    """
+    Descriptor that creates a method raising `.UnsupportedError`.
+
+    Historically, we have quite a few cases of inheritance hierarchies that do not
+    fully respect the Liskov Substitution Principle, e.g. Axes and Artist. Some of
+    the methods of a base class may not be implemented in the child class. In that case,
+    we override the method in the child class to raise `.UnsupportedError`.
+
+    Use in a class body to mark inherited methods as unsupported::
+
+        class Axes3D(Axes):
+            twinx = _api.unsupported_method()
+
+    Calling ``Axes3D().twinx()`` will raise
+    "UnsupportedError: Axes3D does not support 'twinx'."
+
+    Parameters
+    ----------
+    append_message : str
+        Optional additional text to be appended to the error message.
+    """
+    def __init__(self, *, append_message=None):
+        self.append_message = append_message
+
+    def __set_name__(self, owner, name):
+        message = f"{owner.__name__} does not support '{name}'."
+        if self.append_message:
+            message += ' ' + self.append_message
+
+        def method(self, *args, **kwargs):
+            raise UnsupportedError(message)
+
+        method.__name__ = name
+        method.__qualname__ = f"{owner.__qualname__}.{name}"
+        method.__module__ = owner.__module__
+        setattr(owner, name, method)
 
 
 class classproperty:
@@ -107,7 +153,37 @@ def check_isinstance(types, /, **kwargs):
                     type_name(type(v))))
 
 
-def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
+def list_suggestion_error_msg(name, potential, values):
+    """
+    Generate an error message that a potential setting is not an acceptable value.
+
+    If the acceptable values are all strings, and sufficiently large, then add just a
+    few suggestions to the end of the message. Otherwise list the supported values.
+
+    Parameters
+    ----------
+    name : str
+        The name of the setting, keyword argument, etc. to generate the message for.
+    potential
+        The potential value from the user that is not a valid choice.
+    values : iterable
+        Sequence of values to check on.
+    """
+    if len(values) > 5 and all(isinstance(v, str) for v in [potential, *values]):
+        best = difflib.get_close_matches(potential, values, cutoff=0.5)
+        match len(best):
+            case 0:
+                suggestion = ""
+            case 1:
+                suggestion = f" Did you mean: {best[0]!r}?"
+            case _:
+                suggestion = f" Did you mean one of: {', '.join(map(repr, best))}?"
+    else:
+        suggestion = f" Supported values are {', '.join(map(repr, values))}"
+    return f"{potential!r} is not a valid value for {name}.{suggestion}"
+
+
+def check_in_list(values, /, **kwargs):
     """
     For each *key, value* pair in *kwargs*, check that *value* is in *values*;
     if not, raise an appropriate ValueError.
@@ -116,8 +192,9 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     ----------
     values : iterable
         Sequence of values to check on.
-    _print_supported_values : bool, default: True
-        Whether to print *values* when raising ValueError.
+
+        Note: All values must support == comparisons.
+        This means in particular the entries must not be numpy arrays.
     **kwargs : dict
         *key, value* pairs as keyword arguments to find in *values*.
 
@@ -133,11 +210,19 @@ def check_in_list(values, /, *, _print_supported_values=True, **kwargs):
     if not kwargs:
         raise TypeError("No argument to check!")
     for key, val in kwargs.items():
-        if val not in values:
-            msg = f"{val!r} is not a valid value for {key}"
-            if _print_supported_values:
-                msg += f"; supported values are {', '.join(map(repr, values))}"
-            raise ValueError(msg)
+        try:
+            exists = val in values
+        except ValueError:
+            # `in` internally uses `val == values[i]`. There are some objects
+            # that do not support == to arbitrary other objects, in particular
+            # numpy arrays.
+            # Since such objects are not allowed in values, we can gracefully
+            # handle the case that val (typically provided by users) is of such
+            # type and directly state it's not in the list instead of letting
+            # the individual `val == values[i]` ValueError surface.
+            exists = False
+        if not exists:
+            raise ValueError(list_suggestion_error_msg(key, val, values))
 
 
 def check_shape(shape, /, **kwargs):
@@ -175,7 +260,7 @@ def check_shape(shape, /, **kwargs):
             )
 
 
-def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
+def getitem_checked(mapping, /, _error_cls=ValueError, **kwargs):
     """
     *kwargs* must consist of a single *key, value* pair.  If *key* is in
     *mapping*, return ``mapping[value]``; else, raise an appropriate
@@ -188,22 +273,15 @@ def check_getitem(mapping, /, _error_cls=ValueError, **kwargs):
 
     Examples
     --------
-    >>> _api.check_getitem({"foo": "bar"}, arg=arg)
+    >>> _api.getitem_checked({"foo": "bar"}, arg=arg)
     """
     if len(kwargs) != 1:
-        raise ValueError("check_getitem takes a single keyword argument")
+        raise ValueError("getitem_checked takes a single keyword argument")
     (k, v), = kwargs.items()
     try:
         return mapping[v]
     except KeyError:
-        if len(mapping) > 5:
-            if len(best := difflib.get_close_matches(v, mapping.keys(), cutoff=0.5)):
-                suggestion = f"Did you mean one of {best}?"
-            else:
-                suggestion = ""
-        else:
-            suggestion = f"Supported values are {', '.join(map(repr, mapping))}"
-        raise _error_cls(f"{v!r} is not a valid value for {k}. {suggestion}") from None
+        raise _error_cls(list_suggestion_error_msg(k, v, mapping.keys())) from None
 
 
 def caching_module_getattr(cls):
@@ -255,9 +333,9 @@ def define_aliases(alias_d, cls=None):
     be done for setters.  If neither the getter nor the setter exists, an
     exception will be raised.
 
-    The alias map is stored as the ``_alias_map`` attribute on the class and
-    can be used by `.normalize_kwargs` (which assumes that higher priority
-    aliases come last).
+    The alias map is stored as the ``_alias_to_prop`` attribute under the format
+    ``{"alias": "property", ...}` on the class, and can be used by
+    `.normalize_kwargs`.
     """
     if cls is None:  # Return the actual class decorator.
         return functools.partial(define_aliases, alias_d)
@@ -282,17 +360,20 @@ def define_aliases(alias_d, cls=None):
             raise ValueError(
                 f"Neither getter nor setter exists for {prop!r}")
 
-    def get_aliased_and_aliases(d):
-        return {*d, *(alias for aliases in d.values() for alias in aliases)}
+    alias_to_prop = {
+        alias: prop for prop, aliases in alias_d.items() for alias in aliases}
 
-    preexisting_aliases = getattr(cls, "_alias_map", {})
+    def get_aliased_and_aliases(d):
+        return {*d.keys(), *d.values()}
+
+    preexisting_aliases = getattr(cls, "_alias_to_prop", {})
     conflicting = (get_aliased_and_aliases(preexisting_aliases)
-                   & get_aliased_and_aliases(alias_d))
+                   & get_aliased_and_aliases(alias_to_prop))
     if conflicting:
         # Need to decide on conflict resolution policy.
         raise NotImplementedError(
             f"Parent class already defines conflicting aliases: {conflicting}")
-    cls._alias_map = {**preexisting_aliases, **alias_d}
+    cls._alias_to_prop = {**preexisting_aliases, **alias_to_prop}
     return cls
 
 
@@ -387,25 +468,9 @@ def warn_external(message, category=None):
     warnings.warn`` (or ``functools.partial(warnings.warn, stacklevel=2)``,
     etc.).
     """
-    kwargs = {}
-    if sys.version_info[:2] >= (3, 12):
-        # Go to Python's `site-packages` or `lib` from an editable install.
-        basedir = pathlib.Path(__file__).parents[2]
-        kwargs['skip_file_prefixes'] = (str(basedir / 'matplotlib'),
-                                        str(basedir / 'mpl_toolkits'))
-    else:
-        frame = sys._getframe()
-        for stacklevel in itertools.count(1):
-            if frame is None:
-                # when called in embedded context may hit frame is None
-                kwargs['stacklevel'] = stacklevel
-                break
-            if not re.match(r"\A(matplotlib|mpl_toolkits)(\Z|\.(?!tests\.))",
-                            # Work around sphinx-gallery not setting __name__.
-                            frame.f_globals.get("__name__", "")):
-                kwargs['stacklevel'] = stacklevel
-                break
-            frame = frame.f_back
-        # preemptively break reference cycle between locals and the frame
-        del frame
-    warnings.warn(message, category, **kwargs)
+    # Go to Python's `site-packages` or `lib` from an editable install.
+    basedir = pathlib.Path(__file__).parents[2]
+    skip_file_prefixes = (str(basedir / 'matplotlib'),
+                          str(basedir / 'mpl_toolkits'))
+
+    warnings.warn(message, category, skip_file_prefixes=skip_file_prefixes)

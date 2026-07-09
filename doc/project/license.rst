@@ -71,6 +71,38 @@ Bundled software
    .. literalinclude:: ../../LICENSE/LICENSE_QT4_EDITOR
       :language: none
 
+Rendering software
+------------------
+
+.. dropdown:: Agg
+   :class-container: sdd
+
+   .. literalinclude:: ../../extern/agg24-svn/src/copying
+      :language: none
+
+.. dropdown:: FreeType
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_FREETYPE
+      :language: none
+
+.. dropdown:: Harfbuzz
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_HARFBUZZ
+      :language: none
+
+.. dropdown:: libraqm
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_LIBRAQM
+      :language: none
+
+.. dropdown:: SheenBidi
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_SHEENBIDI
+      :language: none
 
 .. _licenses-cmaps-styles:
 
@@ -95,6 +127,12 @@ Colormaps and themes
    .. literalinclude:: ../../LICENSE/LICENSE_YORICK
       :language: none
 
+.. dropdown:: Turbo
+   :class-container: sdd
+
+   The Turbo colormap was contributed directly to Matplotlib by its author in
+   :ghpull:`15275`
+
 
 .. _licenses-fonts:
 
@@ -111,12 +149,6 @@ Fonts
    :class-container: sdd
 
    .. literalinclude:: ../../LICENSE/LICENSE_BAKOMA
-      :language: none
-
-.. dropdown:: Carlogo
-   :class-container: sdd
-
-   .. literalinclude:: ../../LICENSE/LICENSE_CARLOGO
       :language: none
 
 .. dropdown:: Courier 10

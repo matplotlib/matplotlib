@@ -3,6 +3,7 @@ from datetime import datetime
 import io
 import pickle
 import platform
+import sys
 from threading import Timer
 from types import SimpleNamespace
 import warnings
@@ -25,7 +26,7 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 
 
-@image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+@image_comparison(['figure_align_labels'], extensions=['png', 'svg'], style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
     fig = plt.figure(layout='tight')
@@ -68,8 +69,7 @@ def test_align_labels():
 
 @image_comparison(['figure_align_titles_tight.png',
                    'figure_align_titles_constrained.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.022,
-                  style='mpl20')
+                  style='mpl20', tol=0 if platform.machine() == 'x86_64' else 0.021)
 def test_align_titles():
     for layout in ['tight', 'constrained']:
         fig, axs = plt.subplots(1, 2, layout=layout, width_ratios=[2, 1])
@@ -207,8 +207,8 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.015)
+@image_comparison(['figure_today.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -223,7 +223,7 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(['figure_legend.png'])
+@image_comparison(['figure_legend.png'], style='mpl20')
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -320,7 +320,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(ax)
 
 
-@image_comparison(['figure_suptitle.png'])
+@image_comparison(['figure_suptitle.png'], style='mpl20')
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
@@ -362,12 +362,34 @@ def test_get_suptitle_supxlabel_supylabel():
     assert fig.get_supylabel() == 'supylabel'
 
 
+def test_remove_suptitle_supxlabel_supylabel():
+    fig = plt.figure()
+
+    title = fig.suptitle('suptitle')
+    xlabel = fig.supxlabel('supxlabel')
+    ylabel = fig.supylabel('supylabel')
+
+    assert len(fig.texts) == 3
+    assert fig._suptitle is not None
+    assert fig._supxlabel is not None
+    assert fig._supylabel is not None
+
+    title.remove()
+    assert fig._suptitle is None
+    xlabel.remove()
+    assert fig._supxlabel is None
+    ylabel.remove()
+    assert fig._supylabel is None
+
+    assert not fig.texts
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
                   extensions=['png', 'svg'],
-                  savefig_kwarg={'facecolor': (0, 1, 0.4),
-                                 'edgecolor': 'none'})
+                  savefig_kwarg={'facecolor': (0, 1, 0.4), 'edgecolor': 'none'},
+                  style='_classic_test')
 def test_alpha():
     # We want an image which has a background color and an alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
@@ -812,7 +834,7 @@ def test_tightbbox():
     ax.set_xlim(0, 1)
     t = ax.text(1., 0.5, 'This dangles over end')
     renderer = fig.canvas.get_renderer()
-    x1Nom0 = 9.035  # inches
+    x1Nom0 = 8.9875  # inches
     assert abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     assert abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
@@ -1374,7 +1396,8 @@ def test_subfigure_dpi():
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
+                  savefig_kwarg={'facecolor': 'teal'},
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1549,6 +1572,7 @@ def test_subfigures_wspace_hspace():
 def test_subfigure_remove():
     fig = plt.figure()
     sfs = fig.subfigures(2, 2)
+    sfs[1, 1].subplots()
     sfs[1, 1].remove()
     assert len(fig.subfigs) == 3
 
@@ -1603,6 +1627,8 @@ def test_add_axes_kwargs():
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
@@ -1625,6 +1651,8 @@ def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
@@ -1688,6 +1716,9 @@ def test_unpickle_with_device_pixel_ratio():
     assert fig.dpi == 42*7
     fig2 = pickle.loads(pickle.dumps(fig))
     assert fig2.dpi == 42
+    assert all(
+        [orig / 7 == restore for orig, restore in zip(fig.bbox.max, fig2.bbox.max)]
+    )
 
 
 def test_gridspec_no_mutate_input():
@@ -1846,6 +1877,24 @@ def test_subfigure_stale_propagation():
 def test_figsize(figsize, figsize_inches):
     fig = plt.figure(figsize=figsize, dpi=100)
     assert tuple(fig.get_size_inches()) == figsize_inches
+
+
+def test_figsize_partial_none():
+    default_w, default_h = mpl.rcParams["figure.figsize"]
+
+    fig = plt.figure(figsize=(None, 4))
+    w, h = fig.get_size_inches()
+    assert (w, h) == (default_w, 4)
+
+    fig = plt.figure(figsize=(6, None))
+    w, h = fig.get_size_inches()
+    assert (w, h) == (6, default_h)
+
+
+def test_figsize_both_none():
+    with pytest.raises(ValueError,
+                       match=r"figsize=\(None, None\) is invalid"):
+        plt.figure(figsize=(None, None))
 
 
 def test_figsize_invalid_unit():

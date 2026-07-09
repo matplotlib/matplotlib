@@ -94,7 +94,7 @@ def test_contour_set_paths(fig_test, fig_ref):
     cs_test.set_paths(cs_ref.get_paths())
 
 
-@image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20', tol=0.26)
+@image_comparison(['contour_manual_labels'], remove_text=True, style='mpl20')
 def test_contour_manual_labels():
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
@@ -127,8 +127,8 @@ def test_contour_manual_moveto():
     assert clabels[0].get_text() == "0"
 
 
-@image_comparison(['contour_disconnected_segments'],
-                  remove_text=True, style='mpl20', extensions=['png'])
+@image_comparison(['contour_disconnected_segments.png'],
+                  remove_text=True, style='mpl20')
 def test_contour_label_with_disconnected_segments():
     x, y = np.mgrid[-1:1:21j, -1:1:21j]
     z = 1 / np.sqrt(0.01 + (x + 0.3) ** 2 + y ** 2)
@@ -140,6 +140,7 @@ def test_contour_label_with_disconnected_segments():
 
 
 @image_comparison(['contour_manual_colors_and_levels.png'], remove_text=True,
+                  style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.018)
 def test_given_colors_levels_and_extends():
     # Remove this line when this test image is regenerated.
@@ -171,8 +172,7 @@ def test_given_colors_levels_and_extends():
         plt.colorbar(c, ax=ax)
 
 
-@image_comparison(['contourf_hatch_colors'],
-                  remove_text=True, style='mpl20', extensions=['png'])
+@image_comparison(['contourf_hatch_colors.png'], remove_text=True, style='mpl20')
 def test_hatch_colors():
     fig, ax = plt.subplots()
     cf = ax.contourf([[0, 1], [1, 2]], hatches=['-', '/', '\\', '//'], cmap='gray')
@@ -255,7 +255,8 @@ def test_contour_datetime_axis():
 
 
 @image_comparison(['contour_test_label_transforms.png'],
-                  remove_text=True, style='mpl20', tol=1.1)
+                  remove_text=True, style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.005)
 def test_labels():
     # Adapted from pylab_examples example code: contour_demo.py
     # see issues #2475, #2843, and #2818 for explanation
@@ -309,8 +310,17 @@ def test_label_contour_start():
     assert 0 in idxs
 
 
+def test_clabel_raises_on_filled_contours():
+    X, Y = np.meshgrid(np.arange(10), np.arange(10))
+    _, ax = plt.subplots()
+    cs = ax.contourf(X, Y, X + Y)
+    # will be an exception once the deprecation expires
+    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+        ax.clabel(cs)
+
+
 @image_comparison(['contour_corner_mask_False.png', 'contour_corner_mask_True.png'],
-                  remove_text=True, tol=1.88)
+                  remove_text=True, style='_classic_test', tol=1.88)
 def test_corner_mask():
     n = 60
     mask_level = 0.95
@@ -358,21 +368,16 @@ def test_clabel_zorder(use_clabeltext, contour_zorder, clabel_zorder):
     x, y = np.meshgrid(np.arange(0, 10), np.arange(0, 10))
     z = np.max(np.dstack([abs(x), abs(y)]), 2)
 
-    fig, (ax1, ax2) = plt.subplots(ncols=2)
-    cs = ax1.contour(x, y, z, zorder=contour_zorder)
-    cs_filled = ax2.contourf(x, y, z, zorder=contour_zorder)
-    clabels1 = cs.clabel(zorder=clabel_zorder, use_clabeltext=use_clabeltext)
-    clabels2 = cs_filled.clabel(zorder=clabel_zorder,
-                                use_clabeltext=use_clabeltext)
+    fig, ax = plt.subplots()
+    cs = ax.contour(x, y, z, zorder=contour_zorder)
+    clabels = cs.clabel(zorder=clabel_zorder, use_clabeltext=use_clabeltext)
 
     if clabel_zorder is None:
         expected_clabel_zorder = 2+contour_zorder
     else:
         expected_clabel_zorder = clabel_zorder
 
-    for clabel in clabels1:
-        assert clabel.get_zorder() == expected_clabel_zorder
-    for clabel in clabels2:
+    for clabel in clabels:
         assert clabel.get_zorder() == expected_clabel_zorder
 
 
@@ -453,8 +458,7 @@ def test_contour_addlines():
     assert_array_almost_equal(cb.ax.get_ylim(), [114.3091, 9972.30735], 3)
 
 
-@image_comparison(baseline_images=['contour_uneven'],
-                  extensions=['png'], remove_text=True, style='mpl20')
+@image_comparison(['contour_uneven.png'], remove_text=True, style='mpl20')
 def test_contour_uneven():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -492,8 +496,8 @@ def test_label_nonagg():
     plt.clabel(plt.contour([[1, 2], [3, 4]]))
 
 
-@image_comparison(baseline_images=['contour_closed_line_loop'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['contour_closed_line_loop.png'], remove_text=True,
+                  style='_classic_test')
 def test_contour_closed_line_loop():
     # github issue 19568.
     z = [[0, 0, 0], [0, 2, 0], [0, 0, 0], [2, 1, 2]]
@@ -517,8 +521,8 @@ def test_quadcontourset_reuse():
     assert qcs3._contour_generator == qcs1._contour_generator
 
 
-@image_comparison(baseline_images=['contour_manual'],
-                  extensions=['png'], remove_text=True, tol=0.89)
+@image_comparison(['contour_manual.png'], remove_text=True, style='_classic_test',
+                  tol=0.89)
 def test_contour_manual():
     # Manually specifying contour lines/polygons to plot.
     from matplotlib.contour import ContourSet
@@ -543,8 +547,8 @@ def test_contour_manual():
     ContourSet(ax, [2], [segs], [kinds], colors='k', linewidths=3)
 
 
-@image_comparison(baseline_images=['contour_line_start_on_corner_edge'],
-                  extensions=['png'], remove_text=True)
+@image_comparison(['contour_line_start_on_corner_edge.png'], remove_text=True,
+                  style='_classic_test')
 def test_contour_line_start_on_corner_edge():
     fig, ax = plt.subplots(figsize=(6, 5))
 
@@ -678,8 +682,8 @@ def test_algorithm_supports_corner_mask(algorithm):
             plt.contourf(z, algorithm=algorithm, corner_mask=True)
 
 
-@image_comparison(baseline_images=['contour_all_algorithms'],
-                  extensions=['png'], remove_text=True, tol=0.06)
+@image_comparison(['contour_all_algorithms.png'], remove_text=True,
+                  style='_classic_test', tol=0.06)
 def test_all_algorithms():
     algorithms = ['mpl2005', 'mpl2014', 'serial', 'threaded']
 
@@ -804,6 +808,15 @@ def test_contour_remove():
     assert ax.get_children() == orig_children
 
 
+def test_contour_remove_with_labels():
+    ax = plt.figure().add_subplot()
+    cs = ax.contour(np.arange(16).reshape((4, 4)))
+    labels = cs.clabel()
+    labels[0].remove()
+    with pytest.warns(UserWarning, match="Some labels were manually removed"):
+        cs.remove()
+
+
 def test_contour_no_args():
     fig, ax = plt.subplots()
     data = [[0, 1], [1, 0]]
@@ -856,8 +869,8 @@ def test_allsegs_allkinds():
         assert len(result[1]) == 4
 
 
-@image_comparison(baseline_images=['contour_rasterization'],
-                  extensions=['pdf'], style='mpl20', savefig_kwarg={'dpi': 25})
+@image_comparison(['contour_rasterization.pdf'], savefig_kwarg={'dpi': 25},
+                  style='mpl20')
 def test_contourf_rasterize():
     fig, ax = plt.subplots()
     data = [[0, 1], [1, 0]]
@@ -866,7 +879,7 @@ def test_contourf_rasterize():
     assert cs._rasterized
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_contour_aliases(fig_test, fig_ref):
     data = np.arange(100).reshape((10, 10)) ** 2
     fig_test.add_subplot().contour(data, linestyle=":")
@@ -876,3 +889,10 @@ def test_contour_aliases(fig_test, fig_ref):
 def test_contour_singular_color():
     with pytest.raises(TypeError):
         plt.figure().add_subplot().contour([[0, 1], [2, 3]], color="r")
+
+
+def test_clabel_manual_subset():
+    fig, ax = plt.subplots()
+    cs = ax.contour([[1, 2], [3, 4]], levels=[1.5, 2.5, 3.5])
+    # Attempt to label only one specific level manually
+    ax.clabel(cs, levels=[2.5], manual=[(0.5, 0.5)])

@@ -1,6 +1,7 @@
 from itertools import product
 import io
 import platform
+import sys
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -61,16 +62,14 @@ def test_divider_append_axes():
     assert bboxes["top"].x1 == bboxes["main"].x1 == bboxes["bottom"].x1
 
 
-# Update style when regenerating the test image
-@image_comparison(['twin_axes_empty_and_removed'], extensions=["png"], tol=1,
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['twin_axes_empty_and_removed.png'], style='mpl20')
 def test_twin_axes_empty_and_removed():
     # Purely cosmetic font changes (avoid overlap)
-    mpl.rcParams.update(
-        {"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
+    mpl.rcParams.update({"font.size": 8, "xtick.labelsize": 8, "ytick.labelsize": 8})
     generators = ["twinx", "twiny", "twin"]
     modifiers = ["", "host invisible", "twin removed", "twin invisible",
                  "twin removed\nhost invisible"]
+    plt.figure(figsize=(8, 6))
     # Unmodified host subplot at the beginning for reference
     h = host_subplot(len(modifiers)+1, len(generators), 2)
     h.text(0.5, 0.5, "host_subplot",
@@ -343,10 +342,8 @@ def test_fill_facecolor():
     mark_inset(ax[3], axins, loc1=2, loc2=4, fc="g", ec="0.5", fill=False)
 
 
-# Update style when regenerating the test image
-@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'],
-                  style=('classic', '_classic_test_patch'),
-                  tol=0 if platform.machine() == 'x86_64' else 0.02)
+@image_comparison(['zoomed_axes.png', 'inverted_zoomed_axes.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_zooming_with_inverted_axes():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3], [1, 2, 3])
@@ -361,10 +358,8 @@ def test_zooming_with_inverted_axes():
     inset_ax.axis([1.4, 1.1, 1.4, 1.1])
 
 
-# Update style when regenerating the test image
-@image_comparison(['anchored_direction_arrows.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.01,
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['anchored_direction_arrows.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.006)
 def test_anchored_direction_arrows():
     fig, ax = plt.subplots()
     ax.imshow(np.zeros((10, 10)), interpolation='nearest')
@@ -373,9 +368,8 @@ def test_anchored_direction_arrows():
     ax.add_artist(simple_arrow)
 
 
-# Update style when regenerating the test image
-@image_comparison(['anchored_direction_arrows_many_args.png'],
-                  style=('classic', '_classic_test_patch'))
+@image_comparison(['anchored_direction_arrows_many_args.png'], style='mpl20',
+                  tol=0.002 if sys.platform == 'win32' else 0)
 def test_anchored_direction_arrows_many_args():
     fig, ax = plt.subplots()
     ax.imshow(np.ones((10, 10)))
@@ -559,15 +553,6 @@ def test_anchored_artists():
 
     box = AnchoredAuxTransformBox(ax.transData, loc='upper left')
     el = Ellipse((0, 0), width=0.1, height=0.4, angle=30, color='cyan')
-    box.drawing_area.add_artist(el)
-    ax.add_artist(box)
-
-    # This block used to test the AnchoredEllipse class, but that was removed. The block
-    # remains, though it duplicates the above ellipse, so that the test image doesn't
-    # need to be regenerated.
-    box = AnchoredAuxTransformBox(ax.transData, loc='lower left', frameon=True,
-                                  pad=0.5, borderpad=0.4)
-    el = Ellipse((0, 0), width=0.1, height=0.25, angle=-60)
     box.drawing_area.add_artist(el)
     ax.add_artist(box)
 

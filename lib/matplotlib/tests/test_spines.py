@@ -1,8 +1,9 @@
 import numpy as np
 import pytest
 
+import matplotlib.path as mpath
 import matplotlib.pyplot as plt
-from matplotlib.spines import Spines
+from matplotlib.spines import Spine, Spines
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 
 
@@ -55,7 +56,7 @@ def test_spine_class():
         spines['top':]
 
 
-@image_comparison(['spines_axes_positions.png'])
+@image_comparison(['spines_axes_positions.png'], style='mpl20')
 def test_spines_axes_positions():
     # SF bug 2852168
     fig = plt.figure()
@@ -72,7 +73,7 @@ def test_spines_axes_positions():
     ax.spines.bottom.set_color('none')
 
 
-@image_comparison(['spines_data_positions.png'])
+@image_comparison(['spines_data_positions.png'], style='mpl20')
 def test_spines_data_positions():
     fig, ax = plt.subplots()
     ax.spines.left.set_position(('data', -1.5))
@@ -81,6 +82,8 @@ def test_spines_data_positions():
     ax.spines.bottom.set_position('zero')
     ax.set_xlim([-2, 2])
     ax.set_ylim([-2, 2])
+    ax.xaxis.set_ticks_position('both')
+    ax.yaxis.set_ticks_position('both')
 
 
 @check_figures_equal()
@@ -104,7 +107,7 @@ def test_spine_nonlinear_data_positions(fig_test, fig_ref):
     ax.tick_params(axis="y", labelleft=False, left=False, right=True)
 
 
-@image_comparison(['spines_capstyle.png'])
+@image_comparison(['spines_capstyle.png'], style='_classic_test')
 def test_spines_capstyle():
     # issue 2542
     plt.rc('axes', linewidth=20)
@@ -142,7 +145,7 @@ def test_label_without_ticks():
         "X-Axis label not below the spine"
 
 
-@image_comparison(['black_axes.png'])
+@image_comparison(['black_axes.png'], style='_classic_test')
 def test_spines_black_axes():
     # GitHub #18804
     plt.rcParams["savefig.pad_inches"] = 0
@@ -195,3 +198,19 @@ def test_spine_set_bounds_with_none():
         "left bound should be numeric"
     assert np.isclose(left_bound[0], ylim[0]), "Lower bound should match original value"
     assert np.isclose(left_bound[1], ylim[1]), "Upper bound should match original value"
+
+
+def test_clear_with_custom_spine_type():
+    # Spines with a non-cartesian spine_type (e.g. cartopy's GeoSpine) manage
+    # their own transform and may reject set_position(); Axes.clear() must not
+    # call _ensure_transform_is_set() on them. See SciTools/cartopy#2674.
+    class NoPositionSpine(Spine):
+        def __init__(self, axes, **kwargs):
+            super().__init__(axes, 'geo', mpath.Path(np.empty((0, 2))), **kwargs)
+
+        def set_position(self, position):
+            raise NotImplementedError('spine does not support set_position')
+
+    fig, ax = plt.subplots()
+    ax.spines['geo'] = NoPositionSpine(ax)
+    ax.clear()  # must not raise

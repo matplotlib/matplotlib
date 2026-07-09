@@ -6,7 +6,7 @@ Streamline plotting for 2D vector fields.
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib import _api, cm, patches
+from matplotlib import _api, colorizer, patches
 import matplotlib.colors as mcolors
 import matplotlib.collections as mcollections
 import matplotlib.lines as mlines
@@ -228,7 +228,7 @@ def streamplot(axes, x, y, u, v, density=1, linewidth=None, color=None,
     if use_multicolor_lines:
         if norm is None:
             norm = mcolors.Normalize(color.min(), color.max())
-        cmap = cm._ensure_cmap(cmap)
+        cmap = colorizer._ensure_cmap(cmap)
 
     streamlines = []
     arrows = []

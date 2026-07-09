@@ -55,7 +55,7 @@ from PIL.PngImagePlugin import PngInfo
 
 import matplotlib as mpl
 import numpy as np
-from matplotlib import _api, _cm, cbook, scale, _image
+from matplotlib import _api, _cm, cbook, scale
 from ._color_data import BASE_COLORS, TABLEAU_COLORS, CSS4_COLORS, XKCD_COLORS
 
 
@@ -128,6 +128,7 @@ class ColorSequenceRegistry(Mapping):
         'Pastel2': _cm._Pastel2_data,
         'Paired': _cm._Paired_data,
         'Accent': _cm._Accent_data,
+        'okabe_ito': _cm._okabe_ito_data,
         'Dark2': _cm._Dark2_data,
         'Set1': _cm._Set1_data,
         'Set2': _cm._Set2_data,
@@ -141,10 +142,8 @@ class ColorSequenceRegistry(Mapping):
         self._color_sequences = {**self._BUILTIN_COLOR_SEQUENCES}
 
     def __getitem__(self, item):
-        try:
-            return list(self._color_sequences[item])
-        except KeyError:
-            raise KeyError(f"{item!r} is not a known color sequence name")
+        return list(_api.getitem_checked(self._color_sequences, _error_cls=KeyError,
+                                         sequence_name=item))
 
     def __iter__(self):
         return iter(self._color_sequences)
@@ -289,7 +288,15 @@ def same_color(c1, c2):
     """
     Return whether the colors *c1* and *c2* are the same.
 
-    *c1*, *c2* can be single colors or lists/arrays of colors.
+    Parameters
+    ----------
+    c1, c2 : :mpltype:`color` or list of :mpltype:`color` or RGB(A) array
+        If passing multiple colors, *c1* and *c2* must be of the same length. RGB(A)
+        arrays must be of shape (ncolors, 3) or (ncolors, 4).
+
+    Returns
+    -------
+    bool
     """
     c1 = to_rgba_array(c1)
     c2 = to_rgba_array(c2)
@@ -578,10 +585,10 @@ def to_hex(c, keep_alpha=False):
 ### Backwards-compatible color-conversion API
 
 
-cnames = CSS4_COLORS
-hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")
-rgb2hex = to_hex
-hex2color = to_rgb
+cnames = CSS4_COLORS  #: :meta private:
+hexColorPattern = re.compile(r"\A#[a-fA-F0-9]{6}\Z")  #: :meta private:
+rgb2hex = to_hex  #: :meta private:
+hex2color = to_rgb  #: :meta private:
 
 
 class ColorConverter:
@@ -589,6 +596,8 @@ class ColorConverter:
     A class only kept for backwards compatibility.
 
     Its functionality is entirely provided by module-level functions.
+
+    :meta private:
     """
     colors = _colors_full_map
     cache = _colors_full_map.cache
@@ -1161,16 +1170,18 @@ class LinearSegmentedColormap(Colormap):
         self._gamma = gamma
 
     def _init(self):
-        self._lut = np.ones((self.N + 3, 4), float)
-        self._lut[:-3, 0] = _create_lookup_table(
+        # Assemble the LUT first in a local variable in case of parallel threads
+        lut = np.ones((self.N + 3, 4), float)
+        lut[:-3, 0] = _create_lookup_table(
             self.N, self._segmentdata['red'], self._gamma)
-        self._lut[:-3, 1] = _create_lookup_table(
+        lut[:-3, 1] = _create_lookup_table(
             self.N, self._segmentdata['green'], self._gamma)
-        self._lut[:-3, 2] = _create_lookup_table(
+        lut[:-3, 2] = _create_lookup_table(
             self.N, self._segmentdata['blue'], self._gamma)
         if 'alpha' in self._segmentdata:
-            self._lut[:-3, 3] = _create_lookup_table(
+            lut[:-3, 3] = _create_lookup_table(
                 self.N, self._segmentdata['alpha'], 1)
+        self._lut = lut
         self._isinit = True
         self._update_lut_extremes()
 
@@ -1222,7 +1233,7 @@ class LinearSegmentedColormap(Colormap):
             except Exception as e2:
                 raise e2 from e
             vals = np.asarray(_vals)
-            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) <= 0):
+            if np.min(vals) < 0 or np.max(vals) > 1 or np.any(np.diff(vals) < 0):
                 raise ValueError(
                     "the values passed in the (value, color) pairs "
                     "must increase monotonically from 0 to 1."
@@ -1361,8 +1372,10 @@ class ListedColormap(Colormap):
         super().__init__(name, N, bad=bad, under=under, over=over)
 
     def _init(self):
-        self._lut = np.zeros((self.N + 3, 4), float)
-        self._lut[:-3] = to_rgba_array(self.colors)
+        # Assemble the LUT first in a local variable in case of parallel threads
+        lut = np.zeros((self.N + 3, 4), float)
+        lut[:-3] = to_rgba_array(self.colors)
+        self._lut = lut
         self._isinit = True
         self._update_lut_extremes()
 
@@ -2211,16 +2224,37 @@ class SegmentedBivarColormap(BivarColormap):
         super().__init__(N, N, shape, origin, name=name)
 
     def _init(self):
-        s = self.patch.shape
-        _patch = np.empty((s[0], s[1], 4))
-        _patch[:, :, :3] = self.patch
-        _patch[:, :, 3] = 1
-        transform = mpl.transforms.Affine2D().translate(-0.5, -0.5)\
-                                .scale(self.N / (s[1] - 1), self.N / (s[0] - 1))
-        self._lut = np.empty((self.N, self.N, 4))
+        # Perform bilinear interpolation
 
-        _image.resample(_patch, self._lut, transform, _image.BILINEAR,
-                        resample=False, alpha=1)
+        s = self.patch.shape
+
+        # Indices (whole and fraction) of the new grid points
+        row = np.linspace(0, s[0] - 1, self.N)[:, np.newaxis]
+        col = np.linspace(0, s[1] - 1, self.N)[np.newaxis, :]
+        left = row.astype(int)  # floor not needed because all values are nonnegative
+        top = col.astype(int)  # floor not needed because all values are nonnegative
+        row_frac = (row - left)[:, :, np.newaxis]
+        col_frac = (col - top)[:, :, np.newaxis]
+
+        # Indices of the next edges, clipping where needed
+        right = np.clip(left + 1, 0, s[0] - 1)
+        bottom = np.clip(top + 1, 0, s[1] - 1)
+
+        # Values at the corners
+        tl = self.patch[left, top, :]
+        tr = self.patch[right, top, :]
+        bl = self.patch[left, bottom, :]
+        br = self.patch[right, bottom, :]
+
+        # Interpolate between the corners
+        lut = (tl * (1 - row_frac) * (1 - col_frac) +
+               tr * row_frac * (1 - col_frac) +
+               bl * (1 - row_frac) * col_frac +
+               br * row_frac * col_frac)
+
+        # Add the alpha channel
+        self._lut = np.concatenate([lut, np.ones((self.N, self.N, 1))], axis=2)
+
         self._isinit = True
 
 
@@ -3349,7 +3383,7 @@ class MultiNorm(Norm):
 
         def resolve(norm):
             if isinstance(norm, str):
-                scale_cls = _api.check_getitem(scale._scale_mapping, norm=norm)
+                scale_cls = _api.getitem_checked(scale._scale_mapping, norm=norm)
                 return mpl.colorizer._auto_norm_from_scale(scale_cls)()
             elif isinstance(norm, Normalize):
                 return norm
@@ -3496,7 +3530,7 @@ class MultiNorm(Norm):
             - If iterable, must be of length `n_components`. Each element can be a
               scalar or array-like and is mapped through the corresponding norm.
             - If structured array, must have `n_components` fields. Each field
-              is mapped through the the corresponding norm.
+              is mapped through the corresponding norm.
 
         """
         values = self._iterable_components_in_data(values, self.n_components)
@@ -3631,11 +3665,10 @@ def rgb_to_hsv(arr):
                          f"shape {arr.shape} was found.")
 
     in_shape = arr.shape
-    arr = np.array(
-        arr, copy=False,
-        dtype=np.promote_types(arr.dtype, np.float32),  # Don't work on ints.
-        ndmin=2,  # In case input was 1D.
-    )
+    # ensure numerics are done at least on float32; ints are cast as well
+    arr = np.asarray(arr, dtype=np.promote_types(arr.dtype, np.float32))
+    if arr.ndim == 1:
+        arr = np.expand_dims(arr, axis=0)  # ensure arr is 2D
 
     out = np.zeros_like(arr)
     arr_max = arr.max(-1)

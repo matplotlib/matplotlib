@@ -122,6 +122,7 @@ Figure and Axes
 
    Artist.set_figure
    Artist.get_figure
+   Artist.figure
 
 Children
 --------

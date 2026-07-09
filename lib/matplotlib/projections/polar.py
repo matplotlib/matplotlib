@@ -34,7 +34,9 @@ class PolarTransform(mtransforms.Transform):
 
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True, *, scale_transform=None):
+    @_api.delete_parameter('3.11', 'apply_theta_transforms')
+    def __init__(self, axis=None, use_rmin=True, *,
+                 apply_theta_transforms=False, scale_transform=None):
         """
         Parameters
         ----------
@@ -183,7 +185,9 @@ class InvertedPolarTransform(mtransforms.Transform):
     """
     input_dims = output_dims = 2
 
-    def __init__(self, axis=None, use_rmin=True):
+    @_api.delete_parameter('3.11', 'apply_theta_transforms')
+    def __init__(self, axis=None, use_rmin=True,
+                 *, apply_theta_transforms=False):
         """
         Parameters
         ----------
@@ -469,7 +473,7 @@ class RadialLocator(mticker.Locator):
         if self._zero_in_bounds() and vmax > vmin:
             # this allows inverted r/y-lims
             vmin = min(0, vmin)
-        return mtransforms.nonsingular(vmin, vmax)
+        return mtransforms._nonsingular(vmin, vmax)
 
 
 class _ThetaShift(mtransforms.ScaledTranslation):
@@ -1065,6 +1069,21 @@ class PolarAxes(Axes):
             raise ValueError("The angle range must be less than a full circle")
         return tuple(np.rad2deg((new_min, new_max)))
 
+    def get_thetalim(self):
+        """
+        Get the minimum and maximum theta values.
+
+        Returns
+        -------
+        thetamin, thetamax : float
+            The minimum and maximum theta limit values in degrees.
+
+        See Also
+        --------
+        set_thetalim
+        """
+        return tuple(np.rad2deg(self.get_xlim()))
+
     def set_theta_offset(self, offset):
         """
         Set the offset for the location of 0 in radians.
@@ -1223,6 +1242,21 @@ class PolarAxes(Axes):
                                  'argument and kwarg "rmax"')
         return self.set_ylim(bottom=bottom, top=top, emit=emit, auto=auto,
                              **kwargs)
+
+    def get_rlim(self):
+        """
+        Get the radial axis view limits.
+
+        Returns
+        -------
+        bottom, top : float
+            The lower and upper radial axis limits.
+
+        See Also
+        --------
+        set_rlim
+        """
+        return self.get_ylim()
 
     def get_rlabel_position(self):
         """

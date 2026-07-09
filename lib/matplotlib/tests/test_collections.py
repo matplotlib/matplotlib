@@ -66,7 +66,7 @@ def generate_EventCollection_plot():
     return ax, coll, props
 
 
-@image_comparison(['EventCollection_plot__default.png'])
+@image_comparison(['EventCollection_plot__default.png'], style='mpl20')
 def test__EventCollection__get_props():
     _, coll, props = generate_EventCollection_plot()
     # check that the default segments have the correct coordinates
@@ -92,7 +92,7 @@ def test__EventCollection__get_props():
         np.testing.assert_array_equal(color, props['color'])
 
 
-@image_comparison(['EventCollection_plot__set_positions.png'])
+@image_comparison(['EventCollection_plot__set_positions.png'], style='mpl20')
 def test__EventCollection__set_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'], props['extra_positions']])
@@ -106,7 +106,7 @@ def test__EventCollection__set_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__add_positions.png'])
+@image_comparison(['EventCollection_plot__add_positions.png'], style='mpl20')
 def test__EventCollection__add_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -124,7 +124,7 @@ def test__EventCollection__add_positions():
     splt.set_xlim(-1, 35)
 
 
-@image_comparison(['EventCollection_plot__append_positions.png'])
+@image_comparison(['EventCollection_plot__append_positions.png'], style='mpl20')
 def test__EventCollection__append_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -140,7 +140,7 @@ def test__EventCollection__append_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__extend_positions.png'])
+@image_comparison(['EventCollection_plot__extend_positions.png'], style='mpl20')
 def test__EventCollection__extend_positions():
     splt, coll, props = generate_EventCollection_plot()
     new_positions = np.hstack([props['positions'],
@@ -156,7 +156,7 @@ def test__EventCollection__extend_positions():
     splt.set_xlim(-1, 90)
 
 
-@image_comparison(['EventCollection_plot__switch_orientation.png'])
+@image_comparison(['EventCollection_plot__switch_orientation.png'], style='mpl20')
 def test__EventCollection__switch_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
@@ -173,7 +173,7 @@ def test__EventCollection__switch_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(['EventCollection_plot__switch_orientation__2x.png'])
+@image_comparison(['EventCollection_plot__switch_orientation__2x.png'], style='mpl20')
 def test__EventCollection__switch_orientation_2x():
     """
     Check that calling switch_orientation twice sets the orientation back to
@@ -194,7 +194,7 @@ def test__EventCollection__switch_orientation_2x():
     splt.set_title('EventCollection: switch_orientation 2x')
 
 
-@image_comparison(['EventCollection_plot__set_orientation.png'])
+@image_comparison(['EventCollection_plot__set_orientation.png'], style='mpl20')
 def test__EventCollection__set_orientation():
     splt, coll, props = generate_EventCollection_plot()
     new_orientation = 'vertical'
@@ -211,7 +211,7 @@ def test__EventCollection__set_orientation():
     splt.set_xlim(0, 2)
 
 
-@image_comparison(['EventCollection_plot__set_linelength.png'])
+@image_comparison(['EventCollection_plot__set_linelength.png'], style='mpl20')
 def test__EventCollection__set_linelength():
     splt, coll, props = generate_EventCollection_plot()
     new_linelength = 15
@@ -226,7 +226,7 @@ def test__EventCollection__set_linelength():
     splt.set_ylim(-20, 20)
 
 
-@image_comparison(['EventCollection_plot__set_lineoffset.png'])
+@image_comparison(['EventCollection_plot__set_lineoffset.png'], style='mpl20')
 def test__EventCollection__set_lineoffset():
     splt, coll, props = generate_EventCollection_plot()
     new_lineoffset = -5.
@@ -245,11 +245,12 @@ def test__EventCollection__set_lineoffset():
     'EventCollection_plot__set_linestyle.png',
     'EventCollection_plot__set_linestyle.png',
     'EventCollection_plot__set_linewidth.png',
-])
+], style='mpl20')
 def test__EventCollection__set_prop():
     for prop, value, expected in [
-            ('linestyle', 'dashed', [(0, (6.0, 6.0))]),
-            ('linestyle', (0, (6., 6.)), [(0, (6.0, 6.0))]),
+            ('linestyle', 'dashed', [(0, [7.4, 3.2])]),
+            # Dashes are scaled by linewidth.
+            ('linestyle', (0, (3.7, 1.6)), [(0, [7.4, 3.2])]),
             ('linewidth', 5, 5),
     ]:
         splt, coll, _ = generate_EventCollection_plot()
@@ -258,7 +259,7 @@ def test__EventCollection__set_prop():
         splt.set_title(f'EventCollection: set_{prop}')
 
 
-@image_comparison(['EventCollection_plot__set_color.png'])
+@image_comparison(['EventCollection_plot__set_color.png'], style='mpl20')
 def test__EventCollection__set_color():
     splt, coll, _ = generate_EventCollection_plot()
     new_color = np.array([0, 1, 1, 1])
@@ -391,6 +392,7 @@ def test_barb_limits():
 
 
 @image_comparison(['EllipseCollection_test_image.png'], remove_text=True,
+                  style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.021)
 def test_EllipseCollection():
     # Test basic functionality
@@ -455,7 +457,7 @@ def test_EllipseCollection_setter_getter():
 
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
-    from mpl_toolkits.mplot3d import Axes3D  # type: ignore[import]
+    from mpl_toolkits.mplot3d import Axes3D
     plt.rcParams['axes3d.automargin'] = True
 
     vertsQuad = [
@@ -491,7 +493,7 @@ def test_polycollection_close():
     ax.set_ylim3d(0, 4)
 
 
-@check_figures_equal(extensions=["png"])
+@check_figures_equal()
 def test_scalarmap_change_cmap(fig_test, fig_ref):
     # Ensure that changing the colormap of a 3D scatter after draw updates the colors.
 
@@ -513,7 +515,8 @@ def test_scalarmap_change_cmap(fig_test, fig_ref):
     ax_ref.scatter(x, y, z, c=c, s=40, cmap='viridis')
 
 
-@image_comparison(['regularpolycollection_rotate.png'], remove_text=True)
+@image_comparison(['regularpolycollection_rotate.png'], remove_text=True,
+                  style='_classic_test')
 def test_regularpolycollection_rotate():
     xx, yy = np.mgrid[:10, :10]
     xy_points = np.transpose([xx.flatten(), yy.flatten()])
@@ -527,7 +530,8 @@ def test_regularpolycollection_rotate():
         ax.add_collection(col)
 
 
-@image_comparison(['regularpolycollection_scale.png'], remove_text=True)
+@image_comparison(['regularpolycollection_scale.png'], remove_text=True,
+                  style='_classic_test')
 def test_regularpolycollection_scale():
     # See issue #3860
 
@@ -646,7 +650,7 @@ def test_linestyle_single_dashes():
     plt.draw()
 
 
-@image_comparison(['size_in_xy.png'], remove_text=True)
+@image_comparison(['size_in_xy.png'], remove_text=True, style='_classic_test')
 def test_size_in_xy():
     fig, ax = plt.subplots()
 
@@ -700,6 +704,17 @@ def test_set_wrong_linestyle():
         c.set_linestyle('fuzzy')
 
 
+@pytest.mark.parametrize('ls', ['', ' ', 'none'])
+def test_scatter_empty_linestyle_pdf(ls):
+    # Regression test: '', ' ', and 'none' are documented "draw nothing"
+    # linestyle aliases but were not recognized by _get_dash_pattern, causing
+    # savefig to PDF to crash with "zero-size array to reduction operation maximum".
+    plt.switch_backend('pdf')
+    fig, ax = plt.subplots()
+    ax.scatter([0, 1], [0, 1], ls=ls)
+    fig.savefig(io.BytesIO())
+
+
 @mpl.style.context('default')
 def test_capstyle():
     col = mcollections.PathCollection([])
@@ -720,7 +735,7 @@ def test_joinstyle():
     assert col.get_joinstyle() == 'miter'
 
 
-@image_comparison(['cap_and_joinstyle.png'])
+@image_comparison(['cap_and_joinstyle.png'], style='mpl20')
 def test_cap_and_joinstyle_image():
     fig, ax = plt.subplots()
     ax.set_xlim([-0.5, 1.5])
@@ -1314,8 +1329,7 @@ def test_set_offset_units():
     np.testing.assert_allclose(off0, sc.get_offsets())
 
 
-@image_comparison(baseline_images=["test_check_masked_offsets"],
-                  extensions=["png"], remove_text=True, style="mpl20")
+@image_comparison(["test_check_masked_offsets.png"], remove_text=True, style="mpl20")
 def test_check_masked_offsets():
     # Check if masked data is respected by scatter
     # Ref: Issue #24545

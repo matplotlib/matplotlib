@@ -1,4 +1,5 @@
 import platform
+from unittest import mock
 
 import numpy as np
 import pytest
@@ -104,7 +105,8 @@ def _colorbar_extension_length(spacing):
 
 
 @image_comparison(['colorbar_extensions_shape_uniform.png',
-                   'colorbar_extensions_shape_proportional.png'])
+                   'colorbar_extensions_shape_proportional.png'],
+                  style='_classic_test')
 def test_colorbar_extension_shape():
     """Test rectangular colorbar extensions."""
     # Remove this line when this test image is regenerated.
@@ -117,7 +119,7 @@ def test_colorbar_extension_shape():
 
 @image_comparison(['colorbar_extensions_uniform.png',
                    'colorbar_extensions_proportional.png'],
-                  tol=1.0)
+                  style='_classic_test', tol=1.0)
 def test_colorbar_extension_length():
     """Test variable length colorbar extensions."""
     # Remove this line when this test image is regenerated.
@@ -153,17 +155,13 @@ def test_colorbar_extension_inverted_axis(orientation, extend, expected):
 
 
 @pytest.mark.parametrize('use_gridspec', [True, False])
-@image_comparison(['cbar_with_orientation',
-                   'cbar_locationing',
-                   'double_cbar',
-                   'cbar_sharing',
+@image_comparison(['cbar_with_orientation.png',
+                   'cbar_locationing.png',
+                   'double_cbar.png',
+                   'cbar_sharing.png',
                    ],
-                  extensions=['png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  remove_text=True, savefig_kwarg={'dpi': 40}, style='mpl20')
 def test_colorbar_positioning(use_gridspec):
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     data = np.arange(1200).reshape(30, 40)
     levels = [0, 200, 400, 600, 800, 1000, 1200]
 
@@ -234,7 +232,7 @@ def test_colorbar_single_ax_panchor_east(constrained):
     assert ax.get_anchor() == 'E'
 
 
-@image_comparison(['contour_colorbar.png'], remove_text=True,
+@image_comparison(['contour_colorbar.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.054)
 def test_contour_colorbar():
     fig, ax = plt.subplots(figsize=(4, 2))
@@ -247,7 +245,7 @@ def test_contour_colorbar():
 
 
 @image_comparison(['cbar_with_subplots_adjust.png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='_classic_test')
 def test_gridspec_make_colorbar():
     plt.figure()
     data = np.arange(1200).reshape(30, 40)
@@ -265,7 +263,7 @@ def test_gridspec_make_colorbar():
 
 
 @image_comparison(['colorbar_single_scatter.png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='_classic_test')
 def test_colorbar_single_scatter():
     # Issue #2642: if a path collection has only one entry,
     # the norm scaling within the colorbar must ensure a
@@ -314,6 +312,18 @@ def test_remove_from_figure_cl():
                                post_position.get_points())
 
 
+def test_axes_remove():
+    """Removing the colorbar's axes should also remove the colorbar"""
+    fig, ax = plt.subplots()
+    sc = ax.scatter([1, 2], [3, 4])
+    cb = fig.colorbar(sc)
+
+    with mock.patch.object(cb, 'remove') as mock_cb_remove:
+        cb.ax.remove()
+
+    mock_cb_remove.assert_called()
+
+
 def test_colorbarbase():
     # smoke test from #3805
     ax = plt.gca()
@@ -326,7 +336,8 @@ def test_parentless_mappable():
         plt.colorbar(pc)
 
 
-@image_comparison(['colorbar_closed_patch.png'], remove_text=True)
+@image_comparison(['colorbar_closed_patch.png'], remove_text=True,
+                  style='_classic_test')
 def test_colorbar_closed_patch():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -631,7 +642,9 @@ def test_colorbar_format(fmt):
     assert cbar.ax.yaxis.get_ticklabels()[4].get_text() == '2.00e+02'
 
     # but if we change the norm:
-    im.set_norm(LogNorm(vmin=0.1, vmax=10))
+    # when we require numpy >= 2, vmin can be 0.1, but at numpy 1.x this is
+    # sensitive to floating point errors
+    im.set_norm(LogNorm(vmin=0.09999, vmax=10))
     fig.canvas.draw()
     assert (cbar.ax.yaxis.get_ticklabels()[0].get_text() ==
             '$\\mathdefault{10^{-2}}$')
@@ -894,11 +907,12 @@ def test_twoslope_colorbar():
     fig.colorbar(pc)
 
 
-@check_figures_equal()
-def test_remove_cb_whose_mappable_has_no_figure(fig_ref, fig_test):
-    ax = fig_test.add_subplot()
-    cb = fig_test.colorbar(cm.ScalarMappable(), cax=ax)
+def test_remove_cb_whose_mappable_has_no_figure():
+    fig, ax = plt.subplots()
+    assert fig.get_axes() != []
+    cb = fig.colorbar(cm.ScalarMappable(), cax=ax)
     cb.remove()
+    assert fig.get_axes() == []
 
 
 def test_aspects():
@@ -1145,7 +1159,7 @@ def test_colorbar_set_formatter_locator():
 
 
 @image_comparison(['colorbar_extend_alpha.png'], remove_text=True,
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='_classic_test')
 def test_colorbar_extend_alpha():
     fig, ax = plt.subplots()
     im = ax.imshow([[0, 1], [2, 3]], alpha=0.3, interpolation="none")

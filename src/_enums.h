@@ -80,7 +80,7 @@ namespace p11x {
           auto ival = PyLong_AsLong(tmp); \
           value = decltype(value)(ival); \
           Py_DECREF(tmp); \
-          return !(ival == -1 && !PyErr_Occurred()); \
+          return !(ival == -1 && PyErr_Occurred()); \
         } else { \
           return false; \
         } \

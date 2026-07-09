@@ -11,8 +11,7 @@ The position of the viewport "camera" in a 3D plot is defined by three angles:
 *elevation*, *azimuth*, and *roll*. From the resulting position, it always
 points towards the center of the plot box volume. The angle direction is a
 common convention, and is shared with
-`PyVista <https://docs.pyvista.org/api/core/camera.html>`_ and
-`MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_.
+`PyVista <https://docs.pyvista.org/api/core/camera.html>`_ and MATLAB_.
 Note that a positive roll angle rotates the
 viewing plane clockwise, so the 3d axes will appear to rotate
 counter-clockwise.
@@ -51,8 +50,7 @@ can be specified by setting :rc:`axes3d.mouserotationstyle`, see
 :doc:`/users/explain/customizing`.
 
 Prior to v3.10, the 2D mouse position corresponded directly
-to azimuth and elevation; this is also how it is done
-in `MATLAB <https://www.mathworks.com/help/matlab/ref/view.html>`_.
+to azimuth and elevation; this is also how it is done in MATLAB_.
 To keep it this way, set ``mouserotationstyle: azel``.
 This approach works fine for spherical coordinate plots, where the *z* axis is special;
 however, it leads to a kind of 'gimbal lock' when looking down the *z* axis:
@@ -131,7 +129,7 @@ Henriksen et al. [Henriksen2002]_ provide an overview. In summary:
 
 You can try out one of the various mouse rotation styles using:
 
-.. code::
+.. code-block:: python
 
     import matplotlib as mpl
     mpl.rcParams['axes3d.mouserotationstyle'] = 'trackball'  # 'azel', 'trackball', 'sphere', or 'arcball'
@@ -188,6 +186,7 @@ the arcball to the border occurs at 45°, set the border width to
 The border is a circular arc, wrapped around the arcball sphere cylindrically
 (like a doughnut), joined smoothly to the sphere, much like Bell's hyperbola.
 
+.. _MATLAB: https://www.mathworks.com/help/matlab/ref/view.html
 
 .. [Shoemake1992] Ken Shoemake, "ARCBALL: A user interface for specifying
   three-dimensional rotation using a mouse", in Proceedings of Graphics

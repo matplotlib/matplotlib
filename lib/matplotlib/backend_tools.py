@@ -934,6 +934,7 @@ class ToolCopyToClipboardBase(ToolBase):
         self.toolmanager.message_event(message, self)
 
 
+#: The default tools to add to a tool manager.
 default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'zoom': ToolZoom, 'pan': ToolPan,
                  'subplots': ConfigureSubplotsBase,
@@ -953,12 +954,13 @@ default_tools = {'home': ToolHome, 'back': ToolBack, 'forward': ToolForward,
                  'copy': ToolCopyToClipboardBase,
                  }
 
+#: The default tools to add to a container.
 default_toolbar_tools = [['navigation', ['home', 'back', 'forward']],
                          ['zoompan', ['pan', 'zoom', 'subplots']],
                          ['io', ['save', 'help']]]
 
 
-def add_tools_to_manager(toolmanager, tools=default_tools):
+def add_tools_to_manager(toolmanager, tools=None):
     """
     Add multiple tools to a `.ToolManager`.
 
@@ -968,14 +970,16 @@ def add_tools_to_manager(toolmanager, tools=default_tools):
         Manager to which the tools are added.
     tools : {str: class_like}, optional
         The tools to add in a {name: tool} dict, see
-        `.backend_managers.ToolManager.add_tool` for more info.
+        `.backend_managers.ToolManager.add_tool` for more info. If not specified, then
+        defaults to `.default_tools`.
     """
-
+    if tools is None:
+        tools = default_tools
     for name, tool in tools.items():
         toolmanager.add_tool(name, tool)
 
 
-def add_tools_to_container(container, tools=default_toolbar_tools):
+def add_tools_to_container(container, tools=None):
     """
     Add multiple tools to the container.
 
@@ -987,9 +991,11 @@ def add_tools_to_container(container, tools=default_toolbar_tools):
     tools : list, optional
         List in the form ``[[group1, [tool1, tool2 ...]], [group2, [...]]]``
         where the tools ``[tool1, tool2, ...]`` will display in group1.
-        See `.backend_bases.ToolContainerBase.add_tool` for details.
+        See `.backend_bases.ToolContainerBase.add_tool` for details. If not specified,
+        then defaults to `.default_toolbar_tools`.
     """
-
+    if tools is None:
+        tools = default_toolbar_tools
     for group, grouptools in tools:
         for position, tool in enumerate(grouptools):
             container.add_tool(tool, group, position)

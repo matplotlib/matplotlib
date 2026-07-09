@@ -269,19 +269,19 @@ def drop_shadow_patches(ax):
 def light_filter_pie(ax):
     fracs = [15, 30, 45, 10]
     explode = (0.1, 0.2, 0.1, 0.1)
-    pies = ax.pie(fracs, explode=explode)
+    pie = ax.pie(fracs, explode=explode)
 
     light_filter = LightFilter(9)
-    for p in pies[0]:
+    for p in pie.wedges:
         p.set_agg_filter(light_filter)
         p.set_rasterized(True)  # to support mixed-mode renderers
         p.set(ec="none",
               lw=2)
 
     gauss = DropShadowFilter(9, offsets=(3, -4), alpha=0.7)
-    shadow = FilteredArtistList(pies[0], gauss)
+    shadow = FilteredArtistList(pie.wedges, gauss)
     ax.add_artist(shadow)
-    shadow.set_zorder(pies[0][0].get_zorder() - 0.1)
+    shadow.set_zorder(pie.wedges[0].get_zorder() - 0.1)
 
 
 if __name__ == "__main__":

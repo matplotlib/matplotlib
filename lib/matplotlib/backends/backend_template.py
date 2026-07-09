@@ -199,7 +199,8 @@ class FigureCanvasTemplate(FigureCanvasBase):
         """
         self.draw()
 
-    def get_default_filetype(self):
+    @classmethod
+    def get_default_filetype(cls):
         return 'foo'
 
 

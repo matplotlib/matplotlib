@@ -1,5 +1,8 @@
-import pytest
+import os
 import sys
+
+import pytest
+
 import matplotlib
 from matplotlib import _api
 
@@ -81,6 +84,13 @@ def mpl_test_settings(request):
 
 
 @pytest.fixture
+def high_memory(pytestconfig):
+    from matplotlib.testing import is_ci_environment
+    if not (os.environ.get('MPL_TEST_EXPENSIVE') or is_ci_environment()):
+        pytest.skip('Test uses too much memory')
+
+
+@pytest.fixture
 def pd():
     """
     Fixture to import and configure pandas. Using this fixture, the test is skipped when
@@ -139,6 +149,15 @@ def text_placeholders(monkeypatch):
     """
     from matplotlib.patches import Rectangle
 
+    def patched_get_sfnt_table(font, name):
+        """
+        Replace ``FT2Font.get_sfnt_table`` with empty results.
+
+        This forces ``Text._get_layout`` to fall back to
+        ``get_text_width_height_descent``, which produces results from the patch below.
+        """
+        return None
+
     def patched_get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
         """
         Replace ``_get_text_metrics_with_cache`` with fixed results.
@@ -173,6 +192,8 @@ def text_placeholders(monkeypatch):
                          facecolor=self.get_color(), edgecolor='none')
         rect.draw(renderer)
 
+    monkeypatch.setattr('matplotlib.ft2font.FT2Font.get_sfnt_table',
+                        patched_get_sfnt_table)
     monkeypatch.setattr('matplotlib.text._get_text_metrics_with_cache',
                         patched_get_text_metrics_with_cache)
     monkeypatch.setattr('matplotlib.text.Text.draw', patched_text_draw)

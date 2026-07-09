@@ -6,8 +6,7 @@ mplot3d FAQ
 
 How is mplot3d different from Mayavi?
 =====================================
-`Mayavi <https://docs.enthought.com/mayavi/mayavi/>`_
-is a very powerful and featureful 3D graphing library. For advanced
+Mayavi_ is a very powerful and featureful 3D graphing library. For advanced
 3D scenes and excellent rendering capabilities, it is highly recommended to
 use Mayavi.
 
@@ -37,8 +36,7 @@ rendered properly in matplotlib's 2D rendering engine.
 
 This problem will likely not be solved until OpenGL support is added to all of
 the backends (patches are greatly welcomed). Until then, if you need complex
-3D scenes, we recommend using
-`MayaVi <https://docs.enthought.com/mayavi/mayavi/>`_.
+3D scenes, we recommend using Mayavi_.
 
 
 I don't like how the 3D plot is laid out, how do I change that?
@@ -49,3 +47,5 @@ Work is being done to eliminate this issue. For matplotlib v1.1.0, there is
 a semi-official manner to modify these parameters. See the note in the
 :mod:`.mplot3d.axis3d` section of the mplot3d API documentation for
 more information.
+
+.. _Mayavi: https://docs.enthought.com/mayavi/mayavi/

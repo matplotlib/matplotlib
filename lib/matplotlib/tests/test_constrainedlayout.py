@@ -411,9 +411,6 @@ def test_colorbar_location():
     Test that colorbar handling is as expected for various complicated
     cases...
     """
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['pcolormesh.snap'] = False
-
     fig, axs = plt.subplots(4, 5, layout="constrained")
     for ax in axs.flat:
         pcm = example_pcolor(ax)
@@ -688,6 +685,77 @@ def test_compressed_suptitle():
     assert title.get_position()[1] == 0.98
 
 
+@image_comparison(['test_compressed_suptitle_colorbar.png'], style='mpl20')
+def test_compressed_suptitle_colorbar():
+    """Test that colorbars align with axes in compressed layout with suptitle."""
+    arr = np.arange(100).reshape((10, 10))
+    fig, axs = plt.subplots(ncols=2, figsize=(4, 2), layout='compressed')
+
+    im0 = axs[0].imshow(arr)
+    im1 = axs[1].imshow(arr)
+
+    cb0 = plt.colorbar(im0, ax=axs[0])
+    cb1 = plt.colorbar(im1, ax=axs[1])
+
+    fig.suptitle('Title')
+
+    # Verify colorbar heights match axes heights
+    # After layout, colorbar should have same height as parent axes
+    fig.canvas.draw()
+
+    for ax, cb in zip(axs, [cb0, cb1]):
+        ax_pos = ax.get_position()
+        cb_pos = cb.ax.get_position()
+
+        # Check that colorbar height matches axes height (within tolerance)
+        # Note: We check the actual rendered positions, not the bbox
+        assert abs(cb_pos.height - ax_pos.height) < 0.01, \
+            f"Colorbar height {cb_pos.height} doesn't match axes height {ax_pos.height}"
+
+        # Also verify vertical alignment (y0 and y1 should match)
+        assert abs(cb_pos.y0 - ax_pos.y0) < 0.01, \
+            f"Colorbar y0 {cb_pos.y0} doesn't match axes y0 {ax_pos.y0}"
+        assert abs(cb_pos.y1 - ax_pos.y1) < 0.01, \
+            f"Colorbar y1 {cb_pos.y1} doesn't match axes y1 {ax_pos.y1}"
+
+
+@image_comparison(['test_compressed_supylabel_colorbar.png'], style='mpl20')
+def test_compressed_supylabel_colorbar():
+    """
+    Test that horizontal colorbars align with axes
+    in compressed layout with supylabel.
+    """
+    arr = np.arange(100).reshape((10, 10))
+    fig, axs = plt.subplots(nrows=2, figsize=(3, 4), layout='compressed')
+
+    im0 = axs[0].imshow(arr)
+    im1 = axs[1].imshow(arr)
+
+    cb0 = plt.colorbar(im0, ax=axs[0], orientation='horizontal')
+    cb1 = plt.colorbar(im1, ax=axs[1], orientation='horizontal')
+
+    fig.supylabel('Title')
+
+    # Verify colorbar widths match axes widths
+    # After layout, colorbar should have same width as parent axes
+    fig.canvas.draw()
+
+    for ax, cb in zip(axs, [cb0, cb1]):
+        ax_pos = ax.get_position()
+        cb_pos = cb.ax.get_position()
+
+        # Check that colorbar width matches axes width (within tolerance)
+        # Note: We check the actual rendered positions, not the bbox
+        assert abs(cb_pos.width - ax_pos.width) < 0.01, \
+            f"Colorbar width {cb_pos.width} doesn't match axes width {ax_pos.width}"
+
+        # Also verify horizontal alignment (x0 and x1 should match)
+        assert abs(cb_pos.x0 - ax_pos.x0) < 0.01, \
+            f"Colorbar x0 {cb_pos.x0} doesn't match axes x0 {ax_pos.x0}"
+        assert abs(cb_pos.x1 - ax_pos.x1) < 0.01, \
+            f"Colorbar x1 {cb_pos.x1} doesn't match axes x1 {ax_pos.x1}"
+
+
 @pytest.mark.parametrize('arg, state', [
     (True, True),
     (False, False),
@@ -741,3 +809,47 @@ def test_submerged_subfig():
     for ax in axs[1:]:
         assert np.allclose(ax.get_position().bounds[-1],
                            axs[0].get_position().bounds[-1], atol=1e-6)
+
+
+def test_submerged_height_gap():
+    """Test that the gap between rows does not depend on the number of columns."""
+
+    mosaic1 = "AC;BC"
+    mosaic2 = "ACDE;BCDE"
+
+    fig1, ax_dict1 = plt.subplot_mosaic(mosaic1, layout='constrained')
+    fig2, ax_dict2 = plt.subplot_mosaic(mosaic2, layout='constrained')
+    for fig in fig1, fig2:
+        fig.get_layout_engine().set(h_pad=0.2)
+        fig.draw_without_rendering()
+
+    for label in 'A', 'B':
+        np.testing.assert_allclose(ax_dict1[label].get_position().bounds[-1],
+                                   ax_dict2[label].get_position().bounds[-1])
+
+
+def test_submerged_width_gap():
+    """Test that the gap between columns does not depend on the number of rows."""
+
+    mosaic1 = "AB;CC"
+    mosaic2 = "AB;CC;DD"
+
+    fig1, ax_dict1 = plt.subplot_mosaic(mosaic1, layout='constrained')
+    fig2, ax_dict2 = plt.subplot_mosaic(mosaic2, layout='constrained')
+    for fig in fig1, fig2:
+        fig.get_layout_engine().set(w_pad=0.2)
+        fig.draw_without_rendering()
+
+    for label in 'A', 'B':
+        np.testing.assert_allclose(ax_dict1[label].get_position().bounds[-2],
+                                   ax_dict2[label].get_position().bounds[-2])
+
+
+@image_comparison(['test_submerged_with_colorbar.png'], style='mpl20')
+def test_submerged_with_colorbar():
+    mosaic = "AABBCC;DDDEEE"
+
+    fig, ax_dict = plt.subplot_mosaic(mosaic, layout='constrained')
+
+    cf = ax_dict['A'].contourf([[0, 1], [2, 3]])
+    fig.colorbar(cf)

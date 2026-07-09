@@ -3,7 +3,6 @@ The image module supports basic image loading, rescaling and display
 operations.
 """
 
-import math
 import os
 import logging
 from pathlib import Path
@@ -207,12 +206,26 @@ def _resample(
     out = np.zeros(out_shape + data.shape[2:], data.dtype)  # 2D->2D, 3D->3D.
     if resample is None:
         resample = image_obj.get_resample()
+
+    # When an output pixel falls exactly on the edge between two input pixels, the Agg
+    # resampler will use the right input pixel as the nearest neighbor.  We want the
+    # left input pixel to be chosen instead, so we flip the input data and the supplied
+    # transform.  If origin != 'upper', the transform will already include a flip in the
+    # vertical direction.
+    if interpolation == 'nearest':
+        transform = Affine2D().translate(-data.shape[1], 0).scale(-1, 1) + transform
+        data = np.flip(data, axis=1)
+        if image_obj.origin == 'upper':
+            transform = Affine2D().translate(0, -data.shape[0]).scale(1, -1) + transform
+            data = np.flip(data, axis=0)
+
     _image.resample(data, out, transform,
                     _interpd_[interpolation],
                     resample,
                     alpha,
                     image_obj.get_filternorm(),
                     image_obj.get_filterrad())
+
     return out
 
 
@@ -393,10 +406,21 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         if clipped_bbox is None:
             return None, 0, 0, None
 
-        out_width_base = clipped_bbox.width * magnification
-        out_height_base = clipped_bbox.height * magnification
+        # Define the magnified bbox after clipping
+        magnified_extents = clipped_bbox.extents * magnification
+        if ((not unsampled) and round_to_pixel_border):
+            # Round to the nearest output pixel
+            # Add a tiny fudge amount to account for numerical precision loss
+            # on the two sides away from the Agg anchor point (x0, y1)
+            x0 = np.floor(magnified_extents[0] + 0.5)  # round half up
+            y0 = np.ceil(magnified_extents[1] - 0.5 - 1e-8)  # round half down
+            x1 = np.floor(magnified_extents[2] + 0.5 + 1e-8)  # round half up
+            y1 = np.ceil(magnified_extents[3] - 0.5)  # round half down
+            magnified_bbox = Bbox.from_extents([x0, y0, x1, y1])
+        else:
+            magnified_bbox = Bbox.from_extents(magnified_extents)
 
-        if out_width_base == 0 or out_height_base == 0:
+        if magnified_bbox.width == 0 or magnified_bbox.height == 0:
             return None, 0, 0, None
 
         if self.origin == 'upper':
@@ -417,23 +441,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         t = (t0
              + (Affine2D()
-                .translate(-clipped_bbox.x0, -clipped_bbox.y0)
-                .scale(magnification)))
+                .scale(magnification)
+                .translate(-magnified_bbox.x0, -magnified_bbox.y0)))
 
-        # So that the image is aligned with the edge of the Axes, we want to
-        # round up the output width to the next integer.  This also means
-        # scaling the transform slightly to account for the extra subpixel.
-        if ((not unsampled) and t.is_affine and round_to_pixel_border and
-                (out_width_base % 1.0 != 0.0 or out_height_base % 1.0 != 0.0)):
-            out_width = math.ceil(out_width_base)
-            out_height = math.ceil(out_height_base)
-            extra_width = (out_width - out_width_base) / out_width_base
-            extra_height = (out_height - out_height_base) / out_height_base
-            t += Affine2D().scale(1.0 + extra_width, 1.0 + extra_height)
-        else:
-            out_width = int(out_width_base)
-            out_height = int(out_height_base)
-        out_shape = (out_height, out_width)
+        out_shape = (int(magnified_bbox.height), int(magnified_bbox.width))
 
         if not unsampled:
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
@@ -512,8 +523,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     if A.shape[2] == 3:  # image has no alpha channel
                         A = np.dstack([A, np.ones(A.shape[:2])])
                 elif np.ndim(alpha) > 0:  # Array alpha
-                    # user-specified array alpha overrides the existing alpha channel
-                    A = np.dstack([A[..., :3], alpha])
+                    if A.shape[2] == 3:  # RGB: use array alpha directly
+                        A = np.dstack([A, alpha])
+                    else:  # RGBA: multiply existing alpha by array alpha
+                        A = np.dstack([A[..., :3], A[..., 3] * alpha])
                 else:  # Scalar alpha
                     if A.shape[2] == 3:  # broadcast scalar alpha
                         A = np.dstack([A, np.full(A.shape[:2], alpha, np.float32)])
@@ -560,7 +573,10 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             t = Affine2D().translate(
                 int(max(subset.xmin, 0)), int(max(subset.ymin, 0))) + t
 
-        return output, clipped_bbox.x0, clipped_bbox.y0, t
+        return (output,
+                magnified_bbox.x0 / magnification,
+                magnified_bbox.y0 / magnification,
+                t)
 
     def make_image(self, renderer, magnification=1.0, unsampled=False):
         """
@@ -1061,21 +1077,24 @@ class NonUniformImage(AxesImage):
                 B[:, :, 0:3] = A
                 B[:, :, 3] = 255
                 A = B
-        l, b, r, t = self.axes.bbox.extents
-        width = int(((round(r) + 0.5) - (round(l) - 0.5)) * magnification)
-        height = int(((round(t) + 0.5) - (round(b) - 0.5)) * magnification)
+        magnified_extents = (self.axes.bbox.extents * magnification + 0.5).astype(int)
+        l, b, r, t = magnified_extents / magnification
+        width = int((r - l) * magnification)
+        height = int((t - b) * magnification)
 
         invertedTransform = self.axes.transData.inverted()
-        x_pix = invertedTransform.transform(
-            [(x, b) for x in np.linspace(l, r, width)])[:, 0]
-        y_pix = invertedTransform.transform(
-            [(l, y) for y in np.linspace(b, t, height)])[:, 1]
+        x_pix_edges = invertedTransform.transform(
+            [(x, b) for x in np.linspace(l, r, width + 1)])[:, 0]
+        y_pix_edges = invertedTransform.transform(
+            [(l, y) for y in np.linspace(b, t, height + 1)])[:, 1]
+        x_pix_centers = (x_pix_edges[:-1] + x_pix_edges[1:]) / 2
+        y_pix_centers = (y_pix_edges[:-1] + y_pix_edges[1:]) / 2
 
         if self._interpolation == "nearest":
             x_mid = (self._Ax[:-1] + self._Ax[1:]) / 2
             y_mid = (self._Ay[:-1] + self._Ay[1:]) / 2
-            x_int = x_mid.searchsorted(x_pix)
-            y_int = y_mid.searchsorted(y_pix)
+            x_int = x_mid.searchsorted(x_pix_centers)
+            y_int = y_mid.searchsorted(y_pix_centers)
             # The following is equal to `A[y_int[:, None], x_int[None, :]]`,
             # but many times faster.  Both casting to uint32 (to have an
             # effectively 1D array) and manual index flattening matter.
@@ -1086,16 +1105,16 @@ class NonUniformImage(AxesImage):
         else:  # self._interpolation == "bilinear"
             # Use np.interp to compute x_int/x_float has similar speed.
             x_int = np.clip(
-                self._Ax.searchsorted(x_pix) - 1, 0, len(self._Ax) - 2)
+                self._Ax.searchsorted(x_pix_centers) - 1, 0, len(self._Ax) - 2)
             y_int = np.clip(
-                self._Ay.searchsorted(y_pix) - 1, 0, len(self._Ay) - 2)
+                self._Ay.searchsorted(y_pix_centers) - 1, 0, len(self._Ay) - 2)
             idx_int = np.add.outer(y_int * A.shape[1], x_int)
             x_frac = np.clip(
-                np.divide(x_pix - self._Ax[x_int], np.diff(self._Ax)[x_int],
+                np.divide(x_pix_centers - self._Ax[x_int], np.diff(self._Ax)[x_int],
                           dtype=np.float32),  # Downcasting helps with speed.
                 0, 1)
             y_frac = np.clip(
-                np.divide(y_pix - self._Ay[y_int], np.diff(self._Ay)[y_int],
+                np.divide(y_pix_centers - self._Ay[y_int], np.diff(self._Ay)[y_int],
                           dtype=np.float32),
                 0, 1)
             f00 = np.outer(1 - y_frac, 1 - x_frac)
@@ -1248,22 +1267,24 @@ class PcolorImage(AxesImage):
         if (padded_A[0, 0] != bg).all():
             padded_A[[0, -1], :] = padded_A[:, [0, -1]] = bg
 
-        l, b, r, t = self.axes.bbox.extents
-        width = (round(r) + 0.5) - (round(l) - 0.5)
-        height = (round(t) + 0.5) - (round(b) - 0.5)
-        width = round(width * magnification)
-        height = round(height * magnification)
+        # Round to the nearest output pixels after magnification
+        l, b, r, t = (self.axes.bbox.extents * magnification + 0.5).astype(int)
+        width = r - l
+        height = t - b
+
         vl = self.axes.viewLim
 
-        x_pix = np.linspace(vl.x0, vl.x1, width)
-        y_pix = np.linspace(vl.y0, vl.y1, height)
-        x_int = self._Ax.searchsorted(x_pix)
-        y_int = self._Ay.searchsorted(y_pix)
+        x_pix_edges = np.linspace(vl.x0, vl.x1, width + 1)
+        y_pix_edges = np.linspace(vl.y0, vl.y1, height + 1)
+        x_pix_centers = (x_pix_edges[:-1] + x_pix_edges[1:]) / 2
+        y_pix_centers = (y_pix_edges[:-1] + y_pix_edges[1:]) / 2
+        x_int = self._Ax.searchsorted(x_pix_centers)
+        y_int = self._Ay.searchsorted(y_pix_centers)
         im = (  # See comment in NonUniformImage.make_image re: performance.
             padded_A.view(np.uint32).ravel()[
                 np.add.outer(y_int * padded_A.shape[1], x_int)]
             .view(np.uint8).reshape((height, width, 4)))
-        return im, l, b, IdentityTransform()
+        return im, l / magnification, b / magnification, IdentityTransform()
 
     def _check_unsampled_image(self):
         return False
@@ -1404,9 +1425,9 @@ class BboxImage(_ImageBase):
 
     cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
-        data to colors.
+        data to colors. This parameter is ignored if X is RGB(A).
     norm : str or `~matplotlib.colors.Normalize`
-        Maps luminance to 0-1.
+        Maps luminance to 0-1. This parameter is ignored if X is RGB(A).
     interpolation : str, default: :rc:`image.interpolation`
         Supported values are 'none', 'auto', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
@@ -1766,12 +1787,14 @@ def _pil_png_to_float_array(pil_png):
     raise ValueError(f"Unknown PIL rawmode: {rawmode}")
 
 
+@_api.deprecated('3.11', alternative="Pillow's `PIL.Image.Image.thumbnail`")
 def thumbnail(infile, thumbfile, scale=0.1, interpolation='bilinear',
               preview=False):
     """
     Make a thumbnail of image in *infile* with output filename *thumbfile*.
 
-    See :doc:`/gallery/misc/image_thumbnail_sgskip`.
+    See `Pillow for a replacement
+    <https://pillow.readthedocs.io/en/stable/handbook/tutorial.html#create-jpeg-thumbnails>`_.
 
     Parameters
     ----------

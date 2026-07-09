@@ -16,46 +16,32 @@ classifiers=[
     "License :: OSI Approved :: Python Software Foundation License",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Scientific/Engineering :: Visualization",
 ]
 
 # When updating the list of dependencies, add an api_changes/development
 # entry and also update the following places:
+# - the `build` dependency group below
 # - lib/matplotlib/__init__.py (matplotlib._check_versions())
-# - requirements/testing/minver.txt
+# - ci/minver-requirements.txt
 # - doc/devel/dependencies.rst
-# - .github/workflows/tests.yml
 # - environment.yml
 dependencies = [
-    "contourpy >= 1.0.1",
+    "contourpy >= 1.2.1",
     "cycler >= 0.10",
     "fonttools >= 4.22.0",
     "kiwisolver >= 1.3.1",
-    "numpy >= 1.25",
+    "numpy >= 2.0",
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
     "python-dateutil >= 2.7",
 ]
 # Also keep in sync with find_program of meson.build.
-requires-python = ">=3.11"
-
-[project.optional-dependencies]
-# Should be a copy of the build dependencies below.
-dev = [
-    "meson-python>=0.13.1,!=0.17.*",
-    "pybind11>=2.13.2,!=2.13.3",
-    "setuptools_scm>=7",
-    # Not required by us but setuptools_scm without a version, cso _if_
-    # installed, then setuptools_scm 8 requires at least this version.
-    # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
-    # we need to keep this for now until setuptools_scm _fully_ drops
-    # setuptools.
-    "setuptools>=64",
-]
+requires-python = ">=3.12"
 
 [project.urls]
 "Homepage" = "https://matplotlib.org"
@@ -68,13 +54,112 @@ dev = [
 
 [build-system]
 build-backend = "mesonpy"
-# Also keep in sync with optional dependencies above.
+# Also keep in sync with dependency groups below.
 requires = [
     # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
     # you really need it and aren't using an sdist.
+    "meson-python>=0.13.2,!=0.17.*",
+    "pybind11>=2.13.2,!=2.13.3",
+    # setuptools_scm 10 breaks versioning in editable installs. You can remove this pin
+    # if you're a downstream distributor just building wheels or your equivalent.
+    "setuptools_scm>=7,<10",
+]
+
+[dependency-groups]
+build = [
+    # Should be the same as `[project] dependencies` above.
+    "contourpy >= 1.2.1",
+    "cycler >= 0.10",
+    "fonttools >= 4.22.0",
+    "kiwisolver >= 1.3.1",
+    "numpy >= 2.0",
+    "packaging >= 20.0",
+    "pillow >= 9",
+    "pyparsing >= 3",
+    "python-dateutil >= 2.7",
+
+    # Should be the same as `[build-system] requires` above.
     "meson-python>=0.13.1,!=0.17.*",
     "pybind11>=2.13.2,!=2.13.3",
-    "setuptools_scm>=7",
+    "setuptools_scm>=7,<10",
+    # Not required by us but setuptools_scm without a version, so _if_
+    # installed, then setuptools_scm 8 requires at least this version.
+    # Unfortunately, we can't do a sort of minimum-if-installed dependency, so
+    # we need to keep this for now until setuptools_scm _fully_ drops
+    # setuptools.
+    "setuptools>=64",
+]
+dev = [
+    {include-group = "build"},
+    {include-group = "doc"},
+    {include-group = "test"},
+    {include-group = "test-extra"},
+    "pre-commit",
+]
+# Requirements for building docs
+#
+# You will first need a matching Matplotlib installation
+# e.g (from the Matplotlib root directory)
+#     pip install --group build --no-build-isolation --editable .
+#
+# Install the documentation requirements with:
+#     pip install --group doc
+#
+doc = [
+    "sphinx>=5.1.0,!=6.1.2",
+    "colorspacious",
+    "ipython",
+    "ipywidgets",
+    "ipykernel",
+    "numpydoc>=1.0",
+    "mpl-sphinx-theme~=3.11.0",
+    "pyyaml",
+    "PyStemmer",
+    "sphinxcontrib-svg2pdfconverter>=1.1.0",
+    "sphinxcontrib-video>=0.2.1",
+    "sphinx-copybutton",
+    "sphinx-design",
+    "sphinx-gallery[parallel]>=0.17.0",
+    "sphinx-tags>=0.4.0",
+]
+
+# pip requirements for all the CI builds
+test = [
+    "black<27",
+    "certifi",
+    "coverage!=6.3",
+    "psutil; sys_platform != 'cygwin'",
+    "pytest!=4.6.0,!=5.4.0,!=8.1.0",
+    "pytest-cov",
+    "pytest-rerunfailures!=16.0",
+    "pytest-timeout",
+    "pytest-xdist",
+    "pytest-xvfb",
+    "tornado",
+]
+
+# Extra pip requirements
+test-extra = [
+    "ipykernel",
+    # jupyter/nbconvert#1970 for the 7.3 series exclusions
+    "nbconvert[execute]!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1",
+    "nbformat!=5.0.0,!=5.0.1",
+    "pandas!=0.25.0",
+    "pikepdf",
+    "pytz",
+    "xarray",
+]
+
+# Extra pip requirements for the GitHub Actions mypy build
+typing = [
+    "mypy>=1.14",
+    "typing-extensions>=4.6",
+    # Extra stubs distributed separately from the main pypi package
+    "pandas-stubs",
+    "types-pillow",
+    "types-python-dateutil",
+    "types-psutil",
+    "sphinx",
 ]
 
 [tool.meson-python.args]
@@ -114,19 +199,13 @@ ignore = [
     "D107",
     "D200",
     "D202",
-    "D203",
     "D204",
     "D205",
-    "D212",
     "D301",
     "D400",
     "D401",
-    "D402",
     "D403",
     "D404",
-    "D413",
-    "D415",
-    "D417",
     "E266",
     "E305",
     "E306",
@@ -195,7 +274,6 @@ convention = "numpy"
 "lib/matplotlib/_mathtext_data.py" = ["E203"]
 "lib/matplotlib/backends/backend_template.py" = ["F401"]
 "lib/matplotlib/pylab.py" = ["F401", "F403"]
-"lib/matplotlib/pyplot.py" = ["F811"]
 "lib/matplotlib/tests/test_mathtext.py" = ["E501"]
 "lib/matplotlib/transforms.py" = ["E201"]
 "lib/matplotlib/tri/_triinterpolate.py" = ["E201", "E221"]
@@ -321,3 +399,64 @@ testpaths = ["lib"]
 addopts = [
     "--import-mode=importlib",
 ]
+
+[tool.cibuildwheel]
+enable = ["cpython-freethreading"]
+skip = "*-musllinux_aarch64"
+manylinux-x86_64-image = "manylinux2014"
+
+before-build = "rm -rf {package}/build"
+test-command = [
+    # "python {package}/ci/check_wheel_licenses.py {wheel}",
+    "python {package}/ci/check_version_number.py",
+]
+test-environment = "PIP_PREFER_BINARY=true"
+
+[tool.cibuildwheel.macos.environment]
+MACOSX_DEPLOYMENT_TARGET = "10.12"
+
+[tool.cibuildwheel.pyodide]
+test-requires = "pytest"
+test-command = [
+    # Wheels are built without test images, so copy them into the testing directory.
+    "basedir=$(python -c 'import pathlib, matplotlib; print(pathlib.Path(matplotlib.__file__).parent.parent)')",
+    "cp -a {package}/lib/matplotlib/tests/data $basedir/matplotlib/tests/",
+    """
+    for subdir in matplotlib mpl_toolkits/axes_grid1 mpl_toolkits/axisartist mpl_toolkits/mplot3d; do
+        cp -a {package}/lib/${subdir}/tests/baseline_images $basedir/${subdir}/tests/
+    done""",
+    # Test installed, not repository, copy as we aren't using an editable install.
+    """\
+    pytest -p no:cacheprovider --pyargs \
+        matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d \
+	-k 'not test_complex_shaping'""",
+]
+[tool.cibuildwheel.pyodide.environment]
+# Exceptions are needed for pybind11:
+# https://github.com/pybind/pybind11/pull/5298
+CFLAGS = "-fexceptions"
+CXXFLAGS = "-fexceptions"
+LDFLAGS = "-fexceptions"
+
+[tool.cibuildwheel.windows]
+before-build = [
+    "pip install delvewheel",
+    "rm -rf {package}/build",
+]
+repair-wheel-command = "delvewheel repair -w {dest_dir} {wheel}"
+
+[tool.cibuildwheel.windows.config-settings]
+# On Windows, we explicitly request MSVC compilers (as GitHub Action runners have
+# MinGW on PATH that would be picked otherwise), switch to a static build for
+# runtimes, but use dynamic linking for `VCRUNTIME140.dll`, `VCRUNTIME140_1.dll`,
+# and the UCRT. This avoids requiring specific versions of `MSVCP140.dll`, while
+# keeping shared state with the rest of the Python process/extensions.
+setup-args = [
+    "--vsenv",
+    "-Db_vscrt=mt",
+    "-Dcpp_link_args=['ucrt.lib','vcruntime.lib','/nodefaultlib:libucrt.lib','/nodefaultlib:libvcruntime.lib']",
+]
+
+[[tool.cibuildwheel.overrides]]
+select = "cp314*"
+manylinux-x86_64-image = "manylinux_2_28"

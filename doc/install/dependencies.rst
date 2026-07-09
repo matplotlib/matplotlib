@@ -20,17 +20,27 @@ When installing through a package manager like ``pip`` or ``conda``, the
 mandatory dependencies are automatically installed. This list is mainly for
 reference.
 
-* `Python <https://www.python.org/downloads/>`_ (>= 3.11)
-* `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.0.1)
+* `Python <https://www.python.org/downloads/>`_ (>= 3.12)
+* `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.2.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
-* `NumPy <https://numpy.org>`_ (>= 1.25)
+* `NumPy <https://numpy.org>`_ (>= 2.0)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)
 
+.. note::
+
+   With **conda packages**, this set of minimal dependencies is realized in
+   the ``matplotlib-base`` conda package. Other packages in the conda
+   ecosystem that depend on Matplotlib should depend on ``matplotlib-base``.
+
+   The ``matplotlib`` conda package additionally comes with ``pyside6``
+   to have a working GUI backend out of the box for end users. This should
+   primarily be used to define end-user environments. See also the
+   `conda forge documentation <https://conda-forge.org/docs/maintainer/knowledge_base/#matplotlib>`__.
 
 .. _optional_dependencies:
 
@@ -52,8 +62,7 @@ and the capabilities they provide.
 * Tk_ (>= 8.5, != 8.6.0 or 8.6.1): for the Tk-based backends. Tk is part of
   most standard Python installations, but it's not part of Python itself and
   thus may not be present in rare cases.
-* PyQt6_ (>= 6.1), PySide6_, PyQt5_ (>= 5.12), or PySide2_: for the Qt-based
-  backends.
+* PyQt6_ (>= 6.1), PySide6_, or PyQt5_ (>= 5.12): for the Qt-based backends.
 * PyGObject_ and pycairo_ (>= 1.14.0): for the GTK-based backends. If using pip
   (but not conda or system package manager) PyGObject must be built from
   source; see `pygobject documentation
@@ -68,7 +77,6 @@ and the capabilities they provide.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
-.. _PySide2: https://pypi.org/project/PySide2/
 .. _PyQt6: https://pypi.org/project/PyQt6/
 .. _PySide6: https://pypi.org/project/PySide6/
 .. _PyGObject: https://pygobject.readthedocs.io/en/latest/
@@ -220,9 +228,9 @@ Build dependencies
 Python
 ------
 
-``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system/pyproject-toml>`,
+``pip`` normally builds packages using :external+pip:doc:`build isolation <reference/build-system>`,
 which means that ``pip`` installs the dependencies listed here for the
-duration of the build process. However, build isolation is disabled via the the
+duration of the build process. However, build isolation is disabled via the
 :external+pip:ref:`--no-build-isolation <install_--no-build-isolation>` flag
 when :ref:`installing Matplotlib for development <development-install>`, which
 means that the dependencies must be explicitly installed, either by :ref:`creating a virtual environment <dev-environment>`
@@ -234,7 +242,7 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
-- `NumPy <https://numpy.org>`_ (>= 1.22).  Also a runtime dependency.
+- NumPy_ (>= 1.22).  Also a runtime dependency.
 
 
 .. _compile-build-dependencies:
@@ -396,17 +404,11 @@ Documentation dependencies
 Python
 ------
 
-The additional Python packages required to build the
-:ref:`documentation <documenting-matplotlib>` are listed in
-:file:`doc-requirements.txt` and can be installed using ::
+The additional Python packages required to build the :ref:`documentation
+<documenting-matplotlib>` are listed in :file:`pyproject.toml` and can be
+installed using ::
 
-    pip install -r requirements/doc/doc-requirements.txt
-
-The content of :file:`doc-requirements.txt` is also shown below:
-
-.. include:: ../../requirements/doc/doc-requirements.txt
-   :literal:
-
+    pip install --group doc
 
 .. _doc-dependencies-external:
 
@@ -473,7 +475,7 @@ Optional
 The documentation can be built without Inkscape and optipng, but the build
 process will raise various warnings.
 
-* `Inkscape <https://inkscape.org>`_
+* Inkscape_
 * `optipng <http://optipng.sourceforge.net>`_
 * the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"

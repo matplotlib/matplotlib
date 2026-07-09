@@ -137,9 +137,6 @@ text.hinting : auto   # May be one of the following:
                       #             or the autohinter if none is available.
                       # For backward compatibility, this value may also be
                       # True === 'auto' or False === 'none'.
-text.hinting_factor : 8 # Specifies the amount of softness for hinting in the
-                        # horizontal direction.  A value of 1 will hint to full
-                        # pixels.  A value of 2 will hint to half pixels etc.
 
 text.antialiased : True # If True (default), the text will be antialiased.
                         # This only affects the Agg backend.
@@ -162,10 +159,10 @@ mathtext.fallback: cm  # Select fallback font from ['cm' (Computer Modern), 'sti
                        # custom math fonts. Select 'None' to not perform fallback
                        # and replace the missing character by a dummy.
 
-mathtext.default : it # The default font to use for math.
-                      # Can be any of the LaTeX font names, including
-                      # the special name "regular" for the same font
-                      # used in regular text.
+mathtext.default: normal  # The default font to use for math.
+                          # Can be any of the LaTeX font names (normal, it, bf,
+                          # etc.), including the special name "regular" for the
+                          # same font used in regular text.
 
 ### AXES
 # default face and edge color, default tick sizes,

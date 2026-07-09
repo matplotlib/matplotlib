@@ -58,8 +58,8 @@ PyRendererAgg_draw_path(RendererAgg *self,
 static void
 PyRendererAgg_draw_text_image(RendererAgg *self,
                               py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj,
-                              std::variant<double, int> vx,
-                              std::variant<double, int> vy,
+                              std::variant<int, double> vx,
+                              std::variant<int, double> vy,
                               double angle,
                               GCAgg &gc)
 {
@@ -254,12 +254,12 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
 
         .def_buffer([](RendererAgg *renderer) -> py::buffer_info {
             std::vector<py::ssize_t> shape {
-                renderer->get_height(),
-                renderer->get_width(),
+                static_cast<py::ssize_t>(renderer->get_height()),
+                static_cast<py::ssize_t>(renderer->get_width()),
                 4
             };
             std::vector<py::ssize_t> strides {
-                renderer->get_width() * 4,
+                static_cast<py::ssize_t>(renderer->get_width() * 4),
                 4,
                 1
             };

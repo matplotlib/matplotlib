@@ -19,9 +19,7 @@ def test_subplot():
     fig.add_subplot(ax)
 
 
-# Rather high tolerance to allow ongoing work with floating axes internals;
-# remove when image is regenerated.
-@image_comparison(['curvelinear3.png'], style='default', tol=5)
+@image_comparison(['curvelinear3.png'], style='mpl20')
 def test_curvelinear3():
     fig = plt.figure(figsize=(5, 5))
 
@@ -65,13 +63,8 @@ def test_curvelinear3():
     l.set_clip_path(ax1.patch)
 
 
-# Rather high tolerance to allow ongoing work with floating axes internals;
-# remove when image is regenerated.
-@image_comparison(['curvelinear4.png'], style='default', tol=0.9)
+@image_comparison(['curvelinear4.png'], style='mpl20', tol=0.04)
 def test_curvelinear4():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig = plt.figure(figsize=(5, 5))
 
     tr = (mtransforms.Affine2D().scale(np.pi / 180, 1) +

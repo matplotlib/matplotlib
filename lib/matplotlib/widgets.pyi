@@ -155,6 +155,7 @@ class CheckButtons(AxesWidget):
         labels: Sequence[str],
         actives: Iterable[bool] | None = ...,
         *,
+        layout: None | Literal["vertical", "horizontal"] | tuple[int, int] = None,
         useblit: bool = ...,
         label_props: dict[str, Sequence[Any]] | None = ...,
         frame_props: dict[str, Any] | None = ...,
@@ -163,7 +164,7 @@ class CheckButtons(AxesWidget):
     def set_label_props(self, props: dict[str, Sequence[Any]]) -> None: ...
     def set_frame_props(self, props: dict[str, Any]) -> None: ...
     def set_check_props(self, props: dict[str, Any]) -> None: ...
-    def set_active(self, index: int, state: bool | None = ...) -> None: ...  # type: ignore[override]
+    def set_active(self, index: int, state: bool | None = ...) -> None: ...
     def clear(self) -> None: ...
     def get_status(self) -> list[bool]: ...
     def get_checked_labels(self) -> list[str]: ...
@@ -201,6 +202,7 @@ class TextBox(AxesWidget):
 class RadioButtons(AxesWidget):
     activecolor: ColorType
     value_selected: str
+    index_selected: int
     labels: list[Text]
     def __init__(
         self,
@@ -209,6 +211,7 @@ class RadioButtons(AxesWidget):
         active: int = ...,
         activecolor: ColorType | None = ...,
         *,
+        layout: None | Literal["vertical", "horizontal"] | tuple[int, int] = None,
         useblit: bool = ...,
         label_props: dict[str, Sequence[Any]] | None = ...,
         radio_props: dict[str, Any] | None = ...,
@@ -272,7 +275,7 @@ class MultiCursor(Widget):
 
 class _SelectorWidget(AxesWidget):
     onselect: Callable[[float, float], Any]
-    useblit: bool
+    _useblit: bool
     background: Any
     validButtons: list[MouseButton]
     def __init__(
@@ -284,6 +287,8 @@ class _SelectorWidget(AxesWidget):
         state_modifier_keys: dict[str, str] | None = ...,
         use_data_coordinates: bool = ...,
     ) -> None: ...
+    @property
+    def useblit(self) -> bool: ...
     def update_background(self, event: Event) -> None: ...
     def connect_default_events(self) -> None: ...
     def ignore(self, event: Event) -> bool: ...

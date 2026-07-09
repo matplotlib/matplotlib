@@ -1,4 +1,4 @@
-from io import BytesIO, StringIO
+from io import BytesIO
 import gc
 import multiprocessing
 import os
@@ -8,20 +8,54 @@ import shutil
 import sys
 import warnings
 
-import numpy as np
 import pytest
 
+from unittest.mock import MagicMock, patch
+
 import matplotlib as mpl
+import matplotlib.font_manager as fm_mod
 from matplotlib.font_manager import (
-    findfont, findSystemFonts, FontEntry, FontProperties, fontManager,
+    findfont, findSystemFonts, FontEntry, FontPath, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
-    MSUserFontDirectories, ttfFontProperty,
+    MSUserFontDirectories, ttfFontProperty, _get_font_alt_names,
     _get_fontconfig_fonts, _normalize_weight)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
 
-has_fclist = shutil.which('fc-list') is not None
+has_fclist = sys.platform != 'emscripten' and shutil.which('fc-list') is not None
+
+
+def test_font_path():
+    fp = FontPath('foo', 123)
+    fp2 = FontPath('foo', 321)
+    assert str(fp) == 'foo'
+    assert repr(fp) == "FontPath('foo', 123)"
+    assert fp.path == 'foo'
+    assert fp.face_index == 123
+    # Should be immutable.
+    with pytest.raises(AttributeError, match='has no setter'):
+        fp.path = 'bar'
+    with pytest.raises(AttributeError, match='has no setter'):
+        fp.face_index = 321
+    # Should be comparable with str and itself.
+    assert fp == 'foo'
+    assert fp == FontPath('foo', 123)
+    assert fp <= fp
+    assert fp >= fp
+    assert fp != fp2
+    assert fp < fp2
+    assert fp <= fp2
+    assert fp2 > fp
+    assert fp2 >= fp
+    # Should be hashable, but not the same as str.
+    d = {fp: 1, 'bar': 2}
+    assert fp in d
+    assert d[fp] == 1
+    assert d[FontPath('foo', 123)] == 1
+    assert fp2 not in d
+    assert 'foo' not in d
+    assert FontPath('bar', 0) not in d
 
 
 def test_font_priority():
@@ -67,37 +101,20 @@ def test_json_serialization(tmp_path):
 def test_otf():
     fname = '/usr/share/fonts/opentype/freefont/FreeMono.otf'
     if Path(fname).exists():
-        assert is_opentype_cff_font(fname)
+        with pytest.warns(mpl.MatplotlibDeprecationWarning):
+            assert is_opentype_cff_font(fname)
     for f in fontManager.ttflist:
         if 'otf' in f.fname:
             with open(f.fname, 'rb') as fd:
                 res = fd.read(4) == b'OTTO'
-            assert res == is_opentype_cff_font(f.fname)
+            with pytest.warns(mpl.MatplotlibDeprecationWarning):
+                assert res == is_opentype_cff_font(f.fname)
 
 
 @pytest.mark.skipif(sys.platform == "win32" or not has_fclist,
                     reason='no fontconfig installed')
 def test_get_fontconfig_fonts():
     assert len(_get_fontconfig_fonts()) > 1
-
-
-@pytest.mark.parametrize('factor', [2, 4, 6, 8])
-def test_hinting_factor(factor):
-    font = findfont(FontProperties(family=["sans-serif"]))
-
-    font1 = get_font(font, hinting_factor=1)
-    font1.clear()
-    font1.set_size(12, 100)
-    font1.set_text('abc')
-    expected = font1.get_width_height()
-
-    hinted_font = get_font(font, hinting_factor=factor)
-    hinted_font.clear()
-    hinted_font.set_size(12, 100)
-    hinted_font.set_text('abc')
-    # Check that hinting only changes text layout by a small (10%) amount.
-    np.testing.assert_allclose(hinted_font.get_width_height(), expected,
-                               rtol=0.1)
 
 
 def test_utf16m_sfnt():
@@ -115,8 +132,17 @@ def test_utf16m_sfnt():
 
 def test_find_ttc():
     fp = FontProperties(family=["WenQuanYi Zen Hei"])
-    if Path(findfont(fp)).name != "wqy-zenhei.ttc":
+    fontpath = findfont(fp)
+    if Path(fontpath).name != "wqy-zenhei.ttc":
         pytest.skip("Font wqy-zenhei.ttc may be missing")
+    # All fonts from this collection should have loaded as well.
+    for name in ["WenQuanYi Zen Hei Mono", "WenQuanYi Zen Hei Sharp"]:
+        subfontpath = findfont(FontProperties(family=[name]), fallback_to_default=False)
+        assert subfontpath.path == fontpath.path
+        assert subfontpath.face_index != fontpath.face_index
+        subfont = get_font(subfontpath)
+        assert subfont.fname == subfontpath.path
+        assert subfont.face_index == subfontpath.face_index
     fig, ax = plt.subplots()
     ax.text(.5, .5, "\N{KANGXI RADICAL DRAGON}", fontproperties=fp)
     for fmt in ["raw", "svg", "pdf", "ps"]:
@@ -135,6 +161,34 @@ def test_find_noto():
         fig.savefig(BytesIO(), format=fmt)
 
 
+def test_find_valid():
+    class PathLikeClass:
+        def __init__(self, filename):
+            self.filename = filename
+
+        def __fspath__(self):
+            return self.filename
+
+    file_str = findfont('DejaVu Sans')
+    file_bytes = os.fsencode(file_str)
+
+    font = get_font(file_str)
+    assert font.fname == file_str
+    font = get_font(file_bytes)
+    assert font.fname == file_bytes
+    font = get_font(PathLikeClass(file_str))
+    assert font.fname == file_str
+    font = get_font(PathLikeClass(file_bytes))
+    assert font.fname == file_bytes
+    font = get_font(FontPath(file_str, 0))
+    assert font.fname == file_str
+
+    # Note, fallbacks are not currently accessible.
+    font = get_font([file_str, file_bytes,
+                     PathLikeClass(file_str), PathLikeClass(file_bytes)])
+    assert font.fname == file_str
+
+
 def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
@@ -145,11 +199,6 @@ def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
-
-    # Not really public, but get_font doesn't expose non-filename constructor.
-    from matplotlib.ft2font import FT2Font
-    with pytest.raises(TypeError, match='font file or a binary-mode file'):
-        FT2Font(StringIO())  # type: ignore[arg-type]
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
@@ -179,12 +228,16 @@ def test_user_fonts_linux(tmpdir, monkeypatch):
     _get_fontconfig_fonts.cache_clear()
 
 
-def test_addfont_as_path():
+def test_addfont_as_path(monkeypatch):
     """Smoke test that addfont() accepts pathlib.Path."""
     font_test_file = 'mpltest.ttf'
     path = Path(__file__).parent / 'data' / font_test_file
     try:
         fontManager.addfont(path)
+        assert fontManager.findfont('mpltest:weight=500') == FontPath(path, 0)
+        with monkeypatch.context() as m, pytest.raises(ValueError):
+            m.setenv('MPL_IGNORE_SYSTEM_FONTS', 'true')  # Can only find internal fonts.
+            fontManager.findfont('mpltest:weight=500', fallback_to_default=False)
         added, = (font for font in fontManager.ttflist
                   if font.fname.endswith(font_test_file))
         fontManager.ttflist.remove(added)
@@ -229,8 +282,13 @@ def _model_handler(_):
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support subprocesses')
 @pytest.mark.skipif(not hasattr(os, "register_at_fork"),
                     reason="Cannot register at_fork handlers")
+# Python 3.15+ raises DeprecationWarning for fork in multi-threaded process
+@pytest.mark.filterwarnings("ignore:.*multi-threaded.*fork.*:DeprecationWarning")
+@pytest.mark.filterwarnings("ignore:.*multi-threaded.*fork.*:RuntimeWarning")
 def test_fork():
     _model_handler(0)  # Make sure the font cache is filled.
     ctx = multiprocessing.get_context("fork")
@@ -334,19 +392,145 @@ def test_get_font_names():
     paths_mpl = [cbook._get_data_path('fonts', subdir) for subdir in ['ttf']]
     fonts_mpl = findSystemFonts(paths_mpl, fontext='ttf')
     fonts_system = findSystemFonts(fontext='ttf')
-    ttf_fonts = []
+    ttf_fonts = set()
     for path in fonts_mpl + fonts_system:
         try:
             font = ft2font.FT2Font(path)
             prop = ttfFontProperty(font)
-            ttf_fonts.append(prop.name)
+            ttf_fonts.add(prop.name)
+            for face_index in range(1, font.num_faces):
+                font = ft2font.FT2Font(path, face_index=face_index)
+                prop = ttfFontProperty(font)
+                ttf_fonts.add(prop.name)
         except Exception:
             pass
-    available_fonts = sorted(list(set(ttf_fonts)))
-    mpl_font_names = sorted(fontManager.get_font_names())
-    assert set(available_fonts) == set(mpl_font_names)
-    assert len(available_fonts) == len(mpl_font_names)
-    assert available_fonts == mpl_font_names
+    # fontManager may contain additional entries for alternative family names
+    # (e.g. typographic family, platform-specific Name ID 1) registered by
+    # addfont(), so primary names must be a subset of the manager's names.
+    assert ttf_fonts <= set(fontManager.get_font_names())
+
+
+def test_addfont_alternative_names(tmp_path):
+    """
+    Fonts that advertise different family names across platforms or name IDs
+    should be registered under all of those names so users can address the font
+    by any of them.
+
+    Two real-world patterns are covered:
+
+    - **MS platform ID 1 differs from Mac platform ID 1** (e.g. Ubuntu Light):
+      FreeType returns the Mac ID 1 value as ``family_name``; the MS ID 1
+      value ("Ubuntu Light") is an equally valid name that users expect to work.
+    - **Name ID 16 (Typographic Family) differs from ID 1** (older fonts):
+      some fonts store a broader family name in ID 16.
+    """
+    mac_key = (1, 0, 0)
+    ms_key = (3, 1, 0x0409)
+
+    # Case 1: MS ID1 differs from Mac ID1 (Ubuntu Light pattern)
+    # Mac ID1="Test Family" → FreeType family_name (primary)
+    # MS  ID1="Test Family Light" → alternate name users expect to work
+    ubuntu_style_sfnt = {
+        (*mac_key, 1): "Test Family".encode("latin-1"),
+        (*ms_key,  1): "Test Family Light".encode("utf-16-be"),
+        (*mac_key, 2): "Light".encode("latin-1"),
+        (*ms_key,  2): "Regular".encode("utf-16-be"),
+    }
+    fake_font = MagicMock()
+    fake_font.get_sfnt.return_value = ubuntu_style_sfnt
+
+    assert _get_font_alt_names(fake_font, "Test Family") == [("Test Family Light", 400)]
+    assert _get_font_alt_names(fake_font, "Test Family Light") == [
+        ("Test Family", 300)]
+
+    # Case 2: ID 16 differs from ID 1 (older typographic-family pattern)
+    # ID 17 (typographic subfamily) is absent → defaults to weight 400
+    id16_sfnt = {
+        (*mac_key, 1):  "Test Family".encode("latin-1"),
+        (*ms_key,  1):  "Test Family".encode("utf-16-be"),
+        (*ms_key,  16): "Test Family Light".encode("utf-16-be"),
+    }
+    fake_font_id16 = MagicMock()
+    fake_font_id16.get_sfnt.return_value = id16_sfnt
+
+    assert _get_font_alt_names(
+        fake_font_id16, "Test Family"
+    ) == [("Test Family Light", 400)]
+
+    # Case 3: all entries agree → no alternates
+    same_sfnt = {
+        (*mac_key, 1): "Test Family".encode("latin-1"),
+        (*ms_key,  1): "Test Family".encode("utf-16-be"),
+    }
+    fake_font_same = MagicMock()
+    fake_font_same.get_sfnt.return_value = same_sfnt
+    assert _get_font_alt_names(fake_font_same, "Test Family") == []
+
+    # Case 4: get_sfnt() raises ValueError (e.g. non-SFNT font) → empty list
+    fake_font_no_sfnt = MagicMock()
+    fake_font_no_sfnt.get_sfnt.side_effect = ValueError
+    assert _get_font_alt_names(fake_font_no_sfnt, "Test Family") == []
+
+    fake_path = str(tmp_path / "fake.ttf")
+    primary_entry = FontEntry(fname=fake_path, name="Test Family",
+                              style="normal", variant="normal",
+                              weight=300, stretch="normal", size="scalable")
+
+    with patch("matplotlib.font_manager.ft2font.FT2Font",
+               return_value=fake_font), \
+         patch("matplotlib.font_manager.ttfFontProperty",
+               return_value=primary_entry):
+        fm_instance = fm_mod.FontManager.__new__(fm_mod.FontManager)
+        fm_instance.ttflist = []
+        fm_instance.afmlist = []
+        fm_instance._findfont_cached = MagicMock()
+        fm_instance._findfont_cached.cache_clear = MagicMock()
+        fm_instance.addfont(fake_path)
+
+    names = [e.name for e in fm_instance.ttflist]
+    assert names == ["Test Family", "Test Family Light"]
+    alt_entry = fm_instance.ttflist[1]
+    assert alt_entry.weight == 400
+    assert alt_entry.style == primary_entry.style
+    assert alt_entry.fname == primary_entry.fname
+
+
+@pytest.mark.parametrize("subfam,expected", [
+    ("Thin",        100),
+    ("ExtraLight",  200),
+    ("UltraLight",  200),
+    ("DemiLight",   350),
+    ("SemiLight",   350),
+    ("Light",       300),
+    ("Book",        380),
+    ("Regular",     400),
+    ("Normal",      400),
+    ("Medium",      500),
+    ("DemiBold",    600),
+    ("Demi",        600),
+    ("SemiBold",    600),
+    ("ExtraBold",   800),
+    ("SuperBold",   800),
+    ("UltraBold",   800),
+    ("Bold",        700),
+    ("UltraBlack", 1000),
+    ("SuperBlack", 1000),
+    ("ExtraBlack", 1000),
+    ("Ultra",      1000),
+    ("Black",       900),
+    ("Heavy",       900),
+    ("",            400),  # fallback: unrecognised → regular
+])
+def test_alt_name_weight_from_subfamily(subfam, expected):
+    """_get_font_alt_names derives weight from the paired subfamily string."""
+    ms_key = (3, 1, 0x0409)
+    fake_font = MagicMock()
+    fake_font.get_sfnt.return_value = {
+        (*ms_key, 1): "Family Alt".encode("utf-16-be"),
+        (*ms_key, 2): subfam.encode("utf-16-be"),
+    }
+    result = _get_font_alt_names(fake_font, "Family")
+    assert result == [("Family Alt", expected)]
 
 
 def test_donot_cache_tracebacks():
@@ -434,3 +618,17 @@ def test_font_match_warning(caplog):
     findfont(FontProperties(family=["DejaVu Sans"], weight=750))
     logs = [rec.message for rec in caplog.records]
     assert 'findfont: Failed to find font weight 750, now using 700.' in logs
+
+
+def test_mutable_fontproperty_cache_invalidation():
+    fp = FontProperties()
+    assert findfont(fp).endswith("DejaVuSans.ttf")
+    fp.set_weight("bold")
+    assert findfont(fp).endswith("DejaVuSans-Bold.ttf")
+
+
+def test_fontproperty_default_cache_invalidation():
+    mpl.rcParams["font.weight"] = "normal"
+    assert findfont("DejaVu Sans").endswith("DejaVuSans.ttf")
+    mpl.rcParams["font.weight"] = "bold"
+    assert findfont("DejaVu Sans").endswith("DejaVuSans-Bold.ttf")

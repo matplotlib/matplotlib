@@ -82,6 +82,8 @@ body:
       options:
         - pip
         - conda
+        - pixi
+        - uv
         - Linux package manager
         - from source (.tar.gz)
         - git checkout

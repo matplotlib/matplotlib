@@ -96,7 +96,7 @@ def test_collection_transform_of_none():
     assert isinstance(c.get_offset_transform(), mtransforms.IdentityTransform)
 
 
-@image_comparison(["clip_path_clipping"], remove_text=True)
+@image_comparison(["clip_path_clipping"], remove_text=True, style='_classic_test')
 def test_clipping():
     exterior = mpath.Path.unit_rectangle().deepcopy()
     exterior.vertices *= 4
@@ -217,9 +217,6 @@ def test_remove():
 
 @image_comparison(["default_edges.png"], remove_text=True, style='default')
 def test_default_edges():
-    # Remove this line when this test image is regenerated.
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig, [[ax1, ax2], [ax3, ax4]] = plt.subplots(2, 2)
 
     ax1.plot(np.arange(10), np.arange(10), 'x',
@@ -257,6 +254,36 @@ def test_setp():
     sio = io.StringIO()
     plt.setp(lines1, 'zorder', file=sio)
     assert sio.getvalue() == '  zorder: float\n'
+
+
+def test_artist_set():
+    line = mlines.Line2D([], [])
+    line.set(linewidth=7)
+    assert line.get_linewidth() == 7
+
+    # Property aliases should work
+    line.set(lw=5)
+    assert line.get_linewidth() == 5
+
+
+def test_artist_set_invalid_property_raises():
+    """
+    Test that set() raises AttributeError for invalid property names.
+    """
+    line = mlines.Line2D([0, 1], [0, 1])
+
+    with pytest.raises(AttributeError, match="unexpected keyword argument"):
+        line.set(not_a_property=1)
+
+
+def test_artist_set_duplicate_aliases_raises():
+    """
+    Test that set() raises TypeError when both a property and its alias are provided.
+    """
+    line = mlines.Line2D([0, 1], [0, 1])
+
+    with pytest.raises(TypeError, match="aliases of one another"):
+        line.set(lw=2, linewidth=3)
 
 
 def test_None_zorder():

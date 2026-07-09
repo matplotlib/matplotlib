@@ -6,7 +6,8 @@ A pie and a donut with labels
 Welcome to the Matplotlib bakery. We will create a pie and a donut
 chart through the `pie method <matplotlib.axes.Axes.pie>` and
 show how to label them with a `legend <matplotlib.axes.Axes.legend>`
-as well as with `annotations <matplotlib.axes.Axes.annotate>`.
+as well as with the `pie_label method <matplotlib.axes.Axes.pie>` and
+`annotations <matplotlib.axes.Axes.annotate>`.
 """
 
 # %%
@@ -15,12 +16,14 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 # Now it's time for the pie. Starting with a pie recipe, we create the data
 # and a list of labels from it.
 #
-# We can provide a function to the ``autopct`` argument, which will expand
-# automatic percentage labeling by showing absolute values; we calculate
-# the latter back from relative data and the known sum of all values.
+# We then create the pie and store the returned `~matplotlib.container.PieContainer`
+# object for later.
 #
-# We then create the pie and store the returned objects for later.  The first
-# returned element of the returned tuple is a list of the wedges.  Those are
+# We can provide the `~matplotlib.container.PieContainer` and a format string to
+# the `~matplotlib.axes.Axes.pie_label` method to automatically label each
+# ingredient's wedge with its weight in grams and percentages.
+#
+# The `~.PieContainer` has a list of patches as one of its attributes.  Those are
 # `matplotlib.patches.Wedge` patches, which can directly be used as the handles
 # for a legend. We can use the legend's ``bbox_to_anchor`` argument to position
 # the legend outside of the pie. Here we use the axes coordinates ``(1, 0, 0.5,
@@ -31,31 +34,25 @@ as well as with `annotations <matplotlib.axes.Axes.annotate>`.
 import matplotlib.pyplot as plt
 import numpy as np
 
-fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
+fig, ax = plt.subplots(figsize=(6, 3))
 
 recipe = ["375 g flour",
           "75 g sugar",
           "250 g butter",
           "300 g berries"]
 
-data = [float(x.split()[0]) for x in recipe]
+data = [int(x.split()[0]) for x in recipe]
 ingredients = [x.split()[-1] for x in recipe]
 
+pie = ax.pie(data)
 
-def func(pct, allvals):
-    absolute = int(np.round(pct/100.*np.sum(allvals)))
-    return f"{pct:.1f}%\n({absolute:d} g)"
+ax.pie_label(pie, '{frac:.1%}\n({absval:d}g)',
+             textprops=dict(color="w", size=8, weight="bold"))
 
-
-wedges, texts, autotexts = ax.pie(data, autopct=lambda pct: func(pct, data),
-                                  textprops=dict(color="w"))
-
-ax.legend(wedges, ingredients,
+ax.legend(pie.wedges, ingredients,
           title="Ingredients",
           loc="center left",
           bbox_to_anchor=(1, 0, 0.5, 1))
-
-plt.setp(autotexts, size=8, weight="bold")
 
 ax.set_title("Matplotlib bakery: A pie")
 
@@ -97,13 +94,13 @@ recipe = ["225 g flour",
 
 data = [225, 90, 50, 60, 100, 5]
 
-wedges, texts = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
+pie = ax.pie(data, wedgeprops=dict(width=0.5), startangle=-40)
 
 bbox_props = dict(boxstyle="square,pad=0.3", fc="w", ec="k", lw=0.72)
 kw = dict(arrowprops=dict(arrowstyle="-"),
           bbox=bbox_props, zorder=0, va="center")
 
-for i, p in enumerate(wedges):
+for i, p in enumerate(pie.wedges):
     ang = (p.theta2 - p.theta1)/2. + p.theta1
     y = np.sin(np.deg2rad(ang))
     x = np.cos(np.deg2rad(ang))
@@ -131,6 +128,7 @@ plt.show()
 #    in this example:
 #
 #    - `matplotlib.axes.Axes.pie` / `matplotlib.pyplot.pie`
+#    - `matplotlib.axes.Axes.pie_label` / `matplotlib.pyplot.pie_label`
 #    - `matplotlib.axes.Axes.legend` / `matplotlib.pyplot.legend`
 #
 # .. tags::

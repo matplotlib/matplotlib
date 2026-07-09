@@ -117,6 +117,7 @@ class MovieWriterRegistry:
 
     def __getitem__(self, name):
         """Get an available writer class from its name."""
+        _api.check_in_list(self._registered, writer=name)
         if self.is_available(name):
             return self._registered[name]
         raise RuntimeError(f"Requested MovieWriter ({name}) not available")
@@ -369,6 +370,8 @@ class MovieWriter(AbstractMovieWriter):
     @classmethod
     def isAvailable(cls):
         """Return whether a MovieWriter subclass is actually available."""
+        if sys.platform == 'emscripten':
+            return False
         return shutil.which(cls.bin_path()) is not None
 
 
@@ -612,6 +615,12 @@ class FFMpegFileWriter(FFMpegBase, FileMovieWriter):
     ``-framerate``, so see also `their notes on frame rates`_ for further details.
 
     .. _their notes on frame rates: https://trac.ffmpeg.org/wiki/Slideshow#Framerates
+
+    Parameters
+    ----------
+    *args, **kwargs
+        All arguments are forwarded to `FileMovieWriter`. See
+        `FileMovieWriter` for a list of all possible parameters.
     """
     supported_formats = ['png', 'jpeg', 'tiff', 'raw', 'rgba']
 
@@ -845,10 +854,7 @@ class HTMLWriter(FileMovieWriter):
 
 class Animation:
     """
-    A base class for Animations.
-
-    This class is not usable as is, and should be subclassed to provide needed
-    behavior.
+    Abstract base class for Animations.
 
     .. note::
 
@@ -949,9 +955,21 @@ class Animation:
         filename : str
             The output filename, e.g., :file:`mymovie.mp4`.
 
-        writer : `MovieWriter` or str, default: :rc:`animation.writer`
-            A `MovieWriter` instance to use or a key that identifies a
-            class to use, such as 'ffmpeg'.
+        writer : `AbstractMovieWriter` subclass or str, default: :rc:`animation.writer`
+            The writer used to grab the frames and create the movie file.
+            This can be an instance of an `AbstractMovieWriter` subclass or a
+            string. The builtin writers are
+
+            ==================  ==============================
+            str                 class
+            ==================  ==============================
+            'ffmpeg'            `.FFMpegWriter`
+            'ffmpeg_file'       `.FFMpegFileWriter`
+            'imagemagick'       `.ImageMagickWriter`
+            'imagemagick_file'  `.ImageMagickFileWriter`
+            'pillow'            `.PillowWriter`
+            'html'              `.HTMLWriter`
+            ==================  ==============================
 
         fps : int, optional
             Movie frame rate (per second).  If not set, the frame rate from the
@@ -1401,7 +1419,7 @@ class Animation:
 
 class TimedAnimation(Animation):
     """
-    `Animation` subclass for time-based animation.
+    Abstract `Animation` subclass for time-based animation.
 
     A new frame is drawn every *interval* milliseconds.
 

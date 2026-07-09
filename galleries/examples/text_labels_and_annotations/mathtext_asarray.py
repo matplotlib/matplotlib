@@ -6,7 +6,10 @@ Convert texts to images
 
 from io import BytesIO
 
+from PIL import Image
+
 import matplotlib.pyplot as plt
+import numpy as np
 
 from matplotlib.figure import Figure
 from matplotlib.transforms import IdentityTransform
@@ -17,7 +20,7 @@ def text_to_rgba(s, *, dpi, **kwargs):
     # - draw it on an empty and transparent figure;
     # - save the figure to a temporary buffer using ``bbox_inches="tight",
     #   pad_inches=0`` which will pick the correct area to save;
-    # - load the buffer using ``plt.imread``.
+    # - load the buffer using ``PIL.Image.open``.
     #
     # (If desired, one can also directly save the image to the filesystem.)
     fig = Figure(facecolor="none")
@@ -26,7 +29,7 @@ def text_to_rgba(s, *, dpi, **kwargs):
         fig.savefig(buf, dpi=dpi, format="png", bbox_inches="tight",
                     pad_inches=0)
         buf.seek(0)
-        rgba = plt.imread(buf)
+        rgba = np.asarray(Image.open(buf))
     return rgba
 
 

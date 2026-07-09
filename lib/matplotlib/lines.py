@@ -36,7 +36,7 @@ def _get_dash_pattern(style):
     if isinstance(style, str):
         style = ls_mapper.get(style, style)
     # un-dashed styles
-    if style in ['solid', 'None']:
+    if style in ['solid', 'None', 'none', '', ' ']:
         offset = 0
         dashes = None
     # dashed styles
@@ -183,7 +183,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             if ax is None:
                 raise ValueError(
                     "markevery is specified relative to the Axes size, but "
-                    "the line does not have a Axes as parent")
+                    "the line does not have an Axes as parent")
 
             # calc cumulative distance along path (in display coords):
             fin = np.isfinite(verts).all(axis=1)
@@ -592,9 +592,10 @@ class Line2D(Artist):
         -----
         Setting *markevery* will still only draw markers at actual data points.
         While the float argument form aims for uniform visual spacing, it has
-        to coerce from the ideal spacing to the nearest available data point.
-        Depending on the number and distribution of data points, the result
-        may still not look evenly spaced.
+        to coerce from the ideal spacing along the drawn line to the nearest
+        available data point. Depending on the number and distribution of data
+        points, and on how jagged the line is, the result may still not look
+        evenly spaced along the x- or y-axis.
 
         When using a start offset to specify the first marker, the offset will
         be from the first data point which may be different from the first
@@ -668,6 +669,7 @@ class Line2D(Artist):
         self.set_xdata(x)
         self.set_ydata(y)
 
+    @_api.deprecated("3.12", alternative="recache(always=True)")
     def recache_always(self):
         self.recache(always=True)
 
@@ -684,7 +686,8 @@ class Line2D(Artist):
             y = self._y
 
         self._xy = np.column_stack(np.broadcast_arrays(x, y)).astype(float)
-        self._x, self._y = self._xy.T  # views
+        self._x = self._xy[:, 0]  # views of the x and y data
+        self._y = self._xy[:, 1]
 
         self._subslice = False
         if (self.axes
@@ -709,9 +712,12 @@ class Line2D(Artist):
             interpolation_steps = self._path._interpolation_steps
         else:
             interpolation_steps = 1
-        xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy.T)
-        self._path = Path(np.asarray(xy).T,
-                          _interpolation_steps=interpolation_steps)
+        if self._drawstyle == 'default':
+            vertices = self._xy
+        else:
+            step_func = STEP_LOOKUP_MAP[self._drawstyle]
+            vertices = np.asarray(step_func(*self._xy.T)).T
+        self._path = Path(vertices, _interpolation_steps=interpolation_steps)
         self._transformed_path = None
         self._invalidx = False
         self._invalidy = False
@@ -724,8 +730,12 @@ class Line2D(Artist):
         """
         # Masked arrays are now handled by the Path class itself
         if subslice is not None:
-            xy = STEP_LOOKUP_MAP[self._drawstyle](*self._xy[subslice, :].T)
-            _path = Path(np.asarray(xy).T,
+            if self._drawstyle == 'default':
+                vertices = self._xy[subslice]
+            else:
+                step_func = STEP_LOOKUP_MAP[self._drawstyle]
+                vertices = np.asarray(step_func(*self._xy[subslice, :].T)).T
+            _path = Path(vertices,
                          _interpolation_steps=self._path._interpolation_steps)
         else:
             _path = self._path
@@ -791,8 +801,11 @@ class Line2D(Artist):
                 if self.get_sketch_params() is not None:
                     gc.set_sketch_params(*self.get_sketch_params())
 
-                # We first draw a path within the gaps if needed.
-                if self.is_dashed() and self._gapcolor is not None:
+                # We first draw a path within the gaps if needed, but only for
+                # visible dashed lines; zero-width lines would otherwise yield
+                # all-zero dashes.
+                if (self._linewidth > 0 and self.is_dashed()
+                        and self._gapcolor is not None):
                     lc_rgba = mcolors.to_rgba(self._gapcolor, self._alpha)
                     gc.set_foreground(lc_rgba, isRGBA=True)
 
@@ -805,7 +818,10 @@ class Line2D(Artist):
                 lc_rgba = mcolors.to_rgba(self._color, self._alpha)
                 gc.set_foreground(lc_rgba, isRGBA=True)
 
-                gc.set_dashes(*self._dash_pattern)
+                if self._linewidth > 0:
+                    gc.set_dashes(*self._dash_pattern)
+                else:
+                    gc.set_dashes(0, None)
                 renderer.draw_path(gc, tpath, affine.frozen())
                 gc.restore()
 
@@ -1149,7 +1165,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
+        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq)
             Possible values:
 
             - A string:
@@ -1164,13 +1180,23 @@ class Line2D(Artist):
               ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
               =======================================================  ================
 
-            - Alternatively a dash tuple of the following form can be
-              provided::
+            - A tuple describing the start position and lengths of dashes and spaces:
 
                   (offset, onoffseq)
 
-              where ``onoffseq`` is an even length tuple of on and off ink
-              in points. See also :meth:`set_dashes`.
+              where
+
+              - *offset* is a float specifying the offset (in points); i.e. how much
+                is the dash pattern shifted.
+              - *onoffseq* is a sequence of on and off ink in points. There can be
+                arbitrary many pairs of on and off values.
+
+              Example: The tuple ``(0, (10, 5, 1, 5))`` means that the pattern starts
+              at the beginning of the line. It draws a 10 point long dash,
+              then a 5 point long space, then a 1 point long dash, followed by a 5 point
+              long space, and then the pattern repeats.
+
+              See also :meth:`set_dashes`.
 
             For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """

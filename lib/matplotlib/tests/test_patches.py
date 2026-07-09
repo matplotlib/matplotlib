@@ -241,7 +241,7 @@ def test_negative_rect():
     assert_array_equal(np.roll(neg_vertices, 2, 0), pos_vertices)
 
 
-@image_comparison(['clip_to_bbox.png'])
+@image_comparison(['clip_to_bbox.png'], style='mpl20')
 def test_clip_to_bbox():
     fig, ax = plt.subplots()
     ax.set_xlim([-18, 20])
@@ -269,7 +269,7 @@ def test_clip_to_bbox():
     ax.add_patch(result_patch)
 
 
-@image_comparison(['patch_alpha_coloring'], remove_text=True)
+@image_comparison(['patch_alpha_coloring'], remove_text=True, style='_classic_test')
 def test_patch_alpha_coloring():
     """
     Test checks that the patch and collection are rendered with the specified
@@ -300,7 +300,7 @@ def test_patch_alpha_coloring():
     ax.set_ylim(-1, 2)
 
 
-@image_comparison(['patch_alpha_override'], remove_text=True)
+@image_comparison(['patch_alpha_override'], remove_text=True, style='_classic_test')
 def test_patch_alpha_override():
     #: Test checks that specifying an alpha attribute for a patch or
     #: collection will override any alpha component of the facecolor
@@ -340,7 +340,7 @@ def test_patch_color_none():
     assert c.get_facecolor()[0] == 0
 
 
-@image_comparison(['patch_custom_linestyle'], remove_text=True)
+@image_comparison(['patch_custom_linestyle'], remove_text=True, style='_classic_test')
 def test_patch_custom_linestyle():
     #: A test to check that patches and collections accept custom dash
     #: patterns as linestyle and that they display correctly.
@@ -437,7 +437,7 @@ def test_wedge_movement():
         assert getattr(w, attr) == new_v
 
 
-@image_comparison(['wedge_range'], remove_text=True,
+@image_comparison(['wedge_range'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_wedge_range():
     ax = plt.axes()
@@ -550,7 +550,7 @@ def test_multi_color_hatch():
         ax.add_patch(r)
 
 
-@image_comparison(['units_rectangle.png'])
+@image_comparison(['units_rectangle.png'], style='mpl20')
 def test_units_rectangle():
     import matplotlib.testing.jpl_units as U
     U.register()
@@ -813,7 +813,7 @@ def test_boxstyle_errors(fmt, match):
         BoxStyle(fmt)
 
 
-@image_comparison(baseline_images=['annulus'], extensions=['png'])
+@image_comparison(['annulus.png'], style='mpl20')
 def test_annulus():
 
     fig, ax = plt.subplots()
@@ -825,7 +825,7 @@ def test_annulus():
     ax.set_aspect('equal')
 
 
-@image_comparison(baseline_images=['annulus'], extensions=['png'])
+@image_comparison(['annulus.png'], style='mpl20')
 def test_annulus_setters():
 
     fig, ax = plt.subplots()
@@ -846,7 +846,7 @@ def test_annulus_setters():
     ell.angle = 45
 
 
-@image_comparison(baseline_images=['annulus'], extensions=['png'])
+@image_comparison(['annulus.png'], style='mpl20')
 def test_annulus_setters2():
 
     fig, ax = plt.subplots()
@@ -905,6 +905,14 @@ def test_default_linestyle():
     patch.set_linestyle('--')
     patch.set_linestyle(None)
     assert patch.get_linestyle() == 'solid'
+
+
+@mpl.style.context('mpl20')
+def test_patch_zero_linewidth_dashed_uses_solid_gc_dashes():
+    fig, ax = plt.subplots()
+    ax.add_patch(Rectangle(
+        (0, 0), 1, 1, fill=False, linewidth=0, linestyle='--'))
+    fig.draw_without_rendering()
 
 
 def test_default_capstyle():
@@ -1101,3 +1109,81 @@ def test_empty_fancyarrow():
     fig, ax = plt.subplots()
     arrow = ax.arrow([], [], [], [])
     assert arrow is not None
+
+
+def test_patch_edgegapcolor_getter_setter():
+    """Test that edgegapcolor can be set and retrieved."""
+    patch = Rectangle((0, 0), 1, 1)
+    # Default is None
+    assert patch.get_edgegapcolor() is None
+
+    # Set to a color
+    patch.set_edgegapcolor('red')
+    assert mcolors.same_color(patch.get_edgegapcolor(), 'red')
+
+    # Set back to None
+    patch.set_edgegapcolor(None)
+    assert patch.get_edgegapcolor() is None
+
+
+def test_patch_edgegapcolor_init():
+    """Test that edgegapcolor can be passed in __init__."""
+    patch = Rectangle((0, 0), 1, 1, edgegapcolor='blue')
+    assert mcolors.same_color(patch.get_edgegapcolor(), 'blue')
+
+
+def test_patch_has_dashed_edge():
+    """Test _has_dashed_edge method for patches."""
+    patch = Rectangle((0, 0), 1, 1)
+    patch.set_linestyle('solid')
+    assert not patch._has_dashed_edge()
+
+    patch.set_linestyle('--')
+    assert patch._has_dashed_edge()
+
+    patch.set_linestyle(':')
+    assert patch._has_dashed_edge()
+
+    patch.set_linestyle('-.')
+    assert patch._has_dashed_edge()
+
+    # Test custom linestyle
+    patch.set_linestyle((0, (2, 2, 10, 2)))
+    assert patch._has_dashed_edge()
+
+
+def test_patch_edgegapcolor_update_from():
+    """Test that edgegapcolor is copied in update_from."""
+    patch1 = Rectangle((0, 0), 1, 1, edgegapcolor='green')
+    patch2 = Rectangle((1, 1), 2, 2)
+
+    patch2.update_from(patch1)
+    assert mcolors.same_color(patch2.get_edgegapcolor(), 'green')
+
+
+@image_comparison(['patch_edgegapcolor.png'], remove_text=True, style='mpl20')
+def test_patch_edgegapcolor_visual():
+    """Visual test for patch edgegapcolor (striped edges)."""
+    fig, ax = plt.subplots()
+
+    # Rectangle with edgegapcolor
+    rect = Rectangle((0.1, 0.1), 0.3, 0.3, fill=False,
+                      edgecolor='blue', edgegapcolor='orange',
+                      linestyle='--', linewidth=3)
+    ax.add_patch(rect)
+
+    # Ellipse with edgegapcolor
+    ellipse = Ellipse((0.7, 0.3), 0.3, 0.2, fill=False,
+                       edgecolor='red', edgegapcolor='yellow',
+                       linestyle=':', linewidth=3)
+    ax.add_patch(ellipse)
+
+    # Polygon with edgegapcolor
+    polygon = Polygon([[0.1, 0.6], [0.3, 0.9], [0.4, 0.6]], fill=False,
+                       edgecolor='green', edgegapcolor='purple',
+                       linestyle='-.', linewidth=3)
+    ax.add_patch(polygon)
+
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.set_aspect('equal')

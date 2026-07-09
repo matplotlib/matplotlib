@@ -12,6 +12,7 @@ This example demonstrates how to
 
 using `matplotlib.backend_managers.ToolManager`.
 """
+# sphinx_gallery_thumbnail_path = '_static/toolmanager.png'
 
 import matplotlib.pyplot as plt
 

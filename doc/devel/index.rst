@@ -189,8 +189,13 @@ and managing a development environment and workflow:
 Policies and guidelines
 =======================
 
-These policies and guidelines help us maintain consistency in the various types
-of maintenance work. If you are writing code or documentation, following these policies
+.. admonition:: AI Usage
+
+   AI may be used responsibly as a supportive tool, but we expect authentic
+   contributions. For guidance, see our :ref:`AI policy <generative_ai>`.
+
+These policies and guidelines help us maintain consistency in the various types of
+maintenance work. If you are writing code or documentation, following these policies
 helps maintainers more easily review your work. If you are helping triage, community
 manage, or release manage, these guidelines describe how our current process works.
 

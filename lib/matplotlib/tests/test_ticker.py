@@ -41,7 +41,7 @@ class TestMaxNLocator:
 
     @pytest.mark.parametrize('kwargs, errortype, match', [
         ({'foo': 0}, TypeError,
-         re.escape("set_params() got an unexpected keyword argument 'foo'")),
+         re.escape("__init__() got an unexpected keyword argument 'foo'")),
         ({'steps': [2, 1]}, ValueError, "steps argument must be an increasing"),
         ({'steps': 2}, ValueError, "steps argument must be an increasing"),
         ({'steps': [2, 11]}, ValueError, "steps argument must be an increasing"),
@@ -461,7 +461,7 @@ class TestLogitLocator:
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",
-        zip(ref_basic_limits, ref_basic_major_ticks),
+        list(zip(ref_basic_limits, ref_basic_major_ticks)),
     )
     def test_basic_major(self, lims, expected_low_ticks):
         """
@@ -506,7 +506,7 @@ class TestLogitLocator:
 
     @pytest.mark.parametrize(
         "lims, expected_low_ticks",
-        zip(ref_basic_limits, ref_basic_major_ticks),
+        list(zip(ref_basic_limits, ref_basic_major_ticks)),
     )
     def test_minor(self, lims, expected_low_ticks):
         """
@@ -603,6 +603,22 @@ class TestIndexLocator:
         index.set_params(base=7, offset=7)
         assert index._base == 7
         assert index.offset == 7
+
+    def test_tick_values_not_exceeding_vmax(self):
+        """
+        Test that tick_values does not return values greater than vmax.
+        """
+        # Test case where offset=0 could cause vmax to be included incorrectly
+        index = mticker.IndexLocator(base=1, offset=0)
+        assert_array_equal(index.tick_values(0, 4), [0, 1, 2, 3, 4])
+
+        # Test case with fractional offset
+        index = mticker.IndexLocator(base=1, offset=0.5)
+        assert_array_equal(index.tick_values(0, 4), [0.5, 1.5, 2.5, 3.5])
+
+        # Test case with base > 1
+        index = mticker.IndexLocator(base=2, offset=0)
+        assert_array_equal(index.tick_values(0, 5), [0, 2, 4])
 
 
 class TestSymmetricalLogLocator:
@@ -904,7 +920,7 @@ class TestScalarFormatter:
             ax.yaxis.set_major_locator(mticker.MaxNLocator(4))
 
         tmp_form.set_locs(ax.yaxis.get_majorticklocs())
-        assert orderOfMag == tmp_form.orderOfMagnitude
+        assert orderOfMag == tmp_form._orderOfMagnitude
 
     @pytest.mark.parametrize('value, expected', format_data)
     def test_format_data(self, value, expected):
@@ -1747,6 +1763,14 @@ class TestPercentFormatter:
         fmt = mticker.PercentFormatter(symbol='\\{t}%', is_latex=is_latex)
         with mpl.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
+
+    def test_call_without_axis(self):
+        # With explicit decimals the axis view interval is not needed, so the
+        # formatter should format a value even when it is not attached to an
+        # axis, instead of raising an AttributeError.
+        with mpl.rc_context(rc={'text.usetex': False}):
+            assert mticker.PercentFormatter(xmax=1.0, decimals=1)(0.5) == '50.0%'
+            assert mticker.PercentFormatter(xmax=100, decimals=0)(50) == '50%'
 
 
 def _impl_locale_comma():

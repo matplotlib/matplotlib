@@ -3,46 +3,38 @@
 Shared axis
 ===========
 
-You can share the x- or y-axis limits for one axis with another by
-passing an `~.axes.Axes` instance as a *sharex* or *sharey* keyword argument.
+Use axis sharing when you want to compare data across multiple subplots, and want to
+ensure they are on the same scale. To do so, pass ``sharex=True`` and/or ``sharey=True``
+to `~.pyplot.subplots`.
 
-Changing the axis limits on one Axes will be reflected automatically
-in the other, and vice-versa, so when you navigate with the toolbar
-the Axes will follow each other on their shared axis.  Ditto for
-changes in the axis scaling (e.g., log vs. linear).  However, it is
-possible to have differences in tick labeling, e.g., you can selectively
-turn off the tick labels on one Axes.
+This ensures the x- or y-axis limits are synchronized across the subplots. Autoscaling
+considers the data on all Axes; therefore, any limit changes, including interactive zoom
+and pan, will affect all shared axes.
 
-The example below shows how to customize the tick labels on the
-various axes.  Shared axes share the tick locator, tick formatter,
-view limits, and transformation (e.g., log, linear). But the tick labels
-themselves do not share properties.  This is a feature and not a bug,
-because you may want to make the tick labels smaller on the upper
-axes, e.g., in the example below.
+The plot below illustrates this by showing two different time-series and using *sharex*
+to ensure the times are aligned.
+
+For more info see :ref:`sharing-axes`.
+
+.. redirect-from:: /gallery/subplots_axes_and_figures/share_axis_lims_views
 """
 import matplotlib.pyplot as plt
 import numpy as np
 
-t = np.arange(0.01, 5.0, 0.01)
-s1 = np.sin(2 * np.pi * t)
-s2 = np.exp(-t)
-s3 = np.sin(4 * np.pi * t)
+t1 = np.linspace(0, 8, 201)
+y1 = np.sin(2 * np.pi * t1)
+t2 = np.linspace(2, 10, 201)
+y2 = 20 * np.cos(2 * np.pi * t2)**2 * np.exp(-0.3*t2)
 
-ax1 = plt.subplot(311)
-plt.plot(t, s1)
-# reduce the fontsize of the tick labels
-plt.tick_params('x', labelsize=6)
+fig, (ax1, ax2) = plt.subplots(2, sharex=True)
 
-# share x only
-ax2 = plt.subplot(312, sharex=ax1)
-plt.plot(t, s2)
-# make these tick labels invisible
-plt.tick_params('x', labelbottom=False)
+ax1.plot(t1, y1)
+ax1.set_ylabel("Signal 1")
 
-# share x and y
-ax3 = plt.subplot(313, sharex=ax1, sharey=ax1)
-plt.plot(t, s3)
-plt.xlim(0.01, 5.0)
+ax2.plot(t2, y2)
+ax2.set_ylabel("Signal 2")
+ax2.set_xlabel("Time (s)")
+
 plt.show()
 
 # %%

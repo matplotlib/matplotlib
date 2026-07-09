@@ -114,6 +114,25 @@ class ScaleBase:
         """
         return vmin, vmax
 
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        Accepts a scalar or array-like ``val``. For a scalar, returns a
+        Python ``bool``. For an array, returns a bool ndarray of the same
+        shape. This is a generic implementation, and subclasses may implement
+        more efficient solutions for their domain.
+        """
+        arr = np.asarray(val)
+        with np.errstate(invalid='ignore'):
+            try:
+                vmin, vmax = self.limit_range_for_scale(arr, arr, minpos=1e-300)
+            except (TypeError, ValueError):
+                result = np.zeros(arr.shape, dtype=bool)
+            else:
+                result = np.isfinite(arr) & (vmin == arr) & (vmax == arr)
+        return bool(result) if arr.ndim == 0 else result
+
 
 def _make_axis_parameter_optional(init_func):
     """
@@ -121,7 +140,7 @@ def _make_axis_parameter_optional(init_func):
 
     This decorator ensures backward compatibility for scale classes that
     previously required an *axis* parameter. It allows constructors to be
-    callerd with or without the *axis* parameter.
+    called with or without the *axis* parameter.
 
     For simplicity, this does not handle the case when *axis*
     is passed as a keyword. However,
@@ -153,12 +172,16 @@ def _make_axis_parameter_optional(init_func):
     """
     @wraps(init_func)
     def wrapper(self, *args, **kwargs):
-        if args and isinstance(args[0], mpl.axis.Axis):
-            return init_func(self, *args, **kwargs)
+        sig = inspect.signature(init_func)
+        try:
+            # Try old signature.
+            sig.bind(self, *args, **kwargs)
+        except TypeError:
+            # Use the new signature and pass in an unused axis=None.
+            init_func(self, None, *args, **kwargs)
         else:
-            # Remove 'axis' from kwargs to avoid double assignment
-            axis = kwargs.pop('axis', None)
-            return init_func(self, axis, *args, **kwargs)
+            # Use the old signature.
+            init_func(self, *args, **kwargs)
     return wrapper
 
 
@@ -195,6 +218,16 @@ class LinearScale(ScaleBase):
         `~matplotlib.transforms.IdentityTransform`.
         """
         return IdentityTransform()
+
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        This is True for all values, except +-inf and NaN.
+        """
+        arr = np.asarray(val)
+        result = np.isfinite(arr)
+        return bool(result) if arr.ndim == 0 else result
 
 
 class FuncTransform(Transform):
@@ -290,8 +323,9 @@ class LogTransform(Transform):
         if base <= 0 or base == 1:
             raise ValueError('The log base cannot be <= 0 or == 1')
         self.base = base
-        self._clip = _api.check_getitem(
+        self._clip = _api.getitem_checked(
             {"clip": True, "mask": False}, nonpositive=nonpositive)
+        self._log_funcs = {np.e: np.log, 2: np.log2, 10: np.log10}
 
     def __str__(self):
         return "{}(base={}, nonpositive={!r})".format(
@@ -300,12 +334,11 @@ class LogTransform(Transform):
     def transform_non_affine(self, values):
         # Ignore invalid values due to nans being passed to the transform.
         with np.errstate(divide="ignore", invalid="ignore"):
-            log = {np.e: np.log, 2: np.log2, 10: np.log10}.get(self.base)
-            if log:  # If possible, do everything in a single call to NumPy.
-                out = log(values)
+            log_func = self._log_funcs.get(self.base)
+            if log_func:
+                out = log_func(values)
             else:
-                out = np.log(values)
-                out /= np.log(self.base)
+                out = np.log(values) / np.log(self.base)
             if self._clip:
                 # SVG spec says that conforming viewers must support values up
                 # to 3.4e38 (C float); however experiments suggest that
@@ -329,12 +362,17 @@ class InvertedLogTransform(Transform):
     def __init__(self, base):
         super().__init__()
         self.base = base
+        self._exp_funcs = {np.e: np.exp, 2: np.exp2}
 
     def __str__(self):
         return f"{type(self).__name__}(base={self.base})"
 
     def transform_non_affine(self, values):
-        return np.power(self.base, values)
+        exp_func = self._exp_funcs.get(self.base)
+        if exp_func:
+            return exp_func(values)
+        else:
+            return np.exp(values * np.log(self.base))
 
     def inverted(self):
         return LogTransform(self.base)
@@ -395,6 +433,17 @@ class LogScale(ScaleBase):
         return (minpos if vmin <= 0 else vmin,
                 minpos if vmax <= 0 else vmax)
 
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        This is True for value(s) > 0 except +inf and NaN.
+        """
+        arr = np.asarray(val)
+        with np.errstate(invalid='ignore'):
+            result = np.isfinite(arr) & (arr > 0)
+        return bool(result) if arr.ndim == 0 else result
+
 
 class FuncScaleLog(LogScale):
     """
@@ -411,6 +460,11 @@ class FuncScaleLog(LogScale):
         ----------
         axis : `~matplotlib.axis.Axis`
             The axis for the scale.
+
+            .. note::
+                This parameter is unused and about to be removed in the future.
+                It can already now be left out because of special preprocessing,
+                so that ``FuncScaleLog(functions=(forward, inverse))`` is valid.
         functions : (callable, callable)
             two-tuple of the forward and inverse functions for the scale.
             The forward function must be monotonic.
@@ -449,17 +503,20 @@ class SymmetricalLogTransform(Transform):
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - self.base ** -1))
-        self._log_base = np.log(base)
 
     def transform_non_affine(self, values):
+        linscale_adj = self.linscale / (1.0 - 1.0 / self.base)
+        log_base = np.log(self.base)
+
         abs_a = np.abs(values)
+        inside = abs_a <= self.linthresh
+        if np.all(inside):  # Fast path: all values in linear region
+            return values * linscale_adj
         with np.errstate(divide="ignore", invalid="ignore"):
             out = np.sign(values) * self.linthresh * (
-                self._linscale_adj +
-                np.log(abs_a / self.linthresh) / self._log_base)
-            inside = abs_a <= self.linthresh
-        out[inside] = values[inside] * self._linscale_adj
+                linscale_adj - np.log(self.linthresh) / log_base +
+                np.log(abs_a) / log_base)
+        out[inside] = values[inside] * linscale_adj
         return out
 
     def inverted(self):
@@ -472,21 +529,35 @@ class InvertedSymmetricalLogTransform(Transform):
 
     def __init__(self, base, linthresh, linscale):
         super().__init__()
-        symlog = SymmetricalLogTransform(base, linthresh, linscale)
+        if base <= 1.0:
+            raise ValueError("'base' must be larger than 1")
+        if linthresh <= 0.0:
+            raise ValueError("'linthresh' must be positive")
+        if linscale <= 0.0:
+            raise ValueError("'linscale' must be positive")
         self.base = base
         self.linthresh = linthresh
-        self.invlinthresh = symlog.transform(linthresh)
         self.linscale = linscale
-        self._linscale_adj = (linscale / (1.0 - self.base ** -1))
+
+    @_api.deprecated("3.11", name="invlinthresh", obj_type="attribute",
+                     alternative=".inverted().transform(linthresh)")
+    @property
+    def invlinthresh(self):
+        invlinthresh = self.inverted().transform(self.linthresh)
+        return invlinthresh
 
     def transform_non_affine(self, values):
+        linscale_adj = self.linscale / (1.0 - 1.0 / self.base)
+        invlinthresh = self.inverted().transform(self.linthresh)
+
         abs_a = np.abs(values)
+        inside = abs_a <= invlinthresh
+        if np.all(inside):  # Fast path: all values in linear region
+            return values / linscale_adj
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self.linthresh * (
-                np.power(self.base,
-                         abs_a / self.linthresh - self._linscale_adj))
-            inside = abs_a <= self.invlinthresh
-        out[inside] = values[inside] / self._linscale_adj
+            out = np.sign(values) * self.linthresh * np.exp(
+                (abs_a / self.linthresh - linscale_adj) * np.log(self.base))
+        out[inside] = values[inside] / linscale_adj
         return out
 
     def inverted(self):
@@ -558,6 +629,16 @@ class SymmetricalLogScale(ScaleBase):
     def get_transform(self):
         """Return the `.SymmetricalLogTransform` associated with this scale."""
         return self._transform
+
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        This is True for all values, except +-inf and NaN.
+        """
+        arr = np.asarray(val)
+        result = np.isfinite(arr)
+        return bool(result) if arr.ndim == 0 else result
 
 
 class AsinhTransform(Transform):
@@ -685,6 +766,16 @@ class AsinhScale(ScaleBase):
         else:
             axis.set_major_formatter('{x:.3g}')
 
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        This is True for all values, except +-inf and NaN.
+        """
+        arr = np.asarray(val)
+        result = np.isfinite(arr)
+        return bool(result) if arr.ndim == 0 else result
+
 
 class LogitTransform(Transform):
     input_dims = output_dims = 1
@@ -798,6 +889,17 @@ class LogitScale(ScaleBase):
         return (minpos if vmin <= 0 else vmin,
                 1 - minpos if vmax >= 1 else vmax)
 
+    def val_in_range(self, val):
+        """
+        Return whether the value(s) are within the valid range for this scale.
+
+        This is True for value(s) which are between 0 and 1 (excluded).
+        """
+        arr = np.asarray(val)
+        with np.errstate(invalid='ignore'):
+            result = (0 < arr) & (arr < 1)
+        return bool(result) if arr.ndim == 0 else result
+
 
 _scale_mapping = {
     'linear': LinearScale,
@@ -838,7 +940,7 @@ def scale_factory(scale, axis, **kwargs):
     scale : {%(names)s}
     axis : `~matplotlib.axis.Axis`
     """
-    scale_cls = _api.check_getitem(_scale_mapping, scale=scale)
+    scale_cls = _api.getitem_checked(_scale_mapping, scale=scale)
 
     if _scale_has_axis_parameter[scale]:
         return scale_cls(axis, **kwargs)

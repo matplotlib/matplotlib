@@ -300,6 +300,11 @@ ax2.imshow(data, cmap='my_cmap_r')
 plt.show()
 
 # %%
+# Colormaps added to the registry can also be deregistered:
+
+mpl.colormaps.unregister(my_cmap.name)
+
+# %%
 #
 # .. admonition:: References
 #

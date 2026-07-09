@@ -11,8 +11,8 @@ Instructions for writing "What's new" entries
 =============================================
 .. whats-new-guide-start
 
-Each new feature (e.g. function, parameter, config value, behavior, ...) must
-be described through a "What's new" entry.
+Each new feature (e.g. function, parameter, rcParam, config value, behavior,
+...) must be described through a "What's new" entry.
 
 Each entry is written into a separate file in the
 :file:`doc/release/next_whats_new/` directory. They are sorted and merged into
@@ -34,7 +34,7 @@ Include contents of the form::
     details should be left out when they do not impact usage, for example
     implementation details.
 
-    The description may include a a short instructive example, if it helps to
+    The description may include a short instructive example, if it helps to
     understand the feature.
 
 Please avoid using references in section titles, as it causes links to be

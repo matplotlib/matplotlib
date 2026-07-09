@@ -143,7 +143,23 @@ class ContourLabeler:
         -------
         labels
             A list of `.Text` instances for the labels.
+
+            Note: The returned Text instances should not be individually
+            removed or have their geometry modified, e.g. by changing text or font size.
+            If you need such a modification, remove the entire
+            `.ContourSet` and recreate it.
         """
+
+        if self.filled:
+            _api.warn_deprecated(
+                "3.11",
+                message="clabel() is not designed to be used with filled contours and "
+                        "may result in inconsistent plots. Applying clabel() to filled "
+                        "contours is thus deprecated since %(since)s. If you need "
+                        "labels with filled contours, instead draw contour lines "
+                        "using contour() in addition to contourf() and add the labels "
+                        "to the contour lines."
+            )
 
         # Based on the input arguments, clabel() adds a list of "label
         # specific" attributes to the ContourSet object.  These attributes are
@@ -451,6 +467,8 @@ class ContourLabeler:
         if transform is None:
             transform = self.axes.transData
         if transform:
+            x = self.axes.convert_xunits(x)
+            y = self.axes.convert_yunits(y)
             x, y = transform.transform((x, y))
 
         idx_level_min, idx_vtx_min, proj = self._find_nearest_contour(
@@ -460,8 +478,8 @@ class ContourLabeler:
         label_width = self._get_nth_label_width(level)
         rotation, path = self._split_path_and_get_label_rotation(
             path, idx_vtx_min, proj, label_width, inline_spacing)
-        self.add_label(*proj, rotation, self.labelLevelList[idx_level_min],
-                       self.labelCValueList[idx_level_min])
+        self.add_label(*proj, rotation, self.labelLevelList[level],
+                       self.labelCValueList[level])
 
         if inline:
             self._paths[idx_level_min] = path
@@ -502,7 +520,14 @@ class ContourLabeler:
     def remove(self):
         super().remove()
         for text in self.labelTexts:
-            text.remove()
+            try:
+                text.remove()
+            except ValueError:
+                _api.warn_external(
+                    "Some labels were manually removed from the ContourSet. "
+                    "To remove labels cleanly, remove the entire ContourSet "
+                    "and recreate it.")
+        self.labelTexts.clear()
 
 
 def _find_closest_point_on_path(xys, p):
@@ -1268,7 +1293,8 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         if edgecolors.size == 0:
             edgecolors = ("none",)
         for idx in range(n_paths):
-            with cbook._setattr_cm(self, _paths=[paths[idx]]), self._cm_set(
+            with self._cm_set(
+                paths=[paths[idx]],
                 hatch=self.hatches[idx % len(self.hatches)],
                 array=[self.get_array()[idx]],
                 linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
@@ -1485,12 +1511,21 @@ Z : (M, N) array-like
 levels : int or array-like, optional
     Determines the number and positions of the contour lines / regions.
 
-    If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries
-    to automatically choose no more than *n+1* "nice" contour levels
-    between minimum and maximum numeric values of *Z*.
+    If an int *n*, use `~matplotlib.ticker.MaxNLocator`, which tries to
+    automatically choose no more than *n+2* "nice" contour level boundaries
+    between the minimum and maximum numeric values of *Z*. These boundaries
+    define where lines are drawn (for `contour`) or where filled regions
+    are separated (for `contourf`).
+
+    If not given, a reasonable default is chosen; for linear scales,
+    *n*=7 is the default.
 
     If array-like, draw contour lines at the specified levels.
     The values must be in increasing order.
+
+    If not specified, a reasonable default is automatically chosen. For
+    linear scales, this corresponds to *levels=7*. For logarithmic
+    scales, `~matplotlib.ticker.LogLocator` is used instead.
 
 Returns
 -------

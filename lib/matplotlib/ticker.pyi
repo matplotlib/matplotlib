@@ -24,6 +24,7 @@ class TickHelper:
 
 class Formatter(TickHelper):
     locs: list[float]
+    _locs: list[float]
     def __call__(self, x: float, pos: int | None = ...) -> str: ...
     def format_ticks(self, values: list[float]) -> list[str]: ...
     def format_data(self, value: float) -> str: ...
@@ -58,7 +59,9 @@ class StrMethodFormatter(Formatter):
 
 class ScalarFormatter(Formatter):
     orderOfMagnitude: int
+    _orderOfMagnitude: int
     format: str
+    _format: str
     def __init__(
         self,
         useOffset: bool | float | None = ...,
@@ -222,8 +225,18 @@ class _Edge_integer:
     def ge(self, x: float) -> float: ...
 
 class MaxNLocator(Locator):
-    default_params: dict[str, Any]
-    def __init__(self, nbins: int | Literal["auto"] | None = ..., **kwargs) -> None: ...
+    @property
+    def default_params(self) -> dict[str, Any]: ...
+    def __init__(
+        self,
+        nbins: int | Literal["auto"] | None = ...,
+        *,
+        steps: Sequence[float] | None = None,
+        integer: bool = False,
+        symmetric: bool = False,
+        prune: bool | None = None,
+        min_n_ticks: int = 2,
+    ) -> None: ...
     def set_params(self, **kwargs) -> None: ...
     def view_limits(self, dmin: float, dmax: float) -> tuple[float, float]: ...
 
@@ -290,7 +303,7 @@ class LogitLocator(MaxNLocator):
     def minor(self, value: bool) -> None: ...
 
 class AutoLocator(MaxNLocator):
-    def __init__(self) -> None: ...
+    def __init__(self, **kwargs) -> None: ...
 
 class AutoMinorLocator(Locator):
     ndivs: int

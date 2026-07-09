@@ -78,7 +78,7 @@ math_tests = [
     r'$x+{y}^{\frac{2}{k+1}}$',
     r'$\frac{a}{b/2}$',
     r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
-    r'${a}_{0}+\frac{1}{{a}_{1}+\frac{1}{{a}_{2}+\frac{1}{{a}_{3}+\frac{1}{{a}_{4}}}}}$',
+    r'${a}_{0}+\dfrac{1}{{a}_{1}+\dfrac{1}{{a}_{2}+\dfrac{1}{{a}_{3}+\dfrac{1}{{a}_{4}}}}}$',
     r'$\binom{n}{k/2}$',
     r'$\binom{p}{2}{x}^{2}{y}^{p-2}-\frac{1}{1-x}\frac{1}{1-{x}^{2}}$',
     r'${x}^{2y}$',
@@ -125,12 +125,21 @@ math_tests = [
     r'$,$ $.$ $1{,}234{, }567{ , }890$ and $1,234,567,890$',  # github issue 5799
     r'$\left(X\right)_{a}^{b}$',  # github issue 7615
     r'$\dfrac{\$100.00}{y}$',  # github issue #1888
-    r'$a=-b-c$'  # github issue #28180
+    r'$a=-b-c$',  # github issue #28180
 ]
 # 'svgastext' tests switch svg output to embed text as text (rather than as
 # paths).
 svgastext_math_tests = [
     r'$-$-',
+    # Check all AutoHeightChar substitutions.
+    *[
+        r'$\left' + lc + r' M \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # Normal size.
+        r'\left' + lc + r' \frac{M}{B} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # big size.
+        r'\left' + lc + r' \frac{\frac{M}{I}}{B} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # bigg size.
+        r'\left' + lc + r' \frac{\frac{M}{I}}{\frac{B}{U}} \middle/ ? \middle\backslash ? \right' + rc + ' ' +  # Big size.
+        r'\left' + lc + r'\frac{\frac{\frac{M}{I}}{N}}{\frac{\frac{B}{U}}{G}} \middle/ ? \middle\backslash ? \right' + rc + '$'  # Bigg size.
+        for lc, rc in ['()', '[]', '<>', (r'\{', r'\}'), (r'\lfloor', r'\rfloor'), (r'\lceil', r'\rceil')]
+    ],
 ]
 # 'lightweight' tests test only a single fontset (dejavusans, which is the
 # default) and only png outputs, in order to minimize the size of baseline
@@ -145,6 +154,7 @@ lightweight_math_tests = [
     r'$\left\lbrace\frac{\left\lbrack A^b_c\right\rbrace}{\left\leftbrace D^e_f \right\rbrack}\right\rightbrace\ \left\leftparen\max_{x} \left\lgroup \frac{A}{B}\right\rgroup \right\rightparen$',
     r'$\left( a\middle. b \right)$ $\left( \frac{a}{b} \middle\vert x_i \in P^S \right)$ $\left[ 1 - \middle| a\middle| + \left( x  - \left\lfloor \dfrac{a}{b}\right\rfloor \right)  \right]$',
     r'$\sum_{\substack{k = 1\\ k \neq \lfloor n/2\rfloor}}^{n}P(i,j) \sum_{\substack{i \neq 0\\ -1 \leq i \leq 3\\ 1 \leq j \leq 5}} F^i(x,y) \sum_{\substack{\left \lfloor \frac{n}{2} \right\rfloor}} F(n)$',
+    ' '.join(f'${c}\\underline{{{c}}}$' for c in 'abfghy') + r' $\underline{\left(\dfrac{num}{\underline{den}}\right)}^{\underline{p_1}}$',
 ]
 
 digits = "0123456789"
@@ -211,25 +221,28 @@ def baseline_images(request, fontset, index, text):
 
 
 @pytest.mark.parametrize(
-    'index, text', enumerate(math_tests), ids=range(len(math_tests)))
+    'index, text', list(enumerate(math_tests)), ids=range(len(math_tests)))
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathtext'], indirect=True)
-@image_comparison(baseline_images=None,
-                  tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
+@image_comparison(
+    baseline_images=None, style='mpl20',
+    tol=(0.013
+         if platform.machine() in ('ppc64le', 's390x') or platform.system() == 'Windows'
+         else 0))
 def test_mathtext_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, text,
+    fig.text(0.5, 0.5, text, fontsize=12,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, text', enumerate(svgastext_math_tests),
+@pytest.mark.parametrize('index, text', list(enumerate(svgastext_math_tests)),
                          ids=range(len(svgastext_math_tests)))
 @pytest.mark.parametrize('fontset', ['cm', 'dejavusans'])
 @pytest.mark.parametrize('baseline_images', ['mathtext0'], indirect=True)
 @image_comparison(
-    baseline_images=None, extensions=['svg'],
+    baseline_images=None, extensions=['svg'], style='mpl20',
     savefig_kwarg={'metadata': {  # Minimize image size.
         'Creator': None, 'Date': None, 'Format': None, 'Type': None}})
 def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
@@ -237,32 +250,32 @@ def test_mathtext_rendering_svgastext(baseline_images, fontset, index, text):
     mpl.rcParams['svg.fonttype'] = 'none'  # Minimize image size.
     fig = plt.figure(figsize=(5.25, 0.75))
     fig.patch.set(visible=False)  # Minimize image size.
-    fig.text(0.5, 0.5, text,
+    fig.text(0.5, 0.5, text, fontsize=16,
              horizontalalignment='center', verticalalignment='center')
 
 
-@pytest.mark.parametrize('index, text', enumerate(lightweight_math_tests),
+@pytest.mark.parametrize('index, text', list(enumerate(lightweight_math_tests)),
                          ids=range(len(lightweight_math_tests)))
 @pytest.mark.parametrize('fontset', ['dejavusans'])
 @pytest.mark.parametrize('baseline_images', ['mathtext1'], indirect=True)
-@image_comparison(baseline_images=None, extensions=['png'])
+@image_comparison(baseline_images=None, extensions=['png'], style='mpl20')
 def test_mathtext_rendering_lightweight(baseline_images, fontset, index, text):
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, text, math_fontfamily=fontset,
+    fig.text(0.5, 0.5, text, fontsize=12, math_fontfamily=fontset,
              horizontalalignment='center', verticalalignment='center')
 
 
 @pytest.mark.parametrize(
-    'index, text', enumerate(font_tests), ids=range(len(font_tests)))
+    'index, text', list(enumerate(font_tests)), ids=range(len(font_tests)))
 @pytest.mark.parametrize(
     'fontset', ['cm', 'stix', 'stixsans', 'dejavusans', 'dejavuserif'])
 @pytest.mark.parametrize('baseline_images', ['mathfont'], indirect=True)
-@image_comparison(baseline_images=None, extensions=['png'],
+@image_comparison(baseline_images=None, extensions=['png'], style='mpl20',
                   tol=0.011 if platform.machine() in ('ppc64le', 's390x') else 0)
 def test_mathfont_rendering(baseline_images, fontset, index, text):
     mpl.rcParams['mathtext.fontset'] = fontset
     fig = plt.figure(figsize=(5.25, 0.75))
-    fig.text(0.5, 0.5, text,
+    fig.text(0.5, 0.5, text, fontsize=12,
              horizontalalignment='center', verticalalignment='center')
 
 
@@ -391,7 +404,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_test.text(0.1, 0.6, r"$\operatorname{op}[6]$")
     fig_test.text(0.1, 0.7, r"$\cos^2$")
     fig_test.text(0.1, 0.8, r"$\log_2$")
-    fig_test.text(0.1, 0.9, r"$\sin^2 \cos$")  # GitHub issue #17852
+    fig_test.text(0.1, 0.9, r"$\sin^2 \max \cos$")  # GitHub issue #17852
 
     fig_ref.text(0.1, 0.1, r"$\mathrm{log\,}6$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{log}(6)$")
@@ -401,7 +414,7 @@ def test_operator_space(fig_test, fig_ref):
     fig_ref.text(0.1, 0.6, r"$\mathrm{op}[6]$")
     fig_ref.text(0.1, 0.7, r"$\mathrm{cos}^2$")
     fig_ref.text(0.1, 0.8, r"$\mathrm{log}_2$")
-    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,cos}$")
+    fig_ref.text(0.1, 0.9, r"$\mathrm{sin}^2 \mathrm{\,max} \mathrm{\,cos}$")
 
 
 @check_figures_equal()
@@ -468,7 +481,7 @@ def test_math_to_image(tmp_path):
 
 
 @image_comparison(baseline_images=['math_fontfamily_image.png'],
-                  savefig_kwarg={'dpi': 40})
+                  savefig_kwarg={'dpi': 40}, style='mpl20')
 def test_math_fontfamily():
     fig = plt.figure(figsize=(10, 3))
     fig.text(0.2, 0.7, r"$This\ text\ should\ have\ one\ font$",
@@ -562,20 +575,43 @@ def test_boldsymbol(fig_test, fig_ref):
     fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
 
 
+@check_figures_equal()
+def test_mathnormal(fig_test, fig_ref):
+    # ensure that \mathnormal is parsed and sets digits upright
+    fig_test.text(0.1, 0.2, r"$\mathnormal{0123456789}$")
+    fig_ref.text(0.1, 0.2, r"$\mathrm{0123456789}$")
+
+
+# Test vector output because in raster output some minor differences remain,
+# likely due to double-striking.
+@check_figures_equal(extensions=["pdf"])
+def test_phantoms(fig_test, fig_ref):
+    fig_test.text(0.5, 0.9, r"$\rlap{rlap}extra$", ha="left")
+    fig_ref.text(0.5, 0.9, r"$rlap$", ha="left")
+    fig_ref.text(0.5, 0.9, r"$extra$", ha="left")
+
+    fig_test.text(0.5, 0.8, r"$extra\llap{llap}$", ha="right")
+    fig_ref.text(0.5, 0.8, r"$llap$", ha="right")
+    fig_ref.text(0.5, 0.8, r"$extra$", ha="right")
+
+    fig_test.text(0.5, 0.7, r"$\phantom{phantom}$")
+
+
 def test_box_repr():
     s = repr(_mathtext.Parser().parse(
         r"$\frac{1}{2}$",
         _mathtext.DejaVuSansFonts(fm.FontProperties(), LoadFlags.NO_HINTING),
         fontsize=12, dpi=100))
     assert s == textwrap.dedent("""\
-        Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
+        Hlist<w=9.51 h=14.24 d=6.06 s=0.00>[
           Hlist<w=0.00 h=0.00 d=0.00 s=0.00>[],
-          Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
-            Hlist<w=9.49 h=16.08 d=6.64 s=0.00>[
-              Vlist<w=7.40 h=22.72 d=0.00 s=6.64>[
-                HCentered<w=7.40 h=8.67 d=0.00 s=0.00>[
+          Hlist<w=9.51 h=14.24 d=6.06 s=0.00>[
+            Hlist<w=9.51 h=14.24 d=6.06 s=0.00>[
+              Hbox,
+              Vlist<w=7.43 h=20.30 d=0.00 s=6.06>[
+                HCentered<w=7.43 h=8.51 d=0.00 s=0.00>[
                   Glue,
-                  Hlist<w=7.40 h=8.67 d=0.00 s=0.00>[
+                  Hlist<w=7.43 h=8.51 d=0.00 s=0.00>[
                     `1`,
                     k2.36,
                   ],
@@ -584,9 +620,9 @@ def test_box_repr():
                 Vbox,
                 Hrule,
                 Vbox,
-                HCentered<w=7.40 h=8.84 d=0.00 s=0.00>[
+                HCentered<w=7.43 h=8.66 d=0.00 s=0.00>[
                   Glue,
-                  Hlist<w=7.40 h=8.84 d=0.00 s=0.00>[
+                  Hlist<w=7.43 h=8.66 d=0.00 s=0.00>[
                     `2`,
                     k2.02,
                   ],

@@ -21,6 +21,37 @@
 #define WINDOW_CLOSING 3
 
 
+/* When calling into Objective-C from Python, wrap the calls with
+   BEGIN_OBJC_ENTRY and END_OBJC_ENTRY. This will set up an autorelease
+   pool as well as catch any Obj-C exceptions thrown. These macros
+   should be used for any call exposed to Python via the external module
+   interface.
+
+   To avoid undefined behavior, each END_OBJC_ENTRY should be followed
+   by a return statement which handles the rare case when an Objective-C
+   exception was thrown.
+
+   As a convenience, the RETURN_NULL_OR_NONE macro can be used for functions
+   that return a PyObject* */
+#define BEGIN_OBJC_ENTRY \
+    @autoreleasepool { @try {
+
+#define END_OBJC_ENTRY \
+    } @catch (NSException *e) { errSetException(e); } }
+
+#define RETURN_NULL_OR_NONE \
+    if (PyErr_Occurred()) { \
+        return NULL; \
+    } else { \
+        Py_RETURN_NONE; \
+    }
+
+
+/* Variable for our delegate since it has a +1 reference count.
+   Not needed under manual reference count, but standard practice
+   under ARC. */
+static id<NSApplicationDelegate> appDelegate = nil;
+
 /* Keep track of number of windows present
    Needed to know when to stop the NSApp */
 static long FigureWindowCount = 0;
@@ -43,20 +74,29 @@ static bool leftMouseGrabbing = false;
 // Global variable to store the original SIGINT handler
 static PyOS_sighandler_t originalSigintAction = NULL;
 
+// Convert an Objective-C exception into a Python RuntimeError
+static void errSetException(NSException *exception) {
+    PyErr_SetString(PyExc_RuntimeError, [[exception reason] UTF8String]);
+}
+
 // Stop the current app's run loop, sending an event to ensure it actually stops
 static void stopWithEvent() {
     [NSApp stop: nil];
     // Post an event to trigger the actual stopping.
-    [NSApp postEvent: [NSEvent otherEventWithType: NSEventTypeApplicationDefined
-                                         location: NSZeroPoint
-                                    modifierFlags: 0
-                                        timestamp: 0
-                                     windowNumber: 0
-                                          context: nil
-                                          subtype: 0
-                                            data1: 0
-                                            data2: 0]
-             atStart: YES];
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
+    NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
+                                        location: NSZeroPoint
+                                   modifierFlags: 0
+                                       timestamp: 0
+                                    windowNumber: 0
+                                         context: nil
+                                         subtype: 0
+                                           data1: 0
+                                           data2: 0];
+    if (event) {
+        [NSApp postEvent: event atStart: YES];
+    }
 }
 
 // Signal handler for SIGINT, only argument matching for stopWithEvent
@@ -69,57 +109,64 @@ static void handleSigint(int signal) {
 // It is used in the input hook as well as wrapped in a version callable from Python.
 static void flushEvents() {
     while (true) {
-        NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                            untilDate: [NSDate distantPast]
-                                               inMode: NSDefaultRunLoopMode
-                                              dequeue: YES];
-        if (!event) {
-            break;
+        @autoreleasepool {
+            NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                untilDate: [NSDate distantPast]
+                                                   inMode: NSDefaultRunLoopMode
+                                                  dequeue: YES];
+            if (!event) {
+                break;
+            }
+            [NSApp sendEvent:event];
         }
-        [NSApp sendEvent:event];
     }
 }
 
 static int wait_for_stdin() {
+    BEGIN_OBJC_ENTRY
+
     // Short circuit if no windows are active
     // Rely on Python's input handling to manage CPU usage
     // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
     // need to be processed to properly close the windows.
-    if (![[NSApp windows] count]) {
-      flushEvents();
-      return 1;
-    }
-
     @autoreleasepool {
-        // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
-        originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
-
-        // Create an NSFileHandle for standard input
-        NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
-
-
-        // Register for data available notifications on standard input
-        id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
-                                                                              object: stdinHandle
-                                                                               queue: [NSOperationQueue mainQueue] // Use the main queue
-                                                                          usingBlock: ^(NSNotification *notification) {stopWithEvent();}
-        ];
-
-        // Wait in the background for anything that happens to stdin
-        [stdinHandle waitForDataInBackgroundAndNotify];
-
-        // Run the application's event loop, which will be interrupted on stdin or SIGINT
-        [NSApp run];
-
-        // Remove the input handler as an observer
-        [[NSNotificationCenter defaultCenter] removeObserver: notificationID];
-
-
-        // Restore the original SIGINT handler upon exiting the function
-        PyOS_setsig(SIGINT, originalSigintAction);
-
-        return 1;
+        if (![[NSApp windows] count]) {
+            flushEvents();
+            return 1;
+        }
     }
+
+    // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
+    originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
+
+    // Create an NSFileHandle for standard input
+    NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
+
+
+    // Register for data available notifications on standard input
+    id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
+                                                                          object: stdinHandle
+                                                                           queue: [NSOperationQueue mainQueue] // Use the main queue
+                                                                      usingBlock: ^(NSNotification *notification) {stopWithEvent();}
+    ];
+
+    // Wait in the background for anything that happens to stdin
+    [stdinHandle waitForDataInBackgroundAndNotify];
+
+    // Run the application's event loop, which will be interrupted on stdin or SIGINT
+    [NSApp run];
+
+    // Remove the input handler as an observer
+    [[NSNotificationCenter defaultCenter] removeObserver: notificationID];
+
+
+    // Restore the original SIGINT handler upon exiting the function
+    PyOS_setsig(SIGINT, originalSigintAction);
+
+    return 1;
+
+    END_OBJC_ENTRY
+    return 0;
 }
 
 /* ---------------------------- Cocoa classes ---------------------------- */
@@ -221,7 +268,8 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-    [NSApp setDelegate: [[[MatplotlibAppDelegate alloc] init] autorelease]];
+    appDelegate = [[MatplotlibAppDelegate alloc] init];
+    [NSApp setDelegate:appDelegate];
 
     // Run our own event loop while waiting for stdin on the Python side
     // this is needed to keep the application responsive while waiting for input
@@ -231,21 +279,26 @@ static void lazy_init(void) {
 static PyObject*
 event_loop_is_running(PyObject* self)
 {
+    BEGIN_OBJC_ENTRY
+
     if (backend_inited) {
         Py_RETURN_TRUE;
     } else {
         Py_RETURN_FALSE;
     }
+
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 wake_on_fd_write(PyObject* unused, PyObject* args)
 {
+    BEGIN_OBJC_ENTRY
     int fd;
     if (!PyArg_ParseTuple(args, "i", &fd)) { return NULL; }
     NSFileHandle* fh = [[NSFileHandle alloc] initWithFileDescriptor: fd];
-    [fh waitForDataInBackgroundAndNotify];
-    [[NSNotificationCenter defaultCenter]
+    __block id notificationID = [[NSNotificationCenter defaultCenter]
         addObserverForName: NSFileHandleDataAvailableNotification
                     object: fh
                      queue: nil
@@ -253,15 +306,21 @@ wake_on_fd_write(PyObject* unused, PyObject* args)
                     PyGILState_STATE gstate = PyGILState_Ensure();
                     PyErr_CheckSignals();
                     PyGILState_Release(gstate);
+                    [fh release];
+                    [[NSNotificationCenter defaultCenter] removeObserver:notificationID];
                 }];
-    Py_RETURN_NONE;
+    [fh waitForDataInBackgroundAndNotify];
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 stop(PyObject* self, PyObject* _ /* ignored */)
 {
+    BEGIN_OBJC_ENTRY
     stopWithEvent();
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static CGFloat _get_device_scale(CGContextRef cr)
@@ -339,16 +398,22 @@ static PyTypeObject FigureCanvasType;
 static PyObject*
 FigureCanvas_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
+
     lazy_init();
     FigureCanvas *self = (FigureCanvas*)type->tp_alloc(type, 0);
     if (!self) { return NULL; }
     self->view = [View alloc];
     return (PyObject*)self;
+
+    END_OBJC_ENTRY
+    return NULL;
 }
 
 static int
 FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     if (!self->view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
@@ -375,11 +440,12 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
     self->view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
-    [self->view addTrackingArea: [
-        [NSTrackingArea alloc] initWithRect: rect
-                                    options: opts
-                                      owner: self->view
-                                   userInfo: nil]];
+    NSTrackingArea* area = [[NSTrackingArea alloc] initWithRect: rect
+                                                        options: opts
+                                                          owner: self->view
+                                                       userInfo: nil];
+    [self->view addTrackingArea: area];
+    [area release];
     [self->view setCanvas: (PyObject*)self];
 
 exit:
@@ -387,14 +453,18 @@ exit:
     Py_XDECREF(super_init);
     Py_XDECREF(init_res);
     Py_XDECREF(wh);
+
+    END_OBJC_ENTRY
     return PyErr_Occurred() ? -1 : 0;
 }
 
 static void
 FigureCanvas_dealloc(FigureCanvas* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->view setCanvas: NULL];
     [self->view release];
+    END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -408,13 +478,16 @@ FigureCanvas_repr(FigureCanvas* self)
 static PyObject*
 FigureCanvas_update(FigureCanvas* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->view setNeedsDisplay: YES];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE;
 }
 
 static PyObject*
 FigureCanvas_flush_events(FigureCanvas* self)
 {
+    BEGIN_OBJC_ENTRY
     // We run the app, matching any events that are waiting in the queue
     // to process, breaking out of the loop when no events remain and
     // displaying the canvas if needed.
@@ -425,12 +498,14 @@ FigureCanvas_flush_events(FigureCanvas* self)
     Py_END_ALLOW_THREADS
 
     [self->view displayIfNeeded];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
 {
+    BEGIN_OBJC_ENTRY
     int i;
     if (!PyArg_ParseTuple(args, "i", &i)) { return NULL; }
     switch (i) {
@@ -450,12 +525,14 @@ FigureCanvas_set_cursor(PyObject* unused, PyObject* args)
       case 7: [[NSCursor resizeUpDownCursor] set]; break;
       default: return NULL;
     }
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 {
+    BEGIN_OBJC_ENTRY
     View* view = self->view;
     if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
@@ -472,19 +549,23 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
     NSRect rubberband = NSMakeRect(x0 < x1 ? x0 : x1, y0 < y1 ? y0 : y1,
                                    abs(x1 - x0), abs(y1 - y0));
     [view setRubberband: rubberband];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureCanvas_remove_rubberband(FigureCanvas* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->view removeRubberband];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* keywords)
 {
+    BEGIN_OBJC_ENTRY
     float timeout = 0.0;
 
     static char* kwlist[] = {"timeout", NULL};
@@ -497,23 +578,29 @@ FigureCanvas__start_event_loop(FigureCanvas* self, PyObject* args, PyObject* key
     NSDate* date =
         (timeout > 0.0) ? [NSDate dateWithTimeIntervalSinceNow: timeout]
                         : [NSDate distantFuture];
-    while (true)
-    {   NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
-                                            untilDate: date
-                                               inMode: NSDefaultRunLoopMode
-                                              dequeue: YES];
-       if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
-       [NSApp sendEvent: event];
+    while (true) {
+        @autoreleasepool {
+            NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
+                                                untilDate: date
+                                                   inMode: NSDefaultRunLoopMode
+                                                  dequeue: YES];
+            if (!event || [event type]==NSEventTypeApplicationDefined) { break; }
+            [NSApp sendEvent: event];
+        }
     }
 
     Py_END_ALLOW_THREADS
 
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureCanvas_stop_event_loop(FigureCanvas* self)
 {
+    BEGIN_OBJC_ENTRY
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
@@ -523,8 +610,11 @@ FigureCanvas_stop_event_loop(FigureCanvas* self)
                                          subtype: STOP_EVENT_LOOP
                                            data1: 0
                                            data2: 0];
-    [NSApp postEvent: event atStart: true];
-    Py_RETURN_NONE;
+    if (event) {
+        [NSApp postEvent: event atStart: true];
+    }
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject FigureCanvasType = {
@@ -582,6 +672,17 @@ typedef struct {
 static PyObject*
 FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
+    if (![NSThread isMainThread]) {
+        PyErr_SetString(
+            PyExc_RuntimeError,
+            "Cannot create a GUI FigureManager outside the main thread "
+            "using the MacOS backend. Use a non-interactive "
+            "backend like 'agg' to make plots on worker threads."
+        );
+        return NULL;
+    }
+
     lazy_init();
     Window* window = [Window alloc];
     if (!window) { return NULL; }
@@ -593,11 +694,14 @@ FigureManager_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     self->window = window;
     ++FigureWindowCount;
     return (PyObject*)self;
+    END_OBJC_ENTRY
+    return NULL;
 }
 
 static int
 FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     PyObject* canvas;
     if (!PyArg_ParseTuple(args, "O", &canvas)) {
         return -1;
@@ -630,15 +734,18 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     Window* window = self->window;
     [window setDelegate: view];
     [window makeFirstResponder: view];
+    [window setReleasedWhenClosed:NO];
     [[window contentView] addSubview: view];
     [view updateDevicePixelRatio: [window backingScaleFactor]];
 
+    END_OBJC_ENTRY
     return 0;
 }
 
 static PyObject*
 FigureManager__set_window_mode(FigureManager* self, PyObject* args)
 {
+    BEGIN_OBJC_ENTRY
     const char* window_mode;
     if (!PyArg_ParseTuple(args, "s", &window_mode) || !self->window) {
         return NULL;
@@ -652,7 +759,8 @@ FigureManager__set_window_mode(FigureManager* self, PyObject* args)
     } else { // system settings
         [self->window setTabbingMode: NSWindowTabbingModeAutomatic];
     }
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
@@ -665,28 +773,39 @@ FigureManager_repr(FigureManager* self)
 static void
 FigureManager_dealloc(FigureManager* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->window close];
+    [self->window setDelegate:nil];
+    [self->window release];
+    END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
 static PyObject*
 FigureManager__show(FigureManager* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->window makeKeyAndOrderFront: nil];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager__raise(FigureManager* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->window orderFrontRegardless];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager_destroy(FigureManager* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->window close];
+    [self->window setDelegate:nil];
+    [self->window release];
     self->window = NULL;
 
     // call super(self, FigureManager).destroy() - it seems we need the
@@ -707,11 +826,13 @@ FigureManager_destroy(FigureManager* self)
     }
     Py_DECREF(result);
 
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager_set_icon(PyObject* null, PyObject* args) {
+    BEGIN_OBJC_ENTRY
     PyObject* icon_path;
     if (!PyArg_ParseTuple(args, "O&", &PyUnicode_FSDecoder, &icon_path)) {
         return NULL;
@@ -721,60 +842,63 @@ FigureManager_set_icon(PyObject* null, PyObject* args) {
         Py_DECREF(icon_path);
         return NULL;
     }
-    @autoreleasepool {
-        NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
-        Py_DECREF(icon_path);
-        if (!ns_icon_path) {
-            PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
-            return NULL;
-        }
-        NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
-        if (!image) {
-            PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
-            return NULL;
-        }
-        if (!image.valid) {
-            PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
-            return NULL;
-        }
-        @try {
-          NSApplication* app = [NSApplication sharedApplication];
-          app.applicationIconImage = image;
-        }
-        @catch (NSException* exception) {
-            PyErr_SetString(PyExc_RuntimeError, exception.reason.UTF8String);
-            return NULL;
-        }
+
+    NSString* ns_icon_path = [NSString stringWithUTF8String: icon_path_ptr];
+    Py_DECREF(icon_path);
+    if (!ns_icon_path) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not convert to NSString*");
+        return NULL;
     }
-    Py_RETURN_NONE;
+    NSImage* image = [[[NSImage alloc] initByReferencingFile: ns_icon_path] autorelease];
+    if (!image) {
+        PyErr_SetString(PyExc_RuntimeError, "Could not create NSImage*");
+        return NULL;
+    }
+    if (!image.valid) {
+        PyErr_SetString(PyExc_RuntimeError, "Image is not valid");
+        return NULL;
+    }
+
+    NSApplication* app = [NSApplication sharedApplication];
+    app.applicationIconImage = image;
+
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager_set_window_title(FigureManager* self,
                                PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     const char* title;
     if (!PyArg_ParseTuple(args, "s", &title)) {
         return NULL;
     }
+    // PyArg_ParseTuple "s" guarantees valid UTF-8, so stringWithUTF8String: will
+    // not return nil here; the nullable annotation is a false positive.
+    // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
     [self->window setTitle: [NSString stringWithUTF8String: title]];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager_get_window_title(FigureManager* self)
 {
+    BEGIN_OBJC_ENTRY
     NSString* title = [self->window title];
     if (title) {
         return PyUnicode_FromString([title UTF8String]);
-    } else {
-        Py_RETURN_NONE;
     }
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     int width, height;
     if (!PyArg_ParseTuple(args, "ii", &width, &height)) {
         return NULL;
@@ -787,14 +911,17 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
         // 36 comes from hard-coded size of toolbar later in code
         [window setContentSize: NSMakeSize(width, height + 36.)];
     }
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyObject*
 FigureManager_full_screen_toggle(FigureManager* self)
 {
+    BEGIN_OBJC_ENTRY
     [self->window toggleFullScreen: nil];
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject FigureManagerType = {
@@ -875,7 +1002,8 @@ typedef struct {
 @implementation NavigationToolbar2Handler
 - (NavigationToolbar2Handler*)initWithToolbar:(PyObject*)theToolbar
 {
-    [self init];
+    self = [self init];
+    if (!self) { return nil; }
     toolbar = theToolbar;
     return self;
 }
@@ -915,6 +1043,7 @@ typedef struct {
 static PyObject*
 NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     lazy_init();
     NavigationToolbar2Handler* handler = [NavigationToolbar2Handler alloc];
     if (!handler) { return NULL; }
@@ -925,11 +1054,14 @@ NavigationToolbar2_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     }
     self->handler = handler;
     return (PyObject*)self;
+    END_OBJC_ENTRY
+    return NULL;
 }
 
 static int
 NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     FigureCanvas* canvas;
     const char* images[7];
     const char* tooltips[7];
@@ -995,8 +1127,10 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     rect.origin.y = 0.5*(height - rect.size.height);
 
     for (int i = 0; i < 7; i++) {
+        // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
         NSString* filename = [NSString stringWithUTF8String: images[i]];
         NSString* tooltip = [NSString stringWithUTF8String: tooltips[i]];
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         NSImage* image = [[NSImage alloc] initWithContentsOfFile: filename];
         buttons[i] = [[NSButton alloc] initWithFrame: rect];
         [image setSize: size];
@@ -1024,7 +1158,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     // Make it a zero-width box if we don't have enough room
     rect.size.width = fmax(bounds.size.width - rect.origin.x, 0);
     rect.origin.x = bounds.size.width - rect.size.width;
-    NSTextView* messagebox = [[[NSTextView alloc] initWithFrame: rect] autorelease];
+    NSTextView* messagebox = [[NSTextView alloc] initWithFrame: rect];
     messagebox.textContainer.maximumNumberOfLines = 2;
     messagebox.textContainer.lineBreakMode = NSLineBreakByTruncatingTail;
     messagebox.alignment = NSTextAlignmentRight;
@@ -1034,17 +1168,20 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     /* if selectable, the messagebox can become first responder,
      * which is not supposed to happen */
     [[window contentView] addSubview: messagebox];
-    [messagebox release];
     [[window contentView] display];
 
     self->messagebox = messagebox;
+    END_OBJC_ENTRY
     return 0;
 }
 
 static void
 NavigationToolbar2_dealloc(NavigationToolbar2 *self)
 {
+    BEGIN_OBJC_ENTRY
     [self->handler release];
+    [self->messagebox release];
+    END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 
@@ -1057,6 +1194,7 @@ NavigationToolbar2_repr(NavigationToolbar2* self)
 static PyObject*
 NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
 {
+    BEGIN_OBJC_ENTRY
     const char* message;
 
     if (!PyArg_ParseTuple(args, "s", &message)) { return NULL; }
@@ -1064,7 +1202,9 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
     NSTextView* messagebox = self->messagebox;
 
     if (messagebox) {
+        // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
         NSString* text = [NSString stringWithUTF8String: message];
+        // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
         [messagebox setString: text];
 
         // Adjust width and height with the window size and content
@@ -1086,7 +1226,8 @@ NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject* args)
         [[messagebox.superview window] disableCursorRects];
     }
 
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject NavigationToolbar2Type = {
@@ -1112,6 +1253,8 @@ static PyTypeObject NavigationToolbar2Type = {
 static PyObject*
 choose_save_file(PyObject* unused, PyObject* args)
 {
+    BEGIN_OBJC_ENTRY
+
     int result;
     const char* title;
     const char* directory;
@@ -1121,6 +1264,8 @@ choose_save_file(PyObject* unused, PyObject* args)
     }
     NSSavePanel* panel = [NSSavePanel savePanel];
     [panel setTitle: [NSString stringWithUTF8String: title]];
+    // PyArg_ParseTuple "s" guarantees valid UTF-8; stringWithUTF8String: will not return nil.
+    // NOLINTNEXTLINE(clang-analyzer-nullability.NullablePassedToNonnull)
     [panel setDirectoryURL: [NSURL fileURLWithPath: [NSString stringWithUTF8String: directory]
                                        isDirectory: YES]];
     [panel setNameFieldStringValue: [NSString stringWithUTF8String: default_filename]];
@@ -1133,7 +1278,9 @@ choose_save_file(PyObject* unused, PyObject* args)
         }
         return PyUnicode_FromString([filename UTF8String]);
     }
-    Py_RETURN_NONE;
+
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 @implementation Window
@@ -1376,6 +1523,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 - (BOOL)windowShouldClose:(NSNotification*)notification
 {
     NSWindow* window = [self window];
+    // +[NSEvent otherEventWithType:...] is declared nullable but will not return
+    // nil for these constant, valid arguments; guard defensively anyway.
     NSEvent* event = [NSEvent otherEventWithType: NSEventTypeApplicationDefined
                                         location: NSZeroPoint
                                    modifierFlags: 0
@@ -1385,7 +1534,9 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                                          subtype: WINDOW_CLOSING
                                            data1: 0
                                            data2: 0];
-    [NSApp postEvent: event atStart: true];
+    if (event) {
+        [NSApp postEvent: event atStart: true];
+    }
     if ([window respondsToSelector: @selector(closeButtonPressed)]) {
         BOOL closed = [((Window*) window) closeButtonPressed];
         /* If closed, the window has already been closed via the manager. */
@@ -1606,7 +1757,12 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
             }
             [returnkey appendString:specialchar];
         } else {
-            [returnkey appendString:[event charactersIgnoringModifiers]];
+            // charactersIgnoringModifiers is nullable; guard defensively in case
+            // an unexpected event type reaches this path.
+            NSString* chars = [event charactersIgnoringModifiers];
+            if (chars) {
+                [returnkey appendString:chars];
+            }
         }
     } else {
         if (([event modifierFlags] & NSEventModifierFlagShift) || keyChangeShift) {
@@ -1737,17 +1893,26 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 static PyObject*
 show(PyObject* self)
 {
-    [NSApp activateIgnoringOtherApps: YES];
-    NSArray *windowsArray = [NSApp windows];
-    NSEnumerator *enumerator = [windowsArray objectEnumerator];
-    NSWindow *window;
-    while ((window = [enumerator nextObject])) {
-        [window orderFront:nil];
+    BEGIN_OBJC_ENTRY
+
+    // Iterating over -[NSApp windows] will add the windows to the topmost
+    // autorelease pool, wrap in @autoreleasepool as -[NSApp run] is long-running.
+    @autoreleasepool {
+        [NSApp activateIgnoringOtherApps: YES];
+        NSArray *windowsArray = [NSApp windows];
+        NSEnumerator *enumerator = [windowsArray objectEnumerator];
+        NSWindow *window;
+        while ((window = [enumerator nextObject])) {
+            [window orderFront:nil];
+        }
     }
+
     Py_BEGIN_ALLOW_THREADS
     [NSApp run];
     Py_END_ALLOW_THREADS
-    Py_RETURN_NONE;
+
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 typedef struct {
@@ -1759,6 +1924,7 @@ typedef struct {
 static PyObject*
 Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
 {
+    BEGIN_OBJC_ENTRY
     lazy_init();
     Timer* self = (Timer*)type->tp_alloc(type, 0);
     if (!self) {
@@ -1766,6 +1932,8 @@ Timer_new(PyTypeObject* type, PyObject *args, PyObject *kwds)
     }
     self->timer = NULL;
     return (PyObject*) self;
+    END_OBJC_ENTRY
+    return NULL;
 }
 
 static PyObject*
@@ -1778,6 +1946,7 @@ Timer_repr(Timer* self)
 static PyObject*
 Timer__timer_start(Timer* self, PyObject* args)
 {
+    BEGIN_OBJC_ENTRY
     NSTimeInterval interval;
     PyObject* py_interval = NULL, * py_single = NULL, * py_on_timer = NULL;
     int single;
@@ -1812,11 +1981,8 @@ exit:
     Py_XDECREF(py_interval);
     Py_XDECREF(py_single);
     Py_XDECREF(py_on_timer);
-    if (PyErr_Occurred()) {
-        return NULL;
-    } else {
-        Py_RETURN_NONE;
-    }
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static void
@@ -1831,14 +1997,18 @@ Timer__timer_stop_impl(Timer* self)
 static PyObject*
 Timer__timer_stop(Timer* self)
 {
+    BEGIN_OBJC_ENTRY
     Timer__timer_stop_impl(self);
-    Py_RETURN_NONE;
+    END_OBJC_ENTRY
+    RETURN_NULL_OR_NONE
 }
 
 static void
 Timer_dealloc(Timer* self)
 {
+    BEGIN_OBJC_ENTRY
     Timer__timer_stop_impl(self);
+    END_OBJC_ENTRY
     Py_TYPE(self)->tp_free((PyObject*)self);
 }
 

@@ -2,7 +2,7 @@
 #
 #   conda env create -f environment.yml
 #   conda activate mpl-dev
-#   pip install --verbose --no-build-isolation --editable ".[dev]"
+#   pip install --verbose --no-build-isolation --group dev --editable .
 #
 ---
 name: mpl-dev
@@ -13,22 +13,22 @@ dependencies:
   - cairocffi
   - c-compiler
   - cxx-compiler
-  - contourpy>=1.0.1
+  - contourpy>=1.2.1
   - cycler>=0.10.0
   - fonttools>=4.22.0
   - importlib-resources>=3.2.0
   - kiwisolver>=1.3.1
   - pybind11>=2.13.2
   - meson-python>=0.13.1
-  - numpy>=1.25
+  - numpy>=2.0
   - pillow>=9
   - pkg-config
   - pygobject
   - pyparsing>=3
   - pyqt
-  - python>=3.11
+  - python>=3.12
   - python-dateutil>=2.1
-  - setuptools_scm
+  - setuptools_scm<10
   - wxpython
   # building documentation
   - colorspacious
@@ -37,7 +37,7 @@ dependencies:
   - ipywidgets
   - numpydoc>=1.0
   - packaging>=20
-  - pydata-sphinx-theme~=0.15.0
+  - pydata-sphinx-theme=0.18.0  # required by mpl-sphinx-theme=3.11
   - pyyaml
   - sphinx>=3.0.0,!=6.1.2
   - sphinx-copybutton
@@ -46,12 +46,12 @@ dependencies:
   - sphinx-design
   - sphinx-tags>=0.4.0
   - pystemmer
+  - pikepdf
   - pip
   - pip:
-      - mpl-sphinx-theme~=3.8.0
+      - mpl-sphinx-theme~=3.11.0
       - sphinxcontrib-svg2pdfconverter>=1.1.0
       - sphinxcontrib-video>=0.2.1
-      - pikepdf
   # testing
   - black<26
   - coverage
@@ -61,7 +61,7 @@ dependencies:
   - nbformat!=5.0.0,!=5.0.1
   - pandas!=0.25.0
   - psutil
-  - pre-commit
+  - prek
   - pydocstyle>=5.1.0
   - pytest!=4.6.0,!=5.4.0,!=8.1.0
   - pytest-cov

@@ -28,16 +28,12 @@ environment:
                  --cov-report= --cov=lib --log-level=DEBUG
 
   matrix:
-    - PYTHON_VERSION: "3.11"
-      TEST_ALL: "yes"
+    - PYTHON_VERSION: "3.12"
 
 # We always use a 64-bit machine, but can build x86 distributions
 # with the PYTHON_ARCH variable
 platform:
   - x64
-
-# all our python builds have to happen in tests_script...
-build: false
 
 cache:
   - '%LOCALAPPDATA%\pip\Cache'
@@ -57,10 +53,18 @@ init:
   - micromamba info
 
 install:
-  - micromamba env create -f environment.yml python=%PYTHON_VERSION% pywin32
+  - set EXTRA_PACKAGES=pywin32 codecov
+  # These are optional dependencies so that we don't skip so many tests...
+  - set EXTRA_PACKAGES=%EXTRA_PACKAGES% ffmpeg inkscape
+  # miktex is available on conda, but seems to fail with permission errors.
+  # missing packages on conda-forge for imagemagick
+  # This install sometimes failed randomly :-(
+  # - choco install imagemagick
+
+  - micromamba env create -f environment.yml python=%PYTHON_VERSION% %EXTRA_PACKAGES%
   - micromamba activate mpl-dev
 
-test_script:
+build_script:
   # Now build the thing..
   - set LINK=/LIBPATH:%cd%\lib
   - pip install -v --no-build-isolation --editable .[dev]
@@ -68,13 +72,7 @@ test_script:
   - set "DUMPBIN=%VS140COMNTOOLS%\..\..\VC\bin\dumpbin.exe"
   - '"%DUMPBIN%" /DEPENDENTS lib\matplotlib\ft2font*.pyd | findstr freetype.*.dll && exit /b 1 || exit /b 0'
 
-  # this are optional dependencies so that we don't skip so many tests...
-  - if x%TEST_ALL% == xyes micromamba install -q ffmpeg inkscape
-  # miktex is available on conda, but seems to fail with permission errors.
-  # missing packages on conda-forge for imagemagick
-  # This install sometimes failed randomly :-(
-  # - choco install imagemagick
-
+test_script:
   # Test import of tkagg backend
   - python -c
     "import matplotlib as m; m.use('tkagg');
@@ -90,11 +88,10 @@ artifacts:
     type: Zip
 
 on_finish:
-  - micromamba install codecov
   - codecov -e PYTHON_VERSION PLATFORM -n "%PYTHON_VERSION% Windows"
 
 on_failure:
-  # Generate a html for visual tests
+  # Generate an html for visual tests
   - python tools/visualize_tests.py --no-browser
   - echo zipping images after a failure...
   - 7z a result_images.zip result_images\ | grep -v "Compressing"

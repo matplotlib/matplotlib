@@ -9,10 +9,10 @@ GitHub statistics for 2023/03/04 (tag: v3.7.1) - 2023/07/05
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 36 issues and merged 156 pull requests.
+We closed 37 issues and merged 155 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/81?closed=1>`__
 
-The following 25 authors contributed 248 commits.
+The following 25 authors contributed 244 commits.
 
 * Adam J. Stewart
 * Antony Lee
@@ -24,7 +24,7 @@ The following 25 authors contributed 248 commits.
 * Greg Lucas
 * Jody Klymak
 * Kyle Sunden
-* MeeseeksMachine
+* Lumberbot (aka Jack)
 * Melissa Weber Mendonça
 * Mubin Manasia
 * NISHANT KUMAR
@@ -42,7 +42,7 @@ The following 25 authors contributed 248 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (156):
+Pull Requests (155):
 
 * :ghpull:`26260`: Backport PR #25960 on branch v3.7.x (FIX: wspace and hspace in subfigures without layout engine)
 * :ghpull:`25960`: FIX: wspace and hspace in subfigures without layout engine
@@ -86,7 +86,6 @@ Pull Requests (156):
 * :ghpull:`26021`: Backport PR #26005 on branch v3.7.x (Fix backend tests on CI)
 * :ghpull:`25985`: Drop metadata table when subsetting fonts
 * :ghpull:`25978`: Fix subslice optimization for long, fully nan lines.
-* :ghpull:`26002`: Bump pypa/cibuildwheel from 2.12.3 to 2.13.0
 * :ghpull:`26005`: Fix backend tests on CI
 * :ghpull:`26001`: Backport PR #25954 on branch v3.7.x (Add note that subfigure is still provisional to docstring)
 * :ghpull:`25954`: Add note that subfigure is still provisional to docstring
@@ -201,13 +200,14 @@ Pull Requests (156):
 * :ghpull:`25384`: FIX: Remove some numpy function overrides from pylab
 * :ghpull:`25392`: Backport PR #25388 on branch v3.7.x (Better axis labels for examples)
 
-Issues (36):
+Issues (37):
 
+* :ghissue:`19682`: pgf baseline images are OS-dependent
+* :ghissue:`19530`: AnnotationBbox returns weird window_extent?
 * :ghissue:`25511`: [Bug]: wspace and hspace in subfigures not working
 * :ghissue:`26230`: [Bug]: pcolor writing to read-only input mask
 * :ghissue:`26093`: [Bug]: pcolormesh writing to input mask
-* :ghissue:`24453`: [Bug]:  AnnotationBbox does not return correct window_extent before first draw
-* :ghissue:`26161`: [MNT]: install on Python 3.12.0b3
+* :ghissue:`24453`: [Bug]: AnnotationBbox does not return correct window_extent before first draw
 * :ghissue:`26146`: Impossible to get the z value of a line in 3D
 * :ghissue:`26118`: [Bug]: symlog scale generates false warning when mouse is moved
 * :ghissue:`25806`: [Bug]: pdf export for large image sizes results in wrong colors

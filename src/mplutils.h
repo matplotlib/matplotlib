@@ -53,6 +53,8 @@ enum {
 // so that we don't need to access the NPY_INTP_FMT macro here.
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <array>
+#include <cstddef>
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -113,6 +115,14 @@ safe_first_shape(const py::detail::unchecked_reference<T, ND> &a)
         return a.shape(0);
     }
 }
+
+template <typename T, std::size_t N>
+constexpr std::size_t
+safe_first_shape(const std::array<T, N> &)
+{
+    return N;
+}
+
 #endif
 
 #endif

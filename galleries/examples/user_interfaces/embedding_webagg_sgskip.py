@@ -10,6 +10,7 @@ Tornado-based server "on the side".
 
 The framework being used must support web sockets.
 """
+# sphinx_gallery_thumbnail_path = '_static/embedding_webagg.png'
 
 import argparse
 import io

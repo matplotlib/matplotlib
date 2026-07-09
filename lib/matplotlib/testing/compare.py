@@ -100,6 +100,9 @@ class _Converter:
 class _MagickConverter:
     def __call__(self, orig, dest):
         try:
+            # ImageMagick may not be permitted to follow a symlink, so resolve it
+            if orig.is_symlink():
+                orig = orig.resolve()
             subprocess.run(
                 [mpl._get_executable_info("magick").executable, orig, dest],
                 check=True)
@@ -224,7 +227,7 @@ class _SVGConverter(_Converter):
 
 class _SVGWithMatplotlibFontsConverter(_SVGConverter):
     """
-    A SVG converter which explicitly adds the fonts shipped by Matplotlib to
+    An SVG converter which explicitly adds the fonts shipped by Matplotlib to
     Inkspace's font search path, to better support `svg.fonttype = "none"`
     (which is in particular used by certain mathtext tests).
     """

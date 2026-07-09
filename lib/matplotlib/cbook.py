@@ -76,7 +76,6 @@ def _get_running_interactive_framework():
         sys.modules.get("PyQt6.QtWidgets")
         or sys.modules.get("PySide6.QtWidgets")
         or sys.modules.get("PyQt5.QtWidgets")
-        or sys.modules.get("PySide2.QtWidgets")
     )
     if QtWidgets and QtWidgets.QApplication.instance():
         return "qt"
@@ -229,6 +228,9 @@ class CallbackRegistry:
         >>> callbacks.process('drink', 123)
         drink 123
 
+        >>> callbacks.disconnect(ondrink, signal='drink')  # disconnect by func
+        >>> callbacks.process('drink', 123)      # nothing will be called
+
     In practice, one should always disconnect all callbacks when they are
     no longer needed to avoid dangling references (and thus memory leaks).
     However, real code in Matplotlib rarely does so, and due to its design,
@@ -331,23 +333,45 @@ class CallbackRegistry:
         if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
             del self.callbacks[signal]
 
-    def disconnect(self, cid):
+    @_api.rename_parameter("3.11", "cid", "cid_or_func")
+    def disconnect(self, cid_or_func, *, signal=None):
         """
-        Disconnect the callback registered with callback id *cid*.
+        Disconnect a callback.
 
+        Parameters
+        ----------
+        cid_or_func : int or callable
+            If an int, disconnect the callback with that connection id.
+            If a callable, disconnect that function from signals.
+        signal : optional
+            Only used when *cid_or_func* is a callable. If given, disconnect
+            the function only from that specific signal. If not given,
+            disconnect from all signals the function is connected to.
+
+        Notes
+        -----
         No error is raised if such a callback does not exist.
         """
-        self._pickled_cids.discard(cid)
-        for signal, proxy in self._func_cid_map:
-            if self._func_cid_map[signal, proxy] == cid:
-                break
-        else:  # Not found
-            return
-        assert self.callbacks[signal][cid] == proxy
-        del self.callbacks[signal][cid]
-        self._func_cid_map.pop((signal, proxy))
-        if len(self.callbacks[signal]) == 0:  # Clean up empty dicts
-            del self.callbacks[signal]
+        if isinstance(cid_or_func, int):
+            if signal is not None:
+                raise ValueError(
+                    "signal cannot be specified when disconnecting by cid")
+            for sig, proxy in self._func_cid_map:
+                if self._func_cid_map[sig, proxy] == cid_or_func:
+                    break
+            else:  # Not found
+                return
+            self._remove_proxy(sig, proxy)
+        elif signal is not None:
+            # Disconnect from a specific signal
+            proxy = _weak_or_strong_ref(cid_or_func, None)
+            self._remove_proxy(signal, proxy)
+        else:
+            # Disconnect from all signals
+            proxy = _weak_or_strong_ref(cid_or_func, None)
+            for sig, prx in list(self._func_cid_map):
+                if prx == proxy:
+                    self._remove_proxy(sig, proxy)
 
     def process(self, s, *args, **kwargs):
         """
@@ -694,7 +718,21 @@ def safe_masked_invalid(x, copy=False):
     try:
         xm = np.ma.masked_where(~(np.isfinite(x)), x, copy=False)
     except TypeError:
-        return x
+        if len(x.dtype.descr) == 1:
+            # Arrays with dtype 'object' get returned here.
+            # For example the 'c' kwarg of scatter, which supports multiple types.
+            # `plt.scatter([3, 4], [2, 5], c=[(1, 0, 0), 'y'])`
+            return x
+        else:
+            # In case of a dtype with multiple fields
+            # for example image data using a MultiNorm
+            try:
+                mask = np.empty(x.shape, dtype=np.dtype('bool, '*len(x.dtype.descr)))
+                for dd, dm in zip(x.dtype.descr, mask.dtype.descr):
+                    mask[dm[0]] = ~np.isfinite(x[dd[0]])
+                xm = np.ma.array(x, mask=mask, copy=False)
+            except TypeError:
+                return x
     return xm
 
 
@@ -872,10 +910,17 @@ class Grouper:
         for group in unique_groups.values():
             yield sorted(group, key=self._ordering.__getitem__)
 
-    def get_siblings(self, a):
-        """Return all of the items joined with *a*, including itself."""
+    def get_siblings(self, a, *, include_self=True):
+        """
+        Return all the items joined with *a*.
+
+        *a* is included in the list if *include_self* is True.
+        """
         siblings = self._mapping.get(a, [a])
-        return sorted(siblings, key=self._ordering.get)
+        result = sorted(siblings, key=self._ordering.get)
+        if not include_self:
+            result.remove(a)
+        return result
 
 
 class GrouperView:
@@ -891,11 +936,13 @@ class GrouperView:
         """
         return self._grouper.joined(a, b)
 
-    def get_siblings(self, a):
+    def get_siblings(self, a, *, include_self=True):
         """
-        Return all of the items joined with *a*, including itself.
+        Return all the items joined with *a*.
+
+        *a* is included in the list if *include_self* is True.
         """
-        return self._grouper.get_siblings(a)
+        return self._grouper.get_siblings(a, include_self=include_self)
 
 
 def simple_linear_interpolation(a, steps):
@@ -984,7 +1031,7 @@ def delete_masked_points(*args):
                 mask = np.isfinite(xd)
                 if isinstance(mask, np.ndarray):
                     masks.append(mask)
-            except Exception:  # Fixme: put in tuple of possible exceptions?
+            except (TypeError, ValueError):
                 pass
     if len(masks):
         mask = np.logical_and.reduce(masks)
@@ -1449,9 +1496,14 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
 
     Parameters
     ----------
-    X : array-like
+    X : 1D array or sequence of 1D arrays or 2D array
         Sample data that will be used to produce the gaussian kernel density
-        estimates. Must have 2 or fewer dimensions.
+        estimates. Non-finite and masked values are ignored.
+        Possible values:
+
+        - 1D array: Statistics are computed for that array.
+        - sequence of 1D arrays: Statistics are computed for each array in the sequence.
+        - 2D array: Statistics are computed for each column in the array.
 
     method : (name, bw_method) or callable,
         The method used to calculate the kernel density estimate for each
@@ -1534,29 +1586,34 @@ def violin_stats(X, method=("GaussianKDE", "scott"), points=100, quantiles=None)
                          " must have the same length")
 
     # Zip x and quantiles
-    for (x, q) in zip(X, quantiles):
-        # Dictionary of results for this distribution
-        stats = {}
+    for (x, quantile) in zip(X, quantiles):
+        x = np.asarray(x)
+        x, = delete_masked_points(x)
 
-        # Calculate basic stats for the distribution
-        min_val = np.min(x)
-        max_val = np.max(x)
-        quantile_val = np.percentile(x, 100 * q)
+        if len(x) == 0:
+            vpstats.append({
+                'vals': np.array([]),
+                'coords': np.array([]),
+                'mean': np.nan,
+                'median': np.nan,
+                'min': np.nan,
+                'max': np.nan,
+                'quantiles': np.array([]),
+            })
+        else:
+            min_val = np.min(x)
+            max_val = np.max(x)
+            coords = np.linspace(min_val, max_val, points)
 
-        # Evaluate the kernel density estimate
-        coords = np.linspace(min_val, max_val, points)
-        stats['vals'] = method(x, coords)
-        stats['coords'] = coords
-
-        # Store additional statistics for this distribution
-        stats['mean'] = np.mean(x)
-        stats['median'] = np.median(x)
-        stats['min'] = min_val
-        stats['max'] = max_val
-        stats['quantiles'] = np.atleast_1d(quantile_val)
-
-        # Append to output
-        vpstats.append(stats)
+            vpstats.append({
+                'vals': method(x, coords),
+                'coords': coords,
+                'mean': np.mean(x),
+                'median': np.median(x),
+                'min': min_val,
+                'max': max_val,
+                'quantiles': np.atleast_1d(np.percentile(x, 100 * quantile))
+            })
 
     return vpstats
 
@@ -1813,7 +1870,7 @@ def normalize_kwargs(kw, alias_mapping=None):
         as an empty dict, to support functions with an optional parameter of
         the form ``props=None``.
 
-    alias_mapping : dict or Artist subclass or Artist instance, optional
+    alias_mapping : Artist subclass or Artist instance
         A mapping between a canonical name to a list of aliases, in order of
         precedence from lowest to highest.
 
@@ -1831,31 +1888,35 @@ def normalize_kwargs(kw, alias_mapping=None):
     """
     from matplotlib.artist import Artist
 
+    # deal with default value of alias_mapping
+    if (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
+          or isinstance(alias_mapping, Artist)):
+        alias_to_prop = getattr(alias_mapping, "_alias_to_prop", {})
+    else:
+        if alias_mapping is None:
+            alias_mapping = {}
+        _api.warn_deprecated("3.11", message=(
+            "Passing a dict or None as alias_mapping to normalize_kwargs is "
+            "deprecated since %(since)s and support will be removed "
+            "%(removal)s; pass an Artist instance or type instead."))
+        # Convert old format to new format.
+        alias_to_prop = {alias: prop for prop, aliases in alias_mapping.items()
+                         for alias in aliases}
+
     if kw is None:
         return {}
 
-    # deal with default value of alias_mapping
-    if alias_mapping is None:
-        alias_mapping = {}
-    elif (isinstance(alias_mapping, type) and issubclass(alias_mapping, Artist)
-          or isinstance(alias_mapping, Artist)):
-        alias_mapping = getattr(alias_mapping, "_alias_map", {})
+    canonicalized = {alias_to_prop.get(k, k): v for k, v in kw.items()}
+    if len(canonicalized) == len(kw):
+        return canonicalized
 
-    to_canonical = {alias: canonical
-                    for canonical, alias_list in alias_mapping.items()
-                    for alias in alias_list}
     canonical_to_seen = {}
-    ret = {}  # output dictionary
-
-    for k, v in kw.items():
-        canonical = to_canonical.get(k, k)
+    for k in kw:
+        canonical = alias_to_prop.get(k, k)
         if canonical in canonical_to_seen:
             raise TypeError(f"Got both {canonical_to_seen[canonical]!r} and "
                             f"{k!r}, which are aliases of one another")
         canonical_to_seen[canonical] = k
-        ret[canonical] = v
-
-    return ret
 
 
 @contextlib.contextmanager
@@ -2389,6 +2450,18 @@ def _is_jax_array(x):
             and isinstance(x, tp))
 
 
+def _is_mlx_array(x):
+    """Return whether *x* is a MLX Array."""
+    try:
+        # We're intentionally not attempting to import mlx. If somebody
+        # has created a mlx array, mlx should already be in sys.modules.
+        tp = sys.modules.get("mlx.core").array
+    except AttributeError:
+        return False  # Module not imported or a nonstandard module with no Array attr.
+    return (isinstance(tp, type)  # Just in case it's a very nonstandard module.
+            and isinstance(x, tp))
+
+
 def _is_pandas_dataframe(x):
     """Check if *x* is a Pandas DataFrame."""
     try:
@@ -2432,7 +2505,10 @@ def _unpack_to_numpy(x):
         # so in this case we do not want to return a function
         if isinstance(xtmp, np.ndarray):
             return xtmp
-    if _is_torch_array(x) or _is_jax_array(x) or _is_tensorflow_array(x):
+    if _is_torch_array(x) \
+        or _is_jax_array(x) \
+        or _is_tensorflow_array(x) \
+        or _is_mlx_array(x):
         # using np.asarray() instead of explicitly __array__(), as the latter is
         # only _one_ of many methods, and it's the last resort, see also
         # https://numpy.org/devdocs/user/basics.interoperability.html#using-arbitrary-objects-in-numpy

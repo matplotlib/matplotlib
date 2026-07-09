@@ -91,3 +91,5 @@ plt.show()
 #    - `matplotlib.ticker.AutoLocator`
 #    - `matplotlib.ticker.MaxNLocator`
 #    - `matplotlib.ticker.LogLocator`
+#
+# .. tags:: component: ticks, purpose: reference

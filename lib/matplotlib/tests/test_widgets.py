@@ -3,6 +3,7 @@ import io
 import operator
 from unittest import mock
 
+import matplotlib as mpl
 from matplotlib.backend_bases import DrawEvent, KeyEvent, MouseEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
@@ -516,6 +517,17 @@ def test_rectangle_resize_square_center_aspect(ax, use_data_coordinates):
                                        46.25, 133.75])
 
 
+def test_axeswidget_del_on_failed_init():
+    """
+    Test that an unraisable exception is not created when initialization
+    fails.
+    """
+    # Pytest would fail the test if such an exception occurred.
+    fig, ax = plt.subplots()
+    with pytest.raises(TypeError, match="unexpected keyword argument 'undefined'"):
+        widgets.Button(ax, undefined='bar')
+
+
 def test_ellipse(ax):
     """For ellipse, test out the key modifiers"""
     tool = widgets.EllipseSelector(ax, grab_range=10, interactive=True)
@@ -621,27 +633,36 @@ def test_rectangle_selector_ignore_outside(ax, ignore_event_outside):
     ('horizontal', False, dict(interactive=True)),
 ])
 def test_span_selector(ax, orientation, onmove_callback, kwargs):
-    onselect = mock.Mock(spec=noop, return_value=None)
-    onmove = mock.Mock(spec=noop, return_value=None)
-    if onmove_callback:
-        kwargs['onmove_callback'] = onmove
-
-    # While at it, also test that span selectors work in the presence of twin axes on
-    # top of the axes that contain the selector.  Note that we need to unforce the axes
-    # aspect here, otherwise the twin axes forces the original axes' limits (to respect
-    # aspect=1) which makes some of the values below go out of bounds.
+    # Also test that span selectors work in the presence of twin axes or for
+    # outside-inset axes on top of the axes that contain the selector.  Note
+    # that we need to unforce the axes aspect here, otherwise the twin axes
+    # forces the original axes' limits (to respect aspect=1) which makes some
+    # of the values below go out of bounds.
     ax.set_aspect("auto")
-    tax = ax.twinx()
+    ax.twinx()
+    child = ax.inset_axes([0, 1, 1, 1], xlim=(0, 200), ylim=(0, 200))
 
-    tool = widgets.SpanSelector(ax, onselect, orientation, **kwargs)
-    MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1)._process()
-    # move outside of axis
-    MouseEvent._from_ax_coords("motion_notify_event", ax, (199, 199), 1)._process()
-    MouseEvent._from_ax_coords("button_release_event", ax, (250, 250), 1)._process()
+    for target in [ax, child]:
+        selected = []
+        def onselect(*args): selected.append(args)
+        moved = []
+        def onmove(*args): moved.append(args)
+        if onmove_callback:
+            kwargs['onmove_callback'] = onmove
 
-    onselect.assert_called_once_with(100, 199)
-    if onmove_callback:
-        onmove.assert_called_once_with(100, 199)
+        tool = widgets.SpanSelector(target, onselect, orientation, **kwargs)
+        MouseEvent._from_ax_coords(
+            "button_press_event", target, (100, 100), 1)._process()
+        # move outside of axis
+        MouseEvent._from_ax_coords(
+            "motion_notify_event", target, (199, 199), 1)._process()
+        MouseEvent._from_ax_coords(
+            "button_release_event", target, (250, 250), 1)._process()
+
+        # tol is set by pixel size (~100 pixels & span of 200 data units)
+        assert_allclose(selected, [(100, 199)], atol=.5)
+        if onmove_callback:
+            assert_allclose(moved, [(100, 199)], atol=.5)
 
 
 @pytest.mark.parametrize('interactive', [True, False])
@@ -1143,6 +1164,29 @@ def test_radio_buttons_props(fig_test, fig_ref):
     cb.set_radio_props({**radio_props, 's': (24 / 2)**2})
 
 
+@image_comparison(['check_radio_grid_buttons.png'], style='mpl20', remove_text=True)
+def test_radio_grid_buttons():
+    fig = plt.figure()
+    rb_horizontal = widgets.RadioButtons(
+        fig.add_axes((0.1, 0.05, 0.65, 0.05)),
+        ["tea", "coffee", "chocolate milk", "water", "soda", "coke"],
+        layout='horizontal',
+        active=4,
+    )
+    cb_grid = widgets.CheckButtons(
+        fig.add_axes((0.1, 0.15, 0.25, 0.05*3)),
+        ["Chicken", "Salad", "Rice", "Sushi", "Pizza", "Fries"],
+        layout=(3, 2),
+        actives=[True, True, False, False, False, True],
+    )
+    rb_vertical = widgets.RadioButtons(
+        fig.add_axes((0.1, 0.35, 0.2, 0.05*4)),
+        ["Trinity Cream", "Cake", "Ice Cream", "Muhallebi"],
+        layout='vertical',
+        active=3,
+    )
+
+
 def test_radio_button_active_conflict(ax):
     with pytest.warns(UserWarning,
                       match=r'Both the \*activecolor\* parameter'):
@@ -1196,6 +1240,24 @@ def test_check_button_props(fig_test, fig_ref):
     # This means we cannot pass facecolor to both setters directly.
     check_props['edgecolor'] = check_props.pop('facecolor')
     cb.set_check_props({**check_props, 's': (24 / 2)**2})
+
+
+@pytest.mark.parametrize("widget", [widgets.RadioButtons, widgets.CheckButtons])
+def test__buttons_callbacks(ax, widget):
+    """Tests what https://github.com/matplotlib/matplotlib/pull/31031 fixed"""
+    on_clicked = mock.Mock(spec=noop, return_value=None)
+    button = widget(ax, ["Test Button"])
+    button.on_clicked(on_clicked)
+    MouseEvent._from_ax_coords(
+        "button_press_event",
+        ax,
+        ax.transData.inverted().transform(ax.transAxes.transform(
+            # (x, y) of the 0th button defined at `_Buttons._init_layout`
+            (0.15, 0.5),
+        )),
+        1,
+    )._process()
+    on_clicked.assert_called_once()
 
 
 def test_slider_slidermin_slidermax_invalid():
@@ -1655,6 +1717,44 @@ def test_polygon_selector_box(ax):
         tool._box.extents, (20.0, 40.0, 30.0, 40.0))
 
 
+def test_polygon_selector_box_props_handle_props(ax):
+    props = dict(color='r')
+    handle_props = dict(marker='o', markerfacecolor='w', markeredgecolor='r')
+    box_props = dict(linestyle=':', facecolor='c', edgecolor='b')
+    box_handle_props = dict(markeredgecolor='y')
+
+    tool = widgets.PolygonSelector(
+        ax, draw_bounding_box=True,
+        props=props, handle_props=handle_props,
+        box_props=box_props, box_handle_props=box_handle_props)
+
+    for event in [
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
+    ]:
+        event._process()
+
+    artist = tool._selection_artist
+    assert mcolors.same_color(artist.get_color(), 'r')
+    for artist in tool._handles_artists:
+        assert artist.get_marker() == 'o'
+        assert mcolors.same_color(artist.get_markerfacecolor(), 'w')
+        assert mcolors.same_color(artist.get_markeredgecolor(), 'r')
+
+    box_artist = tool._box._selection_artist
+    assert box_artist.get_linestyle() == ':'
+    assert mcolors.same_color(box_artist.get_facecolor(), 'c')
+    assert mcolors.same_color(box_artist.get_edgecolor(), 'b')
+    for artist in tool._box._handles_artists:
+        # marker and markerfacecolor are inherited from handle_props
+        # markeredgecolor is overridden by box_handle_props.
+        assert artist.get_marker() == 'o'
+        assert mcolors.same_color(artist.get_markerfacecolor(), 'w')
+        assert mcolors.same_color(artist.get_markeredgecolor(), 'y')
+
+
 def test_polygon_selector_clear_method(ax):
     onselect = mock.Mock(spec=noop, return_value=None)
     tool = widgets.PolygonSelector(ax, onselect)
@@ -1680,15 +1780,22 @@ def test_polygon_selector_clear_method(ax):
 
 @pytest.mark.parametrize("horizOn", [False, True])
 @pytest.mark.parametrize("vertOn", [False, True])
-def test_MultiCursor(horizOn, vertOn):
+@pytest.mark.parametrize("with_deprecated_canvas", [False, True])
+def test_MultiCursor(horizOn, vertOn, with_deprecated_canvas):
     fig = plt.figure()
     (ax1, ax3) = fig.subplots(2, sharex=True)
     ax2 = plt.figure().subplots()
 
-    # useblit=false to avoid having to draw the figure to cache the renderer
-    multi = widgets.MultiCursor(
-        None, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
-    )
+    if with_deprecated_canvas:
+        with pytest.warns(mpl.MatplotlibDeprecationWarning, match=r"canvas.*deprecat"):
+            multi = widgets.MultiCursor(
+                None, (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+            )
+    else:
+        # useblit=false to avoid having to draw the figure to cache the renderer
+        multi = widgets.MultiCursor(
+            (ax1, ax2), useblit=False, horizOn=horizOn, vertOn=vertOn
+        )
 
     # Only two of the axes should have a line drawn on them.
     assert len(multi.vlines) == 2
@@ -1748,3 +1855,19 @@ def test_parent_axes_removal():
     evt = DrawEvent('draw_event', fig.canvas, renderer)
     radio._clear(evt)
     checks._clear(evt)
+
+
+def test_cursor_overlapping_axes_blitting_warning():
+    """Test that a warning is raised and useblit is disabled for overlapping axes."""
+    fig = plt.figure()
+    ax1 = fig.add_axes([0.1, 0.1, 0.8, 0.8])
+    ax2 = fig.add_axes([0.2, 0.2, 0.6, 0.6])  # Explicitly overlaps ax1
+
+    match_text = (
+        "Cursor blitting is currently not supported on "
+        "overlapping axes"
+    )
+    with pytest.warns(UserWarning, match=match_text):
+        cursor = widgets.Cursor(ax1, useblit=True)
+
+    assert cursor.useblit is False

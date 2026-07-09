@@ -115,6 +115,7 @@ specification of the dependencies.
 ==========  ========  ======
 Matplotlib  Python    NumPy
 ==========  ========  ======
+3.12        3.12      2.0.0
 3.11        3.11      1.25.0
 `3.10`_     3.10      1.23.0
 `3.9`_      3.9       1.23.0
@@ -157,8 +158,8 @@ Matplotlib  Python    NumPy
 .. _`1.3`: https://matplotlib.org/1.3.0/users/installing.html#build-requirements
 
 
-Updating Python and NumPy versions
-==================================
+Update Python and NumPy versions
+================================
 
 To update the minimum versions of Python we need to update:
 

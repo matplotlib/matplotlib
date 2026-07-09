@@ -3,11 +3,17 @@
 Embed in wx #5
 ==============
 
+.. tip::
+
+    As a development and debugging aid, you can replace :class:`wx.App`
+    by :class:`wx.lib.mixins.inspection.InspectableApp`.
+    This adds the capability to start the `Widget Inspection Tool
+    <https://wiki.wxpython.org/How%20to%20use%20Widget%20Inspection%20Tool%20-%20WIT%20%28Phoenix%29>`_
+    via :kbd:`Ctrl-Alt-I`.
 """
 
 import wx
 import wx.lib.agw.aui as aui
-import wx.lib.mixins.inspection as wit
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wxagg import \
@@ -44,11 +50,7 @@ class PlotNotebook(wx.Panel):
 
 
 def demo():
-    # Alternatively you could use:
-    # app = wx.App()
-    # InspectableApp is a great debug tool, see:
-    # http://wiki.wxpython.org/Widget%20Inspection%20Tool
-    app = wit.InspectableApp()
+    app = wx.App()
     frame = wx.Frame(None, -1, 'Plotter')
     plotter = PlotNotebook(frame)
     axes1 = plotter.add('figure 1').add_subplot()

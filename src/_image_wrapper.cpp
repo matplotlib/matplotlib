@@ -167,7 +167,7 @@ image_resample(py::array input_array,
 
         if (is_affine) {
             convert_trans_affine(transform, params.affine);
-            params.is_affine = true;
+            params.is_affine = is_affine;
         } else {
             transform_mesh = _get_transform_mesh(transform, output_array.shape());
             params.transform_mesh = transform_mesh.data();

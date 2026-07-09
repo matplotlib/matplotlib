@@ -1,6 +1,8 @@
 import itertools
 import io
+import os
 from pathlib import Path
+from typing import cast
 
 import numpy as np
 import pytest
@@ -133,6 +135,27 @@ def test_ft2font_stix_bold_attrs():
     assert font.bbox == (4, -355, 1185, 2095)
 
 
+def test_ft2font_valid_args():
+    class PathLikeClass:
+        def __init__(self, filename):
+            self.filename = filename
+
+        def __fspath__(self):
+            return self.filename
+
+    file_str = fm.findfont('DejaVu Sans')
+    file_bytes = os.fsencode(file_str)
+
+    font = ft2font.FT2Font(file_str)
+    assert font.fname == file_str
+    font = ft2font.FT2Font(file_bytes)
+    assert font.fname == file_bytes
+    font = ft2font.FT2Font(PathLikeClass(file_str))
+    assert font.fname == file_str
+    font = ft2font.FT2Font(PathLikeClass(file_bytes))
+    assert font.fname == file_bytes
+
+
 def test_ft2font_invalid_args(tmp_path):
     # filename argument.
     with pytest.raises(TypeError, match='to a font file or a binary-mode file object'):
@@ -156,18 +179,72 @@ def test_ft2font_invalid_args(tmp_path):
     # hinting_factor argument.
     with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, 1.3)
-    with pytest.raises(ValueError, match='hinting_factor must be greater than 0'):
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='text.hinting_factor rcParam was deprecated .+ 3.11'):
+        mpl.rcParams['text.hinting_factor'] = 8
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='The hinting_factor parameter was deprecated'):
         ft2font.FT2Font(file, 0)
 
     with pytest.raises(TypeError, match='incompatible constructor arguments'):
         # failing to be a list will fail before the 0
-        ft2font.FT2Font(file, _fallback_list=(0,))  # type: ignore[arg-type]
+        ft2font.FT2Font(file, _fallback_list=(0,))
     with pytest.raises(TypeError, match='incompatible constructor arguments'):
-        ft2font.FT2Font(file, _fallback_list=[0])  # type: ignore[list-item]
+        ft2font.FT2Font(file, _fallback_list=[0])
 
     # kerning_factor argument.
     with pytest.raises(TypeError, match='incompatible constructor arguments'):
         ft2font.FT2Font(file, _kerning_factor=1.3)
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='text.kerning_factor rcParam was deprecated .+ 3.11'):
+        mpl.rcParams['text.kerning_factor'] = 0
+    with pytest.warns(mpl.MatplotlibDeprecationWarning,
+                      match='_kerning_factor parameter was deprecated .+ 3.11'):
+        ft2font.FT2Font(file, _kerning_factor=123)
+
+
+def test_ft2font_oversized_read():
+    # A file object whose read() returns *more* bytes than requested is
+    # misbehaving: FreeType only sizes its buffer for the requested count, so
+    # an over-long read must be rejected rather than overflow the buffer or be
+    # silently truncated. Verify that such an object causes construction to
+    # fail loudly instead.
+    data = Path(fm.findfont('DejaVu Sans')).read_bytes()
+
+    class OversizedReader:
+        def __init__(self, data):
+            self._data = data
+
+        def seek(self, offset):
+            pass
+
+        def read(self, size):
+            # Ignore the requested size and hand back the whole file, which is
+            # far more than FreeType ever asks for. The initial read(0) probe
+            # in the constructor still gets an empty bytes object.
+            return self._data if size else b''
+
+    with pytest.raises(RuntimeError):
+        ft2font.FT2Font(OversizedReader(data))
+
+
+@pytest.mark.parametrize('name, size, skippable',
+                         [('DejaVu Sans', 1, False), ('WenQuanYi Zen Hei', 3, True)])
+def test_ft2font_face_index(name, size, skippable):
+    try:
+        file = fm.findfont(name, fallback_to_default=False)
+    except ValueError:
+        if skippable:
+            pytest.skip(r'Font {name} may be missing')
+        raise
+    for index in range(size):
+        font = ft2font.FT2Font(file, face_index=index)
+        assert font.num_faces >= size
+        assert font.face_index == index
+    with pytest.raises(ValueError, match='must be between'):  # out of bounds for spec
+        ft2font.FT2Font(file, face_index=0x1ffff)
+    with pytest.raises(RuntimeError, match='invalid argument'):  # invalid for this font
+        ft2font.FT2Font(file, face_index=0xff)
 
 
 def test_ft2font_clear():
@@ -188,8 +265,8 @@ def test_ft2font_clear():
 
 def test_ft2font_set_size():
     file = fm.findfont('DejaVu Sans')
-    # Default is 12pt @ 72 dpi.
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=1)
+    font = ft2font.FT2Font(file)
+    font.set_size(12, 72)
     font.set_text('ABabCDcd')
     orig = font.get_width_height()
     font.set_size(24, 72)
@@ -198,6 +275,19 @@ def test_ft2font_set_size():
     font.set_size(12, 144)
     font.set_text('ABabCDcd')
     assert font.get_width_height() == tuple(pytest.approx(2 * x, 1e-1) for x in orig)
+
+
+def test_ft2font_features():
+    # Smoke test that these are accepted as intended.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo', features=None)  # unset
+    font.set_text('foo', features=['calt', 'dlig'])  # list
+    font.set_text('foo', features=('calt', 'dlig'))  # tuple
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=123)
+    with pytest.raises(TypeError):
+        font.set_text('foo', features=[123, 456])
 
 
 def test_ft2font_charmaps():
@@ -235,7 +325,7 @@ def test_ft2font_charmaps():
     assert unic == after
 
     # This is just a random sample from FontForge.
-    glyph_names = {
+    glyph_names = cast(dict[str, ft2font.GlyphIndexType], {
         'non-existent-glyph-name': 0,
         'plusminus': 115,
         'Racute': 278,
@@ -247,7 +337,7 @@ def test_ft2font_charmaps():
         'uni2A02': 4464,
         'u1D305': 5410,
         'u1F0A1': 5784,
-    }
+    })
     for name, index in glyph_names.items():
         assert font.get_name_index(name) == index
         if name == 'non-existent-glyph-name':
@@ -280,6 +370,14 @@ def test_ft2font_charmaps():
     for u, m in examples:
         # Though the encoding is different, the glyph should be the same.
         assert unic[u] == armn[m]
+
+    # Out-of-range charmap indices must be rejected rather than indexing out of
+    # bounds. A negative index previously passed the upper-bound-only check and
+    # read face->charmaps[i] out of bounds.
+    with pytest.raises(RuntimeError, match='exceeds the available number'):
+        font.set_charmap(-1)
+    with pytest.raises(RuntimeError, match='exceeds the available number'):
+        font.set_charmap(font.num_charmaps)
 
 
 _expected_sfnt_names = {
@@ -526,9 +624,12 @@ _expected_sfnt_tables = {
             'yStrikeoutSize': 102, 'yStrikeoutPosition': 530,
             'sFamilyClass': 0,
             'panose': b'\x02\x0b\x06\x03\x03\x08\x04\x02\x02\x04',
-            'ulCharRange': (3875565311, 3523280383, 170156073, 67117068),
+            'ulUnicodeRange': (3875565311, 3523280383, 170156073, 67117068),
             'achVendID': b'PfEd',
-            'fsSelection': 64, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 65535,
+            'fsSelection': 64, 'usFirstCharIndex': 32, 'usLastCharIndex': 65535,
+            'sTypoAscender': 1556, 'sTypoDescender': -492, 'sTypoLineGap': 410,
+            'usWinAscent': 1901, 'usWinDescent': 483,
+            'ulCodePageRange': (1610613247, 3758030848),
         },
         'hhea': {
             'version': (1, 0),
@@ -592,9 +693,11 @@ _expected_sfnt_tables = {
             'yStrikeoutSize': 102, 'yStrikeoutPosition': 530,
             'sFamilyClass': 0,
             'panose': b'\x02\x0b\x05\x00\x00\x00\x00\x00\x00\x00',
-            'ulCharRange': (0, 0, 0, 0),
+            'ulUnicodeRange': (0, 0, 0, 0),
             'achVendID': b'\x00\x00\x00\x00',
-            'fsSelection': 64, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 9835,
+            'fsSelection': 64, 'usFirstCharIndex': 32, 'usLastCharIndex': 9835,
+            'sTypoAscender': 1276, 'sTypoDescender': -469, 'sTypoLineGap': 0,
+            'usWinAscent': 1430, 'usWinDescent': 477,
         },
         'hhea': {
             'version': (1, 0),
@@ -672,9 +775,17 @@ _expected_sfnt_tables = {
             'yStrikeoutSize': 20, 'yStrikeoutPosition': 1037,
             'sFamilyClass': 0,
             'panose': b'\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00',
-            'ulCharRange': (3, 192, 0, 0),
+            'ulUnicodeRange': (3, 192, 0, 0),
             'achVendID': b'STIX',
-            'fsSelection': 32, 'fsFirstCharIndex': 32, 'fsLastCharIndex': 10217,
+            'fsSelection': 32, 'usFirstCharIndex': 32, 'usLastCharIndex': 10217,
+            'sTypoAscender': 750, 'sTypoDescender': -250, 'sTypoLineGap': 1499,
+            'usWinAscent': 2095, 'usWinDescent': 404,
+            'ulCodePageRange': (2688417793, 2432565248),
+            'sxHeight': 0,
+            'sCapHeight': 0,
+            'usDefaultChar': 0,
+            'usBreakChar': 32,
+            'usMaxContext': 1,
         },
         'hhea': {
             'version': (1, 0),
@@ -708,16 +819,16 @@ def test_ft2font_get_sfnt_table(font_name, header):
 
 @pytest.mark.parametrize('left, right, unscaled, unfitted, default', [
     # These are all the same class.
-    ('A', 'A', 57, 248, 256), ('A', 'À', 57, 248, 256), ('A', 'Á', 57, 248, 256),
-    ('A', 'Â', 57, 248, 256), ('A', 'Ã', 57, 248, 256), ('A', 'Ä', 57, 248, 256),
+    ('A', 'A', 57, 247, 256), ('A', 'À', 57, 247, 256), ('A', 'Á', 57, 247, 256),
+    ('A', 'Â', 57, 247, 256), ('A', 'Ã', 57, 247, 256), ('A', 'Ä', 57, 247, 256),
     # And a few other random ones.
-    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1056, -1024),
+    ('D', 'A', -36, -156, -128), ('T', '.', -243, -1055, -1024),
     ('X', 'C', -149, -647, -640), ('-', 'J', 114, 495, 512),
 ])
 def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
     file = fm.findfont('DejaVu Sans')
     # With unscaled, these settings should produce exact values found in FontForge.
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file)
     font.set_size(100, 100)
     assert font.get_kerning(font.get_char_index(ord(left)),
                             font.get_char_index(ord(right)),
@@ -756,7 +867,8 @@ def test_ft2font_get_kerning(left, right, unscaled, unfitted, default):
 
 def test_ft2font_set_text():
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file)
+    font.set_size(12, 72)
     xys = font.set_text('')
     np.testing.assert_array_equal(xys, np.empty((0, 2)))
     assert font.get_width_height() == (0, 0)
@@ -767,17 +879,49 @@ def test_ft2font_set_text():
     xys = font.set_text('AADAT.XC-J')
     np.testing.assert_array_equal(
         xys,
-        [(0, 0), (512, 0), (1024, 0), (1600, 0), (2112, 0), (2496, 0), (2688, 0),
-         (3200, 0), (3712, 0), (4032, 0)])
-    assert font.get_width_height() == (4288, 768)
+        [(0, 0), (533, 0), (1045, 0), (1608, 0), (2060, 0), (2417, 0), (2609, 0),
+         (3065, 0), (3577, 0), (3940, 0)])
+    assert font.get_width_height() == (4196, 768)
     assert font.get_num_glyphs() == 10
     assert font.get_descent() == 192
     assert font.get_bitmap_offset() == (6, 0)
 
 
+@pytest.mark.parametrize(
+    'input',
+    [
+        [1, 2, 3],
+        [(1, 2)],
+        [('en', 'foo', 2)],
+        [('en', 1, 'foo')],
+    ],
+    ids=[
+        'nontuple',
+        'wrong length',
+        'wrong start type',
+        'wrong end type',
+    ],
+)
+def test_ft2font_language_invalid(input):
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    with pytest.raises(TypeError):
+        font.set_text('foo', language=input)
+
+
+def test_ft2font_language():
+    # This is just a smoke test.
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo')
+    font.set_text('foo', language='en')
+    font.set_text('foo', language=[('en', 1, 2)])
+
+
 def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file)
+    font.set_size(12, 72)
     for glyph in [font.load_char(ord('M')),
                   font.load_glyph(font.get_char_index(ord('M')))]:
         assert glyph is not None
@@ -817,12 +961,14 @@ def test_ft2font_drawing():
     ])
     expected *= 255
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file)
+    font.set_size(12, 72)
     font.set_text('M')
     font.draw_glyphs_to_bitmap(antialiased=False)
     image = font.get_image()
     np.testing.assert_array_equal(image, expected)
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file)
+    font.set_size(12, 72)
     glyph = font.load_char(ord('M'))
     image = np.zeros(expected.shape, np.uint8)
     font.draw_glyph_to_bitmap(image, -1, 1, glyph, antialiased=False)
@@ -831,7 +977,8 @@ def test_ft2font_drawing():
 
 def test_ft2font_get_path():
     file = fm.findfont('DejaVu Sans')
-    font = ft2font.FT2Font(file, hinting_factor=1, _kerning_factor=0)
+    font = ft2font.FT2Font(file)
+    font.set_size(12, 72)
     vertices, codes = font.get_path()
     assert vertices.shape == (0, 2)
     assert codes.shape == (0, )
@@ -883,7 +1030,7 @@ def test_fallback_missing(recwarn, font_list):
     assert all([font in recwarn[0].message.args[0] for font in font_list])
 
 
-@image_comparison(['last_resort'])
+@image_comparison(['last_resort'], style='mpl20')
 def test_fallback_last_resort(recwarn):
     fig = plt.figure(figsize=(3, 0.5))
     fig.text(.5, .5, "Hello 🙃 World!", size=24,
@@ -894,7 +1041,7 @@ def test_fallback_last_resort(recwarn):
            "Glyph 128579 (\\N{UPSIDE-DOWN FACE}) missing from font(s)")
 
 
-def test__get_fontmap():
+def test__layout():
     fonts, test_str = _gen_multi_font_text()
     # Add some glyphs that don't exist in either font to check the Last Resort fallback.
     missing_glyphs = '\n几个汉字'
@@ -903,11 +1050,11 @@ def test__get_fontmap():
     ft = fm.get_font(
         fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts))
     )
-    fontmap = ft._get_fontmap(test_str)
-    for char, font in fontmap.items():
-        if char in missing_glyphs:
-            assert Path(font.fname).name == 'LastResortHE-Regular.ttf'
-        elif ord(char) > 127:
-            assert Path(font.fname).name == 'DejaVuSans.ttf'
-        else:
-            assert Path(font.fname).name == 'cmr10.ttf'
+    for substr in test_str.split('\n'):
+        for item in ft._layout(substr, ft2font.LoadFlags.DEFAULT):
+            if item.char in missing_glyphs:
+                assert Path(item.ft_object.fname).name == 'LastResortHE-Regular.ttf'
+            elif ord(item.char) > 127:
+                assert Path(item.ft_object.fname).name == 'DejaVuSans.ttf'
+            else:
+                assert Path(item.ft_object.fname).name == 'cmr10.ttf'

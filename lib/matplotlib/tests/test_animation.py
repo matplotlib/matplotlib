@@ -44,6 +44,14 @@ def anim(request):
     return klass(fig=fig, func=animate, init_func=init, **kwargs)
 
 
+def test_invalid_writer():
+    # Note, this triggers for Animation.save as well, but this is a lighter test.
+    with pytest.raises(ValueError,
+                       match=r"'pllow' is not a valid value for writer\. "
+                             r"Did you mean: 'pillow'\?"):
+        animation.writers['pllow']
+
+
 class NullMovieWriter(animation.AbstractMovieWriter):
     """
     A minimal MovieWriter.  It doesn't actually write anything.
@@ -173,7 +181,7 @@ def gen_writers():
 # Smoke test for saving animations.  In the future, we should probably
 # design more sophisticated tests which compare resulting frames a-la
 # matplotlib.testing.image_comparison
-@pytest.mark.parametrize('writer, frame_format, output', gen_writers())
+@pytest.mark.parametrize('writer, frame_format, output', list(gen_writers()))
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_save_animation_smoketest(tmp_path, writer, frame_format, output, anim):
     if frame_format is not None:
@@ -193,7 +201,7 @@ def test_save_animation_smoketest(tmp_path, writer, frame_format, output, anim):
     del anim
 
 
-@pytest.mark.parametrize('writer, frame_format, output', gen_writers())
+@pytest.mark.parametrize('writer, frame_format, output', list(gen_writers()))
 def test_grabframe(tmp_path, writer, frame_format, output):
     WriterClass = animation.writers[writer]
 
@@ -271,6 +279,8 @@ def test_no_length_frames(anim):
     anim.save('unused.null', writer=NullMovieWriter())
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support subprocesses')
 def test_movie_writer_registry():
     assert len(animation.writers._registered) > 0
     mpl.rcParams['animation.ffmpeg_path'] = "not_available_ever_xxxx"
@@ -298,6 +308,8 @@ def test_embed_limit(method_name, caplog, anim):
             and record.levelname == "WARNING")
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support subprocesses')
 @pytest.mark.skipif(shutil.which("/bin/sh") is None, reason="requires a POSIX OS")
 def test_failing_ffmpeg(tmp_path, monkeypatch, anim):
     """
@@ -522,6 +534,8 @@ def test_disable_cache_warning(anim):
 def test_movie_writer_invalid_path(anim):
     if sys.platform == "win32":
         match_str = r"\[WinError 3] .*\\\\foo\\\\bar\\\\aardvark'"
+    elif sys.platform == "emscripten":
+        match_str = r"\[Errno 44] .*'/foo"
     else:
         match_str = r"\[Errno 2] .*'/foo"
     with pytest.raises(FileNotFoundError, match=match_str):

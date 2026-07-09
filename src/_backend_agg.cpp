@@ -122,15 +122,6 @@ bool RendererAgg::render_clippath(mpl::PathIterator &clippath,
                                   const agg::trans_affine &clippath_trans,
                                   e_snap_mode snap_mode)
 {
-    typedef agg::conv_transform<mpl::PathIterator> transformed_path_t;
-    typedef PathNanRemover<transformed_path_t> nan_removed_t;
-    /* Unlike normal Paths, the clip path cannot be clipped to the Figure bbox,
-     * because it needs to remain a complete closed path, so there is no
-     * PathClipper<nan_removed_t> step. */
-    typedef PathSnapper<nan_removed_t> snapped_t;
-    typedef PathSimplifier<snapped_t> simplify_t;
-    typedef agg::conv_curve<simplify_t> curve_t;
-
     bool has_clippath = (clippath.total_vertices() != 0);
 
     if (has_clippath &&
@@ -141,13 +132,19 @@ bool RendererAgg::render_clippath(mpl::PathIterator &clippath,
         trans *= agg::trans_affine_translation(0.0, (double)height);
 
         rendererBaseAlphaMask.clear(agg::gray8(0, 0));
-        transformed_path_t transformed_clippath(clippath, trans);
-        nan_removed_t nan_removed_clippath(transformed_clippath, true, clippath.has_codes());
-        snapped_t snapped_clippath(nan_removed_clippath, snap_mode, clippath.total_vertices(), 0.0);
-        simplify_t simplified_clippath(snapped_clippath,
-                                       clippath.should_simplify() && !clippath.has_codes(),
-                                       clippath.simplify_threshold());
-        curve_t curved_clippath(simplified_clippath);
+        auto transformed_clippath = agg::conv_transform{clippath, trans};
+        auto nan_removed_clippath = PathNanRemover{
+            transformed_clippath, true, clippath.has_codes()};
+        // Unlike normal Paths, the clip path cannot be clipped to the Figure
+        // bbox, because it needs to remain a complete closed path, so there is
+        // no PathClipper step after nan-removal.
+        auto snapped_clippath = PathSnapper{
+            nan_removed_clippath, snap_mode, clippath.total_vertices(), 0.0};
+        auto simplified_clippath = PathSimplifier{
+            snapped_clippath,
+            clippath.should_simplify() && !clippath.has_codes(),
+            clippath.simplify_threshold()};
+        auto curved_clippath = agg::conv_curve{simplified_clippath};
         theRasterizer.add_path(curved_clippath);
         rendererAlphaMask.color(agg::gray8(255, 255));
         agg::render_scanlines(theRasterizer, scanlineAlphaMask, rendererAlphaMask);

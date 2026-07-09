@@ -9,10 +9,10 @@ GitHub statistics for 2024/05/15 (tag: v3.9.0) - 2024/07/04
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 30 issues and merged 111 pull requests.
+We closed 33 issues and merged 111 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/91?closed=1>`__
 
-The following 29 authors contributed 184 commits.
+The following 27 authors contributed 114 commits.
 
 * Antony Lee
 * Brigitta Sipőcz
@@ -38,8 +38,6 @@ The following 29 authors contributed 184 commits.
 * Scott Shambaugh
 * simond07
 * SjoerdB93
-* Takumasa N
-* Takumasa N.
 * Takumasa Nakamura
 * Thomas A Caswell
 * Tim Hoffmann
@@ -160,8 +158,11 @@ Pull Requests (111):
 * :ghpull:`28233`: CI: Fix font install on macOS/Homebrew
 * :ghpull:`28231`: DOC: we do not need the blit call in on_draw
 
-Issues (30):
+Issues (33):
 
+* :ghissue:`27025`: [MNT]: Any type hint in subplots
+* :ghissue:`28045`: [ENH]: Improve typing of Figure.subplots
+* :ghissue:`27827`: [Bug]: color=("Cn", alpha) does not work
 * :ghissue:`22482`: [ENH]: pickle (or save) matplotlib figure with insteractive slider
 * :ghissue:`25847`: [Bug]: Graph gets cut off with scaled resolution using gtk4cairo backend
 * :ghissue:`28341`: [Bug]: Incorrect X-axis scaling with date values
@@ -189,6 +190,6 @@ Issues (30):
 * :ghissue:`28221`: [Doc]: drawedges attribute described twice in matplotlib.colorbar documentation
 * :ghissue:`28296`: [Doc]: Missing comma
 * :ghissue:`28256`: [Bug]: axes3d.py's _on_move() converts the roll angle to radians, but then passes it to view_init() as if it were still in degrees
-* :ghissue:`28267`: [Bug]: for Python 3.11.9 gor ValueError: PyCapsule_New called with null pointer
+* :ghissue:`28267`: [Bug]: for Python 3.11.9 got ValueError: PyCapsule_New called with null pointer
 * :ghissue:`28022`: [Bug]: Type of Axes is unknown pyright
 * :ghissue:`28002`: Segfault from path editor example with QtAgg

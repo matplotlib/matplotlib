@@ -6,19 +6,22 @@ project(
     find_program('python3', 'python', version: '>= 3.11'),
     '-m', 'setuptools_scm', check: true).stdout().strip(),
   # qt_editor backend is MIT
-  # ResizeObserver at end of lib/matplotlib/backends/web_backend/js/mpl.js is CC0
-  # Carlogo, STIX and Computer Modern is OFL
+  # STIX, Computer Modern, and Last Resort are OFL
   # DejaVu is Bitstream Vera and Public Domain
   license: 'PSF-2.0 AND MIT AND CC0-1.0 AND OFL-1.1 AND Bitstream-Vera AND Public-Domain',
   license_files: [
     'LICENSE/LICENSE',
+    'extern/agg24-svn/src/copying',
     'LICENSE/LICENSE_AMSFONTS',
     'LICENSE/LICENSE_BAKOMA',
-    'LICENSE/LICENSE_CARLOGO',
     'LICENSE/LICENSE_COLORBREWER',
     'LICENSE/LICENSE_COURIERTEN',
-    'LICENSE/LICENSE_JSXTOOLS_RESIZE_OBSERVER',
+    'LICENSE/LICENSE_FREETYPE',
+    'LICENSE/LICENSE_HARFBUZZ',
+    'LICENSE/LICENSE_LAST_RESORT_FONT',
+    'LICENSE/LICENSE_LIBRAQM',
     'LICENSE/LICENSE_QT4_EDITOR',
+    'LICENSE/LICENSE_SHEENBIDI',
     'LICENSE/LICENSE_SOLARIZED',
     'LICENSE/LICENSE_STIX',
     'LICENSE/LICENSE_YORICK',
@@ -30,6 +33,10 @@ project(
     'auto_features=disabled',  # Force FreeType to avoid extra dependencies.
   ],
 )
+
+# Enable bug fixes in Agg
+add_project_arguments('-DMPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS', language : 'cpp')
+add_project_arguments('-DMPL_FIX_AGG_INTERPOLATION_ENDPOINT_BUG', language : 'cpp')
 
 cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')

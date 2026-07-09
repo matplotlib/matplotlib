@@ -57,6 +57,7 @@ class Patch(artist.Artist):
                  capstyle=None,
                  joinstyle=None,
                  hatchcolor=None,
+                 edgegapcolor=None,
                  **kwargs):
         """
         The following kwarg properties are supported
@@ -88,6 +89,7 @@ class Patch(artist.Artist):
         self._linewidth = 0
         self._unscaled_dash_pattern = (0, None)  # offset, dash
         self._dash_pattern = (0, None)  # offset, dash (scaled by linewidth)
+        self._gapcolor = None
 
         self.set_linestyle(linestyle)
         self.set_linewidth(linewidth)
@@ -95,6 +97,7 @@ class Patch(artist.Artist):
         self.set_hatch(hatch)
         self.set_capstyle(capstyle)
         self.set_joinstyle(joinstyle)
+        self.set_edgegapcolor(edgegapcolor)
 
         if len(kwargs):
             self._internal_update(kwargs)
@@ -294,6 +297,7 @@ class Patch(artist.Artist):
         self._hatch_color = other._hatch_color
         self._original_hatchcolor = other._original_hatchcolor
         self._unscaled_dash_pattern = other._unscaled_dash_pattern
+        self._gapcolor = other._gapcolor
         self.set_linewidth(other._linewidth)  # also sets scaled dashes
         self.set_transform(other.get_data_transform())
         # If the transform of other needs further initialization, then it will
@@ -442,6 +446,42 @@ class Patch(artist.Artist):
         self._original_hatchcolor = color
         self._set_hatchcolor(color)
 
+    def get_edgegapcolor(self):
+        """
+        Return the edge gap color.
+
+        .. versionadded:: 3.11
+
+        See also `~.Patch.set_edgegapcolor`.
+        """
+        return self._gapcolor
+
+    def set_edgegapcolor(self, edgegapcolor):
+        """
+        Set a color to fill the gaps in the dashed edge style.
+
+        .. versionadded:: 3.11
+
+        .. note::
+
+            Striped edges are created by drawing two interleaved dashed lines.
+            There can be overlaps between those two, which may result in
+            artifacts when using transparency.
+
+            This functionality is experimental and may change.
+
+        Parameters
+        ----------
+        edgegapcolor : :mpltype:`color` or None
+            The color with which to fill the gaps. If None, the gaps are
+            unfilled.
+        """
+        if edgegapcolor is not None:
+            self._gapcolor = colors.to_rgba(edgegapcolor, self._alpha)
+        else:
+            self._gapcolor = None
+        self.stale = True
+
     def set_alpha(self, alpha):
         # docstring inherited
         super().set_alpha(alpha)
@@ -468,26 +508,40 @@ class Patch(artist.Artist):
         """
         Set the patch linestyle.
 
-        =======================================================  ================
-        linestyle                                                description
-        =======================================================  ================
-        ``'-'`` or ``'solid'``                                   solid line
-        ``'--'`` or ``'dashed'``                                 dashed line
-        ``'-.'`` or ``'dashdot'``                                dash-dotted line
-        ``':'`` or ``'dotted'``                                  dotted line
-        ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
-        =======================================================  ================
-
-        Alternatively a dash tuple of the following form can be provided::
-
-            (offset, onoffseq)
-
-        where ``onoffseq`` is an even length tuple of on and off ink in points.
-
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
-            The line style.
+        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq)
+            Possible values:
+
+            - A string:
+
+              =======================================================  ================
+              linestyle                                                description
+              =======================================================  ================
+              ``'-'`` or ``'solid'``                                   solid line
+              ``'--'`` or ``'dashed'``                                 dashed line
+              ``'-.'`` or ``'dashdot'``                                dash-dotted line
+              ``':'`` or ``'dotted'``                                  dotted line
+              ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
+              =======================================================  ================
+
+            - A tuple describing the start position and lengths of dashes and spaces:
+
+                  (offset, onoffseq)
+
+              where
+
+              - *offset* is a float specifying the offset (in points); i.e. how much
+                is the dash pattern shifted.
+              - *onoffseq* is a sequence of on and off ink in points. There can be
+                arbitrary many pairs of on and off values.
+
+              Example: The tuple ``(0, (10, 5, 1, 5))`` means that the pattern starts
+              at the beginning of the line. It draws a 10 point long dash,
+              then a 5 point long space, then a 1 point long dash, followed by a 5 point
+              long space, and then the pattern repeats.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if ls is None:
             ls = "solid"
@@ -604,6 +658,17 @@ class Patch(artist.Artist):
         """Return the hatch linewidth."""
         return self._hatch_linewidth
 
+    def _has_dashed_edge(self):
+        """
+        Return whether the patch edge has a dashed linestyle.
+
+        A custom linestyle is assumed to be dashed, we do not inspect the
+        ``onoffseq`` directly.
+
+        See also `~.Patch.set_linestyle`.
+        """
+        return self._linestyle not in ('solid', '-')
+
     def _draw_paths_with_artist_properties(
             self, renderer, draw_path_args_list):
         """
@@ -618,13 +683,10 @@ class Patch(artist.Artist):
         renderer.open_group('patch', self.get_gid())
         gc = renderer.new_gc()
 
-        gc.set_foreground(self._edgecolor, isRGBA=True)
-
         lw = self._linewidth
         if self._edgecolor[3] == 0 or self._linestyle == 'None':
             lw = 0
         gc.set_linewidth(lw)
-        gc.set_dashes(*self._dash_pattern)
         gc.set_capstyle(self._capstyle)
         gc.set_joinstyle(self._joinstyle)
 
@@ -647,6 +709,22 @@ class Patch(artist.Artist):
             from matplotlib.patheffects import PathEffectRenderer
             renderer = PathEffectRenderer(self.get_path_effects(), renderer)
 
+        # We first draw a path within the gaps if needed, but only for visible
+        # dashed edges; zero-width edges would otherwise yield all-zero dashes.
+        if lw > 0 and self._has_dashed_edge() and self._gapcolor is not None:
+            gc.set_foreground(self._gapcolor, isRGBA=True)
+            offset_gaps, gaps = mlines._get_inverse_dash_pattern(
+                *self._dash_pattern)
+            gc.set_dashes(offset_gaps, gaps)
+            for draw_path_args in draw_path_args_list:
+                renderer.draw_path(gc, *draw_path_args)
+
+        # Draw the main edge
+        gc.set_foreground(self._edgecolor, isRGBA=True)
+        if lw > 0:
+            gc.set_dashes(*self._dash_pattern)
+        else:
+            gc.set_dashes(0, None)
         for draw_path_args in draw_path_args_list:
             renderer.draw_path(gc, *draw_path_args)
 
@@ -792,6 +870,10 @@ class Rectangle(Patch):
         ----------------
         **kwargs : `~matplotlib.patches.Patch` properties
             %(Patch:kwdoc)s
+
+        See Also
+        --------
+        FancyBboxPatch : A rectangle with a fancy box style, e.g. rounded corners.
         """
         super().__init__(**kwargs)
         self._x0 = xy[0]
@@ -2505,83 +2587,124 @@ class BoxStyle(_Style):
             return trans.transform_path(Path.unit_circle())
 
     @_register_style(_style_list)
-    class LArrow:
-        """A box in the shape of a left-pointing arrow."""
+    class RArrow:
+        """A box in the shape of a right-pointing arrow."""
 
-        def __init__(self, pad=0.3):
+        def __init__(self, pad=0.3, head_width=1.5, head_angle=90):
             """
             Parameters
             ----------
             pad : float, default: 0.3
                 The amount of padding around the original box.
+            head_width : float, default: 1.5
+                The head width, relative to the arrow shaft width; must be
+                nonnegative.
+            head_angle : float, default: 90
+                The angle at the tip of the arrow, in degrees; must be nonzero
+                (modulo 360).  Negative angles result in arrow heads pointing
+                backwards.
             """
             self.pad = pad
+            if head_width < 0:
+                raise ValueError("'head_width' must be nonnegative")
+            self.head_width = head_width
+            if head_angle % 360 == 0:
+                raise ValueError("'head_angle' must be nonzero")
+            self.head_angle = head_angle
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            # padding
+            # padding & padded dimensions
             pad = mutation_size * self.pad
-            # width and height with padding added.
-            width, height = width + 2 * pad, height + 2 * pad
-            # boundary of the padded box
+            dx, dy = width + 2 * pad, height + 2 * pad
             x0, y0 = x0 - pad, y0 - pad,
-            x1, y1 = x0 + width, y0 + height
+            x1, y1 = x0 + dx, y0 + dy
 
-            dx = (y1 - y0) / 2
-            dxx = dx / 2
-            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
+            head_dy = self.head_width * dy
+            mid_y = (y0 + y1) / 2
+            shaft_y0 = mid_y - head_dy / 2
+            shaft_y1 = mid_y + head_dy / 2
 
-            return Path._create_closed(
-                [(x0 + dxx, y0), (x1, y0), (x1, y1), (x0 + dxx, y1),
-                 (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                 (x0 + dxx, y0 - dxx),  # arrow
-                 (x0 + dxx, y0)])
+            cot = 1 / math.tan(math.radians(self.head_angle / 2))
+
+            if cot > 0:
+                # tip_x is chosen s.t. the angled line moving back from the tip hits
+                # i) if head_width > 1: the box corner, or ii) if head_width <
+                # 1 the box edge at the point giving the correct shaft width.
+                tip_x = x1 + cot * min(dy, head_dy) / 2
+                shaft_x = tip_x - cot * head_dy / 2
+                return Path._create_closed([
+                    (x0, y0), (shaft_x, y0), (shaft_x, shaft_y0),
+                    (tip_x, mid_y),
+                    (shaft_x, shaft_y1), (shaft_x, y1), (x0, y1),
+                ])
+            else:  # Reverse arrowhead.
+                # Make the long (outer) side of the arrowhead flush with the
+                # original box, and move back accordingly (but clipped to no
+                # more than the box length).  If this clipping is necessary,
+                # the y positions at the short (inner) side of the arrowhead
+                # will be thicker than the original box, hence the need to
+                # recompute mid_y0 & mid_y1.
+                # If head_width < 1 no arrowhead is drawn.
+                dx = min(-cot * max(head_dy - dy, 0) / 2, dx)  # cot < 0!
+                mid_y0 = min(shaft_y0, y0) - dx / cot
+                mid_y1 = max(shaft_y1, y1) + dx / cot
+                return Path._create_closed([
+                    (x0, y0), (x1 - dx, mid_y0), (x1, shaft_y0),
+                    (x1, shaft_y1), (x1 - dx, mid_y1), (x0, y1),
+                ])
 
     @_register_style(_style_list)
-    class RArrow(LArrow):
-        """A box in the shape of a right-pointing arrow."""
+    class LArrow(RArrow):
+        """A box in the shape of a left-pointing arrow."""
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            p = BoxStyle.LArrow.__call__(
-                self, x0, y0, width, height, mutation_size)
+            p = super().__call__(x0, y0, width, height, mutation_size)
             p.vertices[:, 0] = 2 * x0 + width - p.vertices[:, 0]
             return p
 
     @_register_style(_style_list)
-    class DArrow:
+    class DArrow(RArrow):
         """A box in the shape of a two-way arrow."""
-        # Modified from LArrow to add a right arrow to the bbox.
-
-        def __init__(self, pad=0.3):
-            """
-            Parameters
-            ----------
-            pad : float, default: 0.3
-                The amount of padding around the original box.
-            """
-            self.pad = pad
+        # Modified from RArrow to have arrows on both sides; see comments above.
 
         def __call__(self, x0, y0, width, height, mutation_size):
-            # padding
+            # padding & padded dimensions
             pad = mutation_size * self.pad
-            # width and height with padding added.
-            # The width is padded by the arrows, so we don't need to pad it.
-            height = height + 2 * pad
-            # boundary of the padded box
-            x0, y0 = x0 - pad, y0 - pad
-            x1, y1 = x0 + width, y0 + height
+            dx, dy = width + 2 * pad, height + 2 * pad
+            x0, y0 = x0 - pad, y0 - pad,
+            x1, y1 = x0 + dx, y0 + dy
 
-            dx = (y1 - y0) / 2
-            dxx = dx / 2
-            x0 = x0 + pad / 1.4  # adjust by ~sqrt(2)
+            head_dy = self.head_width * dy
+            mid_y = (y0 + y1) / 2
+            shaft_y0 = mid_y - head_dy / 2
+            shaft_y1 = mid_y + head_dy / 2
 
-            return Path._create_closed([
-                (x0 + dxx, y0), (x1, y0),  # bot-segment
-                (x1, y0 - dxx), (x1 + dx + dxx, y0 + dx),
-                (x1, y1 + dxx),  # right-arrow
-                (x1, y1), (x0 + dxx, y1),  # top-segment
-                (x0 + dxx, y1 + dxx), (x0 - dx, y0 + dx),
-                (x0 + dxx, y0 - dxx),  # left-arrow
-                (x0 + dxx, y0)])
+            cot = 1 / math.tan(math.radians(self.head_angle / 2))
+
+            if cot > 0:
+                tip_x0 = x0 - cot * min(dy, head_dy) / 2
+                shaft_x0 = tip_x0 + cot * head_dy / 2
+                tip_x1 = x1 + cot * min(dy, head_dy) / 2
+                shaft_x1 = tip_x1 - cot * head_dy / 2
+                return Path._create_closed([
+                    (shaft_x0, y1), (shaft_x0, shaft_y1),
+                    (tip_x0, mid_y),
+                    (shaft_x0, shaft_y0), (shaft_x0, y0),
+                    (shaft_x1, y0), (shaft_x1, shaft_y0),
+                    (tip_x1, mid_y),
+                    (shaft_x1, shaft_y1), (shaft_x1, y1),
+                ])
+            else:
+                # Don't move back by more than half the box length.
+                dx = min(-cot * max(head_dy - dy, 0) / 2, dx / 2)  # cot < 0!
+                mid_y0 = min(shaft_y0, y0) - dx / cot
+                mid_y1 = max(shaft_y1, y1) + dx / cot
+                return Path._create_closed([
+                    (x0, shaft_y0), (x0 + dx, mid_y0),
+                    (x1 - dx, mid_y0), (x1, shaft_y0),
+                    (x1, shaft_y1), (x1 - dx, mid_y1),
+                    (x0 + dx, mid_y1), (x0, shaft_y1),
+                ])
 
     @_register_style(_style_list)
     class Round:

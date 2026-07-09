@@ -1,7 +1,9 @@
 import datetime
 from io import BytesIO
 import os
+from pathlib import Path
 import shutil
+import string
 
 import numpy as np
 from packaging.version import parse as parse_version
@@ -9,10 +11,11 @@ import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from matplotlib.font_manager import FontProperties, findfont
 from matplotlib.testing import _has_tex_package, _check_for_pgf
 from matplotlib.testing.exceptions import ImageComparisonFailure
 from matplotlib.testing.compare import compare_images
-from matplotlib.backends.backend_pgf import PdfPages
+from matplotlib.backends.backend_pgf import _metadata_to_str, PdfPages
 from matplotlib.testing.decorators import (
     _image_directories, check_figures_equal, image_comparison)
 from matplotlib.testing._markers import (
@@ -32,6 +35,26 @@ def compare_figure(fname, savefig_kwargs={}, tol=0):
     err = compare_images(expected, actual, tol=tol)
     if err:
         raise ImageComparisonFailure(err)
+
+
+@pytest.mark.parametrize("key, value, expected_str", [
+    ("Author", "me", "Author={me}"),
+    ("ModDate",
+     datetime.datetime(1968, 8, 1, tzinfo=datetime.timezone(datetime.timedelta(0))),
+     "ModDate={D:19680801000000Z}"),
+])
+def test__metadata_to_str(key, value, expected_str):
+    assert _metadata_to_str(key, value) == expected_str
+
+
+@pytest.mark.parametrize("value", [
+    r"Backslashes, e.g. in \commands",
+    r"funny braces {}",
+    r"and square brackets]",
+])
+def test__metadata_to_str_error(value):
+    with pytest.raises(ValueError, match="value must not contain the chars"):
+        _metadata_to_str("Title", value)
 
 
 @needs_pgf_xelatex
@@ -328,6 +351,23 @@ def test_png_transparency():  # Actually, also just testing that png works.
     buf.seek(0)
     t = plt.imread(buf)
     assert (t[..., 3] == 0).all()  # fully transparent.
+
+
+@needs_pgf_xelatex
+@pytest.mark.backend('pgf')
+@image_comparison(['ttc_pgf.pdf'], style='mpl20')
+def test_ttc_output():
+    fp = FontProperties(family=['WenQuanYi Zen Hei'])
+    if Path(findfont(fp)).name != 'wqy-zenhei.ttc':
+        pytest.skip('Font wqy-zenhei.ttc may be missing')
+
+    fonts = {'sans-serif': 'WenQuanYi Zen Hei', 'monospace': 'WenQuanYi Zen Hei Mono'}
+    plt.rc('font', size=16, **fonts)
+
+    figs = plt.figure(figsize=(7, len(fonts) / 2)).subfigures(len(fonts))
+    for font, fig in zip(fonts.values(), figs):
+        fig.text(0.5, 0.5, f'{font}: {string.ascii_uppercase}', font=font,
+                 horizontalalignment='center', verticalalignment='center')
 
 
 @needs_pgf_xelatex

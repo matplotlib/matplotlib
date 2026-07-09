@@ -1,0 +1,25 @@
+Increase to minimum supported versions of dependencies
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+For Matplotlib 3.12, the :ref:`minimum supported versions <dependencies>` are being
+bumped:
+
++-------------+-----------------+----------------+
+| Dependency  |  min in mpl3.11 | min in mpl3.12 |
++=============+=================+================+
+|   Python    |       3.11      |      3.12      |
++-------------+-----------------+----------------+
+|   NumPy     |       1.25      |      2.0.0     |
++-------------+-----------------+----------------+
+|  Contourpy  |       1.0.1     |      1.2.1     |
++-------------+-----------------+----------------+
+
+This is consistent with our :ref:`min_deps_policy` and `SPEC0
+<https://scientific-python.org/specs/spec-0000/>`__
+
+
+PySide2 support
+~~~~~~~~~~~~~~~
+
+Support for the `PySide2 <https://doc.qt.io/qtforpython-5/contents.html>`_ Qt5 Python
+binding has been dropped because PySide2 does not support Python 3.12+.

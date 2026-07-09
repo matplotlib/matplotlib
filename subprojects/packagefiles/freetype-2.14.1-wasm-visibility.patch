@@ -1,0 +1,26 @@
+diff -uPNr freetype-2.14.3.orig/meson.build freetype-2.14.3/meson.build
+--- freetype-2.14.3.orig/meson.build	2026-03-27 05:26:03.270830734 -0400
++++ freetype-2.14.3/meson.build	2026-03-27 16:19:46.222942478 -0400
+@@ -453,16 +453,21 @@
+   ft2_defines += ['-DFT_CONFIG_CONFIG_H=<ftconfig.h>']
+ endif
+ 
++if cc.get_id() == 'emscripten'
++  kwargs = {}
++else
++  kwargs = {'gnu_symbol_visibility': 'hidden'}
++endif
+ 
+ ft2_lib = library('freetype',
+   sources: ft2_sources + [ftmodule_h],
+   c_args: ft2_defines,
+-  gnu_symbol_visibility: 'hidden',
+   include_directories: ft2_includes,
+   dependencies: ft2_deps,
+   install: true,
+   version: ft2_so_version,
+   link_args: common_ldflags,
++  kwargs: kwargs,
+ )
+ 
+ 

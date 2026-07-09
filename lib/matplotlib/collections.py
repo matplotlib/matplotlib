@@ -291,8 +291,11 @@ class Collection(mcolorizer.ColorizingArtist):
             if isinstance(offsets, np.ma.MaskedArray):
                 offsets = offsets.filled(np.nan)
                 # get_path_collection_extents handles nan but not masked arrays
+            data_trf = transform.get_affine() - transData
+            if not data_trf.is_affine:
+                paths = [data_trf.transform_path_non_affine(p) for p in paths]
             return mpath.get_path_collection_extents(
-                transform.get_affine() - transData, paths,
+                data_trf.get_affine(), paths,
                 self.get_transforms(),
                 offset_trf.transform_non_affine(offsets),
                 offset_trf.get_affine().frozen())
@@ -411,7 +414,7 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_capstyle(self._capstyle)
 
         if do_single_path_optimization:
-            gc.set_foreground(tuple(edgecolors[0]))
+            gc.set_foreground(tuple(edgecolors[0]), isRGBA=True)
             gc.set_linewidth(self._linewidths[0])
             gc.set_dashes(*self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])
@@ -670,27 +673,43 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         Set the linestyle(s) for the collection.
 
-        ===========================   =================
-        linestyle                     description
-        ===========================   =================
-        ``'-'`` or ``'solid'``        solid line
-        ``'--'`` or  ``'dashed'``     dashed line
-        ``'-.'`` or  ``'dashdot'``    dash-dotted line
-        ``':'`` or ``'dotted'``       dotted line
-        ===========================   =================
-
-        Alternatively a dash tuple of the following form can be provided::
-
-            (offset, onoffseq),
-
-        where ``onoffseq`` is an even length tuple of on and off ink in points.
-
         Parameters
         ----------
-        ls : str or tuple or list thereof
-            Valid values for individual linestyles include {'-', '--', '-.',
-            ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
-            complete description.
+        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq) or list thereof
+            If a list, the individual elements are assigned to the elements of the
+            collection.
+
+            Possible values:
+
+            - A string:
+
+              =======================================================  ================
+              linestyle                                                description
+              =======================================================  ================
+              ``'-'`` or ``'solid'``                                   solid line
+              ``'--'`` or ``'dashed'``                                 dashed line
+              ``'-.'`` or ``'dashdot'``                                dash-dotted line
+              ``':'`` or ``'dotted'``                                  dotted line
+              ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
+              =======================================================  ================
+
+            - A tuple describing the start position and lengths of dashes and spaces:
+
+                  (offset, onoffseq)
+
+              where
+
+              - *offset* is a float specifying the offset (in points); i.e. how much
+                is the dash pattern shifted.
+              - *onoffseq* is a sequence of on and off ink in points. There can be
+                arbitrary many pairs of on and off values.
+
+              Example: The tuple ``(0, (10, 5, 1, 5))`` means that the pattern starts
+              at the beginning of the line. It draws a 10 point long dash,
+              then a 5 point long space, then a 1 point long dash, followed by a 5 point
+              long space, and then the pattern repeats.
+
+            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         # get the list of raw 'unscaled' dash patterns
         self._us_linestyles = mlines._get_dash_patterns(ls)
@@ -1255,7 +1274,15 @@ class PathCollection(_CollectionWithSizes):
               "alpha": self.get_alpha(),
               **kwargs}
 
-        for val, lab in zip(values, label_values):
+        # Pre-format all labels
+        # TODO: check whether we can switch to
+        #       formatted_labels = fmt.format_ticks(label_values)
+        #       There are subtle differences for some formatters as that passes the
+        #       indices to __call__ as well.
+        fmt.set_locs(label_values)
+        formatted_labels = [fmt(lab) for lab in label_values]
+
+        for val, formatted in zip(values, formatted_labels):
             if prop == "colors":
                 color = self.cmap(self.norm(val))
             elif prop == "sizes":
@@ -1265,10 +1292,7 @@ class PathCollection(_CollectionWithSizes):
             h = mlines.Line2D([0], [0], ls="", color=color, ms=size,
                               marker=self.get_paths()[0], **kw)
             handles.append(h)
-            if hasattr(fmt, "set_locs"):
-                fmt.set_locs(label_values)
-            l = fmt(lab)
-            labels.append(l)
+            labels.append(formatted)
 
         return handles, labels
 
@@ -1495,8 +1519,15 @@ class FillBetweenPolyCollection(PolyCollection):
         t, f1, f2 = np.broadcast_arrays(np.atleast_1d(t), f1, f2, subok=True)
 
         self._bbox = transforms.Bbox.null()
-        self._bbox.update_from_data_xy(self._fix_pts_xy_order(np.concatenate([
-            np.stack((t[where], f[where]), axis=-1) for f in (f1, f2)])))
+        t_where = t.data[where] if np.ma.isMA(t) else t[where]
+        f1_where = f1.data[where] if np.ma.isMA(f1) else f1[where]
+        f2_where = f2.data[where] if np.ma.isMA(f2) else f2[where]
+        n = len(t_where)
+        if n > 0:
+            pts = np.empty((2 * n, 2))  # Preallocate and fill for speed
+            pts[:n, 0], pts[:n, 1] = t_where, f1_where
+            pts[n:, 0], pts[n:, 1] = t_where, f2_where
+            self._bbox.update_from_data_xy(self._fix_pts_xy_order(pts))
 
         return [
             self._make_verts_for_region(t, f1, f2, idx0, idx1)
@@ -1554,11 +1585,14 @@ class FillBetweenPolyCollection(PolyCollection):
             start = t_slice[0], f2_slice[0]
             end = t_slice[-1], f2_slice[-1]
 
-        pts = np.concatenate((
-            np.asarray([start]),
-            np.stack((t_slice, f1_slice), axis=-1),
-            np.asarray([end]),
-            np.stack((t_slice, f2_slice), axis=-1)[::-1]))
+        # Build polygon: start -> along f1 -> end -> back along f2 (reversed)
+        # Preallocate and fill for speed
+        n = len(t_slice)
+        pts = np.empty((2 * n + 2, 2))
+        pts[0, :] = start
+        pts[1:n+1, 0], pts[1:n+1, 1] = t_slice, f1_slice
+        pts[n+1, :] = end
+        pts[n+2:, 0], pts[n+2:, 1] = t_slice[::-1], f2_slice[::-1]
 
         return self._fix_pts_xy_order(pts)
 
@@ -1988,7 +2022,7 @@ class EventCollection(LineCollection):
         ----------
         orientation : {'horizontal', 'vertical'}
         """
-        is_horizontal = _api.check_getitem(
+        is_horizontal = _api.getitem_checked(
             {"horizontal": True, "vertical": False},
             orientation=orientation)
         if is_horizontal == self.is_horizontal():

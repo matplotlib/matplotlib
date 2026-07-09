@@ -58,11 +58,11 @@ def get_dir_vector(zdir):
     x, y, z : array
         The direction vector.
     """
-    if zdir == 'x':
+    if cbook._str_equal(zdir, 'x'):
         return np.array((1, 0, 0))
-    elif zdir == 'y':
+    elif cbook._str_equal(zdir, 'y'):
         return np.array((0, 1, 0))
-    elif zdir == 'z':
+    elif cbook._str_equal(zdir, 'z'):
         return np.array((0, 0, 1))
     elif zdir is None:
         return np.array((0, 0, 0))
@@ -79,7 +79,7 @@ def _viewlim_mask(xs, ys, zs, axes):
     Parameters
     ----------
     xs, ys, zs : array-like
-        The points to mask.
+        The points to mask. These should be in data coordinates.
     axes : Axes3D
         The axes to use for the view limits.
 
@@ -95,6 +95,30 @@ def _viewlim_mask(xs, ys, zs, axes):
                                  zs < axes.zz_viewLim.xmin,
                                  zs > axes.zz_viewLim.xmax))
     return mask
+
+
+def _scale_invalid_mask(xs, ys, zs, axes):
+    """
+    Return the mask of points whose coordinates are invalid for the axis
+    scale they live on (e.g. <=0 on a log axis).
+
+    Parameters
+    ----------
+    xs, ys, zs : array-like
+        The points to check, in data coordinates.
+    axes : Axes3D
+        The axes whose scales are queried.
+
+    Returns
+    -------
+    mask : np.ndarray
+        Boolean array, ``True`` where any of x/y/z is out of its scale's
+        valid domain.
+    """
+    return np.logical_or.reduce((
+        np.logical_not(axes.xaxis._scale.val_in_range(xs)),
+        np.logical_not(axes.yaxis._scale.val_in_range(ys)),
+        np.logical_not(axes.zaxis._scale.val_in_range(zs))))
 
 
 class Text3D(mtext.Text):
@@ -123,6 +147,16 @@ class Text3D(mtext.Text):
 
     def __init__(self, x=0, y=0, z=0, text='', zdir='z', axlim_clip=False,
                  **kwargs):
+        if 'rotation' in kwargs:
+            _api.warn_external(
+                "The `rotation` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
+        if 'rotation_mode' in kwargs:
+            _api.warn_external(
+                "The `rotation_mode` parameter has not yet been implemented "
+                "and is currently ignored."
+            )
         mtext.Text.__init__(self, x, y, text, **kwargs)
         self.set_3d_properties(z, zdir, axlim_clip)
 
@@ -181,14 +215,19 @@ class Text3D(mtext.Text):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        mask = _scale_invalid_mask(self._x, self._y, self._z, self.axes)
         if self._axlim_clip:
-            mask = _viewlim_mask(self._x, self._y, self._z, self.axes)
+            mask |= _viewlim_mask(self._x, self._y, self._z, self.axes)
+        if np.any(mask):
             pos3d = np.ma.array([self._x, self._y, self._z],
                                 mask=mask, dtype=float).filled(np.nan)
         else:
             pos3d = np.array([self._x, self._y, self._z], dtype=float)
 
-        proj = proj3d._proj_trans_points([pos3d, pos3d + self._dir_vec], self.axes.M)
+        dir_end = pos3d + self._dir_vec
+        points = np.asarray([pos3d, dir_end])
+        proj = proj3d._scale_proj_transform(
+            points[:, 0], points[:, 1], points[:, 2], self.axes)
         dx = proj[0][1] - proj[0][0]
         dy = proj[1][1] - proj[1][0]
         angle = math.degrees(math.atan2(dy, dx))
@@ -315,18 +354,19 @@ class Line3D(lines.Line2D):
 
     @artist.allow_rasterization
     def draw(self, renderer):
+        scale_mask = _scale_invalid_mask(*self._verts3d, self.axes)
         if self._axlim_clip:
+            scale_mask |= _viewlim_mask(*self._verts3d, self.axes)
+        if np.any(scale_mask):
             mask = np.broadcast_to(
-                _viewlim_mask(*self._verts3d, self.axes),
+                scale_mask,
                 (len(self._verts3d), *self._verts3d[0].shape)
             )
             xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
                                            dtype=float, mask=mask).filled(np.nan)
         else:
             xs3d, ys3d, zs3d = self._verts3d
-        xs, ys, zs, tis = proj3d._proj_transform_clip(xs3d, ys3d, zs3d,
-                                                      self.axes.M,
-                                                      self.axes._focal_length)
+        xs, ys, zs, tis = proj3d._scale_proj_transform_clip(xs3d, ys3d, zs3d, self.axes)
         self.set_data(xs, ys)
         super().draw(renderer)
         self.stale = False
@@ -413,11 +453,15 @@ class Collection3D(Collection):
     def do_3d_projection(self):
         """Project the points according to renderer matrix."""
         vs_list = [vs for vs, _ in self._3dverts_codes]
+        masks = [_scale_invalid_mask(*vs.T, self.axes) for vs in vs_list]
         if self._axlim_clip:
-            vs_list = [np.ma.array(vs, mask=np.broadcast_to(
-                       _viewlim_mask(*vs.T, self.axes), vs.shape))
-                       for vs in vs_list]
-        xyzs_list = [proj3d.proj_transform(*vs.T, self.axes.M) for vs in vs_list]
+            masks = [m | _viewlim_mask(*vs.T, self.axes)
+                     for m, vs in zip(masks, vs_list)]
+        vs_list = [np.ma.array(vs, mask=np.broadcast_to(m, vs.shape))
+                   if np.any(m) else vs
+                   for vs, m in zip(vs_list, masks)]
+        xyzs_list = [proj3d._scale_proj_transform(
+            vs[:, 0], vs[:, 1], vs[:, 2], self.axes) for vs in vs_list]
         self._paths = [mpath.Path(np.ma.column_stack([xs, ys]), cs)
                        for (xs, ys, _), (_, cs) in zip(xyzs_list, self._3dverts_codes)]
         zs = np.concatenate([zs for _, _, zs in xyzs_list])
@@ -485,11 +529,36 @@ class Line3DCollection(LineCollection):
         """
         Project the points according to renderer matrix.
         """
-        segments = np.asanyarray(self._segments3d)
+        segments = self._segments3d
+
+        # Handle ragged inputs, but prefer a faster path for same-length segments
+        segment_lengths = [len(segment) for segment in segments]
+        ragged = len(set(segment_lengths)) > 1
+        if ragged:
+            # Branch masked / non-masked for speed
+            if any(np.ma.isMA(segment) for segment in segments):
+                segments = np.ma.concatenate(segments)
+            else:
+                segments = np.concatenate(segments)
+        else:
+            segments = np.asanyarray(segments)
+
+        # Handle empty segments
+        if segments.size == 0:
+            LineCollection.set_segments(self, [])
+            return np.nan
 
         mask = False
-        if np.ma.isMA(segments):
+        if np.ma.isMA(segments) and segments.mask is not np.ma.nomask:
             mask = segments.mask
+
+        scale_mask = _scale_invalid_mask(segments[..., 0],
+                                         segments[..., 1],
+                                         segments[..., 2],
+                                         self.axes)
+        if np.any(scale_mask):
+            mask |= np.broadcast_to(scale_mask[..., np.newaxis],
+                                    (*scale_mask.shape, 3))
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(segments[..., 0],
@@ -501,9 +570,13 @@ class Line3DCollection(LineCollection):
                 viewlim_mask = np.broadcast_to(viewlim_mask[..., np.newaxis],
                                                (*viewlim_mask.shape, 3))
                 mask = mask | viewlim_mask
-        xyzs = np.ma.array(proj3d._proj_transform_vectors(segments, self.axes.M),
-                           mask=mask)
+
+        xyzs = proj3d._scale_proj_transform_vectors(segments, self.axes)
+        if mask is not False:
+            xyzs = np.ma.array(xyzs, mask=mask)
         segments_2d = xyzs[..., 0:2]
+        if ragged:
+            segments_2d = np.split(segments_2d, np.cumsum(segment_lengths[:-1]))
         LineCollection.set_segments(self, segments_2d)
 
         # FIXME
@@ -579,15 +652,16 @@ class Patch3D(Patch):
 
     def do_3d_projection(self):
         s = self._segment3d
+        xs0, ys0, zs0 = zip(*s)
+        mask = _scale_invalid_mask(xs0, ys0, zs0, self.axes)
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
+            mask |= _viewlim_mask(xs0, ys0, zs0, self.axes)
+        if np.any(mask):
             xs, ys, zs = np.ma.array(zip(*s),
                                      dtype=float, mask=mask).filled(np.nan)
         else:
-            xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
-                                                         self.axes.M,
-                                                         self.axes._focal_length)
+            xs, ys, zs = xs0, ys0, zs0
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
         self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]))
         return min(vzs)
 
@@ -641,15 +715,16 @@ class PathPatch3D(Patch3D):
 
     def do_3d_projection(self):
         s = self._segment3d
+        xs0, ys0, zs0 = zip(*s)
+        mask = _scale_invalid_mask(xs0, ys0, zs0, self.axes)
         if self._axlim_clip:
-            mask = _viewlim_mask(*zip(*s), self.axes)
+            mask |= _viewlim_mask(xs0, ys0, zs0, self.axes)
+        if np.any(mask):
             xs, ys, zs = np.ma.array(zip(*s),
                                      dtype=float, mask=mask).filled(np.nan)
         else:
-            xs, ys, zs = zip(*s)
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
-                                                         self.axes.M,
-                                                         self.axes._focal_length)
+            xs, ys, zs = xs0, ys0, zs0
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
         self._path2d = mpath.Path(np.ma.column_stack([vxs, vys]), self._code3d)
         return min(vzs)
 
@@ -787,14 +862,14 @@ class Patch3DCollection(PatchCollection):
         self.stale = True
 
     def do_3d_projection(self):
+        mask = _scale_invalid_mask(*self._offsets3d, self.axes)
         if self._axlim_clip:
-            mask = _viewlim_mask(*self._offsets3d, self.axes)
+            mask |= _viewlim_mask(*self._offsets3d, self.axes)
+        if np.any(mask):
             xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(xs, ys, zs,
-                                                         self.axes.M,
-                                                         self.axes._focal_length)
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
         self._vzs = vzs
         if np.ma.isMA(vxs):
             super().set_offsets(np.ma.column_stack([vxs, vys]))
@@ -807,18 +882,26 @@ class Patch3DCollection(PatchCollection):
             return np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
-        color_array = (
-            _zalpha(
+        # Adjust the color_array alpha values if point depths are defined
+        # and depth shading is active
+        alpha = self._alpha
+        if self._vzs is not None and self._depthshade:
+            color_array = _zalpha(
                 color_array,
                 self._vzs,
                 min_alpha=self._depthshade_minalpha,
             )
-            if self._vzs is not None and self._depthshade
-            else color_array
-        )
+            if alpha is not None and color_array.shape[1] == 4:  # RGBA, not RGB
+                alpha = alpha * color_array[:, 3]
+
+        # Adjust the order of the color_array using the _z_markers_idx,
+        # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
-        return mcolors.to_rgba_array(color_array, self._alpha)
+            if np.ndim(alpha) > 0:
+                alpha = np.asarray(alpha)[self._z_markers_idx]
+
+        return mcolors.to_rgba_array(color_array, alpha)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
@@ -1003,16 +1086,16 @@ class Path3DCollection(PathCollection):
         for xyz in self._offsets3d:
             if np.ma.isMA(xyz):
                 mask = mask | xyz.mask
+        mask = mask | _scale_invalid_mask(*self._offsets3d, self.axes)
         if self._axlim_clip:
             mask = mask | _viewlim_mask(*self._offsets3d, self.axes)
+        if np.any(mask):
             mask = np.broadcast_to(mask,
                                    (len(self._offsets3d), *self._offsets3d[0].shape))
             xyzs = np.ma.array(self._offsets3d, mask=mask)
         else:
             xyzs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._proj_transform_clip(*xyzs,
-                                                         self.axes.M,
-                                                         self.axes._focal_length)
+        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(*xyzs, self.axes)
         self._data_scale = _get_data_scale(vxs, vys, vzs)
         # Sort the points based on z coordinates
         # Performance optimization: Create a sorted index array and reorder
@@ -1060,6 +1143,7 @@ class Path3DCollection(PathCollection):
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         # Adjust the color_array alpha values if point depths are defined
         # and depth shading is active
+        alpha = self._alpha
         if self._vzs is not None and self._depthshade:
             color_array = _zalpha(
                 color_array,
@@ -1067,13 +1151,17 @@ class Path3DCollection(PathCollection):
                 min_alpha=self._depthshade_minalpha,
                 _data_scale=self._data_scale,
             )
+            if alpha is not None and color_array.shape[1] == 4:  # RGBA, not RGB
+                alpha = alpha * color_array[:, 3]
 
         # Adjust the order of the color_array using the _z_markers_idx,
         # which has been sorted by z-depth
         if len(color_array) > 1:
             color_array = color_array[self._z_markers_idx]
+            if np.ndim(alpha) > 0:
+                alpha = np.asarray(alpha)[self._z_markers_idx]
 
-        return mcolors.to_rgba_array(color_array)
+        return mcolors.to_rgba_array(color_array, alpha)
 
     def get_facecolor(self):
         return self._maybe_depth_shade_and_sort_colors(super().get_facecolor())
@@ -1339,14 +1427,16 @@ class Poly3DCollection(PolyCollection):
             if self._edge_is_mapped:
                 self._edgecolor3d = self._edgecolors
 
-        needs_masking = np.any(self._invalid_vertices)
         num_faces = len(self._faces)
-        mask = self._invalid_vertices
+        mask = self._invalid_vertices | _scale_invalid_mask(
+            self._faces[..., 0], self._faces[..., 1],
+            self._faces[..., 2], self.axes)
+        needs_masking = np.any(mask)
 
         # Some faces might contain masked vertices, so we want to ignore any
         # errors that those might cause
         with np.errstate(invalid='ignore', divide='ignore'):
-            pfaces = proj3d._proj_transform_vectors(self._faces, self.axes.M)
+            pfaces = proj3d._scale_proj_transform_vectors(self._faces, self.axes)
 
         if self._axlim_clip:
             viewlim_mask = _viewlim_mask(self._faces[..., 0], self._faces[..., 1],

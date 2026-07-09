@@ -4,7 +4,6 @@ Tests specific to the lines module.
 
 import itertools
 import platform
-import timeit
 from types import SimpleNamespace
 
 from cycler import cycler
@@ -31,52 +30,6 @@ def test_segment_hits():
     assert_array_equal(mlines.segment_hits(cx, cy, x, y, radius), [0])
 
 
-# Runtimes on a loaded system are inherently flaky. Not so much that a rerun
-# won't help, hopefully.
-@pytest.mark.flaky(reruns=3)
-def test_invisible_Line_rendering():
-    """
-    GitHub issue #1256 identified a bug in Line.draw method
-
-    Despite visibility attribute set to False, the draw method was not
-    returning early enough and some pre-rendering code was executed
-    though not necessary.
-
-    Consequence was an excessive draw time for invisible Line instances
-    holding a large number of points (Npts> 10**6)
-    """
-    # Creates big x and y data:
-    N = 10**7
-    x = np.linspace(0, 1, N)
-    y = np.random.normal(size=N)
-
-    # Create a plot figure:
-    fig = plt.figure()
-    ax = plt.subplot()
-
-    # Create a "big" Line instance:
-    l = mlines.Line2D(x, y)
-    l.set_visible(False)
-    # but don't add it to the Axis instance `ax`
-
-    # [here Interactive panning and zooming is pretty responsive]
-    # Time the canvas drawing:
-    t_no_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
-    # (gives about 25 ms)
-
-    # Add the big invisible Line:
-    ax.add_line(l)
-
-    # [Now interactive panning and zooming is very slow]
-    # Time the canvas drawing:
-    t_invisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
-    # gives about 290 ms for N = 10**7 pts
-
-    slowdown_factor = t_invisible_line / t_no_line
-    slowdown_threshold = 2  # trying to avoid false positive failures
-    assert slowdown_factor < slowdown_threshold
-
-
 def test_set_line_coll_dash():
     fig, ax = plt.subplots()
     np.random.seed(0)
@@ -98,7 +51,7 @@ def test_invalid_line_data():
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True, tol=0.003)
+@image_comparison(['line_dashes'], remove_text=True, style='_classic_test', tol=0.003)
 def test_line_dashes():
     # Tolerance introduced after reordering of floating-point operations
     # Remove when regenerating the images
@@ -139,7 +92,14 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(['drawstyle_variants.png'], remove_text=True,
+@mpl.style.context('mpl20')
+def test_zero_linewidth_dashed_uses_solid_gc_dashes():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], ls='--', lw=0)
+    fig.draw_without_rendering()
+
+
+@image_comparison(['drawstyle_variants.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
@@ -191,7 +151,7 @@ def test_set_line_coll_dash_image():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(['marker_fill_styles.png'], remove_text=True)
+@image_comparison(['marker_fill_styles.png'], remove_text=True, style='_classic_test')
 def test_marker_fill_styles():
     colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
                               np.array([0, 0, 0])])
