@@ -52,7 +52,6 @@ jobs:
       - name: Build wheels for wasm
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         env:
-          CIBW_BUILD: "cp312-*"
           CIBW_PLATFORM: "pyodide"
           CIBW_TEST_COMMAND: "true"
 
