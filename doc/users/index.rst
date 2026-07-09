@@ -55,11 +55,18 @@ Using Matplotlib
     .. grid-item-card::
         :padding: 2
 
+        .. dropdown:: :ref:`rcparams_reference`
+            :class-container: sdd
+
+            .. rst-class:: section-toc
+            .. toctree::
+                :maxdepth:2
+                explain/configuration
+
         .. toctree::
             :maxdepth: 2
             :includehidden:
 
-            explain/configuration
             explain/customizing
 
     .. grid-item-card::
