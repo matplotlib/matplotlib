@@ -580,6 +580,18 @@ class _AxesBase(martist.Artist):
     data area boundaries.
     """
 
+    transData: mtransforms.Transform
+    """
+    The transformation from data coordinates to display coordinates.
+    See  :ref:`transforms_tutorial`.
+    """
+
+    transAxes: mtransforms.Transform
+    """
+    The transformation from axes coordinates to display coordinates.
+    See  :ref:`transforms_tutorial`.
+    """
+
     xaxis: maxis.XAxis
     """
     The `.XAxis` instance.
