@@ -46,7 +46,8 @@ def test_inset_indicator_update_styles():
         inset, edgecolor='red', alpha=0.5, linewidth=2, linestyle='solid')
 
     # Changing the rectangle styles should not affect the connectors.
-    indicator.rectangle.set(clip_on=True, color='blue', linestyle='dashed', linewidth=42, alpha=0.2)
+    indicator.rectangle.set(
+        clip_on=True, color='blue', linestyle='dashed', linewidth=42, alpha=0.2)
     for conn in indicator.connectors:
         assert mcolors.same_color(conn.get_edgecolor()[:3], 'red')
         assert conn.get_alpha() == 0.5
@@ -56,7 +57,8 @@ def test_inset_indicator_update_styles():
 
     # Changing the indicator styles should affect both rectangle and connectors.
     indicator.rectangle.set(clip_on=False)
-    indicator.set(clip_on=True, color='green', linestyle='dotted', linewidth=7, alpha=0.8)
+    indicator.set(
+        clip_on=True, color='green', linestyle='dotted', linewidth=7, alpha=0.8)
     assert mcolors.same_color(indicator.rectangle.get_facecolor()[:3], 'green')
     for patch in (*indicator.connectors, indicator.rectangle):
         assert mcolors.same_color(patch.get_edgecolor()[:3], 'green')
@@ -72,7 +74,8 @@ def test_inset_indicator_update_styles():
     # This should also be true if connectors weren't created yet.
     indicator.rectangle.set(clip_on=False)
     indicator._connectors = []
-    indicator.set(clip_on=True, color='burlywood', linestyle='dashdot', linewidth=4, alpha=0.4)
+    indicator.set(
+        clip_on=True, color='burlywood', linestyle='dashdot', linewidth=4, alpha=0.4)
     assert mcolors.same_color(indicator.rectangle.get_facecolor()[:3], 'burlywood')
     for patch in (*indicator.connectors, indicator.rectangle):
         assert mcolors.same_color(patch.get_edgecolor()[:3], 'burlywood')

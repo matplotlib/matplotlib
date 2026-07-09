@@ -70,7 +70,8 @@ class InsetIndicator(artist.Artist):
 
         # Initial style properties for the artist should match the rectangle.
         for prop in _shared_properties:
-            setattr(self, f'_{prop.replace('_', '')}', artist.getp(self._rectangle, prop))
+            setattr(
+                self, f'_{prop.replace('_', '')}', artist.getp(self._rectangle, prop))
 
     def _shared_setter(self, prop, val):
         """
