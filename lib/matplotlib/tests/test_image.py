@@ -14,6 +14,7 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
+from matplotlib.backend_bases import MouseEvent
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.patches import Rectangle
@@ -455,14 +456,22 @@ def test_cursor_data_nonuniform(xy, data):
         ([[0, 0]], "[0.00]"),
     ])
 def test_format_cursor_data(data, text):
-    from matplotlib.backend_bases import MouseEvent
-
     fig, ax = plt.subplots()
     im = ax.imshow(data)
 
     xdisp, ydisp = ax.transData.transform([0, 0])
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+
+def test_format_cursor_data_uint8_no_norm():
+    data = np.array([[0, 44]], dtype=np.uint8)
+    fig, ax = plt.subplots()
+    im = ax.imshow(data, norm=colors.NoNorm())
+
+    xdisp, ydisp = ax.transData.transform([1, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == "[44.000]"
 
 
 @pytest.mark.parametrize(
@@ -472,7 +481,6 @@ def test_format_cursor_data(data, text):
         ([[[np.nan, 1, 2]], [[0, 0, 0]]], "[]"),
     ])
 def test_format_cursor_data_multinorm(data, text):
-    from matplotlib.backend_bases import MouseEvent
     fig, ax = plt.subplots()
     cmap_bivar = mpl.bivar_colormaps['BiOrangeBlue']
     cmap_multivar = mpl.multivar_colormaps['2VarAddA']

@@ -401,7 +401,6 @@ addopts = [
 ]
 
 [tool.cibuildwheel]
-enable = ["cpython-freethreading"]
 skip = "*-musllinux_aarch64"
 manylinux-x86_64-image = "manylinux2014"
 
