@@ -623,6 +623,35 @@ class Path:
             transform = transform.frozen()
         return _path.path_in_path(self, None, path, transform)
 
+    def _extent_vertices(self, **kwargs):
+        """
+        Return the vertices that determine this path's axis-aligned extents.
+
+        Parameters
+        ----------
+        **kwargs
+            Forwarded to `.iter_bezier`.
+
+        Returns
+        -------
+        (N, 2) array of float
+            The vertices whose bounding box equals the bounding box of the path.
+        """
+        if self.codes is None:
+            return self.vertices
+        if not ((self.codes == Path.CURVE3) | (self.codes == Path.CURVE4)).any():
+            # No curves: every vertex lies on a straight segment except the
+            # STOP/CLOSEPOLY placeholders, which do not affect the extents.
+            ignore = (self.codes == Path.STOP) | (self.codes == Path.CLOSEPOLY)
+            return self.vertices[~ignore] if ignore.any() else self.vertices
+        # Curved segments: solve for each segment's endpoints and interior
+        # extrema, since the control points may lie outside the drawn curve.
+        vertices = []
+        for curve, _ in self.iter_bezier(**kwargs):
+            _, dzeros = curve.axis_aligned_extrema()
+            vertices.append(curve([0, *dzeros, 1]))
+        return np.concatenate(vertices) if vertices else np.empty((0, 2))
+
     def get_extents(self, transform=None, **kwargs):
         """
         Get Bbox of the path.
@@ -642,23 +671,7 @@ class Path:
         from .transforms import Bbox
         if transform is not None:
             self = transform.transform_path(self)
-        if self.codes is None:
-            xys = self.vertices
-        elif not ((self.codes == Path.CURVE3)
-                  | (self.codes == Path.CURVE4)).any():
-            # Optimization for the straight line case.
-            # Instead of iterating through each curve, consider
-            # each line segment's end-points
-            ignore = (self.codes == Path.STOP) | (self.codes == Path.CLOSEPOLY)
-            xys = self.vertices[~ignore] if ignore.any() else self.vertices
-        else:
-            xys = []
-            for curve, code in self.iter_bezier(**kwargs):
-                # places where the derivative is zero can be extrema
-                _, dzeros = curve.axis_aligned_extrema()
-                # as can the ends of the curve
-                xys.append(curve([0, *dzeros, 1]))
-            xys = np.concatenate(xys)
+        xys = self._extent_vertices(**kwargs)
         if len(xys):
             x = xys[:, 0]
             y = xys[:, 1]
