@@ -916,28 +916,31 @@ class _SymmetricalLogMixin:
     on the private attributes ``_base``, ``_linthresh`` and ``_linscale``.
 
     We define two helper coordinate systems:
+
     - *decade number* serves to easily identify the powers of *base* that may serve as
-        major tick positions. Such powers are located at integer decade numbers, and the
-        smallest needed power is located at decade number 1.
+      major tick positions. Such powers are located at integer decade numbers, and the
+      smallest needed power is located at decade number 1.
     - *axis position* helps to gauge the visual distance between values on the axis.
-        Equal distances in axis position correspond to equal visual distances. It is
-        connected to the axis coordinate by a shift and scale such that the value 0 has
-        the axis position 0 and consecutive logarithmic decades differ by 1 in axis
-        position.
+      Equal distances in axis position correspond to equal visual distances. It is
+      connected to the axis coordinate by a shift and scale such that the value 0 has
+      the axis position 0 and consecutive logarithmic decades differ by 1 in axis
+      position.
 
-                     |--------log--------|---------linear----------|--------log--------|
-         coordinate: |-----+-------+-------+----------+----------+-------+-------+-----|
-                         10^-5   10^-4   10^-3        0        10^3    10^4    10^5
+    ::
 
-      decade number: |-----+-------+-------+----------+----------+-------+-------+-----|
-                          -3      -2      -1          0          1       2       3
+                       |--------log--------|--------linear---------|--------log--------|
+           coordinate: |-----+-------+-------+---------+---------+-------+-------+-----|
+                           10^-5   10^-4   10^-3       0       10^3    10^4    10^5
 
-      axis position: |---+-------+-------+------------+------------+-------+-------+---|
-                        (ls+2) -(ls+1)   ls           0            ls      ls+1    ls+2
+        decade number: |-----+-------+-------+---------+---------+-------+-------+-----|
+                            -3      -2      -1         0         1       2       3
 
-    axis coordinate: |--------------------------------+--------------------------------|
-                     0                               0.5                               1
-                     |--------log--------|---------linear----------|--------log--------|
+        axis position: |---+-------+-------+-----------+-----------+-------+-------+---|
+                          (ls+2) -(ls+1)   ls          0           ls      ls+1    ls+2
+
+      axis coordinate: |-------------------------------+-------------------------------|
+                       0                              0.5                              1
+                       |--------log--------|--------linear---------|--------log--------|
 
     Note that, in general, the first tick (decade number 1) may also lie outside the
     linear regime. Now, let us motivate and define the new coordinate systems more
@@ -1013,7 +1016,7 @@ class _SymmetricalLogMixin:
     def _firsttickval(self):
         """
         Calculate the value of the first acceptable (positive) tick position. We define
-        this to the first power of *base* with an axis position of at least 0.5. This
+        this to be the first power of *base* with an axis position of at least 0.5. This
         ensures that the size of a minor tick in the linear regime is at least the size
         of the smallest minor tick in the logarithmic regime when *base* is 10:
             0.5 / 10 > 0.045 ~= -log10(0.9)
@@ -2822,7 +2825,7 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
         Parameters
         ----------
         transform : `~.scale.SymmetricalLogTransform`, optional
-            If set, defines *base*, *lintresh* and *linscale* of the symlog transform.
+            If set, defines *base*, *linthresh* and *linscale* of the symlog transform.
         base, linthresh, linscale : float, optional
             The *base*, *linthresh* and *linscale* of the symlog transform, as
             documented for `.SymmetricalLogScale`.  These parameters are only used
@@ -2840,9 +2843,9 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
             between integer powers; with ``'all'``, the integer powers are included.
         numticks : None or int, default: None
             The maximum number of ticks to allow on a given axis. The default of
-            ``None`` will try to choose intelligently as long as this Locator has
-            already been assigned to an axis using `~.axis.Axis.get_tick_space`, but
-            otherwise falls back to 9.
+            ``None`` will try to choose intelligently using
+            `~.axis.Axis.get_tick_space`, as long as this Locator has already been
+            assigned to an axis but otherwise falls back to 9.
 
             .. versionadded:: 3.12
 
