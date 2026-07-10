@@ -344,8 +344,6 @@ def test_imshow_multi_draw(n_channels, is_int, alpha_arr, opaque):
 
 
 def test_cursor_data():
-    from matplotlib.backend_bases import MouseEvent
-
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), origin='upper')
 
@@ -426,8 +424,6 @@ def test_cursor_data():
     ]
 )
 def test_cursor_data_nonuniform(xy, data):
-    from matplotlib.backend_bases import MouseEvent
-
     # Non-linear set of x-values
     x = np.array([0, 1, 4, 9, 16])
     y = np.array([0, 1, 2, 3, 4])
