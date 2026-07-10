@@ -594,10 +594,14 @@ class SymmetricalLogScale(ScaleBase):
         Defines the range ``(-x, x)``, within which the plot is linear.
         This avoids having the plot go to infinity around zero.
 
-    subs : sequence of int
+    subs : None, 'auto', 'all' or sequence of int, default: 'auto'
         Where to place the subticks between each major tick.
         For example, in a log10 scale: ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place
-        8 logarithmically spaced minor ticks between each major tick.
+        8 logarithmically spaced minor ticks between each major tick. Both ``'auto'``
+        and ``'all'`` use an algorithm based on the axis view limits to determine
+        whether and how to put ticks between integer powers of the base. With
+        ``'auto'``, minor ticks are placed only between integer powers; with ``'all'``,
+        the integer powers are included. With ``None``, minor ticks are suppressed.
 
         .. versionchanged:: 3.12
             The default value is now ``'auto'``.
