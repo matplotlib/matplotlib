@@ -24,6 +24,7 @@ import matplotlib.markers as mmarkers
 import matplotlib.mlab as mlab
 import matplotlib.patches as mpatches
 import matplotlib.path as mpath
+import matplotlib.parallel_coordinates as mparallel
 import matplotlib.quiver as mquiver
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
@@ -9355,6 +9356,8 @@ such objects
         return artists
 
     # Methods that are entirely implemented in other modules.
+
+    parallel_coordinates = _make_axes_method(mparallel.parallel_coordinates)
 
     table = _make_axes_method(mtable.table)
 

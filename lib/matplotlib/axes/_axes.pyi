@@ -29,6 +29,7 @@ from matplotlib.transforms import Transform
 from matplotlib.typing import CoordsType
 import matplotlib.tri as mtri
 import matplotlib.table as mtable
+import matplotlib.parallel_coordinates as mparallel
 import matplotlib.stackplot as mstack
 import matplotlib.streamplot as mstream
 from matplotlib._api import _Unset
@@ -800,6 +801,7 @@ class Axes(_AxesBase):
         linecolor: Sequence[ColorType] | ColorType | None = ...,
     ) -> dict[str, Collection]: ...
 
+    parallel_coordinates = mparallel.parallel_coordinates
     table = mtable.table
     stackplot = mstack.stackplot
     streamplot = mstream.streamplot
