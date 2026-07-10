@@ -1681,6 +1681,23 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9)), out)
 
 
+def test__resample_nonaffine_mesh_shape():
+    # A non-affine transform whose inverse returns the wrong number of mesh
+    # points must be rejected rather than read past the mesh buffer.
+    class BadMeshTransform(Transform):
+        input_dims = output_dims = 2
+
+        def inverted(self):
+            return self
+
+        def transform(self, values):
+            return np.zeros((1, 2))
+
+    with pytest.raises(RuntimeError, match="mesh array should have shape"):
+        mpl._image.resample(np.zeros((9, 9)), np.zeros((9, 9)),
+                            BadMeshTransform())
+
+
 @pytest.mark.parametrize("data, interpolation, expected",
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),

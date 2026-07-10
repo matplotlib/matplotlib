@@ -86,6 +86,15 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
                 output_mesh_array.ndim()));
     }
 
+    // An undersized mesh would be read out of bounds by the resampler.
+    if (output_mesh_array.shape(0) != mesh_dims[0] ||
+            output_mesh_array.shape(1) != mesh_dims[1]) {
+        throw std::runtime_error(
+            "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})"_s.format(
+                mesh_dims[0], mesh_dims[1],
+                output_mesh_array.shape(0), output_mesh_array.shape(1)));
+    }
+
     return output_mesh_array;
 }
 
