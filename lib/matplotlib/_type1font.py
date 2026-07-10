@@ -612,8 +612,13 @@ class Type1Font:
                 f"Token following /Subrs must be a number, was {count_token}"
             )
         count = count_token.value()
-        array = [None] * count
         next(t for t in tokens if t.is_keyword('array'))
+        # Accumulate the parsed subrs into a dict and only allocate the result
+        # list once the body has been read. Allocating ``[None] * count`` up
+        # front lets a malformed font declare a huge count in a few bytes and
+        # force a large allocation before it is rejected; _parse_charstrings
+        # already avoids this by accumulating into a dict.
+        entries = {}
         for _ in range(count):
             next(t for t in tokens if t.is_keyword('dup'))
             index_token = next(tokens)
@@ -635,7 +640,11 @@ class Type1Font:
                     f"was {token}"
                 )
             binary_token = tokens.send(1+nbytes_token.value())
-            array[index_token.value()] = binary_token.value()
+            entries[index_token.value()] = binary_token.value()
+
+        array = [None] * count
+        for index, value in entries.items():
+            array[index] = value
 
         return array, next(tokens).endpos()
 

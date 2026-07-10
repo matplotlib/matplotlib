@@ -158,3 +158,27 @@ def test_encrypt_decrypt_roundtrip():
     decrypted = t1f.Type1Font._decrypt(encrypted, 'eexec')
     assert encrypted != decrypted
     assert data == decrypted
+
+
+def test_Subrs_no_preallocation(tmp_path):
+    # Regression test for #31962: a font declaring a huge /Subrs count must not
+    # cause a large allocation sized from that (untrusted) count before the
+    # body is parsed. Here the body is empty, so parsing must fail without
+    # first allocating a count-sized array.
+    import tracemalloc
+    count = 5_000_000
+    plaintext = (b'/FontName /X def\n/FontBBox [0 0 1 1] def\n'
+                 + f'/Subrs {count} array\n'.encode())
+    enc = t1f.Type1Font._encrypt(plaintext, 'eexec').hex().encode()
+    pfa = (b'%!PS-AdobeFont-1.0: X 001.000\neexec\n' + enc + b'\n'
+           + b'0' * 512 + b'\ncleartomark\n')
+    path = tmp_path / 'x.pfa'
+    path.write_bytes(pfa)
+
+    tracemalloc.start()
+    with pytest.raises(StopIteration):
+        t1f.Type1Font(str(path))
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    # The pre-allocation regressed to ~40 MB ([None] * count) before failing.
+    assert peak < 5 * 1024 * 1024
