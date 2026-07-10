@@ -1395,7 +1395,7 @@ def test_symlog():
     axs[1].set_yscale('symlog', linthresh=1, linscale=2)
 
 
-@image_comparison(['symlog2.pdf'], remove_text=True, style='_classic_test')
+@image_comparison(['symlog2.pdf'], remove_text=True, style='mpl20')
 def test_symlog2():
     # Numbers from -50 to 50, with 0.1 as step
     x = np.arange(-50, 50, 0.001)
