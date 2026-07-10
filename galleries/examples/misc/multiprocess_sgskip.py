@@ -9,7 +9,14 @@ plotting in another.
 Written by Robert Cimrman
 """
 # sphinx_gallery_thumbnail_path = "_static/multiprocess.png"
-
+"""
+Thumbnail description
+---------------------
+This example spawns a separate process for interactive plotting,
+so no static figure is saved. The thumbnail was generated separately
+and shows a diagram of two processes connected by a pipe, with data
+dots flowing through and a plot displayed inside the plotting process.
+"""
 
 import multiprocessing as mp
 import time

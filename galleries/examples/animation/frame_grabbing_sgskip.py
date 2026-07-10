@@ -8,7 +8,14 @@ file.  This avoids any event loop integration, and thus works even with the Agg
 backend.  This is not recommended for use in an interactive setting.
 """
 # sphinx_gallery_thumbnail_path = "_static/frame_grabbing.png"
-
+""""
+Thumbnail description
+---------------------
+This example writes frames to a video file, so no static plot is
+saved automatically. The thumbnail was generated separately: it
+shows a sine wave with 4 captured frames highlighted, an arrow
+pointing to an output video card — illustrating the frame-grabbing workflow.
+"""
 
 import numpy as np
 
