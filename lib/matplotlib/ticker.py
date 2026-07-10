@@ -2844,8 +2844,8 @@ class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
         numticks : None or int, default: None
             The maximum number of ticks to allow on a given axis. The default of
             ``None`` will try to choose intelligently using
-            `~.axis.Axis.get_tick_space`, as long as this Locator has already been
-            assigned to an axis but otherwise falls back to 9.
+            `~.axis.Axis.get_tick_space` in case this Locator has already been assigned
+            to an axis, but otherwise falls back to 9.
 
             .. versionadded:: 3.12
 
