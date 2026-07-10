@@ -43,7 +43,7 @@ static id<NSApplicationDelegate> appDelegate = nil;
 
 /* Variables to keep track of state and window count for show() */
 static BOOL IsRunningFromShow = NO;
-static long FigureWindowCount = 0;
+static NSHashTable<NSWindow *> *FigureWindowHashTable = nil;
 
 /* Keep track of modifier key states for flagsChanged
    to keep track of press vs release */
@@ -116,7 +116,7 @@ static int wait_for_stdin() {
 
     // Short circuit if no windows are active
     // Rely on Python's input handling to manage CPU usage
-    // This queries the NSApp, rather than using our FigureWindowCount because that is decremented when events still
+    // This queries the NSApp, rather than using our FigureWindowHashTable because that is modified when events still
     // need to be processed to properly close the windows.
     @autoreleasepool {
         if (![[NSApp windows] count]) {
@@ -711,7 +711,11 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     [view updateDevicePixelRatio: [window backingScaleFactor]];
 
     self->window = window;
-    ++FigureWindowCount;
+
+    if (!FigureWindowHashTable) {
+        FigureWindowHashTable = [NSHashTable weakObjectsHashTable];
+    }
+    [FigureWindowHashTable addObject:window];
 
     END_OBJC_ENTRY
     return 0;
@@ -752,9 +756,10 @@ FigureManager__closeAndClearWindow(FigureManager* self)
         [self->window close];
         [self->window setDelegate:nil];
         [self->window setManager:NULL];
+        [FigureWindowHashTable removeObject:self->window];
 
         self->window = nil;
-        if (--FigureWindowCount == 0 && IsRunningFromShow) {
+        if ([FigureWindowHashTable count] == 0 && IsRunningFromShow) {
             [NSApp stop:nil];
         }
     }
@@ -1816,14 +1821,12 @@ show(PyObject* self)
 {
     BEGIN_OBJC_ENTRY
 
-    // Iterating over -[NSApp windows] will add the windows to the topmost
+    // Iterating over FigureWindowHashTable will add the windows to the topmost
     // autorelease pool, wrap in @autoreleasepool as -[NSApp run] is long-running.
     @autoreleasepool {
         [NSApp activateIgnoringOtherApps: YES];
-        NSArray *windowsArray = [NSApp windows];
-        NSEnumerator *enumerator = [windowsArray objectEnumerator];
-        NSWindow *window;
-        while ((window = [enumerator nextObject])) {
+
+        for (NSWindow *window in [FigureWindowHashTable allObjects]) {
             [window orderFront:nil];
         }
     }
