@@ -583,115 +583,71 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
 
 
-def test_overlay_manager_registration():
+def test_overlay_setup_and_api():
     from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
     fig, ax = plt.subplots()
     canvas = fig.canvas
 
     assert hasattr(canvas, "_overlay_manager")
 
     line = Line2D([0, 1], [0, 1])
-    ax.add_line(line)
+    assert line.get_in_overlay() is False
 
-    canvas._overlay_manager.add_artist(line)
+    # Can set via method
+    line.set_in_overlay(True)
+    assert line.get_in_overlay() is True
 
-    live_artists = canvas._overlay_manager._get_live_artists()
-    assert line not in live_artists
+    # Manager.update() calls canvas.draw_overlay()
+    with patch.object(canvas, 'draw_overlay') as mock_draw_overlay:
+        canvas._overlay_manager.update()
+        mock_draw_overlay.assert_called_once()
 
-    assert line.get_animated() is False
 
-
-def test_overlay_manager_fallback_draw():
+def test_overlay_draw_filtering_and_stale():
     from matplotlib.lines import Line2D
     from unittest.mock import patch
+
     fig, ax = plt.subplots()
     canvas = fig.canvas
     line = Line2D([0, 1], [0, 1])
     ax.add_line(line)
 
-    canvas._overlay_manager.add_artist(line)
+    # Enable overlay support on the canvas
+    canvas.supports_overlay = True
 
-    # Mock draw_idle
+
+    fig.draw(canvas.get_renderer())
+
+    # Mark as overlay
+    line.set_in_overlay(True)
+
+    # 1. Overlay artist is skipped in standard draw
+    with patch.object(line, 'draw') as mock_draw:
+        fig.draw(canvas.get_renderer())
+        mock_draw.assert_not_called()
+
+    # 2. Stale flag does not propagate to canvas
     with patch.object(canvas, 'draw_idle') as mock_draw_idle:
-        canvas._overlay_manager.update()
-        mock_draw_idle.assert_called_once()
-
-
-@pytest.mark.xfail(reason="Phase 2 native compositing not yet implemented")
-def test_overlay_manager_native_routing():
-    from matplotlib.lines import Line2D
-    from unittest.mock import patch
-
-    class MockNativeCanvas(FigureCanvasBase):
-        supports_overlay = True
-
-    fig = Figure()
-    canvas = MockNativeCanvas(fig)
-    ax = fig.subplots()
-    line = Line2D([0, 1], [0, 1])
-    ax.add_line(line)
-
-    canvas._overlay_manager.add_artist(line)
-
-    # Because supports_overlay is True, the artist should be set to animated
-    assert line.get_animated() is True
-
-    # Mock draw_idle
-    with patch.object(canvas, 'draw_idle') as mock_draw_idle:
-        canvas._overlay_manager.update()
+        line.set_color('red')
+        assert line.stale is True
         mock_draw_idle.assert_not_called()
 
 
-def test_overlay_manager_draw_skipping():
+def test_overlay_artist_included_in_save():
     from matplotlib.lines import Line2D
     from unittest.mock import patch
-    from matplotlib.backends.backend_agg import FigureCanvasAgg
-    import matplotlib.pyplot as plt
-
-    class MockNativeCanvas(FigureCanvasAgg):
-        supports_overlay = True
+    import io
 
     fig, ax = plt.subplots()
-    canvas = MockNativeCanvas(fig)
-    line = Line2D([0, 1], [0, 1])
+    canvas = fig.canvas
+    canvas.supports_overlay = True
+
+    line = Line2D([0, 1], [0, 1], in_overlay=True)
     ax.add_line(line)
 
-    renderer = canvas.get_renderer()
-
-    # 1. Standard draw - artist should be drawn normally
+    # savefig should draw it
     with patch.object(line, 'draw') as mock_draw:
-        fig.draw(renderer)
-        mock_draw.assert_called_once()
-
-    # 2. Add to overlay - artist should now be skipped in standard draw
-    canvas._overlay_manager.add_artist(line)
-    with patch.object(line, 'draw') as mock_draw:
-        fig.draw(renderer)
-        mock_draw.assert_not_called()
-
-
-@pytest.mark.xfail(reason="Native backend draw loops not yet implemented for overlays")
-def test_overlay_manager_native_draw_execution():
-    from matplotlib.lines import Line2D
-    from unittest.mock import patch
-    from matplotlib.backends.backend_agg import FigureCanvasAgg
-    import matplotlib.pyplot as plt
-
-    class MockNativeCanvas(FigureCanvasAgg):
-        supports_overlay = True
-
-        def draw_overlay(self):
-            # not implemented to actually draw the artists
-            pass
-
-    fig, ax = plt.subplots()
-    canvas = MockNativeCanvas(fig)
-    line = Line2D([0, 1], [0, 1])
-    ax.add_line(line)
-
-    canvas._overlay_manager.add_artist(line)
-
-    # 3. Draw in overlay - artist should be drawn
-    with patch.object(line, 'draw') as mock_draw:
-        canvas.draw_overlay()
+        fig.savefig(io.BytesIO())
         mock_draw.assert_called_once()

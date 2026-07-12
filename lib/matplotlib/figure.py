@@ -159,7 +159,8 @@ class FigureBase(Artist):
 
         artists.remove(self.patch)
         artists = sorted(
-            (artist for artist in artists if not artist.get_animated()),
+            (artist for artist in artists if not artist.get_animated()
+             and not (artist.get_in_overlay() and self.figure.canvas.supports_overlay)),
             key=lambda artist: artist.get_zorder())
         for ax in self._localaxes:
             locator = ax.get_axes_locator()
@@ -3259,8 +3260,6 @@ None}, default: None
         if toolbar is not None:
             toolbar.update()
 
-        if hasattr(self.canvas, '_overlay_manager'):
-            self.canvas._overlay_manager.clear()
 
     @_finalize_rasterization
     @allow_rasterization

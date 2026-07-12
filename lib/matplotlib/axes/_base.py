@@ -3330,7 +3330,9 @@ class _AxesBase(martist.Artist):
         if not self.get_figure(root=True).canvas.is_saving():
             artists = [
                 a for a in artists
-                if not a.get_animated()]
+                if not a.get_animated()
+                and not (a.get_in_overlay()
+                         and self.get_figure(root=True).canvas.supports_overlay)]
         artists = sorted(artists, key=attrgetter('zorder'))
 
         # rasterize artists with negative zorder
