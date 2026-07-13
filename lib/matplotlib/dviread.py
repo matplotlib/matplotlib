@@ -1265,15 +1265,20 @@ class _LuatexKpsewhich:
                  **os.environ})
 
     def search(self, filename):
-        if self._proc.poll() is not None:  # Dead, restart it.
+        # Searches for a file in the latex tree by communicating with a luatex
+        # instance. Returns:
+        #   - None: luatex is unusable (died, or the pipe broke);
+        #   - "": luatex is alive and answered, but the file doesn't exist;
+        #   - anything else: the path of the found file
+        if self._proc.poll() is not None:  # luatex instance is dead, restart it.
             self._proc = self._new_proc()
         try:
             self._proc.stdin.write(os.fsencode(filename) + b"\n")
             self._proc.stdin.flush()
             out = self._proc.stdout.readline().rstrip()
-        except OSError:  # luatex started but is now unusable.
+        except OSError:  # Pipe broke mid-communication: luatex is unusable.
             return None
-        if out == b"":  # Empty read: luatex died; unusable.
+        if out == b"":  # Empty read (EOF): luatex died; unusable.
             return None
         # "nil" => file missing but luatex works; return "" (not None).
         return "" if out == b"nil" else os.fsdecode(out)
