@@ -1142,13 +1142,7 @@ Supported properties are
             self.pchanged()
 
     def get_in_overlay(self):
-        """
-        Return whether the artist is intended to be drawn in the overlay layer.
-
-        Returns
-        -------
-        bool
-        """
+        """Return whether the artist is intended to be drawn in the overlay layer."""
         return self._in_overlay
 
     def set_in_overlay(self, in_overlay):
