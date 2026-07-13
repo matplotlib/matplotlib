@@ -2060,7 +2060,9 @@ class FigureCanvasBase:
             The size of the figure, in points or pixels, depending on the
             backend.
         """
-        return tuple(int(size / (1 if physical else self.device_pixel_ratio))
+        # Due to floating-point precision, round up width or height if either is very
+        # close to the next pixel
+        return tuple(int(size / (1 if physical else self.device_pixel_ratio) + 1e-8)
                      for size in self.figure.bbox.max)
 
     @classmethod
