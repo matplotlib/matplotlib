@@ -1144,6 +1144,10 @@ Supported properties are
     def get_in_overlay(self):
         """
         Return whether the artist is intended to be drawn in the overlay layer.
+
+        Returns
+        -------
+        bool
         """
         return self._in_overlay
 
@@ -1157,6 +1161,7 @@ Supported properties are
         Parameters
         ----------
         in_overlay : bool
+            Whether this artist should be drawn in the overlay layer.
         """
         if self._in_overlay != in_overlay:
             self._in_overlay = in_overlay
