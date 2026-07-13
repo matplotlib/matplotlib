@@ -119,7 +119,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
             x, y = event.x, event.y
         x = x * self.device_pixel_ratio
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - y * self.device_pixel_ratio
+        y = self.get_width_height(physical=True)[1] - y * self.device_pixel_ratio
         return x, y
 
     def scroll_event(self, widget, event):
