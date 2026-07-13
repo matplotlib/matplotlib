@@ -224,24 +224,24 @@ class UniformTriRefiner(TriRefiner):
         # Each edge belongs to 1 triangle (if border edge) or is shared by 2
         # masked_triangles (interior edge).
         # We first build 2 * ntri arrays of edge starting nodes (edge_elems,
-        # edge_apexes); we then extract only the masters to avoid overlaps.
-        # The so-called 'master' is the triangle with biggest index
-        # The 'slave' is the triangle with lower index
+        # edge_apexes); we then extract only the majors to avoid overlaps.
+        # The so-called 'major' is the triangle with biggest index
+        # The 'minor' is the triangle with lower index
         # (can be -1 if border edge)
-        # For slave and master we will identify the apex pointing to the edge
+        # For minor and major we will identify the apex pointing to the edge
         # start
         edge_elems = np.tile(np.arange(ntri, dtype=np.int32), 3)
         edge_apexes = np.repeat(np.arange(3, dtype=np.int32), ntri)
         edge_neighbors = neighbors[edge_elems, edge_apexes]
-        mask_masters = (edge_elems > edge_neighbors)
+        mask_majors = (edge_elems > edge_neighbors)
 
-        # Identifying the "masters" and adding to refi_x, refi_y vec
-        masters = edge_elems[mask_masters]
-        apex_masters = edge_apexes[mask_masters]
-        x_add = (x[triangles[masters, apex_masters]] +
-                 x[triangles[masters, (apex_masters+1) % 3]]) * 0.5
-        y_add = (y[triangles[masters, apex_masters]] +
-                 y[triangles[masters, (apex_masters+1) % 3]]) * 0.5
+        # Identifying the "majors" and adding to refi_x, refi_y vec
+        majors = edge_elems[mask_majors]
+        apex_majors = edge_apexes[mask_majors]
+        x_add = (x[triangles[majors, apex_majors]] +
+                 x[triangles[majors, (apex_majors+1) % 3]]) * 0.5
+        y_add = (y[triangles[majors, apex_majors]] +
+                 y[triangles[majors, (apex_majors+1) % 3]]) * 0.5
         refi_x[npts:] = x_add
         refi_y[npts:] = y_add
 
@@ -253,33 +253,33 @@ class UniformTriRefiner(TriRefiner):
 
         # What is the index in refi_x, refi_y of point at middle of apex iapex
         #  of elem ielem ?
-        # If ielem is the apex master: simple count, given the way refi_x was
+        # If ielem is the apex major: simple count, given the way refi_x was
         #  built.
-        # If ielem is the apex slave: yet we do not know; but we will soon
+        # If ielem is the apex minor: yet we do not know; but we will soon
         # using the neighbors table.
         new_pt_midside = np.empty([ntri, 3], dtype=np.int32)
         cum_sum = npts
         for imid in range(3):
-            mask_st_loc = (imid == apex_masters)
-            n_masters_loc = np.sum(mask_st_loc)
-            elem_masters_loc = masters[mask_st_loc]
-            new_pt_midside[:, imid][elem_masters_loc] = np.arange(
-                n_masters_loc, dtype=np.int32) + cum_sum
-            cum_sum += n_masters_loc
+            mask_st_loc = (imid == apex_majors)
+            n_majors_loc = np.sum(mask_st_loc)
+            elem_majors_loc = majors[mask_st_loc]
+            new_pt_midside[:, imid][elem_majors_loc] = np.arange(
+                n_majors_loc, dtype=np.int32) + cum_sum
+            cum_sum += n_majors_loc
 
-        # Now dealing with slave elems.
-        # for each slave element we identify the master and then the inode
-        # once slave_masters is identified, slave_masters_apex is such that:
-        # neighbors[slaves_masters, slave_masters_apex] == slaves
-        mask_slaves = np.logical_not(mask_masters)
-        slaves = edge_elems[mask_slaves]
-        slaves_masters = edge_neighbors[mask_slaves]
-        diff_table = np.abs(neighbors[slaves_masters, :] -
-                            np.outer(slaves, np.ones(3, dtype=np.int32)))
-        slave_masters_apex = np.argmin(diff_table, axis=1)
-        slaves_apex = edge_apexes[mask_slaves]
-        new_pt_midside[slaves, slaves_apex] = new_pt_midside[
-            slaves_masters, slave_masters_apex]
+        # Now dealing with minor elems.
+        # for each minor element we identify the major and then the inode
+        # once minors_majors is identified, minors_majors_apex is such that:
+        # neighbors[minors_majors, minors_majors_apex] == minors
+        mask_minors = np.logical_not(mask_majors)
+        minors = edge_elems[mask_minors]
+        minors_majors = edge_neighbors[mask_minors]
+        diff_table = np.abs(neighbors[minors_majors, :] -
+                            np.outer(minors, np.ones(3, dtype=np.int32)))
+        minors_majors_apex = np.argmin(diff_table, axis=1)
+        minors_apex = edge_apexes[mask_minors]
+        new_pt_midside[minors, minors_apex] = new_pt_midside[
+            minors_majors, minors_majors_apex]
 
         # Builds the 4 child masked_triangles
         child_triangles = np.empty([ntri*4, 3], dtype=np.int32)
