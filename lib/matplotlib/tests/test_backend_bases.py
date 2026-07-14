@@ -626,6 +626,7 @@ def test_overlay_draw_filtering_and_stale():
     # 1. Overlay artist is skipped in standard draw
     with patch.object(line, 'draw') as mock_draw:
         fig.draw(canvas.get_renderer())
+        assert line.stale is False
         mock_draw.assert_not_called()
 
     # 2. Stale flag does not propagate to canvas

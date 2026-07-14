@@ -337,7 +337,8 @@ Supported properties are
         if self.get_in_overlay():
             fig = self.get_figure(root=False)
             if fig is not None and getattr(fig.canvas, 'supports_overlay', False):
-                fig.canvas.draw_overlay()
+                if val:
+                    fig.canvas.draw_overlay()
                 return   # overlay path redraws; skip propagation
             # else: backend can't honor overlay, fall through — let normal stale work
 
