@@ -676,19 +676,78 @@ def test_overlay_fallback_stale_propagates():
     assert fig.stale is True
 
 
-def test_overlay_and_animated_together():
-    """animated=True takes precedence — stale never propagates, blit draws"""
+
+
+def test_animated_and_overlay_independence():
+    """
+    Proves animated=True and in_overlay=True are completely independent code
+    paths by isolating each flag and verifying it works on its own.
+    """
     from matplotlib.lines import Line2D
     from unittest.mock import patch
+
     fig, ax = plt.subplots()
     canvas = fig.canvas
     canvas.supports_overlay = True
 
-    line = Line2D([0, 1], [0, 1], animated=True, in_overlay=True)
+    line = Line2D([0, 1], [0, 1])
     ax.add_line(line)
+    fig.draw(canvas.get_renderer())
 
-    fig.draw(fig.canvas.get_renderer())  # clear stale
+    # --- Phase A: Only animated --- overlay is off, animated blocks stale alone
+    line.set_animated(True)
+    line.set_in_overlay(False)
+    fig.draw(canvas.get_renderer())
 
-    with patch.object(fig.canvas, 'draw_idle') as mock_draw_idle:
-        line.set_color('red')
-        mock_draw_idle.assert_not_called()  # animated blocks first
+    line.set_color('red')
+    assert ax.stale is False   # animated alone blocks stale propagation
+
+    with patch.object(line, 'draw') as mock:
+        fig.draw(canvas.get_renderer())
+        mock.assert_not_called()  # animated alone excludes from draw
+
+    # --- Phase B: Only overlay --- animated is off, overlay blocks stale alone
+    line.set_animated(False)
+    line.set_in_overlay(True)
+    fig.draw(canvas.get_renderer())
+
+    with patch.object(canvas, 'draw_overlay') as mock_overlay:
+        line.set_color('blue')
+        mock_overlay.assert_called()   # overlay path IS active
+    assert ax.stale is False           # overlay blocked stale propagation
+
+    with patch.object(line, 'draw') as mock:
+        fig.draw(canvas.get_renderer())
+        mock.assert_not_called()  # overlay alone excludes from draw
+
+    # --- Phase C: Both flags on --- animated catches BEFORE overlay
+    line.set_animated(True)
+    line.set_in_overlay(True)
+    fig.draw(canvas.get_renderer())
+
+    with patch.object(canvas, 'draw_overlay') as mock_overlay:
+        line.set_color('green')
+        mock_overlay.assert_not_called()  # animated returned first, overlay unreached
+    assert ax.stale is False
+
+    with patch.object(line, 'draw') as mock:
+        fig.draw(canvas.get_renderer())
+        mock.assert_not_called()  # excluded from normal draw
+
+    # But blitting (the animation path) still works — it bypasses all filters
+    with patch.object(line, 'draw') as mock:
+        ax.draw_artist(line)       # this is what FuncAnimation(blit=True) calls
+        mock.assert_called_once()  # animation successfully draws the artist
+
+    # --- Phase D: Both flags off --- normal behavior fully restored
+    line.set_animated(False)
+    line.set_in_overlay(False)
+    fig.draw(canvas.get_renderer())
+
+    line.set_color('orange')
+    assert ax.stale is True    # stale propagates (nothing blocks it)
+    assert fig.stale is True
+
+    with patch.object(line, 'draw') as mock:
+        fig.draw(canvas.get_renderer())
+        mock.assert_called()  # included in normal draw

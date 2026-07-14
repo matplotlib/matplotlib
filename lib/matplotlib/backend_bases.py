@@ -1998,11 +1998,11 @@ class FigureCanvasBase:
         """
         Draw the overlay layer without triggering a full figure redraw.
 
-        By default, this safely falls back to `draw_idle()`. GUI backends that
-        support native overlay compositing should
-        override this method for native speed.
+        By default, this is a no-op. GUI backends that support native overlay
+        compositing should override this method to redraw only the overlay
+        layer.
         """
-        self.draw_idle()
+        pass
 
     @property
     def device_pixel_ratio(self):
