@@ -645,9 +645,50 @@ def test_overlay_artist_included_in_save():
     canvas.supports_overlay = True
 
     line = Line2D([0, 1], [0, 1], in_overlay=True)
-    ax.add_line(line)
+    fig.add_artist(line)
 
     # savefig should draw it
     with patch.object(line, 'draw') as mock_draw:
         fig.savefig(io.BytesIO())
         mock_draw.assert_called_once()
+
+
+def test_overlay_fallback_stale_propagates():
+    """When backend doesn't support overlay, in_overlay=True falls back to
+    normal draw AND stale propagates normally.
+    """
+    from matplotlib.lines import Line2D
+    fig, ax = plt.subplots()
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    # Default: supports_overlay = False (no overlay support)
+    # So in_overlay=True falls back to normal behavior
+    line.set_in_overlay(True)
+
+    fig.draw(fig.canvas.get_renderer())  # clears fig.stale, ax.stale, line.stale
+
+    line.set_color('red')
+    # When supports_overlay=False
+    # the stale setter — stale propagates: line -> axes -> figure
+    assert line.stale is True
+    assert ax.stale is True
+    assert fig.stale is True
+
+
+def test_overlay_and_animated_together():
+    """animated=True takes precedence — stale never propagates, blit draws"""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    canvas.supports_overlay = True
+
+    line = Line2D([0, 1], [0, 1], animated=True, in_overlay=True)
+    ax.add_line(line)
+
+    fig.draw(fig.canvas.get_renderer())  # clear stale
+
+    with patch.object(fig.canvas, 'draw_idle') as mock_draw_idle:
+        line.set_color('red')
+        mock_draw_idle.assert_not_called()  # animated blocks first
