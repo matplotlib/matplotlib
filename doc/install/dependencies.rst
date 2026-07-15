@@ -87,11 +87,12 @@ and the capabilities they provide.
 .. _cairocffi: https://doc.courtbouillon.org/cairocffi/stable/
 .. _Tornado: https://pypi.org/project/tornado/
 .. _ipykernel: https://pypi.org/project/ipykernel/
+.. _ffmpeg: https://www.ffmpeg.org/
 
 Animations
 ^^^^^^^^^^
 
-* `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
+* ffmpeg_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs.
 
@@ -474,10 +475,11 @@ The following packages must also be installed:
 Optional
 ^^^^^^^^
 
-The documentation can be built without Inkscape and optipng, but the build
-process will raise various warnings.
+The documentation can be built without these packages, but the build
+process will raise various warnings:
 
 * Inkscape_
 * `optipng <http://optipng.sourceforge.net>`_
+* ffmpeg_
 * the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"
