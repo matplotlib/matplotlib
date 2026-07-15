@@ -235,55 +235,32 @@ namespace agg
             return max_rgb() - min_rgb();
         }
 
+        // Helper method to get pointers to the min/mid/max color channels in that order
+        std::array<double*, 3> get_min_mid_max_pointers()
+        {
+            std::array<double*, 3> out = {&r, &g, &b};
+
+            // Do a bubble sort on the three pointers based on the values
+            if (*out[0] > *out[1])
+            {
+                std::swap(out[0], out[1]);
+            }
+            if (*out[1] > *out[2])
+            {
+                std::swap(out[1], out[2]);
+
+                // We need to perform the third check only if the second swap happened
+                if (*out[0] > *out[1])
+                {
+                    std::swap(out[0], out[1]);
+                }
+            }
+            return out;
+        }
+
         rgba& set_saturation(double S)
         {
-            double *cmin, *cmid, *cmax;
-            if (r <= g)
-            {
-                if (g <= b)
-                {
-                    cmin = &r;
-                    cmid = &g;
-                    cmax = &b;
-                }
-                else
-                {
-                    cmax = &g;
-                    if (r <= b)
-                    {
-                        cmin = &r;
-                        cmid = &b;
-                    }
-                    else
-                    {
-                        cmin = &b;
-                        cmid = &r;
-                    }
-                }
-            }
-            else
-            {
-                if (r <= b)
-                {
-                    cmin = &g;
-                    cmid = &r;
-                    cmax = &b;
-                }
-                else
-                {
-                    cmax = &r;
-                    if (g <= b)
-                    {
-                        cmin = &g;
-                        cmid = &b;
-                    }
-                    else
-                    {
-                        cmin = &b;
-                        cmid = &g;
-                    }
-                }
-            }
+            auto [cmin, cmid, cmax] = get_min_mid_max_pointers();
             if (*cmax > *cmin)
             {
                 *cmid = ((*cmid - *cmin) * S) / (*cmax - *cmin);
