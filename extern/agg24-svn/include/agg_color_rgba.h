@@ -180,6 +180,9 @@ namespace agg
 
 #ifdef MPL_ADD_AGG_HSL_BLEND_MODES
         // The following functions are used for the non-separable blend modes
+        // They are near-literal implementations of pseudocode provided in the
+        // PDF specification (e.g., pages 326-327 of the PDF 1.7 specification,
+        // https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf)
 
         double max_rgb() const
         {

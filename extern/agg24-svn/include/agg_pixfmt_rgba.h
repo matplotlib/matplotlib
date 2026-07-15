@@ -1161,6 +1161,9 @@ namespace agg
 
 #ifdef MPL_ADD_AGG_HSL_BLEND_MODES
     // These four blend modes are implemented per the PDF specification
+    // (e.g., pages 327-328 of Section 11.3.5 of the PDF 1.7 specification,
+    // which is formally ISO 32000-1:2008, with a free version available at
+    // https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf)
 
     //=====================================================comp_op_rgba_hsl_hue
     template<class ColorT, class Order>

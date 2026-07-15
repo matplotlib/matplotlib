@@ -545,6 +545,10 @@ class Stream:
             self.compressobj = zlib.compressobj(
                 mpl.rcParams['pdf.compression'])
         if self.len is None:
+            # We cannot call recordXref() at this point because the main file may get
+            # written to during the writing of the memory buffer, so the file pointer
+            # for the main file may not yet be at the position where the memory buffer
+            # will be inserted
             self.file = BytesIO()
         else:
             self.pdfFile.recordXref(self.id)
@@ -567,6 +571,7 @@ class Stream:
 
         self._flush()
         if self.len is None:
+            # The memory buffer is complete, so it is now safe to call recordXref()
             self.pdfFile.recordXref(self.id)
             contents = self.file.getvalue()
             self.len = len(contents)

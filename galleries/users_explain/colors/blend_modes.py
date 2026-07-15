@@ -5,17 +5,17 @@
 Blending and compositing artists
 ================================
 
-When an artist is drawn on top off existing elements, the default behavior is
-for the artist's colors to be blended with the underlying colors with
-transparency according to the *alpha* value of the color or the artist.  An
-*alpha* value of 1 normally means that the underlying colors are completely
-hidden.
+When an artist is drawn on top of existing elements, the default behavior is for
+the artist's colors to be blended with the colors underneath the artist using
+transparency according to the *alpha* value of the artist's colors or the
+artist's ``alpha`` property.  An *alpha* value of 1 normally means that the
+underlying colors are completely hidden.
 
-An example of an alternative blending behavior is the
+An example alternative to normal alpha blending is the
 `"multiply" blend mode <https://en.wikipedia.org/wiki/Blend_modes#Multiply>`__,
-where the RGB channel values (as 0 to 1) of the artist colors and the underlying
-colors are multiplied together.  For this blend mode, the underlying colors can
-still affect the final color even when the *alpha* value is 1.
+where the RGB channel values (in the range [0, 1]) of the artist colors and the
+underlying colors are multiplied together.  For this blend mode, the underlying
+colors can still affect the final color even when the *alpha* value is 1.
 
 """
 
@@ -57,9 +57,10 @@ ax.axis('off')
 #
 # Below is a gallery illustrating the effect of each ``blend_mode`` option for a
 # variety of artists.  Although each panel in the gallery has all of its artists
-# using the same blend mode, they can have different blend modes, as desired.
-# Be aware that the background of the axes and the background of the figure are
-# artists as well, so their respective colors may affect the blending result.
+# using the same blend mode, artists in the same axes can have different blend
+# modes from each other.  Be aware that the background of the axes and the
+# background of the figure are artists as well, so their respective colors may
+# affect the blending result.
 #
 # Backends using the Agg renderer (the default) or the Cairo renderer natively
 # support all of these ``blend_mode`` options.  The vector backends do not

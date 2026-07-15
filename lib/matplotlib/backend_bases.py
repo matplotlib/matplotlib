@@ -200,9 +200,9 @@ class RendererBase:
           ignoring any modifications underneath by preceding artists in this group.
         * If the knockout group is also isolated, the initial backdrop is a fully
           transparent buffer.
-        * If the knockout group is instead non-isolated, the initial backdrop is the
-          primary buffer.  This is supported by the PDF and PGF renderers, but not by
-          the Agg and Cairo renderers.
+        * If the knockout group is not isolated, the initial backdrop is the primary
+          buffer.  This is supported by the PDF and PGF renderers, but not by the Agg
+          and Cairo renderers.
 
         Parameters
         ----------
@@ -210,11 +210,11 @@ class RendererBase:
             If ``None``, this group is a non-isolated group.  Otherwise, this group is
             an isolated group that will be rendered into the primary buffer using this
             blend mode.
-        alpha : float
+        alpha : float, default: 1
             The scalar alpha to additionally apply to the isolated buffer when blending
             into the primary buffer.
             Defaults to 1, which means no fading of the isolated buffer.
-        knockout : bool
+        knockout : bool, default: False
             Specifies whether this group is a knockout group.
             Defaults to ``False``, which means this group is a non-knockout group.
         """
