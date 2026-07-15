@@ -144,6 +144,9 @@ def test_blend_modes_cairo():
 
 @image_comparison(['blend_modes_svg.svg'], style='mpl20')
 def test_blend_modes_svg():
+    # The bottom row of six Porter-Duff compositing operators is not supported, so will
+    # be rendered like the "normal" panel in the upper left
+
     # Disable the Gouraud component because its implementation increases the image file
     # size by an order of magnitude, plus the implementation is actually not supported
     # by typical SVG viewers
@@ -152,6 +155,9 @@ def test_blend_modes_svg():
 
 @image_comparison(['blend_modes_pdf.pdf'], style='mpl20')
 def test_blend_modes_pdf():
+    # The bottom row of six Porter-Duff compositing operators is not supported, so will
+    # be rendered like the "normal" panel in the upper left
+
     plot_blend_mode_gallery()
 
 
@@ -164,28 +170,43 @@ def test_blend_modes_pdf_rasterized():
 @pytest.mark.backend('pgf')
 @image_comparison(['blend_modes_pgf.pdf'], style='mpl20')
 def test_blend_modes_pgf():
+    # The bottom row of six Porter-Duff compositing operators is not supported, so will
+    # be rendered like the "normal" panel in the upper left
+
     # Disable the Gouraud component because it is not supported by the PGF backend
     plot_blend_mode_gallery(gouraud=False)
 
 
 @image_comparison(['blend_groups_agg.png'], style='mpl20')
 def test_blend_groups_agg():
+    # The top-right panel (knockout but not isolated) is not supported, so will be
+    # rendered like the top-left panel (neither knockout nor isolated)
+
     plot_blend_group_types()
 
 
 @pytest.mark.backend('cairo')
 @image_comparison(['blend_groups_cairo.png'], style='mpl20')
 def test_blend_groups_cairo():
+    # The top-right panel (knockout but not isolated) is not supported, so will be
+    # rendered like the top-left panel (neither knockout nor isolated)
+
     plot_blend_group_types()
 
 
 @image_comparison(['blend_groups_svg.svg'], style='mpl20')
 def test_blend_groups_svg():
+    # The right-side panels (knockout versions) are not supported, so will be rendered
+    # like the corresponding left-side panels (non-knockout versions)
+
     plot_blend_group_types()
 
 
 @image_comparison(['blend_groups_svg_rasterized.svg'], style='mpl20')
 def test_blend_groups_svg_rasterized():
+    # The top-right panel (knockout but not isolated) is not supported, so will be
+    # rendered like the top-left panel (neither knockout nor isolated)
+
     plot_blend_group_types(rasterize=True)
 
 

@@ -104,7 +104,7 @@ foreground color with the background color according to the formula
 
    RGB_{result} = RGB_{background} * (1 - \\alpha) + RGB_{foreground} * \\alpha
 
-(See :ref:`blend-modes` for alternative blending options.) The following plot
+See :ref:`blend-modes` for alternative blending options.  The following plot
 illustrates the effect of transparency.
 """
 

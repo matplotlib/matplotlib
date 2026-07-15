@@ -9,18 +9,21 @@ An advanced technique of blending artists (see :ref:`blend-modes`) is to use a
 blend group, also known as a transparency group.  Blend groups can be isolated,
 knockout, or both:
 
-* An isolated group has the artists within the group rendered into a separate
-  buffer, and the result is subsequently blended into the primary buffer.
-* A knockout group has the artists within the group blended onto the initial
+* An **isolated** group has the artists within the group rendered into a
+  separate buffer, and the result is subsequently blended into the primary
+  buffer.
+* A **knockout** group has the artists within the group blended onto the initial
   backdrop, with each successive artist ignoring any modifications underneath it
   by preceding artists in the group.
 
 The methods to open and close groups are found on the backend renderer, but
 user code does not typically directly access the renderer.  The convenience
 class below (``ArtistGroup``) makes it straightforward to form a blend group
-from a list of artists.  Specifying ``group_blend_mode`` to something other than
-``None`` makes the blend group an isolated group.  Specifying ``knockout=True``
-makes the blend group a knockout group.
+from a list of artists.  Setting ``group_blend_mode`` to a blend mode (see
+:ref:`blend-modes` for the allowed options) makes the blend group an isolated
+group using that blend mode, whereas specifying ``group_blend_mode=None`` makes
+the blend group a non-isolated group.  Specifying ``knockout=True`` makes the
+blend group a knockout group.
 
 The first example below shows:
 
@@ -130,10 +133,10 @@ axs[2].set_title('isolated and knockout')
 # support non-isolated knockout groups.  If all of the artists in the group use
 # the same blend mode, an alternative approach that produces the desired result
 # is to use a group that is both isolated and knockout, with the group blend
-# mode set to that common blend mode.  (This workaround can also be used to
+# mode set to that common blend mode.  This workaround can also be used to
 # achieve non-isolated knockout groups for the SVG and PS backends if
-# rasterization is enabled.)  This workaround allows us to show the result of
-# a non-isolated knockout group in the HTML documentation.
+# rasterization is enabled.  This workaround allows us to show the result of a
+# non-isolated knockout group in the HTML documentation.
 
 
 fig, ax = plt.subplots(figsize=(3, 3), layout='constrained')
