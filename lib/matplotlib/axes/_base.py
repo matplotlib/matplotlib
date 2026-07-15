@@ -2582,18 +2582,9 @@ class _AxesBase(martist.Artist):
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
-        p = patch.get_path()
-        # Get all vertices on the path
-        # Loop through each segment to get extrema for Bezier curve sections
-        vertices = []
-        for curve, code in p.iter_bezier(simplify=False):
-            # Get distance along the curve of any extrema
-            _, dzeros = curve.axis_aligned_extrema()
-            # Calculate vertices of start, end and any extrema in between
-            vertices.append(curve([0, *dzeros, 1]))
 
-        if len(vertices):
-            vertices = np.vstack(vertices)
+        p = patch.get_path()
+        extent_vertices = p._extent_vertices(simplify=False)
 
         patch_trf = patch.get_transform()
         updatex, updatey = patch_trf.contains_branch_separately(self.transData)
@@ -2606,7 +2597,7 @@ class _AxesBase(martist.Artist):
             if updatey and patch_trf == self.get_xaxis_transform():
                 updatey = False
         trf_to_data = patch_trf - self.transData
-        xys = trf_to_data.transform(vertices)
+        xys = trf_to_data.transform(extent_vertices)
         self.update_datalim(xys, updatex=updatex, updatey=updatey)
 
     def _update_collection_limits(self, collection):
