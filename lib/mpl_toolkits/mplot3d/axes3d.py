@@ -340,10 +340,7 @@ class Axes3D(Axes):
 
         self.set_adjustable(adjustable)
 
-        if (
-            self._aspect == "auto"
-            and aspect in ('equal', 'equalxy', 'equalxz', 'equalyz')
-        ):
+        if self._aspect == 'auto' and aspect != 'auto':
             self._auto_aspect_restore_limits = list(self.get_w_lims())
 
         self._aspect = aspect
