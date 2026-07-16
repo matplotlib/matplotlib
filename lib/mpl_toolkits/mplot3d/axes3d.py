@@ -360,9 +360,7 @@ class Axes3D(Axes):
                     if limits[4] is not None:
                         self.set_zlim3d(limits[4], limits[5], auto=True)
                     del self._auto_aspect_restore_limits
-            return
-
-        if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
+        else:
             ax_indices = self._equal_aspect_axis_indices(aspect)
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
