@@ -6,15 +6,8 @@ Font indexing
 This example shows how the font tables relate to one another.
 """
 # sphinx_gallery_thumbnail_path = "_static/font_indexing.png"
-
-""""
-Thumbnail description
----------------------
-This example does not produce a matplotlib figure. The thumbnail
-was generated separately using a custom matplotlib script that
-creates a glyph table (character → glyph index mapping) and a
-kerning comparison showing "AV" unkerned vs kerned.
-"""
+# Recreate the thumbnail with:
+# python doc/generate_gallery_thumbnails.py font_indexing
 
 import os
 
