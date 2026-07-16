@@ -56,10 +56,15 @@ Using Matplotlib
         :padding: 2
 
         .. toctree::
-            :maxdepth: 2
+            :maxdepth: 1
             :includehidden:
 
             explain/configuration
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
             explain/customizing
 
     .. grid-item-card::
