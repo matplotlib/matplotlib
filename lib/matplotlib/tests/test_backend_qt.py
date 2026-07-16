@@ -386,3 +386,47 @@ def test_fig_sigint_override():
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})
+
+
+@pytest.mark.xfail(reason="TDD: Qt overlay not yet implemented")
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_canvas_supports_overlay():
+    fig, ax = plt.subplots()
+    assert fig.canvas.supports_overlay is True
+
+
+@pytest.mark.xfail(reason="TDD: Qt overlay not yet implemented")
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_draw_overlay_draws_only_overlay_artists():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    normal_line = Line2D([0, 1], [0, 1], color='blue')
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(normal_line)
+    ax.add_line(overlay_line)
+    fig.draw(fig.canvas.get_renderer())
+
+    with patch.object(normal_line, 'draw') as mock_normal, \
+         patch.object(overlay_line, 'draw') as mock_overlay:
+        fig.canvas.draw_overlay()
+        mock_overlay.assert_called_once()
+        mock_normal.assert_not_called()
+
+
+@pytest.mark.xfail(reason="TDD: Qt overlay not yet implemented")
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_draw_overlay_clears_stale():
+    from matplotlib.lines import Line2D
+    fig, ax = plt.subplots()
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+    fig.draw(fig.canvas.get_renderer())
+
+    overlay_line.set_color('blue')
+    assert overlay_line.stale is True
+    fig.canvas.draw_overlay()
+    assert overlay_line.stale is False
