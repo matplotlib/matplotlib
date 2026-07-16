@@ -2002,7 +2002,7 @@ class FigureCanvasBase:
         compositing should override this method to redraw only the overlay
         layer.
         """
-        pass
+        self.draw_idle()
 
     @property
     def device_pixel_ratio(self):
