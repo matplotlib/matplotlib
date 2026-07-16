@@ -394,7 +394,7 @@ class RendererAgg(RendererBase):
         """
         Start filtering. It simply creates a new canvas (the old one is saved).
         """
-        self._group_states.append(("filter", self._renderer, None, None))
+        self._group_states.append(("filter", self._renderer, None, None, None))
         self._renderer = _RendererAgg(int(self.width), int(self.height),
                                       self.dpi)
         self._update_methods()
@@ -422,7 +422,7 @@ class RendererAgg(RendererBase):
         slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
         cropped_img = orig_img[slice_y, slice_x]
 
-        group_type, self._renderer, group_blend_mode, alpha = self._group_states.pop()
+        group_type, self._renderer, _, _, _ = self._group_states.pop()
         if group_type != "filter":
             raise RuntimeError("Cannot stop filtering because it includes a blend "
                                "group that has not been closed.")
