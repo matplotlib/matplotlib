@@ -1,3 +1,4 @@
+from io import StringIO
 from operator import attrgetter
 
 import numpy as np
@@ -5,6 +6,7 @@ import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.artist import Artist
+from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.patches import Circle, Rectangle
 from matplotlib.testing._markers import needs_pgf_pdflatex
 from matplotlib.testing.decorators import image_comparison
@@ -220,3 +222,39 @@ def test_blend_groups_pdf():
 @image_comparison(['blend_groups_pgf.pdf'], style='mpl20')
 def test_blend_groups_pgf():
     plot_blend_group_types()
+
+
+@pytest.mark.backend('Agg')
+def test_interleaved_groups_agg():
+    fig = plt.figure()
+    fig.canvas.draw()
+
+    # Try to stop an overarching filter without closing a contained blend group
+    fig.canvas.renderer.start_filter()
+    fig.canvas.renderer.open_blend_group(None)
+    with pytest.raises(RuntimeError, match="Cannot stop filtering"):
+       fig.canvas.renderer.stop_filter(lambda image, dpi: (image, 0, 0))
+
+    # Try to close an overarching blend group without stopping a contained filter
+    fig.canvas.renderer.open_blend_group(None)
+    fig.canvas.renderer.start_filter()
+    with pytest.raises(RuntimeError, match="Cannot close the blend group"):
+        fig.canvas.renderer.close_blend_group()
+
+
+def test_interleaved_groups_svg():
+    # The SVG renderer is normally instantiated on the fly just for writing an SVG, so
+    # for this test we need to manually instantiate a renderer instead of using a figure
+    renderer = RendererSVG(1, 1, StringIO())
+
+    # Try to close an overarching group element without closing a contained blend group
+    renderer.open_group("bleh")
+    renderer.open_blend_group(None)
+    with pytest.raises(RuntimeError, match="Cannot close group element 'bleh'"):
+       renderer.close_group("bleh")
+
+    # Try to close an overarching blend group without closing a contained group element
+    renderer.open_blend_group(None)
+    renderer.open_group("bleh")
+    with pytest.raises(RuntimeError, match="Cannot close the blend group"):
+        renderer.close_blend_group()
