@@ -771,13 +771,15 @@ class RendererPgf(RendererBase):
         return points * mpl_pt_to_in * self.dpi
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        # The file handle is not valid during layout computation
+        if self.fh.closed:
+            return  # we can simply return because blending is irrelevant to layout
+
         if blend_mode is not None and blend_mode not in _BLEND_MODES_PDFSPEC:
             _log.warning(f"The '{blend_mode}' blend mode is not supported by the "
                          f"PGF backend. Falling back to the 'normal' blend mode.")
             blend_mode = "normal"
         self._group_blend_modes.append(blend_mode)
-        if self.fh.closed:  # layout computation has a closed file handle
-            return
         if blend_mode is not None:
             _writeln(self.fh, r"\pgfsetblendmode{%s}" % blend_mode)
             _writeln(self.fh, r"\pgfsetfillopacity{%s}" % alpha)
@@ -786,9 +788,11 @@ class RendererPgf(RendererBase):
         _writeln(self.fh, r"\pgftransparencygroup[%s]" % (",".join(options)))
 
     def close_blend_group(self):
+        # The file handle is not valid during layout computation
+        if self.fh.closed:
+            return  # we can simply return because blending is irrelevant to layout
+
         blend_mode = self._group_blend_modes.pop()
-        if self.fh.closed:  # layout computation has a closed file handle
-            return
         _writeln(self.fh, r"\endpgftransparencygroup")
         if blend_mode is not None:
             _writeln(self.fh, r"\pgfsetfillopacity{1}")
