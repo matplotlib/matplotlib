@@ -387,3 +387,10 @@ def test_non_tuple_rgbaface():
     fig.add_subplot(projection="3d").scatter(
         [0, 1, 2], [0, 1, 2], path_effects=[patheffects.Stroke(linewidth=4)])
     fig.canvas.draw()
+
+
+def test_rendered_height_floating_point_precision():
+    fig = plt.figure(figsize=(1, 2.03), dpi=100)
+    assert fig.bbox.height < 203  # due to floating-point precision
+    fig.canvas.draw()
+    assert fig.canvas.buffer_rgba().shape == (203, 100, 4)
