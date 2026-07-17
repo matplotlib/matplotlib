@@ -32,3 +32,10 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.quiver` / `matplotlib.pyplot.quiver`
 #    - `matplotlib.axes.Axes.quiverkey` / `matplotlib.pyplot.quiverkey`
+#
+# .. tags::
+#
+#    component: axes
+#    component: quiver
+#    styling: position
+#    level: beginner
