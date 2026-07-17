@@ -42,11 +42,6 @@ drawn on top of the static artists.
 Not all backends support blitting.  You can check if a given canvas does via
 the `.FigureCanvasBase.supports_blit` property.
 
-.. warning::
-
-   This code does not work with the macosx backend (but does work with other
-   GUI backends on Mac).
-
 Minimal example
 ---------------
 

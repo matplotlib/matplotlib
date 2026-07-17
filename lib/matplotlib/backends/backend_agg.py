@@ -518,7 +518,7 @@ class FigureCanvasAgg(FigureCanvasBase):
             super().draw()
 
     def get_renderer(self):
-        w, h = self.figure.bbox.size
+        w, h = self.get_width_height(physical=True)
         key = w, h, self.figure.dpi
         reuse_renderer = (self._lastKey == key)
         if not reuse_renderer:

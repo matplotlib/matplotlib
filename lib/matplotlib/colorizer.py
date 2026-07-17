@@ -505,7 +505,8 @@ class _ColorizerInterface:
                 delta = np.abs(norm.vmin * .1)
             else:
                 # Midpoints of neighboring color intervals.
-                neighbors = norm.inverse((int(normed * n) + np.array([0, 1])) / n)
+                neighbors = norm.inverse(
+                    (int(float(normed) * n) + np.array([0, 1])) / n)
                 delta = abs(neighbors - data).max()
 
             g_sig_digits = cbook._g_sig_digits(data, delta)

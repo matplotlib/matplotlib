@@ -32,7 +32,7 @@ classifiers=[
 dependencies = [
     "contourpy >= 1.2.1",
     "cycler >= 0.10",
-    "fonttools >= 4.22.0",
+    "fonttools >= 4.28.2",
     "kiwisolver >= 1.3.1",
     "numpy >= 2.0",
     "packaging >= 20.0",
@@ -70,7 +70,7 @@ build = [
     # Should be the same as `[project] dependencies` above.
     "contourpy >= 1.2.1",
     "cycler >= 0.10",
-    "fonttools >= 4.22.0",
+    "fonttools >= 4.28.2",
     "kiwisolver >= 1.3.1",
     "numpy >= 2.0",
     "packaging >= 20.0",
@@ -402,7 +402,6 @@ addopts = [
 ]
 
 [tool.cibuildwheel]
-enable = ["cpython-freethreading"]
 skip = "*-musllinux_aarch64"
 manylinux-x86_64-image = "manylinux2014"
 

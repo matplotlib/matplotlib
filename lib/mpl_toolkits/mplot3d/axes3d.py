@@ -339,9 +339,28 @@ class Axes3D(Axes):
                            aspect=aspect)
 
         self.set_adjustable(adjustable)
+
+        if self._aspect == 'auto' and aspect != 'auto':
+            self._auto_aspect_restore_limits = list(self.get_w_lims())
+
         self._aspect = aspect
 
-        if aspect in ('equal', 'equalxy', 'equalxz', 'equalyz'):
+        if aspect == "auto":
+            if self._adjustable == "box":
+                self.set_box_aspect(None)
+
+            elif self._adjustable == "datalim":
+                if hasattr(self, "_auto_aspect_restore_limits"):
+                    limits = self._auto_aspect_restore_limits
+
+                    if limits[0] is not None:
+                        self.set_xlim3d(limits[0], limits[1], auto=True)
+                    if limits[2] is not None:
+                        self.set_ylim3d(limits[2], limits[3], auto=True)
+                    if limits[4] is not None:
+                        self.set_zlim3d(limits[4], limits[5], auto=True)
+                    del self._auto_aspect_restore_limits
+        else:
             ax_indices = self._equal_aspect_axis_indices(aspect)
 
             view_intervals = np.array([self.xaxis.get_view_interval(),
@@ -871,6 +890,11 @@ class Axes3D(Axes):
             delta = (upper - lower) * view_margin
             lower -= delta
             upper += delta
+
+        if not auto and hasattr(self, '_auto_aspect_restore_limits'):
+            idx = {self.xaxis: 0, self.yaxis: 2, self.zaxis: 4}[axis]
+            self._auto_aspect_restore_limits[idx] = None
+            self._auto_aspect_restore_limits[idx + 1] = None
         return axis._set_lim(lower, upper, emit=emit, auto=auto)
 
     def set_xlim(self, left=None, right=None, *, emit=True, auto=False,
