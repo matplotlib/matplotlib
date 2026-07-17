@@ -1831,6 +1831,19 @@ class Axis(martist.Artist):
                            mpl.rcParams[f'{axis_name}tick.labelsize'])
         return mtext.FontProperties(size=size).get_size_in_points()
 
+    def _get_tick_label_rotation(self):
+        """
+        Return the rotation (in degrees) applied to tick labels on this
+        Axis, as set via `.Axis.set_tick_params(rotation=...)`.
+        """
+        rotation = self._major_tick_kw.get('labelrotation', 0)
+        if isinstance(rotation, (tuple, list)):
+            rotation = rotation[1]
+        try:
+            return float(rotation)
+        except (TypeError, ValueError):
+            return 0.0
+
     def _copy_tick_props(self, src, dest):
         """Copy the properties from *src* tick to *dest* tick."""
         if src is None or dest is None:
@@ -2828,9 +2841,13 @@ class XAxis(Axis):
         ends = mtransforms.Bbox.unit().transformed(
             self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
         length = ends.width * 72
-        # There is a heuristic here that the aspect ratio of tick text
-        # is no more than 3:1
-        size = self._get_tick_label_size('x') * 3
+        # There is a heuristic here that the aspect ratio of horizontal
+        # tick text is no more than 3:1 (width:height); as the label is
+        # rotated towards vertical, its footprint along the x-axis shrinks
+        # towards a single line-height (aspect ratio ~1:1).
+        rotation = np.deg2rad(self._get_tick_label_rotation())
+        aspect = abs(3 * np.cos(rotation)) + abs(np.sin(rotation))
+        size = self._get_tick_label_size('x') * aspect
         if size > 0:
             return int(np.floor(length / size))
         else:
@@ -3058,8 +3075,12 @@ class YAxis(Axis):
         ends = mtransforms.Bbox.unit().transformed(
             self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
         length = ends.height * 72
-        # Having a spacing of at least 2 just looks good.
-        size = self._get_tick_label_size('y') * 2
+        # Having a spacing of at least 2 just looks good, for horizontal
+        # labels; as the label rotates towards vertical, its footprint
+        # along the y-axis grows towards a horizontal-text-like 3:1 ratio.
+        rotation = np.deg2rad(self._get_tick_label_rotation())
+        aspect = abs(2 * np.cos(rotation)) + abs(3 * np.sin(rotation))
+        size = self._get_tick_label_size('y') * aspect
         if size > 0:
             return int(np.floor(length / size))
         else:
