@@ -172,6 +172,58 @@ class RendererBase:
         Only used by the SVG renderer.
         """
 
+    def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
+        """
+        Open a transparency group used for blending.
+
+        This blend group can be an isolated group, a knockout group, both, or neither.
+        See :ref:`blend-groups` for details, and see also :ref:`blend-modes`.
+
+        Isolated groups are supported by the Agg, Cairo, PDF, PGF, and SVG renderers:
+
+        * If ``blend_mode`` is not ``None``, this blend group is an isolated group.
+          Artists within this group are rendered in an separate buffer.  When this group
+          is closed, the isolated buffer is then drawn as an image into the primary
+          buffer using the specified blend mode and scalar alpha.
+        * If ``blend_mode`` is ``None``, this blend group is a non-isolated group.
+          Artists within this group are rendered successively onto the primary buffer,
+          which has the same result as if the artists were not grouped unless this group
+          is a knockout group.
+
+        Knockout groups are supported by the Agg, Cairo, PDF, and PGF renderers:
+
+        * If ``knockout`` is ``False``, the blend group is a non-knockout group.
+          Each successive artist in this group is rendered onto the backdrop as modified
+          by the preceding artists in this group.
+        * If ``knockout`` is ``True``, the blend group is a knockout group.
+          Each successive artist in this group is rendered onto the initial backdrop,
+          ignoring any modifications underneath by preceding artists in this group.
+        * If the knockout group is also isolated, the initial backdrop is a fully
+          transparent buffer.
+        * If the knockout group is not isolated, the initial backdrop is the primary
+          buffer.  This is supported by the PDF and PGF renderers, but not by the Agg
+          and Cairo renderers.
+
+        Parameters
+        ----------
+        blend_mode : str or None
+            If ``None``, this group is a non-isolated group.  Otherwise, this group is
+            an isolated group that will be rendered into the primary buffer using this
+            blend mode.
+        alpha : float, default: 1
+            The scalar alpha to additionally apply to the isolated buffer when blending
+            into the primary buffer.
+            Defaults to 1, which means no fading of the isolated buffer.
+        knockout : bool, default: False
+            Specifies whether this group is a knockout group.
+            Defaults to ``False``, which means this group is a non-knockout group.
+        """
+        raise NotImplementedError
+
+    def close_blend_group(self):
+        """Close the transparency group used for blending."""
+        raise NotImplementedError
+
     def draw_path(self, gc, path, transform, rgbFace=None):
         """Draw a `~.path.Path` instance using the given affine transform."""
         raise NotImplementedError
@@ -704,6 +756,7 @@ class GraphicsContextBase:
     def __init__(self):
         self._alpha = 1.0
         self._forced_alpha = False  # if True, _alpha overrides A from RGBA
+        self._blend_mode = "normal"
         self._antialiased = 1  # use 0, 1 not True, False for extension code
         self._capstyle = CapStyle('butt')
         self._cliprect = None
@@ -725,6 +778,7 @@ class GraphicsContextBase:
         """Copy properties from *gc* to self."""
         self._alpha = gc._alpha
         self._forced_alpha = gc._forced_alpha
+        self._blend_mode = gc._blend_mode
         self._antialiased = gc._antialiased
         self._capstyle = gc._capstyle
         self._cliprect = gc._cliprect
@@ -754,6 +808,10 @@ class GraphicsContextBase:
         backends.
         """
         return self._alpha
+
+    def get_blend_mode(self):
+        """Return the blend mode for compositing - not supported on all backends."""
+        return self._blend_mode
 
     def get_antialiased(self):
         """Return whether the object should try to do antialiased rendering."""
@@ -848,6 +906,23 @@ class GraphicsContextBase:
             self._alpha = 1.0
             self._forced_alpha = False
         self.set_foreground(self._rgb, isRGBA=True)
+
+    def set_blend_mode(self, blend_mode):
+        """
+        Set the blend mode for compositing - not supported on all backends.
+
+        Parameters
+        ----------
+        blend_mode : str
+            The allowed values are:
+            "normal", "multiply", "screen", "overlay",
+            "darken", "lighten", "color dodge", "color burn",
+            "hard light", "soft light", "difference", "exclusion",
+            "hue", "saturation", "color", "luminosity",
+            "knockout", "clear", "erase", "atop", "xor", and "plus".
+        """
+        # Backend-independent input validation is done in Artist.set_blend_mode()
+        self._blend_mode = blend_mode
 
     def set_antialiased(self, b):
         """Set whether object should be drawn with antialiased rendering."""

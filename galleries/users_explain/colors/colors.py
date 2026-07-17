@@ -97,14 +97,15 @@ The *alpha* value of a color specifies its transparency, where 0 is fully
 transparent and 1 is fully opaque. When a color is semi-transparent, the
 background color will show through.
 
-The *alpha* value determines the resulting color by blending the
+By default, the *alpha* value determines the resulting color by blending the
 foreground color with the background color according to the formula
 
 .. math::
 
    RGB_{result} = RGB_{background} * (1 - \\alpha) + RGB_{foreground} * \\alpha
 
-The following plot illustrates the effect of transparency.
+See :ref:`blend-modes` for alternative blending options.  The following plot
+illustrates the effect of transparency.
 """
 
 import matplotlib.pyplot as plt

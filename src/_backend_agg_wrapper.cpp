@@ -98,7 +98,6 @@ PyRendererAgg_draw_image(RendererAgg *self,
     x = mpl_round(x);
     y = mpl_round(y);
 
-    gc.alpha = 1.0;
     self->draw_image(gc, x, y, image);
 }
 
@@ -209,7 +208,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
              "antialiased"_a, "edgecolors"_a)
-        .def("draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
+        .def("_draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
              "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
 
         .def("clear", &RendererAgg::clear)

@@ -352,6 +352,12 @@ def test_set_alpha_for_array():
         art._set_alpha_for_array([0.5, np.nan])
 
 
+def test_set_blend_mode():
+    art = martist.Artist()
+    with pytest.raises(ValueError, match="not a supported blend mode"):
+        art.set_blend_mode("invalid_blend_mode")
+
+
 def test_callbacks():
     def func(artist):
         func.counter += 1

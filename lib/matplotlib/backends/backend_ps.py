@@ -25,7 +25,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _api, cbook, _path, _text_helpers
 from matplotlib.backend_bases import (
-    _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
+    _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
 from matplotlib.cbook import is_writable_file_like, file_requires_unicode
 from matplotlib.font_manager import get_font
 from matplotlib.ft2font import LoadFlags
@@ -431,6 +431,9 @@ class RendererPS(_backend_pdf_ps.RendererPDFPSBase):
         self._character_tracker = _backend_pdf_ps.CharacterTracker(
             _backend_pdf_ps._FONT_MAX_GLYPH.get(mpl.rcParams['ps.fonttype'], 0))
         self._logwarn_once = functools.cache(_log.warning)
+
+    def new_gc(self):
+        return GraphicsContextPS()
 
     def _is_transparent(self, rgb_or_rgba):
         if rgb_or_rgba is None:
@@ -954,6 +957,14 @@ grestore
             write("stroke\n")
 
         write("grestore\n")
+
+
+class GraphicsContextPS(GraphicsContextBase):
+    def set_blend_mode(self, blend_mode):
+        if blend_mode != "normal":
+            _log.warning("The PS backend does not support blend modes other than the "
+                         "'normal' blend mode, so falling back to 'normal' blend mode.")
+        super().set_blend_mode("normal")
 
 
 class _Orientation(Enum):
