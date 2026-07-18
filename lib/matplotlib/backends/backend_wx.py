@@ -746,9 +746,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # flip y so y=0 is bottom of canvas
         if not wx.Platform == '__WXMSW__':
             scale = self.GetDPIScaleFactor()
-            return x*scale, self.figure.bbox.height - y*scale
+            return x*scale, self.get_width_height(physical=True)[1] - y*scale
         else:
-            return x, self.figure.bbox.height - y
+            return x, self.get_width_height(physical=True)[1] - y
 
     def _on_key_down(self, event):
         """Capture key press."""
@@ -1169,7 +1169,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 dialog.Destroy()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
+        height = self.canvas.get_width_height(physical=True)[1]
         sf = 1 if wx.Platform == '__WXMSW__' else self.canvas.GetDPIScaleFactor()
         self.canvas._rubberband_rect = (x0/sf, (height - y0)/sf,
                                         x1/sf, (height - y1)/sf)

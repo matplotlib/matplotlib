@@ -781,3 +781,9 @@ def test_draw_overlay_draws_only_overlay_artists():
         # normal_line.draw() is called, but overlay artist is skipped (filtered).
         mock_overlay.assert_called_once()     # Overlay should be drawn
         mock_normal.assert_not_called()       # Normal should NOT be redrawn
+
+
+def test_get_width_height_floating_point_precision():
+    fig = plt.figure(figsize=(1, 2.03), dpi=100)
+    assert fig.bbox.height < 203  # due to floating-point precision
+    assert fig.canvas.get_width_height() == (100, 203)

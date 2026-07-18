@@ -370,7 +370,7 @@ def test_glyphs_subset():
     # subsetted FT2Font
     glyph_indices = {nosubcmap[ord(c)] for c in chars}
     with get_glyphs_subset(fm.FontPath(fpath, 0), glyph_indices) as subset:
-        subfont = FT2Font(font_as_file(subset))
+        subfont = FT2Font(font_as_file(subset.font))
     subfont.set_text(chars)
     subcmap = subfont.get_charmap()
 

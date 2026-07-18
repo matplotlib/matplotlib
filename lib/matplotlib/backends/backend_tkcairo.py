@@ -9,8 +9,7 @@ from ._backend_tk import _BackendTk, FigureCanvasTk
 
 class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk):
     def draw(self):
-        width = int(self.figure.bbox.width)
-        height = int(self.figure.bbox.height)
+        width, height = self.get_width_height(physical=True)
         surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         self._renderer.set_context(cairo.Context(surface))
         self._renderer.dpi = self.figure.dpi

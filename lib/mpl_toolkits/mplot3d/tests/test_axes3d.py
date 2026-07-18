@@ -72,6 +72,72 @@ def test_axis_positions():
         ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
 
 
+@mpl3d_image_comparison(['axis_positions_inverted.png'], remove_text=False,
+                        style='mpl20')
+def test_axis_positions_inverted():
+    # Regression test for https://github.com/matplotlib/matplotlib/issues/31989
+    # Check the visual placement of axes, ticks and labels for
+    # every combination of inverted x, y and z axes.
+    combinations = list(itertools.product([False, True], repeat=3))
+    fig, axs = plt.subplots(2, 4, figsize=(10, 6),
+                            subplot_kw={'projection': '3d'})
+    for ax, (invert_x, invert_y, invert_z) in zip(axs.flatten(), combinations):
+        # Plot an asymmetric line so that inverting an axis visibly mirrors the data,
+        # ensuring the projection is exercised for every inversion combination
+        ax.plot([0, 1, 1], [0, 0, 1], [0, 1, 1])
+        if invert_x:
+            ax.invert_xaxis()
+        if invert_y:
+            ax.invert_yaxis()
+        if invert_z:
+            ax.invert_zaxis()
+        title = (f'{"-" if invert_x else ""}x, '
+                 f'{"-" if invert_y else ""}y, '
+                 f'{"-" if invert_z else ""}z')
+        ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
+
+
+def test_set_aspect_datalim_restores_limits():
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    ax.plot([0,1], [0,2], [0,3])
+
+    fig.canvas.draw()
+    default_limits = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    fig.canvas.draw()
+    equal_limits = ax.get_w_lims()
+
+    ax.set_aspect('auto', adjustable='datalim')
+    fig.canvas.draw()
+    final_limits = ax.get_w_lims()
+
+    # equal should change limits
+    assert not np.allclose(default_limits, equal_limits)
+
+    # auto should restore original limits
+    assert np.allclose(default_limits, final_limits)
+
+
+def test_set_aspect_datalim_restores_untouched_axes():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.plot([1, 2], [3, 4], [5, 6])
+    orig_lims = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    ax.set_xlim(-50, 50)  # explicit user change mid-'equal'
+    ax.set_aspect('auto', adjustable='datalim')
+
+    xlim, ylim, zlim = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+    assert xlim == (-50, 50)               # explicit value preserved
+    assert ylim == orig_lims[2:4]          # untouched axis restored
+    assert zlim == orig_lims[4:6]          # untouched axis restored
+
+
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
 def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')

@@ -1,4 +1,4 @@
-from collections.abc import Iterable, Sequence
+from collections.abc import Iterable
 from contextlib import ExitStack
 import functools
 import inspect
@@ -578,6 +578,18 @@ class _AxesBase(martist.Artist):
     """
     The `.Spines` container for the Axes' spines, i.e. the lines denoting the
     data area boundaries.
+    """
+
+    transData: mtransforms.Transform
+    """
+    The transformation from data coordinates to display coordinates.
+    See  :ref:`transforms_tutorial`.
+    """
+
+    transAxes: mtransforms.Transform
+    """
+    The transformation from axes coordinates to display coordinates.
+    See  :ref:`transforms_tutorial`.
     """
 
     xaxis: maxis.XAxis
@@ -1481,105 +1493,40 @@ class _AxesBase(martist.Artist):
         else:
             self.clear()
 
-    class ArtistList(Sequence):
-        """
-        A sublist of Axes children based on their type.
-
-        The type-specific children sublists were made immutable in Matplotlib
-        3.7.  In the future these artist lists may be replaced by tuples. Use
-        as if this is a tuple already.
-        """
-        def __init__(self, axes, prop_name,
-                     valid_types=None, invalid_types=None):
-            """
-            Parameters
-            ----------
-            axes : `~matplotlib.axes.Axes`
-                The Axes from which this sublist will pull the children
-                Artists.
-            prop_name : str
-                The property name used to access this sublist from the Axes;
-                used to generate deprecation warnings.
-            valid_types : list of type, optional
-                A list of types that determine which children will be returned
-                by this sublist. If specified, then the Artists in the sublist
-                must be instances of any of these types. If unspecified, then
-                any type of Artist is valid (unless limited by
-                *invalid_types*.)
-            invalid_types : tuple, optional
-                A list of types that determine which children will *not* be
-                returned by this sublist. If specified, then Artists in the
-                sublist will never be an instance of these types. Otherwise, no
-                types will be excluded.
-            """
-            self._axes = axes
-            self._prop_name = prop_name
-            self._type_check = lambda artist: (
-                (not valid_types or isinstance(artist, valid_types)) and
-                (not invalid_types or not isinstance(artist, invalid_types))
-            )
-
-        def __repr__(self):
-            return f'<Axes.ArtistList of {len(self)} {self._prop_name}>'
-
-        def __len__(self):
-            return sum(self._type_check(artist)
-                       for artist in self._axes._children)
-
-        def __iter__(self):
-            for artist in list(self._axes._children):
-                if self._type_check(artist):
-                    yield artist
-
-        def __getitem__(self, key):
-            return [artist
-                    for artist in self._axes._children
-                    if self._type_check(artist)][key]
-
-        def __add__(self, other):
-            if isinstance(other, (list, _AxesBase.ArtistList)):
-                return [*self, *other]
-            if isinstance(other, (tuple, _AxesBase.ArtistList)):
-                return (*self, *other)
-            return NotImplemented
-
-        def __radd__(self, other):
-            if isinstance(other, list):
-                return other + list(self)
-            if isinstance(other, tuple):
-                return other + tuple(self)
-            return NotImplemented
+    @_api.deprecated('3.12', alternative='matplotlib.artist.ArtistList')
+    @property
+    def ArtistList(self):
+        return martist.ArtistList
 
     @property
     def artists(self):
-        return self.ArtistList(self, 'artists', invalid_types=(
+        return martist.ArtistList(self, 'artists', invalid_types=(
             mcoll.Collection, mimage.AxesImage, mlines.Line2D, mpatches.Patch,
             mtable.Table, mtext.Text))
 
     @property
     def collections(self):
-        return self.ArtistList(self, 'collections',
-                               valid_types=mcoll.Collection)
+        return martist.ArtistList(self, 'collections', valid_types=mcoll.Collection)
 
     @property
     def images(self):
-        return self.ArtistList(self, 'images', valid_types=mimage.AxesImage)
+        return martist.ArtistList(self, 'images', valid_types=mimage.AxesImage)
 
     @property
     def lines(self):
-        return self.ArtistList(self, 'lines', valid_types=mlines.Line2D)
+        return martist.ArtistList(self, 'lines', valid_types=mlines.Line2D)
 
     @property
     def patches(self):
-        return self.ArtistList(self, 'patches', valid_types=mpatches.Patch)
+        return martist.ArtistList(self, 'patches', valid_types=mpatches.Patch)
 
     @property
     def tables(self):
-        return self.ArtistList(self, 'tables', valid_types=mtable.Table)
+        return martist.ArtistList(self, 'tables', valid_types=mtable.Table)
 
     @property
     def texts(self):
-        return self.ArtistList(self, 'texts', valid_types=mtext.Text)
+        return martist.ArtistList(self, 'texts', valid_types=mtext.Text)
 
     def get_facecolor(self):
         """Get the facecolor of the Axes."""
@@ -2570,18 +2517,9 @@ class _AxesBase(martist.Artist):
         if (isinstance(patch, mpatches.Rectangle) and
                 ((not patch.get_width()) and (not patch.get_height()))):
             return
-        p = patch.get_path()
-        # Get all vertices on the path
-        # Loop through each segment to get extrema for Bezier curve sections
-        vertices = []
-        for curve, code in p.iter_bezier(simplify=False):
-            # Get distance along the curve of any extrema
-            _, dzeros = curve.axis_aligned_extrema()
-            # Calculate vertices of start, end and any extrema in between
-            vertices.append(curve([0, *dzeros, 1]))
 
-        if len(vertices):
-            vertices = np.vstack(vertices)
+        p = patch.get_path()
+        extent_vertices = p._extent_vertices(simplify=False)
 
         patch_trf = patch.get_transform()
         updatex, updatey = patch_trf.contains_branch_separately(self.transData)
@@ -2594,7 +2532,7 @@ class _AxesBase(martist.Artist):
             if updatey and patch_trf == self.get_xaxis_transform():
                 updatey = False
         trf_to_data = patch_trf - self.transData
-        xys = trf_to_data.transform(vertices)
+        xys = trf_to_data.transform(extent_vertices)
         self.update_datalim(xys, updatex=updatex, updatey=updatey)
 
     def _update_collection_limits(self, collection):
