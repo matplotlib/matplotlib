@@ -832,7 +832,7 @@ class Axis(martist.Artist):
         """Return this Axis' scale (as a str)."""
         return self._scale.name
 
-    def _set_scale(self, value, **kwargs):
+    def _set_scale(self, value, *, emit=False, **kwargs):
         if not isinstance(value, mscale.ScaleBase):
             self._scale = mscale.scale_factory(value, self, **kwargs)
         else:
@@ -843,6 +843,19 @@ class Axis(martist.Artist):
         self.isDefault_minloc = True
         self.isDefault_majfmt = True
         self.isDefault_minfmt = True
+
+        if emit:
+            # Call all of the other Axes that are shared with this one
+            name = self._get_axis_name()
+            # TODO: is there a scale_changed callback?
+            for other in self._get_shared_axes():
+                if other is self.axes:
+                    continue
+                other._axis_map[name]._set_scale(value, emit=False, **kwargs)
+                # TODO: ditto
+                if ((other_fig := other.get_figure(root=False)) !=
+                        self.get_figure(root=False)):
+                    other_fig.canvas.draw_idle()
 
     # This method is directly wrapped by Axes.set_{x,y}scale.
     def _set_axes_scale(self, value, **kwargs):
@@ -960,7 +973,7 @@ class Axis(martist.Artist):
 
         self._init()
 
-        self._set_scale('linear')
+        self._set_scale('linear', emit=True)
 
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry(signals=["units"])
