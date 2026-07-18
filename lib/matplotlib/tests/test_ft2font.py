@@ -1,6 +1,7 @@
 import itertools
 import io
 import os
+import shutil
 from pathlib import Path
 from typing import cast
 
@@ -153,6 +154,20 @@ def test_ft2font_valid_args():
     font = ft2font.FT2Font(PathLikeClass(file_str))
     assert font.fname == file_str
     font = ft2font.FT2Font(PathLikeClass(file_bytes))
+    assert font.fname == file_bytes
+
+
+def test_ft2font_unicode_path(tmp_path):
+    file = tmp_path / 'DéjàVu-Sans-日本語.ttf'
+    shutil.copyfile(fm.findfont('DejaVu Sans'), file)
+
+    font = ft2font.FT2Font(str(file))
+    font.set_text('foo')
+    assert font.fname == str(file)
+
+    file_bytes = os.fsencode(file)
+    font = ft2font.FT2Font(file_bytes)
+    font.set_text('foo')
     assert font.fname == file_bytes
 
 
