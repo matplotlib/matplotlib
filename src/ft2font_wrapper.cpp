@@ -554,7 +554,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
             // 3. `read` returning something other than `bytes`.
             auto data = filename.attr("read")(0).cast<py::bytes>();
         } catch (const py::builtin_exception &) {
-            // Only exception that can possibly be raised is `cast_error` from 
+            // Only exception that can possibly be raised is `cast_error` from
             // the .cast<py::bytes>() call.
             throw py::type_error(
                 "First argument must be among the following types: str, bytes, os.PathLike, or io.BinaryIO");
