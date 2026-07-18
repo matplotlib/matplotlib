@@ -46,11 +46,12 @@ def _box(ax, xy, width, height, *, facecolor, edgecolor, linewidth=2, radius=0.0
 
 
 def font_indexing() -> None:
-    """Show characters being resolved to their glyph shapes."""
+    """Show characters being resolved to glyph indices."""
     fig, ax = plt.subplots(figsize=(6.6, 4.4))
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 7)
     ax.axis("off")
+    ax.set_title("Font indexing", fontsize=18, weight="bold", pad=10)
     _box(ax, (0.75, 1.1), 3.25, 4.9, facecolor="#e8f1fb", edgecolor="#4c78a8",
          linewidth=3)
     _box(ax, (6.0, 1.1), 3.25, 4.9, facecolor="#e8f5e9", edgecolor="#3a9d5d",
@@ -59,10 +60,10 @@ def font_indexing() -> None:
             color="#4c78a8")
     ax.text(3.1, 3.4, "V", ha="center", va="center", fontsize=72, weight="bold",
             color="#4c78a8")
-    ax.text(6.85, 3.4, "A", ha="center", va="center", fontsize=72, weight="bold",
-            color="#3a9d5d")
-    ax.text(8.35, 3.4, "V", ha="center", va="center", fontsize=72, weight="bold",
-            color="#3a9d5d")
+    ax.text(6.85, 3.4, "36", ha="center", va="center", fontsize=40,
+            weight="bold", family="monospace", color="#3a9d5d")
+    ax.text(8.35, 3.4, "57", ha="center", va="center", fontsize=40,
+            weight="bold", family="monospace", color="#3a9d5d")
     ax.add_patch(FancyArrowPatch((4.2, 3.4), (5.8, 3.4), arrowstyle="-|>",
                                  mutation_scale=24, linewidth=3, color="#607d8b"))
     _save(fig, "font_indexing.png")
@@ -74,11 +75,17 @@ def multiprocess() -> None:
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 7)
     ax.axis("off")
+    ax.set_title("Multiprocessing", fontsize=18, weight="bold", pad=10,
+                 color="#263d52")
 
     _box(ax, (0.45, 1.0), 3.25, 4.9, facecolor="#eaf6ee",
          edgecolor="#35a661", linewidth=3)
     _box(ax, (6.3, 1.0), 3.25, 4.9, facecolor="#edf4fb",
          edgecolor="#4295d1", linewidth=3)
+    ax.text(2.075, 5.35, "Process 1", ha="center", fontsize=14,
+            weight="bold", color="#319553")
+    ax.text(7.925, 5.35, "Process 2", ha="center", fontsize=14,
+            weight="bold", color="#3d8dcc")
     rng = np.random.default_rng(3)
     xs = np.linspace(1.0, 3.1, 6)
     ys = 2.0 + 1.6 * rng.random(6)
@@ -91,12 +98,12 @@ def multiprocess() -> None:
     ax.plot(plot_x, plot_y, color="#4c9fd7", linewidth=3)
     ax.scatter(plot_x, plot_y, color="#ef6a64", s=80, zorder=3)
 
-    ax.add_patch(Rectangle((3.9, 3.0), 2.2, 1.2, facecolor="#fff8e6",
-                           edgecolor="#e49428", linewidth=2.5))
+    ax.text(5.0, 3.72, "Pipe()", ha="center", va="center", fontsize=16,
+            weight="bold", color="#bd721a")
     ax.add_patch(FancyArrowPatch(
-        (3.65, 3.55), (6.25, 3.55), arrowstyle="-|>", mutation_scale=18,
-        linewidth=2.2, color="#e49428"))
-    ax.scatter(np.linspace(4.15, 5.8, 5), np.full(5, 3.55), s=55,
+        (3.65, 3.15), (6.25, 3.15), arrowstyle="-|>", mutation_scale=18,
+        linewidth=3.0, color="#e49428"))
+    ax.scatter(np.linspace(4.15, 5.8, 5), np.full(5, 3.15), s=48,
                color="#e49428", zorder=3)
     _save(fig, "multiprocess.png")
 
