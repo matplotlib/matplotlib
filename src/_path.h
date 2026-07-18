@@ -1023,7 +1023,7 @@ void __add_number(double val, char format_code, int precision,
         val, format_code, precision, Py_DTSF_ADD_DOT_0, nullptr);
     if (str == nullptr) {
         const char* template_msg = "Cannot call PyOS_double_to_string within %s "
-        "with the following arguments: val=%d, format_code=%c, precision=%d"
+        "with the following arguments: val=%f, format_code=%c, precision=%d"
         int sz = std::snprintf(nullptr, 0, template_msg, __func__, val, format_code, precision);
         std::vector<char> buf(sz + 1); // note +1 for null terminator
         std::sprintf(buf.data(), template_msg, __func__, val, format_code, precision); // certain to fit

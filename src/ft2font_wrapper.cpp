@@ -435,6 +435,21 @@ read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *b
     return (unsigned long)n_read;
 }
 
+#if PY_VERSION_HEX >= 0x030C0000
+static void
+close_file_callback(FT_Stream stream)
+{
+    PyObject* exc = PyErr_GetRaisedException();
+    PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
+    try {
+        self->py_file.attr("close")();
+    } catch (py::error_already_set &eas) {
+        eas.discard_as_unraisable(__func__);
+    }
+    self->py_file = py::object();
+    PyErr_SetRaisedException(exc);
+}
+#else
 static void
 close_file_callback(FT_Stream stream)
 {
@@ -449,6 +464,7 @@ close_file_callback(FT_Stream stream)
     self->py_file = py::object();
     PyErr_Restore(type, value, traceback);
 }
+#endif
 
 const char *PyFT2Font_init__doc__ = R"""(
     Parameters
