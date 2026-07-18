@@ -973,7 +973,7 @@ class Axis(martist.Artist):
 
         self._init()
 
-        self._set_scale('linear', emit=True)
+        self._set_scale('linear')
 
         # Clear the callback registry for this axis, or it may "leak"
         self.callbacks = cbook.CallbackRegistry(signals=["units"])

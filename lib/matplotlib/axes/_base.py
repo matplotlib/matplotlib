@@ -1356,6 +1356,12 @@ class _AxesBase(martist.Artist):
 
         for axis in self._axis_map.values():
             axis.clear()  # Also resets the scale to linear.
+            # also need to do any shared axes
+            name = axis._get_axis_name()
+            for other in axis._get_shared_axes():
+                if other is self.axes:
+                    continue
+                other._axis_map[name]._set_scale("linear")
         for spine in self.spines.values():
             spine._clear()  # Use _clear to not clear Axis again
 
