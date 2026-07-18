@@ -371,11 +371,9 @@ class PyFT2Font final : public FT2Font
     void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
     {
         std::set<FT_String*>::iterator it = family_names.begin();
-        std::stringstream ss;
-        ss<< (*it ? *it : "unknown family name");
-        while(++it != family_names.end()){
-            ss<<", "<< (*it ? *it : "unknown family name");
-        }
+        std::ostringstream ss;
+        for (const auto& fname : family_names)
+            ss << (*fname ? *fname : "unknown family name");
 
         auto text_helpers = py::module_::import("matplotlib._text_helpers");
         auto warn_on_missing_glyph = text_helpers.attr("warn_on_missing_glyph");
