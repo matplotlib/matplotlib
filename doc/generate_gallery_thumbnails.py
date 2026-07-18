@@ -131,14 +131,11 @@ def multiprocess() -> None:
 
 
 def frame_grabbing() -> None:
-    """Show frames being captured and written to a movie file."""
+    """Show captured frames and their corresponding frame-strip colors."""
     fig, ax = plt.subplots(figsize=(6.6, 4.4))
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 7)
     ax.axis("off")
-    ax.set_title("Frame grabbing", fontsize=20, weight="bold", color="#27345c", pad=12)
-    ax.text(5, 6.25, "draw → grab_frame() → write to a movie", ha="center",
-            fontsize=11, color="#59647f")
 
     x = np.linspace(0.8, 9.2, 300)
     y = 4.25 + 1.25 * np.sin(x * 1.2)
@@ -147,24 +144,18 @@ def frame_grabbing() -> None:
     sample_x = np.array([1.5, 3.75, 6.0, 8.25])
     sample_y = 4.25 + 1.25 * np.sin(sample_x * 1.2)
     colors = ["#ed7c9e", "#f2a26f", "#86d69b", "#bb8ce8"]
-    for i, (sx, sy, color) in enumerate(zip(sample_x, sample_y, colors), start=1):
-        ax.scatter([sx], [sy], s=155, color=color, edgecolor="white",
-                   linewidth=2, zorder=3)
-        ax.text(sx, sy + 0.52, str(i), ha="center", fontsize=12,
-                weight="bold", color=color)
-        ax.add_patch(FancyArrowPatch((sx, sy - 0.28), (sx, 1.95), arrowstyle="-|>",
-                                     mutation_scale=15, linewidth=1.8, color=color,
+    for sx, sy, color in zip(sample_x, sample_y, colors):
+        ax.scatter([sx], [sy], s=360, color=color, edgecolor="white",
+                   linewidth=2.5, zorder=3)
+        ax.add_patch(FancyArrowPatch((sx, sy - 0.42), (sx, 1.95), arrowstyle="-|>",
+                                     mutation_scale=17, linewidth=2.0, color=color,
                                      connectionstyle="arc3,rad=0.08"))
 
-    ax.add_patch(Rectangle((0.75, 0.55), 8.0, 1.0, facecolor="#f5f6fb",
+    ax.add_patch(Rectangle((0.75, 0.55), 8.5, 1.0, facecolor="#f5f6fb",
                            edgecolor="#9da7c6", linewidth=2))
-    for i, (x0, color) in enumerate(zip([1.05, 3.1, 5.15, 7.2], colors), start=1):
+    for x0, color in zip([1.05, 3.1, 5.15, 7.2], colors):
         ax.add_patch(Rectangle((x0, 0.78), 1.5, 0.55, facecolor=color,
                                edgecolor="white", linewidth=1.5))
-        ax.text(x0 + 0.75, 1.0, f"frame {i}", ha="center", va="center",
-                fontsize=9, weight="bold")
-    ax.text(9.0, 1.05, "→ movie", ha="left", va="center", fontsize=10,
-            color="#59647f")
     _save(fig, "frame_grabbing.png")
 
 
