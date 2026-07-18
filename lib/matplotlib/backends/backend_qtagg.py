@@ -13,6 +13,7 @@ from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
+    supports_overlay = True
 
     def paintEvent(self, event):
         """
@@ -61,6 +62,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
+            if hasattr(self, '_overlay_qimage'):
+                painter.drawImage(origin, self._overlay_qimage)
             self._draw_rect_callback(painter)
         finally:
             painter.end()
@@ -71,8 +74,65 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         # save dialog. When that happens, we need to be sure that the internal canvas is
         # re-drawn. However, if the user is using an automatically-chosen Qt backend but
         # saving with a different backend (such as pgf), we do not want to trigger a
-        # full draw in Qt, so just set the flag for next time.
         self._draw_pending = True
+
+    def draw(self):
+        """
+        Perform a full redraw of the main figure, and also update the overlay.
+        """
+        super().draw()
+        self.draw_overlay()
+
+    def draw_overlay(self):
+        """
+        Draw only the overlay artists into a separate QImage buffer,
+        then trigger a Qt repaint to composite it on screen.
+        """
+        # Recursively find all artists in the figure hierarchy that have in_overlay=True
+        overlay_artists = self.figure.findobj(
+            lambda x: getattr(x, 'get_in_overlay', lambda: False)()
+        )
+
+        # Sort artists by zorder to ensure proper rendering stacking
+        overlay_artists.sort(key=lambda a: a.get_zorder())
+
+        if not overlay_artists:
+            if hasattr(self, '_overlay_qimage'):
+                del self._overlay_qimage
+                if hasattr(self, '_overlay_buf'):
+                    del self._overlay_buf
+            self.update()
+            return
+
+        from matplotlib.backends.backend_agg import RendererAgg
+        w, h = self.figure.bbox.size
+        renderer = RendererAgg(w, h, self.figure.dpi)
+
+        for artist in overlay_artists:
+            if hasattr(artist, 'get_visible') and not artist.get_visible():
+                continue
+            artist.draw(renderer)
+
+        buf = memoryview(renderer.buffer_rgba())
+        if QT_API == "PyQt6":
+            from PyQt6 import sip
+            ptr = int(sip.voidptr(buf))
+        else:
+            ptr = buf
+
+        # Clear old image to prevent memory leak
+        if hasattr(self, '_overlay_qimage'):
+            del self._overlay_qimage
+
+        # Keep a reference to the buffer so it outlives the method
+        self._overlay_buf = buf
+
+        self._overlay_qimage = QtGui.QImage(
+            ptr, buf.shape[1], buf.shape[0],
+            QtGui.QImage.Format.Format_RGBA8888
+        )
+        self._overlay_qimage.setDevicePixelRatio(self.device_pixel_ratio)
+        self.update()
 
 
 @_BackendQT.export

@@ -388,14 +388,12 @@ def test_ipython():
     ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})
 
 
-@pytest.mark.xfail(reason="TDD: Qt overlay not yet implemented")
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_qt_canvas_supports_overlay():
     fig, ax = plt.subplots()
     assert fig.canvas.supports_overlay is True
 
 
-@pytest.mark.xfail(reason="TDD: Qt overlay not yet implemented")
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_qt_draw_overlay_draws_only_overlay_artists():
     from matplotlib.lines import Line2D
@@ -416,17 +414,48 @@ def test_qt_draw_overlay_draws_only_overlay_artists():
         mock_normal.assert_not_called()
 
 
-@pytest.mark.xfail(reason="TDD: Qt overlay not yet implemented")
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_qt_draw_overlay_clears_stale():
     from matplotlib.lines import Line2D
+    from unittest.mock import patch
     fig, ax = plt.subplots()
     overlay_line = Line2D([0, 1], [0, 1], color='red')
     overlay_line.set_in_overlay(True)
     ax.add_line(overlay_line)
     fig.draw(fig.canvas.get_renderer())
+    fig.canvas.draw_overlay()
 
-    overlay_line.set_color('blue')
-    assert overlay_line.stale is True
+    # Mock draw_overlay to prevent it from clearing stale
+    with patch.object(fig.canvas, 'draw_overlay') as mock_draw:
+        assert overlay_line.stale is False
+        overlay_line.set_color('blue')
+        assert overlay_line.stale is True
+        mock_draw.assert_called_once()
+
+    # Now manually call draw_overlay and ensure it clears stale
     fig.canvas.draw_overlay()
     assert overlay_line.stale is False
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_draw_overlay_clears_on_removal():
+    from matplotlib.lines import Line2D
+
+    fig, ax = plt.subplots()
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    # 1. Trigger the overlay creation
+    fig.canvas.draw()
+    assert hasattr(fig.canvas, '_overlay_qimage')
+
+    # 2. Set to normal drawing mode (removes from overlay)
+    overlay_line.set_in_overlay(False)
+
+
+    # A full draw() should also clean up the overlay buffer!
+    fig.canvas.draw()
+
+    # 3. Verify the overlay image is deleted!
+    assert not hasattr(fig.canvas, '_overlay_qimage')
