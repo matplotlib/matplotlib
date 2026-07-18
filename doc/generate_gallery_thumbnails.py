@@ -46,87 +46,58 @@ def _box(ax, xy, width, height, *, facecolor, edgecolor, linewidth=2, radius=0.0
 
 
 def font_indexing() -> None:
-    """Show the character-to-glyph-index lookup performed by a font."""
+    """Show characters being resolved to their glyph shapes."""
     fig, ax = plt.subplots(figsize=(6.6, 4.4))
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 7)
     ax.axis("off")
-    ax.set_title("Font indexing", fontsize=20, weight="bold", pad=12)
-
-    _box(ax, (0.55, 2.0), 2.55, 3.25, facecolor="#e8f1fb", edgecolor="#4c78a8")
-    _box(ax, (3.75, 2.0), 2.5, 3.25, facecolor="#fff4d6", edgecolor="#e0a11b")
-    _box(ax, (6.9, 2.0), 2.55, 3.25, facecolor="#e8f5e9", edgecolor="#3a9d5d")
-
-    ax.text(1.825, 4.75, "Unicode text", ha="center", fontsize=13, weight="bold")
-    ax.text(1.825, 3.45, "A   V", ha="center", fontsize=31, weight="bold")
-    ax.text(1.825, 2.55, "characters", ha="center", color="#607d8b")
-
-    ax.text(5.0, 4.75, "font cmap", ha="center", fontsize=13, weight="bold")
-    ax.text(5.0, 3.75, "A  →  36", ha="center", family="monospace", fontsize=15)
-    ax.text(5.0, 3.0, "V  →  57", ha="center", family="monospace", fontsize=15)
-    ax.text(5.0, 2.45, "lookup", ha="center", color="#8a6d1d")
-
-    ax.text(8.175, 4.75, "glyph indices", ha="center", fontsize=13, weight="bold")
-    ax.text(8.175, 3.75, "glyph #36", ha="center", family="monospace", fontsize=15)
-    ax.text(8.175, 3.0, "glyph #57", ha="center", family="monospace", fontsize=15)
-    ax.text(8.175, 2.45, "font outlines", ha="center", color="#387b4b")
-
-    for start, end in [((3.15, 3.65), (3.65, 3.65)), ((6.3, 3.65), (6.8, 3.65))]:
-        ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=18,
-                                     linewidth=2.5, color="#607d8b"))
-    ax.text(5, 0.85, "Characters are mapped to glyph IDs before outlines are loaded.",
-            ha="center", fontsize=11, color="#455a64")
+    _box(ax, (0.75, 1.1), 3.25, 4.9, facecolor="#e8f1fb", edgecolor="#4c78a8",
+         linewidth=3)
+    _box(ax, (6.0, 1.1), 3.25, 4.9, facecolor="#e8f5e9", edgecolor="#3a9d5d",
+         linewidth=3)
+    ax.text(1.6, 3.4, "A", ha="center", va="center", fontsize=72, weight="bold",
+            color="#4c78a8")
+    ax.text(3.1, 3.4, "V", ha="center", va="center", fontsize=72, weight="bold",
+            color="#4c78a8")
+    ax.text(6.85, 3.4, "A", ha="center", va="center", fontsize=72, weight="bold",
+            color="#3a9d5d")
+    ax.text(8.35, 3.4, "V", ha="center", va="center", fontsize=72, weight="bold",
+            color="#3a9d5d")
+    ax.add_patch(FancyArrowPatch((4.2, 3.4), (5.8, 3.4), arrowstyle="-|>",
+                                 mutation_scale=24, linewidth=3, color="#607d8b"))
     _save(fig, "font_indexing.png")
 
 
 def multiprocess() -> None:
-    """Show data moving between two independent processes through a pipe."""
+    """Show data moving between two independent processes."""
     fig, ax = plt.subplots(figsize=(6.6, 4.4))
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 7)
     ax.axis("off")
-    ax.set_title("Multiprocessing", fontsize=20, weight="bold", pad=12, color="#263d52")
 
     _box(ax, (0.45, 1.0), 3.25, 4.9, facecolor="#eaf6ee",
          edgecolor="#35a661", linewidth=3)
     _box(ax, (6.3, 1.0), 3.25, 4.9, facecolor="#edf4fb",
          edgecolor="#4295d1", linewidth=3)
-    ax.text(2.075, 5.35, "Process 1", ha="center", fontsize=14,
-            weight="bold", color="#319553")
-    ax.text(2.075, 4.92, "main / data producer", ha="center", fontsize=10,
-            color="#607d8b")
-    ax.text(7.925, 5.35, "Process 2", ha="center", fontsize=14,
-            weight="bold", color="#3d8dcc")
-    ax.text(7.925, 4.92, "plotting worker", ha="center", fontsize=10,
-            color="#607d8b")
-
-    ax.text(2.075, 4.2, "Process(...)", ha="center", family="monospace", fontsize=10)
     rng = np.random.default_rng(3)
-    xs = np.linspace(1.0, 3.1, 7)
-    ys = 1.55 + 0.32 * rng.random(7)
-    ax.scatter(xs, ys, s=42, color="#ef6a64", zorder=3)
-    ax.text(2.075, 1.15, "generate data", ha="center", fontsize=10, color="#607d8b")
+    xs = np.linspace(1.0, 3.1, 6)
+    ys = 2.0 + 1.6 * rng.random(6)
+    ax.scatter(xs, ys, s=120, color="#ef6a64", zorder=3)
 
     ax.add_patch(Rectangle((6.8, 1.55), 2.25, 2.75, facecolor="white",
                            edgecolor="#79b7e8", linewidth=2))
     plot_x = np.linspace(7.1, 8.75, 6)
     plot_y = 1.9 + 1.7 * np.array([0.2, 0.38, 0.28, 0.58, 0.52, 0.85])
-    ax.plot(plot_x, plot_y, color="#4c9fd7", linewidth=2)
-    ax.scatter(plot_x, plot_y, color="#ef6a64", s=25, zorder=3)
-    ax.text(7.925, 1.2, "plot received values", ha="center", fontsize=10,
-            color="#607d8b")
+    ax.plot(plot_x, plot_y, color="#4c9fd7", linewidth=3)
+    ax.scatter(plot_x, plot_y, color="#ef6a64", s=80, zorder=3)
 
     ax.add_patch(Rectangle((3.9, 3.0), 2.2, 1.2, facecolor="#fff8e6",
                            edgecolor="#e49428", linewidth=2.5))
-    ax.text(5.0, 3.72, "Pipe()", ha="center", fontsize=14,
-            weight="bold", color="#bd721a")
     ax.add_patch(FancyArrowPatch(
         (3.65, 3.55), (6.25, 3.55), arrowstyle="-|>", mutation_scale=18,
         linewidth=2.2, color="#e49428"))
-    ax.text(5.0, 2.65, "data messages", ha="center", fontsize=10, color="#bd721a")
-    ax.text(5.0, 0.35,
-            "Each process runs independently; the pipe carries the data between them.",
-            ha="center", fontsize=10.5, color="#455a64")
+    ax.scatter(np.linspace(4.15, 5.8, 5), np.full(5, 3.55), s=55,
+               color="#e49428", zorder=3)
     _save(fig, "multiprocess.png")
 
 
