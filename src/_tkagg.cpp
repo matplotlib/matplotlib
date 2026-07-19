@@ -48,7 +48,7 @@ using namespace pybind11::literals;
 #define WIN32_DLL
 static inline PyObject *PyErr_SetFromWindowsErr(int ierr) {
     PyErr_SetString(PyExc_OSError, "Call to EnumProcessModules failed");
-    return NULL;
+    return nullptr;
 }
 #endif
 
