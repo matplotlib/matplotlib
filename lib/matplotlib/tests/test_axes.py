@@ -9309,12 +9309,14 @@ def test_shared_axes_clear(fig_test, fig_ref):
         ax.plot(x, y)
 
 
-def test_shared_axes_clear_scale():
+def test_shared_axes_clear_scale(recwarn):
     _, axs = plt.subplots(1, 2, sharey=True)
     x = range(1, 10)
     axs[0].loglog(x, x)
     axs[1].loglog(x, x)
     axs[0].clear()
+
+    assert len(recwarn) == 0
 
     # the cleared axes has linear on both axis
     for axis in axs[0]._axis_map.values():
