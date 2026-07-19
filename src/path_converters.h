@@ -61,7 +61,7 @@ class EmbeddedQueue
     {
         item() = default;
 
-        inline void set(const unsigned cmd_, const double x_, const double y_)
+        constexpr void set(const unsigned cmd_, const double x_, const double y_)
         {
             cmd = cmd_;
             x = x_;
@@ -75,17 +75,17 @@ class EmbeddedQueue
     int m_queue_write;
     item m_queue[QueueSize];
 
-    inline void queue_push(const unsigned cmd, const double x, const double y)
+    constexpr void queue_push(const unsigned cmd, const double x, const double y)
     {
         m_queue[m_queue_write++].set(cmd, x, y);
     }
 
-    inline bool queue_nonempty()
+    constexpr bool queue_nonempty()
     {
         return m_queue_read < m_queue_write;
     }
 
-    inline bool queue_pop(unsigned *cmd, double *x, double *y)
+    constexpr bool queue_pop(unsigned *cmd, double *x, double *y)
     {
         if (queue_nonempty()) {
             const item &front = m_queue[m_queue_read++];
@@ -102,7 +102,7 @@ class EmbeddedQueue
         return false;
     }
 
-    inline void queue_clear()
+    constexpr void queue_clear()
     {
         m_queue_read = 0;
         m_queue_write = 0;
@@ -185,13 +185,13 @@ class PathNanRemover : protected EmbeddedQueue<4>
         valid_segment_exists = false;
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         queue_clear();
         m_source->rewind(path_id);
     }
 
-    inline unsigned vertex(double *x, double *y)
+    constexpr unsigned vertex(double *x, double *y)
     {
         unsigned code;
 
@@ -373,7 +373,7 @@ class PathClipper : public EmbeddedQueue<3>
         m_cliprect.y2 += 1.0;
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_has_init = false;
         m_was_clipped = false;
@@ -621,12 +621,12 @@ class PathSnapper
         source.rewind(0);
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_source->rewind(path_id);
     }
 
-    inline unsigned vertex(double *x, double *y)
+    constexpr unsigned vertex(double *x, double *y)
     {
         unsigned code;
         code = m_source->vertex(x, y);
@@ -637,7 +637,7 @@ class PathSnapper
         return code;
     }
 
-    inline bool is_snapping()
+    constexpr bool is_snapping()
     {
         return m_snap;
     }
@@ -710,7 +710,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
         // empty
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         queue_clear();
         m_moveto = true;
@@ -985,7 +985,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
     double m_currVecStartX;
     double m_currVecStartY;
 
-    inline void _push(double *x, double *y)
+    constexpr void _push(double *x, double *y)
     {
         bool needToPushBack = (m_dnorm2BackwardMax > 0.0);
 
@@ -1136,7 +1136,7 @@ class Sketch
         return code;
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_has_last = false;
         m_p = 0.0;
