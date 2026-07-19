@@ -4,8 +4,10 @@
 #include "mplutils.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdio>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -19,8 +21,18 @@
 FT_Library _ft2Library;
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
+    : m_width(width), m_height(height)
 {
+    size_t buffer_size = width * height;
+    if (buffer_size != 0 && buffer_size / width != height) {
+        const char* template_msg = "Cannot allocate a FT2Image "
+        "with the following arguments: width=%lu, height=%lu";
+        int sz = std::snprintf(nullptr, 0, template_msg, width, height);
+        std::vector<char> buf(sz + 1); // note +1 for null terminator
+        std::sprintf(buf.data(), template_msg, width, height); // certain to fit
+        throw std::overflow_error(buf.data());
+    }
+    m_buffer = static_cast<unsigned char *>(calloc(width * height, 1));
 }
 
 FT2Image::~FT2Image()
