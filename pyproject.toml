@@ -112,7 +112,7 @@ doc = [
     "ipywidgets",
     "ipykernel",
     "numpydoc>=1.0",
-    "mpl-sphinx-theme~=3.11.0",
+    # "mpl-sphinx-theme~=3.11.0",
     "pyyaml",
     "PyStemmer",
     "sphinxcontrib-svg2pdfconverter>=1.1.0",
@@ -497,7 +497,8 @@ ipython = '*'
 ipywidgets = "*"
 ipykernel = "*"
 numpydoc = ">=1.0"
-mpl-sphinx-theme = ">=3.11.0"
+# mpl-sphinx-theme = ">=3.11.0"
+pydata-sphinx-theme = "*"
 pyyaml = "*"
 PyStemmer = "*"
 sphinxcontrib-svg2pdfconverter = ">=1.1.0"
@@ -543,7 +544,7 @@ sphinx = '*'
 # Not using an isolated pixi build because we're hitting an issue with meson's build.
 # ImportError: cannot import name '_c_internal_utils' from partially initialized module 'matplotlib' (most likely due to a circular import) (/Users/rubenarts/envs/matplotlib/lib/matplotlib/__init__.py)
 # To avoid that we do a `[dev]` install first and then use pip to do the build/install.
-cmd = "pip install --no-build-isolation --editable . --no-deps"
+cmd = "pip install --no-build-isolation --editable . --no-deps --config-settings=setup-args='-Db_lto=false' && pip install mpl-sphinx-theme"
 
 [tool.pixi.tasks.clean-build]
 cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
@@ -556,7 +557,7 @@ description = "Build the documentation"
 
 [tool.pixi.tasks.tests-core]
 # for users: don't use for CI
-cmd = "pytest --pyargs matplotlib"
+cmd = "pytest -n logical --pyargs matplotlib"
 description = "Run Matplotlib tests (no toolboxes)"
 
 [tool.pixi.tasks.tests-all]
