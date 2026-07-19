@@ -373,7 +373,7 @@ class PyFT2Font final : public FT2Font
         std::ostringstream ss;
         for (const auto& fname : family_names) {
             ss << (fname != nullptr ? fname : "unknown family name");
-            if (fname != *(family_names.end() - 1)) ss << ", ";
+            if (fname != *family_names.rbegin()) ss << ", ";
         }
 
         auto text_helpers = py::module_::import("matplotlib._text_helpers");
