@@ -639,7 +639,8 @@ bool FT2Font::load_char_with_fallback(FT2Font *&ft_object_with_glyph,
 
 void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
-    FT_CHECK(FT_Load_Glyph, face, glyph_index, flags);
+    // Yahan flags ke aage | FT_LOAD_NO_BITMAP add kar diya hai
+    FT_CHECK(FT_Load_Glyph, face, glyph_index, flags | FT_LOAD_NO_BITMAP);
     FT_Glyph thisGlyph;
     FT_CHECK(FT_Get_Glyph, face->glyph, &thisGlyph);
     glyphs.push_back(thisGlyph);
