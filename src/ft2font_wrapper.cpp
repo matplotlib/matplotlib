@@ -1,3 +1,4 @@
+#include <memory>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
@@ -470,7 +471,7 @@ const char *PyFT2Font_init__doc__ = R"""(
             This API is private: do not use it directly.
 )""";
 
-static PyFT2Font *
+static std::unique_ptr<PyFT2Font>
 PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nullopt,
                FT_Long face_index = 0,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
@@ -501,7 +502,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
                   std::back_inserter(fallback_fonts));
     }
 
-    auto self = new PyFT2Font(fallback_fonts, warn_if_used);
+    auto self = std::make_unique<PyFT2Font>(fallback_fonts, warn_if_used);
     self->set_kerning_factor(*kerning_factor);
 
     if (fallback_list) {
@@ -515,7 +516,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
     self->stream.base = nullptr;
     self->stream.size = 0x7fffffff;  // Unknown size.
     self->stream.pos = 0;
-    self->stream.descriptor.pointer = self;
+    self->stream.descriptor.pointer = self.get();
     self->stream.read = &read_from_file_callback;
     FT_Open_Args open_args;
     memset((void *)&open_args, 0, sizeof(FT_Open_Args));
