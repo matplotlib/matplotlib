@@ -79,7 +79,7 @@ class PathIterator
     }
 
     inline void
-    set(py::object vertices, py::object codes, bool should_simplify, double simplify_threshold)
+    set(py::object vertices, py::object codes, bool should_simplify = false, double simplify_threshold = 0.0)
     {
         m_should_simplify = should_simplify;
         m_simplify_threshold = simplify_threshold;
@@ -99,11 +99,6 @@ class PathIterator
         }
 
         m_iterator = 0;
-    }
-
-    inline void set(py::object vertices, py::object codes)
-    {
-        set(vertices, codes, false, 0.0);
     }
 
     inline unsigned vertex(double *x, double *y)
