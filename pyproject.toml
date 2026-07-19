@@ -134,7 +134,7 @@ test = [
     "pytest-rerunfailures!=16.0",
     "pytest-timeout",
     "pytest-xdist",
-    "pytest-xvfb",
+    # "pytest-xvfb",
     "tornado",
 ]
 
@@ -462,7 +462,8 @@ manylinux-x86_64-image = "manylinux_2_28"
 
 [tool.pixi.workspace]
 channels = ["conda-forge"]
-platforms = ["linux-64", "osx-arm64", "osx-64"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+preview = ["pixi-build"]
 
 [tool.pixi.dependencies]
 python = "3.12.*"
@@ -486,8 +487,8 @@ meson-python = ">=0.13.1,!=0.17.*"
 pybind11 = ">=2.13.2,!=2.13.3"
 setuptools_scm = ">=7,<10"
 
-[tool.pixi.pypi-dependencies]
-matplotlib = { path = ".", editable = true }
+[tool.pixi.dev]
+matplotlib = { path = "." }
 
 [tool.pixi.feature.doc.dependencies]
 sphinx= ">=5.1.0,!=6.1.2"
@@ -496,7 +497,7 @@ ipython = '*'
 ipywidgets = "*"
 ipykernel = "*"
 numpydoc = ">=1.0"
-# mpl-sphinx-theme = ">=3.11.0"
+mpl-sphinx-theme = ">=3.11.0"
 pyyaml = "*"
 PyStemmer = "*"
 sphinxcontrib-svg2pdfconverter = ">=1.1.0"
@@ -517,7 +518,7 @@ pytest-cov = "*"
 pytest-rerunfailures = "!=16.0"
 pytest-timeout = "*"
 pytest-xdist = "*"
-pytest-xvfb = "*"
+# pytest-xvfb = "*"
 tornado = "*"
 [tool.pixi.feature.test-extra.dependencies]
 ipykernel = '*'
@@ -537,6 +538,12 @@ types-pillow = '*'
 types-python-dateutil = '*'
 types-psutil = '*'
 sphinx = '*'
+
+[tool.pixi.tasks.build]
+# Not using an isolated pixi build because we're hitting an issue with meson's build.
+# ImportError: cannot import name '_c_internal_utils' from partially initialized module 'matplotlib' (most likely due to a circular import) (/Users/rubenarts/envs/matplotlib/lib/matplotlib/__init__.py)
+# To avoid that we do a `[dev]` install first and then use pip to do the build/install.
+cmd = "pip install --no-build-isolation --editable . --no-deps"
 
 [tool.pixi.tasks.clean-build]
 cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
@@ -565,3 +572,11 @@ test = { features = ["test"], solve-group = "main" }
 test-extra = { features = ["test", "test-extra"], solve-group = "main" }
 doc = { features = ["doc"], solve-group = "main" }
 typing = { features = ["typing"], solve-group = "main" }
+
+[tool.pixi.package]
+version = "lie"
+
+[tool.pixi.package.build.backend]
+name = "pixi-build-python"
+[tool.pixi.package.build.config]
+ignore-pypi-mapping = false
