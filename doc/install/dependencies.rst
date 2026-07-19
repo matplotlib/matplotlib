@@ -73,7 +73,7 @@ and the capabilities they provide.
   from https://wxpython.org/pages/downloads/.
 * Tornado_ (>= 5): for the WebAgg backend.
 * ipykernel_: for the nbagg backend.
-* macOS (>= 10.12): for the macosx backend.
+* macOS (>= 10.13): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
