@@ -183,8 +183,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     codes.reserve(estimated_points);
     if (FT_Error error = FT_Outline_Decompose(
             &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
-        throw std::runtime_error("FT_Outline_Decompose failed with error " +
-                                 std::to_string(error));
+        THROW_FT_ERROR("Decompose font outline", error);
     }
     if (vertices.empty()) {  // Don't append CLOSEPOLY to null glyphs.
         return;
@@ -488,12 +487,12 @@ void FT2Font::set_text(
         FT_Error error;
         error = FT_Load_Glyph(rglyph.ftface, rglyph.index, flags);
         if (error) {
-            throw std::runtime_error("failed to load glyph");
+            THROW_FT_ERROR("Loading glyphs", error);
         }
         FT_Glyph thisGlyph;
         error = FT_Get_Glyph(rglyph.ftface->glyph, &thisGlyph);
         if (error) {
-            throw std::runtime_error("failed to get glyph");
+            THROW_FT_ERROR("Getting glyphs", error);
         }
 
         pen.x += rglyph.x_offset;
