@@ -61,8 +61,9 @@ Matplotlib recognizes the following formats to specify a color.
 +--------------------------------------+--------------------------------------+
 | "CN" color spec where ``'C'``        | - ``'C0'``                           |
 | precedes a number acting as an index | - ``'C1'``                           |
-| into the default property cycle.     +--------------------------------------+
-|                                      | :rc:`axes.prop_cycle`                |
+| into the default property cycle      |                                      |
+| (:rc:`axes.prop_cycle`).             |                                      |
+|                                      |                                      |
 | .. note:: The cycle comes from the   |                                      |
 |           global                     |                                      |
 |           :rc:`axes.prop_cycle`, not |                                      |
