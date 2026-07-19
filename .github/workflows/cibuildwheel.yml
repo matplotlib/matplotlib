@@ -124,16 +124,6 @@ jobs:
         if: startsWith(matrix.os, 'windows-')
         run: Remove-Item -Recurse C:\Strawberry
 
-      - name: Build wheels for CPython 3.15
-        uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
-        with:
-          package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
-        env:
-          CIBW_ENABLE: cpython-prerelease
-          CIBW_BUILD: "cp315-* cp315t-*"
-          CIBW_ARCHS: ${{ matrix.cibw_archs }}
-
-
       - name: Build wheels for CPython 3.14
         uses: pypa/cibuildwheel@294735312765b09d24a2fbec22660ce817587d55  # v4.1.0
         with:
