@@ -317,13 +317,13 @@ const char *PyGlyph__doc__ = R"""(
     <https://freetype.org/freetype2/docs/glyphs/glyphs-3.html>`_.
 )""";
 
-static std::unique_ptr<PyGlyph>
+static PyGlyph *
 PyGlyph_from_FT2Font(const FT2Font *font)
 {
     const FT_Face &face = font->get_face();
     const FT_Glyph &glyph = font->get_last_glyph();
 
-    std::unique_ptr<PyGlyph> self = std::make_unique<PyGlyph>();
+    PyGlyph* self = new PyGlyph();
 
     self->glyphInd = font->get_last_glyph_index();
     FT_Glyph_Get_CBox(glyph, ft_glyph_bbox_subpixels, &self->bbox);
@@ -740,7 +740,7 @@ const char *PyFT2Font_load_char__doc__ = R"""(
     .set_charmap
 )""";
 
-static std::unique_ptr<PyGlyph>
+static PyGlyph *
 PyFT2Font_load_char(PyFT2Font *self, long charcode,
                     LoadFlags flags = LoadFlags::FORCE_AUTOHINT)
 {
@@ -778,7 +778,7 @@ const char *PyFT2Font_load_glyph__doc__ = R"""(
     .load_char
 )""";
 
-static std::unique_ptr<PyGlyph>
+static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
                      LoadFlags flags = LoadFlags::FORCE_AUTOHINT)
 {
