@@ -1487,7 +1487,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
     p11x::enums["FaceFlags"].attr("__doc__") = FaceFlags__doc__;
     p11x::enums["StyleFlags"].attr("__doc__") = StyleFlags__doc__;
 
-    py::classh<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
+    py::class_<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
                          PyFT2Image__doc__)
         .def(py::init(
                 [](long width, long height) {
@@ -1507,7 +1507,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
 
-    py::classh<PyPositionedBitmap>(m, "_PositionedBitmap", py::is_final())
+    py::class_<PyPositionedBitmap>(m, "_PositionedBitmap", py::is_final())
         .def_readonly("left", &PyPositionedBitmap::left)
         .def_readonly("top", &PyPositionedBitmap::top)
         .def_property_readonly(
@@ -1518,7 +1518,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         })
         ;
 
-    py::classh<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
+    py::class_<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
             // Glyph is not useful from Python, so mark it as not constructible.
             throw std::runtime_error("Glyph is not constructible");
@@ -1542,7 +1542,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly("bbox", &PyGlyph_get_bbox,
                                "The control box of the glyph.");
 
-    py::classh<LayoutItem>(m, "LayoutItem", py::is_final())
+    py::class_<LayoutItem>(m, "LayoutItem", py::is_final())
         .def(py::init<>([]() -> LayoutItem {
             // LayoutItem is not useful from Python, so mark it as not constructible.
             throw std::runtime_error("LayoutItem is not constructible");
@@ -1568,7 +1568,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                         item.glyph_index, item.x, item.y, item.prev_kern);
                 });
 
-        auto cls = py::classh<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+        auto cls = py::class_<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
                                          PyFT2Font__doc__)
         .def(py::init(&PyFT2Font_init),
              "filename"_a, "hinting_factor"_a=py::none(), py::kw_only(),

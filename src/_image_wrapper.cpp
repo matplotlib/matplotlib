@@ -1,4 +1,3 @@
-#include <pybind11/native_enum.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
@@ -290,7 +289,7 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
 
 PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
 {
-    py::native_enum<interpolation_e>(m, "_InterpolationType", "enum.IntEnum")
+    py::enum_<interpolation_e>(m, "_InterpolationType")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)
         .value("BICUBIC", BICUBIC)
