@@ -35,10 +35,16 @@ for ax, h in zip(axs.flat, hatches):
 
 # %%
 # Hatching patterns can be repeated to increase the density.
+#
+# .. note::
+#    In regular (non-raw) Python strings, backslashes must be doubled:
+#    ``'\\\\'`` and ``r'\\'`` are both the two-character hatch ``\\``.
+#    Forgetting this silently halves the density — ``'\\\\\\'`` is only a
+#    triple hatch and thus sparser than ``'//////'``.
 
 fig, axs = plt.subplots(2, 5, layout='constrained', figsize=(6.4, 3.2))
 
-hatches = ['//', '\\\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
+hatches = ['//', r'\\', '||', '--', '++', 'xx', 'oo', 'OO', '..', '**']
 
 for ax, h in zip(axs.flat, hatches):
     hatches_plot(ax, h)
@@ -48,7 +54,7 @@ for ax, h in zip(axs.flat, hatches):
 
 fig, axs = plt.subplots(2, 5, layout='constrained', figsize=(6.4, 3.2))
 
-hatches = ['/o', '\\|', '|*', '-\\', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
+hatches = ['/o', r'\|', '|*', r'\-', '+o', 'x*', 'o-', 'O|', 'O.', '*-']
 
 for ax, h in zip(axs.flat, hatches):
     hatches_plot(ax, h)
