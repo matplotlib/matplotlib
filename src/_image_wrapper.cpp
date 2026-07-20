@@ -307,8 +307,7 @@ PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
         .value("SINC", SINC)
         .value("LANCZOS", LANCZOS)
         .value("BLACKMAN", BLACKMAN)
-        .export_values()
-        .finalize();
+        .export_values();
 
     m.def("resample", &image_resample,
         "input_array"_a,
