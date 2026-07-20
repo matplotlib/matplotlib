@@ -405,7 +405,11 @@ def test_qt_draw_overlay_draws_only_overlay_artists():
     overlay_line.set_in_overlay(True)
     ax.add_line(normal_line)
     ax.add_line(overlay_line)
-    fig.draw(fig.canvas.get_renderer())
+    assert normal_line.stale is True
+    assert overlay_line.stale is True
+    fig.canvas.draw()
+    assert normal_line.stale is False
+    assert overlay_line.stale is False
 
     with patch.object(normal_line, 'draw') as mock_normal, \
          patch.object(overlay_line, 'draw') as mock_overlay:
@@ -422,8 +426,8 @@ def test_qt_draw_overlay_clears_stale():
     overlay_line = Line2D([0, 1], [0, 1], color='red')
     overlay_line.set_in_overlay(True)
     ax.add_line(overlay_line)
-    fig.draw(fig.canvas.get_renderer())
-    fig.canvas.draw_overlay()
+    assert overlay_line.stale is True
+    fig.canvas.draw()
 
     # Mock draw_overlay to prevent it from clearing stale
     with patch.object(fig.canvas, 'draw_overlay') as mock_draw:
@@ -446,16 +450,63 @@ def test_qt_draw_overlay_clears_on_removal():
     overlay_line.set_in_overlay(True)
     ax.add_line(overlay_line)
 
-    # 1. Trigger the overlay creation
+    # Trigger the overlay creation
     fig.canvas.draw()
     assert hasattr(fig.canvas, '_overlay_qimage')
 
-    # 2. Set to normal drawing mode (removes from overlay)
     overlay_line.set_in_overlay(False)
-
-
-    # A full draw() should also clean up the overlay buffer!
     fig.canvas.draw()
 
-    # 3. Verify the overlay image is deleted!
+    # Verify the overlay image is deleted!
     assert not hasattr(fig.canvas, '_overlay_qimage')
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_included_in_save():
+    """Overlay artists should be included when saving figure."""
+    import io
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    fig.draw(canvas.get_renderer())
+
+    # Overlay should be drawn in savefig
+    with patch.object(overlay_line, 'draw') as mock_draw:
+        fig.savefig(io.BytesIO())
+        mock_draw.assert_called()
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_animated_precedence():
+    """Verify animated takes precedence over overlay."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    # Case 1: Only overlay (animated=False)
+    line.set_animated(False)
+    line.set_in_overlay(True)
+    fig.draw(canvas.get_renderer())
+
+    with patch.object(canvas, 'draw_overlay') as mock:
+        line.set_color('red')
+        mock.assert_called()  # draw_overlay called
+
+    # Case 2: Both flags (animated takes precedence)
+    line.set_animated(True)
+    fig.draw(canvas.get_renderer())
+
+    with patch.object(canvas, 'draw_overlay') as mock:
+        line.set_color('blue')
+        mock.assert_not_called()  # animated blocks overlay path
