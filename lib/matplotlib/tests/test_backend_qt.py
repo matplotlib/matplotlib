@@ -475,7 +475,7 @@ def test_qt_overlay_included_in_save():
     overlay_line.set_in_overlay(True)
     ax.add_line(overlay_line)
 
-    fig.draw(canvas.get_renderer())
+    fig.canvas.draw()
 
     # Overlay should be drawn in savefig
     with patch.object(overlay_line, 'draw') as mock_draw:
@@ -497,7 +497,7 @@ def test_qt_animated_precedence():
     # Case 1: Only overlay (animated=False)
     line.set_animated(False)
     line.set_in_overlay(True)
-    fig.draw(canvas.get_renderer())
+    fig.canvas.draw()
 
     with patch.object(canvas, 'draw_overlay') as mock:
         line.set_color('red')
@@ -505,8 +505,31 @@ def test_qt_animated_precedence():
 
     # Case 2: Both flags (animated takes precedence)
     line.set_animated(True)
-    fig.draw(canvas.get_renderer())
+    fig.canvas.draw()
 
     with patch.object(canvas, 'draw_overlay') as mock:
         line.set_color('blue')
         mock.assert_not_called()  # animated blocks overlay path
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_multiple_updates():
+    """Verify that multiple updates trigger draw_overlay synchronously."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+
+    overlay_line = Line2D([0, 1], [0, 1])
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    fig.canvas.draw()
+
+    with patch.object(canvas, 'draw_overlay') as mock:
+        overlay_line.set_color('red')
+        overlay_line.set_linewidth(2.0)
+        overlay_line.set_alpha(0.5)
+
+        assert mock.call_count == 3

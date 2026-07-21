@@ -88,9 +88,10 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         Draw only the overlay artists into a separate QImage buffer,
         then trigger a Qt repaint to composite it on screen.
         """
-        # Recursively find all artists in the figure hierarchy that have in_overlay=True
+        # Find all artists with in_overlay=True that are not animated
         overlay_artists = self.figure.findobj(
-            lambda x: getattr(x, 'get_in_overlay', lambda: False)()
+            lambda x: (getattr(x, 'get_in_overlay', lambda: False)()
+                       and not x.get_animated())
         )
 
         # Sort artists by zorder to ensure proper rendering stacking
