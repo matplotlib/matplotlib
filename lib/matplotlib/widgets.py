@@ -873,6 +873,7 @@ class RangeSlider(SliderBase):
 
     def _min_in_bounds(self, min):
         """Ensure the new min value is between valmin and self.val[1]."""
+        min = self._stepped_value(min)
         if min <= self.valmin:
             if not self.closedmin:
                 return self.val[0]
@@ -880,10 +881,11 @@ class RangeSlider(SliderBase):
 
         if min > self.val[1]:
             min = self.val[1]
-        return self._stepped_value(min)
+        return min
 
     def _max_in_bounds(self, max):
         """Ensure the new max value is between valmax and self.val[0]."""
+        max = self._stepped_value(max)
         if max >= self.valmax:
             if not self.closedmax:
                 return self.val[1]
@@ -891,7 +893,7 @@ class RangeSlider(SliderBase):
 
         if max <= self.val[0]:
             max = self.val[0]
-        return self._stepped_value(max)
+        return max
 
     def _value_in_bounds(self, vals):
         """Clip min, max values to the bounds."""

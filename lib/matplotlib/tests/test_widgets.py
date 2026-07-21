@@ -1397,6 +1397,21 @@ def test_range_slider_same_init_values(orientation):
     assert_allclose(box.get_points().flatten()[idx], [0, 0.25, 0, 0.75])
 
 
+def test_range_slider_valstep_bounds():
+    # Regression test: with a valstep whose grid extends past valmax, the
+    # value must be snapped to the grid *and* kept within [valmin, valmax],
+    # matching the single Slider (which steps before clamping). Here the grid
+    # is 0, 6, 12, ... and valmax is 10.
+    fig, ax = plt.subplots()
+    slider = widgets.RangeSlider(ax=ax, label="", valmin=0.0, valmax=10.0,
+                                 valstep=6.0, valinit=(0.0, 10.0))
+    # valinit is clamped through the same path as set_val.
+    assert_allclose(slider.val, (0.0, 10.0))
+    slider.set_val((0.0, 9.0))
+    assert_allclose(slider.val, (0.0, 10.0))
+    assert slider.valmin <= slider.val[0] <= slider.val[1] <= slider.valmax
+
+
 def check_polygon_selector(events, expected, selections_count, **kwargs):
     """
     Helper function to test Polygon Selector.
