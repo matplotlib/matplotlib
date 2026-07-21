@@ -3729,11 +3729,10 @@ def hsv_to_rgb(hsv):
                          f"shape {hsv.shape} was found.")
 
     in_shape = hsv.shape
-    hsv = np.array(
-        hsv, copy=False,
-        dtype=np.promote_types(hsv.dtype, np.float32),  # Don't work on ints.
-        ndmin=2,  # In case input was 1D.
-    )
+    # ensure numerics are done at least on float32; ints are cast as well
+    hsv = np.asarray(hsv, dtype=np.promote_types(hsv.dtype, np.float32))
+    if hsv.ndim == 1:
+        hsv = np.expand_dims(hsv, axis=0)  # ensure hsv is 2D
 
     h = hsv[..., 0]
     s = hsv[..., 1]
