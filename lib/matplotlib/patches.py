@@ -639,7 +639,6 @@ class Patch(artist.Artist):
 
         In regular (non-raw) Python strings, backslashes must be doubled:
         ``'\\\\'`` and ``r'\\'`` are both a double back-diagonal hatch.
-        Forgetting this silently halves the density.
 
         Parameters
         ----------

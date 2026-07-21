@@ -37,7 +37,7 @@ for ax, h in zip(axs.flat, hatches):
 # Hatching patterns can be repeated to increase the density.
 #
 # .. note::
-#    In regular (non-raw) Python strings, backslashes must be doubled:
+#    In regular (non-raw) Python strings, backslashes must be escaped:
 #    ``'\\\\'`` and ``r'\\'`` are both the two-character hatch ``\\``.
 #    Forgetting this silently halves the density — ``'\\\\\\'`` is only a
 #    triple hatch and thus sparser than ``'//////'``.
