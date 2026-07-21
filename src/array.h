@@ -22,12 +22,12 @@ class scalar
     {
     }
 
-    T &operator()(int i, int j = 0, int k = 0)
+    T &operator()([[maybe_unused]] int i, [[maybe_unused]] int j = 0, [[maybe_unused]] int k = 0)
     {
         return m_value;
     }
 
-    const T &operator()(int i, int j = 0, int k = 0) const
+    const T &operator()([[maybe_unused]] int i, [[maybe_unused]] int j = 0, [[maybe_unused]] int k = 0) const
     {
         return m_value;
     }
@@ -58,22 +58,22 @@ class empty
 
     empty() = default;
 
-    T &operator()(int i, int j = 0, int k = 0)
+    T &operator()([[maybe_unused]] int i, [[maybe_unused]] int j = 0, [[maybe_unused]] int k = 0)
     {
         throw std::runtime_error("Accessed empty array");
     }
 
-    const T &operator()(int i, int j = 0, int k = 0) const
+    const T &operator()([[maybe_unused]] int i, [[maybe_unused]] int j = 0, [[maybe_unused]] int k = 0) const
     {
         throw std::runtime_error("Accessed empty array");
     }
 
-    sub_t operator[](int i) const
+    sub_t operator[]([[maybe_unused]] int i) const
     {
         return empty<T>();
     }
 
-    int shape(size_t i) const
+    int shape([[maybe_unused]] size_t i) const
     {
         return 0;
     }
