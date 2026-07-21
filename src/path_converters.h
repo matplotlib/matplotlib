@@ -17,7 +17,7 @@
  This file contains a number of vertex converters that modify
  paths. They all work as iterators, where the output is generated
  on-the-fly, and don't require a copy of the full data.
-
+./src/path_converters.h
  Each class represents a discrete step in a "path-cleansing" pipeline.
  They are currently applied in the following order in the Agg backend:
 
@@ -193,7 +193,7 @@ class PathNanRemover : protected EmbeddedQueue<4>
 
     constexpr unsigned vertex(double *x, double *y)
     {
-        unsigned code;
+        unsigned code = 0;
 
         if (!m_remove_nans) {
             return m_source->vertex(x, y);
@@ -628,7 +628,7 @@ class PathSnapper
 
     constexpr unsigned vertex(double *x, double *y)
     {
-        unsigned code;
+        unsigned code = 0;
         code = m_source->vertex(x, y);
         if (m_snap && agg::is_vertex(code)) {
             *x = floor(*x + 0.5) + m_snap_value;
