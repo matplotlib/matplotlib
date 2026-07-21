@@ -128,3 +128,23 @@ def test_set_ticks_emits_lim_changed():
     ax2.callbacks.connect("ylim_changed", called_polar.append)
     ax2.set_rticks([1, 2, 3])
     assert called_polar
+
+
+    def test_tick_space_rotation():
+        # Rotating x tick labels towards vertical should let more x ticks fit
+        # (their horizontal footprint shrinks), while rotating y tick labels
+        # towards vertical should let fewer y ticks fit (their vertical
+        # footprint grows). See issue #32005.
+        fig, ax = plt.subplots(figsize=(1.8, 1.8), layout="constrained")
+        fig.canvas.draw()
+        xspace_horizontal = ax.xaxis.get_tick_space()
+        yspace_horizontal = ax.yaxis.get_tick_space()
+
+        fig2, ax2 = plt.subplots(figsize=(1.8, 1.8), layout="constrained")
+        ax2.tick_params(rotation=90)
+        fig2.canvas.draw()
+        xspace_vertical = ax2.xaxis.get_tick_space()
+        yspace_vertical = ax2.yaxis.get_tick_space()
+
+        assert xspace_vertical > xspace_horizontal
+        assert yspace_vertical < yspace_horizontal
