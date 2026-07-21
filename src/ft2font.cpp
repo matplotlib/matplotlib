@@ -162,7 +162,10 @@ static FT_Outline_Funcs ft_outline_funcs = {
     ft_outline_move_to,
     ft_outline_line_to,
     ft_outline_conic_to,
-    ft_outline_cubic_to};
+    ft_outline_cubic_to,
+    0,
+    0,
+};
 
 void
 FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes)
