@@ -32,7 +32,7 @@ class scalar
         return m_value;
     }
 
-    int shape(size_t i)
+    int shape([[maybe_unused]] size_t i)
     {
         return 1;
     }
