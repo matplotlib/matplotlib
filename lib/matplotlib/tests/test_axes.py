@@ -4500,6 +4500,7 @@ def test_tick_space_size_0():
     b = io.BytesIO()
     plt.savefig(b, dpi=80, format='raw')
 
+
 @image_comparison(['errorbar_basic.png', 'errorbar_mixed.png', 'errorbar_basic.png'],
                   style='mpl20')
 def test_errorbar():
