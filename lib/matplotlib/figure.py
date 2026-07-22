@@ -1648,6 +1648,13 @@ default: %(va)s
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
         """
+        # Without a layout engine, None is documented to mean zero.
+        # GridSpec passes None through to SubplotParams, which leaves the
+        # rcParam default (0.2) in place, so fix it up here.
+        if self.get_layout_engine() is None:
+            wspace = wspace if wspace is not None else 0.0
+            hspace = hspace if hspace is not None else 0.0
+
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self,
                       wspace=wspace, hspace=hspace,
                       width_ratios=width_ratios,
