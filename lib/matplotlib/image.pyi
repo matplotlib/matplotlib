@@ -1,8 +1,7 @@
 from collections.abc import Callable, Sequence
-from enum import Enum
 import os
 import pathlib
-from typing import Any, BinaryIO, Literal, cast
+from typing import Any, BinaryIO, Literal
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
@@ -20,58 +19,34 @@ from matplotlib.transforms import Affine2D, BboxBase, Bbox, Transform
 # These names are re-exported from matplotlib._image.
 #
 
-class _InterpolationType(Enum):
-    NEAREST = cast(int, ...)
-    BILINEAR = cast(int, ...)
-    BICUBIC = cast(int, ...)
-    SPLINE16 = cast(int, ...)
-    SPLINE36 = cast(int, ...)
-    HANNING = cast(int, ...)
-    HAMMING = cast(int, ...)
-    HERMITE = cast(int, ...)
-    KAISER = cast(int, ...)
-    QUADRIC = cast(int, ...)
-    CATROM = cast(int, ...)
-    GAUSSIAN = cast(int, ...)
-    BESSEL = cast(int, ...)
-    MITCHELL = cast(int, ...)
-    SINC = cast(int, ...)
-    LANCZOS = cast(int, ...)
-    BLACKMAN = cast(int, ...)
-
-# ``_InterpolationType`` uses ``.export_values()``, so every member is also
-# injected as a module-level constant.
-NEAREST: _InterpolationType
-BILINEAR: _InterpolationType
-BICUBIC: _InterpolationType
-SPLINE16: _InterpolationType
-SPLINE36: _InterpolationType
-HANNING: _InterpolationType
-HAMMING: _InterpolationType
-HERMITE: _InterpolationType
-KAISER: _InterpolationType
-QUADRIC: _InterpolationType
-CATROM: _InterpolationType
-GAUSSIAN: _InterpolationType
-BESSEL: _InterpolationType
-MITCHELL: _InterpolationType
-SINC: _InterpolationType
-LANCZOS: _InterpolationType
-BLACKMAN: _InterpolationType
+BESSEL: int
+BICUBIC: int
+BILINEAR: int
+BLACKMAN: int
+CATROM: int
+GAUSSIAN: int
+HAMMING: int
+HANNING: int
+HERMITE: int
+KAISER: int
+LANCZOS: int
+MITCHELL: int
+NEAREST: int
+QUADRIC: int
+SINC: int
+SPLINE16: int
+SPLINE36: int
 
 def resample(
     input_array: NDArray[np.float32] | NDArray[np.float64] | NDArray[np.int8],
     output_array: NDArray[np.float32] | NDArray[np.float64] | NDArray[np.int8],
     transform: Transform,
-    interpolation: _InterpolationType = ...,
+    interpolation: int = ...,
     resample: bool = ...,
     alpha: float = ...,
     norm: bool = ...,
     radius: float = ...,
 ) -> None: ...
-def calculate_rms_and_diff(
-    expected_image: np.ndarray, actual_image: np.ndarray
-) -> tuple[float, np.ndarray]: ...
 
 #
 # END names re-exported from matplotlib._image.
