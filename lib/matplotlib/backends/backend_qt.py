@@ -87,6 +87,13 @@ cursord = {
 }
 
 
+def _create_WindowIcon():
+    icon = QtGui.QIcon()
+    icon.addFile(str(cbook._get_data_path('images/matplotlib_small.svg')))
+    icon.addFile(str(cbook._get_data_path('images/matplotlib.svg')))
+    return icon
+
+
 # lru_cache keeps a reference to the QApplication instance, keeping it from
 # being GC'd.
 @functools.lru_cache(1)
@@ -136,9 +143,7 @@ def _create_qApp():
             pass
         app = QtWidgets.QApplication(["matplotlib"])
         if sys.platform == "darwin":
-            image = str(cbook._get_data_path('images/matplotlib.svg'))
-            icon = QtGui.QIcon(image)
-            app.setWindowIcon(icon)
+            app.setWindowIcon(_create_WindowIcon())
         app.setQuitOnLastWindowClosed(True)
         cbook._setup_new_guiapp()
         if qt_version == 5:
@@ -590,9 +595,7 @@ class FigureManagerQT(FigureManagerBase):
         self.window.closing.connect(self._widgetclosed)
 
         if sys.platform != "darwin":
-            image = str(cbook._get_data_path('images/matplotlib.svg'))
-            icon = QtGui.QIcon(image)
-            self.window.setWindowIcon(icon)
+            self.window.setWindowIcon(_create_WindowIcon())
 
         self.window._destroying = False
 
@@ -983,8 +986,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
 class SubplotToolQt(QtWidgets.QDialog):
     def __init__(self, targetfig, parent):
         super().__init__(parent)
-        self.setWindowIcon(QtGui.QIcon(
-            str(cbook._get_data_path("images/matplotlib.png"))))
+        self.setWindowIcon(_create_WindowIcon())
         self.setObjectName("SubplotTool")
         self._spinboxes = {}
         main_layout = QtWidgets.QHBoxLayout()
