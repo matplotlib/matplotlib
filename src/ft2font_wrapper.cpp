@@ -516,16 +516,29 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
         // loads read from it directly rather than routing through the Python
         // file object.
         py::object data;
+        py::object mmap_module;
         try {
-            auto mmap_module = py::module_::import("mmap");
-            data = mmap_module.attr("mmap")(
-                self->py_file.attr("fileno")(), 0,
-                "access"_a=mmap_module.attr("ACCESS_READ"));
+            mmap_module = py::module_::import("mmap");
         } catch (py::error_already_set &eas) {
-            if (!eas.matches(PyExc_ValueError) && !eas.matches(PyExc_OSError)) {
+            if (!eas.matches(PyExc_ImportError)) {
                 throw;
             }
-            // Zero-length or otherwise unmappable files fall back to a copy.
+            // Some platforms (e.g. WASI) don't provide the mmap module.
+        }
+        if (mmap_module) {
+            try {
+                data = mmap_module.attr("mmap")(
+                    self->py_file.attr("fileno")(), 0,
+                    "access"_a=mmap_module.attr("ACCESS_READ"));
+            } catch (py::error_already_set &eas) {
+                if (!eas.matches(PyExc_ValueError) && !eas.matches(PyExc_OSError)) {
+                    throw;
+                }
+                // Zero-length or otherwise unmappable file.
+            }
+        }
+        if (!data) {
+            // Fall back to a copy of the whole file into memory.
             data = self->py_file.attr("read")();
         }
         self->py_file.attr("close")();

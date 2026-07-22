@@ -2,6 +2,7 @@ import itertools
 import io
 import os
 import shutil
+import sys
 from pathlib import Path
 from typing import cast
 
@@ -169,6 +170,16 @@ def test_ft2font_unicode_path(tmp_path):
     font = ft2font.FT2Font(file_bytes)
     font.set_text('foo')
     assert font.fname == file_bytes
+
+
+def test_ft2font_no_mmap(monkeypatch):
+    # Simulate platforms without the mmap module (e.g. WASI), which should fall
+    # back to reading the whole file into memory.
+    monkeypatch.setitem(sys.modules, 'mmap', None)
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo')
+    assert font.fname == file
 
 
 def test_ft2font_invalid_args(tmp_path):
