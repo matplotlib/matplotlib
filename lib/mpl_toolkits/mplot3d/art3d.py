@@ -258,8 +258,10 @@ callable, default: 'data'
             for a full description of supported values.
         textcoords : single or two-tuple of str or `.Artist` or `.Transform` \
 or callable, default: value of *xycoords*
-            The coordinate system that *xytext* is given in.  See
-            `.Annotation` for a full description of supported values.
+            The coordinate system that *xytext* is given in.  Must be
+            ``'data'`` when *xytext* is a 3-tuple (or ``None`` with
+            *xycoords* ``'data'``).  See `.Annotation` for a full
+            description of supported values.
         arrowprops : dict, optional
             The properties used to draw a `.FancyArrowPatch` arrow between the
             positions *xy* and *xytext*.  If *None*, no arrow is drawn.
