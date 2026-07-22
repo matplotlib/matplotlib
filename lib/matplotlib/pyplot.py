@@ -946,9 +946,9 @@ def figure(
     figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
         The figure dimensions. This can be
 
-        - a tuple ``(width, height, unit)``, where *unit* is one of "inch", "cm",
+        - a tuple ``(width, height, unit)``, where *unit* is one of "in", "cm",
           "px".
-        - a tuple ``(x, y)``, which is interpreted as ``(x, y, "inch")``.
+        - a tuple ``(x, y)``, which is interpreted as ``(x, y, "in")``.
 
         One of *width* or *height* may be ``None``; the respective value is taken
         from :rc:`figure.figsize`.
