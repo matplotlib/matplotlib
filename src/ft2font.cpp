@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <iterator>
 #include <map>
+#include <mutex>
+#include <new>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -18,9 +20,22 @@
 
 FT_Library _ft2Library;
 
+// FreeType is not thread-safe when a single FT_Library is shared across
+// threads: FT_Open_Face and FT_Done_Face mutate the library's internal list of
+// faces. The extension modules declare py::mod_gil_not_used(), so these can run
+// concurrently under free-threading; serialize them with this mutex. Per-face
+// glyph loading and bitmap conversion only use the (malloc-based) memory
+// manager and are deliberately left unguarded to preserve render parallelism.
+static std::mutex _ft2LibraryMutex;
+
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
+    // calloc(width, height) performs the width*height overflow check internally
+    // and returns nullptr on overflow or allocation failure.
+    : m_buffer((unsigned char *)calloc(width, height)), m_width(width), m_height(height)
 {
+    if (!m_buffer && width != 0 && height != 0) {
+        throw std::bad_alloc();
+    }
 }
 
 FT2Image::~FT2Image()
@@ -197,7 +212,11 @@ FT2Font::~FT2Font()
 
 void FT2Font::open(FT_Open_Args &open_args, FT_Long face_index)
 {
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, face_index, &face);
+    {
+        // FT_Open_Face mutates the shared _ft2Library; serialize it.
+        std::scoped_lock lock{_ft2LibraryMutex};
+        FT_CHECK(FT_Open_Face, _ft2Library, &open_args, face_index, &face);
+    }
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }
@@ -220,6 +239,8 @@ void FT2Font::close()
     glyphs.clear();
 
     if (face) {
+        // FT_Done_Face mutates the shared _ft2Library; serialize it.
+        std::scoped_lock lock{_ft2LibraryMutex};
         FT_Done_Face(face);
         face = nullptr;
     }
