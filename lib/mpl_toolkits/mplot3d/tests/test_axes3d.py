@@ -110,6 +110,26 @@ def test_annotate_3d_equivalent_to_axes_annotate(fig_test, fig_ref):
     )
 
 
+def test_annotate_3d_follows_view():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ann = ax.annotate("foo", (1, 1, 1))
+    assert isinstance(ann, art3d.Annotation3D)
+
+    FigureCanvasAgg(fig).draw()
+    r = fig.canvas.get_renderer()
+    p0 = np.asarray(ann._get_position_xy(r))
+
+    ax.view_init(elev=10, azim=20)
+    FigureCanvasAgg(fig).draw()
+    r = fig.canvas.get_renderer()
+    p1 = np.asarray(ann._get_position_xy(r))
+
+    assert np.isfinite(p0).all() and np.isfinite(p1).all()
+    assert not np.allclose(p0, p1), \
+        "3D annotation should follow view rotation"
+
+
 def test_annotate_3d_clip_on_special_casing():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
