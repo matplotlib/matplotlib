@@ -1354,10 +1354,9 @@ class _AxesBase(martist.Artist):
         xaxis_visible = self.xaxis.get_visible()
         yaxis_visible = self.yaxis.get_visible()
 
-        for axis in self._axis_map.values():
+        for name, axis in self._axis_map.items():
             axis.clear()  # Also resets the scale to linear.
             # need to do any shared axis scales as well
-            name = axis._get_axis_name()
             for other in axis._get_shared_axes():
                 if other is self.axes:
                     continue

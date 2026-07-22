@@ -9327,7 +9327,6 @@ def test_shared_axes_clear_scale(recwarn):
     assert isinstance(axs[1].yaxis._scale, mscales.LinearScale)
 
 
-
 def test_shared_axes_retick():
     fig, axs = plt.subplots(2, 2, sharex='all', sharey='all')
 
