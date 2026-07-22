@@ -10,7 +10,7 @@ arrays.
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
-from basic_units import hertz, minutes, secs
+from basic_units_sgskip import hertz, minutes, secs
 
 import matplotlib.pyplot as plt
 import numpy as np

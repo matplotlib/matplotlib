@@ -11,7 +11,7 @@ annotations using a centimeter-scale plot.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
-from basic_units import cm
+from basic_units_sgskip import cm
 
 import matplotlib.pyplot as plt
 

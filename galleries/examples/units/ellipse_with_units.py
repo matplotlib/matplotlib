@@ -10,7 +10,7 @@ Compare the ellipse generated with arcs versus a polygonal approximation.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
-from basic_units import cm
+from basic_units_sgskip import cm
 
 import matplotlib.pyplot as plt
 import numpy as np

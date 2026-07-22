@@ -16,7 +16,7 @@ to scalars.
 """
 import random
 
-from basic_units import cm, inch
+from basic_units_sgskip import cm, inch
 
 import matplotlib.pyplot as plt
 import numpy as np

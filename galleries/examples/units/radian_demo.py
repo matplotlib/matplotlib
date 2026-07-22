@@ -14,7 +14,7 @@ formatting and axis labeling.
    This example requires :download:`basic_units.py <basic_units.py>`
 """
 
-from basic_units import cos, degrees, radians
+from basic_units_sgskip import cos, degrees, radians
 
 import matplotlib.pyplot as plt
 import numpy as np

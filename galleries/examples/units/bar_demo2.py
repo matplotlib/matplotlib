@@ -13,7 +13,7 @@ set the xlimits using scalars (ax3, current units assumed) or units
 
    This example requires :download:`basic_units.py <basic_units.py>`
 """
-from basic_units import cm, inch
+from basic_units_sgskip import cm, inch
 
 import matplotlib.pyplot as plt
 import numpy as np
