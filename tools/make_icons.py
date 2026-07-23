@@ -65,6 +65,8 @@ import argparse
 import subprocess
 import shutil
 from pathlib import Path
+import xml.etree.ElementTree as ElementTree
+from xml.etree.ElementTree import Element
 
 from lxml import etree
 import pikepdf
@@ -97,32 +99,96 @@ def run_command(*args: str) -> None:
         raise RuntimeError(err.stderr.strip()) from err
 
 
-def run_inkscape(actions: list[str]) -> None:
-    actions_str = "; ".join(actions) + ";"
-    run_command(INKSCAPE_BIN, "--actions", actions_str)
+def svg_size(element: Element) -> tuple[int, int]:
+    width = element.get("width")
+    height = element.get("height")
+    viewbox = element.get("viewBox")
+
+    if width and height:
+        return int(width.removesuffix("px")), int(height.removesuffix("px"))
+
+    if viewbox:
+        _, _, w, h = map(int, viewbox.split())
+        return w, h
+
+    raise ValueError("Could not determine SVG size from element")
 
 
-def optimize_png(png_path: Path) -> None:
-    """Removes all metadata from a PNG file and then runs `optipng`"""
-    img = Image.open(png_path)
-    img.save(png_path)  # Should save without metadata
-    run_command(OPTIPNG_BIN, str(png_path))
+class ImageConverter:
+    def __init__(self) -> None:
+        self._pdf_paths = []
+        self._png_paths = []
+        self._actions = []
+        self._original_size = None
 
+    def _optimize_png(self, png_path: Path) -> None:
+        """Removes all metadata from a PNG file and then runs `optipng`"""
+        with Image.open(png_path) as img:
+            img.save(png_path)  # Should save without metadata
+        run_command(OPTIPNG_BIN, str(png_path))
 
-def optimize_pdf(pdf_path: Path) -> None:
-    """Removes all metadata from a PDF file."""
-    with pikepdf.Pdf.open(pdf_path, allow_overwriting_input=True) as pdf:
-        # Each PDF gets a fresh CreationDate when we run make_icons.py
-        # This dirties the git working tree directory, so strip all metadata
-        # that could change.
-        for key in ("/CreationDate", "/ModDate", "/Creator", "/Producer"):
-            if key in pdf.docinfo:
-                del pdf.docinfo[key]
+    def _optimize_pdf(self, pdf_path: Path) -> None:
+        """Removes all metadata from a PDF file."""
+        with pikepdf.Pdf.open(pdf_path, allow_overwriting_input=True) as pdf:
+            # Each PDF gets a fresh CreationDate when we run make_icons.py
+            # This dirties the git working tree directory, so strip all metadata
+            # that could change.
+            for key in ("/CreationDate", "/ModDate", "/Creator", "/Producer"):
+                if key in pdf.docinfo:
+                    del pdf.docinfo[key]
 
-        if "/Metadata" in pdf.Root:
-            del pdf.Root["/Metadata"]
+            if "/Metadata" in pdf.Root:
+                del pdf.Root["/Metadata"]
 
-        pdf.save(pdf_path, deterministic_id=True)
+            pdf.save(pdf_path, deterministic_id=True)
+
+    def open_svg(self, svg_path: Path) -> None:
+        """Adds an action to open a SVG file."""
+        self._original_size = svg_size(ElementTree.parse(svg_path).getroot())
+        self._actions.append(f"file-open:{svg_path}")
+
+    def export_pdf(self, pdf_path: Path) -> None:
+        """Adds an action to export a PDF file."""
+        self._pdf_paths.append(pdf_path)
+        self._actions.extend([f"export-filename:{pdf_path}", "export-do"])
+
+    def export_png(
+        self,
+        png_path: Path,
+        width: int | None = None,
+        height: int | None = None,
+        mode: str | None = None
+    ) -> None:
+        """Adds an action to export a PNG file."""
+        mode = "RGBA_8" if mode is None else mode
+        original_width, original_height = self._original_size
+
+        if width is None and height is None:
+            width, height = original_width, original_height
+        elif width is None:
+            width = round(height * (original_width / original_height))
+        elif height is None:
+            height = round(width * (original_height / original_width))
+
+        self._png_paths.append(png_path)
+        self._actions.extend([
+            f"export-filename:{png_path}",
+            f"export-png-color-mode:{mode}",
+            f"export-width:{width}",
+            f"export-height:{height}",
+            "export-do"
+        ])
+
+    def run(self) -> None:
+        """Runs all actions and then optimizes PNG/PDF files."""
+        actions_str = ";".join(self._actions) + ";"
+        run_command(INKSCAPE_BIN, "--actions", actions_str)
+
+        for png_path in self._png_paths:
+            self._optimize_png(png_path)
+
+        for pdf_path in self._pdf_paths:
+            self._optimize_pdf(pdf_path)
 
 
 def has_black_fill_group(svg_path: Path) -> bool:
@@ -139,70 +205,25 @@ def has_black_fill_group(svg_path: Path) -> bool:
     return False
 
 
-def process_toolbar_icons(
+def process_toolbar_icon(
+    name: str,
     source_dir: Path,
     dest_dir: Path,
-    png_paths: list[Path],
-    pdf_paths: list[Path],
+    converter: ImageConverter
 ) -> None:
-    actions = []
+    svg_path = source_dir / f"{name}.svg"
+    pdf_path = dest_dir / f"{name}.pdf"
+    png_large_path = dest_dir / f"{name}_large.png"
+    png_small_path = dest_dir / f"{name}.png"
 
-    def add_actions(name: str) -> None:
-        svg_path = source_dir / f"{name}.svg"
-        pdf_path = dest_dir / f"{name}.pdf"
-        png_large_path = dest_dir / f"{name}_large.png"
-        png_small_path = dest_dir / f"{name}.png"
+    if not has_black_fill_group(svg_path):
+        raise ValueError(
+            f"SVG file missing <g> with style='fill:black': {svg_path}")
 
-        if not has_black_fill_group(svg_path):
-            raise ValueError(
-                f"SVG file missing <g> with style='fill:black': {svg_path}")
-
-        actions.extend([
-            f"file-open:{svg_path}",
-            f"export-filename:{pdf_path}; export-do",
-            f"export-filename:{png_large_path}; "
-                f"export-png-color-mode:GrayAlpha_8; "
-                f"export-width:48; export-height:48; export-do",
-            f"export-filename:{png_small_path}; "
-                f"export-png-color-mode:GrayAlpha_8; "
-                f"export-width:24; export-height:24; export-do",
-        ])
-
-        png_paths.extend([png_small_path, png_large_path])
-        pdf_paths.append(pdf_path)
-
-    for toolbar_icon_name in TOOLBAR_ICON_NAMES:
-        add_actions(toolbar_icon_name)
-
-    run_inkscape(actions)
-
-
-def process_matplotlib_icons(
-    source_dir: Path,
-    dest_dir: Path,
-    png_paths: list[Path],
-    pdf_paths: list[Path]
-) -> None:
-    actions = []
-
-    def add_actions(name: str) -> None:
-        svg_path = source_dir / f"{name}.svg"
-        pdf_path = dest_dir / f"{name}.pdf"
-        png_path = dest_dir / f"{name}.png"
-
-        actions.extend([
-            f"file-open:{svg_path}",
-            f"export-filename:{pdf_path}; export-do;",
-            f"export-filename:{png_path}; export-do;"
-        ])
-
-        png_paths.append(png_path)
-        pdf_paths.append(pdf_path)
-
-    add_actions("matplotlib")
-    add_actions("matplotlib_small")
-
-    run_inkscape(actions)
+    converter.open_svg(svg_path)
+    converter.export_pdf(pdf_path)
+    converter.export_png(png_small_path, width=24, mode="GrayAlpha_8")
+    converter.export_png(png_large_path, width=48, mode="GrayAlpha_8")
 
 
 def make_icons() -> None:
@@ -234,16 +255,17 @@ def make_icons() -> None:
     if shutil.which(OPTIPNG_BIN) is None:
         raise FileNotFoundError(f"Could not locate the `{OPTIPNG_BIN}` binary")
 
-    png_paths = []
-    pdf_paths = []
-    process_toolbar_icons(source_dir, dest_dir, png_paths, pdf_paths)
-    process_matplotlib_icons(source_dir, dest_dir, png_paths, pdf_paths)
+    converter = ImageConverter()
 
-    for png_path in png_paths:
-        optimize_png(png_path)
+    for name in TOOLBAR_ICON_NAMES:
+        process_toolbar_icon(name, source_dir, dest_dir, converter)
 
-    for pdf_path in pdf_paths:
-        optimize_pdf(pdf_path)
+    for name in ("matplotlib", "matplotlib_small"):
+        converter.open_svg(source_dir / f"{name}.svg")
+        converter.export_pdf(dest_dir / f"{name}.pdf")
+        converter.export_png(dest_dir / f"{name}.png")
+
+    converter.run()
 
 
 if __name__ == "__main__":
