@@ -280,7 +280,7 @@ or callable, default: value of *xycoords*
 
         Returns
         -------
-        `.Annotation3D`
+        `.art3d.Annotation3D`
             The created annotation.
         """
         valid_xycoords = [
