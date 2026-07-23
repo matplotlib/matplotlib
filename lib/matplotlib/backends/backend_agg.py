@@ -34,6 +34,7 @@ from matplotlib.backend_bases import (
 from matplotlib.dviread import Dvi
 from matplotlib.font_manager import fontManager as _fontManager, get_font
 from matplotlib.ft2font import LoadFlags, RenderMode
+from matplotlib.markers import MarkerStyle
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -87,10 +88,16 @@ class RendererAgg(RendererBase):
     def _update_methods(self):
         self.draw_gouraud_triangles = self._renderer.draw_gouraud_triangles
         self.draw_image = self._renderer.draw_image
-        self.draw_markers = self._renderer.draw_markers
         self.draw_path_collection = self._renderer.draw_path_collection
         self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
+
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans, rgbFace=None):
+        pixel = MarkerStyle(',')
+        is_pixel = (marker_path == pixel.get_path() and
+                    marker_trans == pixel.get_transform())
+        self._renderer.draw_markers(gc, marker_path, marker_trans, path, trans,
+                                    face=rgbFace, is_pixel_marker=is_pixel)
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited

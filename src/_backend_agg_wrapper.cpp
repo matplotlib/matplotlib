@@ -77,7 +77,8 @@ PyRendererAgg_draw_markers(RendererAgg *self,
                            agg::trans_affine marker_path_trans,
                            mpl::PathIterator path,
                            agg::trans_affine trans,
-                           py::object rgbFace)
+                           py::object rgbFace,
+                           bool is_pixel_marker)
 {
     agg::rgba face = rgbFace.cast<agg::rgba>();
     if (!rgbFace.is_none()) {
@@ -86,7 +87,8 @@ PyRendererAgg_draw_markers(RendererAgg *self,
         }
     }
 
-    self->draw_markers(gc, marker_path, marker_path_trans, path, trans, face);
+    self->draw_markers(gc, marker_path, marker_path_trans, path, trans, face,
+                       is_pixel_marker);
 }
 
 static void
@@ -204,7 +206,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "gc"_a, "path"_a, "trans"_a, "face"_a = nullptr)
         .def("draw_markers", &PyRendererAgg_draw_markers,
              "gc"_a, "marker_path"_a, "marker_path_trans"_a, "path"_a, "trans"_a,
-             "face"_a = nullptr)
+             "face"_a = nullptr, "is_pixel_marker"_a = false)
         .def("draw_text_image", &PyRendererAgg_draw_text_image,
              "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
         .def("draw_image", &PyRendererAgg_draw_image,
