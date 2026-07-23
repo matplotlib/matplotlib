@@ -2018,7 +2018,13 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             path_extents.append(path.get_extents(transform).frozen())
 
         # Create a mapping from path_id to extent for efficient lookup
-        path_extent_map = dict(zip(path_codes, path_extents))
+        # for cases with multiple paths
+        if len(path_codes) == 1:
+            single_path_extent = path_extents[0]
+            path_extent_map = None
+        else:
+            single_path_extent = None
+            path_extent_map = dict(zip(path_codes, path_extents))
 
         canvas_width = self.file.width * 72
         canvas_height = self.file.height * 72
@@ -2034,7 +2040,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             # Skip markers completely outside the canvas to reduce PDF size.
             # Use the translated path bounds, not the offset alone: the offset
             # need not be the marker center in canvas coordinates.
-            bbox = path_extent_map[path_id]
+            bbox = path_extent_map[path_id] if path_extent_map else single_path_extent
             if (bbox.x1 + xo < 0 or bbox.x0 + xo > canvas_width
                     or bbox.y1 + yo < 0 or bbox.y0 + yo > canvas_height):
                 continue
