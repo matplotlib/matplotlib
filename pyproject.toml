@@ -431,11 +431,13 @@ test-command = [
 	-k 'not test_complex_shaping'""",
 ]
 [tool.cibuildwheel.pyodide.environment]
-# Exceptions are needed for pybind11:
+# Exception handling is needed for pybind11:
 # https://github.com/pybind/pybind11/pull/5298
-CFLAGS = "-fexceptions"
-CXXFLAGS = "-fexceptions"
-LDFLAGS = "-fexceptions"
+# And the pyemscripten_2025_0 platform and above uses -fwasm-exceptions for this.
+# https://pyodide.org/en/stable/development/abi/313.html
+CFLAGS = "-fwasm-exceptions"
+CXXFLAGS = "-fwasm-exceptions"
+LDFLAGS = "-fwasm-exceptions"
 
 [tool.cibuildwheel.windows]
 before-build = [
