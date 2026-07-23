@@ -533,3 +533,156 @@ def test_qt_overlay_multiple_updates():
         overlay_line.set_alpha(0.5)
 
         assert mock.call_count == 3
+
+
+def _qimage_to_array(qimg):
+    from matplotlib.backends.qt_compat import QtGui
+    import numpy as np
+    qimg = qimg.convertToFormat(QtGui.QImage.Format.Format_RGBA8888)
+    ptr = qimg.constBits()
+    if hasattr(ptr, 'setsize'):
+        ptr.setsize(qimg.sizeInBytes())
+    return np.frombuffer(ptr, dtype=np.uint8).reshape(
+        qimg.height(), qimg.width(), 4
+    )
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_main_pass_artist_draw_calls():
+    """
+    Behavioral check on main pass: overlay artist draw() is skipped in main draw.
+    """
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots(figsize=(2, 2))
+    canvas = fig.canvas
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=5)
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=5)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
+    ax.add_line(overlay_line)
+
+    with patch.object(main_line, 'draw', wraps=main_line.draw) as spy_main, \
+         patch.object(overlay_line, 'draw', wraps=overlay_line.draw) as spy_overlay, \
+         patch.object(canvas, 'draw_overlay'):
+        canvas.draw()
+        assert spy_main.call_count >= 1
+        assert spy_overlay.call_count == 0
+    plt.close(fig)
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_main_pass_visual_exclusion():
+    """
+    Visual check on main-only render: overlay artist color is absent from main pass.
+    """
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(2, 2))
+    canvas = fig.canvas
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
+    ax.add_line(overlay_line)
+
+    with patch.object(canvas, 'draw_overlay'):
+        canvas.draw()
+        arr = np.asarray(canvas.buffer_rgba())
+
+        # Main line (blue) pixels present (R<50, B>200, A>50)
+        has_blue = np.any(
+            (arr[:, :, 0] < 50) & (arr[:, :, 2] > 200) & (arr[:, :, 3] > 50)
+        )
+        # Overlay line (red) pixels absent (R>200, B<50, A>50)
+        has_red = np.any(
+            (arr[:, :, 0] > 200) & (arr[:, :, 2] < 50) & (arr[:, :, 3] > 50)
+        )
+
+        assert has_blue
+        assert not has_red
+    plt.close(fig)
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_buffer_visual_isolation():
+    """
+    Visual check on overlay buffer: _overlay_qimage contains only overlay artist.
+    """
+    from matplotlib.lines import Line2D
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(2, 2))
+    canvas = fig.canvas
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
+    ax.add_line(overlay_line)
+
+    canvas.draw()
+    assert hasattr(canvas, '_overlay_qimage')
+    arr_overlay = _qimage_to_array(canvas._overlay_qimage)
+
+    # Overlay line (red) pixels present in overlay buffer
+    has_red = np.any(
+        (arr_overlay[:, :, 0] > 200)
+        & (arr_overlay[:, :, 2] < 50)
+        & (arr_overlay[:, :, 3] > 50)
+    )
+    # Main line (blue) pixels absent from overlay buffer
+    has_blue = np.any(
+        (arr_overlay[:, :, 0] < 50)
+        & (arr_overlay[:, :, 2] > 200)
+        & (arr_overlay[:, :, 3] > 50)
+    )
+
+    assert has_red
+    assert not has_blue
+    plt.close(fig)
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_update_propagation():
+    """
+    Update-propagation check: property change fires draw_overlay and updates buffer.
+    """
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    import numpy as np
+
+    fig, ax = plt.subplots(figsize=(2, 2))
+    canvas = fig.canvas
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    canvas.draw()
+
+    with patch.object(
+        canvas, 'draw_overlay', wraps=canvas.draw_overlay
+    ) as spy_draw_overlay:
+        overlay_line.set_color('blue')
+        spy_draw_overlay.assert_called_once()
+
+    arr_updated = _qimage_to_array(canvas._overlay_qimage)
+
+    # New blue pixels present (visible, R<50, B>200, A>50)
+    has_blue = np.any(
+        (arr_updated[:, :, 0] < 50)
+        & (arr_updated[:, :, 2] > 200)
+        & (arr_updated[:, :, 3] > 50)
+    )
+    # Old red pixels absent (visible, R>200, B<50, A>50)
+    has_red = np.any(
+        (arr_updated[:, :, 0] > 200)
+        & (arr_updated[:, :, 2] < 50)
+        & (arr_updated[:, :, 3] > 50)
+    )
+
+    assert has_blue
+    assert not has_red
+    plt.close(fig)
