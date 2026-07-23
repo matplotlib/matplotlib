@@ -548,17 +548,16 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
         set_clipbox(gc.cliprect, rendererBase);
         bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
-        double x, y;
-
-        agg::serialized_scanlines_adaptor_aa8 sa;
-        agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
-
         agg::rect_d clipping_rect(-1.0 - marker_size.x2,
                                   -1.0 - marker_size.y2,
                                   1.0 + width - marker_size.x1,
                                   1.0 + height - marker_size.y1);
 
-        if (has_clippath) {
+        auto _render_markers = [&]<typename R>(R ren) {
+            agg::serialized_scanlines_adaptor_aa8 sa;
+            agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
+            double x, y;
+
             while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
                 if (!(std::isfinite(x) && std::isfinite(y))) {
                     continue;
@@ -576,10 +575,6 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                 if (!clipping_rect.hit_test(x, y)) {
                     continue;
                 }
-
-                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
-                auto r = agg::renderer_base{pfa};
-                auto ren = agg::renderer_scanline_aa_solid{r};
 
                 if (face) {
                     ren.color(*face);
@@ -590,35 +585,15 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                 sa.init(strokeBuffer.data(), strokeBuffer.size(), x, y);
                 agg::render_scanlines(sa, sl, ren);
             }
+        };
+
+        if (has_clippath) {
+            auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+            auto r = agg::renderer_base{pfa};
+            auto ren = agg::renderer_scanline_aa_solid{r};
+            _render_markers(ren);
         } else {
-            while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
-                if (!(std::isfinite(x) && std::isfinite(y))) {
-                    continue;
-                }
-
-                /* These values are correctly snapped above -- so we don't want
-                   to round here, we really only want to truncate */
-                x = floor(x);
-                y = floor(y);
-
-                // Cull points outside the boundary of the image.
-                // Values that are too large may overflow and create
-                // segfaults.
-                // http://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
-                if (!clipping_rect.hit_test(x, y)) {
-                    continue;
-                }
-
-                if (face) {
-                    rendererAA.color(*face);
-                    sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
-                    agg::render_scanlines(sa, sl, rendererAA);
-                }
-
-                rendererAA.color(gc.color);
-                sa.init(strokeBuffer.data(), strokeBuffer.size(), x, y);
-                agg::render_scanlines(sa, sl, rendererAA);
-            }
+            _render_markers(rendererAA);
         }
     }
     catch (...)
