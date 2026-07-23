@@ -1,0 +1,34 @@
+Raising a figure window no longer steals keyboard focus by default
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Raising a figure window and giving it keyboard focus are now treated as two
+independent operations, with a consistent default across all GUI backends:
+raising a window no longer transfers keyboard focus unless explicitly
+requested.
+
+Previously this behavior was backend-dependent. Some backends (e.g. Qt and
+GTK) activated the window and stole keyboard focus from the active application
+when :rc:`figure.raise_window` was set, while others (e.g. macOS) only raised
+the window in the stacking order. As a result, the same code could behave
+differently after merely switching backends.
+
+Now, both the new `.FigureManagerBase.raise_window` method and the raise
+triggered by `~.pyplot.show` / :rc:`figure.raise_window` raise the window
+without stealing focus. To additionally activate the window and give it
+keyboard focus, pass ``with_focus=True``::
+
+    fig.canvas.manager.raise_window(with_focus=True)
+
+On backends that previously stole focus (e.g. Qt and GTK) this restores the
+old behavior; on backends that never did (e.g. macOS) it enables focusing the
+window as a new capability.
+
+This is a soft change: in the worst case a window that used to grab focus no
+longer does so, and any code relying on that can opt back in with
+``with_focus=True``.
+
+The behavior is best-effort and platform-dependent. On some toolkits raising
+and focusing cannot be fully separated (for example the GTK4 backend, which
+can only raise via ``present()`` and may therefore still transfer focus), and
+some window managers (notably Wayland compositors) may ignore or modify raise
+and focus requests entirely.

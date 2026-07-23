@@ -664,7 +664,20 @@ class FigureManagerQT(FigureManagerBase):
         self.window._destroying = False
         self.window.show()
         if mpl.rcParams['figure.raise_window']:
+            self.raise_window()
+
+    def raise_window(self, *, with_focus=False):
+        # docstring inherited
+        if with_focus:
             self.window.activateWindow()
+            self.window.raise_()
+        elif sys.platform == "darwin":
+            # On macOS, Qt's raise_() also activates the app (stealing focus),
+            # so raise the native NSWindow without focus instead.
+            from ._macos_window import MacOSWindow
+            MacOSWindow.from_nsview(self.window.winId()).raise_window(
+                with_focus=False)
+        else:
             self.window.raise_()
 
     def destroy(self, *args):

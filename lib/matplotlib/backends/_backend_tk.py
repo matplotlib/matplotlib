@@ -616,9 +616,22 @@ class FigureManagerTk(FigureManagerBase):
             else:
                 self.canvas.draw_idle()
             if mpl.rcParams['figure.raise_window']:
-                self.canvas.manager.window.attributes('-topmost', 1)
-                self.canvas.manager.window.attributes('-topmost', 0)
+                self.raise_window()
             self._shown = True
+
+    def raise_window(self, *, with_focus=False):
+        # docstring inherited
+        if not with_focus and sys.platform == "darwin":
+            # On macOS the -topmost toggle does not lift the window above other
+            # applications; use the native focus-free raise instead.
+            from ._macos_window import MacOSWindow
+            MacOSWindow.from_tk_drawable(self.window.winfo_id()).raise_window(
+                with_focus=False)
+            return
+        self.window.attributes('-topmost', 1)
+        self.window.attributes('-topmost', 0)
+        if with_focus:
+            self.window.focus_force()
 
     def destroy(self, *args):
         if self.canvas._idle_draw_id:
