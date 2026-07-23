@@ -357,11 +357,10 @@ class PyFT2Font final : public FT2Font
     using FT2Font::FT2Font;
 
     py::object py_file;
-    // Font data buffer read by FreeType when constructed from a path, holding
-    // either an mmap of the file or a bytes fallback.
-    py::buffer_info mem;
+    py::buffer_info mem;  // mmap of the font file, if it can be mapped
     FT_StreamRec stream;
     py::list fallbacks;
+    bool from_path = false;
 
     ~PyFT2Font()
     {
@@ -438,6 +437,20 @@ read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *b
     return (unsigned long)n_read;
 }
 
+static void
+close_file_callback(FT_Stream stream)
+{
+    PyObject *type, *value, *traceback;
+    PyErr_Fetch(&type, &value, &traceback);
+    PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
+    try {
+        self->py_file.attr("close")();
+    } catch (py::error_already_set &eas) {
+        eas.discard_as_unraisable(__func__);
+    }
+    PyErr_Restore(type, value, traceback);
+}
+
 const char *PyFT2Font_init__doc__ = R"""(
     Parameters
     ----------
@@ -509,12 +522,10 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
     if (py::isinstance<py::bytes>(filename) || py::isinstance<py::str>(filename) ||
         py::isinstance(filename, PathLike))
     {
-        // Open with Python so path errors raise the usual exceptions, and
-        // retain the closed object to back fname.
+        // Open with Python so path errors raise the usual exceptions.
         self->py_file = py::module_::import("io").attr("open")(filename, "rb");
-        // Give FreeType the whole file as an in-memory buffer, so that glyph
-        // loads read from it directly rather than routing through the Python
-        // file object.
+        self->from_path = true;
+        // Try to mmap the file so that glyph loads skip the Python layer.
         py::object data;
         py::object mmap_module;
         try {
@@ -537,15 +548,22 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
                 // Zero-length or otherwise unmappable file.
             }
         }
-        if (!data) {
-            // Fall back to a copy of the whole file into memory.
-            data = self->py_file.attr("read")();
+        if (data) {
+            self->py_file.attr("close")();
+            self->mem = py::buffer(data).request();
+            open_args.flags = FT_OPEN_MEMORY;
+            open_args.memory_base = static_cast<const FT_Byte *>(self->mem.ptr);
+            open_args.memory_size = static_cast<FT_Long>(self->mem.size);
+        } else {
+            // Fall back to streaming reads through the Python file object,
+            // as for file-like objects below.
+            self->stream.size = 0x7fffffff;  // Unknown size.
+            self->stream.descriptor.pointer = self;
+            self->stream.read = &read_from_file_callback;
+            self->stream.close = &close_file_callback;
+            open_args.flags = FT_OPEN_STREAM;
+            open_args.stream = &self->stream;
         }
-        self->py_file.attr("close")();
-        self->mem = py::buffer(data).request();
-        open_args.flags = FT_OPEN_MEMORY;
-        open_args.memory_base = static_cast<const FT_Byte *>(self->mem.ptr);
-        open_args.memory_size = static_cast<FT_Long>(self->mem.size);
     } else {
         try {
             // This will catch various issues:
@@ -573,10 +591,10 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
 static py::object
 PyFT2Font_fname(PyFT2Font *self)
 {
-    if (self->stream.read) {  // User passed a file-like object to the constructor.
-        return self->py_file;
-    } else {
+    if (self->from_path) {
         return self->py_file.attr("name");
+    } else {  // User passed a file-like object to the constructor.
+        return self->py_file;
     }
 }
 

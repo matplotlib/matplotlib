@@ -174,12 +174,21 @@ def test_ft2font_unicode_path(tmp_path):
 
 def test_ft2font_no_mmap(monkeypatch):
     # Simulate platforms without the mmap module (e.g. WASI), which should fall
-    # back to reading the whole file into memory.
+    # back to streaming reads through the Python file object.
     monkeypatch.setitem(sys.modules, 'mmap', None)
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file)
     font.set_text('foo')
     assert font.fname == file
+
+
+def test_ft2font_unmappable_file(tmp_path):
+    # An empty file cannot be mmapped and falls back to streaming reads, which
+    # should then raise the usual FreeType error for an invalid font.
+    file = tmp_path / 'empty.ttf'
+    file.touch()
+    with pytest.raises(RuntimeError):
+        ft2font.FT2Font(str(file))
 
 
 def test_ft2font_invalid_args(tmp_path):
