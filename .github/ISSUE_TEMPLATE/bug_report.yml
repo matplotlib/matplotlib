@@ -47,6 +47,15 @@ body:
         - Has this worked in earlier versions?
         - Do you know why this bug is happening?
         - Do you maybe even know a fix?
+  - type: dropdown
+    id: discovery
+    attributes:
+      label: Bug discovery
+      description: How did you find this bug?
+      options:
+        - Through organic Matplotlib usage (it impacts user work)
+        - Systematically searching for bugs (e.g. fuzzing)
+        - Other
   - type: input
     id: operating-system
     attributes:
