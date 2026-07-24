@@ -542,8 +542,19 @@ default: %(va)s
 
         Call signatures::
 
+            add_axes()
             add_axes(rect, projection=None, polar=False, **kwargs)
             add_axes(ax)
+
+        Without parameters a "standard" Axes is created that fills the figure.
+        ``fig = plt.figure(), ax = fig.add_axes()`` is equivalent to
+        ``fig, ax = plt.subplots()``.
+
+        If a *rect* tuple is passed, a new Axes is created at the given figure
+        coordinates.
+
+        Passing an existing `~.axes.Axes` instance *ax* adds it to the figure.
+        This is only for rare use cases. See the notes section below.
 
         Parameters
         ----------
@@ -620,15 +631,17 @@ default: %(va)s
             fig.delaxes(ax)
             fig.add_axes(ax)
         """
-
-        if not len(args) and 'rect' not in kwargs:
-            raise TypeError("add_axes() missing 1 required positional argument: 'rect'")
-        elif 'rect' in kwargs:
+        if 'rect' in kwargs:
+            # handle add_axes(rect=[...]) as add_axes([...])
             if len(args):
                 raise TypeError("add_axes() got multiple values for argument 'rect'")
             args = (kwargs.pop('rect'), )
-        if len(args) != 1:
-            raise _api.nargs_error("add_axes", 1, len(args))
+
+        if len(args) > 1:
+            raise _api.nargs_error("add_axes", "0 or 1", len(args))
+
+        if not args:
+            return self.add_subplot()
 
         if isinstance(args[0], Axes):
             a, = args
@@ -655,10 +668,10 @@ default: %(va)s
 
         Call signatures::
 
+           add_subplot()
            add_subplot(nrows, ncols, index, **kwargs)
            add_subplot(pos, **kwargs)
            add_subplot(ax)
-           add_subplot()
 
         Parameters
         ----------
