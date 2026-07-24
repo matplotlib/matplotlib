@@ -7,7 +7,7 @@ from . import _macosx
 from .backend_agg import FigureCanvasAgg
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, NavigationToolbar2,
-    ResizeEvent, TimerBase, _allow_interrupt)
+    CloseEvent, ResizeEvent, TimerBase, _allow_interrupt)
 
 
 class TimerMac(_macosx.Timer, TimerBase):
@@ -161,7 +161,10 @@ class FigureManagerMac(_macosx.FigureManager, FigureManagerBase):
             self.show()
             self.canvas.draw_idle()
 
-    def _close_button_pressed(self):
+    def _handle_window_will_close(self):
+        CloseEvent("close_event", self.canvas)._process()
+
+    def _handle_window_should_close(self):
         Gcf.destroy(self)
         self.canvas.flush_events()
 
