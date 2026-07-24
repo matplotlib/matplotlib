@@ -1018,6 +1018,16 @@ class FigureManagerWx(FigureManagerBase):
         # docstring inherited
         self.frame.ShowFullScreen(not self.frame.IsFullScreen())
 
+    def context_menu(self, event, labels=None, actions=None):
+        if not labels or not actions:
+            return
+        menu = wx.Menu()
+        for label, action in zip(labels, actions):
+            item = menu.Append(wx.NewIdRef(), label)
+            menu.Bind(wx.EVT_MENU, lambda _, a=action: a(), item)
+        self.canvas.PopupMenu(menu, event.guiEvent.GetPosition())
+        menu.Destroy()
+
     def get_window_title(self):
         # docstring inherited
         return self.window.GetTitle()
