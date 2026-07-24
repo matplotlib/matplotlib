@@ -751,3 +751,73 @@ long FT2Font::get_name_index(char *name)
 {
     return FT_Get_Name_Index(face, (FT_String *)name);
 }
+
+FT2Font::VariationInfo FT2Font::get_variation_descriptor()
+{
+    FT_MM_Var *master;
+    FT_CHECK(FT_Get_MM_Var, face, &master);
+
+    std::vector<VariationAxis> axes;
+    axes.reserve(master->num_axis);
+    for (FT_UInt axis_index = 0; axis_index < master->num_axis; axis_index++) {
+        FT_UInt flags = 0;
+        FT_CHECK(FT_Get_Var_Axis_Flags, master, axis_index, &flags);
+        const auto &axis = master->axis[axis_index];
+        axes.emplace_back(axis.name,
+                          float(axis.minimum) / (1<<16),
+                          float(axis.def) / (1<<16),
+                          float(axis.maximum) / (1<<16),
+                          axis.tag,
+                          axis.strid,
+                          flags);
+    }
+
+    std::vector<VariationNamedStyle> styles;
+    styles.reserve(master->num_namedstyles);
+    for (FT_UInt instance = 0; instance < master->num_namedstyles; instance++) {
+        const auto &style = master->namedstyle[instance];
+        styles.emplace_back(style.strid, style.psid);
+    }
+
+    FT_CHECK(FT_Done_MM_Var, _ft2Library, master);
+
+    return {axes, styles};
+}
+
+FT_UInt FT2Font::get_default_variation_style() {
+    FT_UInt result;
+    FT_CHECK(FT_Get_Default_Named_Instance, face, &result);
+    return result;
+}
+
+std::vector<double> FT2Font::get_variations() {
+    FT_MM_Var *master;
+    FT_CHECK(FT_Get_MM_Var, face, &master);
+    std::vector<FT_Fixed> fixed_coords(master->num_axis);
+    FT_CHECK(FT_Done_MM_Var, _ft2Library, master);
+
+    FT_CHECK(FT_Get_Var_Design_Coordinates, face, fixed_coords.size(),
+             fixed_coords.data());
+
+    std::vector<double> coords;
+    coords.reserve(fixed_coords.size());
+    for (auto const &c : fixed_coords) {
+        coords.emplace_back(static_cast<double>(c) / (1 << 16));
+    }
+
+    return coords;
+}
+
+void FT2Font::set_variations(std::vector<double> coords) {
+    std::vector<FT_Fixed> fixed_coords;
+    fixed_coords.reserve(coords.size());
+    for (auto const &c : coords) {
+        fixed_coords.emplace_back(static_cast<FT_Fixed>(c * (1 << 16)));
+    }
+    FT_CHECK(FT_Set_Var_Design_Coordinates, face, fixed_coords.size(),
+             fixed_coords.data());
+}
+
+void FT2Font::set_variations(FT_UInt instance_index) {
+    FT_CHECK(FT_Set_Named_Instance, face, instance_index);
+}

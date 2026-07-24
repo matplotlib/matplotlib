@@ -22,9 +22,11 @@ extern "C" {
 #include FT_BITMAP_H
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
+#include FT_MULTIPLE_MASTERS_H
 #include FT_OUTLINE_H
 #include FT_SFNT_NAMES_H
 #include FT_TYPE1_TABLES_H
+#include FT_TRUETYPE_IDS_H
 #include FT_TRUETYPE_TABLES_H
 }
 
@@ -177,6 +179,23 @@ class FT2Font
     {
         return FT_HAS_KERNING(face);
     }
+
+    using VariationAxis = std::tuple<
+        std::string,  // name
+        FT_Fixed,  // minimum
+        FT_Fixed,  // default
+        FT_Fixed,  // maximum
+        FT_ULong,  // tag
+        FT_UInt,  // name ID
+        FT_UInt>;  // flags
+    using VariationNamedStyle = std::tuple<FT_UInt, FT_UInt>;  // name ID, postscript ID
+    using VariationInfo = std::tuple<std::vector<VariationAxis>,
+                                     std::vector<VariationNamedStyle>>;
+    VariationInfo get_variation_descriptor();
+    FT_UInt get_default_variation_style();
+    std::vector<double> get_variations();
+    void set_variations(std::vector<double> coords);
+    void set_variations(FT_UInt instance_index);
 
   protected:
     virtual void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names) = 0;
