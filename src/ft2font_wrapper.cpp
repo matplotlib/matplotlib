@@ -6,6 +6,8 @@
 #include "ft2font.h"
 #include "_enums.h"
 
+#include <memory>
+#include <mutex>
 #include <set>
 #include <sstream>
 #include <unordered_map>
@@ -360,6 +362,18 @@ class PyFT2Font final : public FT2Font
     FT_StreamRec stream;
     py::list fallbacks;
 
+    // Serializes this object's mutating Python-facing methods so that concurrent
+    // calls on the SAME FT2Font (under free-threading / py::mod_gil_not_used)
+    // cannot corrupt its FreeType glyph slot, glyph list or image buffer. It is
+    // taken ONLY at the wrapper boundary -- never inside FT2Font's C++ methods,
+    // which also run during construction and fallback recursion -- so a single
+    // lock is held per top-level call and it never nests (deadlock-free by
+    // construction). Recursive to tolerate re-entry via Python callbacks such as
+    // ft_glyph_warn(). Contract: one FT2Font (together with its fallback graph)
+    // is used by a single thread at a time; matplotlib enforces this via the
+    // thread-keyed cache in font_manager._get_font.
+    std::recursive_mutex mutex;
+
     ~PyFT2Font()
     {
         // Because destructors are called from subclass up to base class, we need to
@@ -503,7 +517,9 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
                   std::back_inserter(fallback_fonts));
     }
 
-    auto self = new PyFT2Font(fallback_fonts, warn_if_used);
+    // Own the object locally so it is released if any step below throws (e.g. a
+    // corrupt font makes self->open() fail); pybind11 adopts it only on success.
+    auto self = std::make_unique<PyFT2Font>(fallback_fonts, warn_if_used);
     self->set_kerning_factor(*kerning_factor);
 
     if (fallback_list) {
@@ -517,7 +533,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
     self->stream.base = nullptr;
     self->stream.size = 0x7fffffff;  // Unknown size.
     self->stream.pos = 0;
-    self->stream.descriptor.pointer = self;
+    self->stream.descriptor.pointer = self.get();
     self->stream.read = &read_from_file_callback;
     FT_Open_Args open_args;
     memset((void *)&open_args, 0, sizeof(FT_Open_Args));
@@ -547,7 +563,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
 
     self->open(open_args, face_index);
 
-    return self;
+    return self.release();
 }
 
 static py::object
@@ -687,6 +703,7 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
                    std::optional<std::vector<std::string>> features = std::nullopt,
                    std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
 {
+    std::scoped_lock lock{self->mutex};
     std::vector<double> xys;
 
     FT2Font::LanguageType languages;
@@ -745,6 +762,7 @@ static PyGlyph *
 PyFT2Font_load_char(PyFT2Font *self, long charcode,
                     LoadFlags flags = LoadFlags::FORCE_AUTOHINT)
 {
+    std::scoped_lock lock{self->mutex};
     bool fallback = true;
     FT2Font *ft_object = nullptr;
 
@@ -783,6 +801,7 @@ static PyGlyph *
 PyFT2Font_load_glyph(PyFT2Font *self, FT_UInt glyph_index,
                      LoadFlags flags = LoadFlags::FORCE_AUTOHINT)
 {
+    std::scoped_lock lock{self->mutex};
     self->load_glyph(glyph_index, static_cast<FT_Int32>(flags));
 
     return PyGlyph_from_FT2Font(self);
@@ -885,6 +904,7 @@ PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, py::buffer &image,
                                int xd, int yd,
                                PyGlyph *glyph, bool antialiased = true)
 {
+    std::scoped_lock lock{self->mutex};
     self->draw_glyph_to_bitmap(
         py::array_t<uint8_t, py::array::c_style>{image},
         xd, yd, glyph->glyphInd, antialiased);
@@ -1409,6 +1429,7 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
                  std::optional<std::vector<std::string>> features = std::nullopt,
                  std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
 {
+    std::scoped_lock lock{self->mutex};
     const auto load_flags = static_cast<FT_Int32>(flags);
 
     FT2Font::LanguageType languages;
@@ -1577,7 +1598,12 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              "_fallback_list"_a=py::none(), "_kerning_factor"_a=py::none(),
              "_warn_if_used"_a=false,
              PyFT2Font_init__doc__)
-        .def("clear", &PyFT2Font::clear, PyFT2Font_clear__doc__)
+        .def("clear",
+             [](PyFT2Font& self) {
+                 std::scoped_lock lock{self.mutex};
+                 self.clear();
+             },
+             PyFT2Font_clear__doc__)
         .def("set_size", &PyFT2Font::set_size, "ptsize"_a, "dpi"_a,
              PyFT2Font_set_size__doc__)
         .def("_set_transform", &PyFT2Font::_set_transform, "matrix"_a, "delta"_a,
@@ -1608,7 +1634,11 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_bitmap_offset", &PyFT2Font::get_bitmap_offset,
              PyFT2Font_get_bitmap_offset__doc__)
         .def("get_descent", &PyFT2Font::get_descent, PyFT2Font_get_descent__doc__)
-        .def("draw_glyphs_to_bitmap", &PyFT2Font::draw_glyphs_to_bitmap,
+        .def("draw_glyphs_to_bitmap",
+             [](PyFT2Font& self, bool antialiased) {
+                 std::scoped_lock lock{self.mutex};
+                 self.draw_glyphs_to_bitmap(antialiased);
+             },
              py::kw_only(), "antialiased"_a=true,
              PyFT2Font_draw_glyphs_to_bitmap__doc__);
         // The generated docstring uses an unqualified "Buffer" as type hint,

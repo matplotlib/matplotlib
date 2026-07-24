@@ -130,6 +130,10 @@ public:
         }
     }
 
+    // Uniquely owns qh and error_file; forbid copying (Rule of Three).
+    QhullInfo(const QhullInfo&) = delete;
+    QhullInfo& operator=(const QhullInfo&) = delete;
+
 private:
     FILE* error_file;
     qhT* qh;

@@ -105,7 +105,13 @@ mpl_GetCurrentProcessExplicitAppUserModelID(void)
         PyErr_SetFromWindowsErr(hr);
         throw py::error_already_set();
     }
-    auto py_appid = py::cast(appid);
+    py::object py_appid;
+    try {
+        py_appid = py::cast(appid);
+    } catch (...) {
+        CoTaskMemFree(appid);  // don't leak the COM-allocated string on error
+        throw;
+    }
     CoTaskMemFree(appid);
     return py_appid;
 #else
