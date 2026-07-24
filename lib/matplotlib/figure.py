@@ -158,8 +158,12 @@ class FigureBase(Artist):
         artists = self.get_children()
 
         artists.remove(self.patch)
+        is_saving = self.figure.canvas.is_saving()
         artists = sorted(
-            (artist for artist in artists if not artist.get_animated()),
+            (artist for artist in artists if not artist.get_animated()
+             and not (not is_saving
+                      and artist.get_in_overlay()
+                      and self.figure.canvas.supports_overlay)),
             key=lambda artist: artist.get_zorder())
         for ax in self._localaxes:
             locator = ax.get_axes_locator()
@@ -3258,6 +3262,7 @@ None}, default: None
         toolbar = self.canvas.toolbar
         if toolbar is not None:
             toolbar.update()
+
 
     @_finalize_rasterization
     @allow_rasterization

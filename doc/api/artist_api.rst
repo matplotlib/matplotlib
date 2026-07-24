@@ -84,6 +84,8 @@ Drawing
    Artist.draw
    Artist.set_animated
    Artist.get_animated
+   Artist.set_in_overlay
+   Artist.get_in_overlay
 
    Artist.set_alpha
    Artist.get_alpha

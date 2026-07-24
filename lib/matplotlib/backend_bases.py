@@ -46,6 +46,7 @@ from weakref import WeakKeyDictionary
 import numpy as np
 
 import matplotlib as mpl
+
 from matplotlib import (
     _api, backend_tools as tools, cbook, colors, _docstring, text,
     _tight_bbox, transforms, widgets, is_interactive, rcParams)
@@ -1758,6 +1759,8 @@ class FigureCanvasBase:
         return (hasattr(cls, "copy_from_bbox")
                 and hasattr(cls, "restore_region"))
 
+    supports_overlay = False
+
     def __init__(self, figure=None):
         from matplotlib.figure import Figure
         self._fix_ipython_backend2gui()
@@ -1774,6 +1777,9 @@ class FigureCanvasBase:
         self.mouse_grabber = None  # the Axes currently grabbing mouse
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
+        # Initialize the overlay manager for this canvas
+        OverlayManager(self)
+
         # We don't want to scale up the figure DPI more than once.
         figure._original_dpi = getattr(figure, '_original_dpi', figure.dpi)
         self._device_pixel_ratio = 1
@@ -1987,6 +1993,16 @@ class FigureCanvasBase:
         if not self._is_idle_drawing:
             with self._idle_draw_cntx():
                 self.draw(*args, **kwargs)
+
+    def draw_overlay(self):
+        """
+        Draw the overlay layer without triggering a full figure redraw.
+
+        By default, this is a no-op. GUI backends that support native overlay
+        compositing should override this method to redraw only the overlay
+        layer.
+        """
+        self.draw_idle()
 
     @property
     def device_pixel_ratio(self):
@@ -3743,3 +3759,25 @@ class ShowBase(_Backend):
 
     def __call__(self, block=None):
         return self.show(block=block)
+
+
+
+
+class OverlayManager:
+    """
+    Manages the overlay redraw trigger for high-frequency interactive overlays.
+
+    Artists declare themselves as overlay members via set_in_overlay(True).
+    This manager's sole job is to trigger the canvas to redraw the overlay
+    layer on demand via update().
+    """
+    def __init__(self, canvas):
+        # Manager holds a weak reference to the canvas
+        self._canvas = weakref.proxy(canvas)
+
+        # Canvas holds a strong reference to the manager
+        canvas._overlay_manager = self
+
+    def update(self):
+        """Trigger the canvas to redraw the overlay layer."""
+        self._canvas.draw_overlay()
