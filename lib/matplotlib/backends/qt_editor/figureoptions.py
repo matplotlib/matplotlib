@@ -6,7 +6,7 @@
 """Module that provides a GUI-based editor for Matplotlib's figure options."""
 
 from itertools import chain
-from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
+from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage, patches as mpatches
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
 from matplotlib.dates import DateConverter, num2date
@@ -248,12 +248,45 @@ def figure_edit(axes, parent=None):
         if generate_legend:
             draggable = None
             ncols = 1
+            shadow = False
+            fancybox = None
+            framealpha = None
+            legend_title = None
+            bbox_to_anchor = None
+            loc = 'best'
+            mode = None
+            borderaxespad = None
+
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
+                shadow = old_legend.shadow
+                fancybox = isinstance(
+                    old_legend.legendPatch.get_boxstyle(),
+                    mpatches.BoxStyle.Round)
+                framealpha = old_legend.get_frame().get_alpha()
+                legend_title = old_legend.get_title().get_text() or None
+                loc = old_legend._loc
+                mode = old_legend._mode
+                borderaxespad = old_legend.borderaxespad
+                # Preserve bbox_to_anchor if it was explicitly set
+                if not old_legend._loc_used_default:
+                    bbox_to_anchor = old_legend.get_bbox_to_anchor()
+
+            new_legend = axes.legend(
+                ncols=ncols,
+                shadow=shadow,
+                fancybox=fancybox,
+                framealpha=framealpha,
+                title=legend_title,
+                loc=loc,
+                mode=mode,
+                borderaxespad=borderaxespad,
+            )
             if new_legend:
+                if bbox_to_anchor is not None:
+                    new_legend.set_bbox_to_anchor(bbox_to_anchor)
                 new_legend.set_draggable(draggable)
 
         # Redraw
