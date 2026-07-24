@@ -6523,9 +6523,13 @@ or pandas.DataFrame
                                 f" see help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
-                raise TypeError('Dimensions of C %s are incompatible with'
-                                ' X (%d) and/or Y (%d); see help(%s)' % (
-                                    C.shape, Nx, Ny, funcname))
+                if shading == 'gouraud' and (Nx, Ny) == (ncols + 1, nrows + 1):
+                    # the center of each quad is the average of its four corners
+                    X = 0.25 * (X[:-1, :-1] + X[:-1, 1:] + X[1:, 1:] + X[1:, :-1])
+                    Y = 0.25 * (Y[:-1, :-1] + Y[:-1, 1:] + Y[1:, 1:] + Y[1:, :-1])
+                else:
+                    raise TypeError(f"Dimensions of C {C.shape} are incompatible with"
+                                    f" X ({Nx}) and/or Y ({Ny}); see help({funcname})")
             if shading == 'nearest':
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
@@ -6818,11 +6822,17 @@ or pandas.DataFrame
             greater than those of *C*, otherwise a TypeError is raised. The
             quadrilateral is colored due to the value at ``C[i, j]``.
 
-            If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
-            and *Y* should be the same as those of *C* (if not, a TypeError
-            will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
-            centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
-            interpolation is carried out between the quadrilateral corners.
+            If ``shading='nearest'`` the dimensions of *X* and *Y* should be
+            the same as those of *C*, otherwise a TypeError is raised. The
+            color ``C[i, j]`` is centered on ``(X[i, j], Y[i, j])``.
+
+            If ``shading='gouraud'`` the dimensions of *X* and *Y* should be
+            the same as those of *C* or be one greater than those of *C*,
+            otherwise a TypeError is raised. If the dimensions of *X* and *Y*
+            are one greater, they are internally converted to match the shape
+            of *C* by replacing each quadrilateral with a point at its center,
+            computed as the average of their four corners. In both cases a
+            smooth interpolation is carried out between the quadrilateral corners.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2D arrays, making a
@@ -6861,11 +6871,16 @@ or pandas.DataFrame
             - 'nearest': Each grid point will have a color centered on it,
               extending halfway between the adjacent grid centers.  The
               dimensions of *X* and *Y* must be the same as *C*.
-            - 'gouraud': Each quad will be Gouraud shaded: The color of the
-              corners (i', j') are given by ``C[i', j']``. The color values of
-              the area in between is interpolated from the corner values.
-              The dimensions of *X* and *Y* must be the same as *C*. When
-              Gouraud shading is used, *edgecolors* is ignored.
+            - 'gouraud': If the mesh data is defined at the corners of grid
+              quadrilaterals, with *X*, *Y* and *C* having the same dimensions,
+              each grid quad will be Gouraud shaded. If the color values
+              are specified at the centers of grid quadrilaterals, *X* and *Y*
+              have dimensions one greater than those of *C*, and each colored
+              quadrilateral will use the grid quad centers as its corners, so
+              that it can be Gouraud shaded: The color of the corners (i', j')
+              are given by ``C[i', j']``, and the color values of the area
+              in between are interpolated from the corner values.
+              When Gouraud shading is used, *edgecolors* is ignored.
             - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
               larger than *C*.  Choose 'nearest' if dimensions are the same.
 
