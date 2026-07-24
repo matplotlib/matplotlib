@@ -700,6 +700,18 @@ class TestBasicTransform:
         assert x is sx is False
         assert y is sy is True
 
+        # A branch that lives in the first child of a composite, or that spans
+        # the boundary between its two children, must be reported in both
+        # dimensions, consistently with contains_branch (issue #32099).
+        assert self.stack2.contains_branch(self.stack2_subset)
+        assert (self.stack2.contains_branch_separately(self.stack2_subset)
+                == (True, True))
+        assert (self.stack1.contains_branch_separately(self.ta2 + self.ta3)
+                == (True, True))
+        # A transform that is not a branch stays False in both dimensions.
+        assert (self.stack2.contains_branch_separately(self.tn1)
+                == (False, False))
+
     def test_affine_simplification(self):
         # tests that a transform stack only calls as much is absolutely
         # necessary "non-affine" allowing the best possible optimization with
