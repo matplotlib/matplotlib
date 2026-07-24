@@ -44,5 +44,6 @@ figure_title
 axes_zoom_effect
 zoom_inset_axes
 broken_axis
+broken_axis_inset
 geo_demo
 axhspan_demo

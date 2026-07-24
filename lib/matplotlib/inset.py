@@ -8,7 +8,8 @@ from matplotlib.patches import ConnectionPatch, PathPatch, Rectangle
 from matplotlib.path import Path
 
 
-_shared_properties = ('alpha', 'edgecolor', 'linestyle', 'linewidth')
+_shared_properties = (
+    'alpha', 'clip_on', 'edgecolor', 'linestyle', 'linewidth')
 
 
 class InsetIndicator(artist.Artist):
@@ -69,13 +70,14 @@ class InsetIndicator(artist.Artist):
 
         # Initial style properties for the artist should match the rectangle.
         for prop in _shared_properties:
-            setattr(self, f'_{prop}', artist.getp(self._rectangle, prop))
+            setattr(
+                self, f'_{prop.replace('_', '')}', artist.getp(self._rectangle, prop))
 
     def _shared_setter(self, prop, val):
         """
         Helper function to set the same style property on the artist and its children.
         """
-        setattr(self, f'_{prop}', val)
+        setattr(self, f'_{prop.replace('_', '')}', val)
 
         artist.setp([self._rectangle, *self._connectors], prop, val)
 
@@ -89,6 +91,10 @@ class InsetIndicator(artist.Artist):
     def set_alpha(self, alpha):
         # docstring inherited
         self._shared_setter('alpha', alpha)
+
+    def set_clip_on(self, clip_on):
+        # docstring inherited
+        self._shared_setter('clip_on', clip_on)
 
     def set_edgecolor(self, color):
         """
@@ -193,7 +199,7 @@ class InsetIndicator(artist.Artist):
                 p = ConnectionPatch(
                     xyA=xy_inset_ax, coordsA=self._inset_ax.transAxes,
                     xyB=xy_data, coordsB=self.rectangle.get_data_transform(),
-                    arrowstyle="-",
+                    arrowstyle="-", clip_on=self.get_clip_on(),
                     edgecolor=self._edgecolor, alpha=self.get_alpha(),
                     linestyle=self._linestyle, linewidth=self._linewidth)
                 self._connectors.append(p)
