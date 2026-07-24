@@ -153,7 +153,6 @@ if TYPE_CHECKING:
         ResizeEventType,
         LogLevel
     )
-    from matplotlib.widgets import SubplotTool
     from matplotlib._api import _Unset
 
 
@@ -2152,13 +2151,16 @@ def twiny(ax: matplotlib.axes.Axes | None = None) -> _AxesBase:
     return ax1
 
 
-def subplot_tool(targetfig: Figure | None = None) -> SubplotTool | None:
+def subplot_tool(targetfig: Figure | None = None) -> object | None:
     """
     Launch a subplot tool window for a figure.
 
     Returns
     -------
-    `matplotlib.widgets.SubplotTool`
+    object or None
+        The subplot tool window: a `~matplotlib.widgets.SubplotTool` for the
+        widgets backend, an implementation-specific value for other backends
+        (e.g. a Qt dialog), or `None` for backends using the toolmanager.
     """
     if targetfig is None:
         targetfig = gcf()
