@@ -1569,6 +1569,62 @@ def test_subfigures_wspace_hspace():
     np.testing.assert_allclose(sub_figs[1, 2].bbox.max, [w, h * 0.4])
 
 
+def test_subfigures_partial_spacing_none_is_zero():
+    """Unspecified wspace/hspace is zero when no layout engine is active.
+
+    Regression for #32076: passing only one of wspace/hspace used to fall
+    back to figure.subplot.* rc defaults (0.2) for the unspecified axis.
+    """
+    fig = plt.figure(figsize=(6, 4), dpi=100)
+    # Both None: no spacing (tile the figure).
+    sfs = fig.subfigures(2, 2, wspace=None, hspace=None)
+    for row in sfs:
+        for sf in row:
+            sf.add_subplot().plot([0, 1], [0, 1])
+    fig.canvas.draw()
+    # Display coords at dpi=100, figsize 6x4 → 600x400.
+    np.testing.assert_allclose(sfs[0, 0].bbox.bounds, [0.0, 200.0, 300.0, 200.0])
+    np.testing.assert_allclose(sfs[0, 1].bbox.bounds, [300.0, 200.0, 300.0, 200.0])
+    np.testing.assert_allclose(sfs[1, 0].bbox.bounds, [0.0, 0.0, 300.0, 200.0])
+    np.testing.assert_allclose(sfs[1, 1].bbox.bounds, [300.0, 0.0, 300.0, 200.0])
+    plt.close(fig)
+
+    fig = plt.figure(figsize=(6, 4), dpi=100)
+    # Only wspace set: horizontal gap, no vertical gap.
+    sfs = fig.subfigures(2, 2, wspace=0.2, hspace=None)
+    for row in sfs:
+        for sf in row:
+            sf.add_subplot().plot([0, 1], [0, 1])
+    fig.canvas.draw()
+    # cell_w = 1 / (2 + 0.2) = 1/2.2; sep = 0.2/2.2
+    cell = 1 / 2.2
+    sep = 0.2 * cell
+    w_px, h_px = 600.0, 400.0
+    np.testing.assert_allclose(
+        sfs[0, 0].bbox.bounds, [0.0, h_px / 2, cell * w_px, h_px / 2], rtol=1e-5)
+    np.testing.assert_allclose(
+        sfs[0, 1].bbox.bounds,
+        [(cell + sep) * w_px, h_px / 2, cell * w_px, h_px / 2], rtol=1e-5)
+    np.testing.assert_allclose(
+        sfs[1, 0].bbox.bounds, [0.0, 0.0, cell * w_px, h_px / 2], rtol=1e-5)
+    # Heights must be half the figure (no vertical spacing).
+    assert sfs[0, 0].bbox.height == pytest.approx(h_px / 2)
+    assert sfs[1, 0].bbox.y1 == pytest.approx(sfs[0, 0].bbox.y0)
+    plt.close(fig)
+
+    fig = plt.figure(figsize=(6, 4), dpi=100)
+    # Only hspace set: vertical gap, no horizontal gap.
+    sfs = fig.subfigures(2, 2, wspace=None, hspace=0.2)
+    for row in sfs:
+        for sf in row:
+            sf.add_subplot().plot([0, 1], [0, 1])
+    fig.canvas.draw()
+    assert sfs[0, 0].bbox.width == pytest.approx(w_px / 2)
+    assert sfs[0, 1].bbox.x0 == pytest.approx(sfs[0, 0].bbox.x1)
+    assert sfs[0, 0].bbox.height == pytest.approx(cell * h_px, rel=1e-5)
+    plt.close(fig)
+
+
 def test_subfigure_remove():
     fig = plt.figure()
     sfs = fig.subfigures(2, 2)

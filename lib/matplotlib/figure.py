@@ -1648,6 +1648,15 @@ default: %(va)s
             relative height of ``height_ratios[i] / sum(height_ratios)``.
             If not given, all rows will have the same height.
         """
+        # Without a layout engine, unspecified spacing is documented as zero.
+        # GridSpec falls back to figure.subplot.{w,h}space (rc default 0.2)
+        # when given None, so coerce missing values here (issue #32076).
+        if self.get_layout_engine() is None:
+            if wspace is None:
+                wspace = 0.0
+            if hspace is None:
+                hspace = 0.0
+
         gs = GridSpec(nrows=nrows, ncols=ncols, figure=self,
                       wspace=wspace, hspace=hspace,
                       width_ratios=width_ratios,
