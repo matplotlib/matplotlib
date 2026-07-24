@@ -10,6 +10,7 @@ from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
 from matplotlib.dates import DateConverter, num2date
+from matplotlib.lines import _get_dash_pattern
 
 LINESTYLES = {'-': 'Solid',
               '--': 'Dashed',
@@ -120,11 +121,21 @@ def figure_edit(axes, parent=None):
         fc = mcolors.to_hex(
             mcolors.to_rgba(line.get_markerfacecolor(), line.get_alpha()),
             keep_alpha=True)
+
+        linestyle = line.get_linestyle()
+        dash_pattern = line._unscaled_dash_pattern
+        try:
+            implied_pattern = _get_dash_pattern(linestyle)
+        except ValueError:
+            implied_pattern = dash_pattern
+        if dash_pattern != implied_pattern:
+            linestyle = dash_pattern
+
         curvedata = [
             ('Label', label),
             sep,
             (None, '<b>Line</b>'),
-            ('Line style', prepare_data(LINESTYLES, line.get_linestyle())),
+            ('Line style', prepare_data(LINESTYLES, linestyle)),
             ('Draw style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
             ('Width', line.get_linewidth()),
             ('Color (RGBA)', color),
