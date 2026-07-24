@@ -357,14 +357,16 @@ class PyFT2Font final : public FT2Font
     using FT2Font::FT2Font;
 
     py::object py_file;
+    py::buffer_info mem;  // mmap of the font file, if it can be mapped
     FT_StreamRec stream;
     py::list fallbacks;
+    bool from_path = false;
 
     ~PyFT2Font()
     {
         // Because destructors are called from subclass up to base class, we need to
         // explicitly close the font here. Otherwise, the instance attributes here will
-        // be destroyed before the font itself, but those are used in the close callback.
+        // be destroyed before the font itself, but those are referenced by FreeType.
         close();
     }
 
@@ -446,7 +448,6 @@ close_file_callback(FT_Stream stream)
     } catch (py::error_already_set &eas) {
         eas.discard_as_unraisable(__func__);
     }
-    self->py_file = py::object();
     PyErr_Restore(type, value, traceback);
 }
 
@@ -514,22 +515,60 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
     }
 
     memset(&self->stream, 0, sizeof(FT_StreamRec));
-    self->stream.base = nullptr;
-    self->stream.size = 0x7fffffff;  // Unknown size.
-    self->stream.pos = 0;
-    self->stream.descriptor.pointer = self;
-    self->stream.read = &read_from_file_callback;
     FT_Open_Args open_args;
     memset((void *)&open_args, 0, sizeof(FT_Open_Args));
-    open_args.flags = FT_OPEN_STREAM;
-    open_args.stream = &self->stream;
+
+    // Stream font data through the Python file object.  `close` is set for a
+    // file we opened, and nullptr for a caller-owned one.
+    auto stream_font_via_python = [&](FT_Stream_CloseFunc close) {
+        self->stream.size = 0x7fffffff;  // Unknown size.
+        self->stream.descriptor.pointer = self;
+        self->stream.read = &read_from_file_callback;
+        self->stream.close = close;
+        open_args.flags = FT_OPEN_STREAM;
+        open_args.stream = &self->stream;
+    };
 
     auto PathLike = py::module_::import("os").attr("PathLike");
     if (py::isinstance<py::bytes>(filename) || py::isinstance<py::str>(filename) ||
         py::isinstance(filename, PathLike))
     {
+        // Open with Python so path errors raise the usual exceptions.
         self->py_file = py::module_::import("io").attr("open")(filename, "rb");
-        self->stream.close = &close_file_callback;
+        self->from_path = true;
+        // Try to mmap the file so that glyph loads skip the Python layer.
+        py::object data;
+        py::object mmap_module;
+        try {
+            mmap_module = py::module_::import("mmap");
+        } catch (py::error_already_set &eas) {
+            if (!eas.matches(PyExc_ImportError)) {
+                throw;
+            }
+            // Some platforms (e.g. WASI) don't provide the mmap module.
+        }
+        if (mmap_module) {
+            try {
+                data = mmap_module.attr("mmap")(
+                    self->py_file.attr("fileno")(), 0,
+                    "access"_a=mmap_module.attr("ACCESS_READ"));
+            } catch (py::error_already_set &eas) {
+                if (!eas.matches(PyExc_ValueError) && !eas.matches(PyExc_OSError)) {
+                    throw;
+                }
+                // Zero-length or otherwise unmappable file.
+            }
+        }
+        if (data) {
+            self->py_file.attr("close")();
+            self->mem = py::buffer(data).request();
+            open_args.flags = FT_OPEN_MEMORY;
+            open_args.memory_base = static_cast<const FT_Byte *>(self->mem.ptr);
+            open_args.memory_size = static_cast<FT_Long>(self->mem.size);
+        } else {
+            // Fall back to streaming reads, closing the file we opened.
+            stream_font_via_python(&close_file_callback);
+        }
     } else {
         try {
             // This will catch various issues:
@@ -542,7 +581,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
                 "First argument must be a path to a font file or a binary-mode file object");
         }
         self->py_file = filename;
-        self->stream.close = nullptr;
+        stream_font_via_python(nullptr);  // Don't close the caller's file object.
     }
 
     self->open(open_args, face_index);
@@ -553,9 +592,9 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
 static py::object
 PyFT2Font_fname(PyFT2Font *self)
 {
-    if (self->stream.close) {  // User passed a filename to the constructor.
+    if (self->from_path) {
         return self->py_file.attr("name");
-    } else {
+    } else {  // User passed a file-like object to the constructor.
         return self->py_file;
     }
 }

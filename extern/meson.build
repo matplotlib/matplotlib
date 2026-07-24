@@ -16,7 +16,6 @@ else
       'brotli=disabled',
       'bzip2=disabled',
       get_option('system-libraqm') ? 'harfbuzz=disabled' : 'harfbuzz=static',
-      'mmap=auto',
       'png=disabled',
       'tests=disabled',
       'zlib=internal',
