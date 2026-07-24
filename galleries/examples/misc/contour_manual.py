@@ -30,7 +30,7 @@ fig, ax = plt.subplots()
 
 # Filled contours using filled=True.
 cs = ContourSet(ax, [0, 1, 2], [filled01, filled12], filled=True, cmap="bone")
-cbar = fig.colorbar(cs)
+cbar = ax.colorbar(cs)
 
 # Contour lines (non-filled).
 lines = ContourSet(
@@ -51,7 +51,7 @@ M = Path.MOVETO
 L = Path.LINETO
 kinds01 = [[M, L, L, L, M, L, L, L]]
 cs = ContourSet(ax, [0, 1], [filled01], [kinds01], filled=True)
-cbar = fig.colorbar(cs)
+ax.colorbar(cs)
 
 ax.set(xlim=(-0.5, 3.5), ylim=(-0.5, 3.5),
        title='User specified filled contours with holes')

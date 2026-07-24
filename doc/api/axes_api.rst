@@ -316,8 +316,8 @@ Axis limits and direction
    Axes.set_ybound
    Axes.get_ybound
 
-Axis labels, title, and legend
-------------------------------
+Axis labels and title
+---------------------
 
 .. autosummary::
    :toctree: _as_gen
@@ -332,9 +332,6 @@ Axis labels, title, and legend
 
    Axes.set_title
    Axes.get_title
-   Axes.legend
-   Axes.get_legend
-   Axes.get_legend_handles_labels
 
 Axis scales
 -----------
@@ -440,6 +437,20 @@ Ticks and tick labels
    Axes.tick_params
 
    Axes.locator_params
+
+
+Legend and colorbar
+===================
+
+.. autosummary::
+   :toctree: _as_gen
+   :template: autosummary.rst
+   :nosignatures:
+
+   Axes.legend
+   Axes.get_legend
+   Axes.get_legend_handles_labels
+   Axes.colorbar
 
 
 Units

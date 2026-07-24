@@ -55,26 +55,26 @@ z_min, z_max = -abs(z).max(), abs(z).max()
 fig, axs = plt.subplots(2, 2)
 
 ax = axs[0, 0]
-c = ax.pcolor(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.pcolor(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.colorbar()
 ax.set_title('pcolor')
-fig.colorbar(c, ax=ax)
 
 ax = axs[0, 1]
-c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.colorbar()
 ax.set_title('pcolormesh')
-fig.colorbar(c, ax=ax)
 
 ax = axs[1, 0]
-c = ax.imshow(z, cmap='RdBu', vmin=z_min, vmax=z_max,
-              extent=[x.min(), x.max(), y.min(), y.max()],
-              interpolation='nearest', origin='lower', aspect='auto')
+ax.imshow(z, cmap='RdBu', vmin=z_min, vmax=z_max,
+          extent=[x.min(), x.max(), y.min(), y.max()],
+          interpolation='nearest', origin='lower', aspect='auto')
+ax.colorbar()
 ax.set_title('image (nearest, aspect="auto")')
-fig.colorbar(c, ax=ax)
 
 ax = axs[1, 1]
-c = ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.pcolorfast(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.colorbar()
 ax.set_title('pcolorfast')
-fig.colorbar(c, ax=ax)
 
 fig.tight_layout()
 plt.show()
@@ -98,12 +98,12 @@ Z = Z1 + 50 * Z2
 
 fig, (ax0, ax1) = plt.subplots(2, 1)
 
-c = ax0.pcolor(X, Y, Z, shading='auto',
-               norm=LogNorm(vmin=Z.min(), vmax=Z.max()), cmap='PuBu_r')
-fig.colorbar(c, ax=ax0)
+ax0.pcolor(X, Y, Z, shading='auto',
+           norm=LogNorm(vmin=Z.min(), vmax=Z.max()), cmap='PuBu_r')
+ax0.colorbar()
 
-c = ax1.pcolor(X, Y, Z, cmap='PuBu_r', shading='auto')
-fig.colorbar(c, ax=ax1)
+ax1.pcolor(X, Y, Z, cmap='PuBu_r', shading='auto')
+ax1.colorbar()
 
 plt.show()
 

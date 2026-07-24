@@ -32,12 +32,12 @@ Z = Z1 + 50 * Z2
 
 fig, ax = plt.subplots(2, 1)
 
-pcm = ax[0].pcolor(X, Y, Z, cmap='PuBu_r', shading='nearest')
-fig.colorbar(pcm, ax=ax[0], extend='max', label='linear scaling')
+ax[0].pcolor(X, Y, Z, cmap='PuBu_r', shading='nearest')
+ax[0].colorbar(extend='max', label='linear scaling')
 
-pcm = ax[1].pcolor(X, Y, Z, cmap='PuBu_r', shading='nearest',
-                   norm=colors.LogNorm(vmin=Z.min(), vmax=Z.max()))
-fig.colorbar(pcm, ax=ax[1], extend='max', label='LogNorm')
+ax[1].pcolor(X, Y, Z, cmap='PuBu_r', shading='nearest',
+             norm=colors.LogNorm(vmin=Z.min(), vmax=Z.max()))
+ax[1].colorbar(extend='max', label='LogNorm')
 
 # %%
 # PowerNorm
@@ -53,12 +53,12 @@ Z = (1 + np.sin(Y * 10)) * X**2
 
 fig, ax = plt.subplots(2, 1)
 
-pcm = ax[0].pcolormesh(X, Y, Z, cmap='PuBu_r', shading='nearest')
-fig.colorbar(pcm, ax=ax[0], extend='max', label='linear scaling')
+ax[0].pcolormesh(X, Y, Z, cmap='PuBu_r', shading='nearest')
+ax[0].colorbar(extend='max', label='linear scaling')
 
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='PuBu_r', shading='nearest',
-                       norm=colors.PowerNorm(gamma=0.5))
-fig.colorbar(pcm, ax=ax[1], extend='max', label='PowerNorm')
+ax[1].pcolormesh(X, Y, Z, cmap='PuBu_r', shading='nearest',
+                 norm=colors.PowerNorm(gamma=0.5))
+ax[1].colorbar(extend='max', label='PowerNorm')
 
 # %%
 # SymLogNorm
@@ -79,14 +79,13 @@ Z = (5 * Z1 - Z2) * 2
 
 fig, ax = plt.subplots(2, 1)
 
-pcm = ax[0].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
-                       vmin=-np.max(Z))
-fig.colorbar(pcm, ax=ax[0], extend='both', label='linear scaling')
+ax[0].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest', vmin=-np.max(Z))
+ax[0].colorbar(extend='both', label='linear scaling')
 
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
-                       norm=colors.SymLogNorm(linthresh=0.015,
-                                              vmin=-10.0, vmax=10.0, base=10))
-fig.colorbar(pcm, ax=ax[1], extend='both', label='SymLogNorm')
+ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
+                 norm=colors.SymLogNorm(linthresh=0.015,
+                                        vmin=-10.0, vmax=10.0, base=10))
+ax[1].colorbar(extend='both', label='SymLogNorm')
 
 # %%
 # Custom Norm
@@ -112,13 +111,12 @@ class MidpointNormalize(colors.Normalize):
 # %%
 fig, ax = plt.subplots(2, 1)
 
-pcm = ax[0].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
-                       vmin=-np.max(Z))
-fig.colorbar(pcm, ax=ax[0], extend='both', label='linear scaling')
+ax[0].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest', vmin=-np.max(Z))
+ax[0].colorbar(extend='both', label='linear scaling')
 
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
-                       norm=MidpointNormalize(midpoint=0))
-fig.colorbar(pcm, ax=ax[1], extend='both', label='Custom norm')
+ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
+                 norm=MidpointNormalize(midpoint=0))
+ax[1].colorbar(extend='both', label='Custom norm')
 
 # %%
 # BoundaryNorm
@@ -129,25 +127,22 @@ fig.colorbar(pcm, ax=ax[1], extend='both', label='Custom norm')
 
 fig, ax = plt.subplots(3, 1, layout='constrained')
 
-pcm = ax[0].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
-                       vmin=-np.max(Z))
-fig.colorbar(pcm, ax=ax[0], extend='both', orientation='vertical',
-             label='linear scaling')
+ax[0].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest', vmin=-np.max(Z))
+ax[0].colorbar(extend='both', orientation='vertical', label='linear scaling')
 
 # Evenly-spaced bounds gives a contour-like effect.
 bounds = np.linspace(-2, 2, 11)
 norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
-pcm = ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
+ax[1].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
                        norm=norm)
-fig.colorbar(pcm, ax=ax[1], extend='both', orientation='vertical',
-             label='BoundaryNorm\nlinspace(-2, 2, 11)')
+ax[1].colorbar(extend='both', orientation='vertical',
+               label='BoundaryNorm\nlinspace(-2, 2, 11)')
 
 # Unevenly-spaced bounds changes the colormapping.
 bounds = np.array([-1, -0.5, 0, 2.5, 5])
 norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)
-pcm = ax[2].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest',
-                       norm=norm)
-fig.colorbar(pcm, ax=ax[2], extend='both', orientation='vertical',
-             label='BoundaryNorm\n[-1, -0.5, 0, 2.5, 5]')
+ax[2].pcolormesh(X, Y, Z, cmap='RdBu_r', shading='nearest', norm=norm)
+ax[2].colorbar(extend='both', orientation='vertical',
+               label='BoundaryNorm\n[-1, -0.5, 0, 2.5, 5]')
 
 plt.show()
