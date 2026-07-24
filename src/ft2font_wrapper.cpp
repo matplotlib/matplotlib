@@ -1759,6 +1759,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
     // Ensure FreeType library is closed after all instances of FT2Font are gone by
     // tying a weak ref to the class itself.
+    // https://pybind11.readthedocs.io/en/stable/advanced/misc.html#module-destructors
     (void)py::weakref(
         m.attr("FT2Font"),
         py::cpp_function(
