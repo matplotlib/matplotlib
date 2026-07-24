@@ -480,21 +480,6 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     trans *= agg::trans_affine_scaling(1.0, -1.0);
     trans *= agg::trans_affine_translation(0.5, (double)height + 0.5);
 
-    auto marker_path_transformed = agg::conv_transform{marker_path, marker_trans};
-    auto marker_path_nan_removed = PathNanRemover{
-        marker_path_transformed, true, marker_path.has_codes()};
-    auto marker_path_snapped = PathSnapper{
-        marker_path_nan_removed,
-        gc.snap_mode, marker_path.total_vertices(), points_to_pixels(gc.linewidth)};
-    auto marker_path_curve = agg::conv_curve{marker_path_snapped};
-
-    if (!marker_path_snapped.is_snapping()) {
-        // If the path snapper isn't in effect, at least make sure the marker
-        // at (0, 0) is in the center of a pixel.  This, importantly, makes
-        // the circle markers look centered around the point they refer to.
-        marker_trans *= agg::trans_affine_translation(0.5, 0.5);
-    }
-
     auto path_transformed = agg::conv_transform{path, trans};
     auto path_nan_removed = PathNanRemover{path_transformed, false, false};
     auto path_snapped = PathSnapper{
@@ -507,118 +492,147 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
         face = color;
     }
 
-    // maxim's suggestions for cached scanlines
-    agg::scanline_storage_aa8 scanlines;
+    struct CachedMarker {
+        std::vector<agg::int8u> fillBuffer;
+        std::vector<agg::int8u> strokeBuffer;
+        agg::rect_d clipping_rect;
+    };
+
+    // TODO: Pixel markers *must* be drawn snapped.
+    auto const& is_pixel_marker = false;
+        // py_eq(marker_path, PIXEL_MARKER.attr("get_path")())
+        // && marker_trans == PIXEL_MARKER.attr("get_transform")().cast<agg::trans_affine>();
+    auto const& simplify_threshold = is_pixel_marker ? 0 : path.simplify_threshold();
+    auto const& n_vertices = path.total_vertices();
+    auto marker_cache = std::vector<CachedMarker>{};
+    auto n_subpix =  // NOTE: Arbitrary limit of 1/16.
+        simplify_threshold >= 1. / 16 ? int(std::ceil(1 / simplify_threshold)) : 0;
+    if (!(n_subpix && n_subpix * n_subpix < n_vertices)) {
+        n_subpix = 1;
+    }
+    marker_cache.resize(n_subpix * n_subpix);
+
     theRasterizer.reset();
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
-    agg::rect_i marker_size(0x7FFFFFFF, 0x7FFFFFFF, -0x7FFFFFFF, -0x7FFFFFFF);
 
     try
     {
-        std::vector<agg::int8u> fillBuffer;
-        if (face) {
-            theRasterizer.add_path(marker_path_curve);
-            agg::render_scanlines(theRasterizer, slineP8, scanlines);
-            fillBuffer.resize(scanlines.byte_size());
-            scanlines.serialize(fillBuffer.data());
-            marker_size = agg::rect_i(scanlines.min_x(),
-                                      scanlines.min_y(),
-                                      scanlines.max_x(),
-                                      scanlines.max_y());
-        }
+        for (auto i = 0; i < n_subpix; ++i) {
+            for (auto j = 0; j < n_subpix; ++j) {
+                auto subpix_marker_trans =
+                    marker_trans *
+                    agg::trans_affine_translation(
+                        double(i) / n_subpix,
+                        double(j) / n_subpix);
+                auto marker_path_transformed = agg::conv_transform{
+                    marker_path, subpix_marker_trans};
+                auto marker_path_nan_removed = PathNanRemover{
+                    marker_path_transformed, true, marker_path.has_codes()};
+                auto marker_path_snapped = PathSnapper{
+                    marker_path_nan_removed,
+                    gc.snap_mode, marker_path.total_vertices(),
+                    points_to_pixels(gc.linewidth)};
+                auto marker_path_curve = agg::conv_curve{marker_path_snapped};
 
-        auto stroke = agg::conv_stroke{marker_path_curve};
-        stroke.width(points_to_pixels(gc.linewidth));
-        stroke.line_cap(gc.cap);
-        stroke.line_join(gc.join);
-        stroke.miter_limit(points_to_pixels(gc.linewidth));
-        theRasterizer.reset();
-        theRasterizer.add_path(stroke);
-        agg::render_scanlines(theRasterizer, slineP8, scanlines);
-        std::vector<agg::int8u> strokeBuffer(scanlines.byte_size());
-        scanlines.serialize(strokeBuffer.data());
-        marker_size = agg::rect_i(std::min(marker_size.x1, scanlines.min_x()),
-                                  std::min(marker_size.y1, scanlines.min_y()),
-                                  std::max(marker_size.x2, scanlines.max_x()),
-                                  std::max(marker_size.y2, scanlines.max_y()));
+                if (!marker_path_snapped.is_snapping()) {
+                    // If the path snapper isn't in effect, at least make sure the marker
+                    // at (0, 0) is in the center of a pixel.  This, importantly, makes
+                    // the circle markers look centered around the point they refer to.
+                    subpix_marker_trans *= agg::trans_affine_translation(0.5, 0.5);
+                }
+
+                // maxim's suggestions for cached scanlines
+                agg::scanline_storage_aa8 scanlines;
+                auto marker_size = agg::rect_i{
+                    0x7FFFFFFF, 0x7FFFFFFF, -0x7FFFFFFF, -0x7FFFFFFF};
+
+                auto &cached = marker_cache[i * n_subpix + j];
+                if (face) {
+                    theRasterizer.reset();
+                    theRasterizer.add_path(marker_path_curve);
+                    agg::render_scanlines(theRasterizer, slineP8, scanlines);
+                    cached.fillBuffer.resize(scanlines.byte_size());
+                    scanlines.serialize(cached.fillBuffer.data());
+                    marker_size = {scanlines.min_x(), scanlines.min_y(),
+                                   scanlines.max_x(), scanlines.max_y()};
+                }
+
+                auto stroke = agg::conv_stroke{marker_path_curve};
+                stroke.width(points_to_pixels(gc.linewidth));
+                stroke.line_cap(gc.cap);
+                stroke.line_join(gc.join);
+                stroke.miter_limit(points_to_pixels(gc.linewidth));
+                theRasterizer.reset();
+                theRasterizer.add_path(stroke);
+                agg::render_scanlines(theRasterizer, slineP8, scanlines);
+                cached.strokeBuffer.resize(scanlines.byte_size());
+                scanlines.serialize(cached.strokeBuffer.data());
+                marker_size = {
+                    std::min(marker_size.x1, scanlines.min_x()),
+                    std::min(marker_size.y1, scanlines.min_y()),
+                    std::max(marker_size.x2, scanlines.max_x()),
+                    std::max(marker_size.y2, scanlines.max_y()),
+                };
+
+                cached.clipping_rect = {
+                    -1.0 - marker_size.x2, -1.0 - marker_size.y2,
+                    1.0 + width - marker_size.x1, 1.0 + height - marker_size.y1};
+
+            }
+        }
 
         theRasterizer.reset_clipping();
         rendererBase.reset_clipping(true);
         set_clipbox(gc.cliprect, rendererBase);
         bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
 
-        double x, y;
+        auto _render_markers = [&]<typename R>(R ren) {
+            agg::serialized_scanlines_adaptor_aa8 sa;
+            agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
+            double x, y;
 
-        agg::serialized_scanlines_adaptor_aa8 sa;
-        agg::serialized_scanlines_adaptor_aa8::embedded_scanline sl;
-
-        agg::rect_d clipping_rect(-1.0 - marker_size.x2,
-                                  -1.0 - marker_size.y2,
-                                  1.0 + width - marker_size.x1,
-                                  1.0 + height - marker_size.y1);
-
-        if (has_clippath) {
             while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
                 if (!(std::isfinite(x) && std::isfinite(y))) {
                     continue;
                 }
 
-                /* These values are correctly snapped above -- so we don't want
-                   to round here, we really only want to truncate */
-                x = floor(x);
-                y = floor(y);
+                auto const& i_target_x = std::floor(x);
+                auto const& i_target_y = std::floor(y);
+                auto const& f_target_x = x - i_target_x;
+                auto const& f_target_y = y - i_target_y;
+                auto const& idx =
+                    int(n_subpix * f_target_x) * n_subpix + int(n_subpix * f_target_y);
+                auto const& cached = marker_cache[idx];
 
                 // Cull points outside the boundary of the image.
                 // Values that are too large may overflow and create
                 // segfaults.
                 // http://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
-                if (!clipping_rect.hit_test(x, y)) {
+                if (!cached.clipping_rect.hit_test(x, y)) {
                     continue;
                 }
 
-                auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
-                auto r = agg::renderer_base{pfa};
-                auto ren = agg::renderer_scanline_aa_solid{r};
-
                 if (face) {
                     ren.color(*face);
-                    sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
+                    sa.init(cached.fillBuffer.data(), cached.fillBuffer.size(),
+                            i_target_x, i_target_y);
                     agg::render_scanlines(sa, sl, ren);
                 }
                 ren.color(gc.color);
-                sa.init(strokeBuffer.data(), strokeBuffer.size(), x, y);
+                sa.init(cached.strokeBuffer.data(), cached.strokeBuffer.size(),
+                        i_target_x, i_target_y);
                 agg::render_scanlines(sa, sl, ren);
             }
+        };
+
+        if (has_clippath) {
+            auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+            auto r = agg::renderer_base{pfa};
+            auto ren = agg::renderer_scanline_aa_solid{r};
+            _render_markers(ren);
         } else {
-            while (path_curve.vertex(&x, &y) != agg::path_cmd_stop) {
-                if (!(std::isfinite(x) && std::isfinite(y))) {
-                    continue;
-                }
-
-                /* These values are correctly snapped above -- so we don't want
-                   to round here, we really only want to truncate */
-                x = floor(x);
-                y = floor(y);
-
-                // Cull points outside the boundary of the image.
-                // Values that are too large may overflow and create
-                // segfaults.
-                // http://sourceforge.net/tracker/?func=detail&aid=2865490&group_id=80706&atid=560720
-                if (!clipping_rect.hit_test(x, y)) {
-                    continue;
-                }
-
-                if (face) {
-                    rendererAA.color(*face);
-                    sa.init(fillBuffer.data(), fillBuffer.size(), x, y);
-                    agg::render_scanlines(sa, sl, rendererAA);
-                }
-
-                rendererAA.color(gc.color);
-                sa.init(strokeBuffer.data(), strokeBuffer.size(), x, y);
-                agg::render_scanlines(sa, sl, rendererAA);
-            }
+            _render_markers(rendererAA);
         }
     }
     catch (...)
