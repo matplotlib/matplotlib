@@ -1,0 +1,84 @@
+---
+name: Pixi
+
+on:
+  pull_request:
+    paths:
+      - "pixi.lock"
+      - "pyproject.toml"
+      - "src/**"
+      - "lib/**"
+      - ".github/workflows/pixi.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pixi.lock"
+      - "pyproject.toml"
+      - "src/**"
+      - "lib/**"
+      - ".github/workflows/pixi.yml"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-lockfile:
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          run-install: false
+
+      - name: Check that pixi.lock is up to date
+        run: |
+          if ! pixi install --locked --manifest-path pyproject.toml; then
+            echo "::error file=pixi.lock::pixi.lock is not consistent with pyproject.toml. " \
+            "Run 'pixi lock' locally and commit the updated pixi.lock."
+            exit 1
+          fi
+
+  pixi-linux-install:
+    needs: check-lockfile
+    runs-on: ubuntu-slim
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up pixi and install environment
+        uses: prefix-dev/setup-pixi@v0.9.4
+        with:
+          pixi-version: v0.66.0
+          locked: true
+          cache: true
+          cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+
+      - name: Show pixi info
+        run: |
+          pixi info
+          pixi list
+
+      - name: Clean build artifacts
+        run: |
+          rm -rf build meson-logs meson-private .mesonpy-*
+
+      - name: Install Matplotlib editable
+        run: pixi run python -m pip install --config-settings=setup-args="-Db_lto=false" --editable .
+
+      - name: Smoke test editable install
+        run: |
+          pixi run python -c "import matplotlib; print(matplotlib.__version__)"
