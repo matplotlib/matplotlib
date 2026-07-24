@@ -159,6 +159,15 @@ def validate_hist_bins(
 ) -> Literal["auto", "sturges", "fd", "doane", "scott", "rice", "sqrt"] | int | list[
     float
 ]: ...
+def validate_pcolor_shading(
+    s: Any,
+) -> (
+    Literal["auto", "flat", "nearest", "gouraud"]
+    | tuple[
+        Literal["auto", "flat", "nearest", "gouraud"],
+        Literal["auto", "flat", "nearest", "gouraud"],
+    ]
+): ...
 
 # At runtime is added in __init__.py
 defaultParams: dict[str, Any]
