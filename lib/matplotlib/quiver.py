@@ -48,6 +48,13 @@ To change this behavior see the *scale* and *scale_units* parameters.
 The arrow shape is determined by *width*, *headwidth*, *headlength* and
 *headaxislength*. See the notes below.
 
+The defaults give a slightly swept-back arrow; to make the head a
+triangle, make *headaxislength* the same as *headlength*. To make the
+arrow more pointed, reduce *headwidth* or increase *headlength* and
+*headaxislength*. To make the head smaller relative to the shaft,
+scale down all the head parameters. You will probably do best to leave
+minshaft alone. To set the position of the arrowhead use *head_pos*.
+
 **Arrow styling**
 
 Each arrow is internally represented by a filled polygon with a default edge
@@ -87,7 +94,7 @@ C : 1D or 2D array-like, optional
 angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
-    - 'uv':  Arrow directions are based on
+    - 'uv': Arrow directions are based on
       :ref:`display coordinates <coordinate-systems>`; i.e. a 45° angle will
       always show up as diagonal on the screen, irrespective of figure or Axes
       aspect ratio or Axes data ranges. This is useful when the arrows represent
@@ -220,6 +227,18 @@ minshaft : float, default: 1
 minlength : float, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
+
+pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
+    The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
+    rotates about this point.
+
+    'mid' is a synonym for 'middle'.
+
+head_pos : {'tip', 'mid', 'middle', 'tail'}, or float, default: 'tip'
+    The position of the arrowhead along the shaft.
+    'tail' gives value 0.0, 'tip' gives value 1.0,
+    'mid' synonymous to 'middle' gives value 0.5.
+    If a float is specified, it must be between 0.0 and 1.0.
 
 color : :mpltype:`color` or list :mpltype:`color`, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
@@ -517,7 +536,8 @@ class Quiver(mcollections.PolyCollection):
     def __init__(self, ax, *args,
                  scale=None, headwidth=3, headlength=5, headaxislength=4.5,
                  minshaft=1, minlength=1, units='width', scale_units=None,
-                 angles='uv', width=None, color='k', pivot='tail', **kwargs):
+                 angles='uv', width=None, color='k', pivot='tail',
+                 head_pos='tip', **kwargs):
         """
         The constructor takes one required argument, an Axes
         instance, followed by the args and kwargs described
@@ -540,6 +560,20 @@ class Quiver(mcollections.PolyCollection):
         self.scale_units = scale_units
         self.angles = angles
         self.width = width
+
+        # Checks the boundaries of head_pos if outside range default of 0.5
+        if (head_pos == "tail"):
+            self.head_pos = 0.0
+        elif (head_pos == "tip"):
+            self.head_pos = 1.0
+        elif (head_pos == "mid") or (head_pos == "middle"):
+            self.head_pos = 0.5
+        elif isinstance(head_pos, float) and (0.0 < head_pos < 1.0):
+            self.head_pos = head_pos
+        else:
+            raise ValueError("'head_pos' must be "
+                             "a value in the bounds 0<head_pos<1,"
+                             "or a string in {'tail', 'middle', 'tip'}")
 
         if pivot.lower() == 'mid':
             pivot = 'middle'
@@ -732,26 +766,51 @@ class Quiver(mcollections.PolyCollection):
         np.clip(length, 0, 2 ** 16, out=length)
         # x, y: normal horizontal arrow
         x = np.array([0, -self.headaxislength,
-                      -self.headlength, 0],
+                      -self.headlength, 0, 0],
                      np.float64)
-        x = x + np.array([0, 1, 1, 1]) * length
-        y = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
+        x = x + np.array([0, 1, 1, 1, 1]) * length
+        y = 0.5 * np.array([1, 1, self.headwidth, 0, 1], np.float64)
         y = np.repeat(y[np.newaxis, :], N, axis=0)
         # x0, y0: arrow without shaft, for short vectors
         x0 = np.array([0, minsh - self.headaxislength,
                        minsh - self.headlength, minsh], np.float64)
         y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
-        ii = [0, 1, 2, 3, 2, 1, 0, 0]
-        X = x[:, ii]
-        Y = y[:, ii]
-        Y[:, 3:-1] *= -1
-        X0 = x0[ii]
-        Y0 = y0[ii]
+        if self.head_pos == 1.0:
+            ii = [0, 1, 2, 3, 2, 1, 0, 0]
+            ii_min = [0, 1, 2, 3, 2, 1, 0, 0]
+            X = x[:, ii]
+            Y = y[:, ii]
+            Y[:, 3:-1] *= -1
+        elif self.head_pos == 0.0:
+            ii = [0, 2, 3, 4, 4, 3, 2, 0, 0]
+            ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0]
+            X = x[:, ii]
+            Y = y[:, ii]
+            X[:, 1:3] -= (length-self.headlength)
+            X[:, 5:-2] -= (length-self.headlength)
+            Y[:, 2] = np.ones(np.shape(Y[:, 2])) * 0.5
+            Y[:, 5] = np.ones(np.shape(Y[:, 5])) * 0.5
+            Y[:, 4:-1] *= -1
+        elif 0.0 < self.head_pos < 1.0:
+            ii = [0, 1, 2, 3, 4, 4, 3, 2, 1, 0, 0]
+            ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0, 0, 0]
+            X = x[:, ii]
+            Y = y[:, ii]
+            X[:, 1:4] *= self.head_pos
+            X[:, 6:-2] *= self.head_pos
+            X[:, 1:4] += self.headlength / 4
+            X[:, 6:-2] += self.headlength / 4
+            Y[:, 3] = np.ones(np.shape(Y[:, 3])) * 0.5
+            Y[:, 6] = np.ones(np.shape(Y[:, 6])) * 0.5
+            Y[:, 5:-1] *= -1
+
+        X0 = x0[ii_min]
+        Y0 = y0[ii_min]
         Y0[3:-1] *= -1
         shrink = length / minsh if minsh != 0. else 0.
         X0 = shrink * X0[np.newaxis, :]
         Y0 = shrink * Y0[np.newaxis, :]
-        short = np.repeat(length < minsh, 8, axis=1)
+        short = np.repeat(length < minsh, len(ii_min), axis=1)
         # Now select X0, Y0 if short, otherwise X, Y
         np.copyto(X, X0, where=short)
         np.copyto(Y, Y0, where=short)
@@ -767,12 +826,12 @@ class Quiver(mcollections.PolyCollection):
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
-            th = np.arange(0, 8, 1, np.float64) * (np.pi / 3.0)
+            th = np.arange(0, len(ii_min), 1, np.float64) * (np.pi / 3.0)
             x1 = np.cos(th) * self.minlength * 0.5
             y1 = np.sin(th) * self.minlength * 0.5
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
             Y1 = np.repeat(y1[np.newaxis, :], N, axis=0)
-            tooshort = np.repeat(tooshort, 8, 1)
+            tooshort = np.repeat(tooshort, len(ii_min), 1)
             np.copyto(X, X1, where=tooshort)
             np.copyto(Y, Y1, where=tooshort)
         # Mask handling is deferred to the caller, _make_verts.
