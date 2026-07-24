@@ -32,7 +32,7 @@ import matplotlib as mpl
 from . import cbook
 from ._mathtext_data import (
     latex_to_bakoma, stix_glyph_fixes, stix_virtual_fonts, tex2uni)
-from .font_manager import FontProperties, findfont, get_font
+from .font_manager import FontProperties, findfont, fontManager, get_font
 from .ft2font import FT2Font, Kerning, LoadFlags
 
 
@@ -683,6 +683,19 @@ class UnicodeFonts(TruetypeFonts):
                 if (fontname in ('it', 'regular', 'normal')
                         and isinstance(self, StixFonts)):
                     return self._get_glyph('rm', font_class, sym)
+                # Before substituting a dummy glyph, fall back through the
+                # configured text fonts and their fallback chain (system fonts
+                # and the Last Resort font), mirroring the regular-text path, so
+                # characters the math fonts lack -- such as CJK characters --
+                # still render.  See
+                # https://github.com/matplotlib/matplotlib/issues/29173.
+                text_font = get_font(
+                    fontManager._find_fonts_by_props(self.default_font_prop))
+                for fallback_font in [text_font, *text_font._fallbacks]:
+                    if fallback_font.get_char_index(uniindex, _fallback=False):
+                        _log.info("Substituting symbol %a from font %s.",
+                                  sym, fallback_font.family_name)
+                        return fallback_font, uniindex, False
                 _log.warning("Font %r does not have a glyph for %a [U+%x], "
                              "substituting with a dummy symbol.",
                              new_fontname, sym, uniindex)
