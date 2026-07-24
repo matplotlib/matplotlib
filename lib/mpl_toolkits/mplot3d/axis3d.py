@@ -2,6 +2,7 @@
 # Created: 23 Sep 2005
 # Parts rewritten by Reinier Heeres <reinier@heeres.eu>
 
+from dataclasses import dataclass
 import inspect
 
 import numpy as np
@@ -9,7 +10,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import (
     _api, artist, lines as mlines, axis as maxis, patches as mpatches,
-    transforms as mtransforms, colors as mcolors)
+    text as mtext, transforms as mtransforms, colors as mcolors)
 from . import art3d, proj3d
 
 
@@ -33,6 +34,27 @@ def _tick_update_position(tick, tickxs, tickys, labelpos):
     tick.tick1line.set_marker('')
     tick.tick1line.set_data(tickxs, tickys)
     tick.gridline.set_data([0], [0])
+
+
+@dataclass
+class _UpdatedArtists:
+    """Class to supply artists that have been updated ready to draw."""
+    line: mlines.Line2D = None
+    ticks: list = None
+    offset_text: mtext.Text = None
+    label: mtext.Text = None
+
+    def __iter__(self):
+        """Yield all updated artists in the correct order for drawing"""
+        if self.line is not None:
+            yield self.line
+        if self.ticks is not None:
+            for tick in self.ticks:
+                yield tick
+        if self.offset_text is not None:
+            yield self.offset_text
+        if self.label is not None:
+            yield self.label
 
 
 class Axis(maxis.XAxis):
@@ -439,8 +461,9 @@ class Axis(maxis.XAxis):
         axmask[self._axinfo["i"]] = False
         return axmask
 
-    def _draw_ticks(self, renderer, edgep1, centers, deltas, highs,
-                    deltas_per_point, pos):
+    def _get_updated_ticks(self, edgep1, centers, deltas, highs,
+                           deltas_per_point, pos):
+        """Update the ticks ready for draw and return in a list."""
         ticks = self._update_ticks()
         info = self._axinfo
         index = info["i"]
@@ -453,7 +476,7 @@ class Axis(maxis.XAxis):
         axis = [self.axes.xaxis, self.axes.yaxis, self.axes.zaxis][index]
         axis_trans = axis.get_transform()
 
-        # Draw ticks:
+        # Update ticks:
         tickdir = self._get_tickdir(pos)
         tickdelta = deltas[tickdir] if highs[tickdir] else -deltas[tickdir]
 
@@ -485,10 +508,12 @@ class Axis(maxis.XAxis):
 
             _tick_update_position(tick, (x1, x2), (y1, y2), (lx, ly))
             tick.tick1line.set_linewidth(tick_lw[tick._major])
-            tick.draw(renderer)
 
-    def _draw_offset_text(self, renderer, edgep1, edgep2, labeldeltas, centers,
-                          highs, pep, dx, dy):
+        return ticks
+
+    def _update_offset_text(self, edgep1, edgep2, labeldeltas, centers,
+                                 highs, pep, dx, dy):
+        """Update the offset text ready to draw."""
         # Get general axis information:
         info = self._axinfo
         index = info["i"]
@@ -556,12 +581,11 @@ class Axis(maxis.XAxis):
 
         self.offsetText.set_va('center')
         self.offsetText.set_ha(align)
-        self.offsetText.draw(renderer)
 
-    def _draw_labels(self, renderer, edgep1, edgep2, labeldeltas, centers, dx, dy):
+    def _update_label_position(self, edgep1, edgep2, labeldeltas, centers, dx, dy):
+        """Update the axis label position ready to draw."""
         label = self._axinfo["label"]
 
-        # Draw labels
         lxyz = 0.5 * (edgep1 + edgep2)
         lxyz = _move_from_center(lxyz, centers, labeldeltas, self._axmask())
         tlx, tly, tlz = proj3d.proj_transform(*lxyz, self.axes.M)
@@ -572,13 +596,15 @@ class Axis(maxis.XAxis):
         self.label.set_va(label['va'])
         self.label.set_ha(label['ha'])
         self.label.set_rotation_mode(label['rotation_mode'])
-        self.label.draw(renderer)
 
-    @artist.allow_rasterization
-    def draw(self, renderer):
+    def _update_all_positions(self):
+        """
+        Update positions of all child artists ready to draw.  Artists may be drawn
+        twice, e.g. if tick_position is 'both', the ticks and line show on both sides
+        of the axes.  We therefore yield after setting the position on each side.
+        """
         self.label._transform = self.axes.transData
         self.offsetText._transform = self.axes.transData
-        renderer.open_group("axis3d", gid=self.get_gid())
 
         # Get general axis information:
         mins, maxs, tc, highs = self._get_coord_info()
@@ -613,28 +639,42 @@ class Axis(maxis.XAxis):
             dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
                       self.axes.transAxes.transform([pep[0:2, 0]]))[0]
 
-            # Draw the lines
+            # Handle the lines
             self.line.set_data(pep[0], pep[1])
-            self.line.draw(renderer)
 
-            # Draw ticks
-            self._draw_ticks(renderer, edgep1, centers, deltas, highs,
-                             deltas_per_point, pos)
+            # Handle ticks
+            ticks = self._get_updated_ticks(
+                edgep1, centers, deltas, highs, deltas_per_point, pos)
 
-            # Draw Offset text
-            self._draw_offset_text(renderer, edgep1, edgep2, labeldeltas,
-                                   centers, highs, pep, dx, dy)
+            # Handle Offset text
+            self._update_offset_text(
+                edgep1, edgep2, labeldeltas, centers, highs, pep, dx, dy)
 
-        for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
-                                           minmax, maxmin, self._label_position)):
-            # See comments above
-            pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
-            pep = np.asarray(pep)
-            dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
-                      self.axes.transAxes.transform([pep[0:2, 0]]))[0]
+            yield _UpdatedArtists(line=self.line, ticks=ticks,
+                                  offset_text=self.offsetText)
 
-            # Draw labels
-            self._draw_labels(renderer, edgep1, edgep2, labeldeltas, centers, dx, dy)
+        if self.label.get_visible() and self.label.get_text():
+            # Handle label
+            for edgep1, edgep2, pos in zip(*self._get_all_axis_line_edge_points(
+                                               minmax, maxmin, self._label_position)):
+                # See comments above
+                pep = proj3d._proj_trans_points([edgep1, edgep2], self.axes.M)
+                pep = np.asarray(pep)
+                dx, dy = (self.axes.transAxes.transform([pep[0:2, 1]]) -
+                        self.axes.transAxes.transform([pep[0:2, 0]]))[0]
+
+                self._update_label_position(
+                    edgep1, edgep2, labeldeltas, centers, dx, dy)
+
+                yield _UpdatedArtists(label=self.label)
+
+    @artist.allow_rasterization
+    def draw(self, renderer):
+        renderer.open_group('axis3d', gid=self.get_gid())
+
+        for updated_artists in self._update_all_positions():
+            for art in updated_artists:
+                art.draw(renderer)
 
         renderer.close_group('axis3d')
         self.stale = False
@@ -689,49 +729,32 @@ class Axis(maxis.XAxis):
         # docstring inherited
         if not self.get_visible():
             return
-        # We have to directly access the internal data structures
-        # (and hope they are up to date) because at draw time we
-        # shift the ticks and their labels around in (x, y) space
-        # based on the projection, the current view port, and their
-        # position in 3D space. If we extend the transforms framework
-        # into 3D we would not need to do this different book keeping
-        # than we do in the normal axis
-        major_locs = self.get_majorticklocs()
-        minor_locs = self.get_minorticklocs()
 
-        ticks = [*self.get_minor_ticks(len(minor_locs)),
-                 *self.get_major_ticks(len(major_locs))]
-        view_low, view_high = self.get_view_interval()
-        if view_low > view_high:
-            view_low, view_high = view_high, view_low
-        interval_t = self.get_transform().transform([view_low, view_high])
+        if self.axes.M is None:
+            self.axes.M = self.axes.get_proj()
+            self.axes.invM = np.linalg.inv(self.axes.M)
 
-        ticks_to_draw = []
-        for tick in ticks:
-            try:
-                loc_t = self.get_transform().transform(tick.get_loc())
-            except AssertionError:
-                # Transform.transform doesn't allow masked values but
-                # some scales might make them, so we need this try/except.
-                pass
-            else:
-                if mtransforms._interval_contains_close(interval_t, loc_t):
-                    ticks_to_draw.append(tick)
+        bboxes = []
 
-        ticks = ticks_to_draw
+        for updated_artists in self._update_all_positions():
+            if (ticks := updated_artists.ticks) is not None:
+                for tlabel_bbs in self._get_ticklabel_bboxes(ticks, renderer):
+                    bboxes.extend(tlabel_bbs)
 
-        bb_1, bb_2 = self._get_ticklabel_bboxes(ticks, renderer)
-        other = []
+            if (line := updated_artists.line) is not None and line.get_visible():
+                bboxes.append(line.get_window_extent(renderer))
 
-        if self.offsetText.get_visible() and self.offsetText.get_text():
-            other.append(self.offsetText.get_window_extent(renderer))
-        if self.line.get_visible():
-            other.append(self.line.get_window_extent(renderer))
-        if (self.label.get_visible() and not for_layout_only and
-                self.label.get_text()):
-            other.append(self.label.get_window_extent(renderer))
+            if ((offset_text := updated_artists.offset_text) is not None and
+                    offset_text.get_visible() and offset_text.get_text()):
+                bboxes.append(offset_text.get_window_extent(renderer))
 
-        return mtransforms.Bbox.union([*bb_1, *bb_2, *other])
+            if updated_artists.label is not None and not for_layout_only:
+                bboxes.append(updated_artists.label.get_window_extent(renderer))
+
+        if bboxes:
+            return mtransforms.Bbox.union(bboxes)
+        else:
+            return None
 
     d_interval = _api.deprecated(
         "3.6", alternative="get_data_interval", pending=True)(
