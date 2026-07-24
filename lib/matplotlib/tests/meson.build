@@ -67,6 +67,7 @@ python_sources = [
   'test_png.py',
   'test_polar.py',
   'test_preprocess_data.py',
+  'test_parallel_coordinates.py',
   'test_pyplot.py',
   'test_quiver.py',
   'test_rcparams.py',
