@@ -51,6 +51,11 @@ init:
   - micromamba config set always_yes true
   - micromamba config prepend channels conda-forge
   - micromamba info
+  - ps: |
+      if ($env:APPVEYOR_REPO_COMMIT_MESSAGE -like "*[verbose]*") {
+          $env:PYTEST_ARGS += " -vv"
+          echo "Verbose logging enabled via commit message."
+      }
 
 install:
   - set EXTRA_PACKAGES=pywin32 codecov
