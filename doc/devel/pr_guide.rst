@@ -237,8 +237,9 @@ fundamental and can easily be reverted at any time in the future.
 
 Some explicit rules following from this:
 
-* *Documentation and examples* may be merged with a single approval.  Use
-  the threshold "is this better than it was?" as the review criteria.
+* Small and medium sized *Documentation and examples* may be merged with a single approval.
+  Use the threshold "is this better than it was?" as the review criteria. Large documentation
+  PRs (e.g. adds large new sections or new rst pages) require two reviews.
 
 * Minor *infrastructure updates*, e.g. temporary pinning of broken dependencies
   or small changes to the CI configuration, may be merged with a single
