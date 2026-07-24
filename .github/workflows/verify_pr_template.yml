@@ -1,0 +1,75 @@
+---
+name: 'Verify if PR Template is filled out'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, ready_for_review]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GH_REPO: ${{ github.repository }}
+  PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+
+jobs:
+  verify-pr-template:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Read PR Template
+        id: template
+        uses: juliangruber/read-file-action@271ff311a4947af354c6abcd696a306553b9ec18  # v1.1.8
+        with:
+          path: ./.github/PULL_REQUEST_TEMPLATE.md
+      # This step is required because the PR body is CRLF (Windows-style line ending)
+      - name: Clean PR content
+        shell: bash
+        id: clean
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          {
+            echo 'cleaned<<EOF'
+            echo "${PR_BODY}" | tr -d '\r'
+            echo EOF
+          } >> "$GITHUB_OUTPUT"
+      - name: Flag as autoclose candidate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TEMPLATE: ${{ steps.template.outputs.content }}
+          PR_BODY_CLEAN: ${{ steps.clean.outputs.cleaned }}
+        run: |
+          label="status: autoclose candidate"
+          needs_label=false
+
+          # Condition 1: body identical to template (not filled out)
+          if [ "$TEMPLATE" = "$PR_BODY_CLEAN" ]; then
+            echo "PR body is identical to the template."
+            needs_label=true
+          fi
+
+          # Condition 2: any template markdown header missing from the body
+          template_headers=$(printf '%s\n' "$TEMPLATE"     | { grep -E '^#{1,6}[[:space:]]' || true; } | sort -u)
+          body_headers=$(printf '%s\n'     "$PR_BODY_CLEAN" | { grep -E '^#{1,6}[[:space:]]' || true; } | sort -u)
+
+          while IFS= read -r header; do
+            [ -z "$header" ] && continue
+            if ! printf '%s\n' "$body_headers" | grep -qxF -- "$header"; then
+              echo "Missing template header: $header"
+              needs_label=true
+            fi
+          done <<< "$template_headers"
+
+          if [ "$needs_label" = true ]; then
+            gh pr edit "$PULL_REQUEST_NUMBER" --add-label "$label"
+            echo "PR template checks failed. Added label: $label"
+          else
+            echo "PR template checks passed."
+          fi
