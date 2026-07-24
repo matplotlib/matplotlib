@@ -557,30 +557,44 @@ class PathSnapper
     double m_snap_value;
 
     static bool should_snap(VertexSource &path, e_snap_mode snap_mode, unsigned total_vertices)
-    {
-        // If this contains only straight horizontal or vertical lines, it should be
-        // snapped to the nearest pixels
-        double x0 = 0, y0 = 0, x1 = 0, y1 = 0;
-        unsigned code;
+{
+    const unsigned path_cmd_end_poly_masked = agg::path_flags_close | agg::path_cmd_end_poly;
+    // If this contains only straight horizontal or vertical lines, it should be
+    // snapped to the nearest pixels
+    double x0 = 0, y0 = 0, x1 = 0, y1 = 0, xs = 0, ys = 0;
+    unsigned code;
 
-        switch (snap_mode) {
+    switch (snap_mode) {
         case SNAP_AUTO:
             if (total_vertices > 1024) {
                 return false;
             }
 
             code = path.vertex(&x0, &y0);
-            if (code == agg::path_cmd_stop) {
+            switch (code) {
+            case agg::path_cmd_stop:
                 return false;
+            case agg::path_cmd_move_to:
+                xs = x0;
+                ys = y0;
             }
 
             while ((code = path.vertex(&x1, &y1)) != agg::path_cmd_stop) {
                 switch (code) {
+                case agg::path_cmd_move_to:
+                    xs = x1;
+                    ys = x1;
+                    break;
                 case agg::path_cmd_curve3:
                 case agg::path_cmd_curve4:
                     return false;
                 case agg::path_cmd_line_to:
                     if (fabs(x0 - x1) >= 1e-4 && fabs(y0 - y1) >= 1e-4) {
+                        return false;
+                    }
+                    break;
+                case path_cmd_end_poly_masked:
+                    if (fabs(xs - x0) >= 1e-4 && fabs(ys - y0) >= 1e-4) {
                         return false;
                     }
                 }
