@@ -1043,7 +1043,7 @@ def _load_bitmap(filename):
 
 def _set_frame_icon(frame):
     bundle = wx.IconBundle()
-    for image in ('matplotlib.png', 'matplotlib_large.png'):
+    for image in ('matplotlib_small.png', 'matplotlib.png'):
         icon = wx.Icon(_load_bitmap(image))
         if not icon.IsOk():
             return
