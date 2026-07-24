@@ -13,6 +13,8 @@ bumped:
 +-------------+-----------------+----------------+
 |  Contourpy  |       1.0.1     |      1.2.1     |
 +-------------+-----------------+----------------+
+|  Pybind11   |       2.13.2    |      3.0.0     |
++-------------+-----------------+----------------+
 
 This is consistent with our :ref:`min_deps_policy` and `SPEC0
 <https://scientific-python.org/specs/spec-0000/>`__

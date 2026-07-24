@@ -59,7 +59,7 @@ requires = [
     # meson-python 0.17.x breaks symlinks in sdists. You can remove this pin if
     # you really need it and aren't using an sdist.
     "meson-python>=0.13.2,!=0.17.*",
-    "pybind11>=2.13.2,!=2.13.3",
+    "pybind11>=3",
     # setuptools_scm 10 breaks versioning in editable installs. You can remove this pin
     # if you're a downstream distributor just building wheels or your equivalent.
     "setuptools_scm>=7,<10",
@@ -80,7 +80,7 @@ build = [
 
     # Should be the same as `[build-system] requires` above.
     "meson-python>=0.13.1,!=0.17.*",
-    "pybind11>=2.13.2,!=2.13.3",
+    "pybind11>=3",
     "setuptools_scm>=7,<10",
     # Not required by us but setuptools_scm without a version, so _if_
     # installed, then setuptools_scm 8 requires at least this version.
