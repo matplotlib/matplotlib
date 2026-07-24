@@ -43,6 +43,7 @@ class MathTextParser:
         'stix':        _mathtext.StixFonts,
         'stixsans':    _mathtext.StixSansFonts,
         'custom':      _mathtext.UnicodeFonts,
+        'unicodemath': _mathtext.UnicodeMathFonts,
     }
 
     def __init__(self, output):
