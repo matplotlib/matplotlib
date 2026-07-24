@@ -1,4 +1,4 @@
-from matplotlib import cbook, colorbar, colors, artist
+from matplotlib import cbook, colorbar, colors, artist, axes as maxes
 
 import numpy as np
 from numpy.typing import ArrayLike
@@ -71,7 +71,24 @@ class _ColorizerInterface:
     def autoscale_None(self) -> None: ...
 
 
-class _ScalarMappable(_ColorizerInterface):
+class _ColorbarMappable(_ColorizerInterface):
+    def __init__(
+        self,
+        colorizer: Colorizer | None,
+        **kwargs
+    ) -> None: ...
+    @property
+    def colorizer(self) -> Colorizer: ...
+    @colorizer.setter
+    def colorizer(self, cl: Colorizer) -> None: ...
+    def changed(self) -> None: ...
+    @property
+    def axes(self) -> maxes._base._AxesBase | None: ...
+    @axes.setter
+    def axes(self, new_axes: maxes._base._AxesBase | None) -> None: ...
+
+
+class _ScalarMappable(_ColorbarMappable):
     def __init__(
         self,
         norm: colors.Norm | None = ...,
@@ -82,7 +99,6 @@ class _ScalarMappable(_ColorizerInterface):
     ) -> None: ...
     def set_array(self, A: ArrayLike | None) -> None: ...
     def get_array(self) -> np.ndarray | None: ...
-    def changed(self) -> None: ...
 
 
 class ColorizingArtist(_ScalarMappable, artist.Artist):
