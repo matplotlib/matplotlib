@@ -776,6 +776,18 @@ def test_fontproperties_kwarg_precedence():
     assert text2.get_size() == 40.0
 
 
+@pytest.mark.parametrize("kwargs", [
+    {"font": "DejaVu Sans", "fontsize": 20},
+    {"fontsize": 20, "font": "DejaVu Sans"},
+    {"font_properties": FontProperties(family="DejaVu Sans"), "fontsize": 20},
+    {"fontsize": 20, "fontproperties": FontProperties(family="DejaVu Sans")},
+])
+def test_internal_update_fontproperties_kwarg_precedence(kwargs):
+    text = Text()
+    text._internal_update(kwargs)
+    assert text.get_fontsize() == 20
+
+
 def test_transform_rotates_text():
     ax = plt.gca()
     transform = mtransforms.Affine2D().rotate_deg(30)
