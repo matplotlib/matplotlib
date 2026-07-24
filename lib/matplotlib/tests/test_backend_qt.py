@@ -131,6 +131,43 @@ def test_correct_key(backend, qt_key, qt_mods, answer, monkeypatch):
     assert result == answer
 
 
+@pytest.mark.parametrize('backend', [
+    # Note: the value is irrelevant; the important part is the marker.
+    pytest.param(
+        'Qt5Agg',
+        marks=pytest.mark.backend('Qt5Agg', skip_on_importerror=True)),
+    pytest.param(
+        'QtAgg',
+        marks=pytest.mark.backend('QtAgg', skip_on_importerror=True)),
+])
+def test_macos_option_click_emulates_middle_button(backend, monkeypatch):
+    """
+    Make a figure.
+    Send a mouse press and release event with the Alt/Option modifier held.
+    Catch the events.
+    Assert the button is remapped to middle on macOS, unchanged elsewhere.
+    """
+    from matplotlib.backend_bases import MouseButton
+    from matplotlib.backends.qt_compat import QtCore, QtWidgets
+
+    monkeypatch.setattr(QtWidgets.QApplication, "keyboardModifiers",
+                        lambda self: QtCore.Qt.KeyboardModifier.AltModifier)
+
+    class _MouseEvent:
+        def button(self): return QtCore.Qt.MouseButton.LeftButton
+        def position(self): return QtCore.QPointF(0, 0)  # Qt6
+        def pos(self): return QtCore.QPoint(0, 0)        # Qt5
+
+    expected = MouseButton.MIDDLE if sys.platform == "darwin" else MouseButton.LEFT
+    results = []
+    fig = plt.figure()
+    fig.canvas.mpl_connect('button_press_event', lambda e: results.append(e.button))
+    fig.canvas.mpl_connect('button_release_event', lambda e: results.append(e.button))
+    fig.canvas.mousePressEvent(_MouseEvent())
+    fig.canvas.mouseReleaseEvent(_MouseEvent())
+    assert results == [expected, expected]
+
+
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_device_pixel_ratio_change():
     """
