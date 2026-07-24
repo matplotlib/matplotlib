@@ -50,3 +50,6 @@ matplotlib\.animation\.EventSourceProtocol
 # Avoid a regression in NewType handling for stubtest
 # https://github.com/python/mypy/issues/19877
 matplotlib\.ft2font\.GlyphIndexType\.__init__
+
+# 3.12 deprecation
+matplotlib\.axes\._base\._AxesBase\.ArtistList

@@ -269,8 +269,13 @@ class Axis(maxis.XAxis):
     def _get_coord_info(self):
         # Get scaled limits directly from the axes helper
         xmin, xmax, ymin, ymax, zmin, zmax = self.axes._get_scaled_limits()
-        mins = np.array([xmin, ymin, zmin])
-        maxs = np.array([xmax, ymax, zmax])
+        # When axes are inverted the min and max values returned by _get_scaled_limits
+        # are reversed (min > max). Here we need to ensure max > min so that the axis
+        # lines and grid panes are placed consistently regardless of inversion.
+        # Note that we cannot ensure this inside _get_scaled_limits itself, as other
+        # callers rely on the signed range to detect and handle axis inversion.
+        mins = np.array([min(xmin, xmax), min(ymin, ymax), min(zmin, zmax)])
+        maxs = np.array([max(xmin, xmax), max(ymin, ymax), max(zmin, zmax)])
 
         # Get data-space bounds for _transformed_cube
         bounds = (*self.axes.get_xbound(),

@@ -562,13 +562,13 @@ plt.show()
 # ==============    =========================================
 # Axes attribute    Description
 # ==============    =========================================
-# artists           An `.ArtistList` of `.Artist` instances
+# artists           An `~.artist.ArtistList` of `.Artist` instances
 # patch             `.Rectangle` instance for Axes background
-# collections       An `.ArtistList` of `.Collection` instances
-# images            An `.ArtistList` of `.AxesImage`
-# lines             An `.ArtistList` of `.Line2D` instances
-# patches           An `.ArtistList` of `.Patch` instances
-# texts             An `.ArtistList` of `.Text` instances
+# collections       An `~.artist.ArtistList` of `.Collection` instances
+# images            An `~.artist.ArtistList` of `.AxesImage`
+# lines             An `~.artist.ArtistList` of `.Line2D` instances
+# patches           An `~.artist.ArtistList` of `.Patch` instances
+# texts             An `~.artist.ArtistList` of `.Text` instances
 # xaxis             A `matplotlib.axis.XAxis` instance
 # yaxis             A `matplotlib.axis.YAxis` instance
 # ==============    =========================================

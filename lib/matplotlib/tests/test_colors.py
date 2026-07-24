@@ -946,6 +946,11 @@ def test_rgb_to_hsv_int():
     assert_array_equal(mcolors.rgb_to_hsv((0, 1, 0)), (1/3, 1, 1))  # green
 
 
+def test_hsv_to_rgb_int():
+    # Test that int hsv values (still range 0-1) are processed correctly.
+    assert_array_equal(mcolors.hsv_to_rgb((0, 1, 1)), (1, 0, 0))  # red
+
+
 def test_autoscale_masked():
     # Test for #2336. Previously fully masked data would trigger a ValueError.
     data = np.ma.masked_all((12, 20))

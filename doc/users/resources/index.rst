@@ -71,7 +71,7 @@ Videos
 Tutorials
 =========
 
-* `Matplotlib tutorial <https://www.labri.fr/perso/nrougier/teaching/matplotlib/>`_
+* `Matplotlib tutorial <https://github.com/rougier/matplotlib-tutorial>`_
   by Nicolas P. Rougier
 
 * `Anatomy of Matplotlib - IPython Notebooks

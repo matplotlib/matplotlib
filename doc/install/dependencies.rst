@@ -24,7 +24,7 @@ reference.
 * `contourpy <https://pypi.org/project/contourpy/>`_ (>= 1.2.1)
 * `cycler <https://matplotlib.org/cycler/>`_ (>= 0.10.0)
 * `dateutil <https://pypi.org/project/python-dateutil/>`_ (>= 2.7)
-* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.22.0)
+* `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.28.2)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
 * `NumPy <https://numpy.org>`_ (>= 2.0)
 * `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
@@ -73,7 +73,7 @@ and the capabilities they provide.
   from https://wxpython.org/pages/downloads/.
 * Tornado_ (>= 5): for the WebAgg backend.
 * ipykernel_: for the nbagg backend.
-* macOS (>= 10.12): for the macosx backend.
+* macOS (>= 10.13): for the macosx backend.
 
 .. _Tk: https://docs.python.org/3/library/tk.html
 .. _PyQt5: https://pypi.org/project/PyQt5/
@@ -85,11 +85,12 @@ and the capabilities they provide.
 .. _cairocffi: https://doc.courtbouillon.org/cairocffi/stable/
 .. _Tornado: https://pypi.org/project/tornado/
 .. _ipykernel: https://pypi.org/project/ipykernel/
+.. _ffmpeg: https://www.ffmpeg.org/
 
 Animations
 ^^^^^^^^^^
 
-* `ffmpeg <https://www.ffmpeg.org/>`_: for saving movies.
+* ffmpeg_: for saving movies.
 * `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
   animated gifs.
 
@@ -472,10 +473,11 @@ The following packages must also be installed:
 Optional
 ^^^^^^^^
 
-The documentation can be built without Inkscape and optipng, but the build
-process will raise various warnings.
+The documentation can be built without these packages, but the build
+process will raise various warnings:
 
 * Inkscape_
 * `optipng <http://optipng.sourceforge.net>`_
+* ffmpeg_
 * the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
 * the font "Times New Roman"

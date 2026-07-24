@@ -39,6 +39,8 @@ Attributes
    Axes.viewLim
    Axes.dataLim
    Axes.spines
+   Axes.transAxes
+   Axes.transData
 
 Plotting
 ========
@@ -634,5 +636,3 @@ Other
    Axes.get_figure
    Axes.figure
    Axes.remove
-
-.. autoclass:: matplotlib.axes.Axes.ArtistList
