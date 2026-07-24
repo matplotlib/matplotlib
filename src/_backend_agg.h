@@ -762,7 +762,7 @@ class span_conv_alpha
     void prepare()
     {
     }
-    void generate(color_type *span, int x, int y, unsigned len) const
+    void generate(color_type *span, [[maybe_unused]] int x, [[maybe_unused]] int y, unsigned len) const
     {
         do {
             span->a = (agg::int8u)((double)span->a * m_alpha);

@@ -4,8 +4,10 @@
 #include "mplutils.h"
 
 #include <algorithm>
+#include <cassert>
 #include <cstdio>
 #include <iterator>
+#include <limits>
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -19,8 +21,18 @@
 FT_Library _ft2Library;
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
+    : m_width(width), m_height(height)
 {
+    size_t buffer_size = width * height;
+    if (buffer_size != 0 && buffer_size / width != height) {
+        const char* template_msg = "Cannot allocate a FT2Image "
+        "with the following arguments: width=%lu, height=%lu";
+        int sz = std::snprintf(nullptr, 0, template_msg, width, height);
+        std::vector<char> buf(sz + 1); // note +1 for null terminator
+        std::sprintf(buf.data(), template_msg, width, height); // certain to fit
+        throw std::overflow_error(buf.data());
+    }
+    m_buffer = static_cast<unsigned char *>(calloc(width * height, 1));
 }
 
 FT2Image::~FT2Image()
@@ -150,7 +162,10 @@ static FT_Outline_Funcs ft_outline_funcs = {
     ft_outline_move_to,
     ft_outline_line_to,
     ft_outline_conic_to,
-    ft_outline_cubic_to};
+    ft_outline_cubic_to,
+    0,
+    0,
+};
 
 void
 FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes)
@@ -171,8 +186,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
     codes.reserve(estimated_points);
     if (FT_Error error = FT_Outline_Decompose(
             &face->glyph->outline, &ft_outline_funcs, &decomposer)) {
-        throw std::runtime_error("FT_Outline_Decompose failed with error " +
-                                 std::to_string(error));
+        THROW_FT_ERROR("Decompose font outline", error);
     }
     if (vertices.empty()) {  // Don't append CLOSEPOLY to null glyphs.
         return;
@@ -476,12 +490,12 @@ void FT2Font::set_text(
         FT_Error error;
         error = FT_Load_Glyph(rglyph.ftface, rglyph.index, flags);
         if (error) {
-            throw std::runtime_error("failed to load glyph");
+            THROW_FT_ERROR("Loading glyphs", error);
         }
         FT_Glyph thisGlyph;
         error = FT_Get_Glyph(rglyph.ftface->glyph, &thisGlyph);
         if (error) {
-            throw std::runtime_error("failed to get glyph");
+            THROW_FT_ERROR("Getting glyphs", error);
         }
 
         pen.x += rglyph.x_offset;
