@@ -6,4 +6,4 @@
    :members:
    :undoc-members:
    :show-inheritance:
-   :private-members: _ColorizerInterface, _ScalarMappable
+   :private-members: _ColorbarMappable, _ScalarMappable
