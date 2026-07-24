@@ -6238,6 +6238,9 @@ or pandas.DataFrame
             - (M, N): an image with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
+            - (K, M, N): a K-component M*N image for multivariate colormapping.
+              This must be used with a `.BivarColormap` (K=2) or generally with a
+              K-component `.MultivarColormap`.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6247,15 +6250,16 @@ or pandas.DataFrame
 
             Out-of-range RGB(A) values are clipped.
 
-        %(cmap_doc)s
+
+        %(multi_cmap_doc)s
+
+            Scalar colormaps are ignored if *X* is RGB(A).
+
+        %(multi_norm_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
-        %(norm_doc)s
-
-            This parameter is ignored if *X* is RGB(A).
-
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
@@ -6333,6 +6337,10 @@ or pandas.DataFrame
 
             See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
             a discussion of image antialiasing.
+
+            When using a `~matplotlib.colors.BivarColormap` or
+            `~matplotlib.colors.MultivarColormap`, 'data' is the only valid
+            interpolation_stage.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6439,6 +6447,7 @@ or pandas.DataFrame
         if aspect is not None:
             self.set_aspect(aspect)
 
+        X = mcolorizer._ensure_multivariate_data(X, im.norm.n_components)
         im.set_data(X)
         im.set_alpha(alpha)
         if im.get_clip_path() is None:
@@ -6594,9 +6603,10 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C : 2D array-like
+        C : 2D (M, N) or 3D (K, M, N) array-like
             The color-mapped values.  Color-mapping is controlled by *cmap*,
-            *norm*, *vmin*, and *vmax*.
+            *norm*, *vmin*, and *vmax*. 3D arrays are supported only if the
+            cmap supports K channels.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6639,11 +6649,11 @@ or pandas.DataFrame
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
         %(colorizer_doc)s
 
@@ -6718,8 +6728,19 @@ or pandas.DataFrame
         if shading is None:
             shading = mpl.rcParams['pcolor.shading']
         shading = shading.lower()
-        X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
-                                            kwargs=kwargs)
+
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin, vmax=vmax,
+                                                                 norm=norm, cmap=cmap)
+        if colorizer is None:
+            colorizer = mcolorizer.Colorizer(cmap=cmap, norm=norm)
+
+        C = mcolorizer._ensure_multivariate_data(args[-1],
+                                                 colorizer.cmap.n_variates)
+
+        X, Y, C, shading = self._pcolorargs('pcolor', *args[:-1], C,
+                                            shading=shading, kwargs=kwargs)
+
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
             kwargs['linewidths'] = kwargs.pop('linewidth')
@@ -6754,9 +6775,7 @@ or pandas.DataFrame
         coords = stack([X, Y], axis=-1)
 
         collection = mcoll.PolyQuadMesh(
-            coords, array=C, cmap=cmap, norm=norm, colorizer=colorizer,
-            alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            coords, array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
@@ -6794,6 +6813,9 @@ or pandas.DataFrame
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
+            - (K, M, N): a K-component M*N mesh for multivariate colormapping.
+              This must be used with a `.BivarColormap` (K=2) or generally with a
+              K-component `.MultivarColormap`.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6828,11 +6850,11 @@ or pandas.DataFrame
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
         %(colorizer_doc)s
 
@@ -6956,7 +6978,16 @@ or pandas.DataFrame
         shading = mpl._val_or_rc(shading, 'pcolor.shading').lower()
         kwargs.setdefault('edgecolors', 'none')
 
-        X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin, vmax=vmax,
+                                                                 norm=norm, cmap=cmap)
+        if colorizer is None:
+            colorizer = mcolorizer.Colorizer(cmap=cmap, norm=norm)
+
+        C = mcolorizer._ensure_multivariate_data(args[-1],
+                                                 colorizer.cmap.n_variates)
+
+        X, Y, C, shading = self._pcolorargs('pcolormesh', *args[:-1], C,
                                             shading=shading, kwargs=kwargs)
         coords = np.stack([X, Y], axis=-1)
 
@@ -6964,8 +6995,7 @@ or pandas.DataFrame
 
         collection = mcoll.QuadMesh(
             coords, antialiased=antialiased, shading=shading,
-            array=C, cmap=cmap, norm=norm, colorizer=colorizer, alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
@@ -8911,6 +8941,9 @@ such objects
 
         """
         Z = np.asanyarray(Z)
+        if Z.ndim != 2:
+            if Z.ndim != 3 or Z.shape[2] not in (1, 3, 4):
+                raise TypeError(f"Invalid shape {Z.shape} for image data")
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
               'aspect': 'equal',          # (already the imshow default)
