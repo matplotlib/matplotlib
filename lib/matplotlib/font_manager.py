@@ -1614,8 +1614,9 @@ class FontManager:
                 break
         if best_font is not None and (_normalize_weight(prop.get_weight()) !=
                                       _normalize_weight(best_font.weight)):
-            _log.warning('findfont: Failed to find font weight %s, now using %s.',
-                         prop.get_weight(), best_font.weight)
+            _log.warning(
+                'findfont: Failed to find font weight %s for %s, now using %s.',
+                prop.get_weight(), best_font.name, best_font.weight)
 
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:
