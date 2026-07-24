@@ -1,0 +1,4 @@
+Invalid linewidths coerced to 0
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Negative or non-finite (NaN, infinity) linewidth inputs are now
+automatically coerced to 0.
