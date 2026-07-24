@@ -11,5 +11,6 @@ Project information
     history.rst
     Code of Conduct <code_of_conduct.rst>
     citing.rst
+    Logo Usage Guidelines <logo_usage_guidelines.rst>
     license.rst
     credits.rst
