@@ -194,15 +194,15 @@ class FigureBase(Artist):
     @overload
     def subfigures(
         self,
-        nrows: int,
-        ncols: int,
-        squeeze: Literal[False],
+        nrows: Literal[1] = ...,
+        ncols: Literal[1] = ...,
+        squeeze: Literal[True] = ...,
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
         **kwargs
-    ) -> np.ndarray: ...
+    ) -> SubFigure: ...
     @overload
     def subfigures(
         self,
@@ -221,13 +221,13 @@ class FigureBase(Artist):
         self,
         nrows: int = ...,
         ncols: int = ...,
-        squeeze: Literal[True] = ...,
+        squeeze: bool = ...,
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
         **kwargs
-    ) -> np.ndarray | SubFigure: ...
+    ) -> Any: ...
     def add_subfigure(self, subplotspec: SubplotSpec, **kwargs) -> SubFigure: ...
     def sca(self, a: Axes) -> Axes: ...
     def gca(self) -> Axes: ...
