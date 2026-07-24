@@ -294,7 +294,7 @@ def test_legend_remove():
     lines = ax.plot(range(10))
     leg = fig.legend(lines, ["test"])
     leg.remove()
-    assert fig.legends == []
+    assert list(fig.legends) == []
     leg = ax.legend("test")
     leg.remove()
     assert ax.get_legend() is None

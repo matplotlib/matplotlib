@@ -26,6 +26,7 @@ list of examples) .  More information about Figures can be found at
 :ref:`figure-intro`.
 """
 
+from collections.abc import MutableSequence
 from contextlib import ExitStack
 import inspect
 import itertools
@@ -39,7 +40,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
-    Artist, allow_rasterization, _finalize_rasterization)
+    Artist, ArtistList, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
@@ -54,10 +55,10 @@ from matplotlib.layout_engine import (
     PlaceHolderLayoutEngine
 )
 import matplotlib.legend as mlegend
-from matplotlib.patches import Rectangle
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
-from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
-                                   TransformedBbox)
+from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo, TransformedBbox)
 
 _log = logging.getLogger(__name__)
 
@@ -115,6 +116,71 @@ class _AxesStack:
         self._counter = itertools.count(next_counter)
 
 
+class _FigureArtistList(ArtistList, MutableSequence):
+    """
+    A sublist of Figure children based on their type.  This subclass exists only to
+    provide deprecation warnings.  When the deprecations expire, use ArtistList
+    directly.
+    """
+    @property
+    def _dep_message(self):
+        return (f'Modification of the (Sub)Figure.{self._prop_name} property '
+                'was deprecated in Matplotlib %(since)s and will stop working '
+                'in %(removal)s.  Use %(alternative)s instead.')
+
+    def insert(self, index, item):
+        _api.warn_deprecated(
+            '3.12',
+            message=self._dep_message,
+            alternative='(Sub)Figure.add_artist')
+        try:
+            index = self._parent._children.index(self[index])
+        except IndexError:
+            index = None
+        self._parent.add_artist(item)
+        if index is not None:
+            # Move new item to the specified index, if there's something to
+            # put it before.
+            self._parent._children[index:index] = self._parent._children[-1:]
+            del self._parent._children[-1]
+
+    def __setitem__(self, key, item):
+        _api.warn_deprecated(
+            '3.12',
+            message=self._dep_message,
+            alternative='Artist.remove() and (Sub)Figure.add_artist')
+        del self[key]
+        if isinstance(key, slice):
+            key = key.start
+        if not np.iterable(item):
+            self.insert(key, item)
+            return
+
+        try:
+            index = self._parent._children.index(self[key])
+        except IndexError:
+            index = None
+        for i, artist in enumerate(item):
+            self._parent.add_artist(artist)
+        if index is not None:
+            # Move new items to the specified index, if there's something
+            # to put it before.
+            i = -(i + 1)
+            self._parent._children[index:index] = self._parent._children[i:]
+            del self._parent._children[i:]
+
+    def __delitem__(self, key):
+        _api.warn_deprecated(
+            '3.12',
+            message=self._dep_message,
+            alternative='Artist.remove()')
+        if isinstance(key, slice):
+            for artist in self[key]:
+                artist.remove()
+        else:
+            self[key].remove()
+
+
 class FigureBase(Artist):
     """
     Base class for `.Figure` and `.SubFigure` containing the methods that add
@@ -142,16 +208,38 @@ class FigureBase(Artist):
         }
 
         self._localaxes = []  # track all Axes
-        self.artists = []
-        self.lines = []
-        self.patches = []
-        self.texts = []
-        self.images = []
-        self.legends = []
         self.subfigs = []
+        self._children = []  # All artists except SubFigure and Axes
         self.stale = True
         self.suppressComposite = None
         self.set(**kwargs)
+
+    @property
+    def artists(self):
+        return _FigureArtistList(self, 'artists', invalid_types=(
+            mimage.FigureImage, mlegend.Legend, Line2D, Patch, Text))
+
+    @property
+    def images(self):
+        return _FigureArtistList(self, 'images', valid_types=mimage.FigureImage)
+
+    @property
+    def legends(self):
+        return _FigureArtistList(self, 'legends', valid_types=mlegend.Legend)
+
+    @property
+    def lines(self):
+        return _FigureArtistList(self, 'lines', valid_types=Line2D)
+
+    @property
+    def patches(self):
+        return _FigureArtistList(self, 'patches', valid_types=Patch)
+
+    @property
+    def texts(self):
+        return _FigureArtistList(self, 'texts', valid_types=Text)
+
+
 
     def _get_draw_artists(self, renderer):
         """Also runs apply_aspect"""
@@ -384,7 +472,7 @@ default: %(va)s
         return suplab
 
     def _remove_suplabel(self, label, name):
-        self.texts.remove(label)
+        self._children.remove(label)
         setattr(self, name, None)
 
     @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
@@ -523,8 +611,8 @@ default: %(va)s
             The added artist.
         """
         artist.set_figure(self)
-        self.artists.append(artist)
-        artist._remove_method = self.artists.remove
+        self._children.append(artist)
+        artist._remove_method = self._children.remove
 
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
@@ -990,12 +1078,7 @@ default: %(va)s
             ax.clear()
             self.delaxes(ax)  # Remove ax from self._axstack.
 
-        self.artists = []
-        self.lines = []
-        self.patches = []
-        self.texts = []
-        self.images = []
-        self.legends = []
+        self._children = []
         self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
@@ -1143,8 +1226,8 @@ default: %(va)s
         # explicitly set the bbox transform if the user hasn't.
         kwargs.setdefault("bbox_transform", self.transSubfigure)
         l = mlegend.Legend(self, handles, labels, **kwargs)
-        self.legends.append(l)
-        l._remove_method = self.legends.remove
+        self._children.append(l)
+        l._remove_method = self._children.remove
         self.stale = True
         return l
 
@@ -1193,8 +1276,8 @@ default: %(va)s
         text.set_figure(self)
         text.stale_callback = _stale_figure_callback
 
-        self.texts.append(text)
-        text._remove_method = self.texts.remove
+        self._children.append(text)
+        text._remove_method = self._children.remove
         self.stale = True
         return text
 
@@ -3121,8 +3204,8 @@ None}, default: None
         if norm is None:
             im._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
             im.set_clim(vmin, vmax)
-        self.images.append(im)
-        im._remove_method = self.images.remove
+        self._children.append(im)
+        im._remove_method = self._children.remove
         self.stale = True
         return im
 

@@ -108,7 +108,7 @@ def test_bbox_inches_tight_clipping():
     path = mpath.Path.unit_regular_star(5).deepcopy()
     path.vertices *= 0.25
     patch.set_clip_path(path, transform=ax.transAxes)
-    plt.gcf().artists.append(patch)
+    plt.gcf().add_artist(patch)
 
 
 @image_comparison(['bbox_inches_tight_raster'], tol=0.15,  # For Ghostscript 10.06+.

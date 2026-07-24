@@ -314,27 +314,32 @@ plt.show()
 #
 #
 # The figure also has its own ``images``, ``lines``, ``patches`` and ``text``
-# attributes, which you can use to add primitives directly. When doing so, the
-# default coordinate system for the ``Figure`` will simply be in pixels (which
-# is not usually what you want). If you instead use Figure-level methods to add
-# Artists (e.g., using `.Figure.text` to add text), then the default coordinate
-# system will be "figure coordinates" where (0, 0) is the bottom-left of the
-# figure and (1, 1) is the top-right of the figure.
-#
-# As with all ``Artist``\s, you can control this coordinate system by setting
-# the transform property. You can explicitly use "figure coordinates" by
-# setting the ``Artist`` transform to :attr:`!fig.transFigure`:
+# attributes, which you can use to access any primitives that are its direct
+# children. Artists may be added with the `~.Figure.add_artist` method.
 
 import matplotlib.lines as lines
 
 fig = plt.figure()
 
-l1 = lines.Line2D([0, 1], [0, 1], transform=fig.transFigure, figure=fig)
-l2 = lines.Line2D([0, 1], [1, 0], transform=fig.transFigure, figure=fig)
-fig.lines.extend([l1, l2])
+line1 = lines.Line2D([0, 1], [0, 1])
+line2 = lines.Line2D([0, 1], [1, 0])
+for line in line1, line2:
+    fig.add_artist(line)
 
 plt.show()
 
+# %%
+#
+# As a convenience for images and text, the helper methods `~.Figure.figimage` and
+# `~.Figure.text` create the respective Artists and internally add them to the figure.
+#
+# As with all ``Artist``\s, you can control the coordinate system by setting
+# the transform property (see :ref:`transforms_tutorial`). When using
+# `~.Figure.figimage`, the default coordinate system is simply pixels.  When
+# using `~.Figure.text` or `~.Figure.add_artist`, the default coordinate system
+# will be "figure coordinates" where (0, 0) is the bottom-left of the figure
+# and (1, 1) is the top-right of the figure.
+#
 # %%
 # Here is a summary of the Artists the Figure contains
 #
@@ -342,16 +347,18 @@ plt.show()
 # Figure attribute Description
 # ================ ============================================================
 # axes             A list of `~.axes.Axes` instances
+# subfigures       A list of `.SubFigure` instances
 # patch            The `.Rectangle` background
-# images           A list of `.FigureImage` patches -
+# images           An `~.artist.ArtistList` of `.FigureImage` patches -
 #                  useful for raw pixel display
-# legends          A list of Figure `.Legend` instances
+# legends          An `~.artist.ArtistList` of Figure `.Legend` instances
 #                  (different from ``Axes.get_legend()``)
-# lines            A list of Figure `.Line2D` instances
+# lines            An `~.artist.ArtistList` of Figure `.Line2D` instances
 #                  (rarely used, see ``Axes.lines``)
-# patches          A list of Figure `.Patch`\s
+# patches          An `~.artist.ArtistList` of Figure `.Patch`\s
 #                  (rarely used, see ``Axes.patches``)
-# texts            A list Figure `.Text` instances
+# texts            An `~.artist.ArtistList` of Figure `.Text` instances
+# artists          An `~.artist.ArtistList` of all other `.Artist` instances
 # ================ ============================================================
 #
 # .. _axes-container:

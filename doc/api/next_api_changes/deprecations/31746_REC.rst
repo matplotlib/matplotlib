@@ -1,0 +1,7 @@
+Direct modification of ``(Sub)Figure`` artist lists
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Previously it was possible to modify the ``artists``, ``images``, ``lines``,
+``legends``, ``patches`` and ``texts`` attributes of `.Figure` and `.SubFigure`
+instances using standard `list` functionality.  This is now deprecated.
+Instead use `~.Figure.add_artist` to add an artist to the figure, or use the
+artist's `~.Artist.remove` method to remove it.

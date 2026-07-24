@@ -24,6 +24,10 @@ from matplotlib.layout_engine import (ConstrainedLayoutEngine,
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatch
+from matplotlib.offsetbox import AnchoredOffsetbox, TextArea
+import matplotlib.transforms as mtransforms
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'], style='mpl20',
@@ -395,8 +399,9 @@ def test_alpha():
     fig = plt.figure(figsize=[2, 1])
     fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.4)
-    fig.patches.append(mpl.patches.CirclePolygon(
-        [20, 20], radius=15, alpha=0.6, facecolor='red'))
+    fig.add_artist(mpl.patches.CirclePolygon(
+        [20, 20], radius=15, alpha=0.6, facecolor='red',
+        transform=mtransforms.IdentityTransform()))
 
 
 def test_too_many_figures():
@@ -1900,3 +1905,63 @@ def test_figsize_both_none():
 def test_figsize_invalid_unit():
     with pytest.raises(ValueError, match="Invalid unit 'um'"):
         plt.figure(figsize=(6, 4, "um"))
+
+
+def test_artist_sublists():
+    # The ArtistList functionality is covered in test_axes.py::test_artist_sublists.
+    # Here we simply check that the artists go to the correct sublist for their type.
+    fig = plt.figure()
+
+    im = fig.figimage(np.arange(25).reshape(5, 5))
+    txt = fig.text(0.5, 0.5, 'foo')
+
+    line = mlines.Line2D([0, 1], [0, 1])
+    patch = mpatch.Rectangle((0, 0), 0.5, 0.5)
+    box = AnchoredOffsetbox(child=TextArea('bar'), loc='upper left')
+
+    for artist in line, patch, box:
+        fig.add_artist(artist)
+
+    leg = fig.legend([line], ['baz'])
+
+    assert list(fig.images) == [im]
+    assert list(fig.texts) == [txt]
+    assert list(fig.lines) == [line]
+    assert list(fig.patches) == [patch]
+    assert list(fig.legends) == [leg]
+    assert list(fig.artists) == [box]
+
+
+def test_artist_sublist_deprecations():
+    fig = plt.figure()
+
+    lines = [
+        mlines.Line2D(
+            [0, 1], [0, 1/n], figure=fig, transform=fig.transFigure)
+        for n in range(1, 7)]
+
+    # Adding items should warn.
+    match = r'Modification of the \(Sub\)Figure.lines property'
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines.append(lines[-2])
+    assert list(fig.lines) == [lines[-2]]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines.append(lines[-1])
+    assert list(fig.lines) == lines[-2:]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines.insert(-2, lines[0])
+    assert list(fig.lines) == [lines[0], lines[-2], lines[-1]]
+
+    # Modifying items should warn.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines[0] = lines[0]
+    assert list(fig.lines) == [lines[0], lines[-2], lines[-1]]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines[1:1] = lines[1:-2]
+    assert list(fig.lines) == lines
+
+    # Deleting items (multiple or single) should warn.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        del fig.lines[-1]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        del fig.lines[1:]
