@@ -518,6 +518,17 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
     FT_Open_Args open_args;
     memset((void *)&open_args, 0, sizeof(FT_Open_Args));
 
+    // Stream font data through the Python file object.  `close` is set for a
+    // file we opened, and nullptr for a caller-owned one.
+    auto stream_font_via_python = [&](FT_Stream_CloseFunc close) {
+        self->stream.size = 0x7fffffff;  // Unknown size.
+        self->stream.descriptor.pointer = self;
+        self->stream.read = &read_from_file_callback;
+        self->stream.close = close;
+        open_args.flags = FT_OPEN_STREAM;
+        open_args.stream = &self->stream;
+    };
+
     auto PathLike = py::module_::import("os").attr("PathLike");
     if (py::isinstance<py::bytes>(filename) || py::isinstance<py::str>(filename) ||
         py::isinstance(filename, PathLike))
@@ -555,14 +566,8 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
             open_args.memory_base = static_cast<const FT_Byte *>(self->mem.ptr);
             open_args.memory_size = static_cast<FT_Long>(self->mem.size);
         } else {
-            // Fall back to streaming reads through the Python file object,
-            // as for file-like objects below.
-            self->stream.size = 0x7fffffff;  // Unknown size.
-            self->stream.descriptor.pointer = self;
-            self->stream.read = &read_from_file_callback;
-            self->stream.close = &close_file_callback;
-            open_args.flags = FT_OPEN_STREAM;
-            open_args.stream = &self->stream;
+            // Fall back to streaming reads, closing the file we opened.
+            stream_font_via_python(&close_file_callback);
         }
     } else {
         try {
@@ -576,11 +581,7 @@ PyFT2Font_init(py::object filename, std::optional<long> hinting_factor = std::nu
                 "First argument must be a path to a font file or a binary-mode file object");
         }
         self->py_file = filename;
-        self->stream.size = 0x7fffffff;  // Unknown size.
-        self->stream.descriptor.pointer = self;
-        self->stream.read = &read_from_file_callback;
-        open_args.flags = FT_OPEN_STREAM;
-        open_args.stream = &self->stream;
+        stream_font_via_python(nullptr);  // Don't close the caller's file object.
     }
 
     self->open(open_args, face_index);
