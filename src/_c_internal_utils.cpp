@@ -28,6 +28,10 @@
 #else
 #define UNUSED_ON_NON_WINDOWS Py_UNUSED
 #endif
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreText/CoreText.h>
+#endif
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -92,6 +96,62 @@ mpl_display_is_valid(void)
     return false;
 #else
     return true;
+#endif
+}
+
+static py::object
+mpl_GetAvailableFonts(void)
+{
+#if defined(__APPLE__)
+    py::set fonts;
+
+    auto cfStringToPyStr = [](CFStringRef str) -> py::str {
+        auto cstr = CFStringGetCStringPtr(str, kCFStringEncodingUTF8);
+        if (cstr) {
+            return py::str(cstr);
+        }
+        auto length = CFStringGetLength(str);
+        auto maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+        auto buffer = new char[maxSize];
+        py::str result;
+        if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8)) {
+            result = py::str(buffer);
+        }
+        delete[] buffer;
+        return result;
+    };
+
+    auto collection = CTFontCollectionCreateFromAvailableFonts(NULL);
+    auto descriptors = collection ?
+        CTFontCollectionCreateMatchingFontDescriptors(collection) : NULL;
+    auto count = descriptors ? CFArrayGetCount(descriptors) : 0;
+    for (CFIndex i = 0; i < count; i++) {
+        auto descriptor = static_cast<CTFontDescriptorRef>(
+            CFArrayGetValueAtIndex(descriptors, i));
+        auto url = static_cast<CFURLRef>(
+            CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute));
+        CFStringRef path = NULL;
+        if (url) {
+            path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            CFRelease(url);
+        }
+        if (path) {
+            auto pyStr = cfStringToPyStr(path);
+            if (pyStr) {
+                fonts.add(pyStr);
+            }
+            CFRelease(path);
+        }
+    }
+    if (descriptors) {
+        CFRelease(descriptors);
+    }
+    if (collection) {
+        CFRelease(collection);
+    }
+    return fonts;
+#else
+    return py::none();
 #endif
 }
 
@@ -210,6 +270,13 @@ PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
         only (e.g., for Tkinter).
 
         On other platforms, always returns True.)""");
+    m.def(
+        "get_available_fonts", &mpl_GetAvailableFonts,
+        R"""(        --
+        On macOS, uses CoreText to find all fonts available to the current
+        process and returns the paths as a set of strings.
+
+        On other platforms, always returns None.)""");
     m.def(
         "Win32_GetCurrentProcessExplicitAppUserModelID",
         &mpl_GetCurrentProcessExplicitAppUserModelID,

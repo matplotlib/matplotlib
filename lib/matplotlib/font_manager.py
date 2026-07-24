@@ -36,14 +36,13 @@ import logging
 from numbers import Integral
 import os
 from pathlib import Path
-import plistlib
 import re
 import subprocess
 import sys
 import threading
 
 import matplotlib as mpl
-from matplotlib import _api, _afm, cbook, ft2font
+from matplotlib import _api, _afm, cbook, ft2font, _c_internal_utils
 from matplotlib._fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
@@ -265,13 +264,12 @@ def _get_fontconfig_fonts():
 
 @cache
 def _get_macos_fonts():
-    """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
-    try:
-        d, = plistlib.loads(
-            subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
-    except (OSError, subprocess.CalledProcessError, plistlib.InvalidFileException):
+    """Cache and list the font paths known to CoreText."""
+    path_strings = _c_internal_utils.get_available_fonts()
+    if path_strings:
+        return [Path(path_string) for path_string in path_strings]
+    else:
         return []
-    return [Path(entry["path"]) for entry in d["_items"]]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):

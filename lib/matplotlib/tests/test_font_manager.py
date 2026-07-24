@@ -18,7 +18,7 @@ from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontPath, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, ttfFontProperty, _get_font_alt_names,
-    _get_fontconfig_fonts, _normalize_weight)
+    _get_fontconfig_fonts, _normalize_weight, _get_macos_fonts)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
@@ -199,6 +199,20 @@ def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
+
+
+@pytest.mark.skipif(sys.platform != 'darwin', reason='macOS only')
+def test_get_macos_fonts(tmpdir, monkeypatch):
+    fonts_found = set(font_path.stem for font_path in _get_macos_fonts())
+
+    # Check for various system fonts that are listed on:
+    # https://developer.apple.com/fonts/system-fonts/
+    assorted_system_fonts = set([
+        'Apple Braille', 'Avenir', 'Baskerville', 'Cochin', 'Didot', 'Helvetica',
+        'Hoefler Text', 'Impact', 'Monaco', 'Tahoma', 'Verdana'
+    ])
+
+    assert assorted_system_fonts.issubset(fonts_found)
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
