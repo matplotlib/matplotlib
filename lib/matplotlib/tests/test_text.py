@@ -1317,3 +1317,8 @@ def test_draw_text_as_path_fallback(monkeypatch):
     _test_complex_shaping(subfig[0])
     _test_text_features(subfig[1])
     _test_text_language(subfig[2])
+def test_small_chinese_character_rendering():
+    fig, ax = plt.subplots()
+    ax.text(0.5, 0.5, '字体', fontsize=6)
+    # Smoke test to ensure it renders without crashing
+    fig.canvas.draw()
