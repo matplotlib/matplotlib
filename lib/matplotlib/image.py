@@ -92,7 +92,7 @@ def composite_images(images, renderer, magnification=1.0):
         if data is not None:
             x *= magnification
             y *= magnification
-            parts.append((data, x, y, image._get_scalar_alpha()))
+            parts.append((data, x, y))
             bboxes.append(
                 Bbox([[x, y], [x + data.shape[1], y + data.shape[0]]]))
 
@@ -104,10 +104,10 @@ def composite_images(images, renderer, magnification=1.0):
     output = np.zeros(
         (int(bbox.height), int(bbox.width), 4), dtype=np.uint8)
 
-    for data, x, y, alpha in parts:
+    for data, x, y in parts:
         trans = Affine2D().translate(x - bbox.x0, y - bbox.y0)
-        _image.resample(data, output, trans, _image.NEAREST,
-                        resample=False, alpha=alpha)
+        # Agg resampler assumes data is not premultiplied when dtype is uint8
+        _image.resample(data, output, trans, _image.NEAREST, resample=False)
 
     return output, bbox.x0 / magnification, bbox.y0 / magnification
 
