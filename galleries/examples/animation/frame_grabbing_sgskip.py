@@ -7,6 +7,9 @@ Use a MovieWriter directly to grab individual frames and write them to a
 file.  This avoids any event loop integration, and thus works even with the Agg
 backend.  This is not recommended for use in an interactive setting.
 """
+# sphinx_gallery_thumbnail_path = "_static/frame_grabbing.png"
+# Recreate the thumbnail with:
+# python doc/generate_gallery_thumbnails.py frame_grabbing
 
 import numpy as np
 

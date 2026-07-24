@@ -10,6 +10,8 @@ See :doc:`wire3d_animation` for another example of animating a 3D plot.
 (This example is skipped when building the documentation gallery because it
 intentionally takes a long time to run)
 """
+# sphinx_gallery_thumbnail_path = "_static/rotate_axes3d.png"
+
 
 import matplotlib.pyplot as plt
 
