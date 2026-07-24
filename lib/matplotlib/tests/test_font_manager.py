@@ -204,12 +204,16 @@ def test_find_invalid(tmp_path):
 @pytest.mark.skipif(sys.platform != 'darwin', reason='macOS only')
 def test_get_macos_fonts(tmpdir, monkeypatch):
     font_paths = _get_macos_fonts()
+    fonts_found = set(font_path.stem for font_path in _get_macos_fonts())
 
     # Check for various system fonts that are listed on:
     # https://developer.apple.com/fonts/system-fonts/
-    for name in ['Apple Braille','Avenir','Baskerville','Cochin','Didot',
-        'Helvetica','Hoefler Text','Impact','Monaco', 'Tahoma','Verdana']:
-        assert any(name in font_path.stem for font_path in font_paths), name
+    assorted_system_fonts = set([
+        'Apple Braille', 'Avenir', 'Baskerville', 'Cochin', 'Didot', 'Helvetica',
+        'Hoefler Text', 'Impact', 'Monaco', 'Tahoma', 'Verdana'
+    ])
+
+    assert assorted_system_fonts.issubset(fonts_found)
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,

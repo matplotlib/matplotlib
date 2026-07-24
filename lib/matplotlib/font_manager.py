@@ -267,7 +267,10 @@ def _get_fontconfig_fonts():
 def _get_macos_fonts():
     """Cache and list the font paths known to CoreText."""
     path_strings = _c_internal_utils.get_available_fonts()
-    return [Path(path_string) for path_string in path_strings]
+    if path_strings:
+        return [Path(path_string) for path_string in path_strings]
+    else:
+        return []
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
