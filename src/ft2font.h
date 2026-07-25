@@ -134,6 +134,9 @@ class FT2Font
                                  FT_Error &glyph_error,
                                  std::set<FT_String*> &glyph_seen_fonts);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
+    FT_Glyph load_glyph_copy(FT_UInt glyph_index, FT_Int32 flags,
+                             FT_Fixed *linear_hori_advance = nullptr);
+    FT_Fixed load_glyph_cached(FT_UInt glyph_index, FT_Int32 flags);
     FT_Glyph render_glyph(FT_UInt glyph_index, FT_Int32 flags, FT_Render_Mode render_mode);
     std::tuple<long, long> get_width_height();
     std::tuple<long, long> get_bitmap_offset();
@@ -186,7 +189,11 @@ class FT2Font
     using GlyphCacheKey = std::tuple<FT_UInt, FT_Int32, FT_F26Dot6, FT_UInt,
                                      FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed>;
     static constexpr size_t glyph_cache_max = 1024;
-    FT_Glyph cache_glyph(FT_UInt glyph_index, FT_Int32 flags);
+    struct CachedGlyph {
+        FT_Glyph glyph;
+        FT_Fixed linear_hori_advance;  // Unaffected by the transform.
+    };
+    CachedGlyph const *cache_glyph(FT_UInt glyph_index, FT_Int32 flags);
     void clear_glyph_cache();
 
     // The size and charmap of one face.  The charmap is a counter, as FreeType
@@ -211,7 +218,7 @@ class FT2Font
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
-    std::map<GlyphCacheKey, FT_Glyph> glyph_cache;
+    std::map<GlyphCacheKey, CachedGlyph> glyph_cache;
     FT_F26Dot6 char_size;
     FT_UInt char_dpi;
     FT_Matrix glyph_matrix;
