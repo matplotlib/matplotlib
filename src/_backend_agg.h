@@ -1054,7 +1054,7 @@ class QuadMeshGenerator
             return 5;
         }
 
-        inline bool should_simplify()
+        constexpr bool should_simplify()
         {
             return false;
         }

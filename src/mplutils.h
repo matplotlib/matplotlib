@@ -28,12 +28,12 @@
 #endif
 
 
-inline int mpl_round_to_int(double v)
+constexpr int mpl_round_to_int(double v)
 {
     return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));
 }
 
-inline double mpl_round(double v)
+constexpr double mpl_round(double v)
 {
     return (double)mpl_round_to_int(v);
 }
@@ -60,7 +60,7 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 template<typename T>
-inline void check_trailing_shape(T array, char const* name, long d1)
+constexpr void check_trailing_shape(T array, char const* name, long d1)
 {
     if (array.ndim() != 2) {
         throw py::value_error(
@@ -79,7 +79,7 @@ inline void check_trailing_shape(T array, char const* name, long d1)
 }
 
 template<typename T>
-inline void check_trailing_shape(T array, char const* name, long d1, long d2)
+constexpr void check_trailing_shape(T array, char const* name, long d1, long d2)
 {
     if (array.ndim() != 3) {
         throw py::value_error(

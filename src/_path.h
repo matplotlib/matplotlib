@@ -238,7 +238,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 }
 
 template <class PathIterator, class PointArray, class ResultArray>
-inline void points_in_path(PointArray &points,
+constexpr void points_in_path(PointArray &points,
                            const double r,
                            PathIterator &path,
                            agg::trans_affine &trans,

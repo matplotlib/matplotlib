@@ -134,7 +134,7 @@ class PathIterator
         }
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_iterator = path_id;
     }
@@ -144,7 +144,7 @@ class PathIterator
         return m_total_vertices;
     }
 
-    inline bool should_simplify() const
+    constexpr bool should_simplify() const
     {
         return m_should_simplify;
     }
