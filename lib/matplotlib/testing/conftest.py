@@ -158,6 +158,15 @@ def text_placeholders(monkeypatch):
         """
         return None
 
+    def patched_get_font_height_metrics(font, fontsize, dpi):
+        """
+        Replace ``_get_font_height_metrics`` with empty results.
+
+        It caches what it reads from the tables emptied out above, so patching
+        those alone would leave a font measured earlier with its real metrics.
+        """
+        return None, None, None
+
     def patched_get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
         """
         Replace ``_get_text_metrics_with_cache`` with fixed results.
@@ -194,6 +203,8 @@ def text_placeholders(monkeypatch):
 
     monkeypatch.setattr('matplotlib.ft2font.FT2Font.get_sfnt_table',
                         patched_get_sfnt_table)
+    monkeypatch.setattr('matplotlib.text._get_font_height_metrics',
+                        patched_get_font_height_metrics)
     monkeypatch.setattr('matplotlib.text._get_text_metrics_with_cache',
                         patched_get_text_metrics_with_cache)
     monkeypatch.setattr('matplotlib.text.Text.draw', patched_text_draw)
