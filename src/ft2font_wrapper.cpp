@@ -1750,10 +1750,13 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             [ft2Library](PyFT2Font *self, FT_UInt idx, LoadFlags flags,
                          FT_Render_Mode render_mode)
             {
-                auto face = self->get_face();
-                FT_CHECK(FT_Load_Glyph, face, idx, static_cast<FT_Int32>(flags));
-                FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
-                return PyPositionedBitmap{ft2Library, face->glyph};
+                auto const& glyph =
+                    std::unique_ptr<std::remove_pointer_t<FT_Glyph>,
+                                    decltype(&FT_Done_Glyph)>(
+                        self->render_glyph(idx, static_cast<FT_Int32>(flags), render_mode),
+                        &FT_Done_Glyph);
+                return PyPositionedBitmap{
+                    ft2Library, reinterpret_cast<FT_BitmapGlyph>(glyph.get())};
             })
         ;
 

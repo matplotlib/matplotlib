@@ -181,7 +181,9 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 }
 
 FT2Font::FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used)
-    : warn_if_used(warn_if_used), image({1, 1}), face(nullptr), fallbacks(fallback_list),
+    : warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
+      char_size(0), char_dpi(0), glyph_matrix{0x10000, 0, 0, 0x10000}, glyph_delta{0, 0},
+      fallbacks(fallback_list),
       // set default kerning factor to 0, i.e., no kerning manipulation
       kerning_factor(0)
 {
@@ -216,11 +218,20 @@ void FT2Font::close()
         FT_Done_Glyph(glyph);
     }
     glyphs.clear();
+    clear_glyph_cache();
 
     if (face) {
         FT_Done_Face(face);
         face = nullptr;
     }
+}
+
+void FT2Font::clear_glyph_cache()
+{
+    for (auto & [key, glyph] : glyph_cache) {
+        FT_Done_Glyph(glyph);
+    }
+    glyph_cache.clear();
 }
 
 void FT2Font::clear()
@@ -243,11 +254,12 @@ void FT2Font::clear()
 
 void FT2Font::set_size(double ptsize, double dpi)
 {
-    FT_CHECK(
-        FT_Set_Char_Size,
-        face, (FT_F26Dot6)(ptsize * 64), 0, (FT_UInt)dpi, (FT_UInt)dpi);
-    FT_Matrix transform = { 65536, 0, 0, 65536 };
-    FT_Set_Transform(face, &transform, nullptr);
+    char_size = (FT_F26Dot6)(ptsize * 64);
+    char_dpi = (FT_UInt)dpi;
+    FT_CHECK(FT_Set_Char_Size, face, char_size, 0, char_dpi, char_dpi);
+    glyph_matrix = { 65536, 0, 0, 65536 };
+    glyph_delta = { 0, 0 };
+    FT_Set_Transform(face, &glyph_matrix, nullptr);
 
     for (auto & fallback : fallbacks) {
         fallback->set_size(ptsize, dpi);
@@ -257,9 +269,9 @@ void FT2Font::set_size(double ptsize, double dpi)
 void FT2Font::_set_transform(
     std::array<std::array<FT_Fixed, 2>, 2> matrix, std::array<FT_Fixed, 2> delta)
 {
-    FT_Matrix m = {matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]};
-    FT_Vector d = {delta[0], delta[1]};
-    FT_Set_Transform(face, &m, &d);
+    glyph_matrix = {matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]};
+    glyph_delta = {delta[0], delta[1]};
+    FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
     for (auto & fallback : fallbacks) {
         fallback->_set_transform(matrix, delta);
     }
@@ -641,6 +653,70 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
     FT_Glyph thisGlyph;
     FT_CHECK(FT_Get_Glyph, face->glyph, &thisGlyph);
     glyphs.push_back(thisGlyph);
+}
+
+FT_Glyph FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 flags)
+{
+    // FreeType hints before transforming, so an outline loaded under a given
+    // matrix can be reused at every position, translating it when rasterizing.
+    auto const& key = GlyphCacheKey{
+        glyph_index, flags, char_size, char_dpi,
+        glyph_matrix.xx, glyph_matrix.xy, glyph_matrix.yx, glyph_matrix.yy};
+    if (auto const& cached = glyph_cache.find(key); cached != glyph_cache.end()) {
+        return cached->second;
+    }
+
+    // Load without the translation, so the outline sits at the origin.  The
+    // face transform is restored either way, as other methods load through it.
+    FT_Set_Transform(face, &glyph_matrix, nullptr);
+    auto const& load_error = FT_Load_Glyph(face, glyph_index, flags);
+    if (load_error) {
+        FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
+        THROW_FT_ERROR("FT_Load_Glyph", load_error);
+    }
+    if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
+        // Only outlines can be repositioned after loading.  A null glyph
+        // records that, and the caller loads these itself.
+        FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
+        if (glyph_cache.size() >= glyph_cache_max) {
+            clear_glyph_cache();
+        }
+        return glyph_cache[key] = nullptr;
+    }
+    FT_Glyph glyph = nullptr;
+    auto const& glyph_error = FT_Get_Glyph(face->glyph, &glyph);
+    FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
+    if (glyph_error) {
+        THROW_FT_ERROR("FT_Get_Glyph", glyph_error);
+    }
+    auto owned = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, decltype(&FT_Done_Glyph)>{
+        glyph, &FT_Done_Glyph};
+
+    if (glyph_cache.size() >= glyph_cache_max) {
+        clear_glyph_cache();
+    }
+    glyph_cache[key] = glyph;
+    owned.release();  // The cache owns it now.
+    return glyph;
+}
+
+FT_Glyph FT2Font::render_glyph(
+    FT_UInt glyph_index, FT_Int32 flags, FT_Render_Mode render_mode)
+{
+    auto const& cached = cache_glyph(glyph_index, flags);
+    if (!cached) {  // Not an outline, so load and rasterize it directly.
+        FT_CHECK(FT_Load_Glyph, face, glyph_index, flags);
+        FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
+        FT_Glyph glyph = nullptr;
+        FT_CHECK(FT_Get_Glyph, face->glyph, &glyph);
+        return glyph;
+    }
+
+    // With `destroy` false this translates the cached outline, rasterizes it,
+    // and translates it back.
+    FT_Glyph glyph = cached;
+    FT_CHECK(FT_Glyph_To_Bitmap, &glyph, render_mode, &glyph_delta, false);
+    return glyph;
 }
 
 FT_UInt FT2Font::get_char_index(FT_ULong charcode, bool fallback = false)

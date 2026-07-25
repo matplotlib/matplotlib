@@ -1034,3 +1034,28 @@ def test__layout():
                 assert Path(item.ft_object.fname).name == 'DejaVuSans.ttf'
             else:
                 assert Path(item.ft_object.fname).name == 'cmr10.ttf'
+
+
+def test_render_glyph_cache():
+    # Reusing a cached outline must not change what is rendered.
+    ft = fm.get_font(fm.findfont('DejaVu Sans'))
+    ft.set_size(12, 100)
+    index = ft.get_char_index(ord('e'))
+    identity = [[0x10000, 0], [0, 0x10000]]
+
+    def render(delta=(0, 0)):
+        ft._set_transform(identity, list(delta))
+        return ft._render_glyph(index, ft2font.LoadFlags.DEFAULT,
+                                ft2font.RenderMode.NORMAL)
+
+    first = render()
+    reference = first.buffer.copy()
+    # A whole-pixel shift reuses the outline and only moves the glyph.
+    shifted = render(delta=(0x40 * 3, 0x40 * 5))
+    assert np.array_equal(shifted.buffer, reference)
+    assert (shifted.left, shifted.top) == (first.left + 3, first.top + 5)
+    # A fractional shift must reach the rasterizer rather than be rounded away.
+    assert not np.array_equal(render(delta=(0x20, 0x20)).buffer, reference)
+    # The size is part of the key.
+    ft.set_size(24, 100)
+    assert render().buffer.shape != reference.shape
