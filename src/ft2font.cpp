@@ -230,8 +230,8 @@ void FT2Font::close()
 
 void FT2Font::clear_glyph_cache()
 {
-    for (auto & [key, glyph] : glyph_cache) {
-        FT_Done_Glyph(glyph);
+    for (auto & [key, cached] : glyph_cache) {
+        FT_Done_Glyph(cached.glyph);
     }
     glyph_cache.clear();
 }
@@ -518,16 +518,7 @@ void FT2Font::set_text(
         }
 
         // extract glyph image and store it in our table
-        FT_Error error;
-        error = FT_Load_Glyph(rglyph.ftface, rglyph.index, flags);
-        if (error) {
-            throw std::runtime_error("failed to load glyph");
-        }
-        FT_Glyph thisGlyph;
-        error = FT_Get_Glyph(rglyph.ftface->glyph, &thisGlyph);
-        if (error) {
-            throw std::runtime_error("failed to get glyph");
-        }
+        auto thisGlyph = wrapped_font->load_glyph_copy(rglyph.index, flags);
 
         pen.x += rglyph.x_offset;
         pen.y += rglyph.y_offset;
@@ -690,7 +681,7 @@ void FT2Font::load_glyph(FT_UInt glyph_index, FT_Int32 flags)
     glyphs.push_back(thisGlyph);
 }
 
-FT_Glyph FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 flags)
+FT2Font::CachedGlyph const *FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 flags)
 {
     // FreeType hints before transforming, so an outline loaded under a given
     // matrix can be reused at every position, translating it when rasterizing.
@@ -698,7 +689,7 @@ FT_Glyph FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 flags)
         glyph_index, flags, char_size, char_dpi,
         glyph_matrix.xx, glyph_matrix.xy, glyph_matrix.yx, glyph_matrix.yy};
     if (auto const& cached = glyph_cache.find(key); cached != glyph_cache.end()) {
-        return cached->second;
+        return &cached->second;
     }
 
     // Load without the translation, so the outline sits at the origin.  The
@@ -712,14 +703,17 @@ FT_Glyph FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 flags)
     if (face->glyph->format != FT_GLYPH_FORMAT_OUTLINE) {
         // Only outlines can be repositioned after loading.  A null glyph
         // records that, and the caller loads these itself.
+        auto const linear_hori_advance = face->glyph->linearHoriAdvance;
         FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
         if (glyph_cache.size() >= glyph_cache_max) {
             clear_glyph_cache();
         }
-        return glyph_cache[key] = nullptr;
+        return &(glyph_cache[key] = CachedGlyph{nullptr, linear_hori_advance});
     }
     FT_Glyph glyph = nullptr;
     auto const& glyph_error = FT_Get_Glyph(face->glyph, &glyph);
+    // Copied out of the glyph slot, which the next load overwrites.
+    auto const linear_hori_advance = face->glyph->linearHoriAdvance;
     FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
     if (glyph_error) {
         THROW_FT_ERROR("FT_Get_Glyph", glyph_error);
@@ -730,16 +724,48 @@ FT_Glyph FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 flags)
     if (glyph_cache.size() >= glyph_cache_max) {
         clear_glyph_cache();
     }
-    glyph_cache[key] = glyph;
+    auto const& entry = &(glyph_cache[key] = CachedGlyph{glyph, linear_hori_advance});
     owned.release();  // The cache owns it now.
-    return glyph;
+    return entry;
+}
+
+FT_Glyph FT2Font::load_glyph_copy(
+    FT_UInt glyph_index, FT_Int32 flags, FT_Fixed *linear_hori_advance)
+{
+    auto const& cached = cache_glyph(glyph_index, flags);
+    FT_Glyph glyph = nullptr;
+    if (cached->glyph) {
+        FT_CHECK(FT_Glyph_Copy, cached->glyph, &glyph);
+    } else {  // Not an outline, so load it the slow way.
+        FT_CHECK(FT_Load_Glyph, face, glyph_index, flags);
+        FT_CHECK(FT_Get_Glyph, face->glyph, &glyph);
+    }
+    auto owned = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, decltype(&FT_Done_Glyph)>{
+        glyph, &FT_Done_Glyph};
+    if (cached->glyph && (glyph_delta.x || glyph_delta.y)) {
+        FT_CHECK(FT_Glyph_Transform, glyph, nullptr, &glyph_delta);
+    }
+    if (linear_hori_advance) {
+        *linear_hori_advance = cached->linear_hori_advance;
+    }
+    return owned.release();
+}
+
+FT_Fixed FT2Font::load_glyph_cached(FT_UInt glyph_index, FT_Int32 flags)
+{
+    FT_Fixed linear_hori_advance = 0;
+    auto owned = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, decltype(&FT_Done_Glyph)>{
+        load_glyph_copy(glyph_index, flags, &linear_hori_advance), &FT_Done_Glyph};
+    glyphs.push_back(owned.get());
+    owned.release();  // `glyphs` owns it now.
+    return linear_hori_advance;
 }
 
 FT_Glyph FT2Font::render_glyph(
     FT_UInt glyph_index, FT_Int32 flags, FT_Render_Mode render_mode)
 {
     auto const& cached = cache_glyph(glyph_index, flags);
-    if (!cached) {  // Not an outline, so load and rasterize it directly.
+    if (!cached->glyph) {  // Not an outline, so load and rasterize it directly.
         FT_CHECK(FT_Load_Glyph, face, glyph_index, flags);
         FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
         FT_Glyph glyph = nullptr;
@@ -749,7 +775,7 @@ FT_Glyph FT2Font::render_glyph(
 
     // With `destroy` false this translates the cached outline, rasterizes it,
     // and translates it back.
-    FT_Glyph glyph = cached;
+    FT_Glyph glyph = cached->glyph;
     FT_CHECK(FT_Glyph_To_Bitmap, &glyph, render_mode, &glyph_delta, false);
     return glyph;
 }

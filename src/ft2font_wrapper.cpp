@@ -1371,7 +1371,9 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
     for (auto &glyph : glyphs) {
         auto ft_object = static_cast<PyFT2Font *>(glyph.ftface->generic.data);
 
-        ft_object->load_glyph(glyph.index, load_flags);
+        // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
+        auto const& linear_hori_advance =
+            ft_object->load_glyph_cached(glyph.index, load_flags) / 1024.0;
 
         double prev_kern = 0.0;
         if (prev_advance) {
@@ -1389,8 +1391,7 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
         prev_x = x + glyph.x_offset;
         x += glyph.x_advance;
         y += glyph.y_advance;
-        // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
-        prev_advance = ft_object->get_face()->glyph->linearHoriAdvance / 1024.0;
+        prev_advance = linear_hori_advance;
     }
 
     return items;
