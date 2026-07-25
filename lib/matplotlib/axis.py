@@ -1836,7 +1836,10 @@ class Axis(martist.Artist):
         Return the rotation (in degrees) applied to tick labels on this
         Axis, as set via `.Axis.set_tick_params(rotation=...)`.
         """
-        return float(self._major_tick_kw.get('labelrotation', 0))
+        rotation = self._major_tick_kw.get('labelrotation', 0)
+        if rotation == 'auto':
+            return 0.0
+        return float(rotation)
 
     def _copy_tick_props(self, src, dest):
         """Copy the properties from *src* tick to *dest* tick."""
