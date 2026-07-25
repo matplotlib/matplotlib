@@ -9,6 +9,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 
+#include <map>
 #include <optional>
 #include <set>
 #include <string>
@@ -133,6 +134,7 @@ class FT2Font
                                  FT_Error &glyph_error,
                                  std::set<FT_String*> &glyph_seen_fonts);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
+    FT_Glyph render_glyph(FT_UInt glyph_index, FT_Int32 flags, FT_Render_Mode render_mode);
     std::tuple<long, long> get_width_height();
     std::tuple<long, long> get_bitmap_offset();
     long get_descent();
@@ -179,11 +181,24 @@ class FT2Font
   protected:
     virtual void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names) = 0;
   private:
+    // Everything affecting a loaded outline, but not the translation, which is
+    // applied when rasterizing.
+    using GlyphCacheKey = std::tuple<FT_UInt, FT_Int32, FT_F26Dot6, FT_UInt,
+                                     FT_Fixed, FT_Fixed, FT_Fixed, FT_Fixed>;
+    static constexpr size_t glyph_cache_max = 1024;
+    FT_Glyph cache_glyph(FT_UInt glyph_index, FT_Int32 flags);
+    void clear_glyph_cache();
+
     bool warn_if_used;
     py::array_t<uint8_t, py::array::c_style> image;
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
+    std::map<GlyphCacheKey, FT_Glyph> glyph_cache;
+    FT_F26Dot6 char_size;
+    FT_UInt char_dpi;
+    FT_Matrix glyph_matrix;
+    FT_Vector glyph_delta;
     std::vector<FT2Font *> fallbacks;
     std::unordered_map<long, FT2Font *> char_to_font;
     FT_BBox bbox;
