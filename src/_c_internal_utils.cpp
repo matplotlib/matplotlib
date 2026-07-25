@@ -99,7 +99,7 @@ static py::object
 mpl_GetCurrentProcessExplicitAppUserModelID(void)
 {
 #ifdef _WIN32
-    wchar_t* appid = NULL;
+    wchar_t* appid = nullptr;
     HRESULT hr = GetCurrentProcessExplicitAppUserModelID(&appid);
     if (FAILED(hr)) {
         PyErr_SetFromWindowsErr(hr);
