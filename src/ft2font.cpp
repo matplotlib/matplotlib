@@ -183,6 +183,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 FT2Font::FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used)
     : warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
       char_size(0), char_dpi(0), glyph_matrix{0x10000, 0, 0, 0x10000}, glyph_delta{0, 0},
+      charmap_generation(0),
       fallbacks(fallback_list),
       // set default kerning factor to 0, i.e., no kerning manipulation
       kerning_factor(0)
@@ -219,6 +220,7 @@ void FT2Font::close()
     }
     glyphs.clear();
     clear_glyph_cache();
+    layout_cache.clear();
 
     if (face) {
         FT_Done_Face(face);
@@ -283,11 +285,24 @@ void FT2Font::set_charmap(int i)
         throw std::runtime_error("i exceeds the available number of char maps");
     }
     FT_CHECK(FT_Set_Charmap, face, face->charmaps[i]);
+    charmap_generation++;
 }
 
 void FT2Font::select_charmap(unsigned long i)
 {
     FT_CHECK(FT_Select_Charmap, face, (FT_Encoding)i);
+    charmap_generation++;
+}
+
+std::vector<FT2Font::FaceState> FT2Font::shaping_state() const
+{
+    // Shaping reads the fallback faces too, so their state is part of the key.
+    std::vector<FaceState> state{{char_size, char_dpi, charmap_generation}};
+    for (auto const& fallback : fallbacks) {
+        auto const& nested = fallback->shaping_state();
+        state.insert(state.end(), nested.begin(), nested.end());
+    }
+    return state;
 }
 
 int FT2Font::get_kerning(FT_UInt left, FT_UInt right, FT_Kerning_Mode mode)
@@ -318,6 +333,17 @@ std::vector<raqm_glyph_t> FT2Font::layout(
     std::set<FT_String*>& glyph_seen_fonts)
 {
     clear();
+
+    auto const& key = LayoutCacheKey{
+        std::u32string{text}, flags, features, languages, shaping_state(),
+        glyph_matrix.xx, glyph_matrix.xy, glyph_matrix.yx, glyph_matrix.yy};
+    if (auto const& cached = layout_cache.find(key); cached != layout_cache.end()) {
+        auto const& entry = cached->second;
+        glyph_seen_fonts.insert(entry.seen_fonts.begin(), entry.seen_fonts.end());
+        return entry.glyphs;
+    }
+    // Kept apart from the caller's set so that it can be replayed from the cache.
+    std::set<FT_String *> seen_fonts;
 
     auto rq = raqm_create();
     if (!rq) {
@@ -360,7 +386,7 @@ std::vector<raqm_glyph_t> FT2Font::layout(
     }
 
     std::vector<std::pair<size_t, const FT_Face&>> face_substitutions;
-    glyph_seen_fonts.insert(face->family_name);
+    seen_fonts.insert(face->family_name);
 
     // Attempt to use fallback fonts if necessary.
     for (auto const& fallback : fallbacks) {
@@ -399,7 +425,7 @@ std::vector<raqm_glyph_t> FT2Font::layout(
 
         // If a fallback was used, then re-attempt the layout with the new fonts.
         if (!fallback->warn_if_used) {
-            glyph_seen_fonts.insert(fallback->face->family_name);
+            seen_fonts.insert(fallback->face->family_name);
         }
 
         raqm_clear_contents(rq);
@@ -444,7 +470,16 @@ std::vector<raqm_glyph_t> FT2Font::layout(
     size_t num_glyphs = 0;
     auto const& rq_glyphs = raqm_get_glyphs(rq, &num_glyphs);
 
-    return std::vector<raqm_glyph_t>(rq_glyphs, rq_glyphs + num_glyphs);
+    if (layout_cache.size() >= layout_cache_max) {
+        layout_cache.clear();
+    }
+    auto const& entry = layout_cache.insert_or_assign(
+        key,
+        LayoutCacheEntry{
+            std::vector<raqm_glyph_t>(rq_glyphs, rq_glyphs + num_glyphs),
+            std::move(seen_fonts)}).first->second;
+    glyph_seen_fonts.insert(entry.seen_fonts.begin(), entry.seen_fonts.end());
+    return entry.glyphs;
 }
 
 void FT2Font::set_text(

@@ -1059,3 +1059,50 @@ def test_render_glyph_cache():
     # The size is part of the key.
     ft.set_size(24, 100)
     assert render().buffer.shape != reference.shape
+
+
+def test_layout_cache():
+    # A cached layout must match a fresh one, and the size is part of the key.
+    ft = fm.get_font(fm.findfont('DejaVu Sans'))
+    ft.set_size(12, 100)
+
+    def xs():
+        return [item.x for item in ft._layout('hello world',
+                                              ft2font.LoadFlags.DEFAULT)]
+
+    first = xs()
+    assert xs() == first
+    ft.set_size(24, 100)
+    assert xs() != first
+
+
+def test_layout_cache_transform():
+    # The transform is part of the key, as it changes the shaped positions.
+    ft = fm.get_font(fm.findfont('DejaVu Sans'))
+    ft.set_size(12, 100)
+
+    def xs():
+        return [item.x for item in ft._layout('hello world',
+                                              ft2font.LoadFlags.DEFAULT)]
+
+    first = xs()
+    ft._set_transform([[0x20000, 0], [0, 0x10000]], [0, 0])
+    assert xs() != first
+
+
+def test_layout_cache_fallback_size():
+    # Shaping reads the fallback faces, so resizing one must invalidate the cache.
+    ft = fm.get_font(fm.fontManager._find_fonts_by_props(
+        fm.FontProperties(family=['cmr10', 'DejaVu Sans'])))
+    ft.set_size(12, 100)
+
+    def items():
+        return ft._layout('AV \N{CIRCLED LATIN CAPITAL LETTER A} ffi',
+                          ft2font.LoadFlags.DEFAULT)
+
+    first = [item.x for item in items()]
+    for item in items():
+        if item.ft_object is not ft:
+            item.ft_object.set_size(40, 100)
+            break
+    assert [item.x for item in items()] != first
