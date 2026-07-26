@@ -526,7 +526,12 @@ class Axes(_AxesBase):
     def pcolor(
         self,
         *args: ArrayLike,
-        shading: Literal["flat", "nearest", "auto"] | None = ...,
+        shading: Literal["flat", "nearest", "auto"]
+        | tuple[
+            Literal["flat", "nearest", "auto"],
+            Literal["flat", "nearest", "auto"],
+        ]
+        | None = ...,
         alpha: float | None = ...,
         norm: str | Normalize | None = ...,
         cmap: str | Colormap | None = ...,
@@ -545,7 +550,12 @@ class Axes(_AxesBase):
         vmin: float | None = ...,
         vmax: float | None = ...,
         colorizer: Colorizer | None = ...,
-        shading: Literal["flat", "nearest", "gouraud", "auto"] | None = ...,
+        shading: Literal["flat", "nearest", "gouraud", "auto"]
+        | tuple[
+            Literal["flat", "nearest", "gouraud", "auto"],
+            Literal["flat", "nearest", "gouraud", "auto"],
+        ]
+        | None = ...,
         antialiased: bool = ...,
         data: DataParamType = ...,
         **kwargs

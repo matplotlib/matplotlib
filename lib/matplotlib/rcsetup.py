@@ -979,6 +979,46 @@ def validate_hist_bins(s):
                      " a sequence of floats")
 
 
+def validate_pcolor_shading(s):
+    valid = ["auto", "flat", "nearest", "gouraud"]
+    if isinstance(s, str):
+        s = s.lower()
+        if s in valid:
+            return s
+        raise ValueError(f"shading {s!r} must be one of {valid}")
+    # Otherwise, check if it's an iterable of size 2
+    try:
+        s_tuple = tuple(s)
+    except TypeError as e:
+        raise ValueError(
+            f"shading {s!r} must be a string or a 2-tuple of strings"
+        ) from e
+    if len(s_tuple) != 2:
+        raise ValueError(
+            f"shading {s!r} must be a string or a 2-tuple of strings"
+        )
+
+    normalized = []
+    for item in s_tuple:
+        if isinstance(item, str):
+            item = item.lower()
+            if item in valid:
+                normalized.append(item)
+                continue
+        raise ValueError(
+            f"shading components must be one of {valid}, got {item!r}"
+        )
+    if (
+        (normalized[0] == 'gouraud' or normalized[1] == 'gouraud')
+        and normalized[0] != normalized[1]
+    ):
+        raise ValueError(
+            "shading='gouraud' cannot be mixed with other shading types."
+        )
+    return tuple(normalized)
+
+
+
 class _ignorecase(list):
     """A marker class indicating that a list-of-str is case-insensitive."""
 
@@ -1032,7 +1072,7 @@ _validators = {
     "markers.fillstyle": validate_fillstyle,
 
     ## pcolor(mesh) props:
-    "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
+    "pcolor.shading": validate_pcolor_shading,
     "pcolormesh.snap": validate_bool,
 
     ## patch props
@@ -1691,7 +1731,7 @@ _DEFINITION = [
     _Param(
         "pcolor.shading",
         default="auto",
-        validator=["auto", "flat", "nearest", "gouraud"]
+        validator=validate_pcolor_shading
     ),
     _Param(
         "pcolormesh.snap",

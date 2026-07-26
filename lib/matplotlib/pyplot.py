@@ -3876,7 +3876,11 @@ def minorticks_on() -> None:
 @_copy_docstring_and_deprecators(Axes.pcolor)
 def pcolor(
     *args: ArrayLike,
-    shading: Literal["flat", "nearest", "auto"] | None = None,
+    shading: (
+        Literal["flat", "nearest", "auto"]
+        | tuple[Literal["flat", "nearest", "auto"], Literal["flat", "nearest", "auto"]]
+        | None
+    ) = None,
     alpha: float | None = None,
     norm: str | Normalize | None = None,
     cmap: str | Colormap | None = None,
@@ -3912,7 +3916,14 @@ def pcolormesh(
     vmin: float | None = None,
     vmax: float | None = None,
     colorizer: Colorizer | None = None,
-    shading: Literal["flat", "nearest", "gouraud", "auto"] | None = None,
+    shading: (
+        Literal["flat", "nearest", "gouraud", "auto"]
+        | tuple[
+            Literal["flat", "nearest", "gouraud", "auto"],
+            Literal["flat", "nearest", "gouraud", "auto"],
+        ]
+        | None
+    ) = None,
     antialiased: bool = False,
     data: DataParamType = None,
     **kwargs,
