@@ -567,7 +567,7 @@ def test_qt_overlay_main_pass_artist_draw_calls():
          patch.object(overlay_line, 'draw', wraps=overlay_line.draw) as spy_overlay, \
          patch.object(canvas, 'draw_overlay'):
         canvas.draw()
-        assert spy_main.call_count >= 1
+        assert spy_main.call_count == 1
         assert spy_overlay.call_count == 0
     plt.close(fig)
 
