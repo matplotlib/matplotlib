@@ -944,7 +944,7 @@ def figure(
         The figure dimensions. This can be
 
         - a tuple ``(width, height, unit)``, where *unit* is one of "in", "cm",
-          "px".
+          "mm", "px".
         - a tuple ``(x, y)``, which is interpreted as ``(x, y, "in")``.
 
         One of *width* or *height* may be ``None``; the respective value is taken

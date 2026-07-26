@@ -2488,7 +2488,7 @@ class Figure(FigureBase):
             The figure dimensions. This can be
 
             - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
-              "cm" (centimenter), "px" (pixel).
+              "cm" (centimenter), "mm" (millimeter), "px" (pixel).
             - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
               ``(width, height, "in")``.
 
@@ -3761,7 +3761,7 @@ def _parse_figsize(figsize, dpi):
         This can be
 
         - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
-          "cm" (centimenter), "px" (pixel).
+          "cm" (centimeter), "mm" (millimeter), "px" (pixel).
         - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
           ``(width, height, "in")``.
 
@@ -3780,6 +3780,11 @@ def _parse_figsize(figsize, dpi):
                 x /= 2.54
             if y is not None:
                 y /= 2.54
+        elif unit == 'mm':
+            if x is not None:
+                x /= 25.4
+            if y is not None:
+                y /= 25.4
         elif unit == 'px':
             if x is not None:
                 x /= dpi
@@ -3788,7 +3793,7 @@ def _parse_figsize(figsize, dpi):
         else:
             raise ValueError(
                 f"Invalid unit {unit!r} in 'figsize'; "
-                "supported units are 'in', 'cm', 'px'"
+                "supported units are 'in', 'cm', 'mm', 'px'"
             )
     else:
         raise ValueError(
