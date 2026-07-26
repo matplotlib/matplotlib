@@ -96,8 +96,8 @@ cmap = plt.colormaps["winter"].with_extremes(under="magenta", over="yellow")
 fig, axs = plt.subplots(2, 2, layout="constrained")
 
 for ax, extend in zip(axs.flat, extends):
-    cs = ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend)
-    fig.colorbar(cs, ax=ax, shrink=0.9)
+    ax.contourf(X, Y, Z, levels, cmap=cmap, extend=extend)
+    ax.colorbar(shrink=0.9)
     ax.set_title("extend = %s" % extend)
     ax.locator_params(nbins=4)
 
