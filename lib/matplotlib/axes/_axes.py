@@ -6238,9 +6238,10 @@ or pandas.DataFrame
             - (M, N): an image with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (K, M, N): a K-component M*N image for multivariate colormapping.
-              This must be used with a `.BivarColormap` (K=2) or generally with a
-              K-component `.MultivarColormap`.
+            - a (K, M, N) scalar array or a structured (M, N) array with K fields:
+              a K-component M*N mesh for multivariate colormapping. A valid
+              `.BivarColormap` (K=2) or K-component `.MultivarColormap` must be
+              specified using the *cmap* keyword argument.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6603,10 +6604,22 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C : 2D (M, N) or 3D (K, M, N) array-like
-            The color-mapped values.  Color-mapping is controlled by *cmap*,
-            *norm*, *vmin*, and *vmax*. 3D arrays are supported only if the
-            cmap supports K channels.
+        C :
+            The mesh data. Supported array shapes are:
+
+            - (M, N) or M*N: a mesh with scalar data. The values are mapped to
+              colors using normalization and a colormap. See parameters *norm*,
+              *cmap*, *vmin*, *vmax*.
+            - a (K, M, N) scalar array or a structured (M, N) array with K fields:
+              a K-component M*N mesh for multivariate colormapping. A valid
+              `.BivarColormap` (K=2) or K-component `.MultivarColormap` must be
+              specified using the *cmap* keyword argument.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
+
+            The first two dimensions (M, N) define the rows and columns of
+            the mesh data.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6813,9 +6826,10 @@ or pandas.DataFrame
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
-            - (K, M, N): a K-component M*N mesh for multivariate colormapping.
-              This must be used with a `.BivarColormap` (K=2) or generally with a
-              K-component `.MultivarColormap`.
+            - a (K, M, N) scalar array or a structured (M, N) array with K fields:
+              a K-component M*N mesh for multivariate colormapping. A valid
+              `.BivarColormap` (K=2) or K-component `.MultivarColormap` must be
+              specified using the *cmap* keyword argument.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
