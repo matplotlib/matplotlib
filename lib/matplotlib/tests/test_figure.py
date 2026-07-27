@@ -1872,6 +1872,7 @@ def test_subfigure_stale_propagation():
     ((6, 4), (6, 4)),
     ((6, 4, "in"), (6, 4)),
     ((5.08, 2.54, "cm"), (2, 1)),
+    ((50.8, 25.4, "mm"), (2, 1)),
     ((600, 400, "px"), (6, 4)),
 ])
 def test_figsize(figsize, figsize_inches):
