@@ -6605,7 +6605,7 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C :
+        C : 2D or 3D array-like
             The mesh data. Supported array shapes are:
 
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
