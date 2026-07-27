@@ -618,7 +618,7 @@ def test_qt_overlay_buffer_image_comparison():
     ax.add_line(main_line)
     ax.add_line(overlay_line)
 
-    # Mock out 100% of the base layer (all children on ax except overlay_line)
+    # Mock out all base layer children (where get_in_overlay() is False)
     for child in ax.get_children():
-        if child is not overlay_line:
+        if not (hasattr(child, 'get_in_overlay') and child.get_in_overlay()):
             patch.object(child, 'draw').start()
