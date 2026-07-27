@@ -867,7 +867,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         engine = _IconEngine(path_regular, self)
         return QtGui.QIcon(engine)
 
-
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
         if not axes:

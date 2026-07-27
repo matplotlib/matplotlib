@@ -17,7 +17,6 @@ from matplotlib.transforms import Transform, Bbox
 from matplotlib.typing import ColorType
 from matplotlib.units import ConversionInterface
 
-
 GRIDLINE_INTERPOLATION_STEPS: int
 
 class Tick(martist.Artist):

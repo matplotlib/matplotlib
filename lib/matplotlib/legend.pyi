@@ -16,11 +16,9 @@ from matplotlib.transforms import (
 )
 from matplotlib.typing import ColorType, LegendLocType
 
-
 import pathlib
 from collections.abc import Iterable
 from typing import Any, Literal, overload
-
 
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend

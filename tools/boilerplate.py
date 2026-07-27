@@ -473,7 +473,7 @@ if __name__ == '__main__':
         mpl_path = (Path(__file__).parent / ".." /"lib"/"matplotlib").resolve()
         pyplot_path = mpl_path / "pyplot.py"
         for cls in [Axes, Figure]:
-            if mpl_path not in  Path(inspect.getfile(cls)).parents:
+            if mpl_path not in Path(inspect.getfile(cls)).parents:
                 raise RuntimeError(
                     f"{cls.__name__} import path is not {mpl_path}.\n"
                     "Please make sure your Matplotlib installation "

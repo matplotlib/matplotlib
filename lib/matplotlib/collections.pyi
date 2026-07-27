@@ -167,7 +167,6 @@ class LineCollection(Collection):
     def get_colors(self) -> ColorType | Sequence[ColorType]: ...
     def get_gapcolor(self) -> ColorType | Sequence[ColorType] | None: ...
 
-
 class EventCollection(LineCollection):
     def __init__(
         self,

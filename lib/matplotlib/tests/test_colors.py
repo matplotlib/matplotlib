@@ -1893,15 +1893,15 @@ def test_norm_abc():
         def n_components(self):
             return 1
 
-    fig, axes = plt.subplots(2,2)
+    fig, axes = plt.subplots(2, 2)
 
-    r = np.linspace(-1, 3, 16*16).reshape((16,16))
+    r = np.linspace(-1, 3, 16*16).reshape((16, 16))
     norm = CustomHalfNorm()
     colorizer = mpl.colorizer.Colorizer(cmap='viridis', norm=norm)
-    c = axes[0,0].imshow(r, colorizer=colorizer)
-    axes[0,1].pcolor(r, colorizer=colorizer)
-    axes[1,0].contour(r, colorizer=colorizer)
-    axes[1,1].contourf(r, colorizer=colorizer)
+    c = axes[0, 0].imshow(r, colorizer=colorizer)
+    axes[0, 1].pcolor(r, colorizer=colorizer)
+    axes[1, 0].contour(r, colorizer=colorizer)
+    axes[1, 1].contourf(r, colorizer=colorizer)
 
 
 def test_close_error_name():
@@ -2012,7 +2012,7 @@ def test_mult_norm_call_types():
     mn.vmin = (-2, -2)
     mn.vmax = (2, 2)
 
-    vals = np.arange(6).reshape((3,2))
+    vals = np.arange(6).reshape((3, 2))
     target = np.ma.array([(0.5, 0.75),
                           (1., 1.25),
                           (1.5, 1.75)])
