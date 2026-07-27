@@ -12,7 +12,7 @@
 
 
 ## PR quality check
-<!-- ✍️ Please check the relevant boxes below: "x" to indicate compleation, "N/A" if the item is not applicable -->
+<!-- ✍️ Please check the relevant boxes below: "x" to indicate completion, "N/A" if the item is not applicable -->
 
 - [ ] Use an expressive title, e.g. "Fix title font property precedence"
 - [ ] New and changed code is [tested](https://matplotlib.org/devdocs/devel/testing.html)
