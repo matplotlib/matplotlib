@@ -41,7 +41,8 @@ from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
     Artist, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
-    DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
+    DrawEvent, RenderEvent, FigureCanvasBase, NonGuiException, MouseButton,
+    _get_renderer)
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
@@ -2609,7 +2610,7 @@ None}, default: None
         # a proxy property), but that actually need to be on the figure for
         # pickling.
         self._canvas_callbacks = cbook.CallbackRegistry(
-            signals=FigureCanvasBase.events)
+            signals=[*FigureCanvasBase.events, "_pre_render_event"])
         connect = self._canvas_callbacks._connect_picklable
         self._mouse_key_ids = [
             connect('key_press_event', backend_bases._key_handler),
@@ -3268,7 +3269,6 @@ None}, default: None
 
         with self._render_lock:
 
-            artists = self._get_draw_artists(renderer)
             try:
                 renderer.open_group('figure', gid=self.get_gid())
                 if self.axes and self.get_layout_engine() is not None:
@@ -3277,6 +3277,9 @@ None}, default: None
                     except ValueError:
                         pass
                         # ValueError can occur when resizing a window.
+
+                artists = self._get_draw_artists(renderer)
+                RenderEvent("_pre_render_event", self.canvas, renderer)._process()
 
                 self.patch.draw(renderer)
                 mimage._draw_list_compositing_images(
