@@ -553,7 +553,7 @@ def test_qt_overlay_layer_isolation_image_comparison():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
     from unittest.mock import patch
 
-    fig, ax = plt.subplots(figsize=(2, 2))
+    fig, ax = plt.subplots(figsize=(2, 2), layout='constrained')
     FigureCanvasQTAgg(fig)
 
     main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
@@ -582,7 +582,7 @@ def test_qt_overlay_full_render_image_comparison():
     from matplotlib.lines import Line2D
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
-    fig, ax = plt.subplots(figsize=(2, 2))
+    fig, ax = plt.subplots(figsize=(2, 2), layout='constrained')
     FigureCanvasQTAgg(fig)
 
     main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
@@ -609,7 +609,7 @@ def test_qt_overlay_buffer_image_comparison():
     from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
     from unittest.mock import patch
 
-    fig, ax = plt.subplots(figsize=(2, 2))
+    fig, ax = plt.subplots(figsize=(2, 2), layout='constrained')
     FigureCanvasQTAgg(fig)
 
     main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
