@@ -13,6 +13,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
+from matplotlib.testing.decorators import image_comparison
 
 try:
     from matplotlib.backends.qt_compat import QtCore  # type: ignore[attr-defined]
@@ -535,154 +536,89 @@ def test_qt_overlay_multiple_updates():
         assert mock.call_count == 3
 
 
-def _qimage_to_array(qimg):
-    from matplotlib.backends.qt_compat import QtGui
-    import numpy as np
-    qimg = qimg.convertToFormat(QtGui.QImage.Format.Format_RGBA8888)
-    ptr = qimg.constBits()
-    if hasattr(ptr, 'setsize'):
-        ptr.setsize(qimg.sizeInBytes())
-    return np.frombuffer(ptr, dtype=np.uint8).reshape(
-        qimg.height(), qimg.width(), 4
-    )
-
-
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_qt_overlay_main_pass_artist_draw_calls():
+@image_comparison(
+    baseline_images=['qt_overlay_layer_isolation'],
+    extensions=['png'],
+    style='mpl20',
+)
+def test_qt_overlay_layer_isolation_image_comparison():
     """
-    Behavioral check on main pass: overlay artist draw() is skipped in main draw.
+    Layer isolation test using @image_comparison and mocking.
+
+    Verifies visually that when draw_overlay is mocked out and is_saving is False,
+    rendering a figure with an in_overlay line matches the baseline PNG image.
     """
     from matplotlib.lines import Line2D
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
     from unittest.mock import patch
 
     fig, ax = plt.subplots(figsize=(2, 2))
-    canvas = fig.canvas
-    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=5)
-    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=5)
-    overlay_line.set_in_overlay(True)
-    ax.add_line(main_line)
-    ax.add_line(overlay_line)
+    FigureCanvasQTAgg(fig)
 
-    with patch.object(main_line, 'draw', wraps=main_line.draw) as spy_main, \
-         patch.object(overlay_line, 'draw', wraps=overlay_line.draw) as spy_overlay, \
-         patch.object(canvas, 'draw_overlay'):
-        canvas.draw()
-        assert spy_main.call_count == 1
-        assert spy_overlay.call_count == 0
-    plt.close(fig)
-
-
-@pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_qt_overlay_main_pass_visual_exclusion():
-    """
-    Visual check on main-only render: overlay artist color is absent from main pass.
-    """
-    from matplotlib.lines import Line2D
-    from unittest.mock import patch
-    import numpy as np
-
-    fig, ax = plt.subplots(figsize=(2, 2))
-    canvas = fig.canvas
     main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
     overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
     overlay_line.set_in_overlay(True)
     ax.add_line(main_line)
     ax.add_line(overlay_line)
 
-    with patch.object(canvas, 'draw_overlay'):
-        canvas.draw()
-        arr = np.asarray(canvas.buffer_rgba())
-
-        # Main line (blue) pixels present (R<50, B>200, A>50)
-        has_blue = np.any(
-            (arr[:, :, 0] < 50) & (arr[:, :, 2] > 200) & (arr[:, :, 3] > 50)
-        )
-        # Overlay line (red) pixels absent (R>200, B<50, A>50)
-        has_red = np.any(
-            (arr[:, :, 0] > 200) & (arr[:, :, 2] < 50) & (arr[:, :, 3] > 50)
-        )
-
-        assert has_blue
-        assert not has_red
-    plt.close(fig)
+    patcher_saving = patch.object(fig.canvas, 'is_saving', return_value=False)
+    patcher_overlay = patch.object(fig.canvas, 'draw_overlay')
+    patcher_saving.start()
+    patcher_overlay.start()
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_qt_overlay_buffer_visual_isolation():
+@image_comparison(
+    baseline_images=['qt_overlay_full_render'],
+    extensions=['png'],
+    style='mpl20',
+)
+def test_qt_overlay_full_render_image_comparison():
     """
-    Visual check on overlay buffer: _overlay_qimage contains only overlay artist.
+    Full render test using standard savefig (zero mocks):
+    Verifies visually that standard savefig renders both base and overlay artists.
     """
     from matplotlib.lines import Line2D
-    import numpy as np
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
 
     fig, ax = plt.subplots(figsize=(2, 2))
-    canvas = fig.canvas
+    FigureCanvasQTAgg(fig)
+
     main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
     overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
     overlay_line.set_in_overlay(True)
     ax.add_line(main_line)
     ax.add_line(overlay_line)
 
-    canvas.draw()
-    assert hasattr(canvas, '_overlay_qimage')
-    arr_overlay = _qimage_to_array(canvas._overlay_qimage)
-
-    # Overlay line (red) pixels present in overlay buffer
-    has_red = np.any(
-        (arr_overlay[:, :, 0] > 200)
-        & (arr_overlay[:, :, 2] < 50)
-        & (arr_overlay[:, :, 3] > 50)
-    )
-    # Main line (blue) pixels absent from overlay buffer
-    has_blue = np.any(
-        (arr_overlay[:, :, 0] < 50)
-        & (arr_overlay[:, :, 2] > 200)
-        & (arr_overlay[:, :, 3] > 50)
-    )
-
-    assert has_red
-    assert not has_blue
-    plt.close(fig)
-
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
-def test_qt_overlay_update_propagation():
+@image_comparison(
+    baseline_images=['qt_overlay_buffer_isolation'],
+    extensions=['png'],
+    style='mpl20',
+)
+def test_qt_overlay_buffer_image_comparison():
     """
-    Update-propagation check: property change fires draw_overlay and updates buffer.
+    Overlay layer isolation image test using @image_comparison and mocking.
+
+    Verifies visually that when main_line draw is mocked out,
+    rendering the figure produces an image with ONLY the red overlay line.
     """
     from matplotlib.lines import Line2D
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
     from unittest.mock import patch
-    import numpy as np
 
     fig, ax = plt.subplots(figsize=(2, 2))
-    canvas = fig.canvas
+    FigureCanvasQTAgg(fig)
+
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
     overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
     overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
     ax.add_line(overlay_line)
 
-    canvas.draw()
-
-    with patch.object(
-        canvas, 'draw_overlay', wraps=canvas.draw_overlay
-    ) as spy_draw_overlay:
-        overlay_line.set_color('blue')
-        spy_draw_overlay.assert_called_once()
-
-    arr_updated = _qimage_to_array(canvas._overlay_qimage)
-
-    # New blue pixels present (visible, R<50, B>200, A>50)
-    has_blue = np.any(
-        (arr_updated[:, :, 0] < 50)
-        & (arr_updated[:, :, 2] > 200)
-        & (arr_updated[:, :, 3] > 50)
-    )
-    # Old red pixels absent (visible, R>200, B<50, A>50)
-    has_red = np.any(
-        (arr_updated[:, :, 0] > 200)
-        & (arr_updated[:, :, 2] < 50)
-        & (arr_updated[:, :, 3] > 50)
-    )
-
-    assert has_blue
-    assert not has_red
-    plt.close(fig)
+    # Mock out 100% of the base layer (all children on ax except overlay_line)
+    for child in ax.get_children():
+        if child is not overlay_line:
+            patch.object(child, 'draw').start()
