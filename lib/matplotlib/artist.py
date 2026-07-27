@@ -1792,22 +1792,21 @@ class ArtistInspector:
 
 class ArtistList(Sequence):
     """
-    A sublist of Axes children based on their type.
+    A sublist of Axes or Figure children based on their type.
 
-    The type-specific children sublists were made immutable in Matplotlib
+    The Axes' type-specific children sublists were made immutable in Matplotlib
     3.7.  In the future these artist lists may be replaced by tuples. Use
     as if this is a tuple already.
     """
-    def __init__(self, axes, prop_name, valid_types=None, invalid_types=None):
+    def __init__(self, parent, prop_name, valid_types=None, invalid_types=None):
         """
         Parameters
         ----------
-        axes : `~matplotlib.axes.Axes`
-            The Axes from which this sublist will pull the children
+        parent : `~matplotlib.axes.Axes` or `~matplotlib.figure.FigureBase`
+            The Axes or (Sub)Figure from which this sublist will pull the children
             Artists.
         prop_name : str
-            The property name used to access this sublist from the Axes;
-            used to generate deprecation warnings.
+            The property name used to access this sublist from the parent.
         valid_types : list of type, optional
             A list of types that determine which children will be returned
             by this sublist. If specified, then the Artists in the sublist
@@ -1820,7 +1819,7 @@ class ArtistList(Sequence):
             sublist will never be an instance of these types. Otherwise, no
             types will be excluded.
         """
-        self._axes = axes
+        self._parent = parent
         self._prop_name = prop_name
         self._type_check = lambda artist: (
             (not valid_types or isinstance(artist, valid_types)) and
@@ -1828,20 +1827,20 @@ class ArtistList(Sequence):
         )
 
     def __repr__(self):
-        return f'<Axes.ArtistList of {len(self)} {self._prop_name}>'
+        parent_type = self._parent.__class__.__name__
+        return f'<{parent_type}.ArtistList of {len(self)} {self._prop_name}>'
 
     def __len__(self):
-        return sum(self._type_check(artist)
-                    for artist in self._axes._children)
+        return sum(self._type_check(artist) for artist in self._parent._children)
 
     def __iter__(self):
-        for artist in list(self._axes._children):
+        for artist in list(self._parent._children):
             if self._type_check(artist):
                 yield artist
 
     def __getitem__(self, key):
         return [artist
-                for artist in self._axes._children
+                for artist in self._parent._children
                 if self._type_check(artist)][key]
 
     def __add__(self, other):
