@@ -130,7 +130,7 @@ mpl_GetAvailableFonts(void)
             CFArrayGetValueAtIndex(descriptors, i));
         auto url = static_cast<CFURLRef>(
             CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute));
-        CFStringRef path = NULL;
+        CFStringRef path = nullptr;
         if (url) {
             path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
             CFRelease(url);
