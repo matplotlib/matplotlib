@@ -18,7 +18,7 @@ from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontPath, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, ttfFontProperty, _get_font_alt_names,
-    _get_fontconfig_fonts, _normalize_weight, _get_macos_fonts)
+    _get_fontconfig_fonts, _get_macos_fonts, _normalize_weight)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
