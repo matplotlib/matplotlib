@@ -13,17 +13,38 @@ from mpl_toolkits.mplot3d.art3d import (
 )
 
 
-def test_line3d_draws_array_like_coordinates():
+@pytest.mark.parametrize("container", [list, tuple])
+@pytest.mark.parametrize("case", ["nan", "inf", "log_domain", "axlim_clip", "one_of_many"])
+def test_line3d_draws_array_like_coordinates(container, case):
     # set_data_3d documents its parameters as array-like and stores whatever it
-    # is given, so _verts3d can hold lists. Drawing must not require an ndarray.
+    # is given, so _verts3d can hold lists or tuples. Drawing must not require
+    # an ndarray.
+    #
+    # The masking branch that reads a shape is entered when a coordinate is
+    # non-finite, outside the active scale's domain, or outside the view limits
+    # with axlim_clip enabled, so each of those is a way in.
     fig = plt.figure()
     ax = fig.add_subplot(projection="3d")
-    line, = ax.plot([0.], [0.], [0.])
+    line, = ax.plot([1.], [1.], [1.],
+                    axlim_clip=(case == "axlim_clip"))
 
-    line.set_data_3d([np.nan], [np.nan], [np.nan])
+    if case == "nan":
+        xs, ys, zs = [np.nan], [1.], [1.]
+    elif case == "inf":
+        xs, ys, zs = [np.inf], [1.], [1.]
+    elif case == "log_domain":
+        # Finite, and invalid only because of the scale.
+        ax.set_xscale("log")
+        xs, ys, zs = [0.], [1.], [1.]
+    elif case == "axlim_clip":
+        # Finite and valid for the scale; masked for being out of view.
+        xs, ys, zs = [1e6], [1e6], [1e6]
+    else:
+        # A line where only one vertex is masked.
+        xs, ys, zs = [1., np.nan], [1., 2.], [1., 2.]
 
-    # Only a coordinate that is invalid for the scale reaches the masking
-    # branch, which is why this needs the non-finite value above.
+    line.set_data_3d(container(xs), container(ys), container(zs))
+
     fig.canvas.draw()
 
 

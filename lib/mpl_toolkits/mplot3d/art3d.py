@@ -360,7 +360,7 @@ class Line3D(lines.Line2D):
         if np.any(scale_mask):
             # np.shape rather than .shape: set_data_3d documents its
             # parameters as array-like and stores whatever it is given, so
-            # _verts3d can hold lists.
+            # _verts3d can hold lists or tuples.
             mask = np.broadcast_to(
                 scale_mask,
                 (len(self._verts3d), *np.shape(self._verts3d[0]))
