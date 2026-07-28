@@ -14,7 +14,8 @@ from mpl_toolkits.mplot3d.art3d import (
 
 
 @pytest.mark.parametrize("container", [list, tuple])
-@pytest.mark.parametrize("case", ["nan", "inf", "log_domain", "axlim_clip", "one_of_many"])
+@pytest.mark.parametrize(
+    "case", ["nan", "inf", "log_domain", "axlim_clip", "one_of_many"])
 def test_line3d_draws_array_like_coordinates(container, case):
     # set_data_3d documents its parameters as array-like and stores whatever it
     # is given, so _verts3d can hold lists or tuples. Drawing must not require
