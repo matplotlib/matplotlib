@@ -176,7 +176,7 @@ def test_Subrs_no_preallocation(tmp_path):
     path.write_bytes(pfa)
 
     tracemalloc.start()
-    with pytest.raises(StopIteration):
+    with pytest.raises(RuntimeError, match='Incomplete /Subrs'):
         t1f.Type1Font(str(path))
     _, peak = tracemalloc.get_traced_memory()
     tracemalloc.stop()
