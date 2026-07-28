@@ -100,7 +100,7 @@ mpl_display_is_valid(void)
 }
 
 static py::object
-mpl_GetAvailableFonts(void)
+mpl_get_available_fonts(void)
 {
 #if defined(__APPLE__)
     py::set fonts;
@@ -271,7 +271,7 @@ PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
 
         On other platforms, always returns True.)""");
     m.def(
-        "get_available_fonts", &mpl_GetAvailableFonts,
+        "get_available_fonts", &mpl_get_available_fonts,
         R"""(        --
         On macOS, uses CoreText to find all fonts available to the current
         process and returns the paths as a set of strings.
