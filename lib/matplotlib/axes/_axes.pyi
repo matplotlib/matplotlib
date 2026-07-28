@@ -48,7 +48,6 @@ from matplotlib.typing import (
     ColorType, DataParamType, MarkerType, LegendLocType, LineStyleType)
 import pandas as pd
 
-
 class _GroupedBarReturn:
     bar_containers: list[BarContainer]
     def __init__(self, bar_containers: list[BarContainer]) -> None: ...
@@ -632,9 +631,9 @@ class Axes(_AxesBase):
         x: ArrayLike,
         weights: ArrayLike | None = ...,
         *,
-        complementary: bool=...,
-        orientation: Literal["vertical", "horizontal"]=...,
-        compress: bool=...,
+        complementary: bool = ...,
+        orientation: Literal["vertical", "horizontal"] = ...,
+        compress: bool = ...,
         data: DataParamType = ...,
         **kwargs
     ) -> Line2D: ...

@@ -102,7 +102,7 @@ def test_set_aspect_datalim_restores_limits():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
 
-    ax.plot([0,1], [0,2], [0,3])
+    ax.plot([0, 1], [0, 2], [0, 3])
 
     fig.canvas.draw()
     default_limits = ax.get_w_lims()

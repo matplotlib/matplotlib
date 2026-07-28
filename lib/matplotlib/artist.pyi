@@ -187,7 +187,6 @@ class ArtistInspector:
     def properties(self) -> dict[str, Any]: ...
     def pprint_getters(self) -> list[str]: ...
 
-
 class ArtistList[T: Artist](Sequence[T]):
     def __init__(
         self,

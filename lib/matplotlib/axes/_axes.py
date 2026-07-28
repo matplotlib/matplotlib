@@ -3939,7 +3939,6 @@ or pandas.DataFrame
 
         return texts
 
-
     @staticmethod
     def _errorevery_to_mask(x, errorevery):
         """

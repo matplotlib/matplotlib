@@ -43,7 +43,6 @@ from matplotlib.typing import RcKeyType, RcGroupKeyType
 from typing import Any, Literal, NamedTuple, overload
 from matplotlib.typing import LogLevel
 
-
 class _VersionInfo(NamedTuple):
     major: int
     minor: int

@@ -274,7 +274,6 @@ class Norm(ABC):
     @property
     def n_components(self) -> int: ...
 
-
 class Normalize(Norm):
     def __init__(
         self, vmin: float | None = ..., vmax: float | None = ..., clip: bool = ...

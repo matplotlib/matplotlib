@@ -267,7 +267,6 @@ class Ellipse(Patch):
     def get_vertices(self) -> list[tuple[float, float]]: ...
     def get_co_vertices(self) -> list[tuple[float, float]]: ...
 
-
 class Annulus(Patch):
     a: float
     b: float

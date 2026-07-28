@@ -1,6 +1,5 @@
 from ._axes import Axes as Axes
 
-
 # Backcompat.
 Subplot = Axes
 

@@ -16,8 +16,6 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Literal
 from .typing import ColorType
 
-
-
 class ContourLabeler:
     labelFmt: str | Formatter | Callable[[float], str] | dict[float, str]
     labelManual: bool | Iterable[tuple[float, float]]

@@ -189,6 +189,7 @@ class Hashable:
 
 class Unhashable:
     __hash__ = None  # type: ignore[assignment]
+
     def dummy(self): pass
 
 
@@ -660,12 +661,16 @@ def test_warn_external_collections_abc(recwarn):
     class UselessSequence(MutableSequence):
         def __len__(self):
             return 2
+
         def __getitem__(self, subscript):
             return 'foo'
+
         def __delitem__(self, index):
             pass
+
         def __setitem__(self, key, item):
             pass
+
         def insert(self, index, item):
             _api.warn_external("This won't do anything")
 
@@ -675,7 +680,6 @@ def test_warn_external_collections_abc(recwarn):
     assert len(recwarn) == 1
     # Confirm that the warning does not go to the collections.abc module
     assert 'collection' not in recwarn[0].filename
-
 
 
 def test_warn_external_frame_embedded_python():

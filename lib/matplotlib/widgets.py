@@ -2224,10 +2224,9 @@ class MultiCursor(Widget):
         ymid = 0.5 * (ymin + ymax)
 
         self.visible = True
-        self.useblit = (
+        self.useblit = (  # TODO: make dynamic
             useblit
             and all(canvas.supports_blit for canvas in self._canvas_infos))
-            # TODO: make dynamic
 
         if self.useblit:
             lineprops['animated'] = True
@@ -3578,7 +3577,6 @@ class RectangleSelector(_SelectorWidget):
             return _RectangleSelectorAction.RESIZE
 
         return _RectangleSelectorAction.CREATE
-
 
     def _onmove(self, event):
         """
