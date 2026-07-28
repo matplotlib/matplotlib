@@ -203,7 +203,7 @@ def test_find_invalid(tmp_path):
 
 @pytest.mark.skipif(sys.platform != 'darwin', reason='macOS only')
 def test_get_macos_fonts(tmpdir, monkeypatch):
-    fonts_found = set(font_path.stem for font_path in _get_macos_fonts())
+    fonts_found = {font_path.stem for font_path in _get_macos_fonts()}
 
     # Check for various system fonts that are listed on:
     # https://developer.apple.com/fonts/system-fonts/
