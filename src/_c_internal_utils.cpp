@@ -112,12 +112,11 @@ mpl_get_available_fonts(void)
         }
         auto length = CFStringGetLength(str);
         auto maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
-        auto buffer = new char[maxSize];
+        auto buffer = std::make_unique<char[]>(maxSize);
         py::str result;
-        if (CFStringGetCString(str, buffer, maxSize, kCFStringEncodingUTF8)) {
-            result = py::str(buffer);
+        if (CFStringGetCString(str, buffer.get(), maxSize, kCFStringEncodingUTF8)) {
+            result = py::str(buffer.get());
         }
-        delete[] buffer;
         return result;
     };
 
