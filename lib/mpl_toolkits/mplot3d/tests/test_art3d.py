@@ -13,6 +13,20 @@ from mpl_toolkits.mplot3d.art3d import (
 )
 
 
+def test_line3d_draws_array_like_coordinates():
+    # set_data_3d documents its parameters as array-like and stores whatever it
+    # is given, so _verts3d can hold lists. Drawing must not require an ndarray.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    line, = ax.plot([0.], [0.], [0.])
+
+    line.set_data_3d([np.nan], [np.nan], [np.nan])
+
+    # Only a coordinate that is invalid for the scale reaches the masking
+    # branch, which is why this needs the non-finite value above.
+    fig.canvas.draw()
+
+
 @pytest.mark.parametrize("zdir, expected", [
     ("x", (1, 0, 0)),
     ("y", (0, 1, 0)),
