@@ -207,10 +207,10 @@ def test_get_macos_fonts(tmpdir, monkeypatch):
 
     # Check for various system fonts that are listed on:
     # https://developer.apple.com/fonts/system-fonts/
-    assorted_system_fonts = set([
+    assorted_system_fonts = {
         'Apple Braille', 'Avenir', 'Baskerville', 'Cochin', 'Didot', 'Helvetica',
         'Hoefler Text', 'Impact', 'Monaco', 'Tahoma', 'Verdana'
-    ])
+    }
 
     assert assorted_system_fonts.issubset(fonts_found)
 
