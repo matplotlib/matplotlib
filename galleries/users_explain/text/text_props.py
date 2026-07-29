@@ -41,7 +41,9 @@ transform                   `~matplotlib.transforms.Transform` subclass
 variant                     [ ``'normal'`` | ``'small-caps'`` ]
 verticalalignment or va     [ ``'center'`` | ``'top'`` | ``'bottom'`` | ``'baseline'`` ]
 visible                     bool
-weight or fontweight        [ ``'normal'`` | ``'bold'`` | ``'heavy'`` | ``'light'`` | ``'ultrabold'`` | ``'ultralight'``]
+weight or fontweight        [ numeric value in range 0-1000 | ``'ultralight'`` | ``'light'`` | ``'normal'`` |
+                              ``'regular'`` | ``'book'`` | ``'medium'`` | ``'roman'`` | ``'semibold'`` | ``'demibold'`` |
+                              ``'demi'`` | ``'bold'`` | ``'heavy'`` | ``'extra bold'`` | ``'black'``' ]
 x                           `float`
 y                           `float`
 zorder                      any number
