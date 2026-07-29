@@ -646,9 +646,14 @@ class Type1Font:
                 "Malformed Type1 font file: Incomplete /Subrs"
             ) from None
 
-        array = [None] * count
-        for index, value in entries.items():
-            array[index] = value
+        # The indices must cover 0 to count-1 exactly. Compare the length first
+        # so that a bogus count cannot force a large range() to be built here.
+        if len(entries) != count or sorted(entries) != list(range(count)):
+            raise RuntimeError(
+                "Malformed Type1 font file: /Subrs indices do not cover "
+                f"0 to {count - 1}"
+            )
+        array = [entries[index] for index in range(count)]
 
         return array, next(tokens).endpos()
 
