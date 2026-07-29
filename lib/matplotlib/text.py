@@ -1479,8 +1479,8 @@ class Text(Artist):
         """
         Set the font properties that control the text.
 
-        Unlike `set_font`, this method *replaces* all font properties,
-        resetting any unspecified attributes to their defaults.
+        This method *replaces* all font properties. Any unspecified
+        attributes are reset to their defaults.
 
         Parameters
         ----------
@@ -1488,6 +1488,10 @@ class Text(Artist):
             If a `str`, it is interpreted as a fontconfig pattern parsed by
             `.FontProperties`.  If a `pathlib.Path`, it is interpreted as the
             absolute path to a font file.
+
+        See Also
+        --------
+        set_font : Update only the font properties specified in the pattern.
         """
         self._fontproperties = FontProperties._from_any(fp).copy()
         self.stale = True
