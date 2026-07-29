@@ -71,6 +71,8 @@ Event name             Class            Description
 'motion_notify_event'  `.MouseEvent`    mouse moves
 'pick_event'           `.PickEvent`     artist in the canvas is selected
 'resize_event'         `.ResizeEvent`   figure canvas is resized
+'xlim_changed'         `.Axes`          x-axis limits are changed
+'ylim_changed'         `.Axes`          y-axis limits are changed
 'scroll_event'         `.MouseEvent`    mouse scroll wheel is rolled
 'figure_enter_event'   `.LocationEvent` mouse enters a new figure
 'figure_leave_event'   `.LocationEvent` mouse leaves a figure
