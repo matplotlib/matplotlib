@@ -107,7 +107,7 @@ dev = [
 #
 doc = [
     "sphinx>=5.1.0,!=6.1.2",
-    "colorspacious",
+    "colour-science",
     "ipython",
     "ipywidgets",
     "ipykernel",

@@ -31,7 +31,7 @@ dependencies:
   - setuptools_scm<10
   - wxpython
   # building documentation
-  - colorspacious
+  - colour-science
   - graphviz
   - ipython
   - ipywidgets
