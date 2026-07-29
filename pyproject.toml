@@ -556,7 +556,7 @@ pytest-cov = "*"
 pytest-rerunfailures = "!=16.0"
 pytest-timeout = "*"
 pytest-xdist = "*"
-# pytest-xvfb = "*"
+pytest-xvfb = "*"
 tornado = "*"
 [tool.pixi.feature.test-extra.dependencies]
 ipykernel = '*'
@@ -599,7 +599,7 @@ description = "Run Matplotlib tests (no toolboxes)"
 
 [tool.pixi.tasks.tests-all]
 # for users: don't use for CI
-cmd = "pytest --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
+cmd = "pytest -n logical --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
 description = "Run Matplotlib tests (including all toolboxes)"
 
 [tool.pixi.environments]
