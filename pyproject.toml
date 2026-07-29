@@ -581,7 +581,7 @@ sphinx = '*'
 # Not using an isolated pixi build because we're hitting an issue with meson's build.
 # ImportError: cannot import name '_c_internal_utils' from partially initialized module 'matplotlib' (most likely due to a circular import) (/Users/rubenarts/envs/matplotlib/lib/matplotlib/__init__.py)
 # To avoid that we do a `[dev]` install first and then use pip to do the build/install.
-cmd = "pip install --no-build-isolation --editable . --no-deps --config-settings=setup-args='-Db_lto=false' && pip install mpl-sphinx-theme"
+cmd = "pip install --no-build-isolation --editable . --no-deps --config-settings=setup-args='-Db_lto=false' && pip install mpl-sphinx-theme &&python -c 'import colorspacious' "
 
 [tool.pixi.tasks.clean-build]
 cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
