@@ -532,6 +532,8 @@ ipython = '*'
 ipywidgets = "*"
 ipykernel = "*"
 numpydoc = ">=1.0"
+# this currently causes circular dependencies and installs
+# the CF versino of us
 # mpl-sphinx-theme = ">=3.11.0"
 pydata-sphinx-theme = "*"
 pyyaml = "*"
@@ -614,5 +616,6 @@ version = "lie"
 
 [tool.pixi.package.build.backend]
 name = "pixi-build-python"
+
 [tool.pixi.package.build.config]
 ignore-pypi-mapping = false
