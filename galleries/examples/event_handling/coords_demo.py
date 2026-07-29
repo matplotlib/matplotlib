@@ -11,7 +11,8 @@ and click events.
     will not appear in the static documentation. Please run this code on your
     machine to see the interactivity.
 
-    You can copy and paste individual parts, or download the entire example
+You can copy and paste individual parts, or download the entire example
+    using the link at the bottom of the page.
     using the link at the bottom of the page.
 """
 
