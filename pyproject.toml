@@ -544,6 +544,7 @@ sphinx-design = "*"
 sphinx-gallery = ">=0.17.0"
 sphinx-tags = ">=0.4.0"
 accessible-pygments = ">=0.0.5,<0.0.6"
+ffmpeg = ">=8.1.2,<9"
 
 [tool.pixi.feature.test.dependencies]
 black = "<27"
