@@ -501,7 +501,6 @@ platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
 preview = ["pixi-build"]
 
 [tool.pixi.dependencies]
-python = "3.12.*"
 pip = "*"
 meson = "*"
 ninja = "*"
@@ -602,14 +601,36 @@ description = "Run Matplotlib tests (no toolboxes)"
 cmd = "pytest -n logical --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
 description = "Run Matplotlib tests (including all toolboxes)"
 
+[tool.pixi.feature.py312.dependencies]
+python = "3.12.*"
+
+[tool.pixi.feature.py313.dependencies]
+python = "3.13.*"
+
+[tool.pixi.feature.py314.dependencies]
+python = "3.14.*"
+
 [tool.pixi.environments]
-# These are all in one environment for the convenience of developers who
-# just want one env.
-default = { features = ["build", "test", "doc"], solve-group = "main" }
+default = { features = ["build", "test", "doc", "py314"], solve-group = "main" }
 test = { features = ["test"], solve-group = "main" }
 test-extra = { features = ["test", "test-extra"], solve-group = "main" }
 doc = { features = ["doc"], solve-group = "main" }
 typing = { features = ["typing"], solve-group = "main" }
+
+# pinned back to py313
+default313 = { features = ["build", "test", "doc", "py313"], solve-group = "py313" }
+test313 = { features = ["test"], solve-group = "py313" }
+test-extra313 = { features = ["test", "test-extra"], solve-group = "py313" }
+doc313 = { features = ["doc"], solve-group = "py313" }
+typing313 = { features = ["typing"], solve-group = "py313" }
+
+# pinned back to py312
+default312 = { features = ["build", "test", "doc", "py312"], solve-group = "py312" }
+test312 = { features = ["test"], solve-group = "py312" }
+test-extra312 = { features = ["test", "test-extra"], solve-group = "py312" }
+doc312 = { features = ["doc"], solve-group = "py312" }
+typing312 = { features = ["typing"], solve-group = "py312" }
+
 
 [tool.pixi.package]
 version = "lie"
