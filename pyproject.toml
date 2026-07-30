@@ -343,7 +343,7 @@ enable_error_code = [
 ]
 exclude = [
   #stubtest
-  ".*/matplotlib/(sphinxext|backends|pylab|testing/jpl_units)",
+  ".*/matplotlib/(sphinxext|pylab|testing/jpl_units)",
   #mypy precommit
   "galleries/",
   "doc/",
@@ -355,6 +355,19 @@ exclude = [
   ".*/tinypages",
   # pylab's numpy wildcard imports cause re-def failures since numpy 2.2
   "lib/matplotlib/pylab.py",
+  # GUI backends require optional native bindings (Qt, GTK, wx, macOS) that
+  # may not be installed in any given environment.  Exclude all GUI backend
+  # .py files so mypy does not fail when a binding is absent.  The .pyi stubs
+  # are still checked regardless (mypy picks them up independently of the
+  # excluded .py files).  Patterns use .* prefix so they match both the source
+  # tree (lib/matplotlib/backends/...) and tox-installed paths
+  # (.tox/.../site-packages/matplotlib/backends/...).
+  ".*/matplotlib/backends/(backend_qt|backend_qtagg|backend_qtcairo|qt_compat)\\.py$",
+  ".*/matplotlib/backends/qt_editor/",
+  ".*/matplotlib/backends/backend_gtk.*\\.py$",
+  ".*/matplotlib/backends/_backend_gtk\\.py$",
+  ".*/matplotlib/backends/backend_macosx\\.py$",
+  ".*/matplotlib/backends/backend_wx.*\\.py$",
 ]
 files = [
   "lib/matplotlib",
