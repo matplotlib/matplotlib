@@ -461,7 +461,7 @@ test-command = [
     """\
     pytest -p no:cacheprovider --pyargs \
         matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d \
-	-k 'not test_complex_shaping'""",
+	""",
 ]
 [tool.cibuildwheel.pyodide.environment]
 # Exception handling is needed for pybind11:
