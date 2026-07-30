@@ -460,8 +460,9 @@ class NavigationToolbar2WebAgg(backend_bases.NavigationToolbar2):
 
 
 class FigureManagerWebAgg(backend_bases.FigureManagerBase):
-    # This must be None to not break ipympl
-    _toolbar2_class = None
+    # This must be None to not break ipympl; annotate the full union so that
+    # subclasses assigning a concrete type are not flagged by mypy.
+    _toolbar2_class: type[NavigationToolbar2WebAgg] | None = None
     ToolbarCls = NavigationToolbar2WebAgg
     _window_title = "Matplotlib"
 
