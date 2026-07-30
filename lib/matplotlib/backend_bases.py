@@ -40,6 +40,7 @@ import signal
 import socket
 import sys
 import time
+import types
 import weakref
 from weakref import WeakKeyDictionary
 
@@ -151,6 +152,11 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
+
+    # Support ``RendererBase[...]`` subscription for downstream libraries
+    # that type their renderer subclasses inline (in .py files, not just .pyi).
+    __class_getitem__ = classmethod(types.GenericAlias)
+
     def __init__(self):
         super().__init__()
         self._texmanager = None
@@ -1831,6 +1837,10 @@ class FigureCanvasBase:
 
     filetypes = _default_filetypes
 
+    # Support ``FigureCanvasBase[...]`` subscription for downstream libraries
+    # that type their canvas subclasses inline (in .py files, not just .pyi).
+    __class_getitem__ = classmethod(types.GenericAlias)
+
     # global counter to assign unique ids to blit backgrounds
     # see _get_blit_background_id()
     _last_blit_background_id = 0
@@ -2850,6 +2860,10 @@ class FigureManagerBase:
     _toolbar2_class = None
     _toolmanager_toolbar_class = None
 
+    # Support ``FigureManagerBase[...]`` subscription for downstream libraries
+    # that type their manager subclasses inline (in .py files, not just .pyi).
+    __class_getitem__ = classmethod(types.GenericAlias)
+
     def __init__(self, canvas, num):
         self.canvas = canvas
         canvas.manager = self  # store a pointer to parent
@@ -3064,6 +3078,10 @@ class NavigationToolbar2:
       )
 
     UNKNOWN_SAVED_STATUS = object()
+
+    # Support ``NavigationToolbar2[...]`` subscription for downstream libraries
+    # that type their toolbar subclasses inline (in .py files, not just .pyi).
+    __class_getitem__ = classmethod(types.GenericAlias)
 
     def __init__(self, canvas):
         self.canvas = canvas
@@ -3719,6 +3737,10 @@ class _Backend:
     # @_Backend.export
     # class FooBackend(_Backend):
     #     # override the attributes and methods documented below.
+
+    # Support ``_Backend[type[MyCanvas]]`` subscription for downstream
+    # libraries that type their backend subclasses inline in .py files.
+    __class_getitem__ = classmethod(types.GenericAlias)
 
     # `backend_version` may be overridden by the subclass.
     backend_version = "unknown"

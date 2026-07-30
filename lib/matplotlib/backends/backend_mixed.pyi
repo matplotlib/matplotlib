@@ -1,0 +1,26 @@
+from typing import Any
+
+from matplotlib.backend_bases import RendererBase
+from matplotlib.figure import Figure
+
+class MixedModeRenderer:
+    """Proxy renderer that switches between vector and raster drawing."""
+
+    dpi: float
+    figure: Figure
+
+    def __init__(
+        self,
+        figure: Figure,
+        width: float,
+        height: float,
+        dpi: float,
+        vector_renderer: RendererBase[Any],
+        raster_renderer_class: type[RendererBase[Any]] | None = ...,
+        bbox_inches_restore: Any | None = ...,
+    ) -> None: ...
+    def __getattr__(self, attr: str) -> Any: ...
+    def close_group(self, s: str) -> None: ...
+    def close_blend_group(self) -> None: ...
+    def start_rasterizing(self) -> None: ...
+    def stop_rasterizing(self) -> None: ...

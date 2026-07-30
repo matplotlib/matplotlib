@@ -1,33 +1,33 @@
 import os
-import types
 from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
-from typing import IO, Any, Literal, Protocol, Self
+from typing import IO, Any, Protocol, Self
 
 import numpy as np
 from _typeshed import ReadableBuffer, SupportsWrite
 from numpy import typing as npt
 
-from matplotlib import _api, path, transforms
+from matplotlib import path
 from matplotlib._type1font import Type1Font
 from matplotlib.backend_bases import (
     FigureCanvasBase,
     FigureManagerBase,
     GraphicsContextBase,
+    NavigationToolbar2,
+    ShowBase,
 )
 from matplotlib.dviread import DviFont
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontPath, FontProperties
-from matplotlib.text import Text
 from matplotlib.transforms import BboxBase, Transform, TransformedBbox, TransformedPath
 from matplotlib.typing import (
+    BlendModeType,
     CapStyleType,
     ColorType,
     FillRuleType,
     JoinStyleType,
-    LineStyleType,
     RGBColorType,
 )
 
@@ -68,6 +68,8 @@ type _MetadataDict = dict[str, str | datetime | Name]
 # User-supplied metadata; a None value removes that key.
 type _MetadataInput = Mapping[str, str | datetime | Name | None]
 
+def _create_pdf_info_dict(backend: str, metadata: _MetadataInput) -> _MetadataDict: ...
+def _datetime_to_pdf(d: datetime) -> str: ...
 def pdfRepr(obj: _SupportsPdfReprExt) -> bytes: ...
 
 class Reference:
@@ -80,6 +82,7 @@ class Reference:
 
 @total_ordering
 class Name:
+    name: bytes
     def __init__(self, name: Self | bytes | str) -> None: ...
     def __repr__(self) -> str: ...
     def __str__(self) -> str: ...
@@ -140,6 +143,13 @@ class Op(Enum):
     ) -> Op: ...
 
 class Stream:
+    id: int
+    len: Reference | None
+    pdfFile: PdfFile
+    file: IO[bytes]
+    compressobj: Any | None  # zlib compression object
+    extra: dict[Name, Any]
+    pos: int
     def __init__(
         self,
         id: int,
@@ -157,8 +167,6 @@ class PdfFile:
         filename: str | os.PathLike | IO[Any],
         metadata: _MetadataInput | None = None,
     ) -> None: ...
-    @property
-    def dviFontInfo(self) -> dict[Name, types.SimpleNamespace]: ...
     def newPage(self, width: float, height: float) -> None: ...
     def newTextnote(
         self,
@@ -183,7 +191,6 @@ class PdfFile:
     def fontName(self, fontprop: FontPath | str, subset: int = 0) -> Name | None: ...
     def dviFontName(self, dvifont: DviFont) -> Name: ...
     def writeFonts(self) -> None: ...
-    @_api.delete_parameter("3.11", "fontfile")
     def createType1Descriptor(
         self, t1font: Type1Font, fontfile: Any = None
     ) -> Reference: ...
@@ -253,7 +260,7 @@ class PdfFile:
     def writeInfoDict(self) -> None: ...
     def writeTrailer(self) -> None: ...
 
-class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
+class RendererPdf(_backend_pdf_ps.RendererPDFPSBase[GraphicsContextPdf]):
     paths: tuple[
         Name,
         path.Path,
@@ -270,95 +277,18 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
     ): ...
     def finalize(self) -> None: ...
     def check_gc(
-        self, gc: GraphicsContextBase, fillcolor: ColorType | None = None
-    ) -> None: ...
-    def get_image_magnification(self) -> float: ...
-    def draw_image(
-        self,
-        gc: GraphicsContextBase,
-        x: float,
-        y: float,
-        im: npt.ArrayLike,
-        transform: transforms.Affine2DBase | None = None,
-    ) -> None: ...
-    def draw_path(
-        self,
-        gc: GraphicsContextBase,
-        path: path.Path,
-        transform: Transform,
-        rgbFace: ColorType | None = None,
-    ) -> None: ...
-    def draw_path_collection(
-        self,
-        gc: GraphicsContextBase,
-        master_transform: Transform,
-        paths: Sequence[path.Path],
-        all_transforms: Sequence[npt.ArrayLike],
-        offsets: npt.ArrayLike | Sequence[npt.ArrayLike],
-        offset_trans: Transform,
-        facecolors: ColorType | Sequence[ColorType],
-        edgecolors: ColorType | Sequence[ColorType],
-        linewidths: float | Sequence[float],
-        linestyles: LineStyleType | Sequence[LineStyleType],
-        antialiaseds: bool | Sequence[bool],
-        urls: str | Sequence[str],
-        offset_position: Any,
-        *,
-        hatchcolors: ColorType | Sequence[ColorType] | None = None,
-    ) -> None: ...
-    # XXX: Here the implementation relies on `fill` and `stroke` which are not
-    # in the interface of `GraphicsContextBase`. Here we use
-    # `GraphicsContextPdf` to annotate `gc`, as a result, `RendererPdf` does not
-    # strictly inherit from `RenderedBase` correctly.
-    def draw_markers(
-        self,
-        gc: GraphicsContextPdf,  # type: ignore[override]
-        marker_path: path.Path,
-        marker_trans: Transform,
-        path: path.Path,
-        trans: Transform,
-        rgbFace: ColorType | None = None,
-    ) -> None: ...
-    def draw_gouraud_triangles(
-        self,
-        gc: GraphicsContextBase,
-        points: npt.ArrayLike,
-        colors: npt.ArrayLike,
-        trans: Transform,
+        self, gc: GraphicsContextPdf, fillcolor: ColorType | None = None
     ) -> None: ...
     def draw_mathtext(
         self,
-        gc: GraphicsContextBase,
+        gc: GraphicsContextPdf,
         x: float,
         y: float,
         s: str,
         prop: FontProperties,
         angle: float,
-    ) -> None: ...
-    def draw_tex(
-        self,
-        gc: GraphicsContextBase,
-        x: float,
-        y: float,
-        s: str,
-        prop: FontProperties,
-        angle: float,
-        *,
-        mtext: Text | None = None,
     ) -> None: ...
     def encode_string(self, s: str, fonttype: int) -> bytes: ...
-    def draw_text(
-        self,
-        gc: GraphicsContextBase,
-        x: float,
-        y: float,
-        s: str,
-        prop: FontProperties,
-        angle: float,
-        ismath: bool | Literal["TeX"] = False,
-        mtext: Text | None = None,
-    ) -> None: ...
-    def new_gc(self) -> GraphicsContextPdf: ...
 
 class GraphicsContextPdf(GraphicsContextBase):
     file: PdfFile
@@ -380,6 +310,7 @@ class GraphicsContextPdf(GraphicsContextBase):
         forced: bool,
         effective_alphas: tuple[float, float],
     ) -> _CommandType: ...
+    def blendmode_cmd(self, blend_mode: BlendModeType) -> _CommandType: ...
     def hatch_cmd(
         self, hatch: _HatchType, hatch_color: ColorType, hatch_linewidth: float
     ) -> _CommandType: ...
@@ -391,7 +322,10 @@ class GraphicsContextPdf(GraphicsContextBase):
         self, cliprect: TransformedBbox, clippath: TransformedPath
     ) -> _CommandType: ...
     def delta(self, other: GraphicsContextBase) -> _CommandType: ...
-    def copy_properties(self, other: GraphicsContextBase) -> None: ...
+    # Runtime names the parameter ``other`` while the base uses ``gc``.
+    def copy_properties(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, other: GraphicsContextBase
+    ) -> None: ...
     def finalize(self) -> list[Op]: ...
 
 class PdfPages:
@@ -415,7 +349,7 @@ class PdfPages:
         positionRect: _RectangleType = [-100, -100, 0, 0],
     ) -> None: ...
 
-class FigureCanvasPdf(FigureCanvasBase):
+class FigureCanvasPdf(FigureCanvasBase[NavigationToolbar2[Any], FigureManagerBase[Any, Any]]):
     filetypes: dict[str, str]
     @classmethod
     def get_default_filetype(cls) -> str: ...
@@ -426,6 +360,21 @@ class FigureCanvasPdf(FigureCanvasBase):
         bbox_inches_restore: _RectangleType | None = None,
         metadata: _MetadataInput | None = None,
     ) -> None: ...
-    def draw(self) -> None: ...
 
 FigureManagerPdf = FigureManagerBase
+
+# Names injected into the module namespace by ``@_Backend.export``.
+backend_version: str
+FigureCanvas = FigureCanvasPdf
+FigureManager = FigureManagerPdf
+
+def new_figure_manager(
+    num: int | str, *args: Any, **kwargs: Any
+) -> FigureManagerBase[Any, Any]: ...
+def new_figure_manager_given_figure(
+    num: int | str, figure: Figure
+) -> FigureManagerBase[Any, Any]: ...
+def draw_if_interactive() -> None: ...
+def show(*, block: bool | None = ...) -> None: ...
+
+class Show(ShowBase): ...
