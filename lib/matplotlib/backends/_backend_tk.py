@@ -1,6 +1,7 @@
 import uuid
 import weakref
 from contextlib import contextmanager
+from typing import Any
 import logging
 import math
 import os.path
@@ -76,7 +77,7 @@ def _restore_foreground_window_at_end():
             _c_internal_utils.Win32_SetForegroundWindow(foreground)
 
 
-_blit_args = {}
+_blit_args: dict[str, Any] = {}
 # Initialize to a non-empty string that is not a Tcl command
 _blit_tcl_name = "mpl_blit_" + uuid.uuid4().hex
 
