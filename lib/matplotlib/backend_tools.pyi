@@ -1,4 +1,5 @@
 import enum
+from collections.abc import Callable
 from matplotlib import cbook
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import ToolContainerBase, FigureCanvasBase
@@ -6,7 +7,10 @@ from matplotlib.backend_managers import ToolManager, ToolEvent
 from matplotlib.figure import Figure
 from matplotlib.scale import ScaleBase
 
-from typing import Any, cast
+from typing import Any, cast, overload
+from typing_extensions import TypeVar
+
+_ToolT = TypeVar("_ToolT", bound="ToolBase")
 
 class Cursors(enum.IntEnum):
     POINTER = cast(int, ...)
@@ -119,3 +123,20 @@ def add_tools_to_manager(
     toolmanager: ToolManager, tools: dict[str, type[ToolBase]] | None = ...
 ) -> None: ...
 def add_tools_to_container(container: ToolContainerBase, tools: list[Any] | None = ...) -> None: ...
+
+_tool_registry: set[tuple[type[FigureCanvasBase], type[ToolBase]]]
+
+@overload
+def _register_tool_class(
+    canvas_cls: type[FigureCanvasBase],
+    tool_cls: None = ...,
+) -> Callable[[type[_ToolT]], type[_ToolT]]: ...
+@overload
+def _register_tool_class(
+    canvas_cls: type[FigureCanvasBase],
+    tool_cls: type[_ToolT],
+) -> type[_ToolT]: ...
+def _find_tool_class(
+    canvas_cls: type[FigureCanvasBase],
+    tool_cls: type[_ToolT],
+) -> type[_ToolT]: ...
