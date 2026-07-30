@@ -49,6 +49,20 @@ matplotlib\.inset\.InsetIndicator\.__getitem__
 
 # only defined in stubs; not present at runtime
 matplotlib\.animation\.EventSourceProtocol
+# TypeVars are type-checker-only constructs; no runtime presence required
+matplotlib\.backend_bases\.GCT
+matplotlib\.backend_bases\.CanvasT
+matplotlib\.backend_bases\.CanvasClassT
+matplotlib\.backend_bases\.ToolbarT
+matplotlib\.backend_bases\.ManagerT
+matplotlib\.backend_bases\.TimerT
+# __class_getitem__ is set explicitly at runtime via classmethod(types.GenericAlias)
+# for subscriptability; Generic already provides this in stubs
+matplotlib\.backend_bases\.RendererBase\.__class_getitem__
+matplotlib\.backend_bases\.FigureCanvasBase\.__class_getitem__
+matplotlib\.backend_bases\.FigureManagerBase\.__class_getitem__
+matplotlib\.backend_bases\.NavigationToolbar2\.__class_getitem__
+matplotlib\.backend_bases\._Backend\.__class_getitem__
 
 # Avoid a regression in NewType handling for stubtest
 # https://github.com/python/mypy/issues/19877
