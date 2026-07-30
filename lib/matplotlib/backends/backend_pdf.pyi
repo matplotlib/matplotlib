@@ -16,6 +16,7 @@ from matplotlib.backend_bases import (
     FigureManagerBase,
     GraphicsContextBase,
     NavigationToolbar2,
+    ShowBase,
 )
 from matplotlib.dviread import DviFont
 from matplotlib.figure import Figure
@@ -66,6 +67,8 @@ type _MetadataDict = dict[str, str | datetime | Name]
 # User-supplied metadata; a None value removes that key.
 type _MetadataInput = Mapping[str, str | datetime | Name | None]
 
+def _create_pdf_info_dict(backend: str, metadata: _MetadataDict) -> dict[str, Any]: ...
+def _datetime_to_pdf(d: datetime) -> str: ...
 def pdfRepr(obj: _SupportsPdfReprExt) -> bytes: ...
 
 class Reference:
@@ -268,7 +271,6 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase[GraphicsContextPdf]):
     def check_gc(
         self, gc: GraphicsContextPdf, fillcolor: ColorType | None = None
     ) -> None: ...
-
     def draw_mathtext(
         self,
         gc: GraphicsContextPdf,
@@ -348,3 +350,19 @@ class FigureCanvasPdf(FigureCanvasBase[NavigationToolbar2, FigureManagerBase]):
     ) -> None: ...
 
 FigureManagerPdf = FigureManagerBase
+
+# Names injected into the module namespace by ``@_Backend.export``.
+backend_version: str
+FigureCanvas = FigureCanvasPdf
+FigureManager = FigureManagerBase
+
+def new_figure_manager(
+    num: int | str, *args: Any, **kwargs: Any
+) -> FigureManagerBase: ...
+def new_figure_manager_given_figure(
+    num: int | str, figure: Figure
+) -> FigureManagerBase: ...
+def draw_if_interactive() -> None: ...
+def show(*, block: bool | None = ...) -> None: ...
+
+class Show(ShowBase): ...
