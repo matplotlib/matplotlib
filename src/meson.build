@@ -141,7 +141,7 @@ if get_option('macosx') and host_machine.system() == 'darwin'
     '_macosx',
     subdir: 'matplotlib/backends',
     sources: files(
-      '_macosx.m',
+      '_legacymac.m',
     ),
     dependencies: dependency('appleframeworks', modules: 'Cocoa'),
     override_options: ['werror=true'],
