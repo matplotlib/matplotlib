@@ -750,6 +750,11 @@
                                 # background by default
 #savefig.orientation: portrait  # orientation of saved figure, for PostScript output only
 
+### macos backend params
+#macos.appearance:  system      # The appearance of windows and controls (system, light, dark)
+#macos.window_mode: system      # How to open new figures (system, tab, window)
+                                # 'system' uses 'Prefer tabs...' from System Settings
+
 ### macosx backend params
 #macosx.window_mode : system   # How to open new figures (system, tab, window)
                                # system uses the MacOS system preferences
