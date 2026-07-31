@@ -646,9 +646,9 @@ class Type1Font:
                 "Malformed Type1 font file: Incomplete /Subrs"
             ) from None
 
-        # The indices must cover 0 to count-1 exactly. Compare the length first
-        # so that a bogus count cannot force a large range() to be built here.
-        if len(entries) != count or sorted(entries) != list(range(count)):
+        # The indices must cover 0 to count-1 exactly.
+        if (len(entries) != count
+                or (count and (min(entries), max(entries)) != (0, count - 1))):
             raise RuntimeError(
                 "Malformed Type1 font file: /Subrs indices do not cover "
                 f"0 to {count - 1}"

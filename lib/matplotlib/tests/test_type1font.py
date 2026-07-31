@@ -204,7 +204,7 @@ def test_Subrs_indices(tmp_path):
     assert len(font.prop['Subrs']) == 2
 
 
-@pytest.mark.parametrize('indices', [(0, 5), (0, 0)])
+@pytest.mark.parametrize('indices', [(0, 5), (0, 0), (-1, 1)])
 def test_Subrs_bad_indices(tmp_path, indices):
     # The declared indices must cover 0 to count-1 exactly, so neither an index
     # past the end nor a duplicate may reach the returned array.
