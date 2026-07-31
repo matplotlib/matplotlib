@@ -271,6 +271,64 @@ def test_markevery_figure_line_unsupported_relsize():
         fig.canvas.draw()
 
 
+def test_markevery_extreme_zoom():
+    x = np.linspace(0, 10, 200)
+    fig, ax = plt.subplots()
+    line, = ax.plot(x, np.sin(x), marker="o", markevery=0.05)
+    ax.set_xlim(5.000000, 5.000001)
+
+    path = mlines._mark_every_path(
+        line.get_markevery(), line.get_path(), line.get_transform(), ax)
+
+    # At this zoom level the theoretical markers are close enough that every
+    # data point is selected.  In particular, finding them must not allocate
+    # the full 160371706 x 200 distance matrix from gh-32133.
+    assert_array_equal(path.vertices, line.get_path().vertices)
+
+
+@pytest.mark.parametrize(
+    "markevery",
+    [0.1, 0.3, 1.5, (-0.2, 0.1), (0.0, 0.1), (0.45, 0.1), (2.0, 0.1)])
+def test_markevery_float_matches_brute_force(markevery):
+    x = np.linspace(-1, 1)
+    fig, ax = plt.subplots()
+    line, = ax.plot(x, 5 * x**2)
+
+    path = line.get_path()
+    affine = line.get_transform()
+    expected_verts = affine.transform(path.vertices)
+    delta = np.empty((len(expected_verts), 2))
+    delta[0] = 0
+    delta[1:] = expected_verts[1:] - expected_verts[:-1]
+    delta = np.hypot(*delta.T).cumsum()
+    (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
+    scale = np.hypot(x1 - x0, y1 - y0)
+    start, step = (0, markevery) if np.isscalar(markevery) else markevery
+    marker_delta = np.arange(start * scale, delta[-1], step * scale)
+    inds = np.abs(delta - marker_delta[:, None]).argmin(axis=1)
+    expected = path.vertices[np.unique(inds)]
+
+    actual = mlines._mark_every_path(markevery, path, affine, ax)
+
+    assert_array_equal(actual.vertices, expected)
+
+
+@pytest.mark.parametrize(
+    ("x", "expected"), [([0, 0.5, 1.5], [0, 1]), ([0, 0, 2], [0])])
+def test_markevery_float_ties_and_repeated_vertices(x, expected):
+    fig, ax = plt.subplots()
+    (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
+    scale = np.hypot(x1 - x0, y1 - y0)
+    path = Path(np.column_stack([x, np.zeros(len(x))]))
+
+    actual = mlines._mark_every_path(
+        1.0, path, mtransforms.Affine2D().scale(scale), ax)
+
+    # Match np.argmin's preference for the first vertex on ties, including
+    # repeated cumulative distances.
+    assert_array_equal(actual.vertices, path.vertices[expected])
+
+
 def test_marker_as_markerstyle():
     fig, ax = plt.subplots()
     line, = ax.plot([2, 4, 3], marker=MarkerStyle("D"))
