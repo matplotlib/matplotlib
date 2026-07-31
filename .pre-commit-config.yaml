@@ -39,7 +39,7 @@ repos:
           - types-psutil
           - types-docutils
           - types-PyYAML
-        args: ["--config-file=pyproject.toml", "lib/matplotlib"]
+        args: ["--config-file=pyproject.toml", "lib/matplotlib", "lib/matplotlib/tests/test_backend_pdf.py"]
         files: lib/matplotlib  # Only run when files in lib/matplotlib are changed.
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit

@@ -3,6 +3,7 @@ import decimal
 import io
 from pathlib import Path
 import string
+from typing import assert_type
 
 import numpy as np
 from packaging.version import parse as parse_version
@@ -14,8 +15,9 @@ from matplotlib import (
 )
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
+from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
-from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.backends.backend_pdf import FigureManagerPdf, Name, PdfPages
 from matplotlib.patches import Rectangle
 from matplotlib.testing import _gen_multi_font_text, _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -51,6 +53,26 @@ def test_multipage_pagecount():
         assert pdf.get_pagecount() == 1
         pdf.savefig()
         assert pdf.get_pagecount() == 2
+
+
+def test_pdfpages_types(tmp_path: Path) -> None:
+    fig = plt.figure()
+    metadata: dict[str, str] = {"Title": "A title"}
+    removed_metadata: dict[str, str | None] = {"Creator": None}
+
+    with PdfPages(tmp_path / "output.pdf", metadata=metadata) as pdf:
+        pdf.savefig(fig, dpi=100)
+        info = pdf.infodict()
+        info["ModDate"] = datetime.datetime.now()
+        assert_type(info, dict[str, str | datetime.datetime | Name])
+        assert info["Title"] == "A title"
+
+    with PdfPages(tmp_path / "without-creator.pdf",
+                  metadata=removed_metadata) as pdf:
+        pdf.savefig(fig)
+        assert "Creator" not in pdf.infodict()
+
+    assert FigureManagerPdf is FigureManagerBase
 
 
 def test_multipage_properfinalize():

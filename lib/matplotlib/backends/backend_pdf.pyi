@@ -67,7 +67,7 @@ type _MetadataDict = dict[str, str | datetime | Name]
 # User-supplied metadata; a None value removes that key.
 type _MetadataInput = Mapping[str, str | datetime | Name | None]
 
-def _create_pdf_info_dict(backend: str, metadata: _MetadataDict) -> dict[str, Any]: ...
+def _create_pdf_info_dict(backend: str, metadata: _MetadataInput) -> _MetadataDict: ...
 def _datetime_to_pdf(d: datetime) -> str: ...
 def pdfRepr(obj: _SupportsPdfReprExt) -> bytes: ...
 
@@ -354,7 +354,7 @@ FigureManagerPdf = FigureManagerBase
 # Names injected into the module namespace by ``@_Backend.export``.
 backend_version: str
 FigureCanvas = FigureCanvasPdf
-FigureManager = FigureManagerBase
+FigureManager = FigureManagerPdf
 
 def new_figure_manager(
     num: int | str, *args: Any, **kwargs: Any
