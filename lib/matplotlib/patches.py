@@ -637,6 +637,9 @@ class Patch(artist.Artist):
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
 
+        In regular (non-raw) Python strings, backslashes must be doubled:
+        ``'\\\\'`` and ``r'\\'`` are both a double back-diagonal hatch.
+
         Parameters
         ----------
         hatch : {'/', '\\', '|', '-', '+', 'x', 'o', 'O', '.', '*'}
