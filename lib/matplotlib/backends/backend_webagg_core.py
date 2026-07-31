@@ -541,7 +541,8 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         if pyodide:
             output.write("mpl.toolbar_image_callback = null;\n")
-            output.write("mpl.set_toolbar_image_callback = function(c) {mpl.toolbar_image_callback=c;}\n")
+            output.write("mpl.set_toolbar_image_callback = function(c) {\n")
+            output.write("  mpl.toolbar_image_callback=c;}\n")
 
         if stream is None:
             return output.getvalue()

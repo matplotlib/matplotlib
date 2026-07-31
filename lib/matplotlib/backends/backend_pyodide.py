@@ -30,8 +30,9 @@ class FigureManagerPyodide(core.FigureManagerWebAgg):
         js_code = \
             """
             var websocket_type = mpl.get_websocket_type();
+            var websocket = new websocket_type(fig_id);
             const parent_element = document.pyodideMplTarget ?? document.body;
-            const fig = new mpl.figure(fig_id, new websocket_type(fig_id), null, parent_element);
+            const fig = new mpl.figure(fig_id, websocket, null, parent_element);
             fig;
             """
         js_code = f"var fig_id = '{fignum}';" + js_code
@@ -56,7 +57,8 @@ class FigureCanvasPyodide(core.FigureCanvasWebAggCore):
         try:
             from js import alert, document
         except ImportError:
-            raise RuntimeError("Save not supported as cannot import js.alert and js.document")
+            raise RuntimeError(
+                "Save not supported as cannot import js.alert and js.document")
 
         mimetype = mimetypes.types_map.get(f".{format}")
         if mimetype is None:
@@ -78,6 +80,7 @@ class FigureCanvasPyodide(core.FigureCanvasWebAggCore):
         document.body.appendChild(element)
         element.click()
         document.body.removeChild(element)
+
 
 class PyodideApplication():
     initialized = False
@@ -135,7 +138,8 @@ class PyodideApplication():
         try:
             from js import document
 
-            css = (Path(__file__).parent / "web_backend/css/mpl.css").read_text(encoding="utf-8")
+            css = (Path(__file__).parent / "web_backend/css/mpl.css").read_text(
+                encoding="utf-8")
             style = document.createElement('style')
             style.textContent = css
             document.head.append(style)
