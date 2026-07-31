@@ -148,4 +148,6 @@ if get_option('macosx') and host_machine.system() == 'darwin'
     objc_args: ['-fobjc-arc'],
     install: true,
   )
+
+  subdir('macos')
 endif
