@@ -34,9 +34,9 @@ jobs:
           persist-credentials: false
 
       - name: Set up pixi
-        uses: prefix-dev/setup-pixi@v0.9.4
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f  # v0.10.0
         with:
-          pixi-version: v0.66.0
+          pixi-version: v0.73.0
           run-install: false
 
       - name: Check that pixi.lock is up to date
@@ -60,9 +60,9 @@ jobs:
           persist-credentials: false
 
       - name: Set up pixi and install environment
-        uses: prefix-dev/setup-pixi@v0.9.4
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f  # v0.10.0
         with:
-          pixi-version: v0.66.0
+          pixi-version: v0.73.0
           locked: true
           cache: true
           cache-write: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
