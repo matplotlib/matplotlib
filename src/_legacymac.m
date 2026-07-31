@@ -216,7 +216,7 @@ static void gil_call_method(PyObject* obj, const char* name)
     PyGILState_Release(gstate);
 }
 
-void process_event(char const* cls_name, char const* fmt, ...)
+static void process_event(char const* cls_name, char const* fmt, ...)
 {
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* module = NULL, * cls = NULL,
