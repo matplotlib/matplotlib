@@ -526,15 +526,14 @@ matplotlib = { path = "." }
 
 [tool.pixi.feature.doc.dependencies]
 sphinx= ">=5.1.0,!=6.1.2"
-colorspacious = "*"
+# let this install from pypi to avoid the circular dependency on us
+# colour-science = "*"
 ipython = '*'
 ipywidgets = "*"
 ipykernel = "*"
 numpydoc = ">=1.0"
-# this currently causes circular dependencies and installs
-# the CF versino of us
-# mpl-sphinx-theme = ">=3.11.0"
-pydata-sphinx-theme = "*"
+# TODO switch to main branch or a tag, but my fork for proof-of-concept
+mpl-sphinx-theme = {git="https://github.com/tacaswell/mpl-sphinx-theme", rev="mnt/break_deps"}
 pyyaml = "*"
 PyStemmer = "*"
 sphinxcontrib-svg2pdfconverter = ">=1.1.0"
@@ -581,7 +580,7 @@ sphinx = '*'
 # Not using an isolated pixi build because we're hitting an issue with meson's build.
 # ImportError: cannot import name '_c_internal_utils' from partially initialized module 'matplotlib' (most likely due to a circular import) (/Users/rubenarts/envs/matplotlib/lib/matplotlib/__init__.py)
 # To avoid that we do a `[dev]` install first and then use pip to do the build/install.
-cmd = "pip install --no-build-isolation --editable . --no-deps --config-settings=setup-args='-Db_lto=false' && pip install mpl-sphinx-theme &&python -c 'import colorspacious' "
+cmd = "pip install --no-build-isolation --editable . --no-deps --config-settings=setup-args='-Db_lto=false'"
 
 [tool.pixi.tasks.clean-build]
 cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
