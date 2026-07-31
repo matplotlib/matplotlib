@@ -24,9 +24,9 @@ import numpy as np
 from numpy.typing import NDArray
 from pyparsing import (
     Empty, Forward, Literal, Group, NotAny, OneOrMore, Optional,
-    ParseBaseException, ParseExpression, ParseFatalException,
-    ParserElement, ParseResults, QuotedString, Regex, StringEnd, ZeroOrMore,
-    pyparsing_common, nested_expr, one_of)
+    ParseBaseException, ParseException, ParseExpression, ParseFatalException,
+    ParserElement, ParseResults, QuotedString, Regex, StringEnd, Token,
+    ZeroOrMore, pyparsing_common, nested_expr, one_of)
 
 import matplotlib as mpl
 from . import cbook
@@ -1873,6 +1873,51 @@ def Error(msg: str) -> ParserElement:
     return Empty().set_parse_action(raise_error)
 
 
+class _BracedText(Token):
+    r"""
+    Match a brace-delimited literal string, allowing nested braces.
+
+    This is similar to ``QuotedString("{", "\\", end_quote_char="}")``, except
+    that brace depth is tracked, so that the string does not end at the first
+    ``}``.  As in TeX, nested unescaped braces only group, and are not
+    rendered; a literal brace is written as ``\{`` or ``\}``.  A backslash
+    escapes the following character, which therefore does not affect depth.
+    """
+
+    _escapes = {"t": "\t", "n": "\n", "f": "\f", "r": "\r"}
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.mayReturnEmpty = True
+        self.mayIndexError = False
+        self.errmsg = "Expected '{'"
+
+    def parseImpl(self, instring: str, loc: int,
+                  do_actions: bool = True) -> tuple[int, str]:
+        if loc >= len(instring) or instring[loc] != "{":
+            raise ParseException(instring, loc, self.errmsg, self)
+        chars = []
+        depth = 0
+        while loc < len(instring):
+            char = instring[loc]
+            if char == "\\" and loc + 1 < len(instring):
+                escaped = instring[loc + 1]
+                chars.append(self._escapes.get(escaped, escaped))
+                loc += 2
+                continue
+            loc += 1
+            if char == "{":
+                depth += 1
+                continue
+            elif char == "}":
+                depth -= 1
+                if depth == 0:
+                    return loc, "".join(chars)
+                continue
+            chars.append(char)
+        raise ParseException(instring, loc, "Expected '}'", self)
+
+
 class ParserState:
     """
     Parser state.
@@ -2216,7 +2261,7 @@ class Parser:
             r"\underset",
             p.optional_group("annotation") + p.optional_group("body"))
 
-        p.text = cmd(r"\text", QuotedString('{', '\\', end_quote_char="}"))
+        p.text = cmd(r"\text", _BracedText())
 
         p.substack = cmd(r"\substack",
                            nested_expr(opener="{", closer="}",
