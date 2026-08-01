@@ -1,0 +1,36 @@
+From 36633fe4a2bc417ce575f6aa74e9f3a6da20b7e7 Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Fri, 31 Jul 2026 23:12:47 -0400
+Subject: [PATCH 4/5] Fix debug logging when `NDEBUG` is set
+
+In Meson, the default for `b_ndebug` is `is-release`, which will enable
+it when in release mode. Additionally, in `dlg`, the default log level
+is `warn` if `NDEBUG` is set or `trace` otherwise. Because `FT_LOG` uses
+the `trace` level always, all debug logging will be disabled if
+`b_ndebug` is set (or in release mode).
+
+Using `NDEBUG` is not documented anywhere to toggle debug logging, so
+define `DLG_LOG_LEVEL` so that `trace` level is always output by `dlg`.
+FreeType's other (runtime or otherwise) configuration remains as it is
+to toggle logging per-component.
+
+Signed-off-by: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+---
+ include/freetype/internal/ftdebug.h | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/include/freetype/internal/ftdebug.h b/include/freetype/internal/ftdebug.h
+index 62b9ec2f7..f2339aff4 100644
+--- a/include/freetype/internal/ftdebug.h
++++ b/include/freetype/internal/ftdebug.h
+@@ -33,6 +33,7 @@
+ 
+ #ifdef FT_DEBUG_LOGGING
+ #define DLG_STATIC
++#define DLG_LOG_LEVEL dlg_level_trace
+ #include <dlg/output.h>
+ #include <dlg/dlg.h>
+ 
+-- 
+2.55.0
+
