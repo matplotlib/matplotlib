@@ -1998,7 +1998,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` property, optional
+        linestyle : :mpltype:`linestyle`, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -2078,7 +2078,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` property, optional
+        linestyle : :mpltype:`linestyle`, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -4027,11 +4027,8 @@ or pandas.DataFrame
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        elinestyle : str or tuple, default: 'solid'
+        elinestyle : :mpltype:`linestyle`, default: 'solid'
            The linestyle of the errorbar lines.
-           Valid values for linestyles include {'-', '--', '-.',
-            ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
-            complete description.
 
         capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
