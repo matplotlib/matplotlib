@@ -29,7 +29,7 @@ repos:
       - id: trailing-whitespace
         exclude_types: [diff, svg]
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: d2823d321df3af8f878f7ee3414dc94d037145b9  # frozen: v2.1.0
+    rev: 41e691678310dfd3833f7ab4e180ddb014310356  # frozen: v2.3.0
     hooks:
       - id: mypy
         additional_dependencies:
@@ -44,13 +44,13 @@ repos:
         pass_filenames: false
   - repo: https://github.com/astral-sh/ruff-pre-commit
     # Ruff version.
-    rev: c59bba8fb259db0fec2bbb77ad8ba51ea7341b56  # frozen: v0.15.20
+    rev: cb8c523fd4835aba42af70f4cad5568db4df0b6c  # frozen: v0.16.0
     hooks:
       # Run the linter.
       - id: ruff-check
         args: [--fix, --show-fixes]
   - repo: https://github.com/codespell-project/codespell
-    rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
+    rev: 57b21406f092110c18776e39b0bda50d37c945c8  # frozen: v2.4.3
     hooks:
       - id: codespell
         files: ^.*\.(py|c|cpp|h|m|md|rst|yml)$
@@ -70,7 +70,7 @@ repos:
     hooks:
       - id: rstcheck
         additional_dependencies:
-          - sphinx>=1.8.1
+          - sphinx>=9.1.0
         args: ["--sphinx-source-dir", "doc"]
   - repo: https://github.com/adrienverge/yamllint
     rev: cba56bcde1fdd01c1deb3f945e69764c291a6530  # frozen: v1.38.0
@@ -82,7 +82,7 @@ repos:
     hooks:
       - id: shellcheck
   - repo: https://github.com/zizmorcore/zizmor-pre-commit
-    rev: e3eebf65325ccc992422292cb7a4baee967cf815  # frozen: v1.26.1
+    rev: 067260dc5fe6ea86b7551bfd6f8b3ba4e6c93129  # frozen: v1.28.0
     hooks:
       - id: zizmor
   - repo: https://github.com/simple-icons/svglint
@@ -94,7 +94,7 @@ repos:
         # SVG examples are handled in .svglintrc.mjs.
         exclude: '^$'
   - repo: https://github.com/python-jsonschema/check-jsonschema
-    rev: 5030dca3047414c338091455ac41803200ec1f0f  # frozen: 0.37.3
+    rev: 6b63472e72e1a91ed8a2f6d483790dfb644fa1d3  # frozen: 0.37.4
     hooks:
       # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
       # - id: check-azure-pipelines
