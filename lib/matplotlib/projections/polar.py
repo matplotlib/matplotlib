@@ -407,7 +407,7 @@ class ThetaAxis(maxis.XAxis):
         if rotation == 'auto':
             return 0.0
         return float(rotation)
-    
+
     def _set_scale(self, value, **kwargs):
         if value != 'linear':
             raise NotImplementedError(
@@ -705,6 +705,7 @@ class RadialAxis(maxis.YAxis):
         if rotation == 'auto':
             return 0.0
         return float(rotation)
+
 
 def _is_full_circle_deg(thetamin, thetamax):
     """
