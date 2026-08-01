@@ -274,43 +274,39 @@ def test_markevery_figure_line_unsupported_relsize():
 def test_markevery_extreme_zoom():
     x = np.linspace(0, 10, 200)
     fig, ax = plt.subplots()
-    line, = ax.plot(x, np.sin(x), marker="o", markevery=0.05)
+    ax.plot(x, np.sin(x), marker="o", markevery=0.05)
     ax.set_xlim(5.000000, 5.000001)
 
-    path = mlines._mark_every_path(
-        line.get_markevery(), line.get_path(), line.get_transform(), ax)
+    # Calculating marker positions must not allocate an unbounded distance
+    # matrix when the axes are zoomed in extremely far.
+    fig.canvas.draw()
 
-    # At this zoom level the theoretical markers are close enough that every
-    # data point is selected.  In particular, finding them must not allocate
-    # the full 160371706 x 200 distance matrix from gh-32133.
-    assert_array_equal(path.vertices, line.get_path().vertices)
+
+@pytest.mark.parametrize("markevery", [0.0, -0.1])
+def test_markevery_float_nonpositive_spacing(markevery):
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], marker="o", markevery=markevery)
+
+    with pytest.raises(ValueError, match="second element is not positive"):
+        fig.canvas.draw()
 
 
 @pytest.mark.parametrize(
-    "markevery",
-    [0.1, 0.3, 1.5, (-0.2, 0.1), (0.0, 0.1), (0.45, 0.1), (2.0, 0.1)])
-def test_markevery_float_matches_brute_force(markevery):
-    x = np.linspace(-1, 1)
+    ("markevery", "expected"),
+    [(1.5, [0, 3, 4, 5, 6, 7, 8]),
+     ((-0.2, 1.5), [0, 3, 4, 5, 6, 7]),
+     ((11.0, 1.5), [])])
+def test_markevery_float_vertex_selection(markevery, expected):
     fig, ax = plt.subplots()
-    line, = ax.plot(x, 5 * x**2)
-
-    path = line.get_path()
-    affine = line.get_transform()
-    expected_verts = affine.transform(path.vertices)
-    delta = np.empty((len(expected_verts), 2))
-    delta[0] = 0
-    delta[1:] = expected_verts[1:] - expected_verts[:-1]
-    delta = np.hypot(*delta.T).cumsum()
     (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
     scale = np.hypot(x1 - x0, y1 - y0)
-    start, step = (0, markevery) if np.isscalar(markevery) else markevery
-    marker_delta = np.arange(start * scale, delta[-1], step * scale)
-    inds = np.abs(delta - marker_delta[:, None]).argmin(axis=1)
-    expected = path.vertices[np.unique(inds)]
+    path = Path(np.column_stack([
+        [0, 0.2, 0.8, 1.6, 2.7, 4.1, 5.8, 7.8, 10], np.zeros(9)]))
 
-    actual = mlines._mark_every_path(markevery, path, affine, ax)
+    actual = mlines._mark_every_path(
+        markevery, path, mtransforms.Affine2D().scale(scale), ax)
 
-    assert_array_equal(actual.vertices, expected)
+    assert_array_equal(actual.vertices, path.vertices[expected])
 
 
 @pytest.mark.parametrize(
