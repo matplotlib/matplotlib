@@ -565,6 +565,7 @@ type RcGroupKeyType = Literal[
     "keymap",
     "legend",
     "lines",
+    "macos",
     "macosx",
     "markers",
     "mathtext",
