@@ -34,7 +34,7 @@ class ToolBase:
     @property
     def toolmanager(self) -> ToolManager: ...
     @property
-    def canvas(self) -> FigureCanvasBase | None: ...
+    def canvas(self) -> FigureCanvasBase[Any, Any, Any] | None: ...
     @property
     def figure(self) -> Figure | None: ...
     @figure.setter
@@ -124,19 +124,19 @@ def add_tools_to_manager(
 ) -> None: ...
 def add_tools_to_container(container: ToolContainerBase, tools: list[Any] | None = ...) -> None: ...
 
-_tool_registry: set[tuple[type[FigureCanvasBase], type[ToolBase]]]
+_tool_registry: set[tuple[type[FigureCanvasBase[Any, Any, Any]], type[ToolBase]]]
 
 @overload
 def _register_tool_class(
-    canvas_cls: type[FigureCanvasBase],
+    canvas_cls: type[FigureCanvasBase[Any, Any, Any]],
     tool_cls: None = ...,
 ) -> Callable[[type[_ToolT]], type[_ToolT]]: ...
 @overload
 def _register_tool_class(
-    canvas_cls: type[FigureCanvasBase],
+    canvas_cls: type[FigureCanvasBase[Any, Any, Any]],
     tool_cls: type[_ToolT],
 ) -> type[_ToolT]: ...
 def _find_tool_class(
-    canvas_cls: type[FigureCanvasBase],
+    canvas_cls: type[FigureCanvasBase[Any, Any, Any]],
     tool_cls: type[_ToolT],
 ) -> type[_ToolT]: ...

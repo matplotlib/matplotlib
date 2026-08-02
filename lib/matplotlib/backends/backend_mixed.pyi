@@ -15,8 +15,8 @@ class MixedModeRenderer:
         width: float,
         height: float,
         dpi: float,
-        vector_renderer: RendererBase,
-        raster_renderer_class: type[RendererBase] | None = ...,
+        vector_renderer: RendererBase[Any],
+        raster_renderer_class: type[RendererBase[Any]] | None = ...,
         bbox_inches_restore: Any | None = ...,
     ) -> None: ...
     def __getattr__(self, attr: str) -> Any: ...

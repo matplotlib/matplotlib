@@ -55,26 +55,6 @@ def test_multipage_pagecount():
         assert pdf.get_pagecount() == 2
 
 
-def test_pdfpages_types(tmp_path: Path) -> None:
-    fig = plt.figure()
-    metadata: dict[str, str] = {"Title": "A title"}
-    removed_metadata: dict[str, str | None] = {"Creator": None}
-
-    with PdfPages(tmp_path / "output.pdf", metadata=metadata) as pdf:
-        pdf.savefig(fig, dpi=100)
-        info = pdf.infodict()
-        info["ModDate"] = datetime.datetime.now()
-        assert_type(info, dict[str, str | datetime.datetime | Name])
-        assert info["Title"] == "A title"
-
-    with PdfPages(tmp_path / "without-creator.pdf",
-                  metadata=removed_metadata) as pdf:
-        pdf.savefig(fig)
-        assert "Creator" not in pdf.infodict()
-
-    assert FigureManagerPdf is FigureManagerBase
-
-
 def test_multipage_properfinalize():
     pdfio = io.BytesIO()
     with PdfPages(pdfio) as pdf:

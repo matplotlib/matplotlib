@@ -371,7 +371,7 @@ exclude = [
 ]
 files = [
   "lib/matplotlib",
-  "lib/matplotlib/tests/test_backend_pdf.py",
+  "lib/matplotlib/tests/test_backend_types.py",
 ]
 follow_imports = "silent"
 warn_unreachable = true

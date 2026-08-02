@@ -25,6 +25,7 @@ python_sources = [
   'test_backend_template.py',
   'test_backend_tk.py',
   'test_backend_tools.py',
+  'test_backend_types.py',
   'test_backend_webagg.py',
   'test_backends_interactive.py',
   'test_basic.py',
