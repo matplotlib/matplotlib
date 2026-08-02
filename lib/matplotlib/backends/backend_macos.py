@@ -29,7 +29,6 @@ def _init_macos():
     _macos._init({"matplotlib": str(data_path / "matplotlib.pdf")})
 
 
-
 class FigureCanvasMac(_macos.FigureCanvas, FigureCanvasBase):
     # docstring inherited
 
