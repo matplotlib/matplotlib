@@ -52,9 +52,9 @@ def test_list_builtin():
     'filter,expected',
     [
         (BackendFilter.INTERACTIVE,
-         ['gtk3agg', 'gtk3cairo', 'gtk4agg', 'gtk4cairo', 'legacymac', 'macos', 'macosx',
-          'nbagg', 'notebook', 'qtagg', 'qtcairo', 'qt5agg', 'qt5cairo', 'tkagg',
-          'tkcairo', 'webagg', 'wx', 'wxagg', 'wxcairo']),
+         ['gtk3agg', 'gtk3cairo', 'gtk4agg', 'gtk4cairo', 'legacymac', 'macos',
+          'macosx', 'nbagg', 'notebook', 'qtagg', 'qtcairo', 'qt5agg', 'qt5cairo',
+          'tkagg', 'tkcairo', 'webagg', 'wx', 'wxagg', 'wxcairo']),
         (BackendFilter.NON_INTERACTIVE,
          ['agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template']),
     ]
