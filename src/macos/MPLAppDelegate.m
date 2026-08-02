@@ -15,9 +15,10 @@
 
 #pragma mark - Lifecycle
 
-- (instancetype) init
+- (instancetype) initWithImageDictionary:(MPLStringDictionary *)imageDictionary
 {
     if ((self = [super init])) {
+        _imageDictionary = imageDictionary;
         MPLLog("[Lifecycle] MPLAppDelegate<%p> init", self);
     }
 
@@ -38,9 +39,11 @@
     return YES;
 }
 
+
 - (void) applicationWillFinishLaunching:(NSNotification *)notification
 {
     [self _buildMainMenu];
+    [self _buildAppIcon];
 
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
 }
@@ -126,6 +129,18 @@
 
     for (NSWindow *window in [NSApp windows]) {
         [NSApp addWindowsItem:window title:[window title] filename:NO];
+    }
+}
+
+
+- (void) _buildAppIcon
+{
+    NSString *imagePath = [_imageDictionary objectForKey:@"matplotlib"];
+    NSURL *imageURL = imagePath ? [NSURL fileURLWithPath:imagePath] : nil;
+
+    if (imageURL) {
+        NSImage *image = [[NSImage alloc] initWithContentsOfURL:imageURL];
+        [NSApp setApplicationIconImage:image];
     }
 }
 

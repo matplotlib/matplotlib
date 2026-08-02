@@ -6,6 +6,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NSArray<NSString *> MPLStringArray;
+typedef NSDictionary<NSString *, NSString *> MPLStringDictionary;
+
+
 /*
     When a method or function is NS_UNAVAILABLE, call MPLUnavailable()
     in the implementation to throw a runtime error.
@@ -55,8 +59,17 @@ extern NSString * _Nullable MPLGetStringWithPySequence(PyObject * _Nullable pySe
     Returns nil and raises a Python exception if 'sequence' is not a sequence,
     any item is not a string, or any item could not be converted into an NSString.
 */
-extern NSArray<NSString *> * _Nullable MPLGetStringArrayWithPySequence(
+extern MPLStringArray * _Nullable MPLGetStringArrayWithPySequence(
     PyObject * _Nullable pySequence
+);
+
+/*
+    Converts a Python dict to an NSDictionary, keys/values must be strings.
+    Returns nil and raises a Python exception if 'dict' is not a dict, any
+    key/value was not a str, or any str could not be converted into an NSString.
+*/
+extern MPLStringDictionary * _Nullable MPLGetStringDictionaryWithPyDict(
+    PyObject * _Nullable dict
 );
 
 

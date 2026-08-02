@@ -25,8 +25,9 @@ def _allow_interrupt_macos():
 
 @functools.lru_cache
 def _init_macos():
-    # This will contain initialization code in a future PR
-    _macos._init()
+    data_path = cbook._get_data_path("images")
+    _macos._init({"matplotlib": str(data_path / "matplotlib.pdf")})
+
 
 
 class FigureCanvasMac(_macos.FigureCanvas, FigureCanvasBase):

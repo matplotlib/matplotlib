@@ -101,7 +101,7 @@ NSString *MPLGetStringWithPyString(PyObject *pyString)
 }
 
 
-NSArray<NSString *> *MPLGetStringArrayWithPySequence(PyObject *pySequence)
+MPLStringArray *MPLGetStringArrayWithPySequence(PyObject *pySequence)
 {
     if (!pySequence) {
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Input is NULL");
@@ -139,7 +139,7 @@ NSArray<NSString *> *MPLGetStringArrayWithPySequence(PyObject *pySequence)
 
 NSString *MPLGetStringWithPySequence(PyObject *pySequence)
 {
-    NSArray *array = MPLGetStringArrayWithPySequence(pySequence);
+    MPLStringArray *array = MPLGetStringArrayWithPySequence(pySequence);
 
     if (array && ([array count] != 1)) {
         PyErr_SetString(PyExc_RuntimeError, "Input is not a sequence of exactly one string");
@@ -150,7 +150,7 @@ NSString *MPLGetStringWithPySequence(PyObject *pySequence)
 }
 
 
-NSDictionary *MPLGetStringDictionaryWithPyDict(PyObject *dict)
+MPLStringDictionary *MPLGetStringDictionaryWithPyDict(PyObject *dict)
 {
     if (!dict) {
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Input is NULL");
