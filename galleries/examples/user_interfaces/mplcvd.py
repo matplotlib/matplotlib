@@ -4,14 +4,14 @@ mplcvd -- an example of figure hook
 
 To use this hook, ensure that this module is in your ``PYTHONPATH``, and set
 ``rcParams["figure.hooks"] = ["mplcvd:setup"]``.  This hook depends on
-the ``colorspacious`` third-party module.
+the ``colour-science`` third-party module.
 """
 
 import functools
 from pathlib import Path
 
 from PIL import Image
-import colorspacious
+import colour
 
 import numpy as np
 
@@ -20,9 +20,9 @@ _BUTTON_HELP = "Simulate color vision deficiencies"
 _MENU_ENTRIES = {
     "None": None,
     "Greyscale": "greyscale",
-    "Deuteranopia": "deuteranomaly",
-    "Protanopia": "protanomaly",
-    "Tritanopia": "tritanomaly",
+    "Deuteranopia": "Deuteranomaly",
+    "Protanopia": "Protanomaly",
+    "Tritanopia": "Tritanomaly",
 }
 
 
@@ -43,7 +43,7 @@ def _get_color_filter(name):
         - ``"tritanopia"``: Simulate the rare form of blue-yellow
           colorblindness.
 
-        Color conversions use `colorspacious`_.
+        Color conversions use `colour-science <https://www.colour-science.org/>`_.
 
     Returns
     -------
@@ -64,18 +64,21 @@ def _get_color_filter(name):
         return None
 
     elif name == "greyscale":
-        rgb_to_jch = colorspacious.cspace_converter("sRGB1", "JCh")
-        jch_to_rgb = colorspacious.cspace_converter("JCh", "sRGB1")
-
         def convert(im):
-            greyscale_JCh = rgb_to_jch(im)
-            greyscale_JCh[..., 1] = 0
-            im = jch_to_rgb(greyscale_JCh)
+            xyz = colour.sRGB_to_XYZ(im)
+            lab = colour.XYZ_to_CAM02UCS(xyz)
+            lab[..., 1] = lab[..., 2] = 0
+            xyz = colour.CAM02UCS_to_XYZ(lab)
+            im = colour.XYZ_to_sRGB(xyz)
             return im
 
     else:
-        cvd_space = {"name": "sRGB1+CVD", "cvd_type": name, "severity": 100}
-        convert = colorspacious.cspace_converter(cvd_space, "sRGB1")
+        def convert(im):
+            linear = colour.models.eotf_sRGB(im)
+            m = colour.matrix_cvd_Machado2009(name, severity=1)
+            linear_cvd = colour.apply_matrix_colour_correction(linear, m)
+            cvd = colour.models.eotf_inverse_sRGB(linear_cvd)
+            return cvd
 
     def filter_func(im, dpi):
         alpha = None
