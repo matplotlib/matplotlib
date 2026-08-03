@@ -2137,7 +2137,7 @@ _DEFINITION = [
     _Param(
         "axes.titlesize",
         default="large",
-        type=_FontWeightType,
+        type=_FontSizeType,
         validator=validate_fontsize,
         description="font size of the axes title"
     ),
@@ -2770,7 +2770,7 @@ _DEFINITION = [
     _Param(
         "grid.linestyle",
         default="-",
-        type=Literal["-", "--", "-.", ":"],
+        type=_LineStyleType,
         validator=_validate_linestyle,
         description="solid"
     ),
