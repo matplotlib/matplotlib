@@ -256,3 +256,31 @@ plt.show()
 # A cross-platform way to obtain *ffmpeg* is to install the ``imageio_ffmpeg``
 # PyPI package, and then to set
 # ``rcParams["animation.ffmpeg_path"] = imageio_ffmpeg.get_ffmpeg_exe()``.
+
+# %%
+# Animations in Jupyter notebooks
+# ===============================
+#
+# By default, Matplotlib does not automatically display animations in Jupyter
+# notebooks.  To show an animation inside a notebook, there are two main
+# approaches.
+#
+# The first is to set the ``animation.html`` rcParam to ``"jshtml"`` or
+# ``"html5"`` before creating the animation.  When the animation object is the
+# last expression in a notebook cell, it will then be rendered automatically::
+#
+#   plt.rcParams["animation.html"] = "jshtml"
+#   ani = animation.FuncAnimation(...)
+#   ani
+#
+# ``"jshtml"`` generates an interactive JavaScript-based animation, while
+# ``"html5"`` embeds the animation as an HTML5 ``<video>`` tag.
+#
+# The second approach is to manually convert the animation to HTML and display
+# it using IPython's ``HTML`` class::
+#
+#   from IPython.display import HTML
+#   HTML(ani.to_jshtml())
+#
+# Similarly, `.Animation.to_html5_video` can be used in place of
+# `.Animation.to_jshtml` if an HTML5 video is preferred.
