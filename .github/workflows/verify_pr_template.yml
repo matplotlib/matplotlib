@@ -20,32 +20,22 @@ jobs:
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
         with:
-          fetch-depth: 0
           persist-credentials: false
       - name: Read PR Template
         id: template
         uses: juliangruber/read-file-action@271ff311a4947af354c6abcd696a306553b9ec18  # v1.1.8
         with:
           path: ./.github/PULL_REQUEST_TEMPLATE.md
-      # This step is required because the PR body is CRLF (Windows-style line ending)
-      - name: Clean PR content
-        shell: bash
-        id: clean
-        env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          {
-            echo 'cleaned<<EOF'
-            echo "${PR_BODY}" | tr -d '\r'
-            echo EOF
-          } >> "$GITHUB_OUTPUT"
       - name: Flag as autoclose candidate
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           TEMPLATE: ${{ steps.template.outputs.content }}
-          PR_BODY_CLEAN: ${{ steps.clean.outputs.cleaned }}
+          PR_BODY: ${{ github.event.pull_request.body }}
         run: |
+          # This step is required because the PR body is CRLF (Windows-style line ending)
+          PR_BODY_CLEAN=$(printf '%s' "$PR_BODY" | tr -d '\r')
+
           label="status: autoclose candidate"
           needs_label=false
 
