@@ -15,10 +15,7 @@ jobs:
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
-        with:
-          python-version: "3.x"
-      - uses: j178/prek-action@e98a699c41eb69ab013a45817a0406469a748f8d  # v2.0.5
+      - uses: j178/prek-action@5337cb91e0fa35a7ff31b9ca345126d8bbbcdf16  # v2.0.6
         with:
           extra-args: --hook-stage manual --all-files
 
@@ -34,7 +31,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.11'
 
@@ -64,7 +61,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.11'
 
@@ -95,7 +92,7 @@ jobs:
           persist-credentials: false
 
       - name: Set up Python 3
-        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1  # v6.3.0
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.14'
 
