@@ -13,6 +13,7 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   GH_REPO: ${{ github.repository }}
   PULL_REQUEST_NUMBER: ${{ github.event.pull_request.number }}
+  CREATED_AT: ${{ github.event.pull_request.created_at }}
 
 jobs:
   verify-pr-template:
@@ -35,6 +36,14 @@ jobs:
         run: |
           # This step is required because the PR body is CRLF (Windows-style line ending)
           PR_BODY_CLEAN=$(printf '%s' "$PR_BODY" | tr -d '\r')
+
+          # Only act on PRs opened on/after this cutoff (avoids retroactively
+          # labeling old PRs when they get edited/reopened)
+          CUTOFF="2026-08-05T00:00:00Z"
+          if [ "$(date -d "$CREATED_AT" +%s)" -lt "$(date -d "$CUTOFF" +%s)" ]; then
+            echo "PR opened $CREATED_AT, before cutoff $CUTOFF — skipping."
+            exit 0
+          fi
 
           label="status: autoclose candidate"
           needs_label=false
