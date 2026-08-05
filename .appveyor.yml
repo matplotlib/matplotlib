@@ -56,7 +56,7 @@ install:
   - set EXTRA_PACKAGES=pywin32 codecov
   # These are optional dependencies so that we don't skip so many tests...
   - set EXTRA_PACKAGES=%EXTRA_PACKAGES% ffmpeg
-  - choco install inkscape --version=1.0.2
+  - choco install inkscape --version=0.91
   # miktex is available on conda, but seems to fail with permission errors.
   # missing packages on conda-forge for imagemagick
   # This install sometimes failed randomly :-(
