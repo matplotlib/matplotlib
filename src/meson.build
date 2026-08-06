@@ -30,6 +30,12 @@ else
   user32 = []
 endif
 
+if host_machine.system() == 'darwin'
+  coretext = dependency('appleframeworks', modules: 'CoreText')
+else
+  coretext = []
+endif
+
 extension_data = {
   '_backend_agg': {
     'subdir': 'matplotlib/backends',
@@ -44,7 +50,7 @@ extension_data = {
     'sources': files(
       '_c_internal_utils.cpp',
     ),
-    'dependencies': [pybind11_dep, dl, ole32, shell32, user32],
+    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, coretext],
   },
   'ft2font': {
     'subdir': 'matplotlib',
