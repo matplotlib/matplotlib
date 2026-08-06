@@ -418,6 +418,7 @@ type RcKeyType = Literal[
     "mathtext.default",
     "mathtext.fallback",
     "mathtext.fontset",
+    "mathtext.mathfont",
     "mathtext.it",
     "mathtext.rm",
     "mathtext.sf",
