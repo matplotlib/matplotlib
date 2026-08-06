@@ -202,7 +202,7 @@ def _mark_every_path(markevery, tpath, affine, ax):
             marker_step = step * scale
             if marker_step <= 0:
                 raise ValueError(
-                    f"`markevery` step must be positive, but got {step!r}")
+                    f"'markevery' step must be positive, but got {step!r}")
             # A theoretical marker can select a vertex only if the marker
             # immediately before or after that vertex selects it.  Limit
             # the candidates to those markers instead of materializing

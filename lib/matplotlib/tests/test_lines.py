@@ -287,7 +287,7 @@ def test_markevery_float_nonpositive_spacing(markevery):
     fig, ax = plt.subplots()
     ax.plot([0, 1], marker="o", markevery=markevery)
 
-    with pytest.raises(ValueError, match="`markevery` step must be positive"):
+    with pytest.raises(ValueError, match="'markevery' step must be positive"):
         fig.canvas.draw()
 
 
