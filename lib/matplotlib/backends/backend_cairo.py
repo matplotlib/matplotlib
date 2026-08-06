@@ -361,7 +361,6 @@ class RendererCairo(RendererBase):
             self.gc.ctx.push_group()
             self._override_blend_mode_to_knockout = knockout
 
-
     def close_blend_group(self):
         # docstring inherited
         blend_mode, alpha, override = self._group_states.pop()

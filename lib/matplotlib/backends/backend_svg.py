@@ -725,7 +725,7 @@ class RendererSVG(RendererBase):
         self.writer.end('g')
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
-        #docstring inherited
+        # docstring inherited
         if knockout:
             _log.warning("Knockout blend groups are not supported by the SVG backend. "
                          "Falling back to a non-knockout blend group.")
