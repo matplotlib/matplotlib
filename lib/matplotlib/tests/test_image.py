@@ -617,8 +617,7 @@ def test_image_composite_background():
     ax.set_xlim(0, 12)
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test',
-                  tol=0.07)
+@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test')
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
