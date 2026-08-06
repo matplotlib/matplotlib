@@ -2389,8 +2389,9 @@ _DEFINITION = [
         default="arcball",
         type=Literal["azel", "trackball", "sphere", "arcball"],
         validator=["azel", "trackball", "sphere", "arcball"],
-        description="{azel, trackball, sphere, arcball} See also "
-                    "https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse"),  # noqa E501
+        description="The way mouse movements are interpreted as 3D rotations. "
+                    "See also :ref:`toolkit_mouse-rotation`.",
+    ),
     _Param(
         "axes3d.trackballsize",
         default=0.667,
@@ -2449,7 +2450,8 @@ _DEFINITION = [
         type=str,
         validator=_validate_date,
         description="The reference date for Matplotlib's internal date representation. "
-                    "See https://matplotlib.org/stable/gallery/ticks/date_precision_and_epochs.html"),  # noqa E501
+                    "See :doc:`/gallery/ticks/date_precision_and_epochs`."
+    ),
     _Param(
         "date.converter",
         default="auto",
@@ -3234,7 +3236,8 @@ _DEFINITION = [
         "contour.corner_mask",
         default=True,
         type=bool,
-        validator=validate_bool, description="{True, False}"
+        validator=validate_bool,
+        description="{True, False}"
     ),
     _Param(
         "contour.linewidth",
