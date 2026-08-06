@@ -1262,7 +1262,7 @@ end"""
             _log.debug("SUBSET %r:%d characters: %s", filename, subset_index, charmap)
             with _backend_pdf_ps.get_glyphs_subset(filename,
                                                    charmap.values()) as subset:
-                fontdata = _backend_pdf_ps.font_as_file(subset)
+                fontdata = _backend_pdf_ps.font_as_file(subset.font)
             _log.debug(
                 "SUBSET %r:%d %d -> %d", filename, subset_index,
                 os.stat(filename).st_size, fontdata.getbuffer().nbytes
@@ -1305,7 +1305,8 @@ end"""
             cid_to_gid_map = ['\0'] * 65536
             widths = []
             max_ccode = 0
-            for ccode, gind in charmap.items():
+            for ccode, orig_glyph_index in charmap.items():
+                gind = subset.glyph_index_map[orig_glyph_index]
                 glyph = font.load_glyph(gind,
                                         flags=LoadFlags.NO_SCALE | LoadFlags.NO_HINTING)
                 widths.append((ccode, cvt(glyph.horiAdvance)))

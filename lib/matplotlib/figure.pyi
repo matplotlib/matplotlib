@@ -5,7 +5,7 @@ from typing import Any, IO, Literal, overload
 import numpy as np
 from numpy.typing import ArrayLike
 
-from matplotlib.artist import Artist
+from matplotlib.artist import Artist, ArtistList
 from matplotlib.axes import Axes
 from matplotlib.backend_bases import (
     FigureCanvasBase,
@@ -18,7 +18,7 @@ from matplotlib.colorbar import Colorbar
 from matplotlib.colorizer import ColorizingArtist, Colorizer
 from matplotlib.cm import ScalarMappable
 from matplotlib.gridspec import GridSpec, SubplotSpec, SubplotParams as SubplotParams
-from matplotlib.image import _ImageBase, FigureImage
+from matplotlib.image import FigureImage
 from matplotlib.layout_engine import LayoutEngine
 from matplotlib.legend import Legend
 from matplotlib.lines import Line2D
@@ -30,12 +30,6 @@ from mpl_toolkits.mplot3d import Axes3D
 from .typing import ColorType, HashableList, LegendLocType
 
 class FigureBase(Artist):
-    artists: list[Artist]
-    lines: list[Line2D]
-    patches: list[Patch]
-    texts: list[Text]
-    images: list[_ImageBase]
-    legends: list[Legend]
     subfigs: list[SubFigure]
     stale: bool
     suppressComposite: bool | None
@@ -47,6 +41,20 @@ class FigureBase(Artist):
         ha: Literal["left", "center", "right"] = ...,
         which: Literal["major", "minor", "both"] = ...,
     ) -> None: ...
+
+    @property
+    def artists(self) -> ArtistList[Artist]: ...
+    @property
+    def images(self) -> ArtistList[FigureImage]: ...
+    @property
+    def legends(self) -> ArtistList[Legend]: ...
+    @property
+    def lines(self) -> ArtistList[Line2D]: ...
+    @property
+    def patches(self) -> ArtistList[Patch]: ...
+    @property
+    def texts(self) -> ArtistList[Text]: ...
+
     def get_children(self) -> list[Artist]: ...
     def contains(self, mouseevent: MouseEvent) -> tuple[bool, dict[Any, Any]]: ...
     def suptitle(self, t: str, **kwargs) -> Text: ...
@@ -194,15 +202,15 @@ class FigureBase(Artist):
     @overload
     def subfigures(
         self,
-        nrows: int,
-        ncols: int,
-        squeeze: Literal[False],
+        nrows: Literal[1] = ...,
+        ncols: Literal[1] = ...,
+        squeeze: Literal[True] = ...,
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
         **kwargs
-    ) -> np.ndarray: ...
+    ) -> SubFigure: ...
     @overload
     def subfigures(
         self,
@@ -221,13 +229,13 @@ class FigureBase(Artist):
         self,
         nrows: int = ...,
         ncols: int = ...,
-        squeeze: Literal[True] = ...,
+        squeeze: bool = ...,
         wspace: float | None = ...,
         hspace: float | None = ...,
         width_ratios: ArrayLike | None = ...,
         height_ratios: ArrayLike | None = ...,
         **kwargs
-    ) -> np.ndarray | SubFigure: ...
+    ) -> Any: ...
     def add_subfigure(self, subplotspec: SubplotSpec, **kwargs) -> SubFigure: ...
     def sca(self, a: Axes) -> Axes: ...
     def gca(self) -> Axes: ...

@@ -145,6 +145,7 @@ if get_option('macosx') and host_machine.system() == 'darwin'
     ),
     dependencies: dependency('appleframeworks', modules: 'Cocoa'),
     override_options: ['werror=true'],
+    objc_args: ['-fobjc-arc'],
     install: true,
   )
 endif

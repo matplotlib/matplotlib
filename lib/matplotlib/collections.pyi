@@ -7,7 +7,12 @@ from numpy.typing import ArrayLike, NDArray
 from . import colorizer, transforms
 from .backend_bases import MouseEvent
 from .artist import Artist
-from .colors import Normalize, Colormap
+from .colors import (
+    Colormap,
+    BivarColormap,
+    MultivarColormap,
+    Norm,
+)
 from .lines import Line2D
 from .path import Path
 from .patches import Patch
@@ -29,8 +34,8 @@ class Collection(colorizer.ColorizingArtist):
         antialiaseds: bool | Sequence[bool] | None = ...,
         offsets: tuple[float, float] | Sequence[tuple[float, float]] | None = ...,
         offset_transform: transforms.Transform | None = ...,
-        norm: Normalize | None = ...,
-        cmap: Colormap | None = ...,
+        norm: Norm | None = ...,
+        cmap: Colormap | BivarColormap | MultivarColormap | None = ...,
         colorizer: colorizer.Colorizer | None = ...,
         pickradius: float = ...,
         hatch: str | None = ...,
@@ -161,7 +166,6 @@ class LineCollection(Collection):
     def get_color(self) -> ColorType | Sequence[ColorType]: ...
     def get_colors(self) -> ColorType | Sequence[ColorType]: ...
     def get_gapcolor(self) -> ColorType | Sequence[ColorType] | None: ...
-
 
 class EventCollection(LineCollection):
     def __init__(

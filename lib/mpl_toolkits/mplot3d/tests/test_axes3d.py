@@ -97,6 +97,47 @@ def test_axis_positions_inverted():
         ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
 
 
+def test_set_aspect_datalim_restores_limits():
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    ax.plot([0, 1], [0, 2], [0, 3])
+
+    fig.canvas.draw()
+    default_limits = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    fig.canvas.draw()
+    equal_limits = ax.get_w_lims()
+
+    ax.set_aspect('auto', adjustable='datalim')
+    fig.canvas.draw()
+    final_limits = ax.get_w_lims()
+
+    # equal should change limits
+    assert not np.allclose(default_limits, equal_limits)
+
+    # auto should restore original limits
+    assert np.allclose(default_limits, final_limits)
+
+
+def test_set_aspect_datalim_restores_untouched_axes():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.plot([1, 2], [3, 4], [5, 6])
+    orig_lims = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    ax.set_xlim(-50, 50)  # explicit user change mid-'equal'
+    ax.set_aspect('auto', adjustable='datalim')
+
+    xlim, ylim, zlim = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+    assert xlim == (-50, 50)               # explicit value preserved
+    assert ylim == orig_lims[2:4]          # untouched axis restored
+    assert zlim == orig_lims[4:6]          # untouched axis restored
+
+
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
 def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
@@ -152,14 +193,13 @@ def test_axes3d_primary_views():
              (0, 180, 0)]   # -YZ
     # When viewing primary planes, draw the two visible axes so they intersect
     # at their low values
-    fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
+    fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'}, layout='tight')
     for i, ax in enumerate(axs.flat):
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
         ax.set_proj_type('ortho')
         ax.view_init(elev=views[i][0], azim=views[i][1], roll=views[i][2])
-    plt.tight_layout()
 
 
 @mpl3d_image_comparison(['bar3d.png'], style='mpl20')
@@ -2817,6 +2857,47 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
 
 
+@pytest.mark.parametrize('labeltype', ['ticks', 'axis label'])
+def test_axes3d_tightbbox_includes_labels(labeltype):
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    renderer = fig._get_renderer()
+
+    tight_bbs = {}
+
+    if labeltype == 'axis label':
+        ax.set_zlabel('foo')
+
+        # Remove ticks so they don't affect the result
+        ax.zaxis.set_ticks_position('none')
+
+    for pos in ['lower', 'upper', 'both', 'none']:
+        if labeltype == 'ticks':
+            ax.zaxis.set_ticks_position(pos)
+        else:
+            ax.zaxis.set_label_position(pos)
+        tight_bbs[pos] = ax.get_tightbbox(renderer)
+
+    for pos in ['lower', 'both']:
+        # Should make space for labels on the left
+        assert tight_bbs[pos].xmin < tight_bbs['none'].xmin, \
+            f'No space for labels on left with {labeltype} position "{pos}"'
+
+    for pos in ['upper', 'both']:
+        # Should make space for labels on the right
+        assert tight_bbs[pos].xmax > tight_bbs['none'].xmax, \
+            f'No space for labels on right with {labeltype} position "{pos}"'
+
+    # No space on the right for 'lower'
+    assert tight_bbs['lower'].xmax == tight_bbs['none'].xmax, \
+        f'Unexpected space for labels on right with {labeltype} position "lower"'
+
+    # No space on the left for 'upper'
+    assert tight_bbs['upper'].xmin == tight_bbs['none'].xmin, \
+        f'Unexpected space for labels on left with {labeltype} position "{pos}"'
+
+
 def test_ctrl_rotation_snaps_to_5deg():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
@@ -3227,24 +3308,3 @@ def test_plot_surface_log_scale_invalid_values():
 
     zmin, zmax = ax.get_zlim()
     assert 1e-3 < zmin < zmax < 1e3, f"zlim corrupted: {(zmin, zmax)}"
-
-
-def test_axes3d_tightbbox_includes_axis_labels():
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d')
-    ax.scatter([1], [1], [1])
-
-    fig.draw_without_rendering()
-    renderer = fig._get_renderer()
-    bb_no_labels = ax.get_tightbbox(renderer)
-
-    ax.set_xlabel('X label')
-    ax.set_ylabel('Y label')
-    ax.set_zlabel('Z label')
-
-    fig.draw_without_rendering()
-    bb_full = ax.get_tightbbox(renderer)
-
-    # The full bbox must be strictly larger in at least one dimension than the
-    # bbox not including labels.
-    assert bb_full.width > bb_no_labels.width or bb_full.height > bb_no_labels.height

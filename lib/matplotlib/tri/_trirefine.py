@@ -58,6 +58,7 @@ class UniformTriRefiner(TriRefiner):
 #    :class:`~matplotlib.tri.CubicTriInterpolator` and
 #    :class:`~matplotlib.tri.TriAnalyzer`.
 #    """
+
     def __init__(self, triangulation):
         super().__init__(triangulation)
 

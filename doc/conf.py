@@ -110,6 +110,10 @@ warnings.filterwarnings('default', category=UserWarning,
 warnings.filterwarnings('default', category=UserWarning,
                         message=r'Matplotlib currently does not support .+ natively\.')
 
+# Avoid warnings on import of the `colour` package for its optional dependencies.
+warnings.filterwarnings('ignore',
+                        message=r'".*" related API features are not available: ')
+
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
 extensions = [
@@ -153,7 +157,7 @@ def _check_dependencies():
         **{ext: ext.split(".")[0] for ext in extensions},
         # Explicitly list deps that are not extensions, or whose PyPI package
         # name does not match the (toplevel) module name.
-        "colorspacious": 'colorspacious',
+        "colour": 'colour-science',
         "mpl_sphinx_theme": 'mpl_sphinx_theme',
         "sphinxcontrib.inkscapeconverter": 'sphinxcontrib-svg2pdfconverter',
     }

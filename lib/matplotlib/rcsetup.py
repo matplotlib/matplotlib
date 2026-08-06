@@ -260,7 +260,7 @@ validate_floatlist = _listify_validator(
 def _validate_marker(s):
     try:
         return validate_int(s)
-    except ValueError as e:
+    except ValueError:
         try:
             return validate_string(s)
         except ValueError as e:
@@ -1031,25 +1031,25 @@ _validators = {
     # marker props
     "markers.fillstyle": validate_fillstyle,
 
-    ## pcolor(mesh) props:
+    # pcolor(mesh) props:
     "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
     "pcolormesh.snap": validate_bool,
 
-    ## patch props
+    # patch props
     "patch.linewidth":       validate_float,  # line width in points
     "patch.edgecolor":       validate_color,
     "patch.force_edgecolor": validate_bool,
     "patch.facecolor":       validate_color,  # first color in cycle
     "patch.antialiased":     validate_bool,  # antialiased (no jaggies)
 
-    ## hatch props
+    # hatch props
     "hatch.color":     _validate_color_or_edge,
     "hatch.linewidth": validate_float,
 
-    ## Histogram properties
+    # Histogram properties
     "hist.bins": validate_hist_bins,
 
-    ## Boxplot properties
+    # Boxplot properties
     "boxplot.notch":       validate_bool,
     "boxplot.vertical":    validate_bool,
     "boxplot.whiskers":    validate_whiskers,
@@ -1094,7 +1094,7 @@ _validators = {
     "boxplot.meanprops.linestyle":       _validate_linestyle,
     "boxplot.meanprops.linewidth":       validate_float,
 
-    ## font props
+    # font props
     "font.enable_last_resort":     validate_bool,
     "font.family":     validate_stringlist,  # used by text object
     "font.style":      validate_string,
@@ -1265,7 +1265,7 @@ _validators = {
     # linewidth of legend frame
     "legend.linewidth": validate_float_or_None,
 
-    ## the following dimensions are in fraction of the font size
+    # The following dimensions are in fraction of the font size unless noted.
     "legend.borderpad":      validate_float,  # units are fontsize
     # the vertical space between the legend entries
     "legend.labelspacing":   validate_float,
@@ -1345,7 +1345,7 @@ _validators = {
     "grid.minor.linewidth":    validate_float_or_None,     # in points
     "grid.minor.alpha":        validate_float_or_None,
 
-    ## figure props
+    # figure props
     # figure title
     "figure.titlesize":   validate_fontsize,
     "figure.titleweight": validate_fontweight,
@@ -1381,7 +1381,7 @@ _validators = {
     "figure.constrained_layout.h_pad": validate_float,
     "figure.constrained_layout.w_pad": validate_float,
 
-    ## Saving figure's properties
+    # Saving figure's properties
     'savefig.dpi':          validate_dpi,
     'savefig.facecolor':    validate_color_or_auto,
     'savefig.edgecolor':    validate_color_or_auto,
@@ -1462,9 +1462,9 @@ _validators = {
     "animation.ffmpeg_path":  _validate_pathlike,
     # Additional arguments for ffmpeg movie writer (using pipes)
     "animation.ffmpeg_args":  validate_stringlist,
-     # Path to convert binary. If just binary name, subprocess uses $PATH.
+    # Path to convert binary. If just binary name, subprocess uses $PATH.
     "animation.convert_path": _validate_pathlike,
-     # Additional arguments for convert movie writer (using pipes)
+    # Additional arguments for convert movie writer (using pipes)
     "animation.convert_args": validate_stringlist,
 
     # Classic (pre 2.0) compatibility mode
@@ -1489,20 +1489,20 @@ _validators = {k: _convert_validator_spec(k, conv)
 class _Param:
     name: str
     default: Any
-    validator: Callable[[Any], Any]
-    description: str = None
+    validator: Callable[[Any], Any] | list[str]
+    description: str | None = None
 
 
 @dataclass
 class _Section:
     title: str
-    description: str = None
+    description: str | None = None
 
 
 @dataclass
 class _Subsection:
     title: str
-    description: str = None
+    description: str | None = None
 
 
 # Definition of all rcParams. This is currently only used to generate the documentation.
@@ -1968,13 +1968,16 @@ _DEFINITION = [
                     "math fonts. Select 'None' to not perform fallback and replace the "
                     "missing character by a dummy symbol."
     ),
-    _Param("mathtext.default", "normal",
-           ["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default", "bb", "frak", "scr",
-            "regular", "normal"],
-           description='The default font to use for math. Can be any of the LaTeX font '
-                    'names, including the special name "regular" for the same font '
-                    'used in regular text.',
-           ),
+    _Param(
+        "mathtext.default",
+        default="normal",
+        validator=["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default", "bb", "frak",
+                   "scr", "regular", "normal"],
+        description=(
+           'The default font to use for math. Can be any of the LaTeX font names, '
+           'including the special name "regular" for the same font used in regular '
+           'text.'),
+    ),
     _Section("Axes"),
     _Param(
         "axes.facecolor",
@@ -2144,7 +2147,8 @@ _DEFINITION = [
                     "https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes"
 
     ),
-    _Param("axes.prop_cycle",
+    _Param(
+        "axes.prop_cycle",
         default=cycler(
             "color",
             [(0.12156862745098039, 0.4666666666666667, 0.7058823529411765),
@@ -2156,8 +2160,7 @@ _DEFINITION = [
              (0.8901960784313725, 0.4666666666666667, 0.7607843137254902),
              (0.4980392156862745, 0.4980392156862745, 0.4980392156862745),
              (0.7372549019607844, 0.7411764705882353, 0.13333333333333333),
-             (0.09019607843137255, 0.7450980392156863, 0.8117647058823529),
-            ],
+             (0.09019607843137255, 0.7450980392156863, 0.8117647058823529)],
         ),
         validator=validate_cycler
     ),
@@ -2261,7 +2264,7 @@ _DEFINITION = [
         default=5.0,
         validator=validate_float,
         description="Snap angle (in degrees) for 3D rotation when holding Control."
-   ),
+    ),
     _Param(
         "xaxis.labellocation",
         default="center",
@@ -2294,7 +2297,7 @@ _DEFINITION = [
         default="1970-01-01T00:00:00",
         validator=_validate_date,
         description="The reference date for Matplotlib's internal date representation. "
-                    "See https://matplotlib.org/stable/gallery/ticks/date_precision_and_epochs.html"),  #noqa
+                    "See https://matplotlib.org/stable/gallery/ticks/date_precision_and_epochs.html"),  # noqa
     _Param(
         "date.converter",
         default="auto",

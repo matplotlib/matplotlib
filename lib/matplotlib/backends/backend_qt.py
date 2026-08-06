@@ -305,7 +305,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # (otherwise, it's already a QPoint)
         x = pos.x()
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height / self.device_pixel_ratio - pos.y()
+        y = self.get_width_height()[1] - pos.y()
         return x * self.device_pixel_ratio, y * self.device_pixel_ratio
 
     def enterEvent(self, event):
@@ -867,7 +867,6 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         engine = _IconEngine(path_regular, self)
         return QtGui.QIcon(engine)
 
-
     def edit_parameters(self):
         axes = self.canvas.figure.get_axes()
         if not axes:
@@ -918,7 +917,7 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
             self.locLabel.setText(s)
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
+        height = self.canvas.get_width_height(physical=True)[1]
         y1 = height - y1
         y0 = height - y0
         rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]

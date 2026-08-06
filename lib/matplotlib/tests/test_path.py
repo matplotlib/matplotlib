@@ -3,7 +3,7 @@ import re
 
 import numpy as np
 
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_allclose
 import pytest
 
 from matplotlib import patches
@@ -127,6 +127,33 @@ def test_extents_with_ignored_codes(ignored_code):
                  [1, 1],
                  [2, 2]], [Path.MOVETO, Path.MOVETO, ignored_code])
     assert np.all(path.get_extents().extents == (0., 0., 1., 1.))
+
+
+@pytest.mark.parametrize("path, expected", [
+    # codes=None: every vertex is used
+    (Path([[0, 0], [1, 2], [3, 1]]), [[0, 0], [1, 2], [3, 1]]),
+    # straight path: all MOVETO/LINETO vertices are on the path
+    (Path([[0, 0], [1, 1], [2, 0]], [Path.MOVETO, Path.LINETO, Path.LINETO]),
+     [[0, 0], [1, 1], [2, 0]]),
+    # STOP/CLOSEPOLY carry placeholder vertices that must not affect extents
+    (Path([[0, 0], [1, 1], [5, 5]], [Path.MOVETO, Path.LINETO, Path.STOP]),
+     [[0, 0], [1, 1]]),
+    (Path([[0, 0], [1, 1], [5, 5]], [Path.MOVETO, Path.LINETO, Path.CLOSEPOLY]),
+     [[0, 0], [1, 1]]),
+])
+def test_extent_vertices_straight(path, expected):
+    assert_allclose(path._extent_vertices(), expected)
+
+
+def test_extent_vertices_curve():
+    # A cubic whose control points overshoot the drawn curve: the returned
+    # vertices must capture the true interior extrema (xmax 0.75), not the
+    # control-point hull (xmax 1.0).
+    path = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+                [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    xys = path._extent_vertices()
+    assert_allclose([xys[:, 0].min(), xys[:, 1].min(),
+                     xys[:, 0].max(), xys[:, 1].max()], [0, 0, 0.75, 1])
 
 
 def test_point_in_path_nan():

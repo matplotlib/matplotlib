@@ -10,7 +10,6 @@ from typing import Self
 
 from .ft2font import CharacterCodeType, GlyphIndexType
 
-
 class _dvistate(Enum):
     pre = ...
     outer = ...

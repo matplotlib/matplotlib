@@ -1,7 +1,7 @@
 from matplotlib.axes import Axes
 
 from collections.abc import Callable, Iterable
-from typing import Any
+from types import SimpleNamespace
 from typing import Self
 
 import numpy as np
@@ -15,11 +15,10 @@ RIGHT: int
 UP: int
 DOWN: int
 
-# TODO typing units
 class Sankey:
-    diagrams: list[Any]
+    diagrams: list[SimpleNamespace]
     ax: Axes
-    unit: Any
+    unit: str | None
     format: str | Callable[[float], str]
     scale: float
     gap: float
@@ -34,7 +33,7 @@ class Sankey:
         self,
         ax: Axes | None = ...,
         scale: float = ...,
-        unit: Any = ...,
+        unit: str | None = ...,
         format: str | Callable[[float], str] = ...,
         gap: float = ...,
         radius: float = ...,
@@ -58,4 +57,4 @@ class Sankey:
         rotation: float = ...,
         **kwargs
     ) -> Self: ...
-    def finish(self) -> list[Any]: ...
+    def finish(self) -> list[SimpleNamespace]: ...

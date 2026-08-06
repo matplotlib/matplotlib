@@ -275,7 +275,7 @@ class _NavigationToolbar2GTK(NavigationToolbar2):
         self.message.set_markup(f'<small>{escaped}</small>')
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
+        height = self.canvas.get_width_height(physical=True)[1]
         y1 = height - y1
         y0 = height - y0
         rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]

@@ -1444,9 +1444,9 @@ class MultivarColormap:
             Describe how colormaps are combined in sRGB space
 
             - If 'sRGB_add' -> Mixing produces brighter colors
-              `sRGB = sum(colors)`
+              ``sRGB = sum(colors)``
             - If 'sRGB_sub' -> Mixing produces darker colors
-              `sRGB = 1 - sum(1 - colors)`
+              ``sRGB = 1 - sum(1 - colors)``
         name : str, optional
             The name of the colormap family.
         """
@@ -1618,15 +1618,15 @@ class MultivarColormap:
 
         Parameters
         ----------
-        bad: :mpltype:`color`, default: None
+        bad : :mpltype:`color`, default: None
             If Matplotlib color, the bad value is set accordingly in the copy
 
-        under tuple of :mpltype:`color`, default: None
-            If tuple, the `under` value of each component is set with the values
+        under : tuple of :mpltype:`color`, default: None
+            If tuple, the 'under' value of each component is set with the values
             from the tuple.
 
-        over tuple of :mpltype:`color`, default: None
-            If tuple, the `over` value of each component is set with the values
+        over : tuple of :mpltype:`color`, default: None
+            If tuple, the 'over' value of each component is set with the values
             from the tuple.
 
         Returns
@@ -3729,11 +3729,10 @@ def hsv_to_rgb(hsv):
                          f"shape {hsv.shape} was found.")
 
     in_shape = hsv.shape
-    hsv = np.array(
-        hsv, copy=False,
-        dtype=np.promote_types(hsv.dtype, np.float32),  # Don't work on ints.
-        ndmin=2,  # In case input was 1D.
-    )
+    # ensure numerics are done at least on float32; ints are cast as well
+    hsv = np.asarray(hsv, dtype=np.promote_types(hsv.dtype, np.float32))
+    if hsv.ndim == 1:
+        hsv = np.expand_dims(hsv, axis=0)  # ensure hsv is 2D
 
     h = hsv[..., 0]
     s = hsv[..., 1]

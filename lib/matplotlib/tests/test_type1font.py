@@ -158,3 +158,55 @@ def test_encrypt_decrypt_roundtrip():
     decrypted = t1f.Type1Font._decrypt(encrypted, 'eexec')
     assert encrypted != decrypted
     assert data == decrypted
+
+
+def _write_pfa(path, private):
+    """Write a minimal font whose eexec-encrypted part is *private*."""
+    plaintext = b'/FontName /X def\n/FontBBox [0 0 1 1] def\n' + private
+    enc = t1f.Type1Font._encrypt(plaintext, 'eexec').hex().encode()
+    path.write_bytes(b'%!PS-AdobeFont-1.0: X 001.000\neexec\n' + enc + b'\n'
+                     + b'0' * 512 + b'\ncleartomark\n')
+    return str(path)
+
+
+def test_Subrs_no_preallocation(tmp_path):
+    # Regression test for #31962: a font declaring a huge /Subrs count must not
+    # cause a large allocation sized from that (untrusted) count before the
+    # body is parsed. Here the body is empty, so parsing must fail without
+    # first allocating a count-sized array.
+    import tracemalloc
+    path = _write_pfa(tmp_path / 'x.pfa', b'/Subrs 5000000 array\n')
+
+    tracemalloc.start()
+    with pytest.raises(RuntimeError, match='Incomplete /Subrs'):
+        t1f.Type1Font(path)
+    _, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    # The pre-allocation regressed to ~40 MB ([None] * count) before failing.
+    assert peak < 5 * 1024 * 1024
+
+
+def _write_subrs_pfa(path, indices):
+    """Write a font with a two-element /Subrs array declared at *indices*."""
+    return _write_pfa(path, (
+        b'/Subrs 2 array\n'
+        + b''.join(b'dup %d 5 RD \x00\x01\x02\x03\x04 NP\n' % index
+                   for index in indices)
+        + b'ND\n'
+        b'/CharStrings 1 begin\n'
+        b'/.notdef 5 RD \x00\x01\x02\x03\x04 ND\n'
+        b'end\n'
+    ))
+
+
+def test_Subrs_indices(tmp_path):
+    font = t1f.Type1Font(_write_subrs_pfa(tmp_path / 'x.pfa', (0, 1)))
+    assert len(font.prop['Subrs']) == 2
+
+
+@pytest.mark.parametrize('indices', [(0, 5), (0, 0), (-1, 1)])
+def test_Subrs_bad_indices(tmp_path, indices):
+    # The declared indices must cover 0 to count-1 exactly, so neither an index
+    # past the end nor a duplicate may reach the returned array.
+    with pytest.raises(RuntimeError, match='indices do not cover'):
+        t1f.Type1Font(_write_subrs_pfa(tmp_path / 'x.pfa', indices))
