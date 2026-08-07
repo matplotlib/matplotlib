@@ -474,6 +474,20 @@ def test_mathtext_fallback(fallback, fontlist):
     mpl.font_manager.fontManager.ttflist.pop()
 
 
+@pytest.mark.parametrize("char", ['中', '한', 'あ'])  # Chinese, Korean, Japanese
+def test_mathtext_cjk_fallback(char):
+    # Characters that the math fonts lack -- such as CJK characters -- should
+    # fall back through the font's fallback chain (mirroring regular text)
+    # rather than being replaced by a dummy glyph.
+    # https://github.com/matplotlib/matplotlib/issues/29173
+    fonts = _mathtext.DejaVuSansFonts(fm.FontProperties(), LoadFlags.NO_HINTING)
+    font, num, _ = fonts._get_glyph('rm', 'normal', char)
+    # The original code point is preserved (not the 0xA4 dummy currency sign)...
+    assert num == ord(char)
+    # ... and the returned font actually contains a glyph for it.
+    assert font.get_char_index(num, _fallback=False) != 0
+
+
 def test_math_to_image(tmp_path):
     mathtext.math_to_image('$x^2$', tmp_path / 'example.png')
     mathtext.math_to_image('$x^2$', io.BytesIO())
