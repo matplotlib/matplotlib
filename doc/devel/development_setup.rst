@@ -141,6 +141,7 @@ setup.
 
 .. _venv: https://docs.python.org/3/library/venv.html
 .. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+.. _uv: https://docs.astral.sh/uv/
 
 .. tab-set::
 
@@ -181,6 +182,59 @@ setup.
         pip install --group dev
 
       Remember to activate the environment whenever you start working on Matplotlib!
+
+   .. tab-item:: uv environment
+
+      `uv`_ is a fast drop-in replacement for ``pip`` and ``venv``. After
+      `installing uv <https://docs.astral.sh/uv/getting-started/installation/>`_,
+      create a new environment and install the Python dependencies with ::
+
+        uv venv
+        uv pip install --group dev
+
+      and activate it with one of the following :
+
+      .. tab-set::
+
+         .. tab-item:: Linux and macOS
+
+            .. code-block:: bash
+
+               source .venv/bin/activate
+
+         .. tab-item:: Windows cmd.exe
+
+            .. code-block:: bat
+
+               .venv\Scripts\activate.bat
+
+         .. tab-item:: Windows PowerShell
+
+            .. code-block:: ps1con
+
+               .venv\Scripts\Activate.ps1
+
+      Remember to activate the environment whenever you start working on Matplotlib!
+
+      .. note::
+
+         When using uv, prefix the remaining ``pip`` commands in this guide with
+         ``uv``. For example, the :ref:`editable install <development-install>`
+         below becomes ::
+
+            uv pip install --verbose --no-build-isolation --group dev --editable .
+
+         You can also manage the environment from a lockfile with ``uv sync``.
+         Because Matplotlib has a compiled (meson-python) build, install the
+         dependencies and the editable build in separate steps ::
+
+            uv sync --group dev --no-install-project
+            uv pip install --no-build-isolation --no-deps --editable .
+
+         Then activate the environment as above. Avoid ``uv run``, because it
+         re-syncs the project and rebuilds the editable install with build
+         isolation, which is incompatible with the meson-python editable rebuild.
+         ``uv run --no-sync`` will work around this.
 
    .. tab-item:: conda environment
 
