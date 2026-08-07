@@ -675,7 +675,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq) or list thereof
+        ls : :mpltype:`linestyle` or list of :mpltype:`linestyle`
             If a list, the individual elements are assigned to the elements of the
             collection.
 
@@ -1933,14 +1933,8 @@ class EventCollection(LineCollection):
             The line width of the event lines, in points.
         color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
             The color of the event lines.
-        linestyle : str or tuple or list thereof, default: 'solid'
-            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
-            '-', '--', '-.', ':']. Dash tuples should be of the form::
-
-                (offset, onoffseq),
-
-            where *onoffseq* is an even length tuple of on and off ink
-            in points.
+        linestyle : :mpltype:`linestyle`, default: 'solid'
+            The linestyle of the event lines.
         antialiased : bool or list thereof, default: :rc:`lines.antialiased`
             Whether to use antialiasing for drawing the lines.
         **kwargs

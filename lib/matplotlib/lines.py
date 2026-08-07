@@ -1165,7 +1165,7 @@ class Line2D(Artist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq)
+        ls : :mpltype:`linestyle`
             Possible values:
 
             - A string:
