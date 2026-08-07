@@ -554,6 +554,16 @@ def test_ellipse(ax):
     assert tool.geometry.shape == (2, 73)
     assert_allclose(tool.geometry[:, 0], [70., 100])
 
+    # Test on_select callback registration
+    onselect = mock.Mock(spec=noop, return_value=None)
+    on_select_callback = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.EllipseSelector(ax, onselect, interactive=True)
+    cid = tool.on_select(on_select_callback)
+    click_and_drag(tool, start=(100, 100), end=(150, 150))
+    onselect.assert_called_once()
+    on_select_callback.assert_called_once()
+    tool.disconnect(cid)
+
 
 def test_rectangle_handles(ax):
     tool = widgets.RectangleSelector(ax, grab_range=10, interactive=True,
@@ -601,6 +611,15 @@ def test_rectangle_selector_onselect(ax, interactive):
     onselect.reset_mock()
     click_and_drag(tool, start=(10, 100), end=(10, 100))
     onselect.assert_called_once()
+
+    # Test on_select callback registration
+    onselect.reset_mock()
+    on_select_callback = mock.Mock(spec=noop, return_value=None)
+    cid = tool.on_select(on_select_callback)
+    click_and_drag(tool, start=(100, 110), end=(150, 120))
+    onselect.assert_called_once()
+    on_select_callback.assert_called_once()
+    tool.disconnect(cid)
 
 
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
@@ -679,6 +698,15 @@ def test_span_selector_onselect(ax, interactive):
     onselect.reset_mock()
     click_and_drag(tool, start=(10, 100), end=(10, 100))
     onselect.assert_called_once()
+
+    # Test on_select callback registration
+    onselect.reset_mock()
+    on_select_callback = mock.Mock(spec=noop, return_value=None)
+    cid = tool.on_select(on_select_callback)
+    click_and_drag(tool, start=(100, 100), end=(150, 100))
+    onselect.assert_called_once()
+    on_select_callback.assert_called_once()
+    tool.disconnect(cid)
 
 
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
@@ -992,6 +1020,56 @@ def test_span_selector_extents(ax):
     assert tool.extents == (5, 10)
 
 
+def test_selector_on_select_multiple_callbacks(ax):
+    """Test that multiple callbacks can be registered and disconnected."""
+    onselect = mock.Mock(spec=noop, return_value=None)
+    callback1 = mock.Mock(spec=noop, return_value=None)
+    callback2 = mock.Mock(spec=noop, return_value=None)
+
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal', interactive=True)
+    cid1 = tool.on_select(callback1)
+    cid2 = tool.on_select(callback2)
+
+    assert cid1 != cid2
+
+    click_and_drag(tool, start=(100, 100), end=(150, 100))
+    callback1.assert_called_once()
+    callback2.assert_called_once()
+
+    # Disconnect first callback, second should still be called
+    callback1.reset_mock()
+    callback2.reset_mock()
+    tool.disconnect(cid1)
+    click_and_drag(tool, start=(100, 100), end=(175, 100))
+    callback1.assert_not_called()
+    callback2.assert_called_once()
+
+
+def test_selector_onselect_reassignment(ax):
+    """Test that reassigning onselect property works (backward compatibility)."""
+    callback1 = mock.Mock(spec=noop, return_value=None)
+    callback2 = mock.Mock(spec=noop, return_value=None)
+
+    tool = widgets.SpanSelector(ax, callback1, 'horizontal', interactive=True)
+
+    # First selection should call callback1
+    click_and_drag(tool, start=(100, 100), end=(150, 100))
+    callback1.assert_called_once()
+    callback2.assert_not_called()
+
+    # Reassign onselect
+    callback1.reset_mock()
+    tool.onselect = callback2
+
+    # Second selection should call callback2, not callback1
+    click_and_drag(tool, start=(100, 100), end=(175, 100))
+    callback1.assert_not_called()
+    callback2.assert_called_once()
+
+    # Verify we can read onselect back
+    assert tool.onselect is callback2
+
+
 @pytest.mark.parametrize('kwargs', [
     dict(),
     dict(useblit=False, props=dict(color='red')),
@@ -1006,6 +1084,17 @@ def test_lasso_selector(ax, kwargs):
     MouseEvent._from_ax_coords("button_release_event", ax, (150, 150), 1)._process()
 
     onselect.assert_called_once_with([(100, 100), (125, 125), (150, 150)])
+
+    # Test on_select callback registration
+    onselect.reset_mock()
+    on_select_callback = mock.Mock(spec=noop, return_value=None)
+    cid = tool.on_select(on_select_callback)
+    MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1)._process()
+    MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125), 1)._process()
+    MouseEvent._from_ax_coords("button_release_event", ax, (150, 150), 1)._process()
+    onselect.assert_called_once()
+    on_select_callback.assert_called_once()
+    tool.disconnect(cid)
 
 
 def test_lasso_selector_set_props(ax):
@@ -1553,6 +1642,22 @@ def test_polygon_selector(ax, draw_bounding_box):
         *polygon_place_vertex(ax, (50, 50)),
     ]
     check_selector(event_sequence, expected_result, 1)
+
+    # Test on_select callback registration
+    onselect = mock.Mock(spec=noop, return_value=None)
+    on_select_callback = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.PolygonSelector(ax, onselect, draw_bounding_box=draw_bounding_box)
+    cid = tool.on_select(on_select_callback)
+    for event in [
+        *polygon_place_vertex(ax, (50, 50)),
+        *polygon_place_vertex(ax, (150, 50)),
+        *polygon_place_vertex(ax, (50, 150)),
+        *polygon_place_vertex(ax, (50, 50)),
+    ]:
+        event._process()
+    onselect.assert_called_once()
+    on_select_callback.assert_called_once()
+    tool.disconnect(cid)
 
 
 @pytest.mark.parametrize('draw_bounding_box', [False, True])
