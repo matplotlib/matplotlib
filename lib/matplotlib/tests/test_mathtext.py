@@ -577,6 +577,22 @@ def test_mathtext_single_char_super_with_prime(expr):
 
 
 @check_figures_equal()
+def test_text_nested_braces(fig_test, fig_ref):
+    # Nested braces group as in TeX, and are not rendered (gh-32105).
+    fig_test.text(0.1, 0.2, r"$\text{{example}}$")
+    fig_test.text(0.1, 0.5, r"$\text{a{b}{{c}}d}$")
+    fig_ref.text(0.1, 0.2, r"$\text{example}$")
+    fig_ref.text(0.1, 0.5, r"$\text{abcd}$")
+
+
+@check_figures_equal()
+def test_text_escaped_braces(fig_test, fig_ref):
+    # Escaped braces are still rendered as literal braces (gh-32105).
+    fig_test.text(0.1, 0.2, r"$\text{{\{example\}}}$")
+    fig_ref.text(0.1, 0.2, r"$\text{\{example\}}$")
+
+
+@check_figures_equal()
 def test_boldsymbol(fig_test, fig_ref):
     fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")
     fig_ref.text(0.1, 0.2, r"$\mathrm{abc0123\alpha}$")
