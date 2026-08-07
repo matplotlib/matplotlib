@@ -356,7 +356,7 @@ class MovieWriter(AbstractMovieWriter):
 
     def _args(self):
         """Assemble list of encoder-specific command-line arguments."""
-        return NotImplementedError("args needs to be implemented by subclass.")
+        raise NotImplementedError("args needs to be implemented by subclass.")
 
     @classmethod
     def bin_path(cls):
