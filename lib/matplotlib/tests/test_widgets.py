@@ -1871,3 +1871,294 @@ def test_cursor_overlapping_axes_blitting_warning():
         cursor = widgets.Cursor(ax1, useblit=True)
 
     assert cursor.useblit is False
+
+
+def check_polyline_selector(events, expected, selections_count, **kwargs):
+    """
+    Helper function to test Polyline Selector.
+
+    Parameters
+    ----------
+    events : list[MouseEvent]
+        A sequence of events to perform.
+    expected : list of vertices (xdata, ydata)
+        The list of vertices expected to result from the event sequence.
+    selections_count : int
+        Wait for the tool to call its `onselect` function `selections_count`
+        times, before comparing the result to the `expected`
+    **kwargs
+        Keyword arguments are passed to PolylineSelector.
+    """
+    onselect = mock.Mock(spec=noop, return_value=None)
+
+    ax = events[0].canvas.figure.axes[0]
+    tool = widgets.PolylineSelector(ax, onselect=onselect, **kwargs)
+
+    for event in events:
+        event._process()
+
+    assert onselect.call_count == selections_count
+    assert onselect.call_args == ((expected, ), {})
+
+
+def polyline_place_vertex(ax, xy):
+    return [
+        MouseEvent._from_ax_coords("motion_notify_event", ax, xy),
+        MouseEvent._from_ax_coords("button_press_event", ax, xy, 1),
+        MouseEvent._from_ax_coords("button_release_event", ax, xy, 1),
+    ]
+
+
+def polyline_remove_vertex(ax, xy):
+    return [
+        MouseEvent._from_ax_coords("motion_notify_event", ax, xy),
+        MouseEvent._from_ax_coords("button_press_event", ax, xy, 3),
+        MouseEvent._from_ax_coords("button_release_event", ax, xy, 3),
+    ]
+
+
+def polyline_complete(ax):
+    return [
+        KeyEvent("key_press_event", ax.figure.canvas, "enter"),
+        KeyEvent("key_release_event", ax.figure.canvas, "enter"),
+    ]
+
+
+def test_polyline_selector(ax):
+    check_selector = functools.partial(check_polyline_selector)
+
+    # Simple polyline
+    expected_result = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+    ]
+    check_selector(event_sequence, expected_result, 1)
+
+    # Move first vertex before completing the polyline.
+    expected_result = [(75, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "control"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (50, 50)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (50, 50), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (75, 50)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (75, 50), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "control"),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+    ]
+    check_selector(event_sequence, expected_result, 1)
+
+    # Move first two vertices at once before completing the polyline.
+    expected_result = [(50, 75), (150, 75), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "shift"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (100, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "shift"),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+    ]
+    check_selector(event_sequence, expected_result, 1)
+
+    # Move first vertex after completing the polyline.
+    expected_result = [(85, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, (60, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (60, 50)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (60, 50), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (85, 50)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (85, 50), 1),
+    ]
+    check_selector(event_sequence, expected_result, 2)
+
+    # Move all vertices after completing the polyline.
+    expected_result = [(75, 75), (175, 75), (75, 175)]
+    event_sequence = [
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+        KeyEvent("key_press_event", ax.figure.canvas, "shift"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (125, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "shift"),
+    ]
+    check_selector(event_sequence, expected_result, 2)
+
+    # Try to move a vertex and move all before placing any vertices.
+    expected_result = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        KeyEvent("key_press_event", ax.figure.canvas, "control"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (125, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "control"),
+        KeyEvent("key_press_event", ax.figure.canvas, "shift"),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (100, 100)),
+        MouseEvent._from_ax_coords("button_press_event", ax, (100, 100), 1),
+        MouseEvent._from_ax_coords("motion_notify_event", ax, (125, 125)),
+        MouseEvent._from_ax_coords("button_release_event", ax, (125, 125), 1),
+        KeyEvent("key_release_event", ax.figure.canvas, "shift"),
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+    ]
+    check_selector(event_sequence, expected_result, 1)
+
+    # Try to place vertex out-of-bounds, then reset, and start a new polyline.
+    expected_result = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (250, 50)),
+        KeyEvent("key_press_event", ax.figure.canvas, "escape"),
+        KeyEvent("key_release_event", ax.figure.canvas, "escape"),
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+    ]
+    check_selector(event_sequence, expected_result, 1)
+
+
+def test_polyline_selector_set_props_handle_props(ax):
+    tool = widgets.PolylineSelector(ax,
+                                   props=dict(color='b', alpha=0.2),
+                                   handle_props=dict(alpha=0.5))
+
+    for event in [
+        *polyline_place_vertex(ax, (50, 50)),
+        *polyline_place_vertex(ax, (150, 50)),
+        *polyline_place_vertex(ax, (50, 150)),
+        *polyline_complete(ax),
+    ]:
+        event._process()
+
+    artist = tool._selection_artist
+    assert artist.get_color() == 'b'
+    assert artist.get_alpha() == 0.2
+    tool.set_props(color='r', alpha=0.3)
+    assert artist.get_color() == 'r'
+    assert artist.get_alpha() == 0.3
+
+    for artist in tool._handles_artists:
+        assert artist.get_color() == 'b'
+        assert artist.get_alpha() == 0.5
+    tool.set_handle_props(color='r', alpha=0.3)
+    for artist in tool._handles_artists:
+        assert artist.get_color() == 'r'
+        assert artist.get_alpha() == 0.3
+
+
+# Change the order that the extra point is inserted in
+@pytest.mark.parametrize('idx', [1, 2, 3])
+def test_polyline_selector_remove(ax, idx):
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [polyline_place_vertex(ax, verts[0]),
+                      polyline_place_vertex(ax, verts[1]),
+                      polyline_place_vertex(ax, verts[2]),
+                      # Finish the polyline
+                      polyline_complete(ax)]
+    # Add an extra point
+    event_sequence.insert(idx, polyline_place_vertex(ax, (200, 200)))
+    # Remove the extra point
+    event_sequence.append(polyline_remove_vertex(ax, (200, 200)))
+    # Flatten list of lists
+    event_sequence = functools.reduce(operator.iadd, event_sequence, [])
+    check_polyline_selector(event_sequence, verts, 2)
+
+
+def test_polyline_selector_remove_first_point(ax):
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, verts[0]),
+        *polyline_place_vertex(ax, verts[1]),
+        *polyline_place_vertex(ax, verts[2]),
+        *polyline_complete(ax),
+        *polyline_remove_vertex(ax, verts[0]),
+    ]
+    check_polyline_selector(event_sequence, verts[1:], 2)
+
+
+def test_polyline_selector_redraw(ax):
+    verts = [(50, 50), (150, 50), (50, 150)]
+    event_sequence = [
+        *polyline_place_vertex(ax, verts[0]),
+        *polyline_place_vertex(ax, verts[1]),
+        *polyline_place_vertex(ax, verts[2]),
+        *polyline_complete(ax),
+        # Polyline completed, now remove all three verts.
+        *polyline_remove_vertex(ax, verts[0]),
+        *polyline_remove_vertex(ax, verts[1]),
+        *polyline_remove_vertex(ax, verts[2]),
+        # At this point the tool should be reset so we can add more vertices.
+        *polyline_place_vertex(ax, verts[0]),
+        # Complete the polyline again.
+        *polyline_complete(ax),
+    ]
+
+    tool = widgets.PolylineSelector(ax)
+    for event in event_sequence:
+        event._process()
+    # After removing all verts, the selector should be automatically reset.
+    assert tool.verts == verts[0:1]
+
+
+@check_figures_equal()
+def test_polyline_selector_verts_setter(fig_test, fig_ref):
+    verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
+    ax_test = fig_test.add_subplot()
+
+    tool_test = widgets.PolylineSelector(ax_test)
+    tool_test.verts = verts
+    assert tool_test.verts == verts
+
+    ax_ref = fig_ref.add_subplot()
+    tool_ref = widgets.PolylineSelector(ax_ref)
+    for event in [
+        *polyline_place_vertex(ax_ref, verts[0]),
+        *polyline_place_vertex(ax_ref, verts[1]),
+        *polyline_place_vertex(ax_ref, verts[2]),
+        *polyline_complete(ax_ref),
+    ]:
+        event._process()
+
+
+def test_polyline_selector_clear_method(ax):
+    onselect = mock.Mock(spec=noop, return_value=None)
+    tool = widgets.PolylineSelector(ax, onselect)
+
+    for result in ([(50, 50), (150, 50), (50, 150)],
+                   [(50, 50), (100, 50), (50, 150)]):
+        for xy in result:
+            for event in polyline_place_vertex(ax, xy):
+                event._process()
+        for event in polyline_complete(ax):
+            event._process()
+
+        artist = tool._selection_artist
+
+        assert tool._selection_completed
+        assert tool.get_visible()
+        assert artist.get_visible()
+        np.testing.assert_equal(artist.get_xydata(), result)
+        assert onselect.call_args == ((result,), {})
+
+        tool.clear()
+        assert not tool._selection_completed
+        np.testing.assert_equal(artist.get_xydata(), [(0, 0)])
