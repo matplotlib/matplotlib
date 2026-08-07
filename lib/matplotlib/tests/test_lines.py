@@ -271,6 +271,60 @@ def test_markevery_figure_line_unsupported_relsize():
         fig.canvas.draw()
 
 
+def test_markevery_extreme_zoom():
+    x = np.linspace(0, 10, 200)
+    fig, ax = plt.subplots()
+    ax.plot(x, np.sin(x), marker="o", markevery=0.05)
+    ax.set_xlim(5.000000, 5.000001)
+
+    # Calculating marker positions must not allocate an unbounded distance
+    # matrix when the axes are zoomed in extremely far.
+    fig.canvas.draw()
+
+
+@pytest.mark.parametrize("markevery", [0.0, -0.1])
+def test_markevery_float_nonpositive_spacing(markevery):
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], marker="o", markevery=markevery)
+
+    with pytest.raises(ValueError, match="'markevery' step must be positive"):
+        fig.canvas.draw()
+
+
+@pytest.mark.parametrize(
+    ("markevery", "expected"),
+    [(1.5, [0, 3, 4, 5, 6, 7, 8]),
+     ((-0.2, 1.5), [0, 3, 4, 5, 6, 7]),
+     ((11.0, 1.5), [])])
+def test_markevery_float_vertex_selection(markevery, expected):
+    fig, ax = plt.subplots()
+    (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
+    scale = np.hypot(x1 - x0, y1 - y0)
+    path = Path(np.column_stack([
+        [0, 0.2, 0.8, 1.6, 2.7, 4.1, 5.8, 7.8, 10], np.zeros(9)]))
+
+    actual = mlines._mark_every_path(
+        markevery, path, mtransforms.Affine2D().scale(scale), ax)
+
+    assert_array_equal(actual.vertices, path.vertices[expected])
+
+
+@pytest.mark.parametrize(
+    ("x", "expected"), [([0, 0.5, 1.5], [0, 1]), ([0, 0, 2], [0])])
+def test_markevery_float_ties_and_repeated_vertices(x, expected):
+    fig, ax = plt.subplots()
+    (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
+    scale = np.hypot(x1 - x0, y1 - y0)
+    path = Path(np.column_stack([x, np.zeros(len(x))]))
+
+    actual = mlines._mark_every_path(
+        1.0, path, mtransforms.Affine2D().scale(scale), ax)
+
+    # Match np.argmin's preference for the first vertex on ties, including
+    # repeated cumulative distances.
+    assert_array_equal(actual.vertices, path.vertices[expected])
+
+
 def test_marker_as_markerstyle():
     fig, ax = plt.subplots()
     line, = ax.plot([2, 4, 3], marker=MarkerStyle("D"))
