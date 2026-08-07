@@ -239,6 +239,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
         self._in_resize_event = False
+        self._pressed_buttons = {}
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
         self.setMouseTracking(True)
@@ -331,17 +332,25 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def mousePressEvent(self, event):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
+            mods = self._mpl_modifiers()
+            button = self._remap_darwin_button(button, mods)
+            self._pressed_buttons[event.button()] = button
             MouseEvent("button_press_event", self,
-                       *self.mouseEventCoords(event), button,
-                       modifiers=self._mpl_modifiers(),
+                       *self.mouseEventCoords(event),
+                       button,
+                       modifiers=mods,
                        guiEvent=event)._process()
 
     def mouseDoubleClickEvent(self, event):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
+            mods = self._mpl_modifiers()
+            button = self._remap_darwin_button(button, mods)
+            self._pressed_buttons[event.button()] = button
             MouseEvent("button_press_event", self,
-                       *self.mouseEventCoords(event), button, dblclick=True,
-                       modifiers=self._mpl_modifiers(),
+                       *self.mouseEventCoords(event),
+                       button, dblclick=True,
+                       modifiers=mods,
                        guiEvent=event)._process()
 
     def mouseMoveEvent(self, event):
@@ -356,9 +365,15 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
     def mouseReleaseEvent(self, event):
         button = self.buttond.get(event.button())
         if button is not None and self.figure is not None:
+            mods = self._mpl_modifiers()
+            # use the button remapped at the press time, so releasing Option
+            # before the mouse button still reports the press time button
+            button = self._pressed_buttons.pop(
+                event.button(), self._remap_darwin_button(button, mods))
             MouseEvent("button_release_event", self,
-                       *self.mouseEventCoords(event), button,
-                       modifiers=self._mpl_modifiers(),
+                       *self.mouseEventCoords(event),
+                       button,
+                       modifiers=mods,
                        guiEvent=event)._process()
 
     def wheelEvent(self, event):
@@ -423,6 +438,13 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         # State *after* press/release.
         return {button for mask, button in FigureCanvasQT.buttond.items()
                 if _to_int(mask) & buttons}
+
+    @staticmethod
+    def _remap_darwin_button(button, mods):
+        # On macOS, Option+left-click emulates middle-click (mirrors _macosx.m).
+        if sys.platform == "darwin" and button == MouseButton.LEFT and 'alt' in mods:
+            return MouseButton.MIDDLE
+        return button
 
     @staticmethod
     def _mpl_modifiers(modifiers=None, *, exclude=None):
