@@ -1,3 +1,4 @@
+#include <memory>
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <pybind11/pybind11.h>
 #include <pybind11/native_enum.h>
@@ -299,11 +300,10 @@ class PyFT2Font final : public FT2Font
 
     void ft_glyph_warn(FT_ULong charcode, std::set<FT_String*> family_names)
     {
-        std::set<FT_String*>::iterator it = family_names.begin();
-        std::stringstream ss;
-        ss<< (*it ? *it : "unknown family name");
-        while(++it != family_names.end()){
-            ss<<", "<< (*it ? *it : "unknown family name");
+        std::ostringstream ss;
+        for (const auto& fname : family_names) {
+            ss << (fname != nullptr ? fname : "unknown family name");
+            if (fname != *family_names.rbegin()) ss << ", ";
         }
 
         auto text_helpers = py::module_::import("matplotlib._text_helpers");
@@ -367,8 +367,7 @@ read_from_file_callback(FT_Stream stream, unsigned long offset, unsigned char *b
 static void
 close_file_callback(FT_Stream stream)
 {
-    PyObject *type, *value, *traceback;
-    PyErr_Fetch(&type, &value, &traceback);
+    PyObject* exc = PyErr_GetRaisedException();
     PyFT2Font *self = (PyFT2Font *)stream->descriptor.pointer;
     try {
         self->py_file.attr("close")();
@@ -376,7 +375,7 @@ close_file_callback(FT_Stream stream)
         eas.discard_as_unraisable(__func__);
     }
     self->py_file = py::object();
-    PyErr_Restore(type, value, traceback);
+    PyErr_SetRaisedException(exc);
 }
 
 const char *PyFT2Font_init__doc__ = R"""(
@@ -401,10 +400,9 @@ const char *PyFT2Font_init__doc__ = R"""(
             This API is private: do not use it directly.
 )""";
 
-static PyFT2Font *
-PyFT2Font_init(FT_Library ft2Library, py::object filename,
-               std::optional<long> hinting_factor = std::nullopt,
-               FT_Long face_index = 0,
+static std::unique_ptr<PyFT2Font>
+PyFT2Font_init(FT_Library ft2Library, py::object filename, std::optional<long> hinting_factor = std::nullopt,
+               FT_ULong face_index = 0,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                std::optional<int> kerning_factor = std::nullopt,
                bool warn_if_used = false)
@@ -422,7 +420,7 @@ PyFT2Font_init(FT_Library ft2Library, py::object filename,
         kerning_factor = 0;
     }
 
-    if (face_index < 0 || face_index > 0xffff) {
+    if (face_index > 0xffff) {
         throw std::range_error("face_index must be between 0 and 65535, inclusive");
     }
 
@@ -433,7 +431,7 @@ PyFT2Font_init(FT_Library ft2Library, py::object filename,
                   std::back_inserter(fallback_fonts));
     }
 
-    auto self = new PyFT2Font(fallback_fonts, warn_if_used);
+    auto self = std::make_unique<PyFT2Font>(fallback_fonts, warn_if_used);
     self->set_kerning_factor(*kerning_factor);
 
     if (fallback_list) {
@@ -447,7 +445,7 @@ PyFT2Font_init(FT_Library ft2Library, py::object filename,
     self->stream.base = nullptr;
     self->stream.size = 0x7fffffff;  // Unknown size.
     self->stream.pos = 0;
-    self->stream.descriptor.pointer = self;
+    self->stream.descriptor.pointer = self.get();
     self->stream.read = &read_from_file_callback;
     FT_Open_Args open_args;
     memset((void *)&open_args, 0, sizeof(FT_Open_Args));
@@ -1564,10 +1562,10 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             [ft2Library](
                 py::object filename,
                 std::optional<long> hinting_factor = std::nullopt,
-                FT_Long face_index = 0,
+                FT_ULong face_index = 0,
                 std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                 std::optional<int> kerning_factor = std::nullopt,
-                bool warn_if_used = false) -> PyFT2Font *
+                bool warn_if_used = false) -> std::unique_ptr<PyFT2Font>
             {
                 return PyFT2Font_init(ft2Library, filename, hinting_factor, face_index,
                                       fallback_list, kerning_factor, warn_if_used);
