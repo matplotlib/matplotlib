@@ -201,6 +201,7 @@ Supported properties are
         self._transformSet = False
         self._visible = True
         self._animated = False
+        self._in_overlay = False
         self._alpha = None
         self.clipbox = None
         self._clippath = None
@@ -331,6 +332,16 @@ Supported properties are
         # draw loop (when not saving) so do not propagate this change
         if self._animated:
             return
+
+        # overlay artists also opt out — overlay redraws are handled
+        # by OverlayManager / draw_overlay(), not by the main draw loop
+        if self.get_in_overlay():
+            fig = self.get_figure(root=False)
+            if fig is not None and getattr(fig.canvas, 'supports_overlay', False):
+                if val:
+                    fig.canvas.draw_overlay()
+                return   # overlay path redraws; skip propagation
+            # else: backend can't honor overlay, fall through — let normal stale work
 
         if val and self.stale_callback is not None:
             self.stale_callback(self, val)
@@ -1135,6 +1146,27 @@ Supported properties are
         if self._animated != b:
             self._animated = b
             self.pchanged()
+
+    def get_in_overlay(self):
+        """Return whether the artist is intended to be drawn in the overlay layer."""
+        return self._in_overlay
+
+    def set_in_overlay(self, in_overlay):
+        """
+        Set whether the artist is intended to be drawn in the overlay layer.
+
+        If True, the artist is excluded from regular drawing of the figure.
+        You have to call ``canvas.draw_overlay()`` to redraw the overlay layer.
+
+        Parameters
+        ----------
+        in_overlay : bool
+            Whether this artist should be drawn in the overlay layer.
+        """
+        if self._in_overlay != in_overlay:
+            self._in_overlay = in_overlay
+            self.pchanged()
+            self.stale = True
 
     def set_in_layout(self, in_layout):
         """
