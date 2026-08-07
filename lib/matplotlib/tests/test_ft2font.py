@@ -1,6 +1,8 @@
 import itertools
 import io
 import os
+import shutil
+import sys
 from pathlib import Path
 from typing import cast
 
@@ -154,6 +156,39 @@ def test_ft2font_valid_args():
     assert font.fname == file_str
     font = ft2font.FT2Font(PathLikeClass(file_bytes))
     assert font.fname == file_bytes
+
+
+def test_ft2font_unicode_path(tmp_path):
+    file = tmp_path / 'DéjàVu-Sans-日本語.ttf'
+    shutil.copyfile(fm.findfont('DejaVu Sans'), file)
+
+    font = ft2font.FT2Font(str(file))
+    font.set_text('foo')
+    assert font.fname == str(file)
+
+    file_bytes = os.fsencode(file)
+    font = ft2font.FT2Font(file_bytes)
+    font.set_text('foo')
+    assert font.fname == file_bytes
+
+
+def test_ft2font_no_mmap(monkeypatch):
+    # Simulate platforms without the mmap module (e.g. WASI), which should fall
+    # back to streaming reads through the Python file object.
+    monkeypatch.setitem(sys.modules, 'mmap', None)
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo')
+    assert font.fname == file
+
+
+def test_ft2font_unmappable_file(tmp_path):
+    # An empty file cannot be mmapped and falls back to streaming reads, which
+    # should then raise the usual FreeType error for an invalid font.
+    file = tmp_path / 'empty.ttf'
+    file.touch()
+    with pytest.raises(RuntimeError):
+        ft2font.FT2Font(str(file))
 
 
 def test_ft2font_invalid_args(tmp_path):
