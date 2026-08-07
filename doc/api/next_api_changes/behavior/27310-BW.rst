@@ -1,0 +1,6 @@
+Improved ``symlog`` tick placement
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The tick placement for ``symlog`` axes has been improved. It now also supports
+minor ticks and `.SymmetricalLogScale` uses ``subs='auto'`` (minor ticks if
+appropriate) by default rather than ``subs=None`` (no minor ticks).

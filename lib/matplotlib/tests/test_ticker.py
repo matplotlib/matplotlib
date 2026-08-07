@@ -624,45 +624,81 @@ class TestIndexLocator:
 class TestSymmetricalLogLocator:
     def test_set_params(self):
         """
-        Create symmetrical log locator with default subs =[1.0] numticks = 15,
+        Create symmetrical log locator with default subs=[1.0] numticks='auto',
         and change it to something else.
         See if change was successful.
         Should not exception.
         """
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1)
         sym.set_params(subs=[2.0], numticks=8)
         assert sym._subs == [2.0]
         assert sym.numticks == 8
 
+    def test_mixin(self):
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=20, linscale=3)
+
+        assert_almost_equal(sym._val2axpos(20), 3)
+        assert_almost_equal(sym._val2axpos(-200), -4)
+        assert_almost_equal(sym._val2axpos(20000000), 9)
+        assert_almost_equal(sym._val2axpos(0), 0)
+        assert_almost_equal(sym._val2axpos(1), 0.15)
+        assert_almost_equal(sym._val2axpos(-4), -0.6)
+
+        assert_almost_equal(sym._axpos2val(5), 2000)
+        assert_almost_equal(sym._axpos2val(-3.5), -63.2455532033676)
+        assert_almost_equal(sym._axpos2val(0.5), 3.3333333333333)
+
+        assert_almost_equal(sym._firsttickval(), 10)
+
+        assert_almost_equal(sym._val2decnum(0), 0)
+        assert_almost_equal(sym._val2decnum(-100), -2)
+        assert_almost_equal(sym._val2decnum(316.227766016838), 2.5)
+        assert_almost_equal(sym._val2decnum(5), 0.5)
+        assert_almost_equal(sym._val2decnum(20), 1.30102999566398)
+
+        assert_almost_equal(sym._decnum2val(-1), -10)
+        assert_almost_equal(sym._decnum2val(2), 100)
+        assert_almost_equal(sym._decnum2val(0.1), 1)
+        assert_almost_equal(sym._decnum2val(0), 0)
+        assert_almost_equal(sym._decnum2val(1.5), 31.6227766016838)
+
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=20, linscale=15)
+        assert_almost_equal(sym._firsttickval(), 1)
+
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=20, linscale=0.8)
+        assert_almost_equal(sym._firsttickval(), 100)
+
     @pytest.mark.parametrize(
             'vmin, vmax, expected',
             [
-                (0, 1, [0, 1]),
-                (-1, 1, [-1, 0, 1]),
+                (0, 1, [-1, 0, 1, 10]),
+                (-1, 1, [-10, -1, 0, 1, 10]),
             ],
     )
     def test_values(self, vmin, vmax, expected):
         # https://github.com/matplotlib/matplotlib/issues/25945
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1)
         ticks = sym.tick_values(vmin=vmin, vmax=vmax)
         assert_array_equal(ticks, expected)
 
     def test_subs(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, subs=[2.0, 4.0])
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1,
+                                            subs=[2.0, 4.0])
         sym.create_dummy_axis()
         sym.axis.set_view_interval(-10, 10)
-        assert_array_equal(sym(), [-20, -40, -2, -4, 0, 2, 4, 20, 40])
+        assert_array_equal(sym(), [-400, -200, -40, -20, -4, -2, -0.4, -0.2, -0.1,
+                                   0.1, 0.2, 0.4, 2, 4, 20, 40, 200, 400])
 
     def test_extending(self):
-        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1)
+        sym = mticker.SymmetricalLogLocator(base=10, linthresh=1, linscale=1)
         sym.create_dummy_axis()
         sym.axis.set_view_interval(8, 9)
-        assert (sym() == [1.0]).all()
+        assert_array_equal(sym(), [1, 10])
         sym.axis.set_view_interval(8, 12)
-        assert (sym() == [1.0, 10.0]).all()
+        assert_array_equal(sym(), [1, 10, 100])
         assert sym.view_limits(10, 10) == (1, 100)
         assert sym.view_limits(-10, -10) == (-100, -1)
-        assert sym.view_limits(0, 0) == (-0.001, 0.001)
+        assert sym.view_limits(0, 0) == (-1, 1)
 
 
 class TestAsinhLocator:
