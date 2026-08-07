@@ -198,11 +198,33 @@ def _mark_every_path(markevery, tpath, affine, ax):
             # bounding box diagonal being a distance of unity:
             (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
             scale = np.hypot(x1 - x0, y1 - y0)
-            marker_delta = np.arange(start * scale, delta[-1], step * scale)
-            # find closest actual data point that is closest to
-            # the theoretical distance along the path:
-            inds = np.abs(delta[np.newaxis, :] - marker_delta[:, np.newaxis])
-            inds = inds.argmin(axis=1)
+            marker_start = start * scale
+            marker_step = step * scale
+            if marker_step <= 0:
+                raise ValueError(
+                    f"'markevery' step must be positive, but got {step!r}")
+            # A theoretical marker can select a vertex only if the marker
+            # immediately before or after that vertex selects it.  Limit
+            # the candidates to those markers instead of materializing
+            # every marker position, which may be arbitrarily large when
+            # zoomed in far enough.
+            marker_delta = delta - np.remainder(delta - marker_start, marker_step)
+            marker_delta = np.union1d(marker_delta, marker_delta + marker_step)
+            marker_delta = marker_delta[
+                (marker_delta >= marker_start) & (marker_delta < delta[-1])]
+
+            # Find each candidate's closest actual data point without
+            # constructing a len(marker_delta) x len(delta) array.
+            right = np.searchsorted(delta, marker_delta, side="left")
+            left = np.maximum(right - 1, 0)
+            right = np.minimum(right, len(delta) - 1)
+            inds = np.where(
+                np.abs(delta[right] - marker_delta)
+                < np.abs(marker_delta - delta[left]),
+                right, left)
+            # If there are multiple vertices at a given distance, use the
+            # first one.
+            inds = np.searchsorted(delta, delta[inds], side="left")
             inds = np.unique(inds)
             # return, we are done here
             return Path(fverts[inds], _slice_or_none(codes, inds))
