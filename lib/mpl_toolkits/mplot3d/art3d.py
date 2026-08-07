@@ -358,9 +358,12 @@ class Line3D(lines.Line2D):
         if self._axlim_clip:
             scale_mask |= _viewlim_mask(*self._verts3d, self.axes)
         if np.any(scale_mask):
+            # np.shape rather than .shape: set_data_3d documents its
+            # parameters as array-like and stores whatever it is given, so
+            # _verts3d can hold lists or tuples.
             mask = np.broadcast_to(
                 scale_mask,
-                (len(self._verts3d), *self._verts3d[0].shape)
+                (len(self._verts3d), *np.shape(self._verts3d[0]))
             )
             xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
                                            dtype=float, mask=mask).filled(np.nan)

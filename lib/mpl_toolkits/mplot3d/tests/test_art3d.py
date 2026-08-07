@@ -13,6 +13,42 @@ from mpl_toolkits.mplot3d.art3d import (
 )
 
 
+@pytest.mark.parametrize("container", [list, tuple])
+@pytest.mark.parametrize(
+    "case", ["nan", "inf", "log_domain", "axlim_clip", "one_of_many"])
+def test_line3d_draws_array_like_coordinates(container, case):
+    # set_data_3d documents its parameters as array-like and stores whatever it
+    # is given, so _verts3d can hold lists or tuples. Drawing must not require
+    # an ndarray.
+    #
+    # The masking branch that reads a shape is entered when a coordinate is
+    # non-finite, outside the active scale's domain, or outside the view limits
+    # with axlim_clip enabled, so each of those is a way in.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    line, = ax.plot([1.], [1.], [1.],
+                    axlim_clip=(case == "axlim_clip"))
+
+    if case == "nan":
+        xs, ys, zs = [np.nan], [1.], [1.]
+    elif case == "inf":
+        xs, ys, zs = [np.inf], [1.], [1.]
+    elif case == "log_domain":
+        # Finite, and invalid only because of the scale.
+        ax.set_xscale("log")
+        xs, ys, zs = [0.], [1.], [1.]
+    elif case == "axlim_clip":
+        # Finite and valid for the scale; masked for being out of view.
+        xs, ys, zs = [1e6], [1e6], [1e6]
+    else:
+        # A line where only one vertex is masked.
+        xs, ys, zs = [1., np.nan], [1., 2.], [1., 2.]
+
+    line.set_data_3d(container(xs), container(ys), container(zs))
+
+    fig.canvas.draw()
+
+
 @pytest.mark.parametrize("zdir, expected", [
     ("x", (1, 0, 0)),
     ("y", (0, 1, 0)),
