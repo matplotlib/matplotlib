@@ -267,7 +267,7 @@ ax.set_xlabel(label)
 #
 # The support for dates and categories is part of "units" support that is built
 # into Matplotlib.  This is described at `.matplotlib.units` and in the
-# :ref:`basic_units` example.
+# :ref:`units examples <units-examples-index>`.
 #
 # Unit support works by querying the type of data passed to the plotting
 # function and dispatching to the first converter in a list that accepts that
