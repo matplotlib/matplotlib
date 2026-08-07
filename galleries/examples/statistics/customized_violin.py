@@ -1,4 +1,6 @@
 """
+.. _customized_violin:
+
 =========================
 Violin plot customization
 =========================
