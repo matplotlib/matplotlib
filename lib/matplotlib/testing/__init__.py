@@ -260,7 +260,8 @@ def is_ci_environment():
         'JENKINS',   # Jenkins
         'GITLAB_CI',  # GitLab CI
         'GITHUB_ACTIONS',  # GitHub Actions
-        'TEAMCITY_VERSION'  # TeamCity
+        'TEAMCITY_VERSION',  # TeamCity
+        'TF_BUILD',  # Azure Pipelines
         # Add other CI environment variables as needed
     ]
 
