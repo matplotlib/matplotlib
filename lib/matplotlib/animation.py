@@ -178,7 +178,11 @@ class AbstractMovieWriter(abc.ABC):
     def frame_size(self):
         """A tuple ``(width, height)`` in pixels of a movie frame."""
         w, h = self.fig.get_size_inches()
-        return int(w * self.dpi), int(h * self.dpi)
+        # Match the rounding FigureCanvasBase.get_width_height(physical=True)
+        # applies when rendering: round up when within 1e-8 px of the integer,
+        # otherwise the frame size can be one pixel short of the RGBA buffer
+        # PillowWriter grabs via savefig(format="rgba"), skewing the frames.
+        return int(w * self.dpi + 1e-8), int(h * self.dpi + 1e-8)
 
     def _supports_transparency(self):
         """

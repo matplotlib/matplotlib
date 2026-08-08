@@ -558,3 +558,23 @@ def test_animation_with_transparency():
     # Check that the alpha channel is not 255, so frame has transparency
     assert frame.getextrema()[3][0] < 255
     plt.close(fig)
+
+
+def test_animation_frame_size_matches_rgba_buffer():
+    """
+    The movie frame size must match the RGBA buffer that PillowWriter grabs via
+    savefig(format="rgba"); a one-pixel mismatch makes Image.frombuffer misread
+    the rows and skew the frames (3.11.1 regression, GH #32186).
+    """
+    from io import BytesIO
+
+    # 8.2 in * 100 dpi = 819.9999999999999 px: plain int() truncates to 819,
+    # but the rendered RGBA buffer is rounded up to 820 (get_width_height).
+    fig, ax = plt.subplots(figsize=(8.2, 7), dpi=100)
+    writer = PillowWriter(fps=1)
+    writer.setup(fig, 'unused.gif', dpi=100)
+    buf = BytesIO()
+    fig.savefig(buf, format='rgba', dpi=100)
+    buffer_width = buf.getbuffer().nbytes // 4 // writer.frame_size[1]
+    assert writer.frame_size[0] == buffer_width
+    plt.close(fig)
