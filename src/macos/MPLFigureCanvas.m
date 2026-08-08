@@ -31,11 +31,11 @@
 
         [self setLayer:canvasLayer];
         [self setWantsLayer:YES];
-        
+
         CALayer *rubberbandLayer = [CALayer layer];
         [rubberbandLayer setDelegate:self];
         [rubberbandLayer setNeedsDisplayOnBoundsChange:YES];
-        
+
         _canvasLayer = canvasLayer;
         _rubberbandLayer = rubberbandLayer;
 
@@ -183,7 +183,7 @@
     CGImageRef contents = MPLCreateImage(bounds.size, contentsScale, ^(CGContextRef context) {
         CGRect strokeRect = CGRectInset(bounds, 0.5, 0.5);
         CGFloat dashPattern[2] = { 3.0, 3.0 };
-        
+
         CGContextSetGrayStrokeColor(context, 1.0, 1.0);
         CGContextSetLineDash(context, 0.0, dashPattern, 2);
         CGContextStrokeRect(context, strokeRect);
@@ -204,7 +204,7 @@
 - (NSString *) _mappedStringWithCharacters:(NSString *)characters
 {
     static NSDictionary *sKeyMap = nil;
-    
+
     if (!sKeyMap) sKeyMap = @{
         @( NSLeftArrowFunctionKey  ): @"left",         @( NSRightArrowFunctionKey ): @"right",
         @( NSUpArrowFunctionKey    ): @"up",           @( NSDownArrowFunctionKey  ): @"down",

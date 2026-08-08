@@ -116,13 +116,13 @@ class FigureCanvasMac(_macos.FigureCanvas, FigureCanvasBase):
                       modifiers=self._mpl_modifiers(modifiers))._process()
 
     def _handle_mouse_down(self, x, y, button, modifiers, dblclick):
-        button=self._mpl_button(button)
+        button = self._mpl_button(button)
         if button is not None:
             MouseEvent("button_press_event", self, x, y, button, dblclick=dblclick,
                        modifiers=self._mpl_modifiers(modifiers))._process()
 
     def _handle_mouse_up(self, x, y, button, modifiers):
-        button=self._mpl_button(button)
+        button = self._mpl_button(button)
         if button is not None:
             MouseEvent("button_release_event", self, x, y, button,
                        modifiers=self._mpl_modifiers(modifiers))._process()

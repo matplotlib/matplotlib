@@ -93,7 +93,7 @@ NSString *MPLGetStringWithPyString(PyObject *pyString)
         // PyUnicode_AsUTF8AndSize() should set error in this case
         return nil;
     }
-    
+
     // This should never happen, but we are about to cast from signed to unsigned
     if (size < 0) {
         PyErr_SetString(PyExc_RuntimeError, "Size is less than 0");
@@ -284,4 +284,3 @@ CGImageRef MPLCreateImage(CGSize size, CGFloat scale, void (^callback)(CGContext
     CGBitmapInfo bitmapInfo = 0 | kCGImageAlphaPremultipliedFirst | kCGImageByteOrder32Little;
     return sCreateImage(size, scale, YES, kCGColorSpaceSRGB, 4, bitmapInfo, callback);
 }
-
