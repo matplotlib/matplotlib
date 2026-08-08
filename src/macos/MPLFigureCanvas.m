@@ -1,29 +1,6 @@
 #import "MPLFigureCanvas.h"
 #import "MPLUtils.h"
-
-
-@interface MPLRubberbandView : NSView
-@end
-
-
-@implementation MPLRubberbandView
-
-- (void) drawRect:(NSRect)dirtyRect
-{
-    NSBezierPath *path = [NSBezierPath bezierPathWithRect:[self bounds]];
-    CGFloat dashPattern[2] = { 3.0, 3.0 };
-
-    [path setLineDash:dashPattern count:2 phase:0];
-    [[NSColor whiteColor] setStroke];
-    [path stroke];
-
-    [path setLineDash:dashPattern count:2 phase:3];
-    [[NSColor blackColor] setStroke];
-    [path stroke];
-}
-
-@end
-
+#import <QuartzCore/CAShapeLayer.h>
 
 @interface MPLFigureCanvas () <CALayerDelegate>
 @end
@@ -33,7 +10,8 @@
     BOOL _isLeftMouseDown;
     BOOL _isHandCursorActive;
     NSEventModifierFlags _previousModifierFlags;
-    MPLRubberbandView *_rubberbandView;
+    CALayer *_canvasLayer;
+    CALayer *_rubberbandLayer;
     BOOL _needsDrawOnNextDisplayLayer;
 }
 
@@ -45,14 +23,21 @@
             NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect
         );
 
-        CALayer *layer = [CALayer layer];
-        [layer setDelegate:self];
-        [layer setContentsGravity:kCAGravityResize];
-        [layer setBackgroundColor:[[NSColor whiteColor] CGColor]];
-        [layer setOpaque:YES];
+        CALayer *canvasLayer = [CALayer layer];
+        [canvasLayer setDelegate:self];
+        [canvasLayer setContentsGravity:kCAGravityResize];
+        [canvasLayer setBackgroundColor:[[NSColor whiteColor] CGColor]];
+        [canvasLayer setOpaque:YES];
 
-        [self setLayer:layer];
+        [self setLayer:canvasLayer];
         [self setWantsLayer:YES];
+        
+        CALayer *rubberbandLayer = [CALayer layer];
+        [rubberbandLayer setDelegate:self];
+        [rubberbandLayer setNeedsDisplayOnBoundsChange:YES];
+        
+        _canvasLayer = canvasLayer;
+        _rubberbandLayer = rubberbandLayer;
 
         [self addTrackingArea:[[NSTrackingArea alloc] initWithRect: CGRectZero
                                                            options: options
@@ -78,6 +63,9 @@
 {
     CGFloat scaleFactor = [[self window] backingScaleFactor];
     if (!scaleFactor) scaleFactor = 1;
+
+    [_canvasLayer setContentsScale:scaleFactor];
+    [_rubberbandLayer setContentsScale:scaleFactor];
 
     int width, height;
     [self _getDeviceSizeWithSize:[self frame].size width:&width height:&height];
@@ -109,8 +97,13 @@
 
 - (void) displayLayer:(CALayer *)layer
 {
-    int needsDraw = _needsDrawOnNextDisplayLayer ? 1 : 0;
-    MPLCallMethod(_pyObject, "_handle_display_layer", "i", needsDraw);
+    if (layer == _canvasLayer) {
+        int needsDraw = _needsDrawOnNextDisplayLayer ? 1 : 0;
+        MPLCallMethod(_pyObject, "_handle_display_layer", "i", needsDraw);
+
+    } else if (layer == _rubberbandLayer) {
+        [self _displayRubberbandLayer];
+    }
 }
 
 
@@ -166,19 +159,43 @@
 }
 
 
-- (void) _updateRubberbandViewWithFrame:(CGRect)frame
+- (void) _updateRubberbandLayerWithFrame:(CGRect)frame
 {
     if (CGRectIsEmpty(frame)) {
-        [_rubberbandView removeFromSuperview];
-        _rubberbandView = nil;
-
-    } else if (!_rubberbandView) {
-        _rubberbandView = [[MPLRubberbandView alloc] initWithFrame:frame];
-        [self addSubview:_rubberbandView];
+        [_rubberbandLayer removeFromSuperlayer];
+        [_rubberbandLayer setContents:nil];
 
     } else {
-        [_rubberbandView setFrame:frame];
+        if (![_rubberbandLayer superlayer]) {
+            [_canvasLayer addSublayer:_rubberbandLayer];
+        }
+
+        [_rubberbandLayer setFrame:frame];
     }
+}
+
+
+- (void) _displayRubberbandLayer
+{
+    CGRect bounds = [_rubberbandLayer bounds];
+    CGFloat contentsScale = [_rubberbandLayer contentsScale];
+
+    CGImageRef contents = MPLCreateImage(bounds.size, contentsScale, ^(CGContextRef context) {
+        CGRect strokeRect = CGRectInset(bounds, 0.5, 0.5);
+        CGFloat dashPattern[2] = { 3.0, 3.0 };
+        
+        CGContextSetGrayStrokeColor(context, 1.0, 1.0);
+        CGContextSetLineDash(context, 0.0, dashPattern, 2);
+        CGContextStrokeRect(context, strokeRect);
+
+        CGContextSetGrayStrokeColor(context, 0.0, 1.0);
+        CGContextSetLineDash(context, 3.0, dashPattern, 2);
+        CGContextStrokeRect(context, strokeRect);
+    });
+
+    [_rubberbandLayer setContents:(__bridge id)contents];
+
+    CGImageRelease(contents);
 }
 
 
@@ -186,7 +203,9 @@
 
 - (NSString *) _mappedStringWithCharacters:(NSString *)characters
 {
-    NSDictionary *keyMap = @{
+    static NSDictionary *sKeyMap = nil;
+    
+    if (!sKeyMap) sKeyMap = @{
         @( NSLeftArrowFunctionKey  ): @"left",         @( NSRightArrowFunctionKey ): @"right",
         @( NSUpArrowFunctionKey    ): @"up",           @( NSDownArrowFunctionKey  ): @"down",
         @( NSF1FunctionKey         ): @"f1",           @( NSF2FunctionKey         ): @"f2",
@@ -210,7 +229,7 @@
     };
 
     return ([characters length] > 0) ?
-        [keyMap objectForKey:@( [characters characterAtIndex:0] )] :
+        [sKeyMap objectForKey:@( [characters characterAtIndex:0] )] :
         nil;
 }
 
@@ -333,11 +352,6 @@
         [self _updateHandCursor];
     }
 
-    // Map AppKit buttonNumber to MPL MouseButton
-    buttonNumber++;
-    if      (buttonNumber == 2) buttonNumber = 3;
-    else if (buttonNumber == 3) buttonNumber = 2;
-
     if (isPress) {
         MPLCallMethod(_pyObject, "_handle_mouse_down",
             "iilki", x, y, buttonNumber, modifierFlags,
@@ -412,18 +426,10 @@
 
 #pragma mark - Public Methods
 
-- (void) updateLayerContentsWithBuffer: (NSData *) buffer
-                           deviceWidth: (size_t) deviceWidth
-                          deviceHeight: (size_t) deviceHeight;
+- (void) updateLayerContentsWithDataProvider: (CGDataProviderRef) provider
+                                 deviceWidth: (size_t) deviceWidth
+                                deviceHeight: (size_t) deviceHeight
 {
-    CFDataRef cfBuffer = (__bridge CFDataRef)buffer;
-    CGDataProviderRef provider = CGDataProviderCreateWithCFData(cfBuffer);
-
-    if (!provider) {
-        PyErr_SetString(PyExc_RuntimeError, "CGDataProviderCreateWithCFData() failed");
-        return;
-    }
-
     CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     CGBitmapInfo bitmapInfo = 0 | kCGBitmapByteOrderDefault | kCGImageAlphaLast;
 
@@ -434,32 +440,31 @@
     ) : NULL;
 
     if (contents) {
-        [[self layer] setContents:(__bridge id)contents];
+        [_canvasLayer setContents:(__bridge id)contents];
     }
 
     CGColorSpaceRelease(colorSpace);
-    CGDataProviderRelease(provider);
     CGImageRelease(contents);
 }
 
 
 - (void) updateCursorType:(int)cursorType
 {
-    // Keep track of whether this view has the hand cursor active rather
-    // than comparing against the process-level [NSCursor currentCursor]
     _isHandCursorActive = (cursorType == 4);
 
     if (_isHandCursorActive) {
         [self _updateHandCursor];
 
     } else {
-        NSCursor *cursor = [@{
-            @(1): [NSCursor arrowCursor],
-            @(2): [NSCursor pointingHandCursor],
-            @(3): [NSCursor crosshairCursor],
-            @(6): [NSCursor resizeLeftRightCursor],
-            @(7): [NSCursor resizeUpDownCursor],
-        } objectForKey:@(cursorType)];
+        NSCursor *cursor;
+
+        if      (cursorType == 1) cursor = [NSCursor arrowCursor];
+        else if (cursorType == 2) cursor = [NSCursor pointingHandCursor];
+        else if (cursorType == 3) cursor = [NSCursor crosshairCursor];
+        // 4 is Cursors.MOVE - handled above
+        // 5 is Cursors.WAIT - macOS automatically shows the busy cursor as needed
+        else if (cursorType == 6) cursor = [NSCursor resizeLeftRightCursor];
+        else if (cursorType == 7) cursor = [NSCursor resizeUpDownCursor];
 
         [cursor set];
     }
@@ -470,13 +475,13 @@
 {
     CGRect rect = CGRectStandardize(CGRectMake(x0, y0, x1 - x0, y1 - y0));
     CGRect rubberbandFrame = [self convertRectFromBacking:rect];
-    [self _updateRubberbandViewWithFrame:rubberbandFrame];
+    [self _updateRubberbandLayerWithFrame:rubberbandFrame];
 }
 
 
 - (void) removeRubberband
 {
-    [self _updateRubberbandViewWithFrame:CGRectZero];
+    [self _updateRubberbandLayerWithFrame:CGRectZero];
 }
 
 
@@ -484,7 +489,7 @@
 {
     if ([NSThread isMainThread]) {
         _needsDrawOnNextDisplayLayer = needsDraw;
-        [[self layer] setNeedsDisplay];
+        [_canvasLayer setNeedsDisplay];
 
     } else {
         __weak id weakSelf = self;

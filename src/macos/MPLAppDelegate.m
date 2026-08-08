@@ -4,7 +4,7 @@
 
 // These are standard selectors which AppKit never exposes in any header.
 // They are typically shown only in Interface Builder as a potential action.
-@interface NSObject ()
+@interface NSObject (MissingPublicMethods)
 - (void) closeAll:(id)sender;
 - (void) undo:(id)sender;
 - (void) redo:(id)sender;
@@ -68,8 +68,6 @@
         NSMenuItem *menuItem = [[NSMenuItem alloc] init];
         [menuItem setTitle:title];
         [menuItem setSubmenu:menu];
-        [menuItem setTarget:menu];
-        [menuItem setAction:@selector(submenuAction:)];
         [mainMenu addItem:menuItem];
 
         currentMenu = menu;

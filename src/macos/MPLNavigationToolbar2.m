@@ -106,8 +106,8 @@ static const CGFloat sButtonGap = 2;
     NSUInteger index = [_buttons indexOfObject:sender];
 
     if (index != NSNotFound) {
-        NSString *callbackName = [_callbackNames objectAtIndex:index];
-        MPLCallMethod(_pyObject, [callbackName UTF8String], "");
+        const char *callbackName = [[_callbackNames objectAtIndex:index] UTF8String];
+        if (callbackName) MPLCallMethod(_pyObject, callbackName, "");
     }
 }
 

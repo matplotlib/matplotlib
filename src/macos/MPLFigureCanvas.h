@@ -9,9 +9,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype) initWithFrame:(NSRect)rect;
 
-- (void) updateLayerContentsWithBuffer: (NSData *) buffer
-                           deviceWidth: (size_t) deviceWidth
-                          deviceHeight: (size_t) deviceHeight;
+- (void) updateLayerContentsWithDataProvider: (CGDataProviderRef) provider
+                                 deviceWidth: (size_t) deviceWidth
+                                deviceHeight: (size_t) deviceHeight;
 
 - (void) updateCursorType:(int)cursorType;
 - (void) updateRubberbandWithDeviceX0:(int)x0 y0:(int)y0 x1:(int)x1 y1:(int)y1;

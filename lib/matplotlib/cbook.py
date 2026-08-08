@@ -101,7 +101,7 @@ def _get_running_interactive_framework():
         # Preemptively break reference cycle between locals and the frame.
         del frame
     macos = sys.modules.get("matplotlib.backends._macos")
-    if macos and macos.event_loop_is_running():
+    if macos and macos.is_initialized():
         return "macos"
     macosx = sys.modules.get("matplotlib.backends._macosx")
     if macosx and macosx.event_loop_is_running():

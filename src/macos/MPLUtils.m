@@ -86,13 +86,23 @@ NSString *MPLGetStringWithPyString(PyObject *pyString)
         return nil;
     }
 
-    const char *cString = PyUnicode_AsUTF8(pyString);
+    Py_ssize_t size = 0;
+    const char *cString = PyUnicode_AsUTF8AndSize(pyString, &size);
+
     if (!cString) {
-        // PyUnicode_AsUTF8() should set error in this case
+        // PyUnicode_AsUTF8AndSize() should set error in this case
+        return nil;
+    }
+    
+    // This should never happen, but we are about to cast from signed to unsigned
+    if (size < 0) {
+        PyErr_SetString(PyExc_RuntimeError, "Size is less than 0");
         return nil;
     }
 
-    NSString *result = [NSString stringWithUTF8String:cString];
+    NSUInteger length = (NSUInteger)size;
+    NSString *result = [[NSString alloc] initWithBytes:cString length:length encoding:NSUTF8StringEncoding];
+
     if (!result) {
         PyErr_SetString(PyExc_RuntimeError, "Could not create NSString");
     }
@@ -223,3 +233,55 @@ NSData * _Nullable MPLGetBufferWithPyObject(
                                         length: buffer->len
                                    deallocator: deallocator];
 }
+
+
+CGImageRef sCreateImage(
+    CGSize size, CGFloat scale, BOOL flipped,
+    CFStringRef colorSpaceName, size_t componentCount, CGBitmapInfo bitmapInfo,
+    void (^callback)(CGContextRef)
+) {
+    if (size.width <= 0 || size.height <= 0) return NULL;
+
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateWithName(colorSpaceName);
+    if (!colorSpace) return NULL;
+
+    size_t pixelsWide = size.width  * scale;
+    size_t pixelsHigh = size.height * scale;
+
+    CGContextRef context = CGBitmapContextCreate(
+        NULL, pixelsWide, pixelsHigh,
+        8, pixelsWide * componentCount, colorSpace,
+        bitmapInfo
+    );
+
+    CGImageRef result = NULL;
+
+    if (context) {
+        if (flipped) {
+            CGContextTranslateCTM(context, 0, pixelsHigh);
+            CGContextScaleCTM(context, scale, -scale);
+        }
+
+        NSGraphicsContext *savedContext = [NSGraphicsContext currentContext];
+        [NSGraphicsContext setCurrentContext:[NSGraphicsContext graphicsContextWithCGContext:context flipped:flipped]];
+
+        callback(context);
+
+        [NSGraphicsContext setCurrentContext:savedContext];
+
+        result = CGBitmapContextCreateImage(context);
+        CFRelease(context);
+    }
+
+    CGColorSpaceRelease(colorSpace);
+
+    return result;
+}
+
+
+CGImageRef MPLCreateImage(CGSize size, CGFloat scale, void (^callback)(CGContextRef))
+{
+    CGBitmapInfo bitmapInfo = 0 | kCGImageAlphaPremultipliedFirst | kCGImageByteOrder32Little;
+    return sCreateImage(size, scale, YES, kCGColorSpaceSRGB, 4, bitmapInfo, callback);
+}
+

@@ -48,24 +48,25 @@
                                                                    backing: NSBackingStoreBuffered
                                                                      defer: YES];
 
-    [window setDelegate:self];
-    [window makeFirstResponder:figureCanvas];
-    [window setReleasedWhenClosed:NO];
-
-    // Match the window's color space to our Agg buffer.
-    // This prevents an in-process color space conversion when compositing and
-    // may allow for a GPU-accelerated conversion at the WindowServer level.
-    [window setColorSpace:[NSColorSpace sRGBColorSpace]];
-
-    // We want to handle the cursor changes from within MPL with set_cursor() ourselves
-    [window disableCursorRects];
-
-    [figureCanvas setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
-    [[window contentView] addSubview:figureCanvas];
-
     if ((self = [super initWithWindow:window])) {
+        [window setDelegate:self];
+        [window makeFirstResponder:figureCanvas];
+        [window setReleasedWhenClosed:NO];
+
+        // Match the window's color space to our Agg buffer.
+        // This prevents an in-process color space conversion when compositing and
+        // may allow for a GPU-accelerated conversion at the WindowServer level.
+        [window setColorSpace:[NSColorSpace sRGBColorSpace]];
+
+        // We want to handle the cursor changes from within MPL with set_cursor() ourselves
+        [window disableCursorRects];
+
+        [figureCanvas setAutoresizingMask:NSViewWidthSizable|NSViewHeightSizable];
+        [[window contentView] addSubview:figureCanvas];
+
         [figureCanvas setManager:self];
         _figureCanvas = figureCanvas;
+
         MPLLog("[Lifecycle] MPLFigureManager<%p> init", self);
     }
 
@@ -99,7 +100,7 @@
 }
 
 
-- (BOOL) windowShouldClose:(NSNotification *)notification
+- (BOOL) windowShouldClose:(NSWindow *)sender
 {
     MPLCallMethod(_pyObject, "_handle_window_should_close", "");
     return YES;
@@ -130,7 +131,7 @@
 {
     NSWindow *window = [self window];
     CGRect rect = CGRectMake(0, 0, width, height);
-    [window convertRectFromBacking:rect];
+    rect = [window convertRectFromBacking:rect];
 
     if (_toolbar) {
         rect.size.height += [_toolbar frame].size.height;

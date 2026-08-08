@@ -32,7 +32,7 @@
     @autoreleasepool { @try {
 
 #define END_OBJC_ENTRY \
-    } @catch (NSException *e) { errSetException(e); } }
+    } @catch (NSException *e) { sErrSetException(e); } }
 
 #define RETURN_NULL_OR_NONE \
     if (PyErr_Occurred()) { \
@@ -43,23 +43,28 @@
 
 
 /* Variable for our delegate since it needs a +1 reference count. */
-static id<NSApplicationDelegate> appDelegate = nil;
+static id<NSApplicationDelegate> sAppDelegate = nil;
 
 /* Variables to keep track of state and window count for show() */
-static BOOL IsRunningFromShow = NO;
-static NSHashTable<MPLFigureManager *> *FigureManagerHashTable = nil;
+static BOOL sIsRunningFromShow = NO;
+static NSHashTable<MPLFigureManager *> *sFigureManagerHashTable = nil;
 
-// Global variable to store the original SIGINT handler
-static PyOS_sighandler_t originalSigintAction = NULL;
+// Set to YES in _init() if initialization was successful
+static BOOL sIsInitialized = NO;
 
 // Convert an Objective-C exception into a Python RuntimeError
-static void errSetException(NSException *exception) {
-    PyErr_SetString(PyExc_RuntimeError, [[exception reason] UTF8String]);
+static void sErrSetException(NSException *exception)
+{
+    const char *cString = [[exception reason] UTF8String];
+    if (!cString) cString = [[exception name] UTF8String];
+    if (!cString) cString = "Objective-C Exception";
+
+    PyErr_SetString(PyExc_RuntimeError, cString);
 }
 
 
 // Old implementation, goes away with MPLEventLoop PR
-static void stopWithEvent(void)
+static void sStopWithEvent(void)
 {
     [NSApp stop: nil];
     // Post an event to trigger the actual stopping.
@@ -81,13 +86,14 @@ static void stopWithEvent(void)
 
 
 // Old implementation, goes away with MPLEventLoop PR
-static void handleSigint(int signal)
+static void sHandleSigint(int signal)
 {
-    stopWithEvent();
+    sStopWithEvent();
 }
 
 // Old implementation, goes away with MPLEventLoop PR
-static void flushEvents(void) {
+static void flushEvents(void)
+{
     while (true) {
         @autoreleasepool {
             NSEvent* event = [NSApp nextEventMatchingMask: NSEventMaskAny
@@ -103,7 +109,8 @@ static void flushEvents(void) {
 }
 
 // Old implementation, goes away with MPLEventLoop PR
-static int wait_for_stdin(void) {
+static int sInputHook(void)
+{
     BEGIN_OBJC_ENTRY
 
     // Short circuit if no windows are active
@@ -118,7 +125,7 @@ static int wait_for_stdin(void) {
     }
 
     // Set up a SIGINT handler to interrupt the event loop if ctrl+c comes in too
-    originalSigintAction = PyOS_setsig(SIGINT, handleSigint);
+    PyOS_sighandler_t originalSigintHandler = PyOS_setsig(SIGINT, sHandleSigint);
 
     // Create an NSFileHandle for standard input
     NSFileHandle *stdinHandle = [NSFileHandle fileHandleWithStandardInput];
@@ -128,7 +135,7 @@ static int wait_for_stdin(void) {
     id notificationID = [[NSNotificationCenter defaultCenter] addObserverForName: NSFileHandleDataAvailableNotification
                                                                           object: stdinHandle
                                                                            queue: [NSOperationQueue mainQueue] // Use the main queue
-                                                                      usingBlock: ^(NSNotification *notification) {stopWithEvent();}
+                                                                      usingBlock: ^(NSNotification *notification) {sStopWithEvent();}
     ];
 
     // Wait in the background for anything that happens to stdin
@@ -142,7 +149,7 @@ static int wait_for_stdin(void) {
 
 
     // Restore the original SIGINT handler upon exiting the function
-    PyOS_setsig(SIGINT, originalSigintAction);
+    PyOS_setsig(SIGINT, originalSigintHandler);
 
     return 1;
 
@@ -218,9 +225,18 @@ FigureCanvas_update_layer_contents(FigureCanvas *self, PyObject *args)
         return NULL;
     }
 
-    [self->object updateLayerContentsWithBuffer: buffer
-                                    deviceWidth: (size_t)shape[1]
-                                   deviceHeight: (size_t)shape[0]];
+    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)buffer);
+
+    if (!provider) {
+        PyErr_SetString(PyExc_RuntimeError, "CGDataProviderCreateWithCFData() failed");
+        return NULL;
+    }
+
+    [self->object updateLayerContentsWithDataProvider: provider
+                                          deviceWidth: (size_t)shape[1]
+                                         deviceHeight: (size_t)shape[0]];
+
+    CGDataProviderRelease(provider);
 
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE;
@@ -355,7 +371,7 @@ FigureCanvas_stop_event_loop(FigureCanvas *self)
 
 static PyTypeObject FigureCanvasType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "matplotlib.backends._macosx.FigureCanvas",
+    .tp_name = "matplotlib.backends._macos.FigureCanvas",
     .tp_doc = PyDoc_STR("A FigureCanvas object wraps a Cocoa NSView object."),
     .tp_basicsize = sizeof(FigureCanvas),
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
@@ -437,7 +453,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 {
     BEGIN_OBJC_ENTRY
     PyObject *figureCanvasPyObject;
-    if (!PyArg_ParseTuple(args, "O", &figureCanvasPyObject)) {
+    if (!PyArg_ParseTuple(args, "O!", &FigureCanvasType, &figureCanvasPyObject)) {
         return -1;
     }
 
@@ -446,13 +462,13 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
     self->object = [[MPLFigureManager alloc] initWithFigureCanvas:figureCanvas];
     [self->object setPyObject:(PyObject *)self];
 
-    if (!FigureManagerHashTable) {
-        FigureManagerHashTable = [NSHashTable weakObjectsHashTable];
+    if (!sFigureManagerHashTable) {
+        sFigureManagerHashTable = [NSHashTable weakObjectsHashTable];
     }
-    [FigureManagerHashTable addObject:self->object];
+    [sFigureManagerHashTable addObject:self->object];
 
     END_OBJC_ENTRY
-    return 0;
+    return PyErr_Occurred() ? -1 : 0;
 }
 
 static PyObject *
@@ -484,13 +500,13 @@ static void
 FigureManager__close_and_clear_window_impl(FigureManager *self)
 {
     if (self->object) {
-        [FigureManagerHashTable removeObject:self->object];
+        [sFigureManagerHashTable removeObject:self->object];
 
-        [self->object close];
         [self->object setPyObject:NULL];
+        [self->object close];
         self->object = nil;
 
-        if ([FigureManagerHashTable count] == 0 && IsRunningFromShow) {
+        if ([sFigureManagerHashTable count] == 0 && sIsRunningFromShow) {
             [NSApp stop:nil];
         }
     }
@@ -537,7 +553,8 @@ FigureManager_set_window_title(FigureManager *self,
                                PyObject *args, PyObject *kwds)
 {
     BEGIN_OBJC_ENTRY
-    [self->object setWindowTitle:MPLGetStringWithPySequence(args)];
+    NSString *title = MPLGetStringWithPySequence(args);
+    if (title) [self->object setWindowTitle:title];
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
 }
@@ -578,7 +595,7 @@ FigureManager_full_screen_toggle(FigureManager *self)
 
 static PyTypeObject FigureManagerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "matplotlib.backends._macosx.FigureManager",
+    .tp_name = "matplotlib.backends._macos.FigureManager",
     .tp_doc = PyDoc_STR("A FigureManager object wraps a "
                         "MPLFigureManager Objective-C object."),
     .tp_basicsize = sizeof(FigureManager),
@@ -642,13 +659,13 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
 {
     BEGIN_OBJC_ENTRY
 
-    FigureCanvas *canvas;
-
-    if (!PyArg_ParseTuple(args, "O!", &FigureCanvasType, &canvas)) {
+    PyObject *figureCanvasPyObject;
+    if (!PyArg_ParseTuple(args, "O!", &FigureCanvasType, &figureCanvasPyObject)) {
         return -1;
     }
 
-    MPLFigureCanvas *figureCanvas = canvas->object;
+    MPLFigureCanvas *figureCanvas = ((FigureCanvas *)figureCanvasPyObject)->object;
+
     if (!figureCanvas) {
         PyErr_SetString(PyExc_RuntimeError, "MPLFigureCanvas is NULL");
         return -1;
@@ -666,7 +683,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
     [[figureCanvas manager] installToolbar:toolbar];
 
     END_OBJC_ENTRY
-    return 0;
+    return PyErr_Occurred() ? -1 : 0;
 }
 
 static void
@@ -692,7 +709,12 @@ NavigationToolbar2_add_item(NavigationToolbar2 *self, PyObject *args)
     BEGIN_OBJC_ENTRY
 
     MPLStringArray *strings = MPLGetStringArrayWithPySequence(args);
-    if ([strings count] != 4) return NULL;
+    if (!strings) return NULL;
+
+    if ([strings count] != 4) {
+        PyErr_SetString(PyExc_RuntimeError, "Invalid arguments to add_item");
+        return NULL;
+    }
 
     [self->object addItemWithTitle: [strings objectAtIndex:0]
                            tooltip: [strings objectAtIndex:1]
@@ -739,14 +761,15 @@ static PyObject *
 NavigationToolbar2_set_message(NavigationToolbar2 *self, PyObject *args)
 {
     BEGIN_OBJC_ENTRY
-    [self->object updateMessage:MPLGetStringWithPySequence(args)];
+    NSString *message = MPLGetStringWithPySequence(args);
+    if (message) [self->object updateMessage:message];
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
 }
 
 static PyTypeObject NavigationToolbar2Type = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "matplotlib.backends._macosx.NavigationToolbar2",
+    .tp_name = "matplotlib.backends._macos.NavigationToolbar2",
     .tp_doc = PyDoc_STR("NavigationToolbar2"),
     .tp_basicsize = sizeof(NavigationToolbar2),
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
@@ -882,7 +905,7 @@ Timer_dealloc(Timer *self)
 
 static PyTypeObject TimerType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "matplotlib.backends._macosx.Timer",
+    .tp_name = "matplotlib.backends._macos.Timer",
     .tp_doc = PyDoc_STR("A Timer object that contains an NSTimer that gets added to "
                         "the event loop when started."),
     .tp_basicsize = sizeof(Timer),
@@ -906,17 +929,15 @@ static PyTypeObject TimerType = {
 
 #pragma mark - Module
 
-static bool backend_inited = false;
-
 static PyObject *
-_init(PyObject *unused, PyObject *args)
+_macos__init(PyObject *unused, PyObject *args)
 {
     BEGIN_OBJC_ENTRY
 
-    PyObject *imagesDict;
-    if (!PyArg_ParseTuple(args, "O!", &PyDict_Type, &imagesDict)) { return NULL; }
+    PyObject *imagesPyDict;
+    if (!PyArg_ParseTuple(args, "O!", &PyDict_Type, &imagesPyDict)) { return NULL; }
 
-    NSDictionary *imagesDictionary = MPLGetStringDictionaryWithPyDict(imagesDict);
+    NSDictionary *imagesDictionary = MPLGetStringDictionaryWithPyDict(imagesPyDict);
     if (!imagesDictionary) { return NULL; }
 
     static dispatch_once_t onceToken;
@@ -926,15 +947,15 @@ _init(PyObject *unused, PyObject *args)
         }
 
         if (![NSApp delegate]) {
-            appDelegate = [[MPLAppDelegate alloc] initWithImageDictionary:imagesDictionary];
-            [NSApp setDelegate:appDelegate];
+            sAppDelegate = [[MPLAppDelegate alloc] initWithImageDictionary:imagesDictionary];
+            [NSApp setDelegate:sAppDelegate];
         }
 
-        backend_inited = true;
+        sIsInitialized = YES;
 
         // Run our own event loop while waiting for stdin on the Python side
         // this is needed to keep the application responsive while waiting for input
-        PyOS_InputHook = wait_for_stdin;
+        PyOS_InputHook = sInputHook;
     });
 
     END_OBJC_ENTRY
@@ -942,65 +963,58 @@ _init(PyObject *unused, PyObject *args)
 }
 
 static PyObject *
-event_loop_is_running(PyObject *self)
+_macos_is_initialized(PyObject *self)
 {
-    BEGIN_OBJC_ENTRY
-
-    if (backend_inited) {
+    if (sIsInitialized) {
         Py_RETURN_TRUE;
     } else {
         Py_RETURN_FALSE;
     }
-
-    END_OBJC_ENTRY
-    RETURN_NULL_OR_NONE
 }
 
-static PyObject *
-wake_on_fd_write(PyObject *unused, PyObject *args)
+
+static PyObject*
+_macos_wake_on_fd_write(PyObject* unused, PyObject* args)
 {
     BEGIN_OBJC_ENTRY
     int fd;
     if (!PyArg_ParseTuple(args, "i", &fd)) { return NULL; }
-
-    dispatch_source_t source = dispatch_source_create(
-        DISPATCH_SOURCE_TYPE_READ, fd, 0,
-        dispatch_get_main_queue()
-    );
-
-    dispatch_source_set_event_handler(source, ^{
-        PyGILState_STATE gstate = PyGILState_Ensure();
-        PyErr_CheckSignals();
-        PyGILState_Release(gstate);
-
-        dispatch_source_cancel(source);
-    });
-
-    dispatch_resume(source);
-
+    NSFileHandle* fh = [[NSFileHandle alloc] initWithFileDescriptor: fd];
+    __block id notificationID = [[NSNotificationCenter defaultCenter]
+        addObserverForName: NSFileHandleDataAvailableNotification
+                    object: fh
+                     queue: nil
+                usingBlock: ^(NSNotification* note) {
+                    NSFileHandle* strongFileHandle __attribute__((unused)) = fh;
+                    PyGILState_STATE gstate = PyGILState_Ensure();
+                    PyErr_CheckSignals();
+                    PyGILState_Release(gstate);
+                    [[NSNotificationCenter defaultCenter] removeObserver:notificationID];
+                }];
+    [fh waitForDataInBackgroundAndNotify];
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
 }
 
 static PyObject *
-stop(PyObject *self, PyObject *unused)
+_macos_stop(PyObject *self, PyObject *unused)
 {
     BEGIN_OBJC_ENTRY
-    stopWithEvent();
+    sStopWithEvent();
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
 }
 
 static PyObject *
-show(PyObject *self)
+_macos_show(PyObject *self)
 {
     BEGIN_OBJC_ENTRY
 
-    // Iterating over FigureManagerHashTable will add the managers to the topmost
+    // Iterating over sFigureManagerHashTable will add the managers to the topmost
     // autorelease pool, wrap in @autoreleasepool as -[NSApp run] is long-running.
     @autoreleasepool {
         [NSApp activateIgnoringOtherApps: YES];
-        for (MPLFigureManager *manager in [FigureManagerHashTable allObjects]) {
+        for (MPLFigureManager *manager in [sFigureManagerHashTable allObjects]) {
             [manager raise];
         }
     }
@@ -1011,9 +1025,9 @@ show(PyObject *self)
     }
 
     Py_BEGIN_ALLOW_THREADS
-    IsRunningFromShow = YES;
+    sIsRunningFromShow = YES;
     [NSApp run];
-    IsRunningFromShow = NO;
+    sIsRunningFromShow = NO;
     Py_END_ALLOW_THREADS
 
     END_OBJC_ENTRY
@@ -1021,7 +1035,7 @@ show(PyObject *self)
 }
 
 static PyObject *
-choose_save_file(PyObject *unused, PyObject *args)
+_macos_choose_save_file(PyObject *unused, PyObject *args)
 {
     BEGIN_OBJC_ENTRY
 
@@ -1058,7 +1072,7 @@ choose_save_file(PyObject *unused, PyObject *args)
 
 
 static int
-ModuleExec(PyObject *m)
+_macos_mod_exec(PyObject *m)
 {
     static BOOL sLoaded = NO;
 
@@ -1087,13 +1101,13 @@ ModuleExec(PyObject *m)
     return 0;
 }
 
-static struct PyModuleDef moduledef = {
+static struct PyModuleDef _macos_moduledef = {
     .m_base = PyModuleDef_HEAD_INIT,
     .m_name = "_macos",
     .m_doc = PyDoc_STR("macOS native backend"),
     .m_size = 0,
     .m_slots = (PyModuleDef_Slot[]){
-        {Py_mod_exec, ModuleExec},
+        {Py_mod_exec, _macos_mod_exec},
         {Py_mod_multiple_interpreters, Py_MOD_MULTIPLE_INTERPRETERS_NOT_SUPPORTED},
 #ifdef Py_GIL_DISABLED
         {Py_mod_gil, Py_MOD_GIL_NOT_USED},
@@ -1102,28 +1116,28 @@ static struct PyModuleDef moduledef = {
     },
     .m_methods = (PyMethodDef[]){
         {"_init",
-         (PyCFunction)_init,
+         (PyCFunction)_macos__init,
          METH_VARARGS,
          PyDoc_STR(
             "Perform a one-time initialization of the backend. Sets up the NSApp delegate"
             "if one is not already present.")},
-        {"event_loop_is_running",
-         (PyCFunction)event_loop_is_running,
+        {"is_initialized",
+         (PyCFunction)_macos_is_initialized,
          METH_NOARGS,
          PyDoc_STR(
-            "Return whether the macosx backend has set up the NSApp main event loop.")},
+            "Return whether _init() has been called .")},
         {"wake_on_fd_write",
-         (PyCFunction)wake_on_fd_write,
+         (PyCFunction)_macos_wake_on_fd_write,
          METH_VARARGS,
          PyDoc_STR(
             "Arrange for Python to invoke its signal handlers when (any) data is\n"
             "written on the file descriptor given as argument.")},
         {"stop",
-         (PyCFunction)stop,
+         (PyCFunction)_macos_stop,
          METH_VARARGS,
          PyDoc_STR("Stop the NSApp.")},
         {"show",
-         (PyCFunction)show,
+         (PyCFunction)_macos_show,
          METH_NOARGS,
          PyDoc_STR(
             "Show all the figures and enter the main loop.\n"
@@ -1131,7 +1145,7 @@ static struct PyModuleDef moduledef = {
             "This function does not return until all Matplotlib windows are closed,\n"
             "and is normally not needed in interactive sessions.")},
         {"choose_save_file",
-         (PyCFunction)choose_save_file,
+         (PyCFunction)_macos_choose_save_file,
          METH_VARARGS,
          PyDoc_STR("Query the user for a location where to save a file.")},
         {}  /* Sentinel */
@@ -1143,7 +1157,7 @@ static struct PyModuleDef moduledef = {
 PyMODINIT_FUNC
 PyInit__macos(void)
 {
-    return PyModuleDef_Init(&moduledef);
+    return PyModuleDef_Init(&_macos_moduledef);
 }
 
 #pragma GCC visibility pop

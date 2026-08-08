@@ -89,4 +89,15 @@ extern NSData * _Nullable MPLGetBufferWithPyObject(
 );
 
 
+/*
+    Create a sRGB+alpha image of the specified width, height, and scale factor.
+    (0, 0) corresponds to the upper-left corner.
+*/
+extern CGImageRef _Nullable MPLCreateImage(
+    CGSize size,
+    CGFloat scale,
+    void (^callback)(CGContextRef)
+);
+
+
 NS_ASSUME_NONNULL_END

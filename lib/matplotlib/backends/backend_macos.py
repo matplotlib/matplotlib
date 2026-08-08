@@ -78,16 +78,20 @@ class FigureCanvasMac(_macos.FigureCanvas, FigureCanvasBase):
         ResizeEvent("resize_event", self)._process()
         self.draw_idle()
 
+    def _mpl_button(self, button):
+        """Converts from AppKit buttonNumber to a MouseButton"""
+        mod_table = (
+            MouseButton.LEFT,
+            MouseButton.RIGHT,
+            MouseButton.MIDDLE,
+            MouseButton.BACK,
+            MouseButton.FORWARD,
+        )
+        return mod_table[button] if 0 <= button < len(mod_table) else None
+
     def _mpl_buttons(self, buttons):
-        """Converts from AppKit pressedMouseButtons to a set of MouseButton"""
-        mod_table = [
-            (MouseButton.LEFT, 1 << 0),
-            (MouseButton.MIDDLE, 1 << 1),
-            (MouseButton.RIGHT, 1 << 2),
-            (MouseButton.BACK, 1 << 3),
-            (MouseButton.FORWARD, 1 << 4),
-        ]
-        return {name for name, mask in mod_table if buttons & mask}
+        """Converts from AppKit pressedMouseButtons to a MouseButton set"""
+        return {self._mpl_button(i) for i in range(5) if buttons & (1 << i)}
 
     def _mpl_modifiers(self, modifiers):
         """Converts from AppKit modifierFlags to a list of strings"""
@@ -112,12 +116,16 @@ class FigureCanvasMac(_macos.FigureCanvas, FigureCanvasBase):
                       modifiers=self._mpl_modifiers(modifiers))._process()
 
     def _handle_mouse_down(self, x, y, button, modifiers, dblclick):
-        MouseEvent("button_press_event", self, x, y, button, dblclick=dblclick,
-                   modifiers=self._mpl_modifiers(modifiers))._process()
+        button=self._mpl_button(button)
+        if button is not None:
+            MouseEvent("button_press_event", self, x, y, button, dblclick=dblclick,
+                       modifiers=self._mpl_modifiers(modifiers))._process()
 
     def _handle_mouse_up(self, x, y, button, modifiers):
-        MouseEvent("button_release_event", self, x, y, button,
-                   modifiers=self._mpl_modifiers(modifiers))._process()
+        button=self._mpl_button(button)
+        if button is not None:
+            MouseEvent("button_release_event", self, x, y, button,
+                       modifiers=self._mpl_modifiers(modifiers))._process()
 
     def _handle_mouse_moved(self, x, y, buttons, modifiers):
         MouseEvent("motion_notify_event", self, x, y,
