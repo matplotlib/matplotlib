@@ -29,7 +29,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
       - name: Check fully-pinned file is up to date
-        run: python ci/generate_fully_pinned.py --check
+        run: uv run python ci/generate_fully_pinned.py --check
       - name: Install from fully-pinned file (bug-fix branch preview)
         run: pip install --require-hashes --dry-run -r ci/fully-pinned-requirements.txt
