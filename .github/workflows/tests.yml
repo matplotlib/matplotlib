@@ -186,7 +186,7 @@ jobs:
           path: ~/.cache/pip
           key: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{
-            hashFiles('pyproject.toml', 'ci/minver-requirements.txt') }}
+            hashFiles('pyproject.toml', 'ci/minver-requirements.txt', 'ci/fully-pinned-requirements.txt') }}
           restore-keys: |
             ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache pip

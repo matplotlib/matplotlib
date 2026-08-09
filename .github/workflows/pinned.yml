@@ -1,0 +1,35 @@
+name: Pinned Requirements Check
+
+on:
+  push:
+    branches-ignore:
+      - auto-backport-of-pr-[0-9]+
+      - v[0-9]+.[0-9]+.[0-9x]+-doc
+  pull_request:
+    branches-ignore:
+      - v[0-9]+.[0-9]+.[0-9x]+-doc
+    paths:
+      - 'pyproject.toml'
+      - 'ci/fully-pinned-requirements.txt'
+      - 'ci/generate_fully_pinned.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  pinned:
+    runs-on: ubuntu-latest
+    name: "Pinned deps check"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check fully-pinned file is up to date
+        run: python ci/generate_fully_pinned.py --check
+      - name: Install from fully-pinned file (bug-fix branch preview)
+        run: pip install --require-hashes --dry-run -r ci/fully-pinned-requirements.txt
