@@ -130,3 +130,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-check
           workdir: 'lib/matplotlib/backends/web_backend/'
+          fail_level: error
