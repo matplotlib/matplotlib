@@ -42,46 +42,83 @@ setuptools==80.9.0 --hash=sha256:2l3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5
 pytest==8.4.1 --hash=sha256:3m4n5o6p7q8r9s0t1u2v3w4x5y6z7a8b9c0d1e2f3g4h5i6j7k8l9
 """
 
-def main(check: bool = False):
+
+def main(check: bool = False) -> None:
     pinned_path = Path("ci/fully-pinned-requirements.txt")
     # Try real tools first
     try:
         result = subprocess.run(
-            ["uv", "pip", "compile", "pyproject.toml", "--all-groups",
-             "-o", str(pinned_path), "--generate-hashes"],
-            capture_output=True, text=True, timeout=30
+            [
+                "uv", "pip", "compile", "pyproject.toml",
+                "--all-groups",
+                "-o", str(pinned_path),
+                "--generate-hashes",
+            ],
+            capture_output=True,
+            text=True,
+            timeout=30,
         )
         if result.returncode == 0 and pinned_path.exists():
             print("Generated via uv")
         else:
-            raise FileNotFoundError(result.stderr[:500] if result.stderr else "uv failed")
-    except (FileNotFoundError, subprocess.TimeoutExpired, OSError) as e:
+            raise FileNotFoundError(
+                result.stderr[:500] if result.stderr else "uv failed"
+            )
+    except (FileNotFoundError, subprocess.TimeoutExpired, OSError):
         try:
             result = subprocess.run(
-                [sys.executable, "-m", "piptools", "compile",
-                 "--generate-hashes", "-o", str(pinned_path), "pyproject.toml"],
-                capture_output=True, text=True, timeout=30
+                [
+                    sys.executable, "-m", "piptools", "compile",
+                    "--generate-hashes",
+                    "-o", str(pinned_path),
+                    "pyproject.toml",
+                ],
+                capture_output=True,
+                text=True,
+                timeout=30,
             )
             if result.returncode == 0 and pinned_path.exists():
                 print("Generated via pip-tools")
             else:
-                raise FileNotFoundError(result.stderr[:500] if result.stderr else "pip-tools failed")
-        except (FileNotFoundError, subprocess.TimeoutExpired, OSError, subprocess.CalledProcessError) as e2:
+                raise FileNotFoundError(
+                    result.stderr[:500]
+                    if result.stderr else "pip-tools failed"
+                )
+        except (
+            FileNotFoundError,
+            subprocess.TimeoutExpired,
+            OSError,
+            subprocess.CalledProcessError,
+        ):
             # Fallback: write deterministic pinned content for local demo
             # In real CI, uv would produce correct hashes
             pinned_path.write_text(PINNED_CONTENT)
-            print(f"Wrote fallback pinned file to {pinned_path} (demo, real CI uses uv)")
+            print(
+                f"Wrote fallback to {pinned_path} (demo, real CI uses uv)"
+            )
 
     if check:
-        result = subprocess.run(["git", "diff", "--exit-code", str(pinned_path)], capture_output=True)
+        result = subprocess.run(
+            ["git", "diff", "--exit-code", str(pinned_path)],
+            capture_output=True,
+        )
         if result.returncode != 0:
-            print("fully-pinned file out of date, run: python ci/generate_fully_pinned.py", file=sys.stderr)
+            print(
+                "fully-pinned file out of date, run: "
+                "python ci/generate_fully_pinned.py",
+                file=sys.stderr,
+            )
             sys.exit(1)
         else:
             print("Check passed: pinned file is up to date")
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--check", action="store_true", help="fail if pinned file out of date")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="fail if pinned file out of date",
+    )
     args = parser.parse_args()
     main(check=args.check)
