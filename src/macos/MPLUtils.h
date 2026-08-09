@@ -1,13 +1,19 @@
 #import <Foundation/Foundation.h>
 #import <AppKit/AppKit.h>
 #import <CoreGraphics/CoreGraphics.h>
-#import <Python.h>
 #import <OSLog/OSLog.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NSArray<NSString *> MPLStringArray;
 typedef NSDictionary<NSString *, NSString *> MPLStringDictionary;
+
+/*
+    We declare our own type for (PyObject *) so the Objective-C classes
+    do not have to pull in <Python.h>. We limit usage of the Python C API
+    to _macos.m and MPLUtils.
+*/
+typedef void *MPLPyObjectRef;
 
 
 /*
@@ -33,7 +39,7 @@ extern os_log_t MPLGetLogger(void);
     discard the result, print any exception.
 */
 extern void MPLCallMethod(
-    PyObject * _Nullable pyObject,
+    MPLPyObjectRef pyObject,
     const char *name,
     char const * _Nullable format, ...
 );
@@ -43,7 +49,7 @@ extern void MPLCallMethod(
     Converts a Python str into an NSString.
     Returns nil and raises a Python exception if the str could not be converted.
 */
-extern NSString * _Nullable MPLGetStringWithPyString(PyObject * _Nullable string);
+extern NSString * _Nullable MPLGetStringWithPyString(MPLPyObjectRef _Nullable string);
 
 
 /*
@@ -51,7 +57,7 @@ extern NSString * _Nullable MPLGetStringWithPyString(PyObject * _Nullable string
     Returns nil and raises a Python exception if the sequence is not exactly one
     string or if the string could not be converted into an NSString.
 */
-extern NSString * _Nullable MPLGetStringWithPySequence(PyObject * _Nullable pySequence);
+extern NSString * _Nullable MPLGetStringWithPySequence(MPLPyObjectRef _Nullable pySequence);
 
 
 /*
@@ -60,7 +66,7 @@ extern NSString * _Nullable MPLGetStringWithPySequence(PyObject * _Nullable pySe
     any item is not a string, or any item could not be converted into an NSString.
 */
 extern MPLStringArray * _Nullable MPLGetStringArrayWithPySequence(
-    PyObject * _Nullable pySequence
+    MPLPyObjectRef _Nullable pySequence
 );
 
 /*
@@ -69,7 +75,7 @@ extern MPLStringArray * _Nullable MPLGetStringArrayWithPySequence(
     key/value was not a str, or any str could not be converted into an NSString.
 */
 extern MPLStringDictionary * _Nullable MPLGetStringDictionaryWithPyDict(
-    PyObject * _Nullable dict
+    MPLPyObjectRef _Nullable dict
 );
 
 
@@ -83,7 +89,7 @@ extern MPLStringDictionary * _Nullable MPLGetStringDictionaryWithPyDict(
     4) expectedDimensions is non-0 and not equal to buffer->ndim
 */
 extern NSData * _Nullable MPLGetBufferWithPyObject(
-    PyObject * _Nullable pyObject,
+    MPLPyObjectRef _Nullable pyObject,
     size_t expectedDimensions,
     ssize_t * _Nullable outShape
 );

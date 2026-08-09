@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <Python.h>
+#import "MPLUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (instancetype) initWithFrame:(NSRect)frame NS_UNAVAILABLE;
 - (nullable instancetype) initWithCoder:(NSCoder *)coder NS_UNAVAILABLE;
 
-@property (nonatomic, assign, nullable) PyObject *pyObject;
+@property (nonatomic, assign, nullable) MPLPyObjectRef pyObject;
 
 - (void) addItemWithTitle: (NSString *) title
                   tooltip: (NSString *) tooltip

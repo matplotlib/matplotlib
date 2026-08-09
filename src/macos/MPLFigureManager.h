@@ -1,5 +1,4 @@
 #import <AppKit/AppKit.h>
-#import <Python.h>
 #import "MPLUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -21,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) updateWindowMode:(nullable NSString *)windowMode;
 - (void) installToolbar:(MPLNavigationToolbar2 *)toolbar;
 
-@property (nonatomic, assign, nullable) PyObject *pyObject;
+@property (nonatomic, assign, nullable) MPLPyObjectRef pyObject;
 
 @property (nonatomic) NSString *windowTitle;
 

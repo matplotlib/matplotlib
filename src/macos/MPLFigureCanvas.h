@@ -1,5 +1,5 @@
 #import <AppKit/AppKit.h>
-#import <Python.h>
+#import "MPLUtils.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void) removeRubberband;
 - (void) requestDisplayLayerWithNeedsDraw:(BOOL)needsDraw; // Thread-safe
 
-@property (nonatomic, assign, nullable) PyObject *pyObject;
+@property (nonatomic, assign, nullable) MPLPyObjectRef pyObject;
 
 @property (nonatomic, weak, nullable) MPLFigureManager *manager;
 

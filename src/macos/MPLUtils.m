@@ -1,5 +1,8 @@
 #import "MPLUtils.h"
 
+#define PY_SSIZE_T_CLEAN
+#import "Python.h"
+
 
 void _MPLUnavailable(const char *s)
 {
@@ -25,7 +28,7 @@ os_log_t MPLGetLogger(void)
 
 #pragma mark - Python Utility Functions
 
-void MPLCallMethod(PyObject *pyObject, const char *name, char const *format, ...)
+void MPLCallMethod(MPLPyObjectRef pyObject, const char *name, char const *format, ...)
 {
     // It is possible for Obj-C objects to momentarily outlive their paired Python
     // counterparts, especially when dealing with AppKit objects. Hence, allow
@@ -74,7 +77,7 @@ void MPLCallMethod(PyObject *pyObject, const char *name, char const *format, ...
 }
 
 
-NSString *MPLGetStringWithPyString(PyObject *pyString)
+NSString *MPLGetStringWithPyString(MPLPyObjectRef pyString)
 {
     if (!pyString) {
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Input is NULL");
@@ -111,7 +114,7 @@ NSString *MPLGetStringWithPyString(PyObject *pyString)
 }
 
 
-MPLStringArray *MPLGetStringArrayWithPySequence(PyObject *pySequence)
+MPLStringArray *MPLGetStringArrayWithPySequence(MPLPyObjectRef pySequence)
 {
     if (!pySequence) {
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Input is NULL");
@@ -147,7 +150,7 @@ MPLStringArray *MPLGetStringArrayWithPySequence(PyObject *pySequence)
 }
 
 
-NSString *MPLGetStringWithPySequence(PyObject *pySequence)
+NSString *MPLGetStringWithPySequence(MPLPyObjectRef _Nullable pySequence)
 {
     MPLStringArray *array = MPLGetStringArrayWithPySequence(pySequence);
 
@@ -160,7 +163,7 @@ NSString *MPLGetStringWithPySequence(PyObject *pySequence)
 }
 
 
-MPLStringDictionary *MPLGetStringDictionaryWithPyDict(PyObject *dict)
+MPLStringDictionary *MPLGetStringDictionaryWithPyDict(MPLPyObjectRef dict)
 {
     if (!dict) {
         if (!PyErr_Occurred()) PyErr_SetString(PyExc_RuntimeError, "Input is NULL");
@@ -190,7 +193,7 @@ MPLStringDictionary *MPLGetStringDictionaryWithPyDict(PyObject *dict)
 
 
 NSData * _Nullable MPLGetBufferWithPyObject(
-    PyObject * _Nullable pyObject,
+    MPLPyObjectRef _Nullable pyObject,
     size_t expectedDimensions,
     ssize_t * _Nullable outShape
 ) {
@@ -234,6 +237,8 @@ NSData * _Nullable MPLGetBufferWithPyObject(
                                    deallocator: deallocator];
 }
 
+
+#pragma mark - 
 
 CGImageRef sCreateImage(
     CGSize size, CGFloat scale, BOOL flipped,
