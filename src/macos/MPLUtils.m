@@ -238,7 +238,7 @@ NSData * _Nullable MPLGetBufferWithPyObject(
 }
 
 
-#pragma mark - 
+#pragma mark - Graphics Utility Functions
 
 CGImageRef sCreateImage(
     CGSize size, CGFloat scale, BOOL flipped,
