@@ -4368,7 +4368,16 @@ class PolygonSelector(_SelectorWidget):
 
     def _clear_without_update(self):
         self._selection_completed = False
-        self._xys = [(0, 0)]
+        prev = self._prev_event
+        if (prev is not None
+                and prev.xdata is not None and prev.ydata is not None
+                and not np.isnan(prev.xdata) and not np.isnan(prev.ydata)):
+            # Reset the pending vertex to the last known cursor position.
+            self._xys = [(prev.xdata, prev.ydata)]
+        else:
+            x0, x1 = self.ax.get_xlim()
+            y0, y1 = self.ax.get_ylim()
+            self._xys = [((x0 + x1) / 2, (y0 + y1) / 2)]
         self._draw_polygon_without_update()
 
 
