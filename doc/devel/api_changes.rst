@@ -352,7 +352,7 @@ Additionally, if a whole function is discouraged, prefix the summary line with
 Provisional API
 ---------------
 
-Provisional status marks new API that we are reasonably confident in, but for
+Provisional status marks new APIs that we are reasonably confident in, but for
 which we do not yet want to provide the full stability guarantees of the
 deprecation process. It is used for larger or uncertain changes that need
 real-world usage before being finalized.
