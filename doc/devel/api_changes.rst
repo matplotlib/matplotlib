@@ -345,3 +345,60 @@ Additionally, if a whole function is discouraged, prefix the summary line with
 ``[*Discouraged*]`` so that it renders in the API overview like this
 
     [*Discouraged*] Return the XAxis instance.
+
+
+.. _provisional-api:
+
+Provisional API
+---------------
+
+Provisional status marks new API that we are reasonably confident in, but for
+which we do not yet want to provide the full stability guarantees of the
+deprecation process. It is used for larger or uncertain changes that need
+real-world usage before being finalized.
+
+Provisional API is expected to stabilize; it is not expected to be removed.
+This differs from *discouraged* API (which exists but is not recommended for
+new code) and from *deprecated* API (which is scheduled for removal).
+
+When to use provisional status
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+- New API with an uncertain design space that needs user feedback before
+  finalizing.
+- Larger changes where the exact API surface may need adjustment.
+- Not for small, well-understood additions — those should go directly to
+  stable API with proper versioning directives.
+
+How to mark provisional API
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Add an admonition to the docstring::
+
+    .. admonition:: Provisional status of X
+
+        The ``X`` module/API is considered provisional and may change at
+        any time without a deprecation period.
+
+Use the ``.. versionadded::`` directive to record when the provisional status
+was introduced.
+
+Duration
+^^^^^^^^
+
+There is no fixed duration for provisional status. API may remain provisional
+for multiple releases while it gathers adoption and feedback. For example,
+``subplot_mosaic`` was provisional from 3.3.0 to 3.7.0 before being declared
+stable.
+
+To remove provisional status, add a note to the release notes (e.g.,
+"``X`` no longer provisional") and remove the admonition from the docstring.
+The API then falls under the normal deprecation process for any future
+changes.
+
+Terminology
+^^^^^^^^^^^
+
+Use "provisional" (not "experimental"). "Experimental" is reserved for earlier,
+less certain work where the outcome is more open. "Provisional" indicates
+reasonable confidence in the approach but without stability guarantees.
