@@ -6,7 +6,8 @@ import warnings
 import pytest
 
 import matplotlib
-from matplotlib.testing import is_ci_environment, subprocess_run_helper
+from matplotlib.testing import subprocess_run_helper
+
 
 # Get the names of all matplotlib submodules,
 # except for the unit tests and private modules.
@@ -59,8 +60,7 @@ def _test_module_getattr():
 
 @pytest.mark.parametrize('module_name', backend_module_names)
 def test_backend_getattr(module_name):
-    proc = subprocess_run_helper(_test_module_getattr, module_name,
-                                 timeout=120 if is_ci_environment() else 20)
+    proc = subprocess_run_helper(_test_module_getattr, module_name, timeout=20)
     if 'SKIP: ' in proc.stdout:
         pytest.skip(proc.stdout.removeprefix('SKIP: '))
     print(proc.stdout)
