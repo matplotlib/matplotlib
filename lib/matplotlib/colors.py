@@ -3224,6 +3224,8 @@ class BoundaryNorm(Normalize):
         boundaries : array-like
             Monotonically increasing sequence of at least 2 bin edges:  data
             falling in the n-th bin will be mapped to the n-th color.
+            Bins are left-closed and right-open; i.e., the n-th bin is
+            ``boundaries[n] <= value < boundaries[n + 1]``.
 
         ncolors : int
             Number of colors in the colormap to be used.
@@ -3231,12 +3233,12 @@ class BoundaryNorm(Normalize):
         clip : bool, optional
             If clip is ``True``, out of range values are mapped to 0 if they
             are below ``boundaries[0]`` or mapped to ``ncolors - 1`` if they
-            are above ``boundaries[-1]``.
+            are greater than or equal to ``boundaries[-1]``.
 
             If clip is ``False``, out of range values are mapped to -1 if
             they are below ``boundaries[0]`` or mapped to *ncolors* if they are
-            above ``boundaries[-1]``. These are then converted to valid indices
-            by `Colormap.__call__`.
+            greater than or equal to ``boundaries[-1]``. These are then
+            converted to valid indices by `Colormap.__call__`.
 
         extend : {'neither', 'both', 'min', 'max'}, default: 'neither'
             Extend the number of bins to include one or both of the
