@@ -878,12 +878,17 @@ class Animation:
         Whether blitting is used to optimize drawing.  If the backend does not
         support blitting, then this parameter has no effect.
 
+    start_paused : bool, default: False
+        Whether the animation should start in a paused state. If True, the
+        animation will draw the initial frame but will not begin animating
+        until `.resume()` is called.
+
     See Also
     --------
     FuncAnimation,  ArtistAnimation
     """
 
-    def __init__(self, fig, event_source, blit=False):
+    def __init__(self, fig, event_source, blit=False, start_paused=False):
         self._draw_was_started = False
 
         self._fig = fig
@@ -891,6 +896,7 @@ class Animation:
         # allows users to request it if available, but still have a
         # fallback that works if it is not.
         self._blit = blit and fig.canvas.supports_blit
+        self._start_paused = start_paused
 
         # These are the basics of the animation.  The frame sequence represents
         # information for each frame of the animation and depends on how the
@@ -933,8 +939,10 @@ class Animation:
         self._fig.canvas.mpl_disconnect(self._first_draw_id)
         # Now do any initial draw
         self._init_draw()
-        # Actually start the event_source.
-        self.event_source.start()
+        # Do not start the timer if the animation was requested to start
+        # in a paused state; the user must call .resume() manually.
+        if not self._start_paused:
+            self.event_source.start()
 
     def _stop(self, *args):
         # On stop we disconnect all of our events.
