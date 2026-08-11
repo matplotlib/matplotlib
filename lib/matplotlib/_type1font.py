@@ -523,12 +523,17 @@ class Type1Font:
 
             # Some values need special parsing
             if key in ('Subrs', 'CharStrings', 'Encoding', 'OtherSubrs'):
-                prop[key], endpos = {
-                    'Subrs': self._parse_subrs,
-                    'CharStrings': self._parse_charstrings,
-                    'Encoding': self._parse_encoding,
-                    'OtherSubrs': self._parse_othersubrs
-                }[key](source, data)
+                try:
+                    prop[key], endpos = {
+                        'Subrs': self._parse_subrs,
+                        'CharStrings': self._parse_charstrings,
+                        'Encoding': self._parse_encoding,
+                        'OtherSubrs': self._parse_othersubrs
+                    }[key](source, data)
+                except StopIteration:
+                    raise RuntimeError(
+                        f"Malformed Type1 font file: Incomplete /{key}"
+                    ) from None
                 pos.setdefault(key, []).append((keypos, endpos))
                 continue
 
@@ -618,33 +623,28 @@ class Type1Font:
         # front lets a malformed font declare a huge count in a few bytes and
         # force a large allocation before it is rejected.
         entries = {}
-        try:
-            for _ in range(count):
-                next(t for t in tokens if t.is_keyword('dup'))
-                index_token = next(tokens)
-                if not index_token.is_number():
-                    raise RuntimeError(
-                        "Token following dup in Subrs definition must be a "
-                        f"number, was {index_token}"
-                    )
-                nbytes_token = next(tokens)
-                if not nbytes_token.is_number():
-                    raise RuntimeError(
-                        "Second token following dup in Subrs definition must "
-                        f"be a number, was {nbytes_token}"
-                    )
-                token = next(tokens)
-                if not token.is_keyword(self._abbr['RD']):
-                    raise RuntimeError(
-                        f"Token preceding subr must be {self._abbr['RD']}, "
-                        f"was {token}"
-                    )
-                binary_token = tokens.send(1+nbytes_token.value())
-                entries[index_token.value()] = binary_token.value()
-        except StopIteration:
-            raise RuntimeError(
-                "Malformed Type1 font file: Incomplete /Subrs"
-            ) from None
+        for _ in range(count):
+            next(t for t in tokens if t.is_keyword('dup'))
+            index_token = next(tokens)
+            if not index_token.is_number():
+                raise RuntimeError(
+                    "Token following dup in Subrs definition must be a "
+                    f"number, was {index_token}"
+                )
+            nbytes_token = next(tokens)
+            if not nbytes_token.is_number():
+                raise RuntimeError(
+                    "Second token following dup in Subrs definition must "
+                    f"be a number, was {nbytes_token}"
+                )
+            token = next(tokens)
+            if not token.is_keyword(self._abbr['RD']):
+                raise RuntimeError(
+                    f"Token preceding subr must be {self._abbr['RD']}, "
+                    f"was {token}"
+                )
+            binary_token = tokens.send(1+nbytes_token.value())
+            entries[index_token.value()] = binary_token.value()
 
         # The indices must cover 0 to count-1 exactly.
         if (len(entries) != count
@@ -666,32 +666,27 @@ class Type1Font:
             )
         count = count_token.value()
         charstrings = {}
-        try:
-            next(t for t in tokens if t.is_keyword('begin'))
-            while True:
-                token = next(t for t in tokens
-                             if t.is_keyword('end') or t.is_slash_name())
-                if token.raw == 'end':
-                    return charstrings, token.endpos()
-                glyphname = token.value()
-                nbytes_token = next(tokens)
-                if not nbytes_token.is_number():
-                    raise RuntimeError(
-                        f"Token following /{glyphname} in CharStrings "
-                        f"definition must be a number, was {nbytes_token}"
-                    )
-                token = next(tokens)
-                if not token.is_keyword(self._abbr['RD']):
-                    raise RuntimeError(
-                        f"Token preceding charstring must be "
-                        f"{self._abbr['RD']}, was {token}"
-                    )
-                binary_token = tokens.send(1+nbytes_token.value())
-                charstrings[glyphname] = binary_token.value()
-        except StopIteration:
-            raise RuntimeError(
-                "Malformed Type1 font file: Incomplete /CharStrings"
-            ) from None
+        next(t for t in tokens if t.is_keyword('begin'))
+        while True:
+            token = next(t for t in tokens
+                         if t.is_keyword('end') or t.is_slash_name())
+            if token.raw == 'end':
+                return charstrings, token.endpos()
+            glyphname = token.value()
+            nbytes_token = next(tokens)
+            if not nbytes_token.is_number():
+                raise RuntimeError(
+                    f"Token following /{glyphname} in CharStrings definition "
+                    f"must be a number, was {nbytes_token}"
+                )
+            token = next(tokens)
+            if not token.is_keyword(self._abbr['RD']):
+                raise RuntimeError(
+                    f"Token preceding charstring must be {self._abbr['RD']}, "
+                    f"was {token}"
+                )
+            binary_token = tokens.send(1+nbytes_token.value())
+            charstrings[glyphname] = binary_token.value()
 
     @staticmethod
     def _parse_encoding(tokens, _data):
@@ -699,48 +694,37 @@ class Type1Font:
         # but some old fonts include non-compliant data - we log a warning
         # and return a possibly incomplete encoding
         encoding = {}
-        try:
-            while True:
-                token = next(t for t in tokens
-                             if t.is_keyword('StandardEncoding', 'dup', 'def'))
-                if token.is_keyword('StandardEncoding'):
-                    return _StandardEncoding, token.endpos()
-                if token.is_keyword('def'):
-                    return encoding, token.endpos()
-                index_token = next(tokens)
-                if not index_token.is_number():
-                    _log.warning(
-                        f"Parsing encoding: expected number, got {index_token}"
-                    )
-                    continue
-                name_token = next(tokens)
-                if not name_token.is_slash_name():
-                    _log.warning(
-                        f"Parsing encoding: expected slash-name, got "
-                        f"{name_token}"
-                    )
-                    continue
-                encoding[index_token.value()] = name_token.value()
-        except StopIteration:
-            raise RuntimeError(
-                "Malformed Type1 font file: Incomplete /Encoding"
-            ) from None
+        while True:
+            token = next(t for t in tokens
+                         if t.is_keyword('StandardEncoding', 'dup', 'def'))
+            if token.is_keyword('StandardEncoding'):
+                return _StandardEncoding, token.endpos()
+            if token.is_keyword('def'):
+                return encoding, token.endpos()
+            index_token = next(tokens)
+            if not index_token.is_number():
+                _log.warning(
+                    f"Parsing encoding: expected number, got {index_token}"
+                )
+                continue
+            name_token = next(tokens)
+            if not name_token.is_slash_name():
+                _log.warning(
+                    f"Parsing encoding: expected slash-name, got {name_token}"
+                )
+                continue
+            encoding[index_token.value()] = name_token.value()
 
     def _parse_othersubrs(self, tokens, data):
         init_pos = None
-        try:
-            while True:
-                token = next(tokens)
-                if init_pos is None:
-                    init_pos = token.pos
-                if token.is_delim():
-                    _expression(token, tokens, data)
-                elif token.is_keyword('def', self._abbr['ND']):
-                    return data[init_pos:token.endpos()], token.endpos()
-        except StopIteration:
-            raise RuntimeError(
-                "Malformed Type1 font file: Incomplete /OtherSubrs"
-            ) from None
+        while True:
+            token = next(tokens)
+            if init_pos is None:
+                init_pos = token.pos
+            if token.is_delim():
+                _expression(token, tokens, data)
+            elif token.is_keyword('def', self._abbr['ND']):
+                return data[init_pos:token.endpos()], token.endpos()
 
     def transform(self, effects):
         """
