@@ -447,10 +447,6 @@ test-environment = "PIP_PREFER_BINARY=true"
 [tool.cibuildwheel.macos.environment]
 MACOSX_DEPLOYMENT_TARGET = "10.14"
 
-[tool.cibuildwheel.pyodide]
-config-settings.setup-args = [
-    "-DrcParams-backend=pyodide"
-]
 test-requires = "pytest"
 test-command = [
     # Wheels are built without test images, so copy them into the testing directory.
