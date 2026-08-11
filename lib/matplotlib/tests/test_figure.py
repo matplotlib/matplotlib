@@ -339,6 +339,31 @@ def test_suptitle_fontproperties():
     assert txt.get_weight() == fps.get_weight()
 
 
+def test_suptitle_loc():
+    fig, _ = plt.subplots()
+    t_left = fig.suptitle('left', loc='left')
+    assert t_left.get_ha() == 'left'
+    assert t_left.get_position()[0] == 0.02
+
+    t_center = fig.suptitle('center', loc='center')
+    assert t_center.get_ha() == 'center'
+    assert t_center.get_position()[0] == 0.5
+
+    t_right = fig.suptitle('right', loc='right')
+    assert t_right.get_ha() == 'right'
+    assert t_right.get_position()[0] == 0.98
+
+    # default (loc=None) should use center
+    fig2, _ = plt.subplots()
+    t_default = fig2.suptitle('default')
+    assert t_default.get_ha() == 'center'
+    assert t_default.get_position()[0] == 0.5
+
+    # invalid loc should raise
+    with pytest.raises(ValueError, match="'invalid' is not a valid value for loc"):
+        fig.suptitle('bad', loc='invalid')
+
+
 def test_suptitle_subfigures():
     fig = plt.figure(figsize=(4, 3))
     sf1, sf2 = fig.subfigures(1, 2)

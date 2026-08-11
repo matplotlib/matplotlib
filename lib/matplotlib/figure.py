@@ -415,6 +415,8 @@ default: %(va)s
         fontweight, weight : default: :rc:`figure.%(rc)sweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
+        loc : {'left', 'center', 'right'}, default: 'center'
+            The horizontal position of the %(name)s.
 
         Returns
         -------
@@ -475,11 +477,18 @@ default: %(va)s
     @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
                              va='top', rc='title')
     @_docstring.copy(_suplabels)
-    def suptitle(self, t, **kwargs):
+    def suptitle(self, t, loc=None, **kwargs):
         # docstring from _suplabels...
         info = {'name': '_suptitle', 'x0': 0.5, 'y0': 0.98,
                 'ha': 'center', 'va': 'top', 'rotation': 0,
                 'size': 'figure.titlesize', 'weight': 'figure.titleweight'}
+        if loc is not None:
+            _valid_locs = {'left': (0.02, 'left'),
+                           'center': (0.5, 'center'),
+                           'right': (0.98, 'right')}
+            _loc = loc.lower()
+            _api.check_in_list(_valid_locs, loc=_loc)
+            info['x0'], info['ha'] = _valid_locs[_loc]
         return self._suplabels(t, info, **kwargs)
 
     def get_suptitle(self):
