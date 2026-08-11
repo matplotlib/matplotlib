@@ -558,3 +558,51 @@ def test_animation_with_transparency():
     # Check that the alpha channel is not 255, so frame has transparency
     assert frame.getextrema()[3][0] < 255
     plt.close(fig)
+
+
+def test_animation_start_paused():
+    """Test that Animation(start_paused=True) starts in a paused state."""
+    from unittest.mock import patch
+
+    def _make_anim(fig, **kwargs):
+        line, = fig.axes[0].plot([], [])
+
+        def init():
+            line.set_data([], [])
+            return line,
+
+        def animate(i):
+            line.set_data([0, 1], [0, i])
+            return line,
+
+        return animation.FuncAnimation(
+            fig, animate, init_func=init, frames=5, interval=100, **kwargs)
+
+    # start_paused=True: event_source.start() should NOT be called in _start
+    fig1, _ = plt.subplots()
+    anim1 = _make_anim(fig1, start_paused=True)
+    with patch.object(anim1.event_source, 'start',
+                      wraps=anim1.event_source.start) as mock_start:
+        anim1._start()
+        mock_start.assert_not_called()
+    plt.close(fig1)
+
+    # start_paused=False (default): event_source.start() SHOULD be called
+    fig2, _ = plt.subplots()
+    anim2 = _make_anim(fig2)
+    with patch.object(anim2.event_source, 'start',
+                      wraps=anim2.event_source.start) as mock_start2:
+        anim2._start()
+        mock_start2.assert_called_once()
+    plt.close(fig2)
+
+    # start_paused=True then resume(): start() should be called
+    fig3, _ = plt.subplots()
+    anim3 = _make_anim(fig3, start_paused=True)
+    with patch.object(anim3.event_source, 'start',
+                      wraps=anim3.event_source.start) as mock_start3:
+        anim3._start()
+        mock_start3.assert_not_called()
+        anim3.resume()
+        mock_start3.assert_called_once()
+    plt.close(fig3)
