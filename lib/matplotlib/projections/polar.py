@@ -408,20 +408,6 @@ class ThetaAxis(maxis.XAxis):
             return 0.0
         return float(rotation)
 
-    def get_tick_space(self):
-        # Theta ticks are arranged around a circle at fixed common angle
-        # rasters (e.g. every 10/15/30/45/90 degrees), so estimate space
-        # using the circumference rather than rotation-based aspect scaling.
-        ends = mtransforms.Bbox.unit().transformed(
-            self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans
-        )
-        radius = min(ends.width, ends.height) / 2 * 72
-        circumference = 2 * np.pi * radius
-        size = self._get_tick_label_size("x")
-        if size > 0:
-            return int(np.floor(circumference / size))
-        return 2**31 - 1
-
     def _set_scale(self, value, **kwargs):
         if value != 'linear':
             raise NotImplementedError(
@@ -719,19 +705,6 @@ class RadialAxis(maxis.YAxis):
         if rotation == 'auto':
             return 0.0
         return float(rotation)
-
-    def get_tick_space(self):
-        # Theta ticks are arranged around a circle at fixed common angle
-        # rasters (e.g. every 10/15/30/45/90 degrees), so estimate space
-        # using the circumference rather than rotation-based aspect scaling.
-        ends = mtransforms.Bbox.unit().transformed(
-            self.axes.transAxes - self.get_figure(root=False).dpi_scale_trans)
-        radius = min(ends.width, ends.height) / 2 * 72
-        circumference = 2 * np.pi * radius
-        size = self._get_tick_label_size('x')
-        if size > 0:
-            return int(np.floor(circumference / size))
-        return 2**31 - 1
 
 
 def _is_full_circle_deg(thetamin, thetamax):
