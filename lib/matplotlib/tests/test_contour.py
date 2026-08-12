@@ -9,6 +9,7 @@ from numpy.testing import assert_array_almost_equal, assert_array_almost_equal_n
 import matplotlib as mpl
 from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
+from matplotlib import colors as mcolors
 import matplotlib.patches as mpatches
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
 import pytest
@@ -337,11 +338,48 @@ def test_corner_mask():
 
 
 def test_contourf_decreasing_levels():
-    # github issue 5477.
+    # Non-monotonic levels are rejected (github issue 5477).
     z = [[0.1, 0.3], [0.5, 0.7]]
     plt.figure()
-    with pytest.raises(ValueError):
-        plt.contourf(z, [1.0, 0.0])
+    with pytest.raises(ValueError, match="Contour levels must be increasing"):
+        plt.contourf(z, [1.0, 0.0, 0.5])
+
+
+@pytest.mark.parametrize("func", ["contour", "contourf"])
+def test_decreasing_levels(func):
+    # github issue 31227: monotonically decreasing levels are reversed
+    # internally instead of raising an error.
+    z = [[0, 1], [1, 2]]
+    fig, ax = plt.subplots()
+    cs = getattr(ax, func)(z, levels=[2, 1, 0])
+    assert_array_almost_equal(cs.levels, [0, 1, 2])
+    # Same levels given positionally or as an array behave identically.
+    cs2 = getattr(ax, func)(z, np.array([2, 1, 0]))
+    assert_array_almost_equal(cs2.levels, cs.levels)
+    cs3 = getattr(ax, func)(z, [2, 1, 0])
+    assert_array_almost_equal(cs3.levels, cs.levels)
+
+
+def test_decreasing_levels_styling():
+    # Per-level styling stays associated with the level it was given for
+    # when the levels are provided in decreasing order.
+    z = [[0, 1], [1, 2]]
+    fig, (ax1, ax2) = plt.subplots(1, 2)
+    cs = ax1.contour(z, [2, 1, 0], colors=['red', 'green', 'blue'],
+                     linewidths=[1, 2, 3],
+                     linestyles=['solid', 'dashed', 'dotted'])
+    assert_array_almost_equal(cs.levels, [0, 1, 2])
+    for edgecolor, color in zip(cs.get_edgecolors(),
+                                [mcolors.to_rgba('blue'),
+                                 mcolors.to_rgba('green'),
+                                 mcolors.to_rgba('red')]):
+        assert_array_almost_equal(edgecolor, color)
+    assert_array_almost_equal(cs.get_linewidths(), [3, 2, 1])
+    # The reversed contour is equivalent to the same contour drawn with
+    # increasing levels and reversed styling.
+    cs_ref = ax2.contour(z, [0, 1, 2], linestyles=['dotted', 'dashed',
+                                                   'solid'])
+    assert cs.get_linestyles() == cs_ref.get_linestyles()
 
 
 def test_contourf_symmetric_locator():

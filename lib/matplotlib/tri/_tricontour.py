@@ -122,7 +122,8 @@ levels : int or array-like, optional
     between minimum and maximum numeric values of *Z*.
 
     If array-like, draw contour lines at the specified levels.  The values must
-    be in increasing order.
+    be in increasing order, or decreasing order, in which case they are reversed
+    internally.
 
 Returns
 -------

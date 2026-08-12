@@ -692,6 +692,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         self.extent = extent
         self.colors = colors
         self.extend = extend
+        self._levels_reversed = False
 
         self.nchunk = nchunk
         self.locator = locator
@@ -731,6 +732,29 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         self._extend_min = self.extend in ['min', 'both']
         self._extend_max = self.extend in ['max', 'both']
+        if self._levels_reversed:
+            # The user supplied the levels in decreasing order, so they were
+            # reversed internally to increasing order.  Reverse any per-level
+            # styling given by the user so that it stays associated with the
+            # same levels.
+            if self.colors is not None:
+                color_sequence = (list(self.colors) if not mcolors.is_color_like(self.colors)
+                                  else [self.colors])
+                ncolors = len(self.levels) - int(self.filled)
+                total_levels = ncolors + int(self._extend_min) + int(self._extend_max)
+                if len(color_sequence) == total_levels:
+                    # Keep the extended (under/over) colors at the ends.
+                    i0 = int(self._extend_min)
+                    i1 = len(color_sequence) - int(self._extend_max)
+                    color_sequence = (color_sequence[:i0]
+                                      + color_sequence[i0:i1][::-1]
+                                      + color_sequence[i1:])
+                else:
+                    color_sequence = color_sequence[::-1]
+                self.colors = color_sequence
+            if (self.filled and self.hatches is not None
+                    and not all(h is None for h in self.hatches)):
+                self.hatches = list(self.hatches)[::-1]
         if self.colors is not None:
             if mcolors.is_color_like(self.colors):
                 color_sequence = [self.colors]
@@ -1054,8 +1078,15 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         if self.filled and len(self.levels) < 2:
             raise ValueError("Filled contours require at least 2 levels.")
-        if len(self.levels) > 1 and np.min(np.diff(self.levels)) <= 0.0:
-            raise ValueError("Contour levels must be increasing")
+        if len(self.levels) > 1:
+            diffs = np.diff(self.levels)
+            if not (np.all(diffs > 0) or np.all(diffs < 0)):
+                raise ValueError("Contour levels must be increasing")
+            if np.all(diffs < 0):
+                # The levels were given in decreasing order; reverse them so
+                # that the rest of the code can assume increasing levels.
+                self.levels = self.levels[::-1]
+                self._levels_reversed = True
 
     def _process_levels(self):
         """
@@ -1149,7 +1180,10 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             return [linewidths] * Nlev
         else:
             linewidths = list(linewidths)
-            return (linewidths * math.ceil(Nlev / len(linewidths)))[:Nlev]
+            linewidths = (linewidths * math.ceil(Nlev / len(linewidths)))[:Nlev]
+            # If the levels were reversed, reverse the linewidths as well so
+            # that each width stays with the level it was given for.
+            return linewidths[::-1] if self._levels_reversed else linewidths
 
     def _process_linestyles(self, linestyles):
         Nlev = len(self.levels)
@@ -1170,6 +1204,10 @@ class ContourSet(ContourLabeler, mcoll.Collection):
                     tlinestyles = tlinestyles * nreps
                 if len(tlinestyles) > Nlev:
                     tlinestyles = tlinestyles[:Nlev]
+                # If the levels were reversed, reverse the linestyles as well
+                # so that each style stays with the level it was given for.
+                if self._levels_reversed:
+                    tlinestyles = tlinestyles[::-1]
             else:
                 raise ValueError("Unrecognized type for linestyles kwarg")
         return tlinestyles
@@ -1521,7 +1559,8 @@ levels : int or array-like, optional
     *n*=7 is the default.
 
     If array-like, draw contour lines at the specified levels.
-    The values must be in increasing order.
+    The values must be in increasing order, or decreasing order, in which
+    case they are reversed internally.
 
     If not specified, a reasonable default is automatically chosen. For
     linear scales, this corresponds to *levels=7*. For logarithmic
