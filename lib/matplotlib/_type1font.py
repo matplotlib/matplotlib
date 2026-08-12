@@ -523,13 +523,14 @@ class Type1Font:
 
             # Some values need special parsing
             if key in ('Subrs', 'CharStrings', 'Encoding', 'OtherSubrs'):
+                parser = {
+                    'Subrs': self._parse_subrs,
+                    'CharStrings': self._parse_charstrings,
+                    'Encoding': self._parse_encoding,
+                    'OtherSubrs': self._parse_othersubrs
+                }[key]
                 try:
-                    prop[key], endpos = {
-                        'Subrs': self._parse_subrs,
-                        'CharStrings': self._parse_charstrings,
-                        'Encoding': self._parse_encoding,
-                        'OtherSubrs': self._parse_othersubrs
-                    }[key](source, data)
+                    prop[key], endpos = parser(source, data)
                 except StopIteration:
                     raise RuntimeError(
                         f"Malformed Type1 font file: Incomplete /{key}"
