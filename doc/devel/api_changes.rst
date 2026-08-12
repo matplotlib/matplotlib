@@ -48,7 +48,7 @@ When adding a new rcParam, the following files must be updated:
 
 Add or change pyplot method signature
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-When changing the signature of a method wrapped by :doc:`pyplot <doc/api/pyplot_summary>`
+When changing the signature of a method wrapped by :doc:`pyplot </api/pyplot_summary>`
 , run :file:`lib/matplotlib/test_pyplot.py::test_pyplot_up_to_date`. If the test fails
 and you had intended to change the signatures, run :file:`tools/boilerplate.py` to
 generate new pyplot wrappers and commit the changes.
