@@ -1638,8 +1638,15 @@ class PercentFormatter(Formatter):
 
     def __call__(self, x, pos=None):
         """Format the tick as a percentage with the appropriate scaling."""
-        ax_min, ax_max = self.axis.get_view_interval()
-        display_range = abs(ax_max - ax_min)
+        if self.decimals is None:
+            # The display range of the axis is only needed to pick the number
+            # of decimals automatically; when ``decimals`` is set explicitly we
+            # avoid touching ``self.axis`` so the formatter also works when it
+            # is not attached to an axis.
+            ax_min, ax_max = self.axis.get_view_interval()
+            display_range = abs(ax_max - ax_min)
+        else:
+            display_range = None
         return self.fix_minus(self.format_pct(x, display_range))
 
     def format_pct(self, x, display_range):

@@ -1,15 +1,23 @@
 """
+.. _linestyle_def:
+
 ==========
 Linestyles
 ==========
 
-Simple linestyles can be defined using the strings "solid", "dotted", "dashed"
-or "dashdot". More refined control can be achieved by providing a dash tuple
-``(offset, (on_off_seq))``. For example, ``(0, (3, 10, 1, 15))`` means
-(3pt line, 10pt space, 1pt line, 15pt space) with no offset, while
-``(5, (10, 3))``, means (10pt line, 3pt space), but skip the first 5pt line.
-See also `.Line2D.set_linestyle`.  The specific on/off sequences of the
-"dotted", "dashed" and "dashdot" styles are configurable:
+Linestyles can be specified in two ways:
+
+* **Named linestyles**: "solid", "dotted", "dashed", "dashdot" and their
+  short forms "-", ":", "--", "-."
+* **Parametrized linestyles**: a dash tuple ``(offset, (on_off_seq))``. For example,
+  ``(0, (3, 10, 1, 15))`` means (3pt line, 10pt space, 1pt line, 15pt space) with no
+  offset, while ``(5, (10, 3))``, means (10pt line, 3pt space), but skip the first
+  5pt line.
+
+See also `.Line2D.set_linestyle`.
+
+The specific on/off sequences of the "dotted", "dashed" and "dashdot" styles are
+configurable:
 
 * :rc:`lines.dotted_pattern`
 * :rc:`lines.dashed_pattern`

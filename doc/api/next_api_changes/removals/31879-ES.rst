@@ -1,0 +1,79 @@
+ft2font module-level constants replaced by enums
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The `.ft2font`-level constants have been converted to `enum` classes, and all API using
+them now take/return the new types. Any access to the old module-level names has been
+removed.
+
+The following constants are now part of `.ft2font.Kerning` (without the ``KERNING_``
+prefix):
+
+- ``KERNING_DEFAULT``
+- ``KERNING_UNFITTED``
+- ``KERNING_UNSCALED``
+
+The following constants are now part of `.ft2font.LoadFlags` (without the ``LOAD_``
+prefix):
+
+- ``LOAD_DEFAULT``
+- ``LOAD_NO_SCALE``
+- ``LOAD_NO_HINTING``
+- ``LOAD_RENDER``
+- ``LOAD_NO_BITMAP``
+- ``LOAD_VERTICAL_LAYOUT``
+- ``LOAD_FORCE_AUTOHINT``
+- ``LOAD_CROP_BITMAP``
+- ``LOAD_PEDANTIC``
+- ``LOAD_IGNORE_GLOBAL_ADVANCE_WIDTH``
+- ``LOAD_NO_RECURSE``
+- ``LOAD_IGNORE_TRANSFORM``
+- ``LOAD_MONOCHROME``
+- ``LOAD_LINEAR_DESIGN``
+- ``LOAD_NO_AUTOHINT``
+- ``LOAD_TARGET_NORMAL``
+- ``LOAD_TARGET_LIGHT``
+- ``LOAD_TARGET_MONO``
+- ``LOAD_TARGET_LCD``
+- ``LOAD_TARGET_LCD_V``
+
+The following constants are now part of `.ft2font.FaceFlags`:
+
+- ``EXTERNAL_STREAM``
+- ``FAST_GLYPHS``
+- ``FIXED_SIZES``
+- ``FIXED_WIDTH``
+- ``GLYPH_NAMES``
+- ``HORIZONTAL``
+- ``KERNING``
+- ``MULTIPLE_MASTERS``
+- ``SCALABLE``
+- ``SFNT``
+- ``VERTICAL``
+
+The following constants are now part of `.ft2font.StyleFlags`:
+
+- ``ITALIC``
+- ``BOLD``
+
+FontProperties initialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`.FontProperties` initialization is limited to the two call patterns:
+
+- single positional parameter, interpreted as fontconfig pattern
+- only keyword parameters for setting individual properties
+
+All other previously supported call patterns are no longer supported.
+
+Passing floating-point values to ``RendererAgg.draw_text_image``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Any floating-point values passed to the *x* and *y* parameters were truncated to integers
+silently. This behaviour is no longer allowed, and only `int` values should be used.
+
+Passing floating-point values to ``FT2Image``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Any floating-point values passed to the `.FT2Image` constructor, or the *x0*, *y0*, *x1*,
+and *y1* parameters of `.FT2Image.draw_rect_filled` were truncated to integers silently.
+This behaviour is no longer allowed, and only `int` values should be used.

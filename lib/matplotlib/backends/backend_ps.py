@@ -190,12 +190,13 @@ def _font_to_ps_type42(font_path, subset_index, glyph_indices, fh):
         with (fontTools.ttLib.TTFont(font_path.path,
                                      fontNumber=font_path.face_index) as font,
               _backend_pdf_ps.get_glyphs_subset(font_path, glyph_indices) as subset):
-            fontdata = _backend_pdf_ps.font_as_file(subset).getvalue()
+            new_font = subset.font
+            fontdata = _backend_pdf_ps.font_as_file(new_font).getvalue()
             _log.debug(
                 "SUBSET %s:%d %d -> %d", font_path, subset_index,
                 os.stat(font_path).st_size, len(fontdata)
             )
-            fh.write(_serialize_type42(font, subset_index, subset, fontdata))
+            fh.write(_serialize_type42(font, subset_index, new_font, fontdata))
     except RuntimeError:
         _log.warning(
             "The PostScript backend does not currently support the selected font (%s).",

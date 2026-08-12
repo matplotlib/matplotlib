@@ -510,38 +510,11 @@ class Patch(artist.Artist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq)
-            Possible values:
+        ls : :mpltype:`linestyle`
+            A named line style (e.g. "dashed", or short "--") or a dash tuple
+            ``(offset, (on_off_seq))``.
 
-            - A string:
-
-              =======================================================  ================
-              linestyle                                                description
-              =======================================================  ================
-              ``'-'`` or ``'solid'``                                   solid line
-              ``'--'`` or ``'dashed'``                                 dashed line
-              ``'-.'`` or ``'dashdot'``                                dash-dotted line
-              ``':'`` or ``'dotted'``                                  dotted line
-              ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
-              =======================================================  ================
-
-            - A tuple describing the start position and lengths of dashes and spaces:
-
-                  (offset, onoffseq)
-
-              where
-
-              - *offset* is a float specifying the offset (in points); i.e. how much
-                is the dash pattern shifted.
-              - *onoffseq* is a sequence of on and off ink in points. There can be
-                arbitrary many pairs of on and off values.
-
-              Example: The tuple ``(0, (10, 5, 1, 5))`` means that the pattern starts
-              at the beginning of the line. It draws a 10 point long dash,
-              then a 5 point long space, then a 1 point long dash, followed by a 5 point
-              long space, and then the pattern repeats.
-
-            For examples see :doc:`/gallery/lines_bars_and_markers/linestyles`.
+            For a full reference see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         if ls is None:
             ls = "solid"
@@ -636,6 +609,9 @@ class Patch(artist.Artist):
         Letters can be combined, in which case all the specified
         hatchings are done.  If same letter repeats, it increases the
         density of hatching of that pattern.
+
+        In regular (non-raw) Python strings, backslashes must be doubled:
+        ``'\\\\'`` and ``r'\\'`` are both a double back-diagonal hatch.
 
         Parameters
         ----------

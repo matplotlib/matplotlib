@@ -4,7 +4,6 @@ from collections.abc import Callable, Iterable
 from typing import Any, Literal
 from matplotlib.typing import ColorType, LineStyleType, MarkEveryType
 
-
 def _listify_validator[T](
     scalar_validator: Callable[[Any], T],
     allow_stringlist: bool = ...,

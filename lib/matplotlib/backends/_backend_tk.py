@@ -327,9 +327,10 @@ class FigureCanvasTk(FigureCanvasBase):
     def _event_mpl_coords(self, event):
         # calling canvasx/canvasy allows taking scrollbars into account (i.e.
         # the top of the widget may have been scrolled out of view).
+        height = self.get_width_height(physical=True)[1]
         return (self._tkcanvas.canvasx(event.x),
                 # flipy so y=0 is bottom of canvas
-                self.figure.bbox.height - self._tkcanvas.canvasy(event.y))
+                height - self._tkcanvas.canvasy(event.y))
 
     def motion_notify_event(self, event):
         MouseEvent("motion_notify_event", self,
@@ -389,7 +390,7 @@ class FigureCanvasTk(FigureCanvasBase):
         if w != self._tkcanvas:
             return
         x = self._tkcanvas.canvasx(event.x_root - w.winfo_rootx())
-        y = (self.figure.bbox.height
+        y = (self.get_width_height(physical=True)[1]
              - self._tkcanvas.canvasy(event.y_root - w.winfo_rooty()))
         step = event.delta / 120
         MouseEvent("scroll_event", self,
@@ -676,7 +677,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if window is None:
             window = canvas.get_tk_widget().master
         tk.Frame.__init__(self, master=window, borderwidth=2,
-                          width=int(canvas.figure.bbox.width), height=50)
+                          width=canvas.get_width_height()[0], height=50)
         # Avoid message_label expanding the toolbar size, and in turn expanding the
         # canvas size.
         # Without pack_propagate(False), when the user defines a small figure size
@@ -774,7 +775,7 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_white)
         if self.canvas._rubberband_rect_black:
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
-        height = self.canvas.figure.bbox.height
+        height = self.canvas.get_width_height(physical=True)[1]
         y0 = height - y0
         y1 = height - y1
         self.canvas._rubberband_rect_black = (

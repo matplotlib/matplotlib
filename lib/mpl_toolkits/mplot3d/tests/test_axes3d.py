@@ -72,6 +72,72 @@ def test_axis_positions():
         ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
 
 
+@mpl3d_image_comparison(['axis_positions_inverted.png'], remove_text=False,
+                        style='mpl20')
+def test_axis_positions_inverted():
+    # Regression test for https://github.com/matplotlib/matplotlib/issues/31989
+    # Check the visual placement of axes, ticks and labels for
+    # every combination of inverted x, y and z axes.
+    combinations = list(itertools.product([False, True], repeat=3))
+    fig, axs = plt.subplots(2, 4, figsize=(10, 6),
+                            subplot_kw={'projection': '3d'})
+    for ax, (invert_x, invert_y, invert_z) in zip(axs.flatten(), combinations):
+        # Plot an asymmetric line so that inverting an axis visibly mirrors the data,
+        # ensuring the projection is exercised for every inversion combination
+        ax.plot([0, 1, 1], [0, 0, 1], [0, 1, 1])
+        if invert_x:
+            ax.invert_xaxis()
+        if invert_y:
+            ax.invert_yaxis()
+        if invert_z:
+            ax.invert_zaxis()
+        title = (f'{"-" if invert_x else ""}x, '
+                 f'{"-" if invert_y else ""}y, '
+                 f'{"-" if invert_z else ""}z')
+        ax.set(xlabel='x', ylabel='y', zlabel='z', title=title)
+
+
+def test_set_aspect_datalim_restores_limits():
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    ax.plot([0, 1], [0, 2], [0, 3])
+
+    fig.canvas.draw()
+    default_limits = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    fig.canvas.draw()
+    equal_limits = ax.get_w_lims()
+
+    ax.set_aspect('auto', adjustable='datalim')
+    fig.canvas.draw()
+    final_limits = ax.get_w_lims()
+
+    # equal should change limits
+    assert not np.allclose(default_limits, equal_limits)
+
+    # auto should restore original limits
+    assert np.allclose(default_limits, final_limits)
+
+
+def test_set_aspect_datalim_restores_untouched_axes():
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.plot([1, 2], [3, 4], [5, 6])
+    orig_lims = ax.get_w_lims()
+
+    ax.set_aspect('equal', adjustable='datalim')
+    ax.set_xlim(-50, 50)  # explicit user change mid-'equal'
+    ax.set_aspect('auto', adjustable='datalim')
+
+    xlim, ylim, zlim = ax.get_xlim3d(), ax.get_ylim3d(), ax.get_zlim3d()
+    assert xlim == (-50, 50)               # explicit value preserved
+    assert ylim == orig_lims[2:4]          # untouched axis restored
+    assert zlim == orig_lims[4:6]          # untouched axis restored
+
+
 @mpl3d_image_comparison(['aspects.png'], remove_text=False, style='mpl20')
 def test_aspects():
     aspects = ('auto', 'equal', 'equalxy', 'equalyz', 'equalxz', 'equal')
@@ -127,14 +193,13 @@ def test_axes3d_primary_views():
              (0, 180, 0)]   # -YZ
     # When viewing primary planes, draw the two visible axes so they intersect
     # at their low values
-    fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'})
+    fig, axs = plt.subplots(2, 3, subplot_kw={'projection': '3d'}, layout='tight')
     for i, ax in enumerate(axs.flat):
         ax.set_xlabel('x')
         ax.set_ylabel('y')
         ax.set_zlabel('z')
         ax.set_proj_type('ortho')
         ax.view_init(elev=views[i][0], azim=views[i][1], roll=views[i][2])
-    plt.tight_layout()
 
 
 @mpl3d_image_comparison(['bar3d.png'], style='mpl20')
@@ -2790,6 +2855,47 @@ def test_axis_get_tightbbox_includes_offset_text():
             f"bbox.x1 ({bbox.x1}) should be >= offset_bbox.x1 ({offset_bbox.x1})"
         assert bbox.y1 >= offset_bbox.y1 - 1e-6, \
             f"bbox.y1 ({bbox.y1}) should be >= offset_bbox.y1 ({offset_bbox.y1})"
+
+
+@pytest.mark.parametrize('labeltype', ['ticks', 'axis label'])
+def test_axes3d_tightbbox_includes_labels(labeltype):
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+
+    renderer = fig._get_renderer()
+
+    tight_bbs = {}
+
+    if labeltype == 'axis label':
+        ax.set_zlabel('foo')
+
+        # Remove ticks so they don't affect the result
+        ax.zaxis.set_ticks_position('none')
+
+    for pos in ['lower', 'upper', 'both', 'none']:
+        if labeltype == 'ticks':
+            ax.zaxis.set_ticks_position(pos)
+        else:
+            ax.zaxis.set_label_position(pos)
+        tight_bbs[pos] = ax.get_tightbbox(renderer)
+
+    for pos in ['lower', 'both']:
+        # Should make space for labels on the left
+        assert tight_bbs[pos].xmin < tight_bbs['none'].xmin, \
+            f'No space for labels on left with {labeltype} position "{pos}"'
+
+    for pos in ['upper', 'both']:
+        # Should make space for labels on the right
+        assert tight_bbs[pos].xmax > tight_bbs['none'].xmax, \
+            f'No space for labels on right with {labeltype} position "{pos}"'
+
+    # No space on the right for 'lower'
+    assert tight_bbs['lower'].xmax == tight_bbs['none'].xmax, \
+        f'Unexpected space for labels on right with {labeltype} position "lower"'
+
+    # No space on the left for 'upper'
+    assert tight_bbs['upper'].xmin == tight_bbs['none'].xmin, \
+        f'Unexpected space for labels on left with {labeltype} position "{pos}"'
 
 
 def test_ctrl_rotation_snaps_to_5deg():

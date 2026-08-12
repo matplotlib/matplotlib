@@ -100,6 +100,9 @@ class _Converter:
 class _MagickConverter:
     def __call__(self, orig, dest):
         try:
+            # ImageMagick may not be permitted to follow a symlink, so resolve it
+            if orig.is_symlink():
+                orig = orig.resolve()
             subprocess.run(
                 [mpl._get_executable_info("magick").executable, orig, dest],
                 check=True)

@@ -1764,6 +1764,14 @@ class TestPercentFormatter:
         with mpl.rc_context(rc={'text.usetex': usetex}):
             assert fmt.format_pct(50, 100) == expected
 
+    def test_call_without_axis(self):
+        # With explicit decimals the axis view interval is not needed, so the
+        # formatter should format a value even when it is not attached to an
+        # axis, instead of raising an AttributeError.
+        with mpl.rc_context(rc={'text.usetex': False}):
+            assert mticker.PercentFormatter(xmax=1.0, decimals=1)(0.5) == '50.0%'
+            assert mticker.PercentFormatter(xmax=100, decimals=0)(50) == '50%'
+
 
 def _impl_locale_comma():
     try:

@@ -675,7 +675,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq) or list thereof
+        ls : :mpltype:`linestyle` or list of :mpltype:`linestyle`
             If a list, the individual elements are assigned to the elements of the
             collection.
 
@@ -1933,14 +1933,8 @@ class EventCollection(LineCollection):
             The line width of the event lines, in points.
         color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
             The color of the event lines.
-        linestyle : str or tuple or list thereof, default: 'solid'
-            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
-            '-', '--', '-.', ':']. Dash tuples should be of the form::
-
-                (offset, onoffseq),
-
-            where *onoffseq* is an even length tuple of on and off ink
-            in points.
+        linestyle : :mpltype:`linestyle`, default: 'solid'
+            The linestyle of the event lines.
         antialiased : bool or list thereof, default: :rc:`lines.antialiased`
             Whether to use antialiasing for drawing the lines.
         **kwargs
@@ -2386,6 +2380,8 @@ class _MeshData:
             h, w = height, width
         ok_shapes = [(h, w, 3), (h, w, 4), (h, w), (h * w,)]
         if A is not None:
+            if hasattr(self, 'norm'):
+                A = mcolorizer._ensure_multivariate_data(A, self.norm.n_components)
             shape = np.shape(A)
             if shape not in ok_shapes:
                 raise ValueError(
@@ -2643,7 +2639,7 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         mask = (mask[0:-1, 0:-1] | mask[1:, 1:] | mask[0:-1, 1:] | mask[1:, 0:-1])
         arr = self.get_array()
         if arr is not None:
-            arr = np.ma.getmaskarray(arr)
+            arr = self._getmaskarray(arr)
             if arr.ndim == 3:
                 # RGB(A) case
                 mask |= np.any(arr, axis=-1)
