@@ -70,11 +70,10 @@ from xml.etree.ElementTree import Element
 
 from lxml import etree
 import pikepdf
-from PIL import Image
 
 
 INKSCAPE_BIN = "inkscape"
-OPTIPNG_BIN = "optipng"
+OXIPNG_BIN = "oxipng"
 
 DEFAULT_IMAGES_PATH = "../lib/matplotlib/mpl-data/images"
 
@@ -120,12 +119,6 @@ class ImageConverter:
         self._png_paths = []
         self._actions = []
         self._original_size = None
-
-    def _optimize_png(self, png_path: Path) -> None:
-        """Removes all metadata from a PNG file and then runs `optipng`"""
-        with Image.open(png_path) as img:
-            img.save(png_path)  # Should save without metadata
-        run_command(OPTIPNG_BIN, str(png_path))
 
     def _optimize_pdf(self, pdf_path: Path) -> None:
         """Removes all metadata from a PDF file."""
@@ -184,8 +177,8 @@ class ImageConverter:
         actions_str = ";".join(self._actions) + ";"
         run_command(INKSCAPE_BIN, "--actions", actions_str)
 
-        for png_path in self._png_paths:
-            self._optimize_png(png_path)
+        oxipng_options = ("--opt", "max", "--strip", "all", "--zopfli", "--alpha")
+        run_command(OXIPNG_BIN, *oxipng_options, *self._png_paths)
 
         for pdf_path in self._pdf_paths:
             self._optimize_pdf(pdf_path)
@@ -252,8 +245,8 @@ def make_icons() -> None:
 
     if shutil.which(INKSCAPE_BIN) is None:
         raise FileNotFoundError(f"Could not locate the `{INKSCAPE_BIN}` binary")
-    if shutil.which(OPTIPNG_BIN) is None:
-        raise FileNotFoundError(f"Could not locate the `{OPTIPNG_BIN}` binary")
+    if shutil.which(OXIPNG_BIN) is None:
+        raise FileNotFoundError(f"Could not locate the `{OXIPNG_BIN}` binary")
 
     converter = ImageConverter()
 
