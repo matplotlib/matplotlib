@@ -738,8 +738,10 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             # styling given by the user so that it stays associated with the
             # same levels.
             if self.colors is not None:
-                color_sequence = (list(self.colors) if not mcolors.is_color_like(self.colors)
-                                  else [self.colors])
+                color_sequence = (
+                    list(self.colors)
+                    if not mcolors.is_color_like(self.colors)
+                    else [self.colors])
                 ncolors = len(self.levels) - int(self.filled)
                 total_levels = ncolors + int(self._extend_min) + int(self._extend_max)
                 if len(color_sequence) == total_levels:
