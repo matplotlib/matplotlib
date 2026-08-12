@@ -1,0 +1,9 @@
+Contour levels may be decreasing
+--------------------------------
+
+`~.axes.Axes.contour`, `~.axes.Axes.contourf` and the corresponding
+`~.axes.Axes.tricontour`/`~.axes.Axes.tricontourf` functions now accept contour
+levels given in monotonically decreasing order; the levels (and any per-level
+colors, linewidths, linestyles or hatches supplied with them) are reversed
+internally instead of raising a ``ValueError``.  Levels that are not monotonic
+still raise.
