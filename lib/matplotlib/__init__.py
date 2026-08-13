@@ -250,7 +250,7 @@ def _check_versions():
     from . import ft2font  # noqa: F401
 
     for modname, minver in [
-            ("cycler", "0.10"),
+            ("cycler", "0.12.0"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.3.1"),
             ("numpy", "1.25"),
