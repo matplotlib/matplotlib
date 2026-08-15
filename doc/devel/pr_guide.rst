@@ -368,7 +368,7 @@ MeeseeksDev will inform you that the backport needs to be done
 manually.
 
 The target branch is configured by putting ``on-merge: backport to
-TARGETBRANCH`` in the milestone description on it's own line.
+TARGETBRANCH`` in the milestone description on its own line.
 
 If the bot is not working as expected, please report issues to
 `MeeseeksDev <https://github.com/MeeseeksBox/MeeseeksDev>`__.
