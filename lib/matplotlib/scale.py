@@ -125,12 +125,8 @@ class ScaleBase:
         """
         arr = np.asarray(val)
         with np.errstate(invalid='ignore'):
-            try:
-                vmin, vmax = self.limit_range_for_scale(arr, arr, minpos=1e-300)
-            except (TypeError, ValueError):
-                result = np.zeros(arr.shape, dtype=bool)
-            else:
-                result = np.isfinite(arr) & (vmin == arr) & (vmax == arr)
+            vmin, vmax = self.limit_range_for_scale(arr, arr, minpos=1e-300)
+            result = np.isfinite(arr) & (vmin == arr) & (vmax == arr)
         return bool(result) if arr.ndim == 0 else result
 
 

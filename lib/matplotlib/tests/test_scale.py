@@ -497,3 +497,28 @@ def test_val_in_range_array():
     out = mscale._scale_mapping['log'](axis=None).val_in_range(
         np.array([[1.0, -1.0], [0.5, np.nan]]))
     np.testing.assert_array_equal(out, [[True, False], [True, False]])
+
+
+def test_val_in_range_does_not_swallow_limit_range_errors():
+    # A custom scale whose ``limit_range_for_scale`` rejects array input must
+    # surface the error instead of silently marking every value out of range
+    # (which previously blanked all data on the plot).
+    # See https://github.com/matplotlib/matplotlib/issues/32129.
+    class ScalarOnlyScale(mscale.ScaleBase):
+        def get_transform(self):
+            raise NotImplementedError
+
+        def set_default_locators_and_formatters(self, axis):
+            raise NotImplementedError
+
+        def limit_range_for_scale(self, vmin, vmax, minpos):
+            if np.ndim(vmin) != 0:
+                raise TypeError("limit_range_for_scale only supports scalars")
+            return vmin, vmax
+
+    s = ScalarOnlyScale(axis=None)
+    # Scalar input still works through the generic implementation.
+    assert s.val_in_range(1.0) is True
+    # Array input now raises instead of returning an all-False mask.
+    with pytest.raises(TypeError, match="only supports scalars"):
+        s.val_in_range(np.array([1.0, 2.0, 3.0]))
