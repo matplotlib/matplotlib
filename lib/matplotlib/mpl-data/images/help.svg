@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg width="48px" height="48px" viewBox="0 0 48 48" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g style="fill:black" fill-rule="evenodd">
+<g style="fill:black;" fill-rule="evenodd">
 <rect width="8" height="8" x="19" y="34" rx="2"/>
 <path d="M36 17.25C36 10.8 29.77 6 24.2 6c-5.29 0-9.24 2.44-12.04 7.48-.28.5-.18 1.12.26 1.49l4.26 3.51q.3.22.65.23c.28 0 .6-.17.8-.45 1.53-2.08 2.16-2.75 2.78-3.23a5 5 0 0 1 2.8-.82c2.1 0 4 1.4 4 2.98 0 1.8-.83 2.73-2.83 3.71C22.6 22.03 19 25.1 19 28.5V31a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-1c0-1.5 1.65-2.9 3.18-3.86 2.47-1.5 5.82-3.55 5.82-8.9"/>
 </g>

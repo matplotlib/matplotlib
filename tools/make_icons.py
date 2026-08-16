@@ -185,7 +185,7 @@ class ImageConverter:
 
 
 def has_black_fill_group(svg_path: Path) -> bool:
-    """Checks that the SVG file has a root-level group with 'fill:black'"""
+    """Checks that the SVG file has a root-level group with 'fill:black;'"""
     tree = etree.parse(svg_path)
     root = tree.getroot()
     for child in root:
@@ -193,7 +193,7 @@ def has_black_fill_group(svg_path: Path) -> bool:
             continue
         style = child.get("style", "")
         declarations = [d.strip() for d in style.split(";") if d.strip()]
-        if "fill:black" in declarations or style.strip() == "fill:black":
+        if "fill:black;" in declarations or style.strip() == "fill:black;":
             return True
     return False
 
@@ -211,7 +211,7 @@ def process_toolbar_icon(
 
     if not has_black_fill_group(svg_path):
         raise ValueError(
-            f"SVG file missing <g> with style='fill:black': {svg_path}")
+            f"SVG file missing <g> with style='fill:black;': {svg_path}")
 
     converter.open_svg(svg_path)
     converter.export_pdf(pdf_path)
