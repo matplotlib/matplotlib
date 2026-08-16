@@ -2027,3 +2027,26 @@ def test_two_pass_overlay_only():
             return
         original_draw_layer(renderer, layer)
     fig._draw_layer = mock_draw_layer
+
+
+@image_comparison(
+    baseline_images=['two_pass_composite'], extensions=['png'], style='mpl20'
+)
+def test_two_pass_composite():
+    """
+    Verify that the base and overlay layers compose correctly when drawn together.
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], color='blue', lw=5)
+
+    from matplotlib.text import Text
+    overlay_text = Text(
+        0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
+        transform=fig.transFigure, figure=fig
+    )
+    fig.add_artist(overlay_text, layer="overlay")
+    import matplotlib.lines as mlines
+    overlay_line = mlines.Line2D(
+        [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
+    )
+    fig.add_artist(overlay_line, layer="overlay")
