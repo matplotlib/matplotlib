@@ -666,12 +666,12 @@ class _ScalarMappable(_ColorizerInterface):
 # The docstrings here must be generic enough to apply to all relevant methods.
 mpl._docstring.interpd.register(
     cmap_doc="""\
-cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+cmap : str or `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
     The Colormap instance or registered colormap name used to map scalar data
     to colors.""",
     multi_cmap_doc="""\
 cmap : str, `~matplotlib.colors.Colormap`, `~matplotlib.colors.BivarColormap`\
-    or `~matplotlib.colors.MultivarColormap`, default: :rc:`image.cmap`
+    or `~matplotlib.colors.MultivarColormap`, default: :rcdefault:`image.cmap`
     The Colormap instance or registered colormap name used to map
     data values to colors.
 

@@ -262,9 +262,9 @@ class MovieWriter(AbstractMovieWriter):
         ----------
         fps : int, default: 5
             Movie frame rate (per second).
-        codec : str or None, default: :rc:`animation.codec`
+        codec : str or None, default: :rcdefault:`animation.codec`
             The codec to use.
-        bitrate : int, default: :rc:`animation.bitrate`
+        bitrate : int, default: :rcdefault:`animation.bitrate`
             The bitrate of the movie, in kilobits per second.  Higher values
             means higher quality movies, but increase the file size.  A value
             of -1 lets the underlying movie encoder select the bitrate.
@@ -955,7 +955,7 @@ class Animation:
         filename : str
             The output filename, e.g., :file:`mymovie.mp4`.
 
-        writer : `AbstractMovieWriter` subclass or str, default: :rc:`animation.writer`
+        writer : `AbstractMovieWriter` subclass or str, default: :rcdefault:`animation.writer`
             The writer used to grab the frames and create the movie file.
             This can be an instance of an `AbstractMovieWriter` subclass or a
             string. The builtin writers are
@@ -975,15 +975,15 @@ class Animation:
             Movie frame rate (per second).  If not set, the frame rate from the
             animation's frame interval.
 
-        dpi : float, default: :rc:`savefig.dpi`
+        dpi : float, default: :rcdefault:`savefig.dpi`
             Controls the dots per inch for the movie frames.  Together with
             the figure's size in inches, this controls the size of the movie.
 
-        codec : str, default: :rc:`animation.codec`.
+        codec : str, default: :rcdefault:`animation.codec`.
             The video codec to use.  Not all codecs are supported by a given
             `MovieWriter`.
 
-        bitrate : int, default: :rc:`animation.bitrate`
+        bitrate : int, default: :rcdefault:`animation.bitrate`
             The bitrate of the movie, in kilobits per second.  Higher values
             means higher quality movies, but increase the file size.  A value
             of -1 lets the underlying movie encoder select the bitrate.
@@ -1031,7 +1031,7 @@ class Animation:
         construct a `.MovieWriter` instance and can only be passed if
         *writer* is a string.  If they are passed as non-*None* and *writer*
         is a `.MovieWriter`, a `RuntimeError` will be raised.
-        """
+        """  # noqa: E501
 
         all_anim = [self]
         if extra_anim is not None:
@@ -1287,7 +1287,7 @@ class Animation:
         embed_limit : float, optional
             Limit, in MB, of the returned animation. No animation is created
             if the limit is exceeded.
-            Defaults to :rc:`animation.embed_limit` = 20.0.
+            Defaults to :rcdefault:`animation.embed_limit` = 20.0.
 
         Returns
         -------

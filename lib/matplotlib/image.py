@@ -804,7 +804,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        s : {'data', 'rgba', 'auto'}, default: :rc:`image.interpolation_stage`
+        s : {'data', 'rgba', 'auto'}, default: :rcdefault:`image.interpolation_stage`
             Whether to apply resampling interpolation in data or RGBA space.
             If 'auto', 'rgba' is used if the upsampling rate is less than 3,
             otherwise 'data' is used.
@@ -828,7 +828,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        v : bool, default: :rc:`image.resample`
+        v : bool, default: :rcdefault:`image.resample`
         """
         v = mpl._val_or_rc(v, 'image.resample')
         self._resample = v
@@ -885,12 +885,12 @@ class AxesImage(_ImageBase):
     ----------
     ax : `~matplotlib.axes.Axes`
         The Axes the image will belong to.
-    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors.
     norm : str or `~matplotlib.colors.Normalize`
         Maps luminance to 0-1.
-    interpolation : str, default: :rc:`image.interpolation`
+    interpolation : str, default: :rcdefault:`image.interpolation`
         Supported values are 'none', 'auto', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
@@ -900,7 +900,7 @@ class AxesImage(_ImageBase):
         is carried out on the data provided by the user.  If 'rgba', the
         interpolation is carried out after the colormapping has been
         applied (visual interpolation).
-    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+    origin : {'upper', 'lower'}, default: :rcdefault:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the Axes. The convention 'upper' is typically used for
         matrices and images.
@@ -1276,7 +1276,7 @@ class PcolorImage(AxesImage):
             - (M, N, 3): RGB array
             - (M, N, 4): RGBA array
 
-        cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        cmap : str or `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
             The Colormap instance or registered colormap name used to map
             scalar data to colors.
         norm : str or `~matplotlib.colors.Normalize`
@@ -1460,17 +1460,17 @@ class BboxImage(_ImageBase):
             or you may need to renderer the figure twice to ensure that the
             computed bbox is accurate.
 
-    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors. This parameter is ignored if X is RGB(A).
     norm : str or `~matplotlib.colors.Normalize`
         Maps luminance to 0-1. This parameter is ignored if X is RGB(A).
-    interpolation : str, default: :rc:`image.interpolation`
+    interpolation : str, default: :rcdefault:`image.interpolation`
         Supported values are 'none', 'auto', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
         'sinc', 'lanczos', 'blackman'.
-    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+    origin : {'upper', 'lower'}, default: :rcdefault:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the Axes. The convention 'upper' is typically used for
         matrices and images.
@@ -1656,13 +1656,13 @@ def imsave(fname, arr, vmin=None, vmax=None, cmap=None, format=None,
         values that map to the colormap color limits. If either *vmin*
         or *vmax* is None, that limit is determined from the *arr*
         min/max value.
-    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
         A Colormap instance or registered colormap name. The colormap
         maps scalar data to colors. It is ignored for RGB(A) data.
     format : str, optional
         The file format, e.g. 'png', 'pdf', 'svg', ...  The behavior when this
         is unset is documented under *fname*.
-    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+    origin : {'upper', 'lower'}, default: :rcdefault:`image.origin`
         Indicates whether the ``(0, 0)`` index of the array is in the upper
         left or lower left corner of the Axes.
     dpi : float

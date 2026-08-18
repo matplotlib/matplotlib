@@ -409,10 +409,10 @@ class FigureBase(Artist):
         verticalalignment, va : {'top', 'center', 'bottom', 'baseline'}, \
 default: %(va)s
             The vertical alignment of the text relative to (*x*, *y*).
-        fontsize, size : default: :rc:`figure.%(rc)ssize`
+        fontsize, size : default: :rcdefault:`figure.%(rc)ssize`
             The font size of the text. See `.Text.set_size` for possible
             values.
-        fontweight, weight : default: :rc:`figure.%(rc)sweight`
+        fontweight, weight : default: :rcdefault:`figure.%(rc)sweight`
             The font weight of the text. See `.Text.set_weight` for possible
             values.
 
@@ -2339,14 +2339,14 @@ class SubFigure(FigureBase):
         facecolor : default: ``"none"``
             The figure patch face color; transparent by default.
 
-        edgecolor : default: :rc:`figure.edgecolor`
+        edgecolor : default: :rcdefault:`figure.edgecolor`
             The figure patch edge color.
 
         linewidth : float
             The linewidth of the frame (i.e. the edge linewidth of the figure
             patch).
 
-        frameon : bool, default: :rc:`figure.frameon`
+        frameon : bool, default: :rcdefault:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
 
         Other Parameters
@@ -2564,7 +2564,7 @@ class Figure(FigureBase):
         """
         Parameters
         ----------
-        figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+        figsize : (float, float) or (float, float, str), default: :rcdefault:`figure.figsize`
             The figure dimensions. This can be
 
             - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
@@ -2575,27 +2575,27 @@ class Figure(FigureBase):
             One of *width* or *height* may be ``None``; the respective value is
             taken from :rc:`figure.figsize`.
 
-        dpi : float, default: :rc:`figure.dpi`
+        dpi : float, default: :rcdefault:`figure.dpi`
             Dots per inch.
 
-        facecolor : default: :rc:`figure.facecolor`
+        facecolor : default: :rcdefault:`figure.facecolor`
             The figure patch facecolor.
 
-        edgecolor : default: :rc:`figure.edgecolor`
+        edgecolor : default: :rcdefault:`figure.edgecolor`
             The figure patch edge color.
 
         linewidth : float
             The linewidth of the frame (i.e. the edge linewidth of the figure
             patch).
 
-        frameon : bool, default: :rc:`figure.frameon`
+        frameon : bool, default: :rcdefault:`figure.frameon`
             If ``False``, suppress drawing the figure background patch.
 
         subplotpars : `~matplotlib.gridspec.SubplotParams`
             Subplot parameters. If not given, the default subplot
             parameters :rc:`figure.subplot.*` are used.
 
-        tight_layout : bool or dict, default: :rc:`figure.autolayout`
+        tight_layout : bool or dict, default: :rcdefault:`figure.autolayout`
             Whether to use the tight layout mechanism. See `.set_tight_layout`.
 
             .. admonition:: Discouraged
@@ -2604,7 +2604,7 @@ class Figure(FigureBase):
                 ``layout='tight'`` instead for the common case of
                 ``tight_layout=True`` and use `.set_tight_layout` otherwise.
 
-        constrained_layout : bool, default: :rc:`figure.constrained_layout.use`
+        constrained_layout : bool, default: :rcdefault:`figure.constrained_layout.use`
             This is equal to ``layout='constrained'``.
 
             .. admonition:: Discouraged
@@ -2650,7 +2650,7 @@ None}, default: None
         **kwargs : `.Figure` properties, optional
 
             %(Figure:kwdoc)s
-        """
+        """  # noqa: E501
         super().__init__(**kwargs)
         self._root_figure = self
         self._layout_engine = None
@@ -3033,19 +3033,19 @@ None}, default: None
 
         Parameters
         ----------
-        w_pad : float, default: :rc:`figure.constrained_layout.w_pad`
+        w_pad : float, default: :rcdefault:`figure.constrained_layout.w_pad`
             Width padding in inches.  This is the pad around Axes
             and is meant to make sure there is enough room for fonts to
             look good.  Defaults to 3 pts = 0.04167 inches
 
-        h_pad : float, default: :rc:`figure.constrained_layout.h_pad`
+        h_pad : float, default: :rcdefault:`figure.constrained_layout.h_pad`
             Height padding in inches. Defaults to 3 pts.
 
-        wspace : float, default: :rc:`figure.constrained_layout.wspace`
+        wspace : float, default: :rcdefault:`figure.constrained_layout.wspace`
             Width padding between subplots, expressed as a fraction of the
             subplot width.  The total padding ends up being w_pad + wspace.
 
-        hspace : float, default: :rc:`figure.constrained_layout.hspace`
+        hspace : float, default: :rcdefault:`figure.constrained_layout.hspace`
             Height padding between subplots, expressed as a fraction of the
             subplot width. The total padding ends up being h_pad + hspace.
 
@@ -3147,7 +3147,7 @@ None}, default: None
 
             This parameter is ignored if *X* is RGB(A).
 
-        origin : {'upper', 'lower'}, default: :rc:`image.origin`
+        origin : {'upper', 'lower'}, default: :rcdefault:`image.origin`
             Indicates where the [0, 0] index of the array is in the upper left
             or lower left corner of the Axes.
 
@@ -3471,7 +3471,7 @@ None}, default: None
 
         Other Parameters
         ----------------
-        transparent : bool, default: :rc:`savefig.transparent`
+        transparent : bool, default: :rcdefault:`savefig.transparent`
             If *True*, the Axes patches will all be transparent; the
             Figure patch will also be transparent unless *facecolor*
             and/or *edgecolor* are specified via kwargs.
@@ -3487,7 +3487,7 @@ None}, default: None
             This is useful, for example, for displaying
             a plot on top of a colored background on a web page.
 
-        dpi : float or 'figure', default: :rc:`savefig.dpi`
+        dpi : float or 'figure', default: :rcdefault:`savefig.dpi`
             The resolution in dots per inch.  If 'figure', use the figure's
             dpi value.
 
@@ -3512,21 +3512,21 @@ None}, default: None
             Does not currently support 'jpg', 'tiff', or 'webp', but may include
             embedding EXIF metadata in the future.
 
-        bbox_inches : str or `.Bbox`, default: :rc:`savefig.bbox`
+        bbox_inches : str or `.Bbox`, default: :rcdefault:`savefig.bbox`
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+        pad_inches : float or 'layout', default: :rcdefault:`savefig.pad_inches`
             Amount of padding in inches around the figure when bbox_inches is
             'tight'. If 'layout' use the padding from the constrained or
             compressed layout engine; ignored if one of those engines is not in
             use.
 
-        facecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.facecolor`
+        facecolor : :mpltype:`color` or 'auto', default: :rcdefault:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
 
-        edgecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.edgecolor`
+        edgecolor : :mpltype:`color` or 'auto', default: :rcdefault:`savefig.edgecolor`
             The edgecolor of the figure.  If 'auto', use the current figure
             edgecolor.
 

@@ -75,7 +75,7 @@ class ContourLabeler:
             A list of level values, that should be labeled. The list must be
             a subset of ``cs.levels``. If not given, all levels are labeled.
 
-        fontsize : str or float, default: :rc:`font.size`
+        fontsize : str or float, default: :rcdefault:`font.size`
             Size in points or relative size e.g., 'small', 'x-large'.
             See `.Text.set_size` for accepted string values.
 
@@ -1533,7 +1533,7 @@ Returns
 
 Other Parameters
 ----------------
-corner_mask : bool, default: :rc:`contour.corner_mask`
+corner_mask : bool, default: :rcdefault:`contour.corner_mask`
     Enable/disable corner masking, which only has an effect if *Z* is
     a masked array.  If ``False``, any quad touching a masked point is
     masked out.  If ``True``, only the triangular corners of quads
@@ -1659,7 +1659,7 @@ nchunk : int >= 0, optional
     however introduce rendering artifacts at chunk boundaries depending
     on the backend, the *antialiased* flag and value of *alpha*.
 
-linewidths : float or array-like, default: :rc:`contour.linewidth`
+linewidths : float or array-like, default: :rcdefault:`contour.linewidth`
     *Only applies to* `.contour`.
 
     The line width of the contour lines.
@@ -1709,7 +1709,7 @@ algorithm : {'mpl2005', 'mpl2014', 'serial', 'threaded'}, optional
     `ContourPy documentation <https://contourpy.readthedocs.io>`_ for
     further information.
 
-    The default is taken from :rc:`contour.algorithm`.
+    The default is taken from :rcdefault:`contour.algorithm`.
 
 clip_path : `~matplotlib.patches.Patch` or `.Path` or `.TransformedPath`
     Set the clip path.  See `~matplotlib.artist.Artist.set_clip_path`.

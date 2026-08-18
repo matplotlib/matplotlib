@@ -140,7 +140,7 @@ fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
     absolute font size in points. String values are relative to the current
     default font size. This argument is only used if *prop* is not specified.
 
-labelcolor : str or list, default: :rc:`legend.labelcolor`
+labelcolor : str or list, default: :rcdefault:`legend.labelcolor`
     The color of the text in the legend. Either a valid color string
     (for example, 'red'), or a list of color strings. The labelcolor can
     also be made to match the color of the line or marker using 'linecolor',
@@ -149,11 +149,11 @@ labelcolor : str or list, default: :rc:`legend.labelcolor`
     Labelcolor can be set globally using :rc:`legend.labelcolor`. If None,
     use :rc:`text.color`.
 
-numpoints : int, default: :rc:`legend.numpoints`
+numpoints : int, default: :rcdefault:`legend.numpoints`
     The number of marker points in the legend when creating a legend
     entry for a `.Line2D` (line).
 
-scatterpoints : int, default: :rc:`legend.scatterpoints`
+scatterpoints : int, default: :rcdefault:`legend.scatterpoints`
     The number of marker points in the legend when creating
     a legend entry for a `.PathCollection` (scatter plot).
 
@@ -163,7 +163,7 @@ scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
     legend text, and 1.0 is at the top. To draw all markers at the
     same height, set to ``[0.5]``.
 
-markerscale : float, default: :rc:`legend.markerscale`
+markerscale : float, default: :rcdefault:`legend.markerscale`
     The relative size of legend markers compared to the originally drawn ones.
 
 markerfirst : bool, default: True
@@ -176,32 +176,32 @@ reverse : bool, default: False
 
     .. versionadded:: 3.7
 
-frameon : bool, default: :rc:`legend.frameon`
+frameon : bool, default: :rcdefault:`legend.frameon`
     Whether the legend should be drawn on a patch (frame).
 
-fancybox : bool, default: :rc:`legend.fancybox`
+fancybox : bool, default: :rcdefault:`legend.fancybox`
     Whether round edges should be enabled around the `.FancyBboxPatch` which
     makes up the legend's background.
 
-shadow : None, bool or dict, default: :rc:`legend.shadow`
+shadow : None, bool or dict, default: :rcdefault:`legend.shadow`
     Whether to draw a shadow behind the legend.
     The shadow can be configured using `.Patch` keywords.
     Customization via :rc:`legend.shadow` is currently not supported.
 
-framealpha : float, default: :rc:`legend.framealpha`
+framealpha : float, default: :rcdefault:`legend.framealpha`
     The alpha transparency of the legend's background.
     If *shadow* is activated and *framealpha* is ``None``, the default value is
     ignored.
 
-facecolor : "inherit" or color, default: :rc:`legend.facecolor`
+facecolor : "inherit" or color, default: :rcdefault:`legend.facecolor`
     The legend's background color.
     If ``"inherit"``, use :rc:`axes.facecolor`.
 
-edgecolor : "inherit" or color, default: :rc:`legend.edgecolor`
+edgecolor : "inherit" or color, default: :rcdefault:`legend.edgecolor`
     The legend's background patch edge color.
     If ``"inherit"``, use :rc:`axes.edgecolor`.
 
-linewidth : float or None, default: :rc:`legend.linewidth`
+linewidth : float or None, default: :rcdefault:`legend.linewidth`
     The legend's background patch edge linewidth.
     If ``None``, use :rc:`patch.linewidth`.
 
@@ -226,7 +226,7 @@ title_fontproperties : None or `~matplotlib.font_manager.FontProperties` or dict
     also None, the current :rc:`legend.title_fontsize` will be used.
 
 title_fontsize : int or {'xx-small', 'x-small', 'small', 'medium', 'large', \
-'x-large', 'xx-large'}, default: :rc:`legend.title_fontsize`
+'x-large', 'xx-large'}, default: :rcdefault:`legend.title_fontsize`
     The font size of the legend's title.
     Note: This cannot be combined with *title_fontproperties*. If you want
     to set the fontsize alongside other font properties, use the *size*
@@ -236,25 +236,25 @@ alignment : {'center', 'left', 'right'}, default: 'center'
     The alignment of the legend title and the box of entries. The entries
     are aligned as a single block, so that markers always lined up.
 
-borderpad : float, default: :rc:`legend.borderpad`
+borderpad : float, default: :rcdefault:`legend.borderpad`
     The fractional whitespace inside the legend border, in font-size units.
 
-labelspacing : float, default: :rc:`legend.labelspacing`
+labelspacing : float, default: :rcdefault:`legend.labelspacing`
     The vertical space between the legend entries, in font-size units.
 
-handlelength : float, default: :rc:`legend.handlelength`
+handlelength : float, default: :rcdefault:`legend.handlelength`
     The length of the legend handles, in font-size units.
 
-handleheight : float, default: :rc:`legend.handleheight`
+handleheight : float, default: :rcdefault:`legend.handleheight`
     The height of the legend handles, in font-size units.
 
-handletextpad : float, default: :rc:`legend.handletextpad`
+handletextpad : float, default: :rcdefault:`legend.handletextpad`
     The pad between the legend handle and text, in font-size units.
 
-borderaxespad : float, default: :rc:`legend.borderaxespad`
+borderaxespad : float, default: :rcdefault:`legend.borderaxespad`
     The pad between the Axes and legend border, in font-size units.
 
-columnspacing : float, default: :rc:`legend.columnspacing`
+columnspacing : float, default: :rcdefault:`legend.columnspacing`
     The spacing between columns, in font-size units.
 
 handler_map : dict or None

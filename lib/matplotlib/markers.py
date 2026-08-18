@@ -227,7 +227,7 @@ class MarkerStyle:
             - For other possible marker values, see the module docstring
               `matplotlib.markers`.
 
-        fillstyle : str, default: :rc:`markers.fillstyle`
+        fillstyle : str, default: :rcdefault:`markers.fillstyle`
             One of 'full', 'left', 'right', 'bottom', 'top', 'none'.
 
         transform : `~matplotlib.transforms.Transform`, optional

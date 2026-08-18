@@ -17,7 +17,7 @@ def kwarg_doc(text):
     The text should contain the supported types, as well as the default
     value if applicable, e.g.:
 
-        @_docstring.kwarg_doc("bool, default: :rc:`text.usetex`")
+        @_docstring.kwarg_doc("bool, default: :rcdefault:`text.usetex`")
         def set_usetex(self, usetex):
 
     See Also

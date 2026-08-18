@@ -1289,7 +1289,7 @@ class Text(Artist):
         """
         Return the font family name for math text rendered by Matplotlib.
 
-        The default value is :rc:`mathtext.fontset`.
+        The default value is :rcdefault:`mathtext.fontset`.
 
         See Also
         --------
@@ -1532,7 +1532,7 @@ class Text(Artist):
         else:
             self.set_fontproperties(fp)
 
-    @_docstring.kwarg_doc("bool, default: :rc:`text.usetex`")
+    @_docstring.kwarg_doc("bool, default: :rcdefault:`text.usetex`")
     def set_usetex(self, usetex):
         """
         Parameters
@@ -1622,7 +1622,7 @@ class Text(Artist):
             The language of the text in a format accepted by libraqm, namely `a BCP47
             language code <https://www.w3.org/International/articles/language-tags/>`_.
 
-            If None, then defaults to :rc:`text.language`.
+            If None, then defaults to :rcdefault:`text.language`.
         """
         _api.check_isinstance((Sequence, str, None), language=language)
         language = mpl._val_or_rc(language, 'text.language')

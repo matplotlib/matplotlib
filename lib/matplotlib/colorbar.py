@@ -280,7 +280,7 @@ class Colorbar:
 
         Other Parameters
         ----------------
-        cmap : `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+        cmap : `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
             The colormap to use.  This parameter is ignored, unless *mappable* is
             None.
 
@@ -988,13 +988,13 @@ class Colorbar:
             - For horizontal orientation one of {'left', 'center', 'right'}
             - For vertical orientation one of {'bottom', 'center', 'top'}
 
-            Defaults to :rc:`xaxis.labellocation` or :rc:`yaxis.labellocation`
+            Defaults to :rcdefault:`xaxis.labellocation` or :rcdefault:`yaxis.labellocation`
             depending on the orientation.
         **kwargs
             Keyword arguments are passed to `~.Axes.set_xlabel` /
             `~.Axes.set_ylabel`.
             Supported keywords are *labelpad* and `.Text` properties.
-        """
+        """  # noqa: E501
         if self.orientation == "vertical":
             self.ax.set_ylabel(label, loc=loc, **kwargs)
         else:

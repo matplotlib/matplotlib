@@ -101,7 +101,26 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
     Usage: Give the desired ``rcParams`` key as parameter.
 
     :code:`:rc:`figure.dpi`` will render as: :rc:`figure.dpi`
+
+    The default value of the rcParam is not shown; use :rcdefault: to include it.
     """
+    return _rcparam_role_impl(rawtext, text, lineno, inliner, with_default=False)
+
+
+def _rcparam_default_role(name, rawtext, text, lineno, inliner, options=None,
+                          content=None):
+    """
+    Sphinx role ``:rcdefault:`` to highlight and link ``rcParams`` entries and
+    show their default value.
+
+    Usage: Give the desired ``rcParams`` key as parameter.
+
+    :code:`:rcdefault:`figure.dpi`` will render as: :rcdefault:`figure.dpi`
+    """
+    return _rcparam_role_impl(rawtext, text, lineno, inliner, with_default=True)
+
+
+def _rcparam_role_impl(rawtext, text, lineno, inliner, *, with_default):
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
     title = f'rcParams["{text}"]'
@@ -116,7 +135,7 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
 
     # The default backend would be printed as "agg", but that's not correct (as
     # the default is actually determined by fallback).
-    if text in rcParamsDefault and text != "backend":
+    if with_default and text in rcParamsDefault and text != "backend":
         node_list.extend([
             nodes.Text(' (default: '),
             nodes.literal('', repr(rcParamsDefault[text])),
@@ -155,6 +174,7 @@ def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=No
 
 def setup(app):
     app.add_role("rc", _rcparam_role)
+    app.add_role("rcdefault", _rcparam_default_role)
     app.add_role("mpltype", _mpltype_role)
     app.add_node(
         _QueryReference,

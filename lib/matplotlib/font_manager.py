@@ -705,31 +705,31 @@ class FontProperties:
       The items may include a generic font family name, either 'sans-serif',
       'serif', 'cursive', 'fantasy', or 'monospace'.  In that case, the actual
       font to be used will be looked up from the associated rcParam during the
-      search process in `.findfont`. Default: :rc:`font.family`
+      search process in `.findfont`. Default: :rcdefault:`font.family`
 
     - style: Either 'normal', 'italic' or 'oblique'.
-      Default: :rc:`font.style`
+      Default: :rcdefault:`font.style`
 
     - variant: Either 'normal' or 'small-caps'.
-      Default: :rc:`font.variant`
+      Default: :rcdefault:`font.variant`
 
     - stretch: A numeric value in the range 0-1000 or one of
       'ultra-condensed', 'extra-condensed', 'condensed',
       'semi-condensed', 'normal', 'semi-expanded', 'expanded',
-      'extra-expanded' or 'ultra-expanded'. Default: :rc:`font.stretch`
+      'extra-expanded' or 'ultra-expanded'. Default: :rcdefault:`font.stretch`
 
     - weight: A numeric value in the range 0-1000 or one of
       'ultralight', 'light', 'normal', 'regular', 'book', 'medium',
       'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy',
-      'extra bold', 'black'. Default: :rc:`font.weight`
+      'extra bold', 'black'. Default: :rcdefault:`font.weight`
 
     - size: Either a relative value of 'xx-small', 'x-small',
       'small', 'medium', 'large', 'x-large', 'xx-large' or an
-      absolute font size, e.g., 10. Default: :rc:`font.size`
+      absolute font size, e.g., 10. Default: :rcdefault:`font.size`
 
     - math_fontfamily: The family of fonts used to render math text.
       Supported values are: 'dejavusans', 'dejavuserif', 'cm',
-      'stix', 'stixsans' and 'custom'. Default: :rc:`mathtext.fontset`
+      'stix', 'stixsans' and 'custom'. Default: :rcdefault:`mathtext.fontset`
 
     Alternatively, a font may be specified using the absolute path to a font
     file, by using the *fname* kwarg.  However, in this case, it is typically
@@ -889,7 +889,7 @@ class FontProperties:
         is CSS parlance), such as: 'serif', 'sans-serif', 'cursive',
         'fantasy', or 'monospace', a real font name or a list of real
         font names.  Real font names are not supported when
-        :rc:`text.usetex` is `True`. Default: :rc:`font.family`
+        :rc:`text.usetex` is `True`. Default: :rcdefault:`font.family`
         """
         family = mpl._val_or_rc(family, 'font.family')
         if isinstance(family, str):
@@ -902,7 +902,7 @@ class FontProperties:
 
         Parameters
         ----------
-        style : {'normal', 'italic', 'oblique'}, default: :rc:`font.style`
+        style : {'normal', 'italic', 'oblique'}, default: :rcdefault:`font.style`
         """
         style = mpl._val_or_rc(style, 'font.style')
         _api.check_in_list(['normal', 'italic', 'oblique'], style=style)
@@ -914,7 +914,7 @@ class FontProperties:
 
         Parameters
         ----------
-        variant : {'normal', 'small-caps'}, default: :rc:`font.variant`
+        variant : {'normal', 'small-caps'}, default: :rcdefault:`font.variant`
         """
         variant = mpl._val_or_rc(variant, 'font.variant')
         _api.check_in_list(['normal', 'small-caps'], variant=variant)
@@ -928,7 +928,7 @@ class FontProperties:
         ----------
         weight : int or {'ultralight', 'light', 'normal', 'regular', 'book', \
 'medium', 'roman', 'semibold', 'demibold', 'demi', 'bold', 'heavy', \
-'extra bold', 'black'}, default: :rc:`font.weight`
+'extra bold', 'black'}, default: :rcdefault:`font.weight`
             If int, must be in the range  0-1000.
         """
         weight = mpl._val_or_rc(weight, 'font.weight')
@@ -953,7 +953,7 @@ class FontProperties:
         ----------
         stretch : int or {'ultra-condensed', 'extra-condensed', 'condensed', \
 'semi-condensed', 'normal', 'semi-expanded', 'expanded', 'extra-expanded', \
-'ultra-expanded'}, default: :rc:`font.stretch`
+'ultra-expanded'}, default: :rcdefault:`font.stretch`
             If int, must be in the range  0-1000.
         """
         stretch = mpl._val_or_rc(stretch, 'font.stretch')
@@ -977,7 +977,7 @@ class FontProperties:
         Parameters
         ----------
         size : float or {'xx-small', 'x-small', 'small', 'medium', \
-'large', 'x-large', 'xx-large'}, default: :rc:`font.size`
+'large', 'x-large', 'xx-large'}, default: :rcdefault:`font.size`
             If a float, the font size in points. The string values denote
             sizes relative to the default font size.
         """

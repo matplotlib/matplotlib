@@ -642,7 +642,7 @@ class Axis(martist.Artist):
         The axis label.
     labelpad : float
         The distance between the axis label and the tick labels.
-        Defaults to :rc:`axes.labelpad`.
+        Defaults to :rcdefault:`axes.labelpad`.
     offsetText : `~matplotlib.text.Text`
         A `.Text` object containing the data offset of the ticks (if any).
     pickradius : float
@@ -2505,7 +2505,7 @@ class Axis(martist.Artist):
 
         Parameters
         ----------
-        tz : str or `datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `datetime.tzinfo`, default: :rcdefault:`timezone`
             The timezone used to create date labels.
         """
         # By providing a sample datetime instance with the desired timezone,

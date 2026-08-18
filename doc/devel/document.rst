@@ -498,7 +498,7 @@ An example docstring looks like:
             Respective beginning and end of each line. If scalars are
             provided, all lines will have the same length.
 
-        colors : list of colors, default: :rc:`lines.color`
+        colors : list of colors, default: :rcdefault:`lines.color`
 
         linestyles : {'solid', 'dashed', 'dashdot', 'dotted'}, optional
 
@@ -675,7 +675,7 @@ effect.
 .. code-block:: rst
 
    Prefer:
-       dpi : float, default: :rc:`figure.dpi`
+       dpi : float, default: :rcdefault:`figure.dpi`
    over:
        dpi : float, default: None
 
@@ -730,8 +730,10 @@ rcParams
 ^^^^^^^^
 
 rcParams can be referenced with the custom ``:rc:`` role:
-:literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
-to the :file:`matplotlibrc` file description.
+:literal:`:rc:\`foo\`` yields ``rcParams["foo"]``, which is a link
+to the :file:`matplotlibrc` file description. Use the ``:rcdefault:`` role if
+the default value should also be shown:
+:literal:`:rcdefault:\`foo\`` yields ``rcParams["foo"] = 'default'``.
 
 Setters and getters
 -------------------

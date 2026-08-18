@@ -462,7 +462,7 @@ def num2date(x, tz=None):
         Number of days (fraction part represents hours, minutes, seconds)
         since the epoch.  See `.get_epoch` for the
         epoch, which can be changed by :rc:`date.epoch` or `.set_epoch`.
-    tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+    tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
         Timezone of *x*. If a string, *tz* is passed to `dateutil.tz`.
 
     Returns
@@ -574,9 +574,9 @@ class DateFormatter(ticker.Formatter):
         ----------
         fmt : str
             `~datetime.datetime.strftime` format string
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
-        usetex : bool, default: :rc:`text.usetex`
+        usetex : bool, default: :rcdefault:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter.
         """
@@ -606,7 +606,7 @@ class ConciseDateFormatter(ticker.Formatter):
     locator : `.ticker.Locator`
         Locator that this axis is using.
 
-    tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+    tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
         Ticks timezone, passed to `.dates.num2date`.
 
     formats : list of 6 strings, optional
@@ -632,7 +632,7 @@ class ConciseDateFormatter(ticker.Formatter):
     show_offset : bool, default: True
         Whether to show the offset or not.
 
-    usetex : bool, default: :rc:`text.usetex`
+    usetex : bool, default: :rcdefault:`text.usetex`
         To enable/disable the use of TeX's math mode for rendering the results
         of the formatter.
 
@@ -887,14 +887,14 @@ class AutoDateFormatter(ticker.Formatter):
         locator : `.ticker.Locator`
             Locator that this axis is using.
 
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
 
         defaultfmt : str
             The default format to use if none of the values in ``self.scaled``
             are greater than the unit returned by ``locator._get_unit()``.
 
-        usetex : bool, default: :rc:`text.usetex`
+        usetex : bool, default: :rcdefault:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter. If any entries in ``self.scaled`` are set
             as functions, then it is up to the customized function to enable or
@@ -1074,7 +1074,7 @@ class DateLocator(ticker.Locator):
         """
         Parameters
         ----------
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         self.tz = _get_tzinfo(tz)
@@ -1085,7 +1085,7 @@ class DateLocator(ticker.Locator):
 
         Parameters
         ----------
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         self.tz = _get_tzinfo(tz)
@@ -1258,7 +1258,7 @@ class AutoDateLocator(DateLocator):
         """
         Parameters
         ----------
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         minticks : int
             The minimum number of ticks desired; controls whether ticks occur
@@ -1469,7 +1469,7 @@ class YearLocator(RRuleLocator):
             January.
         day : int, default: 1
             The day on which to place the ticks.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         rule = rrulewrapper(YEARLY, interval=base, bymonth=month,
@@ -1512,7 +1512,7 @@ class MonthLocator(RRuleLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if bymonth is None:
@@ -1544,7 +1544,7 @@ class WeekdayLocator(RRuleLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         rule = rrulewrapper(DAILY, byweekday=byweekday,
@@ -1567,7 +1567,7 @@ class DayLocator(RRuleLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if interval != int(interval) or interval < 1:
@@ -1594,7 +1594,7 @@ class HourLocator(RRuleLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if byhour is None:
@@ -1619,7 +1619,7 @@ class MinuteLocator(RRuleLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if byminute is None:
@@ -1644,7 +1644,7 @@ class SecondLocator(RRuleLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         if bysecond is None:
@@ -1683,7 +1683,7 @@ class MicrosecondLocator(DateLocator):
         interval : int, default: 1
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
-        tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
+        tz : str or `~datetime.tzinfo`, default: :rcdefault:`timezone`
             Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
         """
         super().__init__(tz=tz)

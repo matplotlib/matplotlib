@@ -1179,20 +1179,20 @@ class OffsetImage(OffsetBox):
         - zoom in: factor > 1
         - zoom out: 0< factor < 1
 
-    cmap : str or `~matplotlib.colors.Colormap`, default: :rc:`image.cmap`
+    cmap : str or `~matplotlib.colors.Colormap`, default: :rcdefault:`image.cmap`
         The Colormap instance or registered colormap name used to map scalar
         data to colors. This parameter is ignored if X is RGB(A).
 
     norm : str or `~matplotlib.colors.Normalize`, default: None
         Maps luminance to 0-1. This parameter is ignored if X is RGB(A).
 
-    interpolation : str, default: :rc:`image.interpolation`
+    interpolation : str, default: :rcdefault:`image.interpolation`
         Supported values are 'none', 'auto', 'nearest', 'bilinear',
         'bicubic', 'spline16', 'spline36', 'hanning', 'hamming', 'hermite',
         'kaiser', 'quadric', 'catrom', 'gaussian', 'bessel', 'mitchell',
         'sinc', 'lanczos', 'blackman'.
 
-    origin : {'upper', 'lower'}, default: :rc:`image.origin`
+    origin : {'upper', 'lower'}, default: :rcdefault:`image.origin`
         Place the [0, 0] index of the array in the upper left or lower left
         corner of the Axes. The convention 'upper' is typically used for
         matrices and images.

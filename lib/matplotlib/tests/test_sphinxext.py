@@ -9,11 +9,36 @@ import sys
 from matplotlib.testing import subprocess_run_for_testing
 import pytest
 
+from docutils import nodes
+
+from matplotlib.sphinxext.roles import _rcparam_default_role, _rcparam_role
+
 
 pytest.importorskip('sphinx', minversion='4.1.3')
 
 
 tinypages = Path(__file__).parent / 'data/tinypages'
+
+
+class _FakeInliner:
+    """Minimal stand-in for docutils inliner used by the role functions."""
+
+    def interpreted(self, title, target, role, lineno):
+        ref = nodes.reference(rawtext=target, text=title, refuri="#")
+        return [ref], []
+
+
+def test_rcparam_roles():
+    # :rc: must not show the default value, while :rcdefault: must show it.
+    no_default, _ = _rcparam_role('rc', 'raw', 'figure.dpi', 1, _FakeInliner())
+    with_default, _ = _rcparam_default_role(
+        'rcdefault', 'raw', 'figure.dpi', 1, _FakeInliner())
+
+    assert 'default' not in ' '.join(n.astext() for n in no_default)
+    assert 'default' in ' '.join(n.astext() for n in with_default)
+
+    default_text = [n.astext() for n in with_default[1:]]
+    assert any('default: ' in t for t in default_text)
 
 
 def build_sphinx_html(

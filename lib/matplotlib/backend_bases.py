@@ -2168,14 +2168,14 @@ class FigureCanvasBase:
         filename : str or path-like or file-like
             The file where the figure is saved.
 
-        dpi : float, default: :rc:`savefig.dpi`
+        dpi : float, default: :rcdefault:`savefig.dpi`
             The dots per inch to save the figure in.
 
-        facecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.facecolor`
+        facecolor : :mpltype:`color` or 'auto', default: :rcdefault:`savefig.facecolor`
             The facecolor of the figure.  If 'auto', use the current figure
             facecolor.
 
-        edgecolor : :mpltype:`color` or 'auto', default: :rc:`savefig.edgecolor`
+        edgecolor : :mpltype:`color` or 'auto', default: :rcdefault:`savefig.edgecolor`
             The edgecolor of the figure.  If 'auto', use the current figure
             edgecolor.
 
@@ -2187,11 +2187,11 @@ class FigureCanvasBase:
             from the *filename* extension, and if that fails from
             :rc:`savefig.format`.
 
-        bbox_inches : 'tight' or `.Bbox`, default: :rc:`savefig.bbox`
+        bbox_inches : 'tight' or `.Bbox`, default: :rcdefault:`savefig.bbox`
             Bounding box in inches: only the given portion of the figure is
             saved.  If 'tight', try to figure out the tight bbox of the figure.
 
-        pad_inches : float or 'layout', default: :rc:`savefig.pad_inches`
+        pad_inches : float or 'layout', default: :rcdefault:`savefig.pad_inches`
             Amount of padding in inches around the figure when bbox_inches is
             'tight'. If 'layout' use the padding from the constrained or
             compressed layout engine; ignored if one of those engines is not in

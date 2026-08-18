@@ -321,7 +321,7 @@ class QuiverKey(martist.Artist):
             arrow, respectively.
         labelsep : float, default: 0.1
             Distance in inches between the arrow and the label.
-        labelcolor : :mpltype:`color`, default: :rc:`text.color`
+        labelcolor : :mpltype:`color`, default: :rcdefault:`text.color`
             Label color.
         fontproperties : dict, optional
             A dictionary with keyword arguments accepted by the

@@ -99,17 +99,17 @@ class Collection(mcolorizer.ColorizingArtist):
         """
         Parameters
         ----------
-        edgecolors : :mpltype:`color` or list of colors, default: :rc:`patch.edgecolor`
+        edgecolors : :mpltype:`color` or list of colors, default: :rcdefault:`patch.edgecolor`
             Edge color for each patch making up the collection. The special
             value 'face' can be passed to make the edgecolor match the
             facecolor.
-        facecolors : :mpltype:`color` or list of colors, default: :rc:`patch.facecolor`
+        facecolors : :mpltype:`color` or list of colors, default: :rcdefault:`patch.facecolor`
             Face color for each patch making up the collection.
-        hatchcolors : :mpltype:`color` or list of colors, default: :rc:`hatch.color`
+        hatchcolors : :mpltype:`color` or list of colors, default: :rcdefault:`hatch.color`
             Hatch color for each patch making up the collection. The color
             can be set to the special value 'edge' to make the hatchcolor match the
             edgecolor.
-        linewidths : float or list of floats, default: :rc:`patch.linewidth`
+        linewidths : float or list of floats, default: :rcdefault:`patch.linewidth`
             Line width for each patch making up the collection.
         linestyles : str or tuple or list thereof, default: 'solid'
             Valid strings are ['solid', 'dashed', 'dashdot', 'dotted', '-',
@@ -126,7 +126,7 @@ class Collection(mcolorizer.ColorizingArtist):
         joinstyle : `.JoinStyle`-like, default: 'round'
             Style to use for joining lines for all paths in the collection.
             Allowed values are %(JoinStyle)s.
-        antialiaseds : bool or list of bool, default: :rc:`patch.antialiased`
+        antialiaseds : bool or list of bool, default: :rcdefault:`patch.antialiased`
             Whether each patch in the collection should be drawn with
             antialiasing.
         offsets : (float, float) or list thereof, default: (0, 0)
@@ -161,7 +161,7 @@ class Collection(mcolorizer.ColorizingArtist):
         **kwargs
             Remaining keyword arguments will be used to set properties as
             ``Collection.set_{key}(val)`` for each key-value pair in *kwargs*.
-        """
+        """  # noqa: E501
 
         super().__init__(self._get_colorizer(cmap, norm, colorizer))
         # list of un-scaled dash patterns
@@ -1741,12 +1741,12 @@ class LineCollection(Collection):
                 line0 = [(x0, y0), (x1, y1), ...]
 
             Each line can contain a different number of points.
-        linewidths : float or list of float, default: :rc:`lines.linewidth`
+        linewidths : float or list of float, default: :rcdefault:`lines.linewidth`
             The width of each line in points.
-        colors : :mpltype:`color` or list of color, default: :rc:`lines.color`
+        colors : :mpltype:`color` or list of color, default: :rcdefault:`lines.color`
             A sequence of RGBA tuples (e.g., arbitrary color strings, etc, not
             allowed).
-        antialiaseds : bool or list of bool, default: :rc:`lines.antialiased`
+        antialiaseds : bool or list of bool, default: :rcdefault:`lines.antialiased`
             Whether to use antialiasing for each line.
         zorder : float, default: 2
             zorder of the lines once drawn.
@@ -1929,13 +1929,13 @@ class EventCollection(LineCollection):
         linelength : float, default: 1
             The total height of the marker (i.e. the marker stretches from
             ``lineoffset - linelength/2`` to ``lineoffset + linelength/2``).
-        linewidth : float or list thereof, default: :rc:`lines.linewidth`
+        linewidth : float or list thereof, default: :rcdefault:`lines.linewidth`
             The line width of the event lines, in points.
-        color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
+        color : :mpltype:`color` or list of :mpltype:`color`, default: :rcdefault:`lines.color`
             The color of the event lines.
         linestyle : :mpltype:`linestyle`, default: 'solid'
             The linestyle of the event lines.
-        antialiased : bool or list thereof, default: :rc:`lines.antialiased`
+        antialiased : bool or list thereof, default: :rcdefault:`lines.antialiased`
             Whether to use antialiasing for drawing the lines.
         **kwargs
             Forwarded to `.LineCollection`.
@@ -1943,7 +1943,7 @@ class EventCollection(LineCollection):
         Examples
         --------
         .. plot:: gallery/lines_bars_and_markers/eventcollection_demo.py
-        """
+        """  # noqa: E501
         super().__init__([],
                          linewidths=linewidth, linestyles=linestyle,
                          colors=color, antialiaseds=antialiased,

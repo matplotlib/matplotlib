@@ -944,7 +944,7 @@ def figure(
         activated. If *num* is a Figure instance that is not tracked in pyplot,
         it is added to the tracked figures and activated.
 
-    figsize : (float, float) or (float, float, str), default: :rc:`figure.figsize`
+    figsize : (float, float) or (float, float, str), default: :rcdefault:`figure.figsize`
         The figure dimensions. This can be
 
         - a tuple ``(width, height, unit)``, where *unit* is one of "in", "cm",
@@ -954,13 +954,13 @@ def figure(
         One of *width* or *height* may be ``None``; the respective value is taken
         from :rc:`figure.figsize`.
 
-    dpi : float, default: :rc:`figure.dpi`
+    dpi : float, default: :rcdefault:`figure.dpi`
         The resolution of the figure in dots-per-inch.
 
-    facecolor : :mpltype:`color`, default: :rc:`figure.facecolor`
+    facecolor : :mpltype:`color`, default: :rcdefault:`figure.facecolor`
         The background color.
 
-    edgecolor : :mpltype:`color`, default: :rc:`figure.edgecolor`
+    edgecolor : :mpltype:`color`, default: :rcdefault:`figure.edgecolor`
         The border color.
 
     frameon : bool, default: True
@@ -1031,7 +1031,7 @@ default: None
 
     `~matplotlib.rcParams` defines the default values, which can be modified
     in the matplotlibrc file.
-    """
+    """  # noqa: E501
     allnums = get_fignums()
     next_num = max(allnums) + 1 if allnums else 1
 

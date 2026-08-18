@@ -460,14 +460,14 @@ class ScalarFormatter(Formatter):
 
     Parameters
     ----------
-    useOffset : bool or float, default: :rc:`axes.formatter.useoffset`
+    useOffset : bool or float, default: :rcdefault:`axes.formatter.useoffset`
         Whether to use offset notation. See `.set_useOffset`.
-    useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
+    useMathText : bool, default: :rcdefault:`axes.formatter.use_mathtext`
         Whether to use fancy math formatting. See `.set_useMathText`.
-    useLocale : bool, default: :rc:`axes.formatter.use_locale`.
+    useLocale : bool, default: :rcdefault:`axes.formatter.use_locale`.
         Whether to use locale settings for decimal sign and positive sign.
         See `.set_useLocale`.
-    usetex : bool, default: :rc:`text.usetex`
+    usetex : bool, default: :rcdefault:`text.usetex`
         To enable/disable the use of TeX's math mode for rendering the
         numbers in the formatter.
 
@@ -1460,11 +1460,11 @@ class EngFormatter(ScalarFormatter):
             * ``sep="\N{NARROW NO-BREAK SPACE}"`` (``U+202F``);
             * ``sep="\N{NO-BREAK SPACE}"`` (``U+00A0``).
 
-        usetex : bool, default: :rc:`text.usetex`
+        usetex : bool, default: :rcdefault:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             numbers in the formatter.
 
-        useMathText : bool, default: :rc:`axes.formatter.use_mathtext`
+        useMathText : bool, default: :rcdefault:`axes.formatter.use_mathtext`
             To enable/disable the use mathtext for rendering the numbers in
             the formatter.
         useOffset : bool or float, default: False
@@ -3084,7 +3084,7 @@ class AutoMinorLocator(Locator):
         """
         Parameters
         ----------
-        n : int or 'auto', default: :rc:`xtick.minor.ndivs` or :rc:`ytick.minor.ndivs`
+        n : int or 'auto', default: :rcdefault:`xtick.minor.ndivs` or :rcdefault:`ytick.minor.ndivs`
             The number of subdivisions of the interval between major ticks;
             e.g., n=2 will place a single minor tick midway between major ticks.
 
@@ -3092,7 +3092,7 @@ class AutoMinorLocator(Locator):
             between the major ticks equals 1, 2.5, 5 or 10 it can be perfectly
             divided in 5 equidistant sub-intervals with a length multiple of
             0.05; otherwise, it is divided in 4 sub-intervals.
-        """
+        """  # noqa: E501
         self.ndivs = n
 
     def __call__(self):
