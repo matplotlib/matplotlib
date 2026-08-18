@@ -14,6 +14,7 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import (
     colors, image as mimage, patches, pyplot as plt, style, rcParams)
+from matplotlib.backend_bases import MouseEvent
 from matplotlib.image import (AxesImage, BboxImage, FigureImage,
                               NonUniformImage, PcolorImage)
 from matplotlib.patches import Rectangle
@@ -343,8 +344,6 @@ def test_imshow_multi_draw(n_channels, is_int, alpha_arr, opaque):
 
 
 def test_cursor_data():
-    from matplotlib.backend_bases import MouseEvent
-
     fig, ax = plt.subplots()
     im = ax.imshow(np.arange(100).reshape(10, 10), origin='upper')
 
@@ -425,8 +424,6 @@ def test_cursor_data():
     ]
 )
 def test_cursor_data_nonuniform(xy, data):
-    from matplotlib.backend_bases import MouseEvent
-
     # Non-linear set of x-values
     x = np.array([0, 1, 4, 9, 16])
     y = np.array([0, 1, 2, 3, 4])
@@ -455,14 +452,22 @@ def test_cursor_data_nonuniform(xy, data):
         ([[0, 0]], "[0.00]"),
     ])
 def test_format_cursor_data(data, text):
-    from matplotlib.backend_bases import MouseEvent
-
     fig, ax = plt.subplots()
     im = ax.imshow(data)
 
     xdisp, ydisp = ax.transData.transform([0, 0])
     event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
     assert im.format_cursor_data(im.get_cursor_data(event)) == text
+
+
+def test_format_cursor_data_uint8_no_norm():
+    data = np.array([[0, 44]], dtype=np.uint8)
+    fig, ax = plt.subplots()
+    im = ax.imshow(data, norm=colors.NoNorm())
+
+    xdisp, ydisp = ax.transData.transform([1, 0])
+    event = MouseEvent('motion_notify_event', fig.canvas, xdisp, ydisp)
+    assert im.format_cursor_data(im.get_cursor_data(event)) == "[44.000]"
 
 
 @pytest.mark.parametrize(
@@ -472,7 +477,6 @@ def test_format_cursor_data(data, text):
         ([[[np.nan, 1, 2]], [[0, 0, 0]]], "[]"),
     ])
 def test_format_cursor_data_multinorm(data, text):
-    from matplotlib.backend_bases import MouseEvent
     fig, ax = plt.subplots()
     cmap_bivar = mpl.bivar_colormaps['BiOrangeBlue']
     cmap_multivar = mpl.multivar_colormaps['2VarAddA']
@@ -613,8 +617,7 @@ def test_image_composite_background():
     ax.set_xlim(0, 12)
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test',
-                  tol=0.07)
+@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test')
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -1677,6 +1680,23 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9)), out)
 
 
+def test__resample_nonaffine_mesh_shape():
+    # A non-affine transform whose inverse returns the wrong number of mesh
+    # points must be rejected rather than read past the mesh buffer.
+    class BadMeshTransform(Transform):
+        input_dims = output_dims = 2
+
+        def inverted(self):
+            return self
+
+        def transform(self, values):
+            return np.zeros((1, 2))
+
+    with pytest.raises(RuntimeError, match="mesh array should have shape"):
+        mpl._image.resample(np.zeros((9, 9)), np.zeros((9, 9)),
+                            BadMeshTransform())
+
+
 @pytest.mark.parametrize("data, interpolation, expected",
     [(np.array([[0.1, 0.3, 0.2]]), mimage.NEAREST,
       np.array([[0.1, 0.1, 0.1, 0.3, 0.3, 0.3, 0.3, 0.2, 0.2, 0.2]])),
@@ -2055,3 +2075,12 @@ def test_affine_fill_to_edges():
             axs[i, j].vlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
             axs[i, j].hlines([-0.5, N - 0.5], -1, 2, lw=0.5, color='red')
             axs[i, j].hlines([-0.5, N - 0.5], N - 3, N, lw=0.5, color='red')
+
+
+def test_invalid_interpolation_stage_multinorm():
+    fig, ax = plt.subplots()
+    data = np.arange(24).reshape((2, 3, 4))
+
+    with pytest.raises(ValueError,
+            match="'data' is the only valid interpolation_stage"):
+        ax.imshow(data, cmap='2VarAddA', interpolation_stage='rgba')

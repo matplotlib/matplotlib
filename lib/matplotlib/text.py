@@ -134,7 +134,7 @@ def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary(
 @_docstring.interpd
 @_api.define_aliases({
     "color": ["c"],
-    "fontproperties": ["font", "font_properties"],
+    "fontproperties": ["font_properties"],
     "fontfamily": ["family"],
     "fontname": ["name"],
     "fontsize": ["size"],
@@ -1480,15 +1480,58 @@ class Text(Artist):
         """
         Set the font properties that control the text.
 
+        This method *replaces* all font properties. Any unspecified
+        attributes are reset to their defaults.
+
         Parameters
         ----------
         fp : `.font_manager.FontProperties` or `str` or `pathlib.Path`
             If a `str`, it is interpreted as a fontconfig pattern parsed by
             `.FontProperties`.  If a `pathlib.Path`, it is interpreted as the
             absolute path to a font file.
+
+        See Also
+        --------
+        set_font : Update only the font properties specified in the pattern.
         """
         self._fontproperties = FontProperties._from_any(fp).copy()
         self.stale = True
+
+    def set_font(self, fp):
+        """
+        Set the font.
+
+        .. versionchanged:: 3.12
+
+            If font is a str, this now only updates aspects of the font that are
+            specified in the pattern. Previously this was equivalent to
+            `.set_fontproperties`, which resets all non-specified aspects to
+            their default.
+
+            If you want to have the full reset, please use `.set_fontproperties`
+            instead.
+
+        Parameters
+        ----------
+        fp : `.font_manager.FontProperties` or `str` or `pathlib.Path` or dict
+
+            - If a `str`, it is parsed as a fontconfig pattern (see
+              `.FontProperties.set_fontconfig_pattern`).  Only the properties
+              explicitly stated in the pattern are changed; everything else is
+              preserved.
+            - If a `.FontProperties`, `pathlib.Path`, or `dict`, all font
+              properties are replaced (same as `set_fontproperties`).
+
+        See Also
+        --------
+        set_fontproperties : Replace *all* font properties at once.
+        set_fontfamily : Change only the font family.
+        """
+        if isinstance(fp, str):
+            self._fontproperties.set_fontconfig_pattern(fp)
+            self.stale = True
+        else:
+            self.set_fontproperties(fp)
 
     @_docstring.kwarg_doc("bool, default: :rc:`text.usetex`")
     def set_usetex(self, usetex):

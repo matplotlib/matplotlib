@@ -97,8 +97,6 @@ class FT2Image
     FT2Image &operator=(const FT2Image &);
 };
 
-extern FT_Library _ft2Library;
-
 class FT2Font
 {
   public:
@@ -107,7 +105,7 @@ class FT2Font
 
     FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used);
     virtual ~FT2Font();
-    void open(FT_Open_Args &open_args, FT_Long face_index);
+    void open(FT_Library ft2Library, FT_Open_Args &open_args, FT_Long face_index);
     void close();
     void clear();
     void set_size(double ptsize, double dpi);

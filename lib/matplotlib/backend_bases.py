@@ -2134,8 +2134,16 @@ class FigureCanvasBase:
         width, height : int
             The size of the figure, in points or pixels, depending on the
             backend.
+
+        Notes
+        -----
+        This method normally truncates the height/width to remove any fractional pixel.
+        However, if the height/width is extremely close to the integer pixel (within
+        1e-8 pixel), the height/width is instead rounded up to account for
+        floating-point precision effects.
         """
-        return tuple(int(size / (1 if physical else self.device_pixel_ratio))
+        # The tolerance of 1e-8 covers a floating-point tick for even 100,000 pixels
+        return tuple(int(size / (1 if physical else self.device_pixel_ratio) + 1e-8)
                      for size in self.figure.bbox.max)
 
     @classmethod

@@ -1,11 +1,9 @@
 from enum import Enum
 from types import ModuleType
 
-
 class BackendFilter(Enum):
     INTERACTIVE = 0
     NON_INTERACTIVE = 1
-
 
 class BackendRegistry:
     _BUILTIN_BACKEND_TO_GUI_FRAMEWORK: dict[str, str]
@@ -30,6 +28,5 @@ class BackendRegistry:
     def load_backend_module(self, backend: str) -> ModuleType: ...
     def resolve_backend(self, backend: str | None) -> tuple[str, str | None]: ...
     def resolve_gui_or_backend(self, gui_or_backend: str | None) -> tuple[str, str | None]: ...
-
 
 backend_registry: BackendRegistry

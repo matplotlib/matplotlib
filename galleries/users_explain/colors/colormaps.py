@@ -86,7 +86,7 @@ Colormaps are often split into several categories based on their function (see,
 
 # sphinx_gallery_thumbnail_number = 2
 
-from colorspacious import cspace_converter
+import colour
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -271,6 +271,23 @@ plt.show()
 # Note that some documentation on the colormaps is available
 # ([list-colormaps]_).
 
+
+def rgb_to_lightness(rgb):
+    """
+    Convert from RGB to CAM02-UCS.
+
+    Note that this algorithm is a hard-coded equivalent to the simplifying helper:
+
+        colour.convert(rgb, "sRGB", "CAM02UCS")[..., 0] * 100
+
+    but that requires `networkx` to reduce the conversion graph and we don't want that
+    dependency for building the docs.
+    """
+    xyz = colour.sRGB_to_XYZ(rgb)
+    lab = colour.XYZ_to_CAM02UCS(xyz)
+    return lab[..., 0]
+
+
 mpl.rcParams.update({'font.size': 12})
 
 # Number of colormap per subplot for particular cmap categories
@@ -304,10 +321,10 @@ for cmap_category, cmap_list in cmaps.items():
 
         for j, cmap in enumerate(cmap_list[i*dsub:(i+1)*dsub]):
 
-            # Get RGB values for colormap and convert the colormap in
-            # CAM02-UCS colorspace.  lab[0, :, 0] is the lightness.
-            rgb = mpl.colormaps[cmap](x)[np.newaxis, :, :3]
-            lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
+            # Get RGB values for colormap and convert the colormap to lightness in the
+            # CAM02-UCS colorspace.
+            rgb = mpl.colormaps[cmap](x)[:, :3]
+            L = rgb_to_lightness(rgb)
 
             # Plot colormap L values.  Do separately for each category
             # so each plot can be pretty.  To make scatter markers change
@@ -317,10 +334,10 @@ for cmap_category, cmap_list in cmaps.items():
             if cmap_category == 'Sequential':
                 # These colormaps all start at high lightness, but we want them
                 # reversed to look nice in the plot, so reverse the order.
-                y_ = lab[0, ::-1, 0]
+                y_ = L[::-1]
                 c_ = x[::-1]
             else:
-                y_ = lab[0, :, 0]
+                y_ = L
                 c_ = x
 
             dc = _DC.get(cmap_category, 1.4)  # cmaps horizontal spacing
@@ -409,11 +426,10 @@ def plot_color_gradients(cmap_category, cmap_list):
     for ax, name in zip(axs, cmap_list):
 
         # Get RGB values for colormap.
-        rgb = mpl.colormaps[name](x)[np.newaxis, :, :3]
+        rgb = mpl.colormaps[name](x)[:, :3]
 
         # Get colormap in CAM02-UCS colorspace. We want the lightness.
-        lab = cspace_converter("sRGB1", "CAM02-UCS")(rgb)
-        L = lab[0, :, 0]
+        L = rgb_to_lightness(rgb)
         L = np.float32(np.vstack((L, L, L)))
 
         ax[0].imshow(gradient, aspect='auto', cmap=mpl.colormaps[name])

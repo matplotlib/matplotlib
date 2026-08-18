@@ -68,7 +68,7 @@ class PackerBase(OffsetBox):
         height: float | None = ...,
         align: Literal["top", "bottom", "left", "right", "center", "baseline"] = ...,
         mode: Literal["fixed", "expand", "equal"] = ...,
-        children: list[martist.Artist] | None = ...,
+        children: Sequence[martist.Artist] | None = ...,
     ) -> None: ...
 
 class VPacker(PackerBase): ...

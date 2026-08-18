@@ -4,6 +4,7 @@ Common functionality between the PDF and PS backends.
 
 from __future__ import annotations
 
+from contextlib import contextmanager
 from io import BytesIO
 import functools
 import logging
@@ -18,6 +19,9 @@ from ..backend_bases import RendererBase
 
 
 if typing.TYPE_CHECKING:
+    from collections.abc import Generator
+    from contextlib import AbstractContextManager
+
     from .font_manager import FontPath
     from .ft2font import CharacterCodeType, FT2Font, GlyphIndexType
     from fontTools.ttLib import TTFont
@@ -35,7 +39,30 @@ def _cached_get_afm_from_fname(fname):
         return AFM(fh)
 
 
-def get_glyphs_subset(fontfile: FontPath, glyphs: set[GlyphIndexType]) -> TTFont:
+class SubsetResults(typing.NamedTuple):
+    """
+    The results of a subsetting operation on a font.
+
+    Attributes
+    ----------
+    font : TTFont
+        An open font object representing the subset.
+    glyph_index_map : dict
+        Mapping of requested glyph indices to actual subset glyph indices.
+    """
+
+    font: TTFont
+    glyph_index_map: dict[GlyphIndexType, GlyphIndexType]
+
+    @contextmanager
+    def _as_cm(self) -> Generator[SubsetResults, None, None]:
+        with self.font:
+            yield self
+
+
+def get_glyphs_subset(
+    fontfile: FontPath, glyphs: set[GlyphIndexType]
+) -> AbstractContextManager[SubsetResults]:
     """
     Subset a TTF font.
 
@@ -50,12 +77,10 @@ def get_glyphs_subset(fontfile: FontPath, glyphs: set[GlyphIndexType]) -> TTFont
 
     Returns
     -------
-    fontTools.ttLib.ttFont.TTFont
-        An open font object representing the subset, which needs to
-        be closed by the caller.
+    SubsetResults
+        The font and new glyph index mapping.
     """
-    options = subset.Options(glyph_names=True, recommended_glyphs=True,
-                             retain_gids=True)
+    options = subset.Options(glyph_names=True, recommended_glyphs=True)
 
     # Prevent subsetting extra tables.
     options.drop_tables += [
@@ -87,7 +112,7 @@ def get_glyphs_subset(fontfile: FontPath, glyphs: set[GlyphIndexType]) -> TTFont
     subsetter = subset.Subsetter(options=options)
     subsetter.populate(gids=glyphs)
     subsetter.subset(font)
-    return font
+    return SubsetResults(font, subsetter.glyph_index_map)._as_cm()
 
 
 def font_as_file(font):

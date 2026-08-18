@@ -220,3 +220,8 @@ div.wide-table table th.stub {
 .sidebar-cheatsheets > img {
     width: 100%;
 }
+
+.rcparams-section .classifier {
+  font-style: normal;
+  font-weight: normal;
+}

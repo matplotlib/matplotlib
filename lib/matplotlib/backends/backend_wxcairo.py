@@ -8,8 +8,8 @@ from .backend_wx import (  # noqa: F401 # pylint: disable=W0611
 
 class FigureCanvasWxCairo(FigureCanvasCairo, _FigureCanvasWxBase):
     def draw(self, drawDC=None):
-        size = self.figure.bbox.size.astype(int)
-        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, *size)
+        width, height = self.get_width_height(physical=True)
+        surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, width, height)
         self._renderer.set_context(cairo.Context(surface))
         self._renderer.dpi = self.figure.dpi
         self.figure.draw(self._renderer)

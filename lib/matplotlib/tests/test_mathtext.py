@@ -569,6 +569,13 @@ def test_mathtext_operators():
     fig.draw_without_rendering()
 
 
+@pytest.mark.parametrize("expr", [r"$x^2'$", r"$x^a'$", r"$x^2''$", r"$x^\alpha'$"])
+def test_mathtext_single_char_super_with_prime(expr):
+    # Regression test for a crash: prime after a single-char superscript.
+    parser = mathtext.MathTextParser('agg')
+    parser.parse(expr)
+
+
 @check_figures_equal()
 def test_boldsymbol(fig_test, fig_ref):
     fig_test.text(0.1, 0.2, r"$\boldsymbol{\mathrm{abc0123\alpha}}$")

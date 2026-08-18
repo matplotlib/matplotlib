@@ -2224,10 +2224,9 @@ class MultiCursor(Widget):
         ymid = 0.5 * (ymin + ymax)
 
         self.visible = True
-        self.useblit = (
+        self.useblit = (  # TODO: make dynamic
             useblit
             and all(canvas.supports_blit for canvas in self._canvas_infos))
-            # TODO: make dynamic
 
         if self.useblit:
             lineprops['animated'] = True
@@ -3579,7 +3578,6 @@ class RectangleSelector(_SelectorWidget):
 
         return _RectangleSelectorAction.CREATE
 
-
     def _onmove(self, event):
         """
         Motion notify event handler.
@@ -4370,7 +4368,16 @@ class PolygonSelector(_SelectorWidget):
 
     def _clear_without_update(self):
         self._selection_completed = False
-        self._xys = [(0, 0)]
+        prev = self._prev_event
+        if (prev is not None
+                and prev.xdata is not None and prev.ydata is not None
+                and not np.isnan(prev.xdata) and not np.isnan(prev.ydata)):
+            # Reset the pending vertex to the last known cursor position.
+            self._xys = [(prev.xdata, prev.ydata)]
+        else:
+            x0, x1 = self.ax.get_xlim()
+            y0, y1 = self.ax.get_ylim()
+            self._xys = [((x0 + x1) / 2, (y0 + y1) / 2)]
         self._draw_polygon_without_update()
 
 

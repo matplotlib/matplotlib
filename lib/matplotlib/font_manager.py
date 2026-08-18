@@ -30,21 +30,19 @@ from __future__ import annotations
 from base64 import b64encode
 import dataclasses
 from functools import cache, lru_cache
-import functools
 from io import BytesIO
 import json
 import logging
 from numbers import Integral
 import os
 from pathlib import Path
-import plistlib
 import re
 import subprocess
 import sys
 import threading
 
 import matplotlib as mpl
-from matplotlib import _api, _afm, cbook, ft2font
+from matplotlib import _api, _afm, cbook, ft2font, _c_internal_utils
 from matplotlib._fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
@@ -266,13 +264,12 @@ def _get_fontconfig_fonts():
 
 @cache
 def _get_macos_fonts():
-    """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
-    try:
-        d, = plistlib.loads(
-            subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
-    except (OSError, subprocess.CalledProcessError, plistlib.InvalidFileException):
+    """Cache and list the font paths known to CoreText."""
+    path_strings = _c_internal_utils.get_available_fonts()
+    if path_strings:
+        return [Path(path_string) for path_string in path_strings]
+    else:
         return []
-    return [Path(entry["path"]) for entry in d["_items"]]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
@@ -695,57 +692,6 @@ def afmFontProperty(fontpath, font):
     return FontEntry(fontpath, 0, name, style, variant, weight, stretch, size)
 
 
-def _cleanup_fontproperties_init(init_method):
-    """
-    A decorator to limit the call signature to a single positional argument
-    or alternatively only keyword arguments.
-
-    We still accept but deprecate all other call signatures.
-
-    When the deprecation expires we can switch the signature to::
-
-        __init__(self, pattern=None, /, *, family=None, style=None, ...)
-
-    plus a runtime check that pattern is not used alongside with the
-    keyword arguments. This results eventually in the two possible
-    call signatures::
-
-        FontProperties(pattern)
-        FontProperties(family=..., size=..., ...)
-
-    """
-    @functools.wraps(init_method)
-    def wrapper(self, *args, **kwargs):
-        # multiple args with at least some positional ones
-        if len(args) > 1 or len(args) == 1 and kwargs:
-            # Note: Both cases were previously handled as individual properties.
-            # Therefore, we do not mention the case of font properties here.
-            _api.warn_deprecated(
-                "3.10",
-                message="Passing individual properties to FontProperties() "
-                        "positionally was deprecated in Matplotlib %(since)s and "
-                        "will be removed in %(removal)s. Please pass all properties "
-                        "via keyword arguments."
-            )
-        # single non-string arg -> clearly a family not a pattern
-        if len(args) == 1 and not kwargs and not cbook.is_scalar_or_string(args[0]):
-            # Case font-family list passed as single argument
-            _api.warn_deprecated(
-                "3.10",
-                message="Passing family as positional argument to FontProperties() "
-                        "was deprecated in Matplotlib %(since)s and will be removed "
-                        "in %(removal)s. Please pass family names as keyword"
-                        "argument."
-            )
-        # Note on single string arg:
-        # This has been interpreted as pattern so far. We are already raising if a
-        # non-pattern compatible family string was given. Therefore, we do not need
-        # to warn for this case.
-        return init_method(self, *args, **kwargs)
-
-    return wrapper
-
-
 class FontProperties:
     """
     A class for storing and manipulating font properties.
@@ -814,11 +760,17 @@ class FontProperties:
     fontconfig.
     """
 
-    @_cleanup_fontproperties_init
-    def __init__(self, family=None, style=None, variant=None, weight=None,
+    def __init__(self, pattern=None, /, *,
+                 family=None, style=None, variant=None, weight=None,
                  stretch=None, size=None,
                  fname=None,  # if set, it's a hardcoded filename to use
                  math_fontfamily=None):
+        if pattern is not None:
+            if not (family is None and style is None and variant is None and
+                    weight is None and stretch is None and size is None and
+                    fname is None):
+                raise TypeError("Passing both a fontconfig pattern and individual "
+                                "properties to FontProperties() is invalid")
         self.set_family(family)
         self.set_style(style)
         self.set_variant(variant)
@@ -827,13 +779,10 @@ class FontProperties:
         self.set_file(fname)
         self.set_size(size)
         self.set_math_fontfamily(math_fontfamily)
-        # Treat family as a fontconfig pattern if it is the only parameter
-        # provided.  Even in that case, call the other setters first to set
-        # attributes not specified by the pattern to the rcParams defaults.
-        if (isinstance(family, str)
-                and style is None and variant is None and weight is None
-                and stretch is None and size is None and fname is None):
-            self.set_fontconfig_pattern(family)
+        # Even in the case a fontconfig pattern is provided, call the other setters
+        # first to set attributes not specified by the pattern to the rcParams defaults.
+        if pattern is not None:
+            self.set_fontconfig_pattern(pattern)
 
     @classmethod
     def _from_any(cls, arg):
@@ -1224,7 +1173,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = '3.11.0'
+    __version__ = '3.12.0a1'
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__

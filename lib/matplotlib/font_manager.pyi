@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from numbers import Integral
 import os
 from pathlib import Path
-from typing import Any, Final, Literal
+from typing import Any, Final, Literal, overload
 
 from matplotlib._afm import AFM
 from matplotlib import ft2font
@@ -23,6 +23,7 @@ def get_fontext_synonyms(fontext: str) -> list[str]: ...
 def list_fonts(directory: str, extensions: Iterable[str]) -> list[str]: ...
 def win32FontDirectory() -> str: ...
 def _get_fontconfig_fonts() -> list[Path]: ...
+def _get_macos_fonts() -> list[Path]: ...
 def _get_font_alt_names(
     font: ft2font.FT2Font, primary_name: str
 ) -> list[tuple[str, int]]: ...
@@ -62,8 +63,11 @@ def ttfFontProperty(font: ft2font.FT2Font) -> FontEntry: ...
 def afmFontProperty(fontpath: str, font: AFM) -> FontEntry: ...
 
 class FontProperties:
+    @overload
+    def __init__(self, pattern: str | None, /) -> None: ...
+    @overload
     def __init__(
-        self,
+        self, *,
         family: str | Iterable[str] | None = ...,
         style: Literal["normal", "italic", "oblique"] | None = ...,
         variant: Literal["normal", "small-caps"] | None = ...,

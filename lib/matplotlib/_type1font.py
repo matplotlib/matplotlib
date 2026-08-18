@@ -612,30 +612,48 @@ class Type1Font:
                 f"Token following /Subrs must be a number, was {count_token}"
             )
         count = count_token.value()
-        array = [None] * count
         next(t for t in tokens if t.is_keyword('array'))
-        for _ in range(count):
-            next(t for t in tokens if t.is_keyword('dup'))
-            index_token = next(tokens)
-            if not index_token.is_number():
-                raise RuntimeError(
-                    "Token following dup in Subrs definition must be a "
-                    f"number, was {index_token}"
-                )
-            nbytes_token = next(tokens)
-            if not nbytes_token.is_number():
-                raise RuntimeError(
-                    "Second token following dup in Subrs definition must "
-                    f"be a number, was {nbytes_token}"
-                )
-            token = next(tokens)
-            if not token.is_keyword(self._abbr['RD']):
-                raise RuntimeError(
-                    f"Token preceding subr must be {self._abbr['RD']}, "
-                    f"was {token}"
-                )
-            binary_token = tokens.send(1+nbytes_token.value())
-            array[index_token.value()] = binary_token.value()
+        # Accumulate the parsed subrs into a dict and only allocate the result
+        # list once the body has been read. Allocating ``[None] * count`` up
+        # front lets a malformed font declare a huge count in a few bytes and
+        # force a large allocation before it is rejected.
+        entries = {}
+        try:
+            for _ in range(count):
+                next(t for t in tokens if t.is_keyword('dup'))
+                index_token = next(tokens)
+                if not index_token.is_number():
+                    raise RuntimeError(
+                        "Token following dup in Subrs definition must be a "
+                        f"number, was {index_token}"
+                    )
+                nbytes_token = next(tokens)
+                if not nbytes_token.is_number():
+                    raise RuntimeError(
+                        "Second token following dup in Subrs definition must "
+                        f"be a number, was {nbytes_token}"
+                    )
+                token = next(tokens)
+                if not token.is_keyword(self._abbr['RD']):
+                    raise RuntimeError(
+                        f"Token preceding subr must be {self._abbr['RD']}, "
+                        f"was {token}"
+                    )
+                binary_token = tokens.send(1+nbytes_token.value())
+                entries[index_token.value()] = binary_token.value()
+        except StopIteration:
+            raise RuntimeError(
+                "Malformed Type1 font file: Incomplete /Subrs"
+            ) from None
+
+        # The indices must cover 0 to count-1 exactly.
+        if (len(entries) != count
+                or (count and (min(entries), max(entries)) != (0, count - 1))):
+            raise RuntimeError(
+                "Malformed Type1 font file: /Subrs indices do not cover "
+                f"0 to {count - 1}"
+            )
+        array = [entries[index] for index in range(count)]
 
         return array, next(tokens).endpos()
 

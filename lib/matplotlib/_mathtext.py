@@ -2607,6 +2607,10 @@ class Parser:
         if napostrophes:
             if super is None:
                 super = Hlist([])
+            elif not isinstance(super, Hlist):
+                # A single-char superscript is a bare Char; wrap it so the
+                # prime glyphs can be appended.
+                super = Hlist([super])
             for i in range(napostrophes):
                 super.children.extend(self.symbol(s, loc, {"sym": "\\prime"}))
             # kern() and hpack() needed to get the metrics right after

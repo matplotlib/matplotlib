@@ -581,3 +581,9 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     # Check if twin-axes are properly triggered
     assert ax_t.get_xlim() == pytest.approx(ax_t_twin.get_xlim(), abs=0.15)
     assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
+
+
+def test_get_width_height_floating_point_precision():
+    fig = plt.figure(figsize=(1, 2.03), dpi=100)
+    assert fig.bbox.height < 203  # due to floating-point precision
+    assert fig.canvas.get_width_height() == (100, 203)

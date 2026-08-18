@@ -1758,14 +1758,21 @@ def test_polygon_selector_box_props_handle_props(ax):
 def test_polygon_selector_clear_method(ax):
     onselect = mock.Mock(spec=noop, return_value=None)
     tool = widgets.PolygonSelector(ax, onselect)
+    artist = tool._selection_artist
+
+    tool.clear()
+    assert not tool._selection_completed
+    x0, x1 = ax.get_xlim()
+    y0, y1 = ax.get_ylim()
+    center = [((x0 + x1) / 2, (y0 + y1) / 2)]
+    # Cursor resets to center of the axes when last position is unknown.
+    np.testing.assert_equal(artist.get_xydata(), center)
 
     for result in ([(50, 50), (150, 50), (50, 150), (50, 50)],
                    [(50, 50), (100, 50), (50, 150), (50, 50)]):
         for xy in result:
             for event in polygon_place_vertex(ax, xy):
                 event._process()
-
-        artist = tool._selection_artist
 
         assert tool._selection_completed
         assert tool.get_visible()
@@ -1775,7 +1782,8 @@ def test_polygon_selector_clear_method(ax):
 
         tool.clear()
         assert not tool._selection_completed
-        np.testing.assert_equal(artist.get_xydata(), [(0, 0)])
+        # Cursor resets to last known position.
+        np.testing.assert_equal(artist.get_xydata(), [result[-1]])
 
 
 @pytest.mark.parametrize("horizOn", [False, True])

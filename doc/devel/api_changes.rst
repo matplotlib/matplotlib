@@ -46,8 +46,16 @@ When adding a new rcParam, the following files must be updated:
    so that it is recognized as a valid rcParam key.
 
 
+Add or change pyplot method signature
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+When changing the signature of a method wrapped by :doc:`pyplot </api/pyplot_summary>`,
+run :file:`lib/matplotlib/tests/test_pyplot.py::test_pyplot_up_to_date`. If the test fails
+and you had intended to change the signatures, run :file:`tools/boilerplate.py` to
+generate new pyplot wrappers and commit the changes.
+
+
 Add or change colormaps, color sequences, and styles
-----------------------------------------------------
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 Visual changes are considered an API break. Therefore, we generally do not modify
 existing colormaps, color sequences, or styles.
 

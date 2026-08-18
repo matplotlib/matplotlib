@@ -16,8 +16,6 @@
 #define M_PI 3.14159265358979323846264338328
 #endif
 
-FT_Library _ft2Library;
-
 FT2Image::FT2Image(unsigned long width, unsigned long height)
     : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
 {
@@ -195,9 +193,9 @@ FT2Font::~FT2Font()
     close();
 }
 
-void FT2Font::open(FT_Open_Args &open_args, FT_Long face_index)
+void FT2Font::open(FT_Library ft2Library, FT_Open_Args &open_args, FT_Long face_index)
 {
-    FT_CHECK(FT_Open_Face, _ft2Library, &open_args, face_index, &face);
+    FT_CHECK(FT_Open_Face, ft2Library, &open_args, face_index, &face);
     if (open_args.stream != nullptr) {
         face->face_flags |= FT_FACE_FLAG_EXTERNAL_STREAM;
     }

@@ -5,7 +5,6 @@ from matplotlib.figure import Figure, SubFigure
 from matplotlib.text import Text
 from matplotlib.transforms import Transform, Bbox
 
-
 import numpy as np
 from numpy.typing import ArrayLike
 from collections.abc import Sequence

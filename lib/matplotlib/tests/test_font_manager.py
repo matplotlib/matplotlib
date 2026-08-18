@@ -18,7 +18,7 @@ from matplotlib.font_manager import (
     findfont, findSystemFonts, FontEntry, FontPath, FontProperties, fontManager,
     json_dump, json_load, get_font, is_opentype_cff_font,
     MSUserFontDirectories, ttfFontProperty, _get_font_alt_names,
-    _get_fontconfig_fonts, _normalize_weight)
+    _get_fontconfig_fonts, _get_macos_fonts, _normalize_weight)
 from matplotlib import cbook, ft2font, pyplot as plt, rc_context, figure as mfigure
 from matplotlib.testing import subprocess_run_helper, subprocess_run_for_testing
 
@@ -199,6 +199,20 @@ def test_find_invalid(tmp_path):
 
     with pytest.raises(FileNotFoundError):
         get_font(bytes(tmp_path / 'non-existent-font-name.ttf'))
+
+
+@pytest.mark.skipif(sys.platform != 'darwin', reason='macOS only')
+def test_get_macos_fonts(tmpdir, monkeypatch):
+    fonts_found = {font_path.stem for font_path in _get_macos_fonts()}
+
+    # Check for various system fonts that are listed on:
+    # https://developer.apple.com/fonts/system-fonts/
+    assorted_system_fonts = {
+        'Apple Braille', 'Avenir', 'Baskerville', 'Cochin', 'Didot', 'Helvetica',
+        'Hoefler Text', 'Impact', 'Monaco', 'Tahoma', 'Verdana'
+    }
+
+    assert assorted_system_fonts.issubset(fonts_found)
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
@@ -564,34 +578,22 @@ def test_fontproperties_init_deprecation():
     which calls do and do not issue deprecation warnings. Behavior is still
     tested via the existing regular tests.
     """
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(TypeError):
         # multiple positional arguments
         FontProperties("Times", "italic")
 
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(TypeError):
         # Mixed positional and keyword arguments
         FontProperties("Times", size=10)
 
-    with pytest.warns(mpl.MatplotlibDeprecationWarning):
+    with pytest.raises(TypeError):
         # passing a family list positionally
         FontProperties(["Times"])
 
     # still accepted:
     FontProperties(family="Times", style="italic")
     FontProperties(family="Times")
-    FontProperties("Times")  # works as pattern and family
     FontProperties("serif-24:style=oblique:weight=bold")  # pattern
-
-    # also still accepted:
-    # passing as pattern via family kwarg was not covered by the docs but
-    # historically worked. This is left unchanged for now.
-    # AFAICT, we cannot detect this: We can determine whether a string
-    # works as pattern, but that doesn't help, because there are strings
-    # that are both pattern and family. We would need to identify, whether
-    # a string is *not* a valid family.
-    # Since this case is not covered by docs, I've refrained from jumping
-    # extra hoops to detect this possible API misuse.
-    FontProperties(family="serif-24:style=oblique:weight=bold")
 
 
 def test_normalize_weights():
