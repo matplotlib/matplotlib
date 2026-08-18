@@ -359,7 +359,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible():
+        if not self.get_visible() or len(self.get_offsets()) == 0:
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
 
