@@ -5,7 +5,7 @@ import numpy as np
 import pytest
 
 import matplotlib.pyplot as plt
-from matplotlib.artist import Artist
+from matplotlib.artist import Artist, BlendMode
 from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.patches import Circle, Rectangle
 from matplotlib.testing._markers import needs_pgf_pdflatex
@@ -27,12 +27,6 @@ def plot_blend_mode_gallery(text=True, gouraud=True, rasterize=False):
     axs = axs.flatten()
     fig.set_facecolor("none")
 
-    blend_modes = ["normal", "multiply", "screen", "overlay",
-                   "darken", "lighten", "color dodge", "color burn",
-                   "hard light", "soft light", "difference", "exclusion",
-                   "hue", "saturation", "color", "luminosity",
-                   "knockout", "erase", "clear", "atop", "xor", "plus"]
-
     for ax in axs:
         if rasterize:
             ax.set_rasterization_zorder(6)
@@ -41,7 +35,7 @@ def plot_blend_mode_gallery(text=True, gouraud=True, rasterize=False):
         ax.set_ylim(0, 1.2)
         ax.set_axis_off()
 
-    for i, blend_mode in enumerate(blend_modes):
+    for i, blend_mode in enumerate(BlendMode):
         axs[i].imshow(data, cmap='Reds', alpha=0.75, extent=(0, 0.8, 0, 0.8))
         axs[i].imshow(data[::-1, :], cmap='Blues', alpha=0.75,
                       extent=(0.2, 1, 0.4, 1.2), blend_mode=blend_mode)

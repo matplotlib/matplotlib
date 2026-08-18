@@ -1,5 +1,6 @@
 from collections import namedtuple
 import contextlib
+from enum import StrEnum, auto
 from functools import cache, reduce, wraps
 import inspect
 from inspect import Signature, Parameter
@@ -20,11 +21,41 @@ from .transforms import (BboxBase, Bbox, IdentityTransform, Transform, Transform
 _log = logging.getLogger(__name__)
 
 
-_BLEND_MODES_PDFSPEC = ["normal", "multiply", "screen", "overlay",
-                        "darken", "lighten", "color dodge", "color burn",
-                        "hard light", "soft light", "difference", "exclusion",
-                        "hue", "saturation", "color", "luminosity"]
-_BLEND_MODES_PORTERDUFF = ["knockout", "clear", "erase", "atop", "xor", "plus"]
+# Blend modes that are supported by all non-PS backends
+class _BlendModePDFSpec(StrEnum):
+    NORMAL = auto()
+    MULTIPLY = auto()
+    SCREEN = auto()
+    OVERLAY = auto()
+    DARKEN = auto()
+    LIGHTEN = auto()
+    COLOR_DODGE = "color dodge"
+    COLOR_BURN = "color burn"
+    HARD_LIGHT = "hard light"
+    SOFT_LIGHT = "soft light"
+    DIFFERENCE = auto()
+    EXCLUSION = auto()
+    HUE = auto()
+    SATURATION = auto()
+    COLOR = auto()
+    LUMINOSITY = auto()
+
+
+# Blend modes that are supported natively by only Agg and Cairo backends
+class _BlendModePorterDuff(StrEnum):
+    KNOCKOUT = auto()
+    ERASE = auto()
+    CLEAR = auto()
+    ATOP = auto()
+    XOR = auto()
+    PLUS = auto()
+
+
+# Merge the two enumerations into a single enumeration of all blend modes
+BlendMode = StrEnum(
+    "BlendMode", {**_BlendModePDFSpec.__members__, **_BlendModePorterDuff.__members__}
+)
+BlendMode.__doc__ = "An enumeration of the allowed blend modes."
 
 
 def _prevent_rasterization(draw):
@@ -1492,15 +1523,15 @@ Supported properties are
 
         Parameters
         ----------
-        blend_mode : str
-            The allowed values are:
+        blend_mode : str or `.BlendMode`
+            The allowed string values are:
             "normal", "multiply", "screen", "overlay",
             "darken", "lighten", "color dodge", "color burn",
             "hard light", "soft light", "difference", "exclusion",
             "hue", "saturation", "color", "luminosity",
             "knockout", "clear", "erase", "atop", "xor", and "plus".
         """
-        if blend_mode not in _BLEND_MODES_PDFSPEC + _BLEND_MODES_PORTERDUFF:
+        if blend_mode not in BlendMode:
             raise ValueError(f"{blend_mode} is not a supported blend mode")
         self._blend_mode = blend_mode
 

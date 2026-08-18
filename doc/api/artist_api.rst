@@ -203,3 +203,4 @@ Functions
    setp
    kwdoc
    ArtistInspector
+   BlendMode

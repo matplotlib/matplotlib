@@ -15,7 +15,7 @@ from PIL import Image
 
 import matplotlib as mpl
 from matplotlib import cbook, font_manager as fm
-from matplotlib.artist import _BLEND_MODES_PDFSPEC
+from matplotlib.artist import _BlendModePDFSpec
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -491,7 +491,7 @@ class RendererPgf(RendererBase):
             _writeln(self.fh, r"\end{pgfscope}")
 
     def _print_pgf_blend(self, gc):
-        if (blend_mode := gc.get_blend_mode()) not in _BLEND_MODES_PDFSPEC:
+        if (blend_mode := gc.get_blend_mode()) not in _BlendModePDFSpec:
             _log.warning(f"The '{blend_mode}' blend mode is not supported by the "
                          f"PGF backend. Falling back to the 'normal' blend mode.")
             blend_mode = "normal"
@@ -775,7 +775,7 @@ class RendererPgf(RendererBase):
         if self.fh.closed:
             return  # we can simply return because blending is irrelevant to layout
 
-        if blend_mode is not None and blend_mode not in _BLEND_MODES_PDFSPEC:
+        if blend_mode is not None and blend_mode not in _BlendModePDFSpec:
             _log.warning(f"The '{blend_mode}' blend mode is not supported by the "
                          f"PGF backend. Falling back to the 'normal' blend mode.")
             blend_mode = "normal"

@@ -53,7 +53,8 @@ ax.axis('off')
 #
 # These behaviors are specified via the artist's ``blend_mode`` property.  You
 # can set the property when creating a new artist, or you can call
-# `.Artist.set_blend_mode` on an existing artist.
+# `.Artist.set_blend_mode` on an existing artist.  You can specify the behavior
+# either by string or by member of the `.BlendMode` enumeration.
 #
 # Below is a gallery illustrating the effect of each ``blend_mode`` option for a
 # variety of artists.  Although each panel in the gallery has all of its artists

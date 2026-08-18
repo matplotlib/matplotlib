@@ -206,7 +206,7 @@ class RendererBase:
 
         Parameters
         ----------
-        blend_mode : str or None
+        blend_mode : str, `.BlendMode`, or None
             If ``None``, this group is a non-isolated group.  Otherwise, this group is
             an isolated group that will be rendered into the primary buffer using this
             blend mode.
@@ -913,7 +913,7 @@ class GraphicsContextBase:
 
         Parameters
         ----------
-        blend_mode : str
+        blend_mode : str or `.BlendMode`
             The allowed values are:
             "normal", "multiply", "screen", "overlay",
             "darken", "lighten", "color dodge", "color burn",
