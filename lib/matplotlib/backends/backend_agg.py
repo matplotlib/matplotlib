@@ -22,6 +22,7 @@ Still TODO:
 """
 
 import logging
+from collections import namedtuple
 from contextlib import nullcontext
 import math
 
@@ -58,6 +59,12 @@ def get_hinting_flag():
         'none': LoadFlags.NO_HINTING,
     }
     return mapping[mpl.rcParams['text.hinting']]
+
+
+# Store group parameters as well as variables to restore after closing the group
+_GroupState = namedtuple(
+    '_GroupState', ['group_type', 'blend_mode', 'alpha', 'old_renderer', 'old_override']
+)
 
 
 class RendererAgg(RendererBase):
@@ -394,7 +401,9 @@ class RendererAgg(RendererBase):
         """
         Start filtering. It simply creates a new canvas (the old one is saved).
         """
-        self._group_states.append(("filter", self._renderer, None, None, None))
+        self._group_states.append(
+            _GroupState("filter", None, None, self._renderer, None)
+        )
         self._renderer = _RendererAgg(int(self.width), int(self.height),
                                       self.dpi)
         self._update_methods()
@@ -422,8 +431,9 @@ class RendererAgg(RendererBase):
         slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
         cropped_img = orig_img[slice_y, slice_x]
 
-        group_type, self._renderer, _, _, _ = self._group_states.pop()
-        if group_type != "filter":
+        group_state = self._group_states.pop()
+        self._renderer = group_state.old_renderer
+        if group_state.group_type != "filter":
             raise RuntimeError("Cannot stop filtering because it includes a blend "
                                "group that has not been closed.")
         self._update_methods()
@@ -440,8 +450,10 @@ class RendererAgg(RendererBase):
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
         # docstring inherited
-        self._group_states.append(("blend", self._renderer, blend_mode, alpha,
-                                   self._override_blend_mode_to_knockout))
+        self._group_states.append(
+            _GroupState("blend", blend_mode, alpha, self._renderer,
+                        self._override_blend_mode_to_knockout)
+        )
 
         if knockout and blend_mode is None:
             _log.warning("A non-isolated blend group cannot also be a knockout blend "
@@ -456,24 +468,24 @@ class RendererAgg(RendererBase):
 
     def close_blend_group(self):
         # docstring inherited
-        group_type, renderer, blend_mode, alpha, override = self._group_states.pop()
-        self._override_blend_mode_to_knockout = override
-        if group_type != "blend":
+        group_state = self._group_states.pop()
+        self._override_blend_mode_to_knockout = group_state.old_override
+        if group_state.group_type != "blend":
             raise RuntimeError("Cannot close the blend group because it includes a "
                                "filter that has been started but not yet stopped.")
 
-        if blend_mode is not None:
+        if group_state.blend_mode is not None:
             orig_img = np.asarray(self.buffer_rgba())
             slice_y, slice_x = cbook._get_nonzero_slices(orig_img[..., 3])
             cropped_img = orig_img[slice_y, slice_x]
 
-            self._renderer = renderer
+            self._renderer = group_state.old_renderer
             self._update_methods()
 
             if cropped_img.size:
                 gc = self.new_gc()
-                gc.set_blend_mode(blend_mode)
-                gc.set_alpha(alpha)
+                gc.set_blend_mode(group_state.blend_mode)
+                gc.set_alpha(group_state.alpha)
                 self._renderer.draw_image(
                     gc, slice_x.start, int(self.height) - slice_y.stop,
                     cropped_img[::-1]

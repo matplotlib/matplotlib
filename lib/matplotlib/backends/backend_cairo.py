@@ -11,6 +11,7 @@ import gzip
 import itertools
 import math
 import logging
+from collections import namedtuple
 
 import numpy as np
 
@@ -82,6 +83,12 @@ def _cairo_font_args_from_font_prop(prop):
               if font_manager.weight_dict.get(weight, weight) < 550
               else cairo.FONT_WEIGHT_BOLD)
     return name, slant, weight
+
+
+# Store group parameters as well as a variable to restore after closing the group
+_GroupState = namedtuple(
+    '_GroupState', ['blend_mode', 'alpha', 'old_override']
+)
 
 
 class RendererCairo(RendererBase):
@@ -348,8 +355,9 @@ class RendererCairo(RendererBase):
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
         # docstring inherited
-        self._group_states.append((blend_mode, alpha,
-                                   self._override_blend_mode_to_knockout))
+        self._group_states.append(
+            _GroupState(blend_mode, alpha, self._override_blend_mode_to_knockout)
+        )
 
         if knockout and blend_mode is None:
             _log.warning("A non-isolated blend group cannot also be a knockout "
@@ -363,16 +371,16 @@ class RendererCairo(RendererBase):
 
     def close_blend_group(self):
         # docstring inherited
-        blend_mode, alpha, override = self._group_states.pop()
-        self._override_blend_mode_to_knockout = override
-        if blend_mode is not None:
+        group_state = self._group_states.pop()
+        self._override_blend_mode_to_knockout = group_state.old_override
+        if group_state.blend_mode is not None:
             ctx = self.gc.ctx
             group = ctx.pop_group()
             ctx.save()
-            self.gc.set_blend_mode(blend_mode)
+            self.gc.set_blend_mode(group_state.blend_mode)
             ctx.set_source(group)
-            if alpha != 1:
-                ctx.paint_with_alpha(alpha)
+            if group_state.alpha != 1:
+                ctx.paint_with_alpha(group_state.alpha)
             else:
                 ctx.paint()
             ctx.restore()

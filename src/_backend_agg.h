@@ -632,12 +632,12 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
     {
         theRasterizer.reset_clipping();
         rendererBase.reset_clipping(true);
+        pixFmt.comp_op(agg::comp_op_src_over);
         throw;
     }
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
-
     pixFmt.comp_op(agg::comp_op_src_over);
 }
 
