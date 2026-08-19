@@ -3383,6 +3383,7 @@ class NavigationToolbar2:
         # by (pressing and) releasing another mouse button.
         self.canvas.mpl_disconnect(self._zoom_info.cid)
         self.remove_rubberband()
+        self.remove_whiskers()
         self.canvas.draw_idle()
         self._zoom_info = None
 
