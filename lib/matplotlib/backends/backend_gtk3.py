@@ -286,9 +286,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
             ws = self._whisker_size / self.device_pixel_ratio
 
             ctx.set_antialias(1)
-            ctx.set_line_width(2)
             ctx.set_dash([], 0)
-            ctx.set_source_rgb(0, 0, 0)
 
             # main line
             ctx.move_to(x0, y0)
@@ -304,6 +302,11 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
                 ctx.move_to(x1, y1 - ws//2)
                 ctx.line_to(x1, y1 + ws//2)
 
+            ctx.set_line_width(3)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.stroke_preserve()
+            ctx.set_line_width(1)
+            ctx.set_source_rgb(0, 0, 0)
             ctx.stroke()
 
     def on_draw_event(self, widget, ctx):

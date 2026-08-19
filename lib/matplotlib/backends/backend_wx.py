@@ -486,7 +486,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         self._rubberband_pen_white = wx.Pen('WHITE', 1, wx.PENSTYLE_SOLID)
         self._whiskers = None
         self._whiskers_size = 20
-        self._whiskers_pen = wx.Pen('BLACK', 2, wx.PENSTYLE_SOLID)
+        self._whiskers_pen_white = wx.Pen('WHITE', 3, wx.PENSTYLE_SOLID)
+        self._whiskers_pen_black = wx.Pen('BLACK', 1, wx.PENSTYLE_SOLID)
 
         self.Bind(wx.EVT_SIZE, self._on_size)
         self.Bind(wx.EVT_PAINT, self._on_paint)
@@ -635,7 +636,8 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
             else:  # Don't draw
                 lines = []
 
-            drawDC.DrawLineList(lines, self._whiskers_pen)
+            drawDC.DrawLineList(lines, self._whiskers_pen_white)
+            drawDC.DrawLineList(lines, self._whiskers_pen_black)
 
     filetypes = {
         **FigureCanvasBase.filetypes,

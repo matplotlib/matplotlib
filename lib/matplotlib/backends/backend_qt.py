@@ -530,39 +530,27 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
                 traceback.print_exc()
 
     def drawWhiskers(self, line, ws=20):
-        # Draw single axis zoom whiskers
-        if line is None:
-            def _draw_whisker_callback(painter):
-                return
-        else:
+        lines = []
+        if line is not None:
             x0, y0, x1, y1 = [int(pt / self.device_pixel_ratio) for pt in line]
             ws = int(ws / self.device_pixel_ratio)
+            lines = [(x0, y0, x1, y1)]
             if x0 == x1:  # vertical line
-                def _draw_whisker_callback(painter):
-                    pen = QtGui.QPen(
-                        QtGui.QColor("black"),
-                        2 / self.device_pixel_ratio
-                    )
-
-                    painter.setPen(pen)
-                    painter.drawLine(x0 - ws // 2, y0, x0 + ws // 2, y0)
-                    painter.drawLine(x0 - ws // 2, y1, x0 + ws // 2, y1)
-                    painter.drawLine(x0, y0, x0, y1)
-
+                lines += [(x0 - ws // 2, y0, x0 + ws // 2, y0),
+                          (x1 - ws // 2, y1, x1 + ws // 2, y1)]
             elif y0 == y1:  # horizontal line
-                def _draw_whisker_callback(painter):
-                    pen = QtGui.QPen(
-                        QtGui.QColor("black"),
-                        2 / self.device_pixel_ratio
-                    )
-
-                    painter.setPen(pen)
-                    painter.drawLine(x0, y0 - ws // 2, x0, y0 + ws // 2)
-                    painter.drawLine(x1, y0 - ws // 2, x1, y0 + ws // 2)
-                    painter.drawLine(x0, y0, x1, y0)
+                lines += [(x0, y0 - ws // 2, x0, y0 + ws // 2),
+                          (x1, y1 - ws // 2, x1, y1 + ws // 2)]
             else:
-                def _draw_whisker_callback(painter):
-                    return
+                lines = []
+
+        def _draw_whisker_callback(painter):
+            for color, width in [("white", 3), ("black", 1)]:
+                painter.setPen(QtGui.QPen(
+                    QtGui.QColor(color), width / self.device_pixel_ratio))
+                for whisker_line in lines:
+                    painter.drawLine(*whisker_line)
+
         self._draw_whisker_callback = _draw_whisker_callback
         self.update()
 
