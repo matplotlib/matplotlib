@@ -552,7 +552,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
     def _send_event(self, event_type, **kwargs):
         payload = {'type': event_type, **kwargs}
         for s in self.web_sockets:
-            s.send_json(payload)
+            if (event_type != "whiskers"
+                    or getattr(s, "supports_zoom_whiskers", False)):
+                s.send_json(payload)
 
 
 @_Backend.export
