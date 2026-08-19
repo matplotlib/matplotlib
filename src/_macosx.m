@@ -1691,7 +1691,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)setWhiskers:(NSRect)rect
 {
-    // Redrawing handled by setRubberband
+    [self setNeedsDisplayInRect:
+        NSInsetRect(NSUnionRect(rect, whiskers), -2, -2)];
     whiskers = rect;
 }
 
@@ -1705,6 +1706,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 - (void)removeWhiskers
 {
     if (NSIsEmptyRect(whiskers)) { return; }
+    [self setNeedsDisplayInRect: NSInsetRect(whiskers, -2, -2)];
     whiskers = NSZeroRect;
 }
 
