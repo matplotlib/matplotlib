@@ -281,8 +281,9 @@ The following backend API versions exist
        1.0.
    * - 1.2
      - Matplotlib 3.12
-     - `NavigationToolbar2.draw_whiskers` and
-       `NavigationToolbar2.remove_whiskers` optionally draw the single-axis zoom
+     - `~matplotlib.backend_bases.NavigationToolbar2.draw_whiskers` and
+       `~matplotlib.backend_bases.NavigationToolbar2.remove_whiskers` optionally draw
+       the single-axis zoom
        indicator. Backends implementing older versions continue to work without the
        indicator.
 
