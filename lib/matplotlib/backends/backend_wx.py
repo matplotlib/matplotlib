@@ -637,7 +637,6 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
             drawDC.DrawLineList(lines, self._whiskers_pen)
 
-
     filetypes = {
         **FigureCanvasBase.filetypes,
         'bmp': 'Windows bitmap',
