@@ -291,8 +291,6 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
             rect = Graphene.Rect().init(0, 0, self.get_width(), self.get_height())
             ctx = snapshot.append_cairo(rect)
             ctx.set_antialias(1)
-            ctx.set_line_width(2)
-            ctx.set_source_rgb(0, 0, 0)
             ctx.move_to(x0, y0)
             ctx.line_to(x1, y1)
             if x0 == x1:
@@ -305,6 +303,11 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
                 ctx.line_to(x0, y0 + ws//2)
                 ctx.move_to(x1, y1 - ws//2)
                 ctx.line_to(x1, y1 + ws//2)
+            ctx.set_line_width(3)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.stroke_preserve()
+            ctx.set_line_width(1)
+            ctx.set_source_rgb(0, 0, 0)
             ctx.stroke()
 
         if self._rubberband_rect is None:

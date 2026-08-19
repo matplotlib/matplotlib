@@ -1441,40 +1441,36 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         // Whiskers are stored as a rectangle. Draw a center line along the rectangle's
         // long axis and short perpendicular caps at each end. The rectangle is
         // constructed so its longer side corresponds to the zoom direction.
+        NSBezierPath *path = [NSBezierPath bezierPath];
         if (whiskers.size.width < whiskers.size.height) { // Vertical whiskers
             int ws = whiskers.size.width;
             int x  = whiskers.origin.x + ws/2;
             int y1 = whiskers.origin.y;
             int y2 = whiskers.origin.y + whiskers.size.height;
-            // Draw top and bottom edges
-            NSBezierPath *path = [NSBezierPath bezierPath];
-            [path setLineWidth: 2.0];
-            [[NSColor blackColor] setStroke];
             [path moveToPoint: NSMakePoint(x, y1)];
             [path lineToPoint: NSMakePoint(x, y2)];
             [path moveToPoint: NSMakePoint(x - ws/2, y1)];
             [path lineToPoint: NSMakePoint(x + ws/2, y1)];
             [path moveToPoint: NSMakePoint(x - ws/2, y2)];
             [path lineToPoint: NSMakePoint(x + ws/2, y2)];
-            [path stroke];
-        }
-        if (whiskers.size.width >= whiskers.size.height) { // Horizontal whiskers
+        } else { // Horizontal whiskers
             int hs = whiskers.size.height;
             int y  = whiskers.origin.y + hs/2;
             int x1 = whiskers.origin.x;
             int x2 = whiskers.origin.x + whiskers.size.width;
-            // Draw left and right edges
-            NSBezierPath *path = [NSBezierPath bezierPath];
-            [path setLineWidth: 2.0];
-            [[NSColor blackColor] setStroke];
             [path moveToPoint: NSMakePoint(x1, y)];
             [path lineToPoint: NSMakePoint(x2, y)];
             [path moveToPoint: NSMakePoint(x1, y - hs/2)];
             [path lineToPoint: NSMakePoint(x1, y + hs/2)];
             [path moveToPoint: NSMakePoint(x2, y - hs/2)];
             [path lineToPoint: NSMakePoint(x2, y + hs/2)];
-            [path stroke];
         }
+        [path setLineWidth: 3.0];
+        [[NSColor whiteColor] setStroke];
+        [path stroke];
+        [path setLineWidth: 1.0];
+        [[NSColor blackColor] setStroke];
+        [path stroke];
     }
 
   exit:
