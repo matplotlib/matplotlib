@@ -2942,6 +2942,10 @@ class NavigationToolbar2:
     :meth:`draw_rubberband` (optional)
         Draw the zoom to rect "rubberband" rectangle.
 
+    :meth:`draw_whiskers` (optional)
+        Draw the single-axis zoom indicator.  Backends that do not override
+        this method retain the standard rubberband without an indicator.
+
     :meth:`set_message` (optional)
         Display message.
 
