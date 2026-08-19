@@ -1,7 +1,6 @@
 from itertools import product
 import io
 import platform
-import sys
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -369,7 +368,7 @@ def test_anchored_direction_arrows():
 
 
 @image_comparison(['anchored_direction_arrows_many_args.png'], style='mpl20',
-                  tol=0.002 if sys.platform == 'win32' else 0)
+                  tol=0.002)
 def test_anchored_direction_arrows_many_args():
     fig, ax = plt.subplots()
     ax.imshow(np.ones((10, 10)))
