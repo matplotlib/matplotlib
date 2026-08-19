@@ -723,7 +723,12 @@ class _IconEngine(QtGui.QIconEngine):
 
     def _devicePixelRatio(self):
         """Return the current device pixel ratio for the toolbar, defaulting to 1."""
-        return (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
+        use_high_dpi_pixmaps = True
+        if hasattr(QtCore.Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
+            app = QtWidgets.QApplication.instance()
+            use_high_dpi_pixmaps = app.testAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+        toolbar_dpr = (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
+        return toolbar_dpr if use_high_dpi_pixmaps else 1
 
     def _create_pixmap_from_svg(self, svg_path, size):
         """Create a pixmap from SVG with proper scaling and dark mode support."""
