@@ -80,6 +80,8 @@ Axis Label
    Axis.get_label_position
    Axis.get_label_text
 
+.. _axis-api-ticks:
+
 Ticks, tick labels and Offset text
 ----------------------------------
 

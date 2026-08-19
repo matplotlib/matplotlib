@@ -7,3 +7,5 @@ source_filename = qhull-8.0.2.tgz
 source_hash = 8774e9a12c70b0180b95d6b0b563c5aa4bea8d5960c15e18ae3b6d2521d64f8b
 
 patch_directory = qhull-8.0.2
+
+diff_files = qhull-143.patch

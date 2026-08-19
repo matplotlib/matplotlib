@@ -56,6 +56,12 @@ Using Matplotlib
         :padding: 2
 
         .. toctree::
+            :maxdepth: 1
+            :includehidden:
+
+            explain/configuration
+
+        .. toctree::
             :maxdepth: 2
             :includehidden:
 
@@ -103,3 +109,4 @@ Using Matplotlib
 
     getting_started/index
     ../install/index
+    glossary

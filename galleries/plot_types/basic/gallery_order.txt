@@ -1,0 +1,8 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+plot
+scatter_plot
+bar
+stem
+fill_between
+stackplot
+stairs

@@ -28,7 +28,7 @@ def test_legend_bar():
 
 
 @image_comparison(['fancy.png'], remove_text=True, style='mpl20',
-                  tol=0 if platform.machine() == 'x86_64' else 0.011)
+                  tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_fancy():
     fig, ax = plt.subplots(subplot_kw=dict(projection='3d'))
     ax.plot(np.arange(10), np.full(10, 5), np.full(10, 5), 'o--', label='line')
@@ -90,8 +90,7 @@ def test_contourf_legend_elements():
     cs = ax.contourf(x, y, h, levels=[10, 30, 50],
                      colors=['#FFFF00', '#FF00FF', '#00FFFF'],
                      extend='both')
-    cs.cmap.set_over('red')
-    cs.cmap.set_under('blue')
+    cs.cmap = cs.cmap.with_extremes(over='red', under='blue')
     cs.changed()
     artists, labels = cs.legend_elements()
     assert labels == ['$x \\leq -1e+250s$',

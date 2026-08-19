@@ -16,7 +16,13 @@ class TextToPath:
         self, s: str, prop: FontProperties, ismath: bool | Literal["TeX"]
     ) -> tuple[float, float, float]: ...
     def get_text_path(
-        self, prop: FontProperties, s: str, ismath: bool | Literal["TeX"] = ...
+        self,
+        prop: FontProperties,
+        s: str,
+        ismath: bool | Literal["TeX"] = ...,
+        *,
+        features: tuple[str] | None = ...,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> list[np.ndarray]: ...
     def get_glyphs_with_font(
         self,
@@ -24,6 +30,9 @@ class TextToPath:
         s: str,
         glyph_map: dict[str, tuple[np.ndarray, np.ndarray]] | None = ...,
         return_new_glyphs_only: bool = ...,
+        *,
+        features: tuple[str] | None = ...,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> tuple[
         list[tuple[str, float, float, float]],
         dict[str, tuple[np.ndarray, np.ndarray]],
@@ -69,6 +78,6 @@ class TextPath(Path):
 
     # These are read only... there actually are protections in the base class, so probably can be deleted...
     @property  # type: ignore[misc]
-    def vertices(self) -> np.ndarray: ...  # type: ignore[override]
+    def vertices(self) -> np.ndarray: ...
     @property  # type: ignore[misc]
-    def codes(self) -> np.ndarray: ...  # type: ignore[override]
+    def codes(self) -> np.ndarray: ...

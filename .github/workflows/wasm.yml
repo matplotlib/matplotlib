@@ -1,0 +1,57 @@
+---
+name: Build wasm wheels
+
+on:
+  # Save CI by only running this on release branches or tags.
+  push:
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.x
+    tags:
+      - v*
+  # Also allow running this action on PRs if requested by applying the
+  # "Run cibuildwheel" label.
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+
+permissions:
+  contents: read
+
+jobs:
+  build_wasm:
+    if: >-
+      (
+        github.event_name == 'push' ||
+        github.event_name == 'pull_request' && (
+          (
+            github.event.action == 'labeled' &&
+            github.event.label.name == 'CI: Run cibuildwheel'
+          ) ||
+          contains(github.event.pull_request.labels.*.name,
+                   'CI: Run cibuildwheel')
+        )
+      )
+    name: Build wasm
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Build wheels for wasm
+        uses: pypa/cibuildwheel@4726cd35bb13f7bde50cf2761f2499ac7b3aa32c  # v4.1.1
+        env:
+          CIBW_PLATFORM: "pyodide"
+          CIBW_TEST_COMMAND: "true"
+
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: cibw-wheels-wasm
+          path: ./wheelhouse/*.whl
+          if-no-files-found: error

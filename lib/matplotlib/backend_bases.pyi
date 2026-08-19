@@ -15,11 +15,11 @@ from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
 from matplotlib.path import Path
 from matplotlib.texmanager import TexManager
-from matplotlib.text import Text
+from matplotlib.text import Text, TextToPath
 from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, IO, Literal, NamedTuple, TypeVar, overload
+from typing import Any, IO, Literal, NamedTuple, overload
 from numpy.typing import ArrayLike
 from .typing import (
     CapStyleType,
@@ -40,6 +40,7 @@ def register_backend(
 def get_registered_canvas_class(format: str) -> type[FigureCanvasBase]: ...
 
 class RendererBase:
+    _text2path: TextToPath
     def __init__(self) -> None: ...
     def open_group(self, s: str, gid: str | None = ...) -> None: ...
     def close_group(self, s: str) -> None: ...
@@ -237,6 +238,7 @@ class LocationEvent(Event):
     inaxes: Axes | None
     xdata: float | None
     ydata: float | None
+    modifiers: frozenset[str]
     def __init__(
         self,
         name: str,
@@ -360,7 +362,6 @@ class FigureCanvasBase:
     @classmethod
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
-    _T = TypeVar("_T", bound=FigureCanvasBase)
 
     @overload
     def mpl_connect(

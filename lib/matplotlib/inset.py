@@ -126,26 +126,13 @@ class InsetIndicator(artist.Artist):
         """
         Set the linestyle of the rectangle and the connectors.
 
-        =======================================================  ================
-        linestyle                                                description
-        =======================================================  ================
-        ``'-'`` or ``'solid'``                                   solid line
-        ``'--'`` or ``'dashed'``                                 dashed line
-        ``'-.'`` or ``'dashdot'``                                dash-dotted line
-        ``':'`` or ``'dotted'``                                  dotted line
-        ``''`` or ``'none'`` (discouraged: ``'None'``, ``' '``)  draw nothing
-        =======================================================  ================
-
-        Alternatively a dash tuple of the following form can be provided::
-
-            (offset, onoffseq)
-
-        where ``onoffseq`` is an even length tuple of on and off ink in points.
-
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', (offset, on-off-seq), ...}
-            The line style.
+        ls : :mpltype:`linestyle`
+            A named line style (e.g. "dashed", or short "--") or a dash tuple
+            ``(offset, (on_off_seq))``.
+
+            For a full reference see :doc:`/gallery/lines_bars_and_markers/linestyles`.
         """
         self._shared_setter('linestyle', ls)
 

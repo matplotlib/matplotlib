@@ -11,6 +11,7 @@
    :undoc-members:
    :show-inheritance:
 
+.. autofunction:: matplotlib.testing.conftest.text_placeholders
 
 :mod:`matplotlib.testing.compare`
 =================================

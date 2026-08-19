@@ -19,12 +19,15 @@ import numpy as np
 
 from matplotlib.widgets import RadioButtons
 
-t = np.arange(0.0, 2.0, 0.01)
-s0 = np.sin(2*np.pi*t)
-s1 = np.sin(4*np.pi*t)
-s2 = np.sin(8*np.pi*t)
+FREQUENCIES = {'1 Hz': 1, '2 Hz': 2, '4 Hz': 4}
 
-fig, ax = plt.subplot_mosaic(
+t = np.arange(0.0, 2.0, 0.01)
+
+
+def f(t, freq):
+    return np.sin(2 * np.pi * freq * t)
+
+fig, axd = plt.subplot_mosaic(
     [
         ['main', 'freq'],
         ['main', 'color'],
@@ -33,26 +36,32 @@ fig, ax = plt.subplot_mosaic(
     width_ratios=[5, 1],
     layout='constrained',
 )
-l, = ax['main'].plot(t, s0, lw=2, color='red')
+(line,) = axd['main'].plot(t, f(t, freq=1), lw=2, color='red')
+axd['main'].set(xlabel="Time (s)", ylabel="Amplitude", title="Sine Wave")
 
-radio_background = 'lightgoldenrodyellow'
+background_color = '0.95'
+edge_color = '0.8'
 
-ax['freq'].set_facecolor(radio_background)
-radio = RadioButtons(ax['freq'], ('1 Hz', '2 Hz', '4 Hz'),
-                     label_props={'color': 'cmy', 'fontsize': [12, 14, 16]},
+axd['freq'].set_facecolor(background_color)
+axd['freq'].spines[:].set_color(edge_color)
+axd['freq'].set_title('Frequency')
+radio = RadioButtons(axd['freq'], labels=list(FREQUENCIES.keys()),
+                     label_props={'fontsize': [12, 14, 16]},
                      radio_props={'s': [16, 32, 64]})
 
 
-def hzfunc(label):
-    hzdict = {'1 Hz': s0, '2 Hz': s1, '4 Hz': s2}
-    ydata = hzdict[label]
-    l.set_ydata(ydata)
+def update_frequency(label):
+    ydata = f(t, freq=FREQUENCIES[label])
+    line.set_ydata(ydata)
     fig.canvas.draw()
-radio.on_clicked(hzfunc)
+radio.on_clicked(update_frequency)
 
-ax['color'].set_facecolor(radio_background)
+
+axd['color'].set_facecolor(background_color)
+axd['color'].spines[:].set_color(edge_color)
+axd['color'].set_title('Color')
 radio2 = RadioButtons(
-    ax['color'], ('red', 'blue', 'green'),
+    axd['color'], ('red', 'blue', 'green'),
     label_props={'color': ['red', 'blue', 'green']},
     radio_props={
         'facecolor': ['red', 'blue', 'green'],
@@ -60,19 +69,22 @@ radio2 = RadioButtons(
     })
 
 
-def colorfunc(label):
-    l.set_color(label)
+def update_color(label):
+    line.set_color(label)
     fig.canvas.draw()
-radio2.on_clicked(colorfunc)
-
-ax['linestyle'].set_facecolor(radio_background)
-radio3 = RadioButtons(ax['linestyle'], ('-', '--', '-.', ':'))
+radio2.on_clicked(update_color)
 
 
-def stylefunc(label):
-    l.set_linestyle(label)
+axd['linestyle'].set_facecolor(background_color)
+axd['linestyle'].spines[:].set_color(edge_color)
+axd['linestyle'].set_title('Linestyle')
+radio3 = RadioButtons(axd['linestyle'], ('solid', 'dashed', 'dashdot', 'dotted'))
+
+
+def update_linestyle(label):
+    line.set_linestyle(label)
     fig.canvas.draw()
-radio3.on_clicked(stylefunc)
+radio3.on_clicked(update_linestyle)
 
 plt.show()
 

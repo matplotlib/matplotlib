@@ -329,6 +329,14 @@ transform : `.Transform`, optional
 Returns
 -------
 ax : axes._secondary_axes.SecondaryAxis
+    The returned Axes is overlaid on top of the original Axes and all
+    components except for the complementary axis are hidden. You may modify
+    the complementary axis, e.g. by setting ticks or an axis label. However,
+    it is not designed to hold data, so that you should not call any
+    plotting methods on it. Its limits are derived from the parent Axes via
+    the specified transformation, and setting limits on the secondary axis
+    (e.g., via ``set_xlim`` or ``set_ylim``) has no effect.
+
 
 Other Parameters
 ----------------

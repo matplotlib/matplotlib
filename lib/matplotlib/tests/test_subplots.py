@@ -180,11 +180,11 @@ def test_exceptions():
         plt.subplots(2, 2, sharey='blah')
 
 
-@image_comparison(['subplots_offset_text.png'],
+@image_comparison(['subplots_offset_text.png'], style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_subplots_offsettext():
     x = np.arange(0, 1e10, 1e9)
-    y = np.arange(0, 100, 10)+1e4
+    y = np.arange(0, 100, 10)+1e5
     fig, axs = plt.subplots(2, 2, sharex='col', sharey='all')
     axs[0, 0].plot(x, x)
     axs[1, 0].plot(x, x)

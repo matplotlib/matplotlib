@@ -8,9 +8,12 @@
 Customizing Matplotlib with style sheets and rcParams
 =====================================================
 
-Tips for customizing the properties and default styles of Matplotlib.
+Many aspects of Matplotlib's behavior and default styles can be customized
+through the use of rc (runtime configuration) settings. The current values
+are stored in `~matplotlib.rcParams`.
 
-There are three ways to customize Matplotlib:
+There are three ways to customize Matplotlib, all of which effectively change
+`~matplotlib.rcParams`:
 
 1. :ref:`Setting rcParams at runtime<customizing-with-dynamic-rc-settings>`.
 2. :ref:`Using style sheets<customizing-with-style-sheets>`.

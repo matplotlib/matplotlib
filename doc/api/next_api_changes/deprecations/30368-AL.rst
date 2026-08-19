@@ -1,3 +1,0 @@
-``GridFinder.get_grid_info`` now takes a single bbox as parameter
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-Passing ``x1, y1, x2, y2`` as separate parameters is deprecated.

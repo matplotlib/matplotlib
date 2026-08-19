@@ -7,10 +7,10 @@ GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/02/27
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 14 issues and merged 107 pull requests.
+We closed 15 issues and merged 107 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/98?closed=1>`__
 
-The following 28 authors contributed 241 commits.
+The following 27 authors contributed 172 commits.
 
 * Anselm Hahn
 * Antony Lee
@@ -23,7 +23,6 @@ The following 28 authors contributed 241 commits.
 * Greg Lucas
 * hannah
 * hu-xiaonan
-* Khushi_29
 * Khushikela29
 * KIU Shueng Chuan
 * Kyle Martin
@@ -153,8 +152,9 @@ Pull Requests (107):
 * :ghpull:`29310`: Backport PR #29292 on branch v3.10.x (Update dependencies.rst)
 * :ghpull:`29308`: Update cibuildwheel workflow
 
-Issues (14):
+Issues (15):
 
+* :ghissue:`29595`: [Bug]: Setting alpha with an array is ignored with jupyterlab %inline backend
 * :ghissue:`28382`: [Bug]: interpolation_stage="rgba" does not respect array-alpha
 * :ghissue:`28780`: Doc build fails with numpy>=2.1.0
 * :ghissue:`29603`: [Bug]: Setting ``text.usetex=True`` in ``pyplot.rcParams`` Raises FIPS Compliance Errors

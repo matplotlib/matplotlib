@@ -3,27 +3,22 @@
 GitHub statistics for 3.10.5 (Jul 31, 2025)
 ===========================================
 
-GitHub statistics for 2024/12/14 (tag: v3.10.0) - 2025/07/31
+GitHub statistics for 2025/05/08 (tag: v3.10.3) - 2025/07/31
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 18 issues and merged 67 pull requests.
+We closed 18 issues and merged 66 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/102?closed=1>`__
 
-The following 36 authors contributed 371 commits.
+The following 21 authors contributed 81 commits.
 
 * Antony Lee
 * Brian Christian
 * chrisjbillington
-* Christine P. Chai
 * Clément Robert
 * David Stansby
-* dependabot[bot]
 * Elliott Sales de Andrade
-* G.D. McBain
-* Greg Lucas
 * hannah
-* hu-xiaonan
 * Ian Thomas
 * ianlv
 * IdiotCoffee
@@ -31,27 +26,17 @@ The following 36 authors contributed 371 commits.
 * Inês Cachola
 * Jody Klymak
 * Jouni K. Seppänen
-* Khushi_29
 * Kyle Sunden
 * Lumberbot (aka Jack)
 * N R Navaneet
-* Nathan G. Wiseman
-* Oscar Gustafsson
-* Praful Gulani
-* Qian Zhang
-* Raphael Erik Hviding
 * Roman
-* Roman A
 * Ruth Comer
-* saikarna913
-* Scott Shambaugh
 * Thomas A Caswell
 * Tim Hoffmann
-* Trygve Magnus Ræder
 
 GitHub issues and pull requests:
 
-Pull Requests (67):
+Pull Requests (66):
 
 * :ghpull:`30357`: CIBW updates: fix pypy sections, update cibw version
 * :ghpull:`30356`: Manual Backport PR #30195 on branch v3.10.x (ci: Enable wheel builds on Python 3.14)

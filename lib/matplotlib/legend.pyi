@@ -16,11 +16,9 @@ from matplotlib.transforms import (
 )
 from matplotlib.typing import ColorType, LegendLocType
 
-
 import pathlib
 from collections.abc import Iterable
 from typing import Any, Literal, overload
-
 
 class DraggableLegend(DraggableOffsetBox):
     legend: Legend
@@ -85,6 +83,7 @@ class Legend(Artist):
         framealpha: float | None = ...,
         edgecolor: Literal["inherit"] | ColorType | None = ...,
         facecolor: Literal["inherit"] | ColorType | None = ...,
+        linewidth: float | None = ...,
         bbox_to_anchor: BboxBase
         | tuple[float, float]
         | tuple[float, float, float, float]

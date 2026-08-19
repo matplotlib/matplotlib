@@ -27,28 +27,24 @@ different platforms supporting different types of fonts.  In practice,
 Matplotlib supports three font specifications (in addition to pdf 'core fonts',
 which are explained later in the guide):
 
-.. table:: Type of Fonts
+.. table:: Types of Fonts
 
-  +--------------------------+----------------------------+----------------------------+
-  | Type 1 (PDF with usetex) | Type 3 (PDF/PS)            | TrueType (PDF)             |
-  +==========================+============================+============================+
-  | One of the oldest types, | Similar to Type 1 in       | Newer than previous types, |
-  | introduced by Adobe      | terms of introduction      | used commonly today,       |
-  |                          |                            | introduced by Apple        |
-  +--------------------------+----------------------------+----------------------------+
-  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine |
-  | PostScript, charstrings  | allows embedding arbitrary | that can execute code!     |
-  | are in bytecode          | code (in theory, even      |                            |
-  |                          | render fractals when       |                            |
-  |                          | rasterizing!)              |                            |
-  +--------------------------+----------------------------+----------------------------+
-  | Supports font            | Does not support font      | Supports font hinting      |
-  | hinting                  | hinting                    | (virtual machine processes |
-  |                          |                            | the "hints")               |
-  +--------------------------+----------------------------+----------------------------+
-  | Subsetted by code in     | Subsetted via external module                           |
-  | `matplotlib._type1font`  | `fontTools <https://github.com/fonttools/fonttools>`__  |
-  +--------------------------+----------------------------+----------------------------+
+  +--------------------------+----------------------------+-------------------------------+
+  | Type 1 (PDF with usetex) | Type 3 (PDF/PS)            | TrueType (PDF) / Type 42 (PS) |
+  +==========================+============================+===============================+
+  | Old font types introduced by Adobe.                   | Newer font type introduced by |
+  |                                                       | Apple; commonly used today.   |
+  +--------------------------+----------------------------+-------------------------------+
+  | Restricted subset of     | Full PostScript language,  | Includes a virtual machine    |
+  | PostScript, charstrings  | allows embedding arbitrary | that can execute code.        |
+  | are in bytecode.         | code.                      |                               |
+  +--------------------------+----------------------------+-------------------------------+
+  | Supports font hinting.   | Does not support font      | Supports font hinting,        |
+  |                          | hinting.                   | through the virtual machine.  |
+  +--------------------------+----------------------------+-------------------------------+
+  | Subsetted by code in     | Subsetted via external module                              |
+  | `matplotlib._type1font`. | `fontTools <https://github.com/fonttools/fonttools>`__.    |
+  +--------------------------+----------------------------+-------------------------------+
 
 .. note::
 
@@ -59,23 +55,9 @@ which are explained later in the guide):
 
    __ https://helpx.adobe.com/fonts/kb/postscript-type-1-fonts-end-of-support.html
 
-Other font specifications which Matplotlib supports:
-
-- Type 42 fonts (PS):
-
-  - PostScript wrapper around TrueType fonts
-  - 42 is the `Answer to Life, the Universe, and Everything!
-    <https://en.wikipedia.org/wiki/Answer_to_Life,_the_Universe,_and_Everything>`_
-  - Matplotlib uses the external library
-    `fontTools <https://github.com/fonttools/fonttools>`__ to subset these types of
-    fonts
-
-- OpenType fonts:
-
-  - OpenType is a new standard for digital type fonts, developed jointly by
-    Adobe and Microsoft
-  - Generally contain a much larger character set!
-  - Limited support with Matplotlib
+Matplotlib also provides limited support for OpenType fonts, a newer standard
+developed jointly by Adobe and Microsoft; such fonts generally contain a much
+larger character set.
 
 Font subsetting
 ^^^^^^^^^^^^^^^
@@ -201,4 +183,4 @@ contains that glyph.
 
 A majority of this work was done by Aitik Gupta supported by Google Summer of
 Code 2021.
-"""
+"""  # noqa: E501

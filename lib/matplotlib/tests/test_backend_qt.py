@@ -194,6 +194,10 @@ def test_device_pixel_ratio_change():
             assert qt_canvas.get_width_height() == (600, 240)
             assert (fig.get_size_inches() == (5, 2)).all()
 
+        # check that closing the figure restores the original dpi
+        plt.close(fig)
+        assert fig.dpi == 120
+
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_subplottool():
@@ -302,7 +306,7 @@ def _get_testable_qt_backends():
     envs = []
     for deps, env in [
             ([qt_api], {"MPLBACKEND": "qtagg", "QT_API": qt_api})
-            for qt_api in ["PyQt6", "PySide6", "PyQt5", "PySide2"]
+            for qt_api in ["PyQt6", "PySide6", "PyQt5"]
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]

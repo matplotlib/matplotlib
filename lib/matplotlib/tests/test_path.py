@@ -3,7 +3,7 @@ import re
 
 import numpy as np
 
-from numpy.testing import assert_array_equal
+from numpy.testing import assert_array_equal, assert_allclose
 import pytest
 
 from matplotlib import patches
@@ -105,7 +105,7 @@ _test_path_extents = [(0., 0., 0.75, 1.), (0., 0., 1., 0.5), (0., 1., 1., 1.),
                       (1., 2., 1., 2.)]
 
 
-@pytest.mark.parametrize('path, extents', zip(_test_paths, _test_path_extents))
+@pytest.mark.parametrize('path, extents', list(zip(_test_paths, _test_path_extents)))
 def test_exact_extents(path, extents):
     # notice that if we just looked at the control points to get the bounding
     # box of each curve, we would get the wrong answers. For example, for
@@ -127,6 +127,33 @@ def test_extents_with_ignored_codes(ignored_code):
                  [1, 1],
                  [2, 2]], [Path.MOVETO, Path.MOVETO, ignored_code])
     assert np.all(path.get_extents().extents == (0., 0., 1., 1.))
+
+
+@pytest.mark.parametrize("path, expected", [
+    # codes=None: every vertex is used
+    (Path([[0, 0], [1, 2], [3, 1]]), [[0, 0], [1, 2], [3, 1]]),
+    # straight path: all MOVETO/LINETO vertices are on the path
+    (Path([[0, 0], [1, 1], [2, 0]], [Path.MOVETO, Path.LINETO, Path.LINETO]),
+     [[0, 0], [1, 1], [2, 0]]),
+    # STOP/CLOSEPOLY carry placeholder vertices that must not affect extents
+    (Path([[0, 0], [1, 1], [5, 5]], [Path.MOVETO, Path.LINETO, Path.STOP]),
+     [[0, 0], [1, 1]]),
+    (Path([[0, 0], [1, 1], [5, 5]], [Path.MOVETO, Path.LINETO, Path.CLOSEPOLY]),
+     [[0, 0], [1, 1]]),
+])
+def test_extent_vertices_straight(path, expected):
+    assert_allclose(path._extent_vertices(), expected)
+
+
+def test_extent_vertices_curve():
+    # A cubic whose control points overshoot the drawn curve: the returned
+    # vertices must capture the true interior extrema (xmax 0.75), not the
+    # control-point hull (xmax 1.0).
+    path = Path([[0, 0], [1, 0], [1, 1], [0, 1]],
+                [Path.MOVETO, Path.CURVE4, Path.CURVE4, Path.CURVE4])
+    xys = path._extent_vertices()
+    assert_allclose([xys[:, 0].min(), xys[:, 1].min(),
+                     xys[:, 0].max(), xys[:, 1].max()], [0, 0, 0.75, 1])
 
 
 def test_point_in_path_nan():
@@ -189,7 +216,7 @@ def test_arrow_contains_point():
                 ax.scatter(x, y, s=5, c="r")
 
 
-@image_comparison(['path_clipping.svg'], remove_text=True)
+@image_comparison(['path_clipping.svg'], remove_text=True, style='_classic_test')
 def test_path_clipping():
     fig = plt.figure(figsize=(6.0, 6.2))
 
@@ -242,7 +269,7 @@ def test_make_compound_path_stops():
     assert np.sum(compound_path.codes == Path.STOP) == 0
 
 
-@image_comparison(['xkcd.png'], remove_text=True)
+@image_comparison(['xkcd.png'], remove_text=True, style='_classic_test')
 def test_xkcd():
     np.random.seed(0)
 
@@ -254,7 +281,7 @@ def test_xkcd():
         ax.plot(x, y)
 
 
-@image_comparison(['xkcd_marker.png'], remove_text=True)
+@image_comparison(['xkcd_marker.png'], remove_text=True, style='_classic_test')
 def test_xkcd_marker():
     np.random.seed(0)
 
@@ -270,7 +297,7 @@ def test_xkcd_marker():
         ax.plot(x, y3, '^', ms=10)
 
 
-@image_comparison(['marker_paths.pdf'], remove_text=True)
+@image_comparison(['marker_paths.pdf'], remove_text=True, style='_classic_test')
 def test_marker_paths_pdf():
     N = 7
 
@@ -509,6 +536,42 @@ def test_full_arc(offset):
     maxs = np.max(path.vertices, axis=0)
     np.testing.assert_allclose(mins, -1)
     np.testing.assert_allclose(maxs, 1)
+
+
+@pytest.mark.parametrize('theta2', [
+    360, 720, 360 * 5,                       # exact whole turns
+    np.nextafter(360, 1e6),                  # +1 ulp: realistic float noise
+    np.nextafter(360, 0),                    # -1 ulp
+    np.nextafter(720, 1e6),
+])
+def test_arc_full_circle_snap(theta2):
+    # A span within floating-point tolerance of a whole number of turns must
+    # draw a complete circle, not collapse to a near-empty arc.
+    np.testing.assert_allclose(Path.arc(0, theta2).vertices,
+                               Path.arc(0, 360).vertices)
+
+
+@pytest.mark.parametrize('theta1, theta2', [(0, -360), (0, -720), (360, 0),
+                                            (10, -350)])
+def test_arc_negative_full_circle(theta1, theta2):
+    # An exact negative multiple of 360 must draw a complete circle.
+    # The result is the same complete circle as the equivalent positive turn
+    # starting from *theta1* (so the assertion holds for non-cardinal starts).
+    np.testing.assert_allclose(Path.arc(theta1, theta2).vertices,
+                               Path.arc(theta1, theta1 + 360).vertices)
+
+
+def test_arc_unwrap_partial_turn():
+    # A span comfortably more than a whole number of turns (not near-integer)
+    # is unwrapped to the equivalent shortest arc within 360 degrees.
+    np.testing.assert_allclose(Path.arc(0, 410).vertices,
+                               Path.arc(0, 50).vertices)
+    np.testing.assert_allclose(Path.arc(0, 540).vertices,
+                               Path.arc(0, 180).vertices)
+    # A span a clear fraction of a degree past a full turn is the caller's
+    # explicit request and must NOT be snapped to a circle (tolerance guard).
+    np.testing.assert_allclose(Path.arc(0, 360.001).vertices,
+                               Path.arc(0, 0.001).vertices)
 
 
 def test_disjoint_zero_length_segment():

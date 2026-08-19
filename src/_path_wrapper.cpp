@@ -1,5 +1,8 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include <array>
 #include <limits>
@@ -68,15 +71,15 @@ Py_get_path_collection_extents(agg::trans_affine master_transform,
 
     py::ssize_t dims[] = { 2, 2 };
     py::array_t<double> extents(dims);
-    *extents.mutable_data(0, 0) = e.x0;
-    *extents.mutable_data(0, 1) = e.y0;
-    *extents.mutable_data(1, 0) = e.x1;
-    *extents.mutable_data(1, 1) = e.y1;
+    *extents.mutable_data(0, 0) = e.start.x;
+    *extents.mutable_data(0, 1) = e.start.y;
+    *extents.mutable_data(1, 0) = e.end.x;
+    *extents.mutable_data(1, 1) = e.end.y;
 
     py::ssize_t minposdims[] = { 2 };
     py::array_t<double> minpos(minposdims);
-    *minpos.mutable_data(0) = e.xm;
-    *minpos.mutable_data(1) = e.ym;
+    *minpos.mutable_data(0) = e.minpos.x;
+    *minpos.mutable_data(1) = e.minpos.y;
 
     return py::make_tuple(extents, minpos);
 }
@@ -109,9 +112,7 @@ Py_path_in_path(mpl::PathIterator a, agg::trans_affine atrans,
 static py::list
 Py_clip_path_to_rect(mpl::PathIterator path, agg::rect_d rect, bool inside)
 {
-    std::vector<Polygon> result;
-
-    clip_path_to_rect(path, rect, inside, result);
+    auto result = clip_path_to_rect(path, rect, inside);
 
     return convert_polygon_vector(result);
 }
@@ -252,15 +253,10 @@ static py::object
 Py_convert_to_string(mpl::PathIterator path, agg::trans_affine trans,
                      agg::rect_d cliprect, std::optional<bool> simplify,
                      SketchParams sketch, int precision,
-                     std::array<std::string, 5> codes_obj, bool postfix)
+                     const std::array<std::string, 5> &codes, bool postfix)
 {
-    char *codes[5];
     std::string buffer;
     bool status;
-
-    for (auto i = 0; i < 5; ++i) {
-        codes[i] = const_cast<char *>(codes_obj[i].c_str());
-    }
 
     if (!simplify.has_value()) {
         simplify = path.should_simplify();
@@ -310,7 +306,12 @@ Py_is_sorted_and_has_non_nan(py::object obj)
     return result;
 }
 
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+PYBIND11_MODULE(_path, m,
+                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
+#else
 PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
+#endif
 {
     m.def("point_in_path", &Py_point_in_path,
           "x"_a, "y"_a, "radius"_a, "path"_a, "trans"_a);

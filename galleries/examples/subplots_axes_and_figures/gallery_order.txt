@@ -1,0 +1,48 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+
+# subplots
+subplot
+subplots_demo
+axes_demo
+gridspec_customization
+gridspec_multicolumn
+gridspec_nested
+gridspec_and_subplots
+subplot2grid
+demo_constrained_layout
+demo_tight_layout
+subplots_adjust
+auto_subplots_adjust
+ganged_plots
+
+axes_margins
+axes_box_aspect
+axis_equal_demo
+
+# figure
+multiple_figs_demo
+figure_size_units
+subfigures
+custom_figure_class
+
+# shared, twined, and secondary axes
+shared_axis_demo
+invert_axes
+two_scales
+fahrenheit_celsius_scales
+multiple_yaxis_with_spines
+twin_axes_zorder
+secondary_axis
+
+# titles and labels
+align_labels_demo
+axis_labels_demo
+axes_props
+figure_title
+
+# other
+axes_zoom_effect
+zoom_inset_axes
+broken_axis
+geo_demo
+axhspan_demo

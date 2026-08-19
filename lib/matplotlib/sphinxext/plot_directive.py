@@ -84,6 +84,11 @@ The ``.. plot::`` directive supports the following options:
     figure. This overwrites the caption given in the content, when the plot
     is generated from a file.
 
+``:code-caption:`` : str
+    If specified, the option's argument will be used as a caption for the
+    code block (when ``:include-source:`` is used). This is added as the
+    ``:caption:`` option to the ``.. code-block::`` directive.
+
 Additionally, this directive supports all the options of the `image directive
 <https://docutils.sourceforge.io/docs/ref/rst/directives.html#image>`_,
 except for ``:target:`` (since plot will add its own target).  These include
@@ -157,6 +162,12 @@ plot_srcset
     The plot_srcset option is incompatible with *singlehtml* builds, and an
     error will be raised.
 
+plot_skip_execution
+    If True, will not run any plot directives. Code, captions, etc. will all
+    still be rendered, but no plots will be created.
+
+    .. versionadded:: 3.12
+
 Notes on how it works
 ---------------------
 
@@ -192,6 +203,7 @@ import jinja2  # Sphinx dependency.
 
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
+from sphinx.util import logging
 
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
@@ -201,6 +213,8 @@ from matplotlib import _pylab_helpers, cbook
 matplotlib.use("agg")
 
 __version__ = 2
+
+_log = logging.getLogger(__name__)
 
 
 # -----------------------------------------------------------------------------
@@ -281,6 +295,7 @@ class PlotDirective(Directive):
         'context': _option_context,
         'nofigs': directives.flag,
         'caption': directives.unchanged,
+        'code-caption': directives.unchanged,
         }
 
     def run(self):
@@ -317,6 +332,7 @@ def setup(app):
     app.add_config_value('plot_working_directory', None, True)
     app.add_config_value('plot_template', None, True)
     app.add_config_value('plot_srcset', [], True)
+    app.add_config_value('plot_skip_execution', False, True)
     app.connect('doctree-read', mark_plot_labels)
     app.add_css_file('plot_directive.css')
     app.connect('build-finished', _copy_css_file)
@@ -919,23 +935,26 @@ def run(arguments, content, options, state_machine, state, lineno):
 
     # make figures
     try:
-        results = render_figures(code=code,
-                                 code_path=source_file_name,
-                                 output_dir=build_dir,
-                                 output_base=output_base,
-                                 context=keep_context,
-                                 function_name=function_name,
-                                 config=config,
-                                 context_reset=context_opt == 'reset',
-                                 close_figs=context_opt == 'close-figs',
-                                 code_includes=source_file_includes)
+        if config.plot_skip_execution:
+            results = [(code, [])]
+        else:
+            results = render_figures(code=code,
+                                     code_path=source_file_name,
+                                     output_dir=build_dir,
+                                     output_base=output_base,
+                                     context=keep_context,
+                                     function_name=function_name,
+                                     config=config,
+                                     context_reset=context_opt == 'reset',
+                                     close_figs=context_opt == 'close-figs',
+                                     code_includes=source_file_includes)
         errors = []
     except PlotError as err:
+        message = "Exception occurred in plotting {}\n from {}:\n{}".format(
+            output_base, source_file_name, err)
+        _log.warning(message, location=(source_file_name, lineno))
         reporter = state.memo.reporter
-        sm = reporter.system_message(
-            2, "Exception occurred in plotting {}\n from {}:\n{}".format(
-                output_base, source_file_name, err),
-            line=lineno)
+        sm = reporter.system_message(2, message, line=lineno)
         results = [(code, [])]
         errors = [sm]
 
@@ -952,8 +971,11 @@ def run(arguments, content, options, state_machine, state, lineno):
             if is_doctest:
                 lines = ['', *code_piece.splitlines()]
             else:
-                lines = ['.. code-block:: python', '',
-                         *textwrap.indent(code_piece, '    ').splitlines()]
+                lines = ['.. code-block:: python']
+                if 'code-caption' in options:
+                    code_caption = options['code-caption'].replace('\n', ' ')
+                    lines.append(f'   :caption: {code_caption}')
+                lines.extend(['', *textwrap.indent(code_piece, '    ').splitlines()])
             source_code = "\n".join(lines)
         else:
             source_code = ""

@@ -67,7 +67,7 @@ Changes beyond 0.99.x
   required by the experimental traited config and are somewhat out of
   date. If needed, install them independently.
 
-.. _configobj: http://www.voidspace.org.uk/python/configobj.html
+.. _configobj: https://configobj.readthedocs.io/en/latest/
 .. _`enthought.traits`: http://code.enthought.com/pages/traits.html
 
 * The new rc parameter ``savefig.extension`` sets the filename extension

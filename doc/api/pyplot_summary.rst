@@ -64,6 +64,7 @@ Basic
    stem
    eventplot
    pie
+   pie_label
    stackplot
    broken_barh
    vlines

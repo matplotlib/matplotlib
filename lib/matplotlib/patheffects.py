@@ -269,7 +269,7 @@ class SimplePatchShadow(AbstractPathEffect):
         else:
             shadow_rgbFace = self._shadow_rgbFace
 
-        gc0.set_foreground("none")
+        gc0.set_foreground(mcolors.to_rgba("none"), isRGBA=True)
         gc0.set_alpha(self._alpha)
         gc0.set_linewidth(0)
 
@@ -325,13 +325,13 @@ class SimpleLineShadow(AbstractPathEffect):
         gc0.copy_properties(gc)
 
         if self._shadow_color is None:
-            r, g, b = (gc0.get_foreground() or (1., 1., 1.))[:3]
+            r, g, b = (gc0.get_rgb() or (1., 1., 1.))[:3]
             # Scale the colors by a factor to improve the shadow effect.
             shadow_rgbFace = (r * self._rho, g * self._rho, b * self._rho)
         else:
             shadow_rgbFace = self._shadow_color
 
-        gc0.set_foreground(shadow_rgbFace)
+        gc0.set_foreground(mcolors.to_rgba(shadow_rgbFace), isRGBA=True)
         gc0.set_alpha(self._alpha)
 
         gc0 = self._update_gc(gc0, self._gc)

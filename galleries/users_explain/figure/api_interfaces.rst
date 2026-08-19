@@ -148,7 +148,7 @@ interfaces and how to translate from one to the other.
   - Axes: ``label = ax.get_xlabel()``
   - pyplot: ``label = plt.xlabel()``
 
-- Functions that set properties like the property in pyplot and are prefixed with
+- Functions that set properties are named like the property in pyplot and are prefixed with
   ``set_`` on the Axes. Example:
 
   - Axes: ``ax.set_xlabel("time")``
@@ -174,7 +174,7 @@ referenced by ``plt.gca()``?  One simple way is to call ``subplot`` again with
 the same arguments.  However, that quickly becomes inelegant.  You can also
 inspect the Figure object and get its list of Axes objects, however, that can be
 misleading (colorbars are Axes too!). The best solution is probably to save a
-handle to every Axes you create, but if you do that, why not simply create the
+handle to every Axes you create, but if you do that, why not simply create
 all the Axes objects at the start?
 
 The first approach is to call ``plt.subplot`` again:

@@ -1,7 +1,7 @@
 """
-=========================
-Fig Axes Customize Simple
-=========================
+======================================
+Customizing figure and axes appearance
+======================================
 
 Customize the background, labels and ticks of a simple plot.
 

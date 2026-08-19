@@ -4,10 +4,11 @@ Embed in Qt
 ===========
 
 Simple Qt application embedding Matplotlib canvases.  This program will work
-equally well using any Qt binding (PyQt6, PySide6, PyQt5, PySide2).  The
+equally well using any Qt binding (PyQt6, PySide6, PyQt5).  The
 binding can be selected by setting the :envvar:`QT_API` environment variable to
 the binding name, or by first importing it.
 """
+# sphinx_gallery_thumbnail_path = '_static/embedding_in_qt.png'
 
 import sys
 import time

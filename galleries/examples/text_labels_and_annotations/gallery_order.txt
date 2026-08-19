@@ -1,0 +1,54 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+
+# text formatting
+text_commands
+text_fontdict
+text_alignment
+multiline
+autowrap
+demo_text_rotation_mode
+text_rotation_relative_to_line
+rainbow_text
+demo_text_path
+
+# annotations
+annotation_basic
+annotation_demo
+annotation_polar
+angles_on_bracket_arrows
+fancyarrow_demo
+fancytextbox_demo
+placing_text_boxes
+label_subplots
+demo_annotation_box
+arrow_demo
+angle_annotation
+
+# legend
+legend_demo
+legend
+custom_legends
+figlegend_demo
+
+# demos
+accented_text
+dfrac_demo
+font_family_rc
+font_file
+font_table
+fonts_demo
+fonts_demo_kw
+mathtext_asarray
+mathtext_demo
+mathtext_examples
+mathtext_fontfamily_example
+stix_fonts_demo
+tex_demo
+unicode_minus
+usetex_baseline_test
+usetex_fonteffects
+
+# other
+line_with_text
+titles_demo
+watermark_text

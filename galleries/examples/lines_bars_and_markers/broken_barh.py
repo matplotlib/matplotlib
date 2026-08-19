@@ -19,16 +19,14 @@ network = np.column_stack([10*np.random.random(10), np.full(10, 0.05)])
 
 fig, ax = plt.subplots()
 # broken_barh(xranges, (ypos, height))
-ax.broken_barh(cpu_1, (0, 0.4), align="center")
-ax.broken_barh(cpu_2, (1, 0.4), align="center")
-ax.broken_barh(cpu_3, (2, 0.4), align="center")
-ax.broken_barh(cpu_4, (3, 0.4), align="center")
-ax.broken_barh(disk, (4, 0.4), align="center", color="tab:orange")
-ax.broken_barh(network, (5, 0.4), align="center", color="tab:green")
+ax.broken_barh(cpu_1, ("CPU 1", 0.4), align="center")
+ax.broken_barh(cpu_2, ("CPU 2", 0.4), align="center")
+ax.broken_barh(cpu_3, ("CPU 3", 0.4), align="center")
+ax.broken_barh(cpu_4, ("CPU 4", 0.4), align="center")
+ax.broken_barh(disk, ("disk", 0.4), align="center", color="tab:orange")
+ax.broken_barh(network, ("network", 0.4), align="center", color="tab:green")
 ax.set_xlim(0, 10)
-ax.set_yticks(range(6),
-              labels=["CPU 1", "CPU 2", "CPU 3", "CPU 4", "disk", "network"])
-ax.invert_yaxis()
+ax.invert_yaxis()  # order the bars from top to bottom
 ax.set_title("Resource usage")
 
 plt.show()

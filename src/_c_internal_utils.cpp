@@ -28,6 +28,10 @@
 #else
 #define UNUSED_ON_NON_WINDOWS Py_UNUSED
 #endif
+#ifdef __APPLE__
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreText/CoreText.h>
+#endif
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -41,11 +45,11 @@ mpl_xdisplay_is_valid(void)
     // than dlopen().
     if (getenv("DISPLAY")
         && (libX11 = dlopen("libX11.so.6", RTLD_LAZY))) {
-        typedef struct Display* (*XOpenDisplay_t)(char const*);
-        typedef int (*XCloseDisplay_t)(struct Display*);
         struct Display* display = nullptr;
-        XOpenDisplay_t XOpenDisplay = (XOpenDisplay_t)dlsym(libX11, "XOpenDisplay");
-        XCloseDisplay_t XCloseDisplay = (XCloseDisplay_t)dlsym(libX11, "XCloseDisplay");
+        auto XOpenDisplay = (struct Display* (*)(char const*))
+            dlsym(libX11, "XOpenDisplay");
+        auto XCloseDisplay = (int (*)(struct Display*))
+            dlsym(libX11, "XCloseDisplay");
         if (XOpenDisplay && XCloseDisplay
                 && (display = XOpenDisplay(nullptr))) {
             XCloseDisplay(display);
@@ -73,13 +77,11 @@ mpl_display_is_valid(void)
     void* libwayland_client;
     if (getenv("WAYLAND_DISPLAY")
         && (libwayland_client = dlopen("libwayland-client.so.0", RTLD_LAZY))) {
-        typedef struct wl_display* (*wl_display_connect_t)(char const*);
-        typedef void (*wl_display_disconnect_t)(struct wl_display*);
         struct wl_display* display = nullptr;
-        wl_display_connect_t wl_display_connect =
-            (wl_display_connect_t)dlsym(libwayland_client, "wl_display_connect");
-        wl_display_disconnect_t wl_display_disconnect =
-            (wl_display_disconnect_t)dlsym(libwayland_client, "wl_display_disconnect");
+        auto wl_display_connect = (struct wl_display* (*)(char const*))
+            dlsym(libwayland_client, "wl_display_connect");
+        auto wl_display_disconnect = (void (*)(struct wl_display*))
+            dlsym(libwayland_client, "wl_display_disconnect");
         if (wl_display_connect && wl_display_disconnect
                 && (display = wl_display_connect(nullptr))) {
             wl_display_disconnect(display);
@@ -94,6 +96,61 @@ mpl_display_is_valid(void)
     return false;
 #else
     return true;
+#endif
+}
+
+static py::object
+mpl_get_available_fonts(void)
+{
+#if defined(__APPLE__)
+    py::set fonts;
+
+    auto cfStringToPyStr = [](CFStringRef str) -> py::str {
+        auto cstr = CFStringGetCStringPtr(str, kCFStringEncodingUTF8);
+        if (cstr) {
+            return py::str(cstr);
+        }
+        auto length = CFStringGetLength(str);
+        auto maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
+        auto buffer = std::make_unique<char[]>(maxSize);
+        py::str result;
+        if (CFStringGetCString(str, buffer.get(), maxSize, kCFStringEncodingUTF8)) {
+            result = py::str(buffer.get());
+        }
+        return result;
+    };
+
+    auto collection = CTFontCollectionCreateFromAvailableFonts(NULL);
+    auto descriptors = collection ?
+        CTFontCollectionCreateMatchingFontDescriptors(collection) : NULL;
+    auto count = descriptors ? CFArrayGetCount(descriptors) : 0;
+    for (CFIndex i = 0; i < count; i++) {
+        auto descriptor = static_cast<CTFontDescriptorRef>(
+            CFArrayGetValueAtIndex(descriptors, i));
+        auto url = static_cast<CFURLRef>(
+            CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute));
+        CFStringRef path = nullptr;
+        if (url) {
+            path = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+            CFRelease(url);
+        }
+        if (path) {
+            auto pyStr = cfStringToPyStr(path);
+            if (pyStr) {
+                fonts.add(pyStr);
+            }
+            CFRelease(path);
+        }
+    }
+    if (descriptors) {
+        CFRelease(descriptors);
+    }
+    if (collection) {
+        CFRelease(collection);
+    }
+    return fonts;
+#else
+    return py::none();
 #endif
 }
 
@@ -162,25 +219,19 @@ mpl_SetProcessDpiAwareness_max(void)
 #ifdef _DPI_AWARENESS_CONTEXTS_
     // These functions and options were added in later Windows 10 updates, so
     // must be loaded dynamically.
-    typedef BOOL (WINAPI *IsValidDpiAwarenessContext_t)(DPI_AWARENESS_CONTEXT);
-    typedef BOOL (WINAPI *SetProcessDpiAwarenessContext_t)(DPI_AWARENESS_CONTEXT);
-
     HMODULE user32 = LoadLibrary("user32.dll");
-    IsValidDpiAwarenessContext_t IsValidDpiAwarenessContextPtr =
-        (IsValidDpiAwarenessContext_t)GetProcAddress(
-            user32, "IsValidDpiAwarenessContext");
-    SetProcessDpiAwarenessContext_t SetProcessDpiAwarenessContextPtr =
-        (SetProcessDpiAwarenessContext_t)GetProcAddress(
-            user32, "SetProcessDpiAwarenessContext");
+    auto IsValidDpiAwarenessContext = (BOOL (WINAPI *)(DPI_AWARENESS_CONTEXT))
+        GetProcAddress(user32, "IsValidDpiAwarenessContext");
+    auto SetProcessDpiAwarenessContext = (BOOL (WINAPI *)(DPI_AWARENESS_CONTEXT))
+        GetProcAddress(user32, "SetProcessDpiAwarenessContext");
     DPI_AWARENESS_CONTEXT ctxs[3] = {
         DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2,  // Win10 Creators Update
         DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE,     // Win10
         DPI_AWARENESS_CONTEXT_SYSTEM_AWARE};         // Win10
-    if (IsValidDpiAwarenessContextPtr != NULL
-            && SetProcessDpiAwarenessContextPtr != NULL) {
+    if (IsValidDpiAwarenessContext && SetProcessDpiAwarenessContext) {
         for (size_t i = 0; i < sizeof(ctxs) / sizeof(DPI_AWARENESS_CONTEXT); ++i) {
-            if (IsValidDpiAwarenessContextPtr(ctxs[i])) {
-                SetProcessDpiAwarenessContextPtr(ctxs[i]);
+            if (IsValidDpiAwarenessContext(ctxs[i])) {
+                SetProcessDpiAwarenessContext(ctxs[i]);
                 break;
             }
         }
@@ -218,6 +269,13 @@ PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
         only (e.g., for Tkinter).
 
         On other platforms, always returns True.)""");
+    m.def(
+        "get_available_fonts", &mpl_get_available_fonts,
+        R"""(        --
+        On macOS, uses CoreText to find all fonts available to the current
+        process and returns the paths as a set of strings.
+
+        On other platforms, always returns None.)""");
     m.def(
         "Win32_GetCurrentProcessExplicitAppUserModelID",
         &mpl_GetCurrentProcessExplicitAppUserModelID,

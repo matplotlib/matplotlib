@@ -1,0 +1,39 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+
+# errorbars
+errorbar
+errorbar_features
+errorbar_subsample
+errorbar_limits_simple
+errorbar_limits
+errorbars_and_boxes
+confidence_ellipse
+curve_error_band
+
+# histograms
+hist
+histogram_histtypes
+histogram_normalization
+histogram_multihist
+multiple_histograms_side_by_side
+histogram_bihistogram
+histogram_cumulative
+hexbin_demo
+time_series_histogram
+
+# boxplots
+boxplot_demo
+boxplot
+boxplot_color
+bxp
+boxplot_vs_violin
+
+# violinplots
+violinplot
+customized_violin
+
+# signal processing
+xcorr_acorr_demo
+psd_demo
+csd_demo
+cohere

@@ -10,21 +10,15 @@ from matplotlib.backend_bases import (
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
-    import gi
+    from gi import require_version as gi_require_version
 except ImportError as err:
     raise ImportError("The GTK3 backends require PyGObject") from err
 
 try:
     # :raises ValueError: If module/version is already loaded, already
     # required, or unavailable.
-    gi.require_version("Gtk", "3.0")
-    # Also require GioUnix to avoid PyGIWarning when Gio is imported
-    # GioUnix is platform-specific and may not be available on all systems
-    try:
-        gi.require_version("GioUnix", "2.0")
-    except ValueError:
-        # GioUnix is not available on this platform, which is fine
-        pass
+    gi_require_version("Gtk", "3.0")
+    gi_require_version("Gdk", "3.0")
 except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
@@ -98,6 +92,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
 
     def destroy(self):
         CloseEvent("close_event", self)._process()
+        super().destroy()
 
     def set_cursor(self, cursor):
         # docstring inherited
@@ -126,7 +121,7 @@ class FigureCanvasGTK3(_FigureCanvasGTK, Gtk.DrawingArea):
             x, y = event.x, event.y
         x = x * self.device_pixel_ratio
         # flip y so y=0 is bottom of canvas
-        y = self.figure.bbox.height - y * self.device_pixel_ratio
+        y = self.get_width_height(physical=True)[1] - y * self.device_pixel_ratio
         return x, y
 
     def scroll_event(self, widget, event):

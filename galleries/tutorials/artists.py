@@ -38,12 +38,7 @@ instances, and use the ``Axes`` instance
 helper methods to create the primitives.  In the example below, we create a
 ``Figure`` instance using :func:`matplotlib.pyplot.figure`, which is a
 convenience method for instantiating ``Figure`` instances and connecting them
-with your user interface or drawing toolkit ``FigureCanvas``.  As we will
-discuss below, this is not necessary -- you can work directly with PostScript,
-PDF Gtk+, or wxPython ``FigureCanvas`` instances, instantiate your ``Figures``
-directly and connect them yourselves -- but since we are focusing here on the
-``Artist`` API we'll let :mod:`~matplotlib.pyplot` handle some of those details
-for us::
+with a GUI framework so that they can be shown in a window on the screen::
 
     import matplotlib.pyplot as plt
     fig = plt.figure()
@@ -94,9 +89,8 @@ contains the same line that was returned by the ``line, = ax.plot...`` call:
     In [102]: line
     Out[102]: <matplotlib.lines.Line2D at 0x19a95710>
 
-If you make subsequent calls to ``ax.plot`` (and the hold state is "on"
-which is the default) then additional lines will be added to the list.
-You can remove a line later by calling its ``remove`` method::
+If you make subsequent calls to ``ax.plot`` then additional lines will be added
+to the list.  You can remove a line later by calling its ``remove`` method::
 
     line = ax.lines[0]
     line.remove()
@@ -301,7 +295,7 @@ plt.show()
 #     Out[159]: <Axes:>
 #
 #     In [160]: print(fig.axes)
-#     [<Axes:>, <matplotlib.axes._axes.Axes object at 0x7f0768702be0>]
+#     [<Axes: >, <Axes: >]
 #
 # Because the figure maintains the concept of the "current Axes" (see
 # :meth:`Figure.gca <matplotlib.figure.Figure.gca>` and
@@ -320,27 +314,32 @@ plt.show()
 #
 #
 # The figure also has its own ``images``, ``lines``, ``patches`` and ``text``
-# attributes, which you can use to add primitives directly. When doing so, the
-# default coordinate system for the ``Figure`` will simply be in pixels (which
-# is not usually what you want). If you instead use Figure-level methods to add
-# Artists (e.g., using `.Figure.text` to add text), then the default coordinate
-# system will be "figure coordinates" where (0, 0) is the bottom-left of the
-# figure and (1, 1) is the top-right of the figure.
-#
-# As with all ``Artist``\s, you can control this coordinate system by setting
-# the transform property. You can explicitly use "figure coordinates" by
-# setting the ``Artist`` transform to :attr:`!fig.transFigure`:
+# attributes, which you can use to access any primitives that are its direct
+# children. Artists may be added with the `~.Figure.add_artist` method.
 
 import matplotlib.lines as lines
 
 fig = plt.figure()
 
-l1 = lines.Line2D([0, 1], [0, 1], transform=fig.transFigure, figure=fig)
-l2 = lines.Line2D([0, 1], [1, 0], transform=fig.transFigure, figure=fig)
-fig.lines.extend([l1, l2])
+line1 = lines.Line2D([0, 1], [0, 1])
+line2 = lines.Line2D([0, 1], [1, 0])
+for line in line1, line2:
+    fig.add_artist(line)
 
 plt.show()
 
+# %%
+#
+# As a convenience for images and text, the helper methods `~.Figure.figimage` and
+# `~.Figure.text` create the respective Artists and internally add them to the figure.
+#
+# As with all ``Artist``\s, you can control the coordinate system by setting
+# the transform property (see :ref:`transforms_tutorial`). When using
+# `~.Figure.figimage`, the default coordinate system is simply pixels.  When
+# using `~.Figure.text` or `~.Figure.add_artist`, the default coordinate system
+# will be "figure coordinates" where (0, 0) is the bottom-left of the figure
+# and (1, 1) is the top-right of the figure.
+#
 # %%
 # Here is a summary of the Artists the Figure contains
 #
@@ -348,16 +347,18 @@ plt.show()
 # Figure attribute Description
 # ================ ============================================================
 # axes             A list of `~.axes.Axes` instances
+# subfigures       A list of `.SubFigure` instances
 # patch            The `.Rectangle` background
-# images           A list of `.FigureImage` patches -
+# images           An `~.artist.ArtistList` of `.FigureImage` patches -
 #                  useful for raw pixel display
-# legends          A list of Figure `.Legend` instances
+# legends          An `~.artist.ArtistList` of Figure `.Legend` instances
 #                  (different from ``Axes.get_legend()``)
-# lines            A list of Figure `.Line2D` instances
+# lines            An `~.artist.ArtistList` of Figure `.Line2D` instances
 #                  (rarely used, see ``Axes.lines``)
-# patches          A list of Figure `.Patch`\s
+# patches          An `~.artist.ArtistList` of Figure `.Patch`\s
 #                  (rarely used, see ``Axes.patches``)
-# texts            A list Figure `.Text` instances
+# texts            An `~.artist.ArtistList` of Figure `.Text` instances
+# artists          An `~.artist.ArtistList` of all other `.Artist` instances
 # ================ ============================================================
 #
 # .. _axes-container:
@@ -568,13 +569,13 @@ plt.show()
 # ==============    =========================================
 # Axes attribute    Description
 # ==============    =========================================
-# artists           An `.ArtistList` of `.Artist` instances
+# artists           An `~.artist.ArtistList` of `.Artist` instances
 # patch             `.Rectangle` instance for Axes background
-# collections       An `.ArtistList` of `.Collection` instances
-# images            An `.ArtistList` of `.AxesImage`
-# lines             An `.ArtistList` of `.Line2D` instances
-# patches           An `.ArtistList` of `.Patch` instances
-# texts             An `.ArtistList` of `.Text` instances
+# collections       An `~.artist.ArtistList` of `.Collection` instances
+# images            An `~.artist.ArtistList` of `.AxesImage`
+# lines             An `~.artist.ArtistList` of `.Line2D` instances
+# patches           An `~.artist.ArtistList` of `.Patch` instances
+# texts             An `~.artist.ArtistList` of `.Text` instances
 # xaxis             A `matplotlib.axis.XAxis` instance
 # yaxis             A `matplotlib.axis.YAxis` instance
 # ==============    =========================================
@@ -596,40 +597,16 @@ plt.show()
 # the ticks are placed and how they are represented as strings.
 #
 # Each ``Axis`` object contains a :attr:`~matplotlib.axis.Axis.label` attribute
-# (this is what :mod:`.pyplot` modifies in calls to `~.pyplot.xlabel` and
-# `~.pyplot.ylabel`) as well as a list of major and minor ticks.  The ticks are
+# (this is what `~.Axes.set_xlabel` / `~.Axes.set_ylabel` modifies internally)
+# as well as a list of major and minor ticks.  The ticks are
 # `.axis.XTick` and `.axis.YTick` instances, which contain the actual line and
 # text primitives that render the ticks and ticklabels.  Because the ticks are
-# dynamically created as needed (e.g., when panning and zooming), you should
-# access the lists of major and minor ticks through their accessor methods
-# `.axis.Axis.get_major_ticks` and `.axis.Axis.get_minor_ticks`.  Although
-# the ticks contain all the primitives and will be covered below, ``Axis``
-# instances have accessor methods that return the tick lines, tick labels, tick
-# locations etc.:
-
-fig, ax = plt.subplots()
-axis = ax.xaxis
-axis.get_ticklocs()
-
-# %%
-
-axis.get_ticklabels()
-
-# %%
-# note there are twice as many ticklines as labels because by default there are
-# tick lines at the top and bottom but only tick labels below the xaxis;
-# however, this can be customized.
-
-axis.get_ticklines()
-
-# %%
-# And with the above methods, you only get lists of major ticks back by
-# default, but you can also ask for the minor ticks:
-
-axis.get_ticklabels(minor=True)
-axis.get_ticklines(minor=True)
-
-# %%
+# dynamically created and modified as needed (e.g., when panning and zooming),
+# directly working on the ticks and their parts (tick lines, tick labels, grid lines)
+# is discouraged. Instead, the high-level concepts tick locators, tick formatters
+# and style configuration via `~.Axes.tick_params` should be used. See
+# :ref:`user_axes_ticks` for details.
+#
 # Here is a summary of some of the useful accessor methods of the ``Axis``
 # (these have corresponding setters where useful, such as
 # :meth:`~matplotlib.axis.Axis.set_major_formatter`.)
@@ -640,82 +617,16 @@ axis.get_ticklines(minor=True)
 # `~.Axis.get_scale`             The scale of the Axis, e.g., 'log' or 'linear'
 # `~.Axis.get_view_interval`     The interval instance of the Axis view limits
 # `~.Axis.get_data_interval`     The interval instance of the Axis data limits
-# `~.Axis.get_gridlines`         A list of grid lines for the Axis
 # `~.Axis.get_label`             The Axis label - a `.Text` instance
-# `~.Axis.get_offset_text`       The Axis offset text - a `.Text` instance
-# `~.Axis.get_ticklabels`        A list of `.Text` instances -
-#                                keyword minor=True|False
-# `~.Axis.get_ticklines`         A list of `.Line2D` instances -
-#                                keyword minor=True|False
-# `~.Axis.get_ticklocs`          A list of Tick locations -
-#                                keyword minor=True|False
 # `~.Axis.get_major_locator`     The `.ticker.Locator` instance for major ticks
 # `~.Axis.get_major_formatter`   The `.ticker.Formatter` instance for major
 #                                ticks
 # `~.Axis.get_minor_locator`     The `.ticker.Locator` instance for minor ticks
 # `~.Axis.get_minor_formatter`   The `.ticker.Formatter` instance for minor
 #                                ticks
-# `~.axis.Axis.get_major_ticks`  A list of `.Tick` instances for major ticks
-# `~.axis.Axis.get_minor_ticks`  A list of `.Tick` instances for minor ticks
+# `~.Axis.get_tick_params`       Styling of ticks, ticklabels and gridlines
 # `~.Axis.grid`                  Turn the grid on or off for the major or minor
 #                                ticks
 # =============================  ==============================================
 #
-# Here is an example, not recommended for its beauty, which customizes
-# the Axes and Tick properties.
-
-# plt.figure creates a matplotlib.figure.Figure instance
-fig = plt.figure()
-rect = fig.patch  # a rectangle instance
-rect.set_facecolor('lightgoldenrodyellow')
-
-ax1 = fig.add_axes((0.1, 0.3, 0.4, 0.4))
-rect = ax1.patch
-rect.set_facecolor('lightslategray')
-
-
-for label in ax1.xaxis.get_ticklabels():
-    # label is a Text instance
-    label.set_color('red')
-    label.set_rotation(45)
-    label.set_fontsize(16)
-
-for line in ax1.yaxis.get_ticklines():
-    # line is a Line2D instance
-    line.set_color('green')
-    line.set_markersize(25)
-    line.set_markeredgewidth(3)
-
-plt.show()
-
-# %%
-# .. _tick-container:
-#
-# Tick containers
-# ---------------
-#
-# The :class:`matplotlib.axis.Tick` is the final container object in our
-# descent from the :class:`~matplotlib.figure.Figure` to the
-# :class:`~matplotlib.axes.Axes` to the :class:`~matplotlib.axis.Axis`
-# to the :class:`~matplotlib.axis.Tick`.  The ``Tick`` contains the tick
-# and grid line instances, as well as the label instances for the upper
-# and lower ticks.  Each of these is accessible directly as an attribute
-# of the ``Tick``.
-#
-# ==============  ==========================================================
-# Tick attribute  Description
-# ==============  ==========================================================
-# tick1line       A `.Line2D` instance
-# tick2line       A `.Line2D` instance
-# gridline        A `.Line2D` instance
-# label1          A `.Text` instance
-# label2          A `.Text` instance
-# ==============  ==========================================================
-#
-# Here is an example which sets the formatter for the right side ticks with
-# dollar signs and colors them green on the right side of the yaxis.
-#
-#
-# .. include:: ../gallery/ticks/dollar_ticks.rst
-#    :start-after: .. redirect-from:: /gallery/pyplots/dollar_ticks
-#    :end-before: .. admonition:: References
+# The full Axis API can be found at :doc:`/api/axis_api`.

@@ -292,6 +292,11 @@
 ## for more information on text properties
 #text.color: black
 
+## The language of the text in a format accepted by libraqm, namely `a BCP47 language
+## code <https://www.w3.org/International/articles/language-tags/>`_. If None, then no
+## particular language will be implied, and default font settings will be used.
+#text.language: None
+
 ## FreeType hinting flag ("foo" corresponds to FT_LOAD_FOO); may be one of the
 ## following (Proprietary Matplotlib-specific synonyms are given in parentheses,
 ## but their use is discouraged):
@@ -301,15 +306,12 @@
 ##                ("native" is a synonym.)
 ## - force_autohint: Use FreeType's auto-hinter.  ("auto" is a synonym.)
 ## - no_hinting: Disable hinting.  ("none" is a synonym.)
-#text.hinting: force_autohint
+#text.hinting: default
 
-#text.hinting_factor: 8  # Specifies the amount of softness for hinting in the
-                         # horizontal direction.  A value of 1 will hint to full
-                         # pixels.  A value of 2 will hint to half pixels etc.
-#text.kerning_factor: 0  # Specifies the scaling factor for kerning values.  This
-                         # is provided solely to allow old test images to remain
-                         # unchanged.  Set to 6 to obtain previous behavior.
-                         # Values  other than 0 or 6 have no defined meaning.
+#text.hinting_factor: None  # This setting does nothing and is deprecated.
+#text.kerning_factor: None  # Specifies the scaling factor for kerning values. Values
+                            # other than 0, 6, or None have no defined meaning.
+                            # This setting is deprecated.
 #text.antialiased: True  # If True (default), the text will be antialiased.
                          # This only affects raster outputs.
 #text.parse_math: True  # Use mathtext if there is an even number of unescaped
@@ -327,6 +329,16 @@
                      # zapf chancery, charter, serif, sans-serif, helvetica,
                      # avant garde, courier, monospace, computer modern roman,
                      # computer modern sans serif, computer modern typewriter
+
+## The TeX engine/format to use.  The following values are supported:
+## - "latex": The classic TeX engine (the current default).  All backends render
+##    TeX's output by parsing the DVI output into glyphs and boxes and emitting
+##    those one by one.
+## - "latex+dvipng": The same as "latex", with the exception that Agg-based
+##   backends rely on dvipng to rasterize TeX's output.  This value was the
+##   default up to Matplotlib 3.10.
+#text.latex.engine: latex
+
 #text.latex.preamble:   # IMPROPER USE OF THIS FEATURE WILL LEAD TO LATEX FAILURES
                         # AND IS THEREFORE UNSUPPORTED. PLEASE DO NOT ASK FOR HELP
                         # IF THIS FEATURE DOES NOT DO WHAT YOU EXPECT IT TO.
@@ -361,10 +373,10 @@
                         # 'stixsans'] when a symbol cannot be found in one of the
                         # custom math fonts. Select 'None' to not perform fallback
                         # and replace the missing character by a dummy symbol.
-#mathtext.default: it  # The default font to use for math.
-                       # Can be any of the LaTeX font names, including
-                       # the special name "regular" for the same font
-                       # used in regular text.
+#mathtext.default: normal  # The default font to use for math.
+                           # Can be any of the LaTeX font names (normal, it, bf,
+                           # etc.), including the special name "regular" for the
+                           # same font used in regular text.
 
 
 ## ***************************************************************************
@@ -451,7 +463,7 @@
                             # See also https://matplotlib.org/stable/api/toolkits/mplot3d/view_angles.html#rotation-with-mouse
 #axes3d.trackballsize: 0.667  # trackball diameter, in units of the Axes bbox
 #axes3d.trackballborder: 0.2  # trackball border width, in units of the Axes bbox (only for 'sphere' and 'arcball' style)
-
+#axes3d.snap_rotation: 5.0  # Snap angle (degrees) for 3D rotation when holding Control.
 ## ***************************************************************************
 ## * AXIS                                                                    *
 ## ***************************************************************************
@@ -562,6 +574,7 @@
 #legend.framealpha:    0.8      # legend patch transparency
 #legend.facecolor:     inherit  # inherit from axes.facecolor; or color spec
 #legend.edgecolor:     0.8      # background patch boundary color
+#legend.linewidth:     None     # line width of the legend frame, None means inherit from patch.linewidth
 #legend.fancybox:      True     # if True, use a rounded box for the
                                 # legend background, else a rectangle
 #legend.shadow:        False    # if True, give background a shadow effect
@@ -599,6 +612,9 @@
                                # the pyplot interface before emitting a warning.
                                # If less than one this feature is disabled.
 #figure.raise_window : True    # Raise the GUI window to front when show() is called.
+                               # If set to False, we currently do not take any further
+                               # actions and whether the window appears on the front
+                               # may depend on the GUI framework and window manager.
 
 ## The figure subplot parameters.  All dimensions are a fraction of the figure width and height.
 #figure.subplot.left:   0.125  # the left side of the subplots of the figure
@@ -658,6 +674,8 @@
 ## * ERRORBAR PLOTS                                                          *
 ## ***************************************************************************
 #errorbar.capsize: 0  # length of end cap on error bars in pixels
+#errorbar.capthick: None  # thickness of end cap on error bars in points
+#errorbar.elinewidth: None  # line width of error bar lines in points
 
 
 ## ***************************************************************************

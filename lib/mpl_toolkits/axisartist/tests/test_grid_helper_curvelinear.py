@@ -1,3 +1,5 @@
+import platform
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -15,8 +17,11 @@ from mpl_toolkits.axisartist.grid_helper_curvelinear import \
     GridHelperCurveLinear
 
 
-@image_comparison(['custom_transform.png'], style='default', tol=0.2)
+@image_comparison(['custom_transform.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.04)
 def test_custom_transform():
+    plt.rcParams.update({"xtick.direction": "in", "ytick.direction": "inout"})
+
     class MyTransform(Transform):
         input_dims = output_dims = 2
 
@@ -76,8 +81,9 @@ def test_custom_transform():
     ax1.grid(True)
 
 
-@image_comparison(['polar_box.png'], style='default', tol=0.04)
+@image_comparison(['polar_box.png'], style='mpl20', tol=0.04)
 def test_polar_box():
+    plt.rcParams.update({"xtick.direction": "inout", "ytick.direction": "out"})
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate
@@ -135,11 +141,8 @@ def test_polar_box():
     ax1.grid(True)
 
 
-# Remove tol & kerning_factor when this test image is regenerated.
-@image_comparison(['axis_direction.png'], style='default', tol=0.13)
+@image_comparison(['axis_direction.png'], style='mpl20', tol=0.04)
 def test_axis_direction():
-    plt.rcParams['text.kerning_factor'] = 6
-
     fig = plt.figure(figsize=(5, 5))
 
     # PolarAxes.PolarTransform takes radian. However, we want our coordinate

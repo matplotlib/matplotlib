@@ -142,6 +142,7 @@ class FigureManagerNbAgg(FigureManagerWebAgg):
         for comm in list(self.web_sockets):
             comm.on_close()
         self.clearup_closed()
+        super().destroy()
 
     def clearup_closed(self):
         """Clear up any closed Comms."""

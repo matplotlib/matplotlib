@@ -108,6 +108,7 @@ with tempfile.TemporaryDirectory() as d:
         [
             "stubtest",
             "--mypy-config-file=pyproject.toml",
+            "--ignore-disjoint-bases",
             "--allowlist=ci/mypy-stubtest-allowlist.txt",
             f"--allowlist={p}",
             "matplotlib",

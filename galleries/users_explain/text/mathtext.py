@@ -370,4 +370,4 @@ fig.text(.1, .1, r'even: $ \delta $ = $ \$4 $')
 # If a particular symbol does not have a name (as is true of many of the more
 # obscure symbols in the STIX fonts), Unicode characters can also be used::
 #
-#    r'$\u23ce$'
+#    '$\u23ce$'

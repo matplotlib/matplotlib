@@ -2,6 +2,7 @@ import functools
 import itertools
 import logging
 import math
+import datetime
 from numbers import Integral, Number, Real
 
 import re
@@ -32,12 +33,15 @@ import matplotlib.ticker as mticker
 import matplotlib.transforms as mtransforms
 import matplotlib.tri as mtri
 import matplotlib.units as munits
-from matplotlib import _api, _docstring, _preprocess_data
+from matplotlib import _api, _docstring, _preprocess_data, _style_helpers
 from matplotlib.axes._base import (
     _AxesBase, _TransformedBoundsLocator, _process_plot_format)
 from matplotlib.axes._secondary_axes import SecondaryAxis
-from matplotlib.container import BarContainer, ErrorbarContainer, StemContainer
+from matplotlib.container import (
+    BarContainer, ErrorbarContainer, PieContainer, StemContainer)
+from matplotlib.text import Text
 from matplotlib.transforms import _ScaledRotation
+from matplotlib._api import UNSET as _UNSET
 
 _log = logging.getLogger(__name__)
 
@@ -129,7 +133,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = _api.check_getitem(titles, loc=loc.lower())
+        title = _api.getitem_checked(titles, loc=loc.lower())
         return title.get_text()
 
     def set_title(self, label, fontdict=None, loc=None, pad=None, *, y=None,
@@ -196,7 +200,7 @@ class Axes(_AxesBase):
         titles = {'left': self._left_title,
                   'center': self.title,
                   'right': self._right_title}
-        title = _api.check_getitem(titles, loc=loc)
+        title = _api.getitem_checked(titles, loc=loc)
         default = {
             'fontsize': mpl.rcParams['axes.titlesize'],
             'fontweight': mpl.rcParams['axes.titleweight'],
@@ -553,8 +557,8 @@ class Axes(_AxesBase):
         """
         Add a second x-axis to this `~.axes.Axes`.
 
-        For example if we want to have a second scale for the data plotted on
-        the xaxis.
+        This axis is typically used to display a second x-scale for the data
+        plotted on the Axes.
 
         %(_secax_docstring)s
 
@@ -607,8 +611,8 @@ class Axes(_AxesBase):
         """
         Add a second y-axis to this `~.axes.Axes`.
 
-        For example if we want to have a second scale for the data plotted on
-        the yaxis.
+        This axis is typically used to display a second y-scale for the data
+        plotted on the Axes.
 
         %(_secax_docstring)s
 
@@ -1994,7 +1998,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` property, optional
+        linestyle : :mpltype:`linestyle`, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -2074,7 +2078,7 @@ class Axes(_AxesBase):
 
         Other Parameters
         ----------------
-        linestyle : `~matplotlib.lines.Line2D` property, optional
+        linestyle : :mpltype:`linestyle`, optional
             The linestyle for plotting the data points.
             Only used if *usevlines* is ``False``.
 
@@ -2239,13 +2243,10 @@ class Axes(_AxesBase):
             except (TypeError, IndexError, KeyError):
                 x = xconv
 
-            delist = False
-            if not np.iterable(dx):
-                dx = [dx]
-                delist = True
-            dx = [convert(x0 + ddx) - x for ddx in dx]
-            if delist:
-                dx = dx[0]
+            if np.iterable(dx):
+                dx = [convert(x0 + ddx) - x for ddx in dx]
+            else:
+                dx = convert(x0 + dx) - x
         except (ValueError, TypeError, AttributeError):
             # if the above fails (for any reason) just fallback to what
             # we do by default and convert dx by itself.
@@ -2387,11 +2388,13 @@ class Axes(_AxesBase):
 
         label : str or list of str, optional
             A single label is attached to the resulting `.BarContainer` as a
-            label for the whole dataset.
+            legend label for the whole dataset.
             If a list is provided, it must be the same length as *x* and
             labels the individual bars. Repeated labels are not de-duplicated
             and will cause repeated label entries, so this is best used when
-            bars also differ in style (e.g., by passing a list to *color*.)
+            bars also differ in style (e.g., by passing a list to *color*).
+
+            Tip: Use `.bar_label` to place labels on the bars.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
@@ -2404,11 +2407,16 @@ class Axes(_AxesBase):
               errors.
             - *None*: No errorbar. (Default)
 
-            See :doc:`/gallery/statistics/errorbar_features` for an example on
+            This is a convenience shortcut for an extra `~.axes.Axes.errorbar`
+            call. See its documentation and
+            :doc:`/gallery/statistics/errorbar_features` for an example on
             the usage of *xerr* and *yerr*.
 
         ecolor : :mpltype:`color` or list of :mpltype:`color`, default: 'black'
             The line color of the errorbars.
+            Multiple colors are only supported if the errorbars do not have
+            caps. If you need individually colored errorbars with caps, instead
+            use explicit `~.axes.Axes.errorbar` calls for each data point.
 
         capsize : float, default: :rc:`errorbar.capsize`
            The length of the error bar caps in points.
@@ -2432,6 +2440,7 @@ class Axes(_AxesBase):
         --------
         barh : Plot a horizontal bar plot.
         grouped_bar : Plot multiple datasets as grouped bar plot.
+        bar_label : Add labels to bars.
 
         Notes
         -----
@@ -2727,11 +2736,13 @@ class Axes(_AxesBase):
 
         label : str or list of str, optional
             A single label is attached to the resulting `.BarContainer` as a
-            label for the whole dataset.
-            If a list is provided, it must be the same length as *y* and
+            legend label for the whole dataset.
+            If a list is provided, it must be the same length as *x* and
             labels the individual bars. Repeated labels are not de-duplicated
             and will cause repeated label entries, so this is best used when
-            bars also differ in style (e.g., by passing a list to *color*.)
+            bars also differ in style (e.g., by passing a list to *color*).
+
+            Tip: Use `.bar_label` to place labels on the bars.
 
         xerr, yerr : float or array-like of shape(N,) or shape(2, N), optional
             If not *None*, add horizontal / vertical errorbars to the bar tips.
@@ -2772,6 +2783,7 @@ class Axes(_AxesBase):
         See Also
         --------
         bar : Plot a vertical bar plot.
+        bar_label : Add labels to bars.
 
         Notes
         -----
@@ -2893,10 +2905,8 @@ class Axes(_AxesBase):
 
             if orientation == "vertical":
                 extrema = max(y0, y1) if dat >= 0 else min(y0, y1)
-                length = abs(y0 - y1)
             else:  # horizontal
                 extrema = max(x0, x1) if dat >= 0 else min(x0, x1)
-                length = abs(x0 - x1)
 
             if err is None or np.size(err) == 0:
                 endpt = extrema
@@ -2904,11 +2914,6 @@ class Axes(_AxesBase):
                 endpt = err[:, 1].max() if dat >= 0 else err[:, 1].min()
             else:  # horizontal
                 endpt = err[:, 0].max() if dat >= 0 else err[:, 0].min()
-
-            if label_type == "center":
-                value = sign(dat) * length
-            else:  # edge
-                value = extrema
 
             if label_type == "center":
                 xy = (0.5, 0.5)
@@ -2952,9 +2957,9 @@ class Axes(_AxesBase):
 
             if lbl is None:
                 if isinstance(fmt, str):
-                    lbl = cbook._auto_format_str(fmt, value)
+                    lbl = cbook._auto_format_str(fmt, dat)
                 elif callable(fmt):
-                    lbl = fmt(value)
+                    lbl = fmt(dat)
                 else:
                     raise TypeError("fmt must be a str or callable")
             annotation = self.annotate(lbl,
@@ -3022,15 +3027,20 @@ class Axes(_AxesBase):
             [("x", xdata), ("y", ydata)], kwargs, convert=False)
 
         vertices = []
-        y0, dy = yrange
+        ypos, height = yrange
+
+        # Unit conversion: handling of the difference quantity height is done through
+        # _convert_dx() in the same way as width handling in bar().
+        y0 = self.convert_yunits(ypos)
+        dy = self._convert_dx(height, ypos, np.array(y0), self.convert_yunits)
 
         _api.check_in_list(['bottom', 'center', 'top'], align=align)
         if align == "bottom":
-            y0, y1 = self.convert_yunits((y0, y0 + dy))
+            y1 = y0 + dy
         elif align == "center":
-            y0, y1 = self.convert_yunits((y0 - dy/2, y0 + dy/2))
+            y0, y1 = y0 - dy / 2, y0 + dy / 2
         else:
-            y0, y1 = self.convert_yunits((y0 - dy, y0))
+            y0, y1 = y0 - dy, y0
 
         for xr in xranges:  # convert the absolute values, not the x and dx
             try:
@@ -3192,6 +3202,16 @@ or pandas.DataFrame
 
         **kwargs : `.Rectangle` properties
 
+            Properties applied to all bars. The following properties additionally
+            accept a sequence of values corresponding to the datasets in
+            *heights*:
+
+            - *edgecolor*
+            - *facecolor*
+            - *linewidth*
+            - *linestyle*
+            - *hatch*
+
             %(Rectangle:kwdoc)s
 
         Returns
@@ -3318,6 +3338,8 @@ or pandas.DataFrame
             # TODO: do we want to be more restrictive and check lengths?
             colors = itertools.cycle(colors)
 
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
+
         bar_width = (group_distance /
                      (num_datasets + (num_datasets - 1) * bar_spacing + group_spacing))
         bar_spacing_abs = bar_spacing * bar_width
@@ -3331,15 +3353,16 @@ or pandas.DataFrame
         # place the bars, but only use numerical positions, categorical tick labels
         # are handled separately below
         bar_containers = []
-        for i, (hs, label, color) in enumerate(zip(heights, labels, colors)):
+        for i, (hs, label, color, styles) in enumerate(zip(heights, labels, colors,
+                                                           style_gen)):
             lefts = (group_centers - 0.5 * group_distance + margin_abs
                      + i * (bar_width + bar_spacing_abs))
             if orientation == "vertical":
                 bc = self.bar(lefts, hs, width=bar_width, align="edge",
-                              label=label, color=color, **kwargs)
+                              label=label, color=color, **styles, **kwargs)
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
-                               label=label, color=color, **kwargs)
+                               label=label, color=color, **styles, **kwargs)
             bar_containers.append(bc)
 
         if tick_labels is not None:
@@ -3512,13 +3535,13 @@ or pandas.DataFrame
         self.add_container(stem_container)
         return stem_container
 
-    @_api.make_keyword_only("3.10", "explode")
-    @_preprocess_data(replace_names=["x", "explode", "labels", "colors"])
-    def pie(self, x, explode=None, labels=None, colors=None,
-            autopct=None, pctdistance=0.6, shadow=False, labeldistance=1.1,
-            startangle=0, radius=1, counterclock=True,
-            wedgeprops=None, textprops=None, center=(0, 0),
-            frame=False, rotatelabels=False, *, normalize=True, hatch=None):
+    @_preprocess_data(replace_names=["x", "explode", "labels", "colors",
+                                     "wedge_labels"])
+    def pie(self, x, *, explode=None, labels=None, colors=None, wedge_labels=None,
+            wedge_label_distance=0.6, autopct=None, pctdistance=0.6, shadow=False,
+            labeldistance=_UNSET, startangle=0, radius=1, counterclock=True,
+            wedgeprops=None, textprops=None, center=(0, 0), frame=False,
+            rotatelabels=False, normalize=True, hatch=None):
         """
         Plot a pie chart.
 
@@ -3538,7 +3561,13 @@ or pandas.DataFrame
             of the radius with which to offset each wedge.
 
         labels : list, default: None
-            A sequence of strings providing the labels for each wedge
+            A sequence of strings providing the legend labels for each wedge.
+
+            .. deprecated:: 3.12
+                In future these labels will not appear on the wedges but only
+                be made available for the legend (see *labeldistance* below).
+                To place labels on the wedges, use *wedge_labels* or the
+                `pie_label` method.
 
         colors : :mpltype:`color` or list of :mpltype:`color`, default: None
             A sequence of colors through which the pie chart will cycle.  If
@@ -3551,11 +3580,34 @@ or pandas.DataFrame
 
             .. versionadded:: 3.7
 
+        wedge_labels : str or list of str, optional
+            A sequence of strings providing the labels for each wedge, or a format
+            string with ``absval`` and/or ``frac`` placeholders.  For example, to label
+            each wedge with its value and the percentage in brackets::
+
+                wedge_labels="{absval:d} ({frac:.0%})"
+
+            For more control or to add multiple sets of labels, use `pie_label`
+            instead.
+
+            .. versionadded:: 3.12
+
+        wedge_label_distance : float, default: 0.6
+            The radial position of the wedge labels, relative to the pie radius.
+            Values > 1 are outside the wedge and values < 1 are inside the wedge.
+
+            .. versionadded:: 3.12
+
         autopct : None or str or callable, default: None
             If not *None*, *autopct* is a string or function used to label the
             wedges with their numeric value. The label will be placed inside
             the wedge. If *autopct* is a format string, the label will be
             ``fmt % pct``. If *autopct* is a function, then it will be called.
+
+            .. admonition:: Discouraged
+
+                Consider using the *wedge_labels* parameter or `pie_label`
+                method instead.
 
         pctdistance : float, default: 0.6
             The relative distance along the radius at which the text
@@ -3568,6 +3620,11 @@ or pandas.DataFrame
             drawn. To draw the labels inside the pie, set  *labeldistance* < 1.
             If set to ``None``, labels are not drawn but are still stored for
             use in `.legend`.
+
+            .. deprecated:: 3.12
+                From v3.14 *labeldistance* will default to ``None`` and will
+                later be removed altogether.  Use *wedge_labels* and
+                *wedge_label_distance* or the `pie_label` method instead.
 
         shadow : bool or dict, default: False
             If bool, whether to draw a shadow beneath the pie. If dict, draw a shadow
@@ -3594,7 +3651,7 @@ or pandas.DataFrame
             keywords, properties passed to *wedgeprops* take precedence.
 
         textprops : dict, default: None
-            Dict of arguments to pass to the text objects.
+            Dict of arguments to pass to the `.Text` objects.
 
         center : (float, float), default: (0, 0)
             The coordinates of the center of the chart.
@@ -3615,15 +3672,11 @@ or pandas.DataFrame
 
         Returns
         -------
-        patches : list
-            A sequence of `matplotlib.patches.Wedge` instances
+        `.PieContainer`
+            Container with all the wedge patches and any associated text objects.
 
-        texts : list
-            A list of the label `.Text` instances.
-
-        autotexts : list
-            A list of `.Text` instances for the numeric labels. This will only
-            be returned if the parameter *autopct* is not *None*.
+        .. versionchanged:: 3.11
+           Previously the wedges and texts were returned in a tuple.
 
         Notes
         -----
@@ -3633,9 +3686,7 @@ or pandas.DataFrame
         The Axes aspect ratio can be controlled with `.Axes.set_aspect`.
         """
         self.set_aspect('equal')
-        # The use of float32 is "historical", but can't be changed without
-        # regenerating the test baselines.
-        x = np.asarray(x, np.float32)
+        x = np.asarray(x)
         if x.ndim > 1:
             raise ValueError("x must be 1D")
 
@@ -3651,11 +3702,38 @@ or pandas.DataFrame
             raise ValueError('All wedge sizes are zero')
 
         if normalize:
-            x = x / sx
+            fracs = x / sx
         elif sx > 1:
             raise ValueError('Cannot plot an unnormalized pie with sum(x) > 1')
+        else:
+            fracs = x
+
+        if labeldistance is _UNSET:
+            # NB: when the labeldistance default changes, both labeldistance and
+            # rotatelabels should be deprecated for removal.
+            if labels is not None:
+                msg = (
+                    "From %(removal)s labeldistance will default to None, so that the "
+                    "strings provided in the labels parameter are only available for "
+                    "the legend.  Later labeldistance will be removed completely.  To "
+                    "preserve existing behavior for now, pass labeldistance=1.1.  "
+                    "Consider using the wedge_labels parameter or the pie_label method "
+                    "instead of the labels parameter."
+                    )
+                _api.warn_deprecated("3.12", message=msg)
+            labeldistance = 1.1
+
         if labels is None:
             labels = [''] * len(x)
+        else:
+            if wedge_labels is not None and labeldistance is not None:
+                raise ValueError(
+                    'wedge_labels is a replacement for labels when annotating the '
+                    'wedges, so the two should not be used together unless '
+                    'labeldistance is None.  To add multiple sets of labels, use the '
+                    'pie_label method.'
+                    )
+
         if explode is None:
             explode = [0] * len(x)
         if len(x) != len(labels):
@@ -3681,21 +3759,17 @@ or pandas.DataFrame
 
         if wedgeprops is None:
             wedgeprops = {}
-        if textprops is None:
-            textprops = {}
 
-        texts = []
         slices = []
-        autotexts = []
 
-        for frac, label, expl in zip(x, labels, explode):
-            x, y = center
+        for frac, label, expl in zip(fracs, labels, explode):
+            x_pos, y_pos = center
             theta2 = (theta1 + frac) if counterclock else (theta1 - frac)
             thetam = 2 * np.pi * 0.5 * (theta1 + theta2)
-            x += expl * math.cos(thetam)
-            y += expl * math.sin(thetam)
+            x_pos += expl * math.cos(thetam)
+            y_pos += expl * math.sin(thetam)
 
-            w = mpatches.Wedge((x, y), radius, 360. * min(theta1, theta2),
+            w = mpatches.Wedge((x_pos, y_pos), radius, 360. * min(theta1, theta2),
                                360. * max(theta1, theta2),
                                facecolor=get_next_color(),
                                hatch=next(hatch_cycle),
@@ -3713,28 +3787,33 @@ or pandas.DataFrame
                     shadow_dict.update(shadow)
                 self.add_patch(mpatches.Shadow(w, **shadow_dict))
 
-            if labeldistance is not None:
-                xt = x + labeldistance * radius * math.cos(thetam)
-                yt = y + labeldistance * radius * math.sin(thetam)
-                label_alignment_h = 'left' if xt > 0 else 'right'
-                label_alignment_v = 'center'
-                label_rotation = 'horizontal'
-                if rotatelabels:
-                    label_alignment_v = 'bottom' if yt > 0 else 'top'
-                    label_rotation = (np.rad2deg(thetam)
-                                      + (0 if xt > 0 else 180))
-                t = self.text(xt, yt, label,
-                              clip_on=False,
-                              horizontalalignment=label_alignment_h,
-                              verticalalignment=label_alignment_v,
-                              rotation=label_rotation,
-                              size=mpl.rcParams['xtick.labelsize'])
-                t.set(**textprops)
-                texts.append(t)
+            theta1 = theta2
 
-            if autopct is not None:
-                xt = x + pctdistance * radius * math.cos(thetam)
-                yt = y + pctdistance * radius * math.sin(thetam)
+        pc = PieContainer(slices, x, normalize)
+
+        if wedge_labels is not None:
+            self.pie_label(pc, wedge_labels, distance=wedge_label_distance,
+                           textprops=textprops)
+
+        elif labeldistance is None:
+            # Insert an empty list of texts for backwards compatibility of the
+            # return value.
+            pc.add_texts([])
+
+        if labeldistance is not None:
+            # Add labels to the wedges.
+            labels_textprops = {
+                'fontsize': mpl.rcParams['xtick.labelsize'],
+                **cbook.normalize_kwargs(textprops or {}, Text)
+            }
+            self.pie_label(pc, labels, distance=labeldistance,
+                           alignment='outer', rotate=rotatelabels,
+                           textprops=labels_textprops)
+
+        if autopct is not None:
+            # Add automatic percentage labels to wedges
+            auto_labels = []
+            for frac in fracs:
                 if isinstance(autopct, str):
                     s = autopct % (100. * frac)
                 elif callable(autopct):
@@ -3742,17 +3821,15 @@ or pandas.DataFrame
                 else:
                     raise TypeError(
                         'autopct must be callable or a format string')
-                if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                if textprops is not None and mpl._val_or_rc(textprops.get("usetex"),
+                                                            "text.usetex"):
                     # escape % (i.e. \%) if it is not already escaped
                     s = re.sub(r"([^\\])%", r"\1\\%", s)
-                t = self.text(xt, yt, s,
-                              clip_on=False,
-                              horizontalalignment='center',
-                              verticalalignment='center')
-                t.set(**textprops)
-                autotexts.append(t)
+                auto_labels.append(s)
 
-            theta1 = theta2
+            self.pie_label(pc, auto_labels, distance=pctdistance,
+                           alignment='center',
+                           textprops=textprops)
 
         if frame:
             self._request_autoscale_view()
@@ -3761,10 +3838,106 @@ or pandas.DataFrame
                      xlim=(-1.25 + center[0], 1.25 + center[0]),
                      ylim=(-1.25 + center[1], 1.25 + center[1]))
 
-        if autopct is None:
-            return slices, texts
-        else:
-            return slices, texts, autotexts
+        return pc
+
+    def pie_label(self, container, /, labels, *, distance=0.6,
+                  textprops=None, rotate=False, alignment='auto'):
+        """
+        Label a pie chart.
+
+        .. versionadded:: 3.11
+
+        Adds labels to wedges in the given `.PieContainer`.
+
+        Parameters
+        ----------
+        container : `.PieContainer`
+            Container with all the wedges, likely returned from `.pie`.
+
+        labels : str or list of str
+            A sequence of strings providing the labels for each wedge, or a format
+            string with ``absval`` and/or ``frac`` placeholders.  For example, to label
+            each wedge with its value and the percentage in brackets::
+
+                wedge_labels="{absval:d} ({frac:.0%})"
+
+        distance : float, default: 0.6
+            The radial position of the labels, relative to the pie radius. Values > 1
+            are outside the wedge and values < 1 are inside the wedge.
+
+        textprops : dict, default: None
+            Dict of arguments to pass to the `.Text` objects.
+
+        rotate : bool, default: False
+            Rotate each label to the angle of the corresponding slice if true.
+
+        alignment : {'center', 'outer', 'auto'}, default: 'auto'
+            Controls the horizontal alignment of the text objects relative to their
+            nominal position.
+
+            - 'center': The labels are centered on their points.
+            - 'outer': Labels are aligned away from the center of the pie, i.e., labels
+              on the left side of the pie are right-aligned and labels on the right
+              side are left-aligned.
+            - 'auto': Translates to 'outer' if *distance* > 1 (so that the labels do not
+              overlap the wedges) and 'center' if *distance* < 1.
+
+            If *rotate* is True, the vertical alignment is also affected in an
+            analogous way.
+
+            - 'center': The labels are centered on their points.
+            - 'outer': Labels are aligned away from the center of the pie, i.e., labels
+              on the top half of the pie are bottom-aligned and labels on the bottom
+              half are top-aligned.
+
+        Returns
+        -------
+        list
+            A list of the label `.Text` instances.
+        """
+        _api.check_in_list(['center', 'outer', 'auto'], alignment=alignment)
+        if alignment == 'auto':
+            alignment = 'outer' if distance > 1 else 'center'
+
+        if textprops is None:
+            textprops = {}
+
+        if isinstance(labels, str):
+            # Assume we have a format string
+            labels = [labels.format(absval=val, frac=frac) for val, frac in
+                      zip(container.values, container.fracs)]
+            if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
+                # escape % (i.e. \%) if it is not already escaped
+                labels = [re.sub(r"([^\\])%", r"\1\\%", s) for s in labels]
+        elif (nw := len(container.wedges)) != (nl := len(labels)):
+            raise ValueError(
+                f'The number of labels ({nl}) must match the number of wedges ({nw})')
+
+        texts = []
+
+        for wedge, label in zip(container.wedges, labels):
+            thetam = 2 * np.pi * 0.5 * (wedge.theta1 + wedge.theta2) / 360
+            xt = wedge.center[0] + distance * wedge.r * math.cos(thetam)
+            yt = wedge.center[1] + distance * wedge.r * math.sin(thetam)
+            if alignment == 'outer':
+                label_alignment_h = 'left' if xt > 0 else 'right'
+            else:
+                label_alignment_h = 'center'
+            label_alignment_v = 'center'
+            label_rotation = 'horizontal'
+            if rotate:
+                if alignment == 'outer':
+                    label_alignment_v = 'bottom' if yt > 0 else 'top'
+                label_rotation = (np.rad2deg(thetam) + (0 if xt > 0 else 180))
+            t = self.text(xt, yt, label, clip_on=False, rotation=label_rotation,
+                          horizontalalignment=label_alignment_h,
+                          verticalalignment=label_alignment_v)
+            t.set(**textprops)
+            texts.append(t)
+
+        container.add_texts(texts)
+
+        return texts
 
     @staticmethod
     def _errorevery_to_mask(x, errorevery):
@@ -3854,11 +4027,8 @@ or pandas.DataFrame
             The linewidth of the errorbar lines. If None, the linewidth of
             the current style is used.
 
-        elinestyle : str or tuple, default: 'solid'
+        elinestyle : :mpltype:`linestyle`, default: 'solid'
            The linestyle of the errorbar lines.
-           Valid values for linestyles include {'-', '--', '-.',
-            ':', '', (offset, on-off-seq)}. See `.Line2D.set_linestyle` for a
-            complete description.
 
         capsize : float, default: :rc:`errorbar.capsize`
             The length of the error bar caps in points.
@@ -4051,6 +4221,7 @@ or pandas.DataFrame
 
         # Make the style dict for the line collections (the bars).
         eb_lines_style = {**base_style, 'color': ecolor}
+        elinewidth = mpl._val_or_rc(elinewidth, "errorbar.elinewidth")
 
         if elinewidth is not None:
             eb_lines_style['linewidth'] = elinewidth
@@ -4067,6 +4238,8 @@ or pandas.DataFrame
         # Make the style dict for caps (the "hats").
         eb_cap_style = {**base_style, 'linestyle': 'none'}
         capsize = mpl._val_or_rc(capsize, "errorbar.capsize")
+        capthick = mpl._val_or_rc(capthick, "errorbar.capthick")
+
         if capsize > 0:
             eb_cap_style['markersize'] = 2. * capsize
         if capthick is not None:
@@ -4190,7 +4363,6 @@ or pandas.DataFrame
 
     @_api.make_keyword_only("3.10", "notch")
     @_preprocess_data()
-    @_api.rename_parameter("3.9", "labels", "tick_labels")
     def boxplot(self, x, notch=None, sym=None, vert=None,
                 orientation='vertical', whis=None, positions=None,
                 widths=None, patch_artist=None, bootstrap=None,
@@ -4223,10 +4395,12 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        x : Array or a sequence of vectors.
-            The input data.  If a 2D array, a boxplot is drawn for each column
-            in *x*.  If a sequence of 1D arrays, a boxplot is drawn for each
-            array in *x*.
+        x : 1D array or sequence of 1D arrays or 2D array
+            The input data. Possible values:
+
+            - 1D array: A single box is drawn.
+            - sequence of 1D arrays: A box is drawn for each array in the sequence.
+            - 2D array: A box is drawn for each column in the array.
 
         notch : bool, default: :rc:`boxplot.notch`
             Whether to draw a notched boxplot (`True`), or a rectangular
@@ -4330,8 +4504,7 @@ or pandas.DataFrame
             values.
 
             .. versionchanged:: 3.9
-                Renamed from *labels*, which is deprecated since 3.9
-                and will be removed in 3.11.
+                Renamed from *labels*, which is also removed in 3.11.
 
         manage_ticks : bool, default: True
             If True, the tick locations and labels will be adjusted to match
@@ -5220,12 +5393,12 @@ or pandas.DataFrame
             s = (20 if mpl.rcParams['_internal.classic_mode'] else
                  mpl.rcParams['lines.markersize'] ** 2.0)
         s = np.ma.ravel(s)
-        if (len(s) not in (1, x.size) or
-                (not np.issubdtype(s.dtype, np.floating) and
-                 not np.issubdtype(s.dtype, np.integer))):
-            raise ValueError(
-                "s must be a scalar, "
-                "or float array-like with the same size as x and y")
+        if not (np.issubdtype(s.dtype, np.floating)
+                or np.issubdtype(s.dtype, np.integer)):
+            raise ValueError(f"s must be float, but has type {s.dtype}")
+        if len(s) not in (1, x.size):
+            raise ValueError(f"s (size {len(s)}) cannot be broadcast "
+                             f"to match x and y (size {len(x)})")
 
         # get the original edgecolor the user passed before we normalize
         orig_edgecolor = edgecolors
@@ -5271,7 +5444,7 @@ or pandas.DataFrame
         if not marker_obj.is_filled():
             if orig_edgecolor is not None:
                 _api.warn_external(
-                    f"You passed a edgecolor/edgecolors ({orig_edgecolor!r}) "
+                    f"You passed an edgecolor/edgecolors ({orig_edgecolor!r}) "
                     f"for an unfilled marker ({marker!r}).  Matplotlib is "
                     "ignoring the edgecolor in favor of the facecolor.  This "
                     "behavior may change in the future."
@@ -5420,8 +5593,9 @@ or pandas.DataFrame
             - If *None*, no binning is applied; the color of each hexagon
               directly corresponds to its count value.
             - If 'log', use a logarithmic scale for the colormap.
-              Internally, :math:`log_{10}(i+1)` is used to determine the
+              Internally, :math:`log_{10}(i)` is used to determine the
               hexagon color. This is equivalent to ``norm=LogNorm()``.
+              Note that 0 counts are thus marked with the "bad" color.
             - If an integer, divide the counts in the specified number
               of bins, and color the hexagons accordingly.
             - If a sequence of values, the values of the lower bound of
@@ -5559,8 +5733,8 @@ or pandas.DataFrame
             ymin, ymax = (ty.min(), ty.max()) if len(y) else (0, 1)
 
             # to avoid issues with singular data, expand the min/max pairs
-            xmin, xmax = mtransforms.nonsingular(xmin, xmax, expander=0.1)
-            ymin, ymax = mtransforms.nonsingular(ymin, ymax, expander=0.1)
+            xmin, xmax = mtransforms._nonsingular(xmin, xmax, expander=0.1)
+            ymin, ymax = mtransforms._nonsingular(ymin, ymax, expander=0.1)
 
         nx1 = nx + 1
         ny1 = ny + 1
@@ -6060,6 +6234,11 @@ or pandas.DataFrame
             - (M, N): an image with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
+            - a (K, M, N) scalar array or a structured (M, N) array with K fields.
+              The K channels are mapped to colors using a `.MultiNorm` and a
+              `.BivarColormap` (K=2) or K-component `.MultivarColormap`.
+              This input option is only available when a `.BivarColormap` or
+              `.MultivarColormap` is provided to the *cmap* keyword argument.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6069,15 +6248,16 @@ or pandas.DataFrame
 
             Out-of-range RGB(A) values are clipped.
 
-        %(cmap_doc)s
+
+        %(multi_cmap_doc)s
+
+            Scalar colormaps are ignored if *X* is RGB(A).
+
+        %(multi_norm_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
-        %(norm_doc)s
-
-            This parameter is ignored if *X* is RGB(A).
-
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
             This parameter is ignored if *X* is RGB(A).
 
@@ -6155,6 +6335,10 @@ or pandas.DataFrame
 
             See :doc:`/gallery/images_contours_and_fields/image_antialiasing` for
             a discussion of image antialiasing.
+
+            When using a `~matplotlib.colors.BivarColormap` or
+            `~matplotlib.colors.MultivarColormap`, 'data' is the only valid
+            interpolation_stage.
 
         alpha : float or array-like, optional
             The alpha blending value, between 0 (transparent) and 1 (opaque).
@@ -6261,6 +6445,7 @@ or pandas.DataFrame
         if aspect is not None:
             self.set_aspect(aspect)
 
+        X = mcolorizer._ensure_multivariate_data(X, im.norm.n_components)
         im.set_data(X)
         im.set_alpha(alpha)
         if im.get_clip_path() is None:
@@ -6416,9 +6601,23 @@ or pandas.DataFrame
 
         Parameters
         ----------
-        C : 2D array-like
-            The color-mapped values.  Color-mapping is controlled by *cmap*,
-            *norm*, *vmin*, and *vmax*.
+        C : 2D or 3D array-like
+            The mesh data. Supported array shapes are:
+
+            - (M, N) or M*N: a mesh with scalar data. The values are mapped to
+              colors using normalization and a colormap. See parameters *norm*,
+              *cmap*, *vmin*, *vmax*.
+            - a (K, M, N) scalar array or a structured (M, N) array with K fields.
+              The K channels are mapped to colors using a `.MultiNorm` and a
+              `.BivarColormap` (K=2) or K-component `.MultivarColormap`.
+              This input option is only available when a `.BivarColormap` or
+              `.MultivarColormap` is provided to the *cmap* keyword argument.
+            - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
+            - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
+              i.e. including transparency.
+
+            The first two dimensions (M, N) define the rows and columns of
+            the mesh data.
 
         X, Y : array-like, optional
             The coordinates of the corners of quadrilaterals of a pcolormesh::
@@ -6434,13 +6633,11 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, and the quadrilateral is colored due
-            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
-            dimensions, a warning will be raised and the last row and column
-            of *C* will be ignored.
+            greater than those of *C*, otherwise a TypeError is raised.  The
+            quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'``, the dimensions of *X* and *Y* should be
-            the same as those of *C* (if not, a ValueError will be raised). The
+            the same as those of *C* (if not, a TypeError will be raised). The
             color ``C[i, j]`` will be centered on ``(X[i, j], Y[i, j])``.
 
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
@@ -6453,9 +6650,7 @@ or pandas.DataFrame
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
               ``C[i, j]``. The dimensions of *X* and *Y* should be
-              one greater than those of *C*; if they are the same as *C*,
-              then a deprecation warning is raised, and the last row
-              and column of *C* are dropped.
+              one greater than those of *C*.
             - 'nearest': Each grid point will have a color centered on it,
               extending halfway between the adjacent grid centers.  The
               dimensions of *X* and *Y* must be the same as *C*.
@@ -6465,11 +6660,11 @@ or pandas.DataFrame
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
         %(colorizer_doc)s
 
@@ -6544,8 +6739,19 @@ or pandas.DataFrame
         if shading is None:
             shading = mpl.rcParams['pcolor.shading']
         shading = shading.lower()
-        X, Y, C, shading = self._pcolorargs('pcolor', *args, shading=shading,
-                                            kwargs=kwargs)
+
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin, vmax=vmax,
+                                                                 norm=norm, cmap=cmap)
+        if colorizer is None:
+            colorizer = mcolorizer.Colorizer(cmap=cmap, norm=norm)
+
+        C = mcolorizer._ensure_multivariate_data(args[-1],
+                                                 colorizer.cmap.n_variates)
+
+        X, Y, C, shading = self._pcolorargs('pcolor', *args[:-1], C,
+                                            shading=shading, kwargs=kwargs)
+
         linewidths = (0.25,)
         if 'linewidth' in kwargs:
             kwargs['linewidths'] = kwargs.pop('linewidth')
@@ -6580,9 +6786,7 @@ or pandas.DataFrame
         coords = stack([X, Y], axis=-1)
 
         collection = mcoll.PolyQuadMesh(
-            coords, array=C, cmap=cmap, norm=norm, colorizer=colorizer,
-            alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            coords, array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
@@ -6620,6 +6824,11 @@ or pandas.DataFrame
             - (M, N) or M*N: a mesh with scalar data. The values are mapped to
               colors using normalization and a colormap. See parameters *norm*,
               *cmap*, *vmin*, *vmax*.
+            - a (K, M, N) scalar array or a structured (M, N) array with K fields.
+              The K channels are mapped to colors using a `.MultiNorm` and a
+              `.BivarColormap` (K=2) or K-component `.MultivarColormap`.
+              This input option is only available when a `.BivarColormap` or
+              `.MultivarColormap` is provided to the *cmap* keyword argument.
             - (M, N, 3): an image with RGB values (0-1 float or 0-255 int).
             - (M, N, 4): an image with RGBA values (0-1 float or 0-255 int),
               i.e. including transparency.
@@ -6641,13 +6850,11 @@ or pandas.DataFrame
             :ref:`Notes <axes-pcolormesh-grid-orientation>` section below.
 
             If ``shading='flat'`` the dimensions of *X* and *Y* should be one
-            greater than those of *C*, and the quadrilateral is colored due
-            to the value at ``C[i, j]``.  If *X*, *Y* and *C* have equal
-            dimensions, a warning will be raised and the last row and column
-            of *C* will be ignored.
+            greater than those of *C*, otherwise a TypeError is raised. The
+            quadrilateral is colored due to the value at ``C[i, j]``.
 
             If ``shading='nearest'`` or ``'gouraud'``, the dimensions of *X*
-            and *Y* should be the same as those of *C* (if not, a ValueError
+            and *Y* should be the same as those of *C* (if not, a TypeError
             will be raised).  For ``'nearest'`` the color ``C[i, j]`` is
             centered on ``(X[i, j], Y[i, j])``.  For ``'gouraud'``, a smooth
             interpolation is carried out between the quadrilateral corners.
@@ -6656,11 +6863,11 @@ or pandas.DataFrame
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
 
-        %(cmap_doc)s
+        %(multi_cmap_doc)s
 
-        %(norm_doc)s
+        %(multi_norm_doc)s
 
-        %(vmin_vmax_doc)s
+        %(multi_vmin_vmax_doc)s
 
         %(colorizer_doc)s
 
@@ -6685,9 +6892,7 @@ or pandas.DataFrame
             - 'flat': A solid color is used for each quad. The color of the
               quad (i, j), (i+1, j), (i, j+1), (i+1, j+1) is given by
               ``C[i, j]``. The dimensions of *X* and *Y* should be
-              one greater than those of *C*; if they are the same as *C*,
-              then a deprecation warning is raised, and the last row
-              and column of *C* are dropped.
+              one greater than those of *C*.
             - 'nearest': Each grid point will have a color centered on it,
               extending halfway between the adjacent grid centers.  The
               dimensions of *X* and *Y* must be the same as *C*.
@@ -6702,9 +6907,12 @@ or pandas.DataFrame
             See :doc:`/gallery/images_contours_and_fields/pcolormesh_grids`
             for more description.
 
-        snap : bool, default: False
+        snap : bool, default: :rc:`pcolormesh.snap`
             Whether to snap the mesh to pixel boundaries.
 
+            .. versionchanged:: 3.4.0
+               The default value changed from *False* to *True* to improve transparency
+               handling. See :ref:`whats-new-3-4-0` for details.
         rasterized : bool, optional
             Rasterize the pcolormesh when drawing vector graphics.  This can
             speed up rendering and produce smaller files for large data sets.
@@ -6783,7 +6991,16 @@ or pandas.DataFrame
         shading = mpl._val_or_rc(shading, 'pcolor.shading').lower()
         kwargs.setdefault('edgecolors', 'none')
 
-        X, Y, C, shading = self._pcolorargs('pcolormesh', *args,
+        mcolorizer.ColorizingArtist._check_exclusionary_keywords(colorizer,
+                                                                 vmin=vmin, vmax=vmax,
+                                                                 norm=norm, cmap=cmap)
+        if colorizer is None:
+            colorizer = mcolorizer.Colorizer(cmap=cmap, norm=norm)
+
+        C = mcolorizer._ensure_multivariate_data(args[-1],
+                                                 colorizer.cmap.n_variates)
+
+        X, Y, C, shading = self._pcolorargs('pcolormesh', *args[:-1], C,
                                             shading=shading, kwargs=kwargs)
         coords = np.stack([X, Y], axis=-1)
 
@@ -6791,8 +7008,7 @@ or pandas.DataFrame
 
         collection = mcoll.QuadMesh(
             coords, antialiased=antialiased, shading=shading,
-            array=C, cmap=cmap, norm=norm, colorizer=colorizer, alpha=alpha, **kwargs)
-        collection._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
+            array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
         coords = coords.reshape(-1, 2)  # flatten the grid structure; keep x, y
@@ -7223,6 +7439,9 @@ or pandas.DataFrame
             Color or sequence of colors, one per dataset.  Default (``None``)
             uses the standard line color sequence.
 
+            .. versionadded:: 3.10
+               It is now possible to use a single color with multiple datasets.
+
         label : str or list of str, optional
             String, or sequence of strings to match multiple datasets.  Bar
             charts yield multiple patches per dataset, but only the first gets
@@ -7306,6 +7525,15 @@ such objects
         x = cbook._reshape_2D(x, 'x')
         nx = len(x)  # number of datasets
 
+        for arr in x:
+            if len(arr) > 0 and isinstance(
+                arr[0], (datetime.timedelta, np.timedelta64)
+            ):
+                raise TypeError(
+                    "Axes.hist does not currently support timedelta inputs. "
+                    "Convert to numeric values  (e.g., .total_seconds()) first."
+                )
+
         # Process unit information.  _process_unit_info sets the unit and
         # converts the first dataset; then we convert each following dataset
         # one at a time.
@@ -7344,6 +7572,8 @@ such objects
         if color is None:
             colors = [self._get_lines.get_next_color() for i in range(nx)]
         else:
+            if mcolors.is_color_like(color):
+                color = [color]*nx
             colors = mcolors.to_rgba_array(color)
             if len(colors) != nx:
                 raise ValueError(f"The 'color' keyword argument must have one "
@@ -7542,38 +7772,15 @@ such objects
         labels = [] if label is None else np.atleast_1d(np.asarray(label, str))
 
         if histtype == "step":
-            ec = kwargs.get('edgecolor', colors)
-        else:
-            ec = kwargs.get('edgecolor', None)
-        if ec is None or cbook._str_lower_equal(ec, 'none'):
-            edgecolors = itertools.repeat(ec)
-        else:
-            edgecolors = itertools.cycle(mcolors.to_rgba_array(ec))
+            kwargs.setdefault('edgecolor', colors)
 
-        fc = kwargs.get('facecolor', colors)
-        if cbook._str_lower_equal(fc, 'none'):
-            facecolors = itertools.repeat(fc)
-        else:
-            facecolors = itertools.cycle(mcolors.to_rgba_array(fc))
-
-        hatches = itertools.cycle(np.atleast_1d(kwargs.get('hatch', None)))
-        linewidths = itertools.cycle(np.atleast_1d(kwargs.get('linewidth', None)))
-        if 'linestyle' in kwargs:
-            linestyles = itertools.cycle(mlines._get_dash_patterns(kwargs['linestyle']))
-        else:
-            linestyles = itertools.repeat(None)
+        kwargs, style_gen = _style_helpers.style_generator(kwargs)
 
         for patch, lbl in itertools.zip_longest(patches, labels):
             if not patch:
                 continue
             p = patch[0]
-            kwargs.update({
-                'hatch': next(hatches),
-                'linewidth': next(linewidths),
-                'linestyle': next(linestyles),
-                'edgecolor': next(edgecolors),
-                'facecolor': next(facecolors),
-            })
+            kwargs.update(next(style_gen))
             p._internal_update(kwargs)
             if lbl is not None:
                 p.set_label(lbl)
@@ -7654,8 +7861,12 @@ such objects
         if edges is None:
             edges = np.arange(len(values) + 1)
 
-        edges, values, baseline = self._process_unit_info(
-            [("x", edges), ("y", values), ("y", baseline)], kwargs)
+        if orientation == "vertical":
+            edges, values, baseline = self._process_unit_info(
+                [("x", edges), ("y", values), ("y", baseline)], kwargs)
+        else:
+            edges, values, baseline = self._process_unit_info(
+                [("y", edges), ("x", values), ("x", baseline)], kwargs)
 
         patch = mpatches.StepPatch(values,
                                    edges,
@@ -7772,13 +7983,15 @@ such objects
 
         Notes
         -----
-        - Currently ``hist2d`` calculates its own axis limits, and any limits
-          previously set are ignored.
-        - Rendering the histogram with a logarithmic color scale is
-          accomplished by passing a `.colors.LogNorm` instance to the *norm*
-          keyword argument. Likewise, power-law normalization (similar
-          in effect to gamma correction) can be accomplished with
-          `.colors.PowerNorm`.
+        Rendering the histogram with a logarithmic color scale is accomplished
+        by passing a `.colors.LogNorm` instance to the *norm* keyword
+        argument. Likewise, power-law normalization (similar in effect to gamma
+        correction) can be accomplished with `.colors.PowerNorm`.
+
+        .. versionchanged:: 3.11
+           Previously, `~.Axes.hist2d` would force the axes limits to match the
+           extents of the histogram; now, autoscaling also takes other plot
+           elements into account.
         """
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
@@ -7790,8 +8003,6 @@ such objects
             h[h > cmax] = None
 
         pc = self.pcolormesh(xedges, yedges, h.T, **kwargs)
-        self.set_xlim(xedges[0], xedges[-1])
-        self.set_ylim(yedges[0], yedges[-1])
 
         return h, xedges, yedges, pc
 
@@ -8184,7 +8395,7 @@ such objects
                                               pad_to=pad_to, sides=sides)
         freqs += Fc
 
-        yunits = _api.check_getitem(
+        yunits = _api.getitem_checked(
             {None: 'energy', 'default': 'energy', 'linear': 'energy',
              'dB': 'dB'},
             scale=scale)
@@ -8743,6 +8954,9 @@ such objects
 
         """
         Z = np.asanyarray(Z)
+        if Z.ndim != 2:
+            if Z.ndim != 3 or Z.shape[2] not in (1, 3, 4):
+                raise TypeError(f"Invalid shape {Z.shape} for image data")
         kw = {'origin': 'upper',
               'interpolation': 'nearest',
               'aspect': 'equal',          # (already the imshow default)
@@ -8774,8 +8988,14 @@ such objects
 
         Parameters
         ----------
-        dataset : Array or a sequence of vectors.
-            The input data.
+        dataset : 1D array or sequence of 1D arrays or 2D array
+            The input data. Possible values:
+
+            - 1D array: A single violin is drawn.
+            - sequence of 1D arrays: A violin is drawn for each array in the sequence.
+            - 2D array: A violin is drawn for each column in the array.
+
+            Non-finite and masked values are ignored.
 
         positions : array-like, default: [1, 2, ..., n]
             The positions of the violins; i.e. coordinates on the x-axis for
@@ -8967,6 +9187,14 @@ such objects
 
             .. versionadded:: 3.11
 
+            For backward compatibility, if *facecolor* is not given, the body
+            will get an Artist-level transparency `alpha <.Artist.set_alpha>`
+            of 0.3, which will persist if you afterwards change the facecolor,
+            e.g. via ``result['bodies'][0].set_facecolor('red')``.
+            If *facecolor* is given, there is no Artist-level transparency.
+            To set transparency for *facecolor* or *edgecolor* use
+            ``(color, alpha)`` tuples.
+
         linecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             If provided, will set the line color(s) of the violins (the
             horizontal and vertical spines and body edges).
@@ -9006,6 +9234,8 @@ such objects
         --------
         violinplot :
             Draw a violin plot from data instead of pre-computed statistics.
+        .cbook.violin_stats:
+            Calculate a *vpstats* dictionary from data, suitable for passing to violin.
         """
 
         # Statistical quantities to be plotted on the violins
@@ -9040,14 +9270,28 @@ such objects
             positions = range(1, N + 1)
         elif len(positions) != N:
             raise ValueError(datashape_message.format("positions"))
-
         # Validate widths
         if np.isscalar(widths):
             widths = [widths] * N
         elif len(widths) != N:
             raise ValueError(datashape_message.format("widths"))
 
-        # Validate side
+        # For usability / better error message:
+        # Validate that datetime-like positions have timedelta-like widths.
+        # Checking only the first element is good enough for standard misuse cases
+        if N > 0:  # No need to validate if there is no data
+            pos0 = positions[0]
+            width0 = widths[0]
+            if (isinstance(pos0, (datetime.datetime, datetime.date))
+                and not isinstance(width0, datetime.timedelta)):
+                raise TypeError(
+                    "datetime/date 'position' values require timedelta 'widths'. "
+                    "For example, use positions=[datetime.date(2024, 1, 1)] "
+                    "and widths=[datetime.timedelta(days=1)].")
+            elif (isinstance(pos0, np.datetime64)
+                and not isinstance(width0, np.timedelta64)):
+                raise TypeError(
+                    "np.datetime64 'position' values require np.timedelta64 'widths'")
         _api.check_in_list(["both", "low", "high"], side=side)
 
         # Calculate ranges for statistics lines (shape (2, N)).
@@ -9072,13 +9316,14 @@ such objects
 
         if facecolor is not None:
             facecolor = cycle_color(facecolor)
+            body_artist_alpha = None
         else:
-            default_facealpha = 0.3
+            body_artist_alpha = 0.3
             # Use default colors if user doesn't provide them
             if mpl.rcParams['_internal.classic_mode']:
-                facecolor = cycle_color('y', alpha=default_facealpha)
+                facecolor = cycle_color('y')
             else:
-                facecolor = cycle_color(next_color, alpha=default_facealpha)
+                facecolor = cycle_color(next_color)
 
         if mpl.rcParams['_internal.classic_mode']:
             # Classic mode uses patch.force_edgecolor=True, so we need to
@@ -9123,11 +9368,13 @@ such objects
         for stats, pos, width, facecolor in bodies_zip:
             # The 0.5 factor reflects the fact that we plot from v-p to v+p.
             vals = np.array(stats['vals'])
-            vals = 0.5 * width * vals / vals.max()
+            if len(vals) > 0:
+                vals = 0.5 * width * vals / vals.max()
             bodies += [fill(stats['coords'],
                             -vals + pos if side in ['both', 'low'] else pos,
                             vals + pos if side in ['both', 'high'] else pos,
-                            facecolor=facecolor, edgecolor=body_edgecolor)]
+                            facecolor=facecolor, edgecolor=body_edgecolor,
+                            alpha=body_artist_alpha)]
             means.append(stats['mean'])
             mins.append(stats['min'])
             maxes.append(stats['max'])

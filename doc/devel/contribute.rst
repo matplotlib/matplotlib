@@ -21,10 +21,9 @@ Ways to contribute
     :open:
     :icon: person-fill
 
-    100% yes! There are so many ways to contribute to our community. Take a look
-    at the following sections to learn more.
-
-    There are a few typical new contributor profiles:
+    Here are a few typical new contributor profiles. If you
+    don't fit into one of them, come talk to us on `Discourse
+    <https://discourse.matplotlib.org/>`_ about how you might contribute.
 
     * **You are a Matplotlib user, and you see a bug, a potential improvement, or
       something that annoys you, and you can fix it.**
@@ -33,7 +32,7 @@ Ways to contribute
       for an existing issue that describes your problem or
       open a new issue to inform us of the problem you observed and discuss the best approach
       to fix it. If your contributions would not be captured on GitHub (social media,
-      communication, educational content), you can also reach out to us on gitter_,
+      communication, educational content), you can also reach out to us on
       `Discourse <https://discourse.matplotlib.org/>`__ or attend any of our `community
       meetings <https://scientific-python.org/calendars>`__.
 
@@ -60,12 +59,14 @@ Ways to contribute
       chance it is a unique context in any given conversation) and make it easier to
       understand where other people are coming from.
 
-      Understanding the entire codebase is a long-term project, and nobody expects
-      you to do this right away. If you are determined to get started with
-      Matplotlib and want to learn, going through the basic functionality,
-      choosing something to focus on (3d, testing, documentation, animations, etc.)
-      and gaining context on this area by reading the issues and pull requests
-      touching these subjects is a reasonable approach.
+      Understanding the entire codebase is a long-term project, and nobody
+      expects you to do this right away. Start by building your experience in
+      using Matplotlib: make complicated visualizations, use niche features,
+      dive deep into one part of the library. This will help you build the
+      context to then look at the existing issues and pull requests. You can
+      then reach out to us at the :ref:`new contributor <new_contributors>`
+      meeting or Discourse channel (incubator) to discuss what you would like
+      to work on.
 
 .. _contribute_code:
 
@@ -163,7 +164,7 @@ we mean by triage are:
 Our triage process is discussed in detail in :ref:`bug_triaging`.
 
 If you have any questions about the process, please reach out on the
-:ref:`contributor_incubator`
+:ref:`contributor_incubator`.
 
 .. _other_ways_to_contribute:
 
@@ -184,17 +185,45 @@ If you have developed an extension to Matplotlib, please consider adding it to o
 
 .. _generative_ai:
 
+Use of Generative AI
+====================
 
-Restrictions on Generative AI Usage
-===================================
+Generative AI tools are evolving rapidly and can be helpful. As with any tool,
+the resulting contribution is the responsibility of the human contributor. We
+expect dedicated and authentic engagement in our community. In particular when
+using AI, carefully consider what and how to communicate, question results,
+think things through thoroughly and make well-informed decisions.
 
-We expect authentic engagement in our community.  Be wary of posting output
-from Large Language Models or similar generative AI as comments on GitHub or
-our discourse server, as such comments tend to be formulaic and low content.
-If you use generative AI tools as an aid in developing code or documentation
-changes, ensure that you fully understand the proposed changes and can explain
-why they are the correct approach and an improvement to the current state.
+Some examples of acceptable and unacceptable AI uses are:
 
+.. grid:: 1 1 2 2
+
+  .. grid-item::
+
+    :octicon:`check;1em;sd-text-success` **Acceptable uses**
+
+    - Gaining understanding of the existing code
+    - Getting solution ideas
+    - Translating or proof-reading your comments or PR descriptions. Please keep
+      the wording as close as possible to your original wording.
+
+  .. grid-item::
+
+    :octicon:`x;1em;sd-text-danger`  **Unacceptable uses**
+
+    - External AI tooling (e.g. bots, agents) directly interacting with the project;
+      including creating issues, PRs or commenting on GitHub or Discourse.
+    - Solving topics that you wouldn't be able to solve yourself without AI
+    - Using AI output without ensuring that you fully understand the output or
+      without verifying that it is the correct approach.
+    - Increasing breadth of contributions, i.e. simultaneously contributing to several
+      projects. Instead of spreading your resources, you can provide greater value
+      by engaging more deeply with one or two projects.
+
+To ensure project health and preserve limited core developer capacity, we will flag
+and reject low-value contributions that we believe are AI generated. We may ban
+and/or report users to GitHub if they harm the project or its community through
+irresponsible use of AI.
 
 .. _new_contributors:
 
@@ -222,8 +251,8 @@ you can browse previous meeting notes on `GitHub
 <https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
 questions you might have, and to get to know a few of the people behind the
-GitHub handles 😉. You can reach out to us on gitter_ for any clarifications or
-suggestions. We ❤ feedback!
+GitHub handles 😉. You can reach out to us on `incubator chat`_ for any
+clarifications or suggestions. We ❤ feedback!
 
 .. _contributor_incubator:
 
@@ -231,41 +260,34 @@ Contributor incubator
 ---------------------
 
 The incubator is our non-public communication channel for new contributors. It
-is a private gitter_ (chat) room moderated by core Matplotlib developers where
-you can get guidance and support for your first few PRs. It's a place where you
-can ask questions about anything: how to use git, GitHub, how our PR review
-process works, technical questions about the code, what makes for good
+is a public chat room on Discourse_ moderated by core Matplotlib developers
+where you can get guidance and support for your first few PRs. It's a place
+where you can ask questions about anything: how to use git, GitHub, how our PR
+review process works, technical questions about the code, what makes for good
 documentation or a blog post, how to get involved in community work, or get a
 "pre-review" on your PR.
 
-To join, please go to our public community_ channel, and ask to be added to
-``#incubator``. One of our core developers will see your message and will add you.
+To join, go to Discourse_ and click on the chat bubble icon next to the search
+icon at the top right of the page. Then, find the "Incubator" channel.
 
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+.. _Discourse: https://discourse.matplotlib.org/
+.. _development chat: https://discourse.matplotlib.org/chat/c/matplotlib/2
+.. _community chat: https://discourse.matplotlib.org/chat/c/community/3
+.. _incubator chat: https://discourse.matplotlib.org/chat/c/incubator/4
 
 .. _good_first_issues:
 
 Good first issues
 -----------------
 
-While any contributions are welcome, we have marked some issues as
-particularly suited for new contributors by the label `good first issue
-<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_. These
-are well documented issues, that do not require a deep understanding of the
-internals of Matplotlib. The issues may additionally be tagged with a
-difficulty. ``Difficulty: Easy`` is suited for people with little Python
-experience. ``Difficulty: Medium`` and ``Difficulty: Hard`` require more
-programming experience. This could be for a variety of reasons, among them,
-though not necessarily all at the same time:
-
-- The issue is in areas of the code base which have more interdependencies,
-  or legacy code.
-- It has less clearly defined tasks, which require some independent
-  exploration, making suggestions, or follow-up discussions to clarify a good
-  path to resolve the issue.
-- It involves Python features such as decorators and context managers, which
-  have subtleties due to our implementation decisions.
+We have marked some issues as `good first issue
+<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ because we
+think they are a good entry point into the process of contributing to Matplotlib. These
+issues are well documented, do not require a deep understanding of the internals of
+Matplotlib, and do not need urgent resolution. Good first issues are intended to onboard
+newcomers with a genuine interest in improving Matplotlib, in the hopes that they will
+continue to participate in our development community; therefore, pull requests that are
+:ref:`AI generated <generative_ai>` will be closed.
 
 .. _first_contribution:
 
@@ -281,7 +303,12 @@ guide you through each step:
    & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
 3. Click on an issue you would like to work on, and check to see if the issue has a pull request opened to resolve it.
 
-   * A good way to judge if you chose a suitable issue is by asking yourself, "Can I independently submit a PR in 1-2 weeks?"
+   * A good way to judge if you chose a suitable issue is by asking yourself, "Can I
+     independently submit a PR in a reasonable time frame?" This should (at most)
+     be a few days for an easy issue. If it takes longer, let us know why.
+   * If you are new to open source, we strongly recommend that you do not choose a
+     complicated issue for your first contribution - please ask in the incubator
+     channel if you need help gauging the complexity of the work.
 4. Check existing pull requests (e.g., :ghpull:`28476`) and filter by the issue number to make sure the issue is not in progress:
 
    * If the issue has a pull request (is in progress), tag the user working on the issue, and ask to collaborate (optional).
@@ -289,6 +316,14 @@ guide you through each step:
 5. Please familiarize yourself with the pull request template (see below),
    and ensure you understand/are able to complete the template when you open your pull request.
    Additional information can be found in the `pull request guidelines <https://matplotlib.org/devdocs/devel/pr_guide.html>`_.
+
+.. important::
+
+  Make sure you finish addressing any review comments on your first PR and wait
+  for it to be merged (or closed) before opening a new one. It can be a valuable
+  learning experience to go through the review process and to get feedback on
+  your contribution, while also helping maintainers spend their time
+  effectively.
 
 .. dropdown:: `Pull request template <https://github.com/matplotlib/matplotlib/blob/main/.github/PULL_REQUEST_TEMPLATE.md>`_
     :open:
@@ -304,12 +339,10 @@ Get connected
 When in doubt, we recommend going together! Get connected with our community of
 active contributors, many of whom felt just like you when they started out and
 are happy to welcome you and support you as you get to know how we work, and
-where things are. You can reach out on any of our :ref:`communication-channels`.
-For development questions we recommend reaching out on our development gitter_
-chat room and for community questions reach out at community_.
-
-.. _gitter: https://gitter.im/matplotlib/matplotlib
-.. _community: https://gitter.im/matplotlib/community
+where things are. You can reach out on any of our :ref:`communication-channels`,
+including the chat space on Discourse_. For development questions we recommend
+reaching out on our `development chat`_ and for community questions reach out at
+the `community chat`_.
 
 .. _managing_issues_prs:
 
@@ -326,6 +359,22 @@ a new PR; duplicate PRs are subject to being closed.  However, if the existing
 PR is an outline, unlikely to work, or stalled, and the original author is
 unresponsive, feel free to open a new PR referencing the old one.
 
+Difficulty
+----------
+Issues may additionally be tagged with a difficulty. ``Difficulty: Easy`` is suitable
+for people with beginner scientific Python experience, i.e. fluency with Python syntax
+and some experience using libraries like Numpy, Pandas, or Xarray. ``Difficulty: Medium``
+and ``Difficulty: Hard`` require more programming experience. This could be for a variety
+of reasons, for example:
+
+- requires understanding intermediate to advanced Python features, such as decorators,
+  context managers, or meta-programming
+- is in areas of the code base which have more interdependencies or is legacy code.
+- involves complex or significant changes to algorithms or architecture.
+
+Generally, the difficulty level is correlated with how much conceptual (and contextual)
+understanding of Matplotlib is required to resolve it.
+
 .. _how-to-pull-request:
 
 Start a pull request
@@ -333,7 +382,7 @@ Start a pull request
 
 The preferred way to contribute to Matplotlib is to fork the `main
 repository <https://github.com/matplotlib/matplotlib/>`__ on GitHub,
-then submit a "pull request" (PR). To work on a a pull request:
+then submit a "pull request" (PR). To work on a pull request:
 
 #. **First** set up a development environment, either by cloning a copy of the
    Matplotlib repository to your own computer or by using Github codespaces, by

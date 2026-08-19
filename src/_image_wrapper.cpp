@@ -1,5 +1,9 @@
 #include <pybind11/pybind11.h>
+#include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #include <algorithm>
 
@@ -86,6 +90,15 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
                 output_mesh_array.ndim()));
     }
 
+    // An undersized mesh would be read out of bounds by the resampler.
+    if (output_mesh_array.shape(0) != mesh_dims[0] ||
+            output_mesh_array.shape(1) != mesh_dims[1]) {
+        throw std::runtime_error(
+            "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})"_s.format(
+                mesh_dims[0], mesh_dims[1],
+                output_mesh_array.shape(0), output_mesh_array.shape(1)));
+    }
+
     return output_mesh_array;
 }
 
@@ -167,7 +180,7 @@ image_resample(py::array input_array,
 
         if (is_affine) {
             convert_trans_affine(transform, params.affine);
-            params.is_affine = true;
+            params.is_affine = is_affine;
         } else {
             transform_mesh = _get_transform_mesh(transform, output_array.shape());
             params.transform_mesh = transform_mesh.data();
@@ -278,9 +291,14 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
 }
 
 
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+PYBIND11_MODULE(_image, m,
+                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
+#else
 PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
+#endif
 {
-    py::enum_<interpolation_e>(m, "_InterpolationType")
+    py::native_enum<interpolation_e>(m, "_InterpolationType", "enum.Enum")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)
         .value("BICUBIC", BICUBIC)
@@ -298,7 +316,8 @@ PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
         .value("SINC", SINC)
         .value("LANCZOS", LANCZOS)
         .value("BLACKMAN", BLACKMAN)
-        .export_values();
+        .export_values()
+        .finalize();
 
     m.def("resample", &image_resample,
         "input_array"_a,

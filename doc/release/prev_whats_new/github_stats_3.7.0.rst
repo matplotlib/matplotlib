@@ -9,14 +9,13 @@ GitHub statistics for 2022/09/16 (tag: v3.6.0) - 2023/02/13
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 120 issues and merged 427 pull requests.
+We closed 136 issues and merged 427 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/70?closed=1>`__
 
-The following 112 authors contributed 1962 commits.
+The following 109 authors contributed 1769 commits.
 
 * Abhijnan Bajpai
 * Adrien F. Vincent
-* Ahoy Ahoy
 * Akshit Tyagi
 * Ali Meshkat
 * Almar Klein
@@ -50,6 +49,7 @@ The following 112 authors contributed 1962 commits.
 * Jae-Joon Lee
 * Jakub Klus
 * James Braza
+* Jan-Hendrik Müller
 * Jay Stanley
 * Jef Myers
 * jeffreypaul15
@@ -65,20 +65,19 @@ The following 112 authors contributed 1962 commits.
 * Kanza
 * Karan
 * Kian Eliasi
-* kolibril13
 * Kostya Farber
 * Krutarth Patel
 * Kyle Sunden
 * Leo Singer
 * Lucas Ricci
 * luke
+* Lumberbot (aka Jack)
 * Marc Van den Bossche
 * Martok
-* Marvvxi
+* Marvin
 * Matthew Feickert
 * Mauricio Collares
-* MeeseeksMachine
-* melissawm
+* Melissa Weber Mendonça
 * Mikhail Ryazanov
 * Muhammad Abdur Rakib
 * noatamir
@@ -93,10 +92,9 @@ The following 112 authors contributed 1962 commits.
 * Pratim Ugale
 * pre-commit-ci[bot]
 * ramvikrams
-* richardsheridan
+* Richard Sheridan
 * Ruth Comer
 * Ryan May
-* saranti
 * Scott Shambaugh
 * Shabnam Sadegh
 * Shawn Zhong
@@ -111,11 +109,10 @@ The following 112 authors contributed 1962 commits.
 * Sven Eschlbeck
 * sveneschlbeck
 * takimata
-* tfpf
 * Thomas A Caswell
 * Tiger Nie
 * Tim Hoffmann
-* Tom
+* Tom Sarantis
 * Tortar
 * tsumli
 * tybeller
@@ -131,6 +128,7 @@ GitHub issues and pull requests:
 
 Pull Requests (427):
 
+* :ghpull:`25194`: 370 final
 * :ghpull:`25201`: Backport PR #25196 on branch v3.7.x (Add deprecation for setting data with non sequence type in ``Line2D``)
 * :ghpull:`25196`: Add deprecation for setting data with non sequence type in ``Line2D``
 * :ghpull:`25197`: Backport PR #25193 on branch v3.7.x (Fix displacement of colorbar for eps with bbox_inches='tight')
@@ -167,7 +165,6 @@ Pull Requests (427):
 * :ghpull:`25106`: Fix cursor_demo wrt. Line2D.set_x/ydata not accepting scalars anymore.
 * :ghpull:`25103`: Backport PR #25098 on branch v3.7.x (Correctly pass valinit as keyword in SliderTool.)
 * :ghpull:`25098`: Correctly pass valinit as keyword in SliderTool.
-* :ghpull:`23442`: Remove need to detect math mode in pgf strings
 * :ghpull:`25093`: Backport PR #25092 on branch v3.7.x (Fix distribution of test data)
 * :ghpull:`24893`: STY: make allowed line length 9 longer to 88 from 79
 * :ghpull:`25092`: Fix distribution of test data
@@ -431,7 +428,6 @@ Pull Requests (427):
 * :ghpull:`24441`: DOC: Fix example for what's new imshow so it isn't cut off or crowded.
 * :ghpull:`24443`: Add valid values to ``get_*axis_transform`` docstring
 * :ghpull:`24440`: DOC: Fix colorbar what's new entry so it isn't cut off.
-* :ghpull:`23787`: Use pybind11 for C/C++ extensions
 * :ghpull:`24247`: Split toolkit tests into their toolkits
 * :ghpull:`24432`: DOC: Fix What's New entry for bar_label() formatting.
 * :ghpull:`23101`: Move show() to somewhere naturally inheritable / document what pyplot expects from a backend.
@@ -457,6 +453,7 @@ Pull Requests (427):
 * :ghpull:`24322`: GOV: change security reporting to use tidelift
 * :ghpull:`24305`: Unify logic of ConnectionStyle._Base.{_clip,_shrink}.
 * :ghpull:`24303`: Simplify generate_fontconfig_pattern.
+* :ghpull:`23119`: Small cleanups to QuiverKey.
 * :ghpull:`24319`: Bump mamba-org/provision-with-micromamba from 13 to 14
 * :ghpull:`24239`: Fix mathtext rendering of ``\|`` and sizing of ``|`` and ``\|``
 * :ghpull:`23606`: added offset section & restructured annotations tutorial
@@ -468,7 +465,7 @@ Pull Requests (427):
 * :ghpull:`24298`: List all the places to update when adding a dependency.
 * :ghpull:`24289`: Cleanup image_zcoord example.
 * :ghpull:`23865`: Add test and example for VBoxDivider
-* :ghpull:`24287`:  Simplifying glyph stream logic in ps backend
+* :ghpull:`24287`: Simplifying glyph stream logic in ps backend
 * :ghpull:`24291`: Rely on builtin round() instead of manual rounding.
 * :ghpull:`24062`: Replaced std::random_shuffle with std::shuffle in tri
 * :ghpull:`24278`: Use oldest-supported-numpy for build
@@ -532,7 +529,7 @@ Pull Requests (427):
 * :ghpull:`23579`: Remove direct manipulation of HostAxes.parasites by end users.
 * :ghpull:`23553`: Add tests for ImageGrid
 * :ghpull:`23918`: Merge v3.6.x branch to main
-* :ghpull:`23902`:  Add test and improve examples for mpl_toolkits
+* :ghpull:`23902`: Add test and improve examples for mpl_toolkits
 * :ghpull:`23950`: DOC: Don't import doctest because we're not using it
 * :ghpull:`21006`: Rotate errorbar caps in polar plots
 * :ghpull:`23870`: Implement Sphinx-Gallery's ``make html-noplot``
@@ -559,12 +556,29 @@ Pull Requests (427):
 * :ghpull:`22614`: ENH: Add pan and zoom toolbar handling to 3D Axes
 * :ghpull:`21562`: Add a test for Hexbin Linear
 
-Issues (120):
+Issues (136):
 
+* :ghissue:`19021`: Need a way to check if an axis minor or major grid is on
+* :ghissue:`24387`: [Bug]: plt.tight_layout() after layout='constrained' should at least warn
+* :ghissue:`7751`: Setting logarithmic yscale in Radar chart broken
+* :ghissue:`23465`: [Doc]: Update multiple category bar chart gallery examples
+* :ghissue:`14432`: tight_layout() messes up bbox_to_anchor in legend().
+* :ghissue:`22374`: Animation docs should include a simple "save as gif with pillow" example
+* :ghissue:`24836`: [Bug]: findSystemFonts should not look in subdirectories of C:\Users\Admin\AppData\Local\Microsoft\Windows\Fonts
+* :ghissue:`20841`: [ENH]: matplotlib.pyplot.bar_label - add parameter to skip 0 length labels
+* :ghissue:`3857`: New 'outside' locations for legend
+* :ghissue:`7073`: Legend cut of if using pgf backend
+* :ghissue:`25523`: Using CenterNorm in imshow with a given halfrange does display data when not displaying the colorbar
+* :ghissue:`3745`: Feature Request: Automatic Legend Placement Outside of Figures and Axes
+* :ghissue:`24789`: [ENH]: Ability to Swap autopct and label positions
 * :ghissue:`25176`: [Bug]: Colorbar is displaced when saving as .eps with bbox_inches='tight'
 * :ghissue:`25075`: [Bug]: Widget blitting broken when saving as PDF
 * :ghissue:`25181`: unavoidable warnings in nbagg on ``plt.close``
+* :ghissue:`25164`: [Bug]: LA image mode not working anymore for custom toolbar buttons
+* :ghissue:`25048`: [Doc]: matplotlib.axes.Axes.table bbox parameter
+* :ghissue:`24820`: FigureCanvasTkAgg memory leak
 * :ghissue:`25134`: [Doc]: pyplot.boxplot whisker length wrong docs
+* :ghissue:`24821`: [Bug]: Windows correction is not correct in ``mlab._spectral_helper``
 * :ghissue:`24395`: Any resizing of the plot after plt.show results in an error when closing the window
 * :ghissue:`25107`: [Doc]: annotated_cursor example seems broken
 * :ghissue:`25124`: [Bug]: ax.plot(x,y) disappears after changing y_scale
@@ -635,13 +649,12 @@ Issues (120):
 * :ghissue:`24386`: [Bug]: ``align`` in ``HPacker`` is reversed
 * :ghissue:`23803`: Static code analysis
 * :ghissue:`8990`: Surprising behaviour of mutating input arrays to Axes.plot vs Axes3D.plot
-* :ghissue:`24550`: [ENH]: Warn when a SymLogScale receives values that are all in the linear regime
-* :ghissue:`23416`: [Bug]: Inconsistent y-axis unit label with plot/scatter
 * :ghissue:`23603`: [MNT]: Only a subset of attributes set via ``Axes.tick_params()`` are accessible via public methods and attributes
 * :ghissue:`13858`: matplotlib.sphinxext.plot_directive generates incorrect links when using dirhtml builder
 * :ghissue:`19376`: eventplot: allow a list of alpha channels as in the case with colors
 * :ghissue:`24508`: [Bug]: Re-organization of mpl_toolkits tests broke tools/triage_tests.py
 * :ghissue:`19040`: v3.3.0 Regression, Animation draws artists multiple times.
+* :ghissue:`24228`: [Doc]: Create Animation Tutorial
 * :ghissue:`12324`: DOC: Write a unified backend doc
 * :ghissue:`24464`: Issue with legend labelcolor='linecolor' for errorbar plots
 * :ghissue:`24273`: [ENH]: Axes.set_xticks/Axis.set_ticks only validates kwargs if ticklabels are set, but they should

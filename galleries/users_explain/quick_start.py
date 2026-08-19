@@ -457,7 +457,7 @@ ax.xaxis.set_major_formatter(ConciseDateFormatter(ax.xaxis.get_major_locator()))
 
 # %%
 # For more information see the date examples
-# (e.g. :doc:`/gallery/text_labels_and_annotations/date`)
+# (e.g. :doc:`/gallery/ticks/date`)
 #
 # For strings, we get categorical plotting (see:
 # :doc:`/gallery/lines_bars_and_markers/categorical_variables`).

@@ -2,7 +2,38 @@
 Tests specific to the bezier module.
 """
 
-from matplotlib.bezier import inside_circle, split_bezier_intersecting_with_closedpath
+import pytest
+import numpy as np
+from numpy.testing import assert_allclose
+
+from matplotlib.bezier import (
+    _real_roots_in_01, inside_circle, split_bezier_intersecting_with_closedpath
+)
+
+
+@pytest.mark.parametrize("roots, expected_in_01", [
+    ([0.5], [0.5]),
+    ([0.25, 0.75], [0.25, 0.75]),
+    ([0.2, 0.5, 0.8], [0.2, 0.5, 0.8]),
+    ([0.1, 0.2, 0.3, 0.4], [0.1, 0.2, 0.3, 0.4]),
+    ([0.0, 0.5], [0.0, 0.5]),
+    ([0.5, 1.0], [0.5, 1.0]),
+    ([2.0], []),                 # outside [0, 1]
+    ([0.5, 2.0], [0.5]),         # one in, one out
+    ([-1j, 1j], []),             # complex roots
+    ([0.5, -1j, 1j], [0.5]),     # mix of real and complex
+    ([0.3, 0.3], [0.3, 0.3]),    # repeated root
+])
+def test_real_roots_in_01(roots, expected_in_01):
+    roots = np.array(roots)
+    coeffs = np.poly(roots)[::-1]  # np.poly gives descending, we need ascending
+    result = _real_roots_in_01(coeffs.real)
+    assert_allclose(result, expected_in_01, atol=1e-10)
+
+
+@pytest.mark.parametrize("coeffs", [[5], [0, 0, 0]])
+def test_real_roots_in_01_no_roots(coeffs):
+    assert len(_real_roots_in_01(coeffs)) == 0
 
 
 def test_split_bezier_with_large_values():

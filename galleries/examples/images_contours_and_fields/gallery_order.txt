@@ -1,0 +1,69 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+
+# image
+image_demo
+image_masked
+multi_image
+image_zcoord
+
+# interpolation, transparency, and blending
+image_antialiasing
+interpolation_methods
+layer_images
+image_transparency_blend
+shading_example
+
+# positioning and clipping
+image_clip_path
+image_exact_placement
+
+# quadrilateral
+pcolor_demo
+pcolormesh_levels
+pcolormesh_grids
+image_nonuniform
+quadmesh_demo
+
+# triangular
+triplot_demo
+tripcolor_demo
+tricontour_demo
+tricontour_smooth_user
+tricontour_smooth_delaunay
+trigradient_demo
+triinterp_demo
+
+# contour
+irregulardatagrid
+contour_demo
+contour_label_demo
+contourf_demo
+contour_image
+contourf_log
+contourf_hatching
+contour_corner_mask
+contours_in_optimization_demo
+
+# quiver
+quiver_simple_demo
+quiver_demo
+
+# barbs and streamlines
+barb_demo
+plot_streamplot
+
+# colormapping
+colormap_interactive_adjustment
+colormap_normalizations
+colormap_normalizations_symlognorm
+image_annotated_heatmap
+
+# other
+affine_image
+matshow
+spy_demos
+specgram_demo
+barcode_demo
+demo_bboximage
+figimage_demo
+watermark_image

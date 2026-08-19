@@ -9,10 +9,10 @@ GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2023/10/31
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 24 issues and merged 95 pull requests.
+We closed 25 issues and merged 95 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/85?closed=1>`__
 
-The following 27 authors contributed 165 commits.
+The following 27 authors contributed 146 commits.
 
 * 0taj
 * Antony Lee
@@ -142,8 +142,9 @@ Pull Requests (95):
 * :ghpull:`26699`: Improve naming of cibuildwheel jobs
 * :ghpull:`26605`: ci: Install GTK4 from brew on macOS
 
-Issues (24):
+Issues (25):
 
+* :ghissue:`27144`: [Doc]: the matplotlib notebook magic requires ``notebook<7``
 * :ghissue:`27120`: [Bug]: macosx backend pause() cannot be ctrl-c'd
 * :ghissue:`27070`: [Bug]: find_nearest_contour deprecated with no replacement?
 * :ghissue:`26913`: Should ``ContourSet.allsegs`` and ``.allkinds`` be deprecated?

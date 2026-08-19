@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections.abc import Callable
 import re
 import typing
-from typing import Any, TypeVar
+from typing import Any
 
 import numpy as np
 import pytest
@@ -15,7 +15,26 @@ from matplotlib import _api
 if typing.TYPE_CHECKING:
     from typing import Self
 
-T = TypeVar('T')
+
+def test_unsupported_method():
+    class Base:
+        def method_1(self):
+            pass
+
+        def method_2(self):
+            pass
+
+    class Child(Base):
+        method_1 = _api.unsupported_method()
+        method_2 = _api.unsupported_method(append_message="Sorry!")
+
+    child = Child()
+    with pytest.raises(_api.UnsupportedError,
+                       match=r"^Child does not support 'method_1'\.$"):
+        child.method_1()
+    with pytest.raises(_api.UnsupportedError,
+                       match=r"^Child does not support 'method_2'\. Sorry!$"):
+        child.method_2()
 
 
 @pytest.mark.parametrize('target,shape_repr,test_shape',
@@ -87,7 +106,7 @@ def test_warn_deprecated():
 def test_deprecate_privatize_attribute() -> None:
     class C:
         def __init__(self) -> None: self._attr = 1
-        def _meth(self, arg: T) -> T: return arg
+        def _meth[T](self, arg: T) -> T: return arg
         attr: int = _api.deprecate_privatize_attribute("0.0")
         meth: Callable = _api.deprecate_privatize_attribute("0.0")
 
@@ -150,3 +169,8 @@ def test_deprecation_alternative() -> None:
 def test_empty_check_in_list() -> None:
     with pytest.raises(TypeError, match="No argument to check!"):
         _api.check_in_list(["a"])
+
+
+def test_check_in_list_numpy() -> None:
+    with pytest.raises(ValueError, match=r"array\(5\) is not a valid value"):
+        _api.check_in_list(['a', 'b'], value=np.array(5))

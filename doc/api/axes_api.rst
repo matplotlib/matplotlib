@@ -39,6 +39,8 @@ Attributes
    Axes.viewLim
    Axes.dataLim
    Axes.spines
+   Axes.transAxes
+   Axes.transData
 
 Plotting
 ========
@@ -73,6 +75,7 @@ Basic
    Axes.eventplot
 
    Axes.pie
+   Axes.pie_label
 
    Axes.stackplot
 
@@ -394,6 +397,8 @@ Aspect ratio
    Axes.set_adjustable
    Axes.get_adjustable
 
+.. _axes-api-ticks:
+
 Ticks and tick labels
 ---------------------
 
@@ -449,6 +454,7 @@ Units
    Axes.convert_yunits
    Axes.have_units
 
+.. _axes-api-adding-artists:
 
 Adding artists
 ==============
@@ -627,6 +633,6 @@ Other
    Axes.get_transformed_clip_path_and_affine
    Axes.has_data
    Axes.set
+   Axes.get_figure
+   Axes.figure
    Axes.remove
-
-.. autoclass:: matplotlib.axes.Axes.ArtistList

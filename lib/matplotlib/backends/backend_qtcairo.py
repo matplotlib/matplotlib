@@ -1,8 +1,7 @@
-import ctypes
 
 from .backend_cairo import cairo, FigureCanvasCairo
 from .backend_qt import _BackendQT, FigureCanvasQT
-from .qt_compat import QT_API, QtCore, QtGui
+from .qt_compat import QT_API, QtGui
 
 
 class FigureCanvasQTCairo(FigureCanvasCairo, FigureCanvasQT):
@@ -29,10 +28,6 @@ class FigureCanvasQTCairo(FigureCanvasCairo, FigureCanvasQT):
         qimage = QtGui.QImage(
             ptr, width, height,
             QtGui.QImage.Format.Format_ARGB32_Premultiplied)
-        # Adjust the buf reference count to work around a memory leak bug in
-        # QImage under PySide.
-        if QT_API == "PySide2" and QtCore.__version_info__ < (5, 12):
-            ctypes.c_long.from_address(id(buf)).value = 1
         qimage.setDevicePixelRatio(self.device_pixel_ratio)
         painter = QtGui.QPainter(self)
         painter.eraseRect(event.rect())

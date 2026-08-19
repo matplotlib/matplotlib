@@ -1,0 +1,8 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+imshow
+pcolormesh
+contour
+contourf
+barbs
+quiver
+streamplot

@@ -45,7 +45,7 @@ versioning scheme: *macro.meso.micro*.
 
 .. _release_feature_freeze:
 
-Making the release branch
+Create the release branch
 =========================
 
 .. note::
@@ -379,16 +379,27 @@ to the VER-doc branch and push to GitHub. ::
 
 .. _release_bld_bin:
 
-Building binaries
-=================
+Build binaries
+==============
 
 We distribute macOS, Windows, and many Linux wheels as well as a source tarball via
-PyPI. Most builders should trigger automatically once the tag is pushed to GitHub:
+PyPI.
 
 * Windows, macOS and manylinux wheels are built on GitHub Actions. Builds are triggered
-  by the GitHub Action defined in :file:`.github/workflows/cibuildwheel.yml`, and wheels
+  by the GitHub Action defined in a separate
+  `release repository <https://github.com/matplotlib/matplotlib-release>`__, and wheels
   will be available as artifacts of the build. Both a source tarball and the wheels will
   be automatically uploaded to PyPI once all of them have been built.
+* To trigger the build for the ``matplotlib-release`` repository:
+
+  * If not already created, create a release branch for the meso version (e.g. ``v3.10.x``)
+  * Edit the ``SOURCE_REF_TO_BUILD`` environment variable at the top of
+    `wheels.yml <https://github.com/matplotlib/matplotlib-release/blob/main/.github/workflows/wheels.yml>`__
+    on the release branch to point to the release tag.
+  * Run the workflow from the release branch, with "pypi" selected for the pypi environment
+    using the `Workflow Dispatch trigger <https://github.com/matplotlib/matplotlib-release/actions/workflows/wheels.yml>`__
+  * This will run cibuildwheel and upload to PyPI using the Trusted Publishers GitHub Action.
+
 * The auto-tick bot should open a pull request into the `conda-forge feedstock
   <https://github.com/conda-forge/matplotlib-feedstock>`__. Review and merge (if you
   have the power to).
@@ -401,8 +412,8 @@ PyPI. Most builders should trigger automatically once the tag is pushed to GitHu
 
 .. _release_upload_bin:
 
-Manually uploading to PyPI
-==========================
+Manual upload to PyPI
+=====================
 
 .. note::
 
@@ -439,7 +450,7 @@ To build the documentation you must have the tagged version installed, but
 build the docs from the ``ver-doc`` branch.  An easy way to arrange this is::
 
   pip install matplotlib
-  pip install -r requirements/doc/doc-requirements.txt
+  pip install --group doc
   git checkout v3.7.0-doc
   git clean -xfd
   make -Cdoc O="-t release -j$(nproc)" html latexpdf LATEXMKOPTS="-silent -f"

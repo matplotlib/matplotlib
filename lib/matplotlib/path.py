@@ -623,6 +623,35 @@ class Path:
             transform = transform.frozen()
         return _path.path_in_path(self, None, path, transform)
 
+    def _extent_vertices(self, **kwargs):
+        """
+        Return the vertices that determine this path's axis-aligned extents.
+
+        Parameters
+        ----------
+        **kwargs
+            Forwarded to `.iter_bezier`.
+
+        Returns
+        -------
+        (N, 2) array of float
+            The vertices whose bounding box equals the bounding box of the path.
+        """
+        if self.codes is None:
+            return self.vertices
+        if not ((self.codes == Path.CURVE3) | (self.codes == Path.CURVE4)).any():
+            # No curves: every vertex lies on a straight segment except the
+            # STOP/CLOSEPOLY placeholders, which do not affect the extents.
+            ignore = (self.codes == Path.STOP) | (self.codes == Path.CLOSEPOLY)
+            return self.vertices[~ignore] if ignore.any() else self.vertices
+        # Curved segments: solve for each segment's endpoints and interior
+        # extrema, since the control points may lie outside the drawn curve.
+        vertices = []
+        for curve, _ in self.iter_bezier(**kwargs):
+            _, dzeros = curve.axis_aligned_extrema()
+            vertices.append(curve([0, *dzeros, 1]))
+        return np.concatenate(vertices) if vertices else np.empty((0, 2))
+
     def get_extents(self, transform=None, **kwargs):
         """
         Get Bbox of the path.
@@ -642,25 +671,11 @@ class Path:
         from .transforms import Bbox
         if transform is not None:
             self = transform.transform_path(self)
-        if self.codes is None:
-            xys = self.vertices
-        elif len(np.intersect1d(self.codes, [Path.CURVE3, Path.CURVE4])) == 0:
-            # Optimization for the straight line case.
-            # Instead of iterating through each curve, consider
-            # each line segment's end-points
-            # (recall that STOP and CLOSEPOLY vertices are ignored)
-            xys = self.vertices[np.isin(self.codes,
-                                        [Path.MOVETO, Path.LINETO])]
-        else:
-            xys = []
-            for curve, code in self.iter_bezier(**kwargs):
-                # places where the derivative is zero can be extrema
-                _, dzeros = curve.axis_aligned_extrema()
-                # as can the ends of the curve
-                xys.append(curve([0, *dzeros, 1]))
-            xys = np.concatenate(xys)
+        xys = self._extent_vertices(**kwargs)
         if len(xys):
-            return Bbox([xys.min(axis=0), xys.max(axis=0)])
+            x = xys[:, 0]
+            y = xys[:, 1]
+            return Bbox([[x.min(), y.min()], [x.max(), y.max()]])
         else:
             return Bbox.null()
 
@@ -978,6 +993,10 @@ class Path:
         That is, if *theta2* > *theta1* + 360, the arc will be from *theta1* to
         *theta2* - 360 and not a full circle plus some extra overlap.
 
+        As a special case, if the span *theta2* - *theta1* is within
+        floating-point tolerance of a whole number of turns, a complete circle
+        is drawn.
+
         If *n* is provided, it is the number of spline segments to make.
         If *n* is not provided, the number of spline segments is
         determined based on the delta between *theta1* and *theta2*.
@@ -989,11 +1008,20 @@ class Path:
         halfpi = np.pi * 0.5
 
         eta1 = theta1
-        eta2 = theta2 - 360 * np.floor((theta2 - theta1) / 360)
-        # Ensure 2pi range is not flattened to 0 due to floating-point errors,
-        # but don't try to expand existing 0 range.
-        if theta2 != theta1 and eta2 <= eta1:
-            eta2 += 360
+        n_turns = (theta2 - theta1) / 360
+        nearest_turn = np.rint(n_turns)
+        is_full_circle = nearest_turn != 0 and abs(n_turns - nearest_turn) <= 1e-12
+        # We unwrap *theta2* to the shortest arc within 360 degrees.
+        # Full circles need special handling as floating point errors can
+        # make a full circle have 360° + eps, which would be unwrapped
+        # to eps only, i.e. collapsing the full circle to an infinitesimal arc.
+        # The threshold of 1e-12 is a defensive choice: Much larger than
+        # numeric precision errors (~1e-15) but still smaller than any
+        # expected real-world arcs.
+        if is_full_circle:
+            eta2 = theta1 + 360
+        else:
+            eta2 = theta2 - 360 * np.floor(n_turns)
         eta1, eta2 = np.deg2rad([eta1, eta2])
 
         # number of curve segments to make

@@ -4,7 +4,6 @@ Tests specific to the lines module.
 
 import itertools
 import platform
-import timeit
 from types import SimpleNamespace
 
 from cycler import cycler
@@ -31,52 +30,6 @@ def test_segment_hits():
     assert_array_equal(mlines.segment_hits(cx, cy, x, y, radius), [0])
 
 
-# Runtimes on a loaded system are inherently flaky. Not so much that a rerun
-# won't help, hopefully.
-@pytest.mark.flaky(reruns=3)
-def test_invisible_Line_rendering():
-    """
-    GitHub issue #1256 identified a bug in Line.draw method
-
-    Despite visibility attribute set to False, the draw method was not
-    returning early enough and some pre-rendering code was executed
-    though not necessary.
-
-    Consequence was an excessive draw time for invisible Line instances
-    holding a large number of points (Npts> 10**6)
-    """
-    # Creates big x and y data:
-    N = 10**7
-    x = np.linspace(0, 1, N)
-    y = np.random.normal(size=N)
-
-    # Create a plot figure:
-    fig = plt.figure()
-    ax = plt.subplot()
-
-    # Create a "big" Line instance:
-    l = mlines.Line2D(x, y)
-    l.set_visible(False)
-    # but don't add it to the Axis instance `ax`
-
-    # [here Interactive panning and zooming is pretty responsive]
-    # Time the canvas drawing:
-    t_no_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
-    # (gives about 25 ms)
-
-    # Add the big invisible Line:
-    ax.add_line(l)
-
-    # [Now interactive panning and zooming is very slow]
-    # Time the canvas drawing:
-    t_invisible_line = min(timeit.repeat(fig.canvas.draw, number=1, repeat=3))
-    # gives about 290 ms for N = 10**7 pts
-
-    slowdown_factor = t_invisible_line / t_no_line
-    slowdown_threshold = 2  # trying to avoid false positive failures
-    assert slowdown_factor < slowdown_threshold
-
-
 def test_set_line_coll_dash():
     fig, ax = plt.subplots()
     np.random.seed(0)
@@ -98,7 +51,7 @@ def test_invalid_line_data():
         line.set_ydata(0)
 
 
-@image_comparison(['line_dashes'], remove_text=True, tol=0.003)
+@image_comparison(['line_dashes'], remove_text=True, style='_classic_test', tol=0.003)
 def test_line_dashes():
     # Tolerance introduced after reordering of floating-point operations
     # Remove when regenerating the images
@@ -139,7 +92,14 @@ def test_valid_linestyles():
         line.set_linestyle('aardvark')
 
 
-@image_comparison(['drawstyle_variants.png'], remove_text=True,
+@mpl.style.context('mpl20')
+def test_zero_linewidth_dashed_uses_solid_gc_dashes():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], ls='--', lw=0)
+    fig.draw_without_rendering()
+
+
+@image_comparison(['drawstyle_variants.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.03)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
@@ -191,7 +151,7 @@ def test_set_line_coll_dash_image():
     ax.contour(np.random.randn(20, 30), linestyles=[(0, (3, 3))])
 
 
-@image_comparison(['marker_fill_styles.png'], remove_text=True)
+@image_comparison(['marker_fill_styles.png'], remove_text=True, style='_classic_test')
 def test_marker_fill_styles():
     colors = itertools.cycle([[0, 0, 1], 'g', '#ff0000', 'c', 'm', 'y',
                               np.array([0, 0, 0])])
@@ -309,6 +269,60 @@ def test_markevery_figure_line_unsupported_relsize():
     fig.add_artist(mlines.Line2D([0, 1], [0, 1], marker="o", markevery=.5))
     with pytest.raises(ValueError):
         fig.canvas.draw()
+
+
+def test_markevery_extreme_zoom():
+    x = np.linspace(0, 10, 200)
+    fig, ax = plt.subplots()
+    ax.plot(x, np.sin(x), marker="o", markevery=0.05)
+    ax.set_xlim(5.000000, 5.000001)
+
+    # Calculating marker positions must not allocate an unbounded distance
+    # matrix when the axes are zoomed in extremely far.
+    fig.canvas.draw()
+
+
+@pytest.mark.parametrize("markevery", [0.0, -0.1])
+def test_markevery_float_nonpositive_spacing(markevery):
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], marker="o", markevery=markevery)
+
+    with pytest.raises(ValueError, match="'markevery' step must be positive"):
+        fig.canvas.draw()
+
+
+@pytest.mark.parametrize(
+    ("markevery", "expected"),
+    [(1.5, [0, 3, 4, 5, 6, 7, 8]),
+     ((-0.2, 1.5), [0, 3, 4, 5, 6, 7]),
+     ((11.0, 1.5), [])])
+def test_markevery_float_vertex_selection(markevery, expected):
+    fig, ax = plt.subplots()
+    (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
+    scale = np.hypot(x1 - x0, y1 - y0)
+    path = Path(np.column_stack([
+        [0, 0.2, 0.8, 1.6, 2.7, 4.1, 5.8, 7.8, 10], np.zeros(9)]))
+
+    actual = mlines._mark_every_path(
+        markevery, path, mtransforms.Affine2D().scale(scale), ax)
+
+    assert_array_equal(actual.vertices, path.vertices[expected])
+
+
+@pytest.mark.parametrize(
+    ("x", "expected"), [([0, 0.5, 1.5], [0, 1]), ([0, 0, 2], [0])])
+def test_markevery_float_ties_and_repeated_vertices(x, expected):
+    fig, ax = plt.subplots()
+    (x0, y0), (x1, y1) = ax.transAxes.transform([[0, 0], [1, 1]])
+    scale = np.hypot(x1 - x0, y1 - y0)
+    path = Path(np.column_stack([x, np.zeros(len(x))]))
+
+    actual = mlines._mark_every_path(
+        1.0, path, mtransforms.Affine2D().scale(scale), ax)
+
+    # Match np.argmin's preference for the first vertex on ties, including
+    # repeated cumulative distances.
+    assert_array_equal(actual.vertices, path.vertices[expected])
 
 
 def test_marker_as_markerstyle():

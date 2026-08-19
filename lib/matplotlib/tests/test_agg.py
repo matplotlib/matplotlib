@@ -1,4 +1,5 @@
 import io
+import warnings
 
 import numpy as np
 from numpy.testing import assert_array_almost_equal
@@ -12,9 +13,17 @@ from matplotlib import (
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
+from matplotlib.patches import PathPatch, Polygon
 from matplotlib.path import Path
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
 from matplotlib.transforms import IdentityTransform
+
+
+def require_pillow_feature(name):
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        available = features.check(name.lower())
+    return pytest.mark.skipif(not available, reason=f"{name} support not available")
 
 
 def test_repeated_save_with_alpha():
@@ -84,7 +93,7 @@ def test_long_path():
     fig.savefig(buff, format='png')
 
 
-@image_comparison(['agg_filter.png'], remove_text=True)
+@image_comparison(['agg_filter.png'], remove_text=True, style='_classic_test')
 def test_agg_filter():
     def smooth1d(x, window_len):
         # copied from https://scipy-cookbook.readthedocs.io/
@@ -249,7 +258,7 @@ def test_pil_kwargs_tiff():
     assert tags["ImageDescription"] == "test image"
 
 
-@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
+@require_pillow_feature('WebP')
 def test_pil_kwargs_webp():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -263,7 +272,7 @@ def test_pil_kwargs_webp():
     assert buf_large.getbuffer().nbytes > buf_small.getbuffer().nbytes
 
 
-@pytest.mark.skipif(not features.check("avif"), reason="AVIF support not available")
+@require_pillow_feature('AVIF')
 def test_pil_kwargs_avif():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf_small = io.BytesIO()
@@ -295,7 +304,7 @@ def test_gif_alpha():
     assert im.info["transparency"] < len(im.palette.colors)
 
 
-@pytest.mark.skipif(not features.check("webp"), reason="WebP support not available")
+@require_pillow_feature('WebP')
 def test_webp_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
@@ -304,7 +313,7 @@ def test_webp_alpha():
     assert im.mode == "RGBA"
 
 
-@pytest.mark.skipif(not features.check("avif"), reason="AVIF support not available")
+@require_pillow_feature('AVIF')
 def test_avif_alpha():
     plt.plot([0, 1, 2], [0, 1, 0])
     buf = io.BytesIO()
@@ -320,7 +329,7 @@ def test_draw_path_collection_error_handling():
         fig.canvas.draw()
 
 
-def test_chunksize_fails():
+def test_chunksize_fails(high_memory):
     # NOTE: This test covers multiple independent test scenarios in a single
     #       function, because each scenario uses ~2GB of memory and we don't
     #       want parallel test executors to accidentally run multiple of these
@@ -374,8 +383,52 @@ def test_chunksize_fails():
 
 
 def test_non_tuple_rgbaface():
-    # This passes rgbaFace as a ndarray to draw_path.
+    # This passes rgbaFace as an ndarray to draw_path.
     fig = plt.figure()
     fig.add_subplot(projection="3d").scatter(
         [0, 1, 2], [0, 1, 2], path_effects=[patheffects.Stroke(linewidth=4)])
     fig.canvas.draw()
+
+
+def test_rendered_height_floating_point_precision():
+    fig = plt.figure(figsize=(1, 2.03), dpi=100)
+    assert fig.bbox.height < 203  # due to floating-point precision
+    fig.canvas.draw()
+    assert fig.canvas.buffer_rgba().shape == (203, 100, 4)
+
+
+@check_figures_equal()
+def test_path_autosnap(fig_test, fig_ref):
+    axt = fig_test.subplots()
+    axr = fig_ref.subplots()
+
+    square = np.array([[0, 0], [1, 0], [1, 1], [0, 1]])
+    triangle1 = np.array([[0, 2], [1, 2], [0, 3]])
+    triangle2 = np.array([[0, 4], [1, 4], [1, 3]])
+
+    # A square should autosnap
+    axt.add_patch(Polygon(square, snap=None))
+    axr.add_patch(Polygon(square, snap=True))
+
+    # A triangle with the diagonal as one of the line segments should not autosnap
+    axt.add_patch(Polygon(triangle1, snap=None))
+    axr.add_patch(Polygon(triangle1, snap=False))
+
+    # A triangle with the diagonal as the closing line segment should not autosnap
+    axt.add_patch(Polygon(triangle2, snap=None))
+    axr.add_patch(Polygon(triangle2, snap=False))
+
+    # A path of multiple polygons should autosnap if each polygon would autosnap
+    multiple1 = Path.make_compound_path(Polygon(square + [[2, 0]]).get_path(),
+                                        Polygon(square + [[2, 2]]).get_path())
+    axt.add_patch(PathPatch(multiple1, edgecolor='none', snap=None))
+    axr.add_patch(PathPatch(multiple1, edgecolor='none', snap=True))
+
+    # A path of multiple polygons should not autosnap if any polygon would not autosnap
+    multiple2 = Path.make_compound_path(Polygon(square + [[4, 0]]).get_path(),
+                                        Polygon(triangle1 + [[4, 0]]).get_path())
+    axt.add_patch(PathPatch(multiple2, edgecolor='none', snap=None))
+    axr.add_patch(PathPatch(multiple2, edgecolor='none', snap=False))
+
+    axt.autoscale_view()
+    axr.autoscale_view()

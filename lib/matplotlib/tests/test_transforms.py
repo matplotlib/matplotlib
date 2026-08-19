@@ -835,6 +835,16 @@ def assert_bbox_eq(bbox1, bbox2):
     assert_array_equal(bbox1.bounds, bbox2.bounds)
 
 
+def test_bbox_is_finite():
+    assert not Bbox([(1, 1), (1, 1)])._is_finite()
+    assert not Bbox([(0, 0), (np.inf, 1)])._is_finite()
+    assert not Bbox([(-np.inf, 0), (2, 2)])._is_finite()
+    assert not Bbox([(np.nan, 0), (2, 2)])._is_finite()
+    assert Bbox([(0, 0), (0, 2)])._is_finite()
+    assert Bbox([(0, 0), (2, 0)])._is_finite()
+    assert Bbox([(0, 0), (1, 2)])._is_finite()
+
+
 def test_bbox_frozen_copies_minpos():
     bbox = mtransforms.Bbox.from_extents(0.0, 0.0, 1.0, 1.0, minpos=1.0)
     frozen = bbox.frozen()
@@ -861,6 +871,21 @@ def test_bbox_intersection():
     assert inter(r1, r4) is None
     # single point
     assert_bbox_eq(inter(r1, r5), bbox_from_ext(1, 1, 1, 1))
+
+
+def test_bbox_count_contains():
+    bbox = mtransforms.Bbox.from_extents(0, 0, 1, 1)
+    assert bbox.count_contains([]) == 0
+    assert bbox.count_contains([
+        [0.5, 0.5],         # inside
+        [0.1, 0.9],         # inside
+        [2.0, 2.0],         # outside
+        [-1.0, 0.5],        # outside
+        [0.0, 0.5],         # on left edge -> excluded
+        [1.0, 1.0],         # on corner -> excluded
+        [np.nan, 0.5],      # non-finite -> ignored
+        [0.5, np.inf],      # non-finite -> ignored
+    ]) == 2
 
 
 def test_bbox_as_strings():
@@ -967,7 +992,7 @@ def test_nonsingular():
     zero_expansion = np.array([-0.001, 0.001])
     cases = [(0, np.nan), (0, 0), (0, 7.9e-317)]
     for args in cases:
-        out = np.array(mtransforms.nonsingular(*args))
+        out = np.array(mtransforms._nonsingular(*args))
         assert_array_equal(out, zero_expansion)
 
 
@@ -1062,8 +1087,8 @@ def test_scale_swapping(fig_test, fig_ref):
 
 def test_offset_copy_errors():
     with pytest.raises(ValueError,
-                       match="'fontsize' is not a valid value for units;"
-                             " supported values are 'dots', 'points', 'inches'"):
+                       match="'fontsize' is not a valid value for units. "
+                             "Supported values are 'dots', 'points', 'inches'"):
         mtransforms.offset_copy(None, units='fontsize')
 
     with pytest.raises(ValueError,
@@ -1083,21 +1108,21 @@ def test_transformedbbox_contains():
 
 
 def test_interval_contains():
-    assert mtransforms.interval_contains((0, 1), 0.5)
-    assert mtransforms.interval_contains((0, 1), 0)
-    assert mtransforms.interval_contains((0, 1), 1)
-    assert not mtransforms.interval_contains((0, 1), -1)
-    assert not mtransforms.interval_contains((0, 1), 2)
-    assert mtransforms.interval_contains((1, 0), 0.5)
+    assert mtransforms._interval_contains((0, 1), 0.5)
+    assert mtransforms._interval_contains((0, 1), 0)
+    assert mtransforms._interval_contains((0, 1), 1)
+    assert not mtransforms._interval_contains((0, 1), -1)
+    assert not mtransforms._interval_contains((0, 1), 2)
+    assert mtransforms._interval_contains((1, 0), 0.5)
 
 
 def test_interval_contains_open():
-    assert mtransforms.interval_contains_open((0, 1), 0.5)
-    assert not mtransforms.interval_contains_open((0, 1), 0)
-    assert not mtransforms.interval_contains_open((0, 1), 1)
-    assert not mtransforms.interval_contains_open((0, 1), -1)
-    assert not mtransforms.interval_contains_open((0, 1), 2)
-    assert mtransforms.interval_contains_open((1, 0), 0.5)
+    assert mtransforms._interval_contains_open((0, 1), 0.5)
+    assert not mtransforms._interval_contains_open((0, 1), 0)
+    assert not mtransforms._interval_contains_open((0, 1), 1)
+    assert not mtransforms._interval_contains_open((0, 1), -1)
+    assert not mtransforms._interval_contains_open((0, 1), 2)
+    assert mtransforms._interval_contains_open((1, 0), 0.5)
 
 
 def test_scaledrotation_initialization():

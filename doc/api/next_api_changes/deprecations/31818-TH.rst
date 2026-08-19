@@ -1,0 +1,4 @@
+Line2D.recache_always
+~~~~~~~~~~~~~~~~~~~~~
+
+``recache_always()`` on `.Line2D` is deprecated. Use ``recache(always=True)`` instead.

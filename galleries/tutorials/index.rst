@@ -9,89 +9,18 @@ For shorter examples, see our :ref:`examples page <examples-index>`.
 You can also find :ref:`external resources <resources-index>` and
 a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
 
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbnails">
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="An introduction to the pyplot interface.  Please also see quick_start for an overview of how Ma...">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_pyplot_thumb.png
-    :alt: Pyplot tutorial
-
-  :ref:`sphx_glr_tutorials_pyplot.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Pyplot tutorial</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="A short tutorial on plotting images with Matplotlib.">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_images_thumb.png
-    :alt: Image tutorial
-
-  :ref:`sphx_glr_tutorials_images.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Image tutorial</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="This tutorial aims to show the beginning, middle, and end of a single visualization using Matpl...">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_lifecycle_thumb.png
-    :alt: The Lifecycle of a Plot
-
-  :ref:`sphx_glr_tutorials_lifecycle.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">The Lifecycle of a Plot</div>
-    </div>
-
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Using Artist objects to render on the canvas.">
-
-.. only:: html
-
-  .. image:: /tutorials/images/thumb/sphx_glr_artists_thumb.png
-    :alt: Artist tutorial
-
-  :ref:`sphx_glr_tutorials_artists.py`
-
-.. raw:: html
-
-      <div class="sphx-glr-thumbnail-title">Artist tutorial</div>
-    </div>
-
-
-.. raw:: html
-
-    </div>
-
+.. minigallery::
+   ../galleries/tutorials/pyplot.py
+   ../galleries/tutorials/coding_shortcuts.py
+   ../galleries/tutorials/images.py
+   ../galleries/tutorials/lifecycle.py
+   ../galleries/tutorials/artists.py
 
 .. toctree::
    :hidden:
 
    /tutorials/pyplot
+   /tutorials/coding_shortcuts
    /tutorials/images
    /tutorials/lifecycle
    /tutorials/artists
@@ -107,7 +36,6 @@ a :ref:`FAQ <howto-faq>` in our :ref:`user guide <users-guide-index>`.
     .. container:: sphx-glr-download sphx-glr-download-jupyter
 
       :download:`Download all examples in Jupyter notebooks: tutorials_jupyter.zip </tutorials/tutorials_jupyter.zip>`
-
 
 
 .. _user_guide_tutorials:

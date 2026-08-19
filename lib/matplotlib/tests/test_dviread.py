@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 import shutil
+import sys
 
 from matplotlib import cbook, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
@@ -61,7 +62,7 @@ def test_PsfontsMap(monkeypatch):
         fontmap[b'%']
 
 
-@pytest.mark.skipif(shutil.which("kpsewhich") is None,
+@pytest.mark.skipif(sys.platform == "emscripten" or shutil.which("kpsewhich") is None,
                     reason="kpsewhich is not available")
 @pytest.mark.parametrize("engine", ["pdflatex", "xelatex", "lualatex"])
 def test_dviread(tmp_path, engine, monkeypatch):
@@ -69,9 +70,9 @@ def test_dviread(tmp_path, engine, monkeypatch):
     shutil.copy(dirpath / "test.tex", tmp_path)
     shutil.copy(cbook._get_data_path("fonts/ttf/DejaVuSans.ttf"), tmp_path)
     cmd, fmt = {
-        "pdflatex": (["latex"], "dvi"),
-        "xelatex": (["xelatex", "-no-pdf"], "xdv"),
-        "lualatex": (["lualatex", "-output-format=dvi"], "dvi"),
+        "pdflatex": (["latex", "-no-shell-escape"], "dvi"),
+        "xelatex": (["xelatex", "-no-pdf", "-no-shell-escape"], "xdv"),
+        "lualatex": (["lualatex", "-output-format=dvi", "-no-shell-escape"], "dvi"),
     }[engine]
     if shutil.which(cmd[0]) is None:
         pytest.skip(f"{cmd[0]} is not available")
@@ -119,7 +120,8 @@ def test_dviread_pk(tmp_path):
         \end{document}
         """)
     subprocess_run_for_testing(
-        ["latex", "test.tex"], cwd=tmp_path, check=True, capture_output=True)
+        ["latex", "-no-shell-escape", "test.tex"],
+        cwd=tmp_path, check=True, capture_output=True)
     with dr.Dvi(tmp_path / "test.dvi", None) as dvi:
         pages = [*dvi]
     data = [

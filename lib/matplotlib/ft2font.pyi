@@ -1,13 +1,20 @@
+from collections.abc import Buffer
 from enum import Enum, Flag
-import sys
-from typing import BinaryIO, Literal, TypedDict, final, overload, cast
-from typing_extensions import Buffer  # < Py 3.12
+from os import PathLike
+from typing import BinaryIO, Literal, NewType, NotRequired, TypedDict, cast, final, overload
 
 import numpy as np
 from numpy.typing import NDArray
 
 __freetype_build_type__: str
 __freetype_version__: str
+__libraqm_version__: str
+
+# We can't change the type hints for standard library chr/ord, so character codes are a
+# simple type alias.
+type CharacterCodeType = int
+# But glyph indices are internal, so use a distinct type hint.
+GlyphIndexType = NewType('GlyphIndexType', int)
 
 class FaceFlags(Flag):
     SCALABLE = cast(int, ...)
@@ -61,6 +68,14 @@ class LoadFlags(Flag):
     TARGET_MONO = cast(int, ...)
     TARGET_LCD = cast(int, ...)
     TARGET_LCD_V = cast(int, ...)
+
+class RenderMode(Enum):
+    NORMAL = cast(int, ...)
+    LIGHT = cast(int, ...)
+    MONO = cast(int, ...)
+    LCD = cast(int, ...)
+    LCD_V = cast(int, ...)
+    SDF = cast(int, ...)
 
 class StyleFlags(Flag):
     NORMAL = cast(int, ...)
@@ -121,11 +136,27 @@ class _SfntOs2Dict(TypedDict):
     yStrikeoutPosition: int
     sFamilyClass: int
     panose: bytes
-    ulCharRange: tuple[int, int, int, int]
+    ulUnicodeRange: tuple[int, int, int, int]
     achVendID: bytes
     fsSelection: int
-    fsFirstCharIndex: int
-    fsLastCharIndex: int
+    usFirstCharIndex: int
+    usLastCharIndex: int
+    sTypoAscender: int
+    sTypoDescender: int
+    sTypoLineGap: int
+    usWinAscent: int
+    usWinDescent: int
+    # version >= 1
+    ulCodePageRange: NotRequired[tuple[int, int]]
+    # version >= 2
+    sxHeight: NotRequired[int]
+    sCapHeight: NotRequired[int]
+    usDefaultChar: NotRequired[int]
+    usBreakChar: NotRequired[int]
+    usMaxContext: NotRequired[int]
+    # version >= 5
+    usLowerOpticalPointSize: NotRequired[int]
+    usUpperOpticalPointSize: NotRequired[int]
 
 class _SfntHheaDict(TypedDict):
     version: tuple[int, int]
@@ -149,7 +180,7 @@ class _SfntVheaDict(TypedDict):
     vertTypoLineGap: int
     advanceHeightMax: int
     minTopSideBearing: int
-    minBottomSizeBearing: int
+    minBottomSideBearing: int
     yMaxExtent: int
     caretSlopeRise: int
     caretSlopeRun: int
@@ -184,31 +215,53 @@ class _SfntPcltDict(TypedDict):
     serifStyle: int
 
 @final
+class LayoutItem:
+    @property
+    def ft_object(self) -> FT2Font: ...
+    @property
+    def char(self) -> str: ...
+    @property
+    def glyph_index(self) -> GlyphIndexType: ...
+    @property
+    def x(self) -> float: ...
+    @property
+    def y(self) -> float: ...
+    @property
+    def prev_kern(self) -> float: ...
+    def __str__(self) -> str: ...
+
+@final
 class FT2Font(Buffer):
     def __init__(
         self,
-        filename: str | BinaryIO,
-        hinting_factor: int = ...,
+        filename: str | bytes | PathLike | BinaryIO,
         *,
+        face_index: int = ...,
         _fallback_list: list[FT2Font] | None = ...,
-        _kerning_factor: int = ...
+        _kerning_factor: int | None = ...,
+        _warn_if_used: bool = ...,
     ) -> None: ...
-    if sys.version_info[:2] >= (3, 12):
-        def __buffer__(self, flags: int) -> memoryview: ...
-    def _get_fontmap(self, string: str) -> dict[str, FT2Font]: ...
+    def __buffer__(self, flags: int, /) -> memoryview: ...
+    def _layout(
+        self,
+        text: str,
+        flags: LoadFlags,
+        features: tuple[str, ...] | None = ...,
+        language: str | tuple[tuple[str, int, int], ...] | None = ...,
+    ) -> list[LayoutItem]: ...
     def clear(self) -> None: ...
     def draw_glyph_to_bitmap(
         self, image: NDArray[np.uint8], x: int, y: int, glyph: Glyph, antialiased: bool = ...
     ) -> None: ...
     def draw_glyphs_to_bitmap(self, antialiased: bool = ...) -> None: ...
     def get_bitmap_offset(self) -> tuple[int, int]: ...
-    def get_char_index(self, codepoint: int) -> int: ...
-    def get_charmap(self) -> dict[int, int]: ...
+    def get_char_index(self, codepoint: CharacterCodeType) -> GlyphIndexType: ...
+    def get_charmap(self) -> dict[CharacterCodeType, GlyphIndexType]: ...
     def get_descent(self) -> int: ...
-    def get_glyph_name(self, index: int) -> str: ...
+    def get_glyph_name(self, index: GlyphIndexType) -> str: ...
     def get_image(self) -> NDArray[np.uint8]: ...
-    def get_kerning(self, left: int, right: int, mode: Kerning) -> int: ...
-    def get_name_index(self, name: str) -> int: ...
+    def get_kerning(self, left: GlyphIndexType, right: GlyphIndexType, mode: Kerning) -> int: ...
+    def get_name_index(self, name: str) -> GlyphIndexType: ...
     def get_num_glyphs(self) -> int: ...
     def get_path(self) -> tuple[NDArray[np.float64], NDArray[np.int8]]: ...
     def get_ps_font_info(
@@ -230,13 +283,19 @@ class FT2Font(Buffer):
     @overload
     def get_sfnt_table(self, name: Literal["pclt"]) -> _SfntPcltDict | None: ...
     def get_width_height(self) -> tuple[int, int]: ...
-    def load_char(self, charcode: int, flags: LoadFlags = ...) -> Glyph: ...
-    def load_glyph(self, glyphindex: int, flags: LoadFlags = ...) -> Glyph: ...
+    def load_char(self, charcode: CharacterCodeType, flags: LoadFlags = ...) -> Glyph: ...
+    def load_glyph(self, glyphindex: GlyphIndexType, flags: LoadFlags = ...) -> Glyph: ...
     def select_charmap(self, i: int) -> None: ...
     def set_charmap(self, i: int) -> None: ...
     def set_size(self, ptsize: float, dpi: float) -> None: ...
     def set_text(
-        self, string: str, angle: float = ..., flags: LoadFlags = ...
+        self,
+        string: str,
+        angle: float = ...,
+        flags: LoadFlags = ...,
+        *,
+        features: tuple[str] | None = ...,
+        language: str | list[tuple[str, int, int]] | None = ...,
     ) -> NDArray[np.float64]: ...
     @property
     def ascender(self) -> int: ...
@@ -247,9 +306,11 @@ class FT2Font(Buffer):
     @property
     def face_flags(self) -> FaceFlags: ...
     @property
+    def face_index(self) -> int: ...
+    @property
     def family_name(self) -> str: ...
     @property
-    def fname(self) -> str: ...
+    def fname(self) -> str | bytes: ...
     @property
     def height(self) -> int: ...
     @property
@@ -285,8 +346,7 @@ class FT2Font(Buffer):
 class FT2Image(Buffer):
     def __init__(self, width: int, height: int) -> None: ...
     def draw_rect_filled(self, x0: int, y0: int, x1: int, y1: int) -> None: ...
-    if sys.version_info[:2] >= (3, 12):
-        def __buffer__(self, flags: int) -> memoryview: ...
+    def __buffer__(self, flags: int, /) -> memoryview: ...
 
 @final
 class Glyph:

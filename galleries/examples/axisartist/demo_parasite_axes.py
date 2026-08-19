@@ -10,8 +10,8 @@ This approach uses `mpl_toolkits.axes_grid1.parasite_axes.HostAxes` and
 `mpl_toolkits.axes_grid1.parasite_axes.ParasiteAxes`.
 
 The standard and recommended approach is to use instead standard Matplotlib
-axes, as shown in the :doc:`/gallery/spines/multiple_yaxis_with_spines`
-example.
+axes, as shown in the
+:doc:`/gallery/subplots_axes_and_figures/multiple_yaxis_with_spines` example.
 
 An alternative approach using `mpl_toolkits.axes_grid1` and
 `mpl_toolkits.axisartist` is shown in the

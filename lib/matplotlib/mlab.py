@@ -353,7 +353,7 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
         # the sampling frequency, if desired. Scale everything, except the DC
         # component and the NFFT/2 component:
 
-        # if we have a even number of frequencies, don't scale NFFT/2
+        # if we have an even number of frequencies, don't scale NFFT/2
         if not NFFT % 2:
             slc = slice(1, -1, None)
         # if we have an odd number, just don't scale DC

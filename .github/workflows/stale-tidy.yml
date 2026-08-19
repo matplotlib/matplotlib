@@ -4,12 +4,16 @@ on:
   schedule:
     - cron: '30 1 * * 2,4,6'
 
+permissions: {}
+
 jobs:
   stale:
     if: github.repository == 'matplotlib/matplotlib'
     runs-on: ubuntu-latest
+    permissions:
+      issues: write
     steps:
-      - uses: actions/stale@3a9db7e6a41a89f618792c92c0e97cc736e1b13f  # v10.0.0
+      - uses: actions/stale@1e223db275d687790206a7acac4d1a11bd6fe629  # v10.4.0
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           operations-per-run: 300
@@ -20,5 +24,5 @@ jobs:
           close-issue-label: "status: closed as inactive"
           days-before-issue-close: 30
           ascending: true
-          exempt-issue-labels: "keep"
+          exempt-issue-labels: "keep,status: confirmed bug"
           exempt-pr-labels: "keep,status: orphaned PR"

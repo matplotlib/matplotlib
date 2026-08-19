@@ -21,10 +21,11 @@ MPL_BLUE = '#11557c'
 def get_font_properties():
     # The original font is Calibri, if that is not installed, we fall back
     # to Carlito, which is metrically equivalent.
-    if 'Calibri' in matplotlib.font_manager.findfont('Calibri:bold'):
+    if 'calibri' in matplotlib.font_manager.findfont('Calibri:bold').lower():
         return matplotlib.font_manager.FontProperties(family='Calibri',
                                                       weight='bold')
-    if 'Carlito' in matplotlib.font_manager.findfont('Carlito:bold'):
+    # Our website documentation uses Carlito because Calibri is proprietary.
+    if 'carlito' in matplotlib.font_manager.findfont('Carlito:bold').lower():
         print('Original font not found. Falling back to Carlito. '
               'The logo text will not be in the correct font.')
         return matplotlib.font_manager.FontProperties(family='Carlito',

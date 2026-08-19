@@ -21,6 +21,7 @@ the appearance by the CSS.
 
 :author: David Huard
 """
+# sphinx_gallery_thumbnail_path = '_static/svg_tooltip.svg'
 
 
 from io import BytesIO

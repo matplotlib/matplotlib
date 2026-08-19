@@ -5,6 +5,7 @@
 .. automodule:: matplotlib.ticker
    :members:
    :undoc-members:
+   :special-members: __call__
    :show-inheritance:
 
 

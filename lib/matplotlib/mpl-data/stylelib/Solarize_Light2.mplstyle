@@ -1,7 +1,7 @@
 # Solarized color palette taken from https://ethanschoonover.com/solarized/
 # Inspired by, and copied from ggthemes https://github.com/jrnold/ggthemes
 
-#TODO:
+# TODO:
 #    1. Padding to title from face
 #    2. Remove top & right ticks
 #    3. Give Title a Magenta Color(?)

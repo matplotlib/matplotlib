@@ -563,19 +563,18 @@ plt.show()
 # you call ``ax.set_xscale('log')``, the xaxis updates its scale to a
 # :class:`matplotlib.scale.LogScale` instance.
 #
-# For non-separable axes the PolarAxes, there is one more piece to
-# consider, the projection transformation.  The ``transData``
-# :class:`matplotlib.projections.polar.PolarAxes` is similar to that for
-# the typical separable matplotlib Axes, with one additional piece
-# ``transProjection``::
+# For non-separable axes, there are some more pieces to consider, in
+# particular the projection transformation.  For example, the ``transData``
+# of `matplotlib.projections.polar.PolarAxes` is more complex than that of a
+# typical separable Axes::
 #
-#        self.transData = (
-#            self.transScale + self.transShift + self.transProjection +
-#            (self.transProjectionAffine + self.transWedge + self.transAxes))
+#     self.transData = (
+#         self.transScale + self.transShift + self.transProjection +
+#         (self.transProjectionAffine + self.transWedge + self.transAxes))
 #
-# ``transProjection`` handles the projection from the space,
-# e.g., latitude and longitude for map data, or radius and theta for polar
-# data, to a separable Cartesian coordinate system.  There are several
+# ``transProjection`` handles the projection from data coordinates
+# (e.g., latitude and longitude for map data, or radius and theta for polar
+# data), to a separable Cartesian coordinate system.  There are several
 # projection examples in the :mod:`matplotlib.projections` package, and the
 # best way to learn more is to open the source for those packages and
 # see how to make your own, since Matplotlib supports extensible axes

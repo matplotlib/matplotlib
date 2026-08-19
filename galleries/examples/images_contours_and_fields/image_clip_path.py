@@ -5,13 +5,15 @@ Clipping images with patches
 
 Demo of image that's been clipped by a circular patch.
 """
+
+from PIL import Image
+
 import matplotlib.pyplot as plt
 
 import matplotlib.cbook as cbook
 import matplotlib.patches as patches
 
-with cbook.get_sample_data('grace_hopper.jpg') as image_file:
-    image = plt.imread(image_file)
+image = Image.open(cbook.get_sample_data("grace_hopper.jpg"))
 
 fig, ax = plt.subplots()
 im = ax.imshow(image)

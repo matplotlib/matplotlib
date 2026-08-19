@@ -60,7 +60,7 @@ import matplotlib.animation as animation
 # 4) Save or show the animation using one of the following methods:
 #
 #    - `.pyplot.show` to show the animation in a window
-#    - `.Animation.to_html5_video` to create a HTML ``<video>`` tag
+#    - `.Animation.to_html5_video` to create an HTML ``<video>`` tag
 #    - `.Animation.to_jshtml` to create HTML code with interactive JavaScript animation
 #      controls
 #    - `.Animation.save` to save the animation to a file

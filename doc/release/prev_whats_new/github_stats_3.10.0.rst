@@ -2,17 +2,17 @@
 
 .. _github-stats-3_10_0:
 
-GitHub statistics for 3.10.0 (Dec 13, 2024)
+GitHub statistics for 3.10.0 (Dec 14, 2024)
 ===========================================
 
-GitHub statistics for 2024/05/15 (tag: v3.9.0) - 2024/12/13
+GitHub statistics for 2024/05/15 (tag: v3.9.0) - 2024/12/14
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 100 issues and merged 337 pull requests.
+We closed 106 issues and merged 346 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/84?closed=1>`__
 
-The following 128 authors contributed 1932 commits.
+The following 120 authors contributed 1323 commits.
 
 * abhi-jha
 * Adam J. Stewart
@@ -28,7 +28,7 @@ The following 128 authors contributed 1932 commits.
 * anpaulan
 * Anson0028
 * Anthony Lee
-* anTon
+* Anton
 * Antony Lee
 * Ayoub Gouasmi
 * Brigitta Sipőcz
@@ -44,7 +44,6 @@ The following 128 authors contributed 1932 commits.
 * dale
 * Dani Pinyol
 * Daniel Weiss
-* Danny
 * David Bakaj
 * David Lowry-Duda
 * David Meyer
@@ -73,12 +72,10 @@ The following 128 authors contributed 1932 commits.
 * john
 * Jonas Eschle
 * Jouni K. Seppänen
-* juanis2112
 * Juanita Gomez
 * Justin Hendrick
 * K900
-* Kaustbh
-* Kaustubh
+* Kaustubh Desale
 * Kherim Willems
 * Kyle Sunden
 * Kyra Cho
@@ -103,7 +100,6 @@ The following 128 authors contributed 1932 commits.
 * Nabil
 * nakamura yuki
 * odile
-* OdileVidrine
 * Oscar Gustafsson
 * Panicks28
 * Paul An
@@ -111,11 +107,9 @@ The following 128 authors contributed 1932 commits.
 * PedroBittarBarao
 * Peter Talley
 * Pierre-antoine Comby
-* Pranav
 * Pranav Raghu
 * pre-commit-ci[bot]
 * proximalf
-* r3kste
 * Randolf Scholz
 * Refael Ackermann
 * RickyP24
@@ -123,20 +117,18 @@ The following 128 authors contributed 1932 commits.
 * Ruth Comer
 * Ryan May
 * Sai Chaitanya, Sanivada
-* saranti
 * scaccol
 * Scott Shambaugh
 * Sean Smith
 * Simon May
 * simond07
 * smcgrawDotNet
-* Takumasa N
-* Takumasa N.
 * Takumasa Nakamura
 * thiagoluisbecker
 * Thomas A Caswell
 * Tiago Lubiana
 * Tim Hoffmann
+* Tom Sarantis
 * trananso
 * Trygve Magnus Ræder
 * Victor Liu
@@ -145,8 +137,10 @@ The following 128 authors contributed 1932 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (337):
+Pull Requests (346):
 
+* :ghpull:`29306`: Backport PR #29242 on branch v3.10.x (DOC: Add kwdoc list to scatter() docstring)
+* :ghpull:`29242`: DOC: Add kwdoc list to scatter() docstring
 * :ghpull:`29299`: Merge v3.9.x into v3.10.x
 * :ghpull:`29296`: Backport PR #29295 on branch v3.10.x (BLD: Pin meson-python to <0.17.0)
 * :ghpull:`29290`: Backport PR #29254 on branch v3.10.x (DOC: Add note to align_labels())
@@ -225,6 +219,7 @@ Pull Requests (337):
 * :ghpull:`29097`: ENH: add back/forward buttons to osx backend move
 * :ghpull:`29095`: Backport PR #29071 on branch v3.10.x (Bump pypa/gh-action-pypi-publish from 1.10.3 to 1.11.0 in the actions group)
 * :ghpull:`29096`: Backport PR #29094 on branch v3.10.x (DOC: fix link in See Also section of axes.violin)
+* :ghpull:`29071`: Bump pypa/gh-action-pypi-publish from 1.10.3 to 1.11.0 in the actions group
 * :ghpull:`29092`: Backport PR #29088 on branch v3.10.x (DOC: Format aliases in kwargs tables)
 * :ghpull:`29094`: DOC: fix link in See Also section of axes.violin
 * :ghpull:`29091`: Backport PR #29085 on branch v3.10.x (FIX: Update GTK3Agg backend export name for consistency)
@@ -269,6 +264,7 @@ Pull Requests (337):
 * :ghpull:`29007`: MNT: Deprecate changing Figure.number
 * :ghpull:`28861`: Break Artist._remove_method reference cycle
 * :ghpull:`28478`: bugfix for ``PathSimplifier``
+* :ghpull:`29001`: Cycler signature code format fix
 * :ghpull:`28992`: DOC: Refresh transform tree example
 * :ghpull:`28890`: MNT: Add missing dependency to environment.yml
 * :ghpull:`28354`: Add Quiverkey zorder option
@@ -304,6 +300,7 @@ Pull Requests (337):
 * :ghpull:`27349`: [ENH] Implement dynamic clipping to axes limits for 3D plots
 * :ghpull:`28913`: DOC: Fix Axis.set_label reference
 * :ghpull:`28911`: MNT: Fix double evaluation of _LazyTickList
+* :ghpull:`28910`: Bump the actions group across 1 directory with 5 updates
 * :ghpull:`28584`: MNT: Prevent users from erroneously using legend label API on Axis
 * :ghpull:`28853`: MNT: Check the input sizes of regular X,Y in pcolorfast
 * :ghpull:`28838`: TST: Fix minor issues in interactive backend test
@@ -314,6 +311,7 @@ Pull Requests (337):
 * :ghpull:`28896`: doc: specify non-python dependencies in dev install docs
 * :ghpull:`28843`: MNT: Cleanup FontProperties __init__ API
 * :ghpull:`28683`: MNT: Warn if fixed aspect overwrites explicitly set data limits
+* :ghpull:`28879`: doc: add pandas and xarray fixtures to testing API docs
 * :ghpull:`25645`: Fix issue with sketch not working on PathCollection in Agg
 * :ghpull:`28886`: DOC: Cross-link Axes attributes
 * :ghpull:`28880`: Remove 'in' from removal substitution for deprecation messages
@@ -342,6 +340,7 @@ Pull Requests (337):
 * :ghpull:`27938`: feat: add dunder method for math operations on Axes Size divider
 * :ghpull:`28569`: Adding tags to many examples
 * :ghpull:`28183`: Expire deprecations
+* :ghpull:`28796`: Add example of petroff10 in the style sheets to show how to use the color sequence.
 * :ghpull:`28801`: DOC: Clarify AxLine.set_xy2 / AxLine.set_slope
 * :ghpull:`28788`: TST: Skip webp tests if it isn't available
 * :ghpull:`28550`: Remove internal use of ``Artist.figure``
@@ -377,6 +376,7 @@ Pull Requests (337):
 * :ghpull:`28709`: Bump actions/attest-build-provenance from 1.4.0 to 1.4.1 in the actions group
 * :ghpull:`28707`: Avoid division-by-zero in Sketch::Sketch
 * :ghpull:`28610`: CI: Add CI to test matplotlib against free-threaded Python
+* :ghpull:`28677`: Doc: add axes titles to axhspan/axvspan
 * :ghpull:`28262`: Fix PolygonSelector cursor to temporarily hide during active zoom/pan
 * :ghpull:`28670`: API: deprecate unused helper in patch._Styles
 * :ghpull:`28589`: Qt embedding example: Separate drawing and data retrieval timers
@@ -411,6 +411,7 @@ Pull Requests (337):
 * :ghpull:`28073`: Add support for multiple hatches, edgecolors and linewidths in histograms
 * :ghpull:`28594`: MNT: Raise on GeoAxes limits manipulation
 * :ghpull:`28312`: Remove one indirection layer in ToolSetCursor.
+* :ghpull:`28566`: MNT: Update label for Tag proposal issue template
 * :ghpull:`28573`: ENH: include property name in artist AttributeError
 * :ghpull:`28503`: Bump minimum Python to 3.10
 * :ghpull:`28525`: FIX: colorbar pad for ``ImageGrid``
@@ -485,8 +486,13 @@ Pull Requests (337):
 * :ghpull:`28037`: DOC: Fix inconsistent spacing in some docstrings in _axes.py
 * :ghpull:`28031`: Be more specific in findobj return type
 
-Issues (100):
+Issues (106):
 
+* :ghissue:`28463`: [ENH]: ticker.EngFormatter: allow offset
+* :ghissue:`23490`: [ENH]: Add buttons (plural) attribute to mouseevents
+* :ghissue:`28209`: [Doc]: quiver ‘scale_units’ description is not very not clear
+* :ghissue:`22651`: [ENH]: rgb_to_hsv/hsv_to_rgb could check that the inputs are of floating point dtype
+* :ghissue:`9056`: default filename does not strip invalid characters on windows
 * :ghissue:`29298`: [Doc]: The link at "see also" is incorrect. (Axes.violin)
 * :ghissue:`29248`: [Bug]: Figure.align_labels() confused by GridSpecFromSubplotSpec
 * :ghissue:`26738`: Improve LineCollection docstring further
@@ -504,6 +510,7 @@ Issues (100):
 * :ghissue:`19229`: Add public API for setting an axis unit converter
 * :ghissue:`21108`: [Bug]: Hatch linewidths cannot be modified in an  rcParam context
 * :ghissue:`27784`: [Bug]: Polar plot error bars don't rotate with angle for ``set_theta_direction`` and ``set_theta_offset``
+* :ghissue:`28944`: [Bug]: calling title before making polar plot
 * :ghissue:`29011`: [Bug]: Figure.autofmt_xdate() not working in presence of colorbar with constrained layout
 * :ghissue:`29020`: AIX internal CI build break #Matplotlib
 * :ghissue:`28726`: feature request: support passing DataFrames to table.table

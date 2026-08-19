@@ -12,7 +12,7 @@ These lists are automatically generated, and may be incomplete or contain duplic
 We closed 22 issues and merged 80 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/73?closed=1>`__
 
-The following 19 authors contributed 129 commits.
+The following 19 authors contributed 112 commits.
 
 * Antony Lee
 * baharev
@@ -25,7 +25,7 @@ The following 19 authors contributed 129 commits.
 * hannah
 * Ian Hunt-Isaak
 * Jody Klymak
-* melissawm
+* Melissa Weber Mendonça
 * Oscar Gustafsson
 * Ruth Comer
 * slackline
@@ -55,7 +55,7 @@ Pull Requests (80):
 * :ghpull:`24078`: Backport PR #24047 on branch v3.6.x (Revert #22360: Let TeX handle multiline strings itself)
 * :ghpull:`24047`: Revert #22360: Let TeX handle multiline strings itself
 * :ghpull:`24077`: Backport PR #24054 on branch v3.6.x ( DOC: Move OO-examples from pyplot section)
-* :ghpull:`24054`:  DOC: Move OO-examples from pyplot section
+* :ghpull:`24054`: DOC: Move OO-examples from pyplot section
 * :ghpull:`24072`: Backport PR #24069 on branch v3.6.x (Clarification of marker size in scatter)
 * :ghpull:`24073`: Backport PR #24070 on branch v3.6.x (DOC: colorbar may steal from array of axes)
 * :ghpull:`24070`: DOC: colorbar may steal from array of axes

@@ -51,7 +51,7 @@ def derivs(t, state):
 
     return dydx
 
-# create a time array from 0..t_stop sampled at 0.02 second steps
+# create a time array from 0..t_stop sampled at 0.01 second steps
 dt = 0.01
 t = np.arange(0, t_stop, dt)
 

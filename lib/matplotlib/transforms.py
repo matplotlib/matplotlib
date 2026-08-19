@@ -44,7 +44,7 @@ import math
 import numpy as np
 from numpy.linalg import inv
 
-from matplotlib import _api
+from matplotlib import _api, _docstring
 from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
 from .path import Path
 
@@ -156,7 +156,7 @@ class TransformNode:
         Invalidate this `TransformNode` and triggers an invalidation of its
         ancestors.  Should be called any time the transform changes.
         """
-        return self._invalidate_internal(
+        self._invalidate_internal(
             level=self._INVALID_AFFINE_ONLY if self.is_affine else self._INVALID_FULL,
             invalidating_node=self)
 
@@ -376,6 +376,29 @@ class BboxBase(TransformNode):
 
     def get_points(self):
         raise NotImplementedError
+
+    def _is_finite(self):
+        """
+        Return whether the bounding box is finite and not degenerate to a
+        single point.
+
+        We count the box as finite if neither width nor height are infinite
+        and at least one direction is non-zero; i.e. a point is not finite,
+        but a horizontal or vertical line is.
+
+        .. versionadded:: 3.11
+
+        Notes
+        -----
+        We keep this private for now because concise naming is hard and
+        because we are not sure how universal the concept is. It is
+        currently used only for filtering bboxes to be included in
+        tightbbox calculation, but I'm unsure whether single points
+        should be included there as well.
+        """
+        width = self.width
+        height = self.height
+        return (width > 0 or height > 0) and width < np.inf and height < np.inf
 
     def containsx(self, x):
         """
@@ -818,7 +841,7 @@ class Bbox(BboxBase):
             set. This is useful when dealing with logarithmic scales and other
             scales where negative bounds result in floating point errors.
         """
-        bbox = Bbox(np.reshape(args, (2, 2)))
+        bbox = Bbox(np.asarray(args, dtype=float).reshape((2, 2)))
         if minpos is not None:
             bbox._minpos[:] = minpos
         return bbox
@@ -881,14 +904,22 @@ class Bbox(BboxBase):
 
         if updatex:
             x = path.vertices[..., 0][valid_points]
-            points[0, 0] = min(points[0, 0], np.min(x, initial=np.inf))
+            minx = np.min(x, initial=np.inf)
+            points[0, 0] = min(points[0, 0], minx)
             points[1, 0] = max(points[1, 0], np.max(x, initial=-np.inf))
-            minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
+            if minx > 0:  # Fast path for all-positive x values
+                minpos[0] = min(minpos[0], minx)
+            else:
+                minpos[0] = min(minpos[0], np.min(x[x > 0], initial=np.inf))
         if updatey:
             y = path.vertices[..., 1][valid_points]
-            points[0, 1] = min(points[0, 1], np.min(y, initial=np.inf))
+            miny = np.min(y, initial=np.inf)
+            points[0, 1] = min(points[0, 1], miny)
             points[1, 1] = max(points[1, 1], np.max(y, initial=-np.inf))
-            minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
+            if miny > 0:  # Fast path for all-positive y values
+                minpos[1] = min(minpos[1], miny)
+            else:
+                minpos[1] = min(minpos[1], np.min(y[y > 0], initial=np.inf))
 
         if np.any(points != self._points) or np.any(minpos != self._minpos):
             self.invalidate()
@@ -2842,7 +2873,7 @@ class TransformedPatchPath(TransformedPath):
         super()._revalidate()
 
 
-def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+def _nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     """
     Modify the endpoints of a range as needed to avoid singularities.
 
@@ -2900,7 +2931,13 @@ def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
     return vmin, vmax
 
 
-def interval_contains(interval, val):
+@_api.deprecated("3.11")
+@_docstring.copy(_nonsingular)
+def nonsingular(vmin, vmax, expander=0.001, tiny=1e-15, increasing=True):
+    return _nonsingular(vmin, vmax, expander, tiny, increasing)
+
+
+def _interval_contains(interval, val):
     """
     Check, inclusively, whether an interval includes a given value.
 
@@ -2920,6 +2957,12 @@ def interval_contains(interval, val):
     if a > b:
         a, b = b, a
     return a <= val <= b
+
+
+@_api.deprecated("3.11")
+@_docstring.copy(_interval_contains)
+def interval_contains(interval, val):
+    return _interval_contains(interval, val)
 
 
 def _interval_contains_close(interval, val, rtol=1e-10):
@@ -2951,7 +2994,7 @@ def _interval_contains_close(interval, val, rtol=1e-10):
     return a - rtol <= val <= b + rtol
 
 
-def interval_contains_open(interval, val):
+def _interval_contains_open(interval, val):
     """
     Check, excluding endpoints, whether an interval includes a given value.
 
@@ -2969,6 +3012,12 @@ def interval_contains_open(interval, val):
     """
     a, b = interval
     return a < val < b or a > val > b
+
+
+@_api.deprecated("3.11")
+@_docstring.copy(_interval_contains_open)
+def interval_contains_open(interval, val):
+    return _interval_contains_open(interval, val)
 
 
 def offset_copy(trans, fig=None, x=0.0, y=0.0, units='inches'):

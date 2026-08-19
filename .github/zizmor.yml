@@ -1,0 +1,19 @@
+---
+rules:
+  dangerous-triggers:
+    ignore:
+      # These workflows use pull_request_target solely to obtain write access
+      # for API operations (labeling, commenting) on fork PRs. None of them
+      # check out or execute any PR-supplied code.
+      - autoclose_comment.yml:11
+      - conflictcheck.yml:3
+      - labeler.yml:3
+      - pr_welcome.yml:4
+  cache-poisoning:
+    ignore:
+      # cygwin.yml is a test-only workflow; no artifacts are published.
+      # This is triggering a low-confidence flag that the  workflow_dispatch:
+      # trigger may imply artifact publishing
+      - cygwin.yml:144:9
+      - cygwin.yml:151:9
+      - cygwin.yml:158:9

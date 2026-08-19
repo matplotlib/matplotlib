@@ -3,6 +3,7 @@ from datetime import datetime
 import io
 import pickle
 import platform
+import sys
 from threading import Timer
 from types import SimpleNamespace
 import warnings
@@ -23,9 +24,13 @@ from matplotlib.layout_engine import (ConstrainedLayoutEngine,
 from matplotlib.ticker import AutoMinorLocator, FixedFormatter, ScalarFormatter
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.lines as mlines
+import matplotlib.patches as mpatch
+from matplotlib.offsetbox import AnchoredOffsetbox, TextArea
+import matplotlib.transforms as mtransforms
 
 
-@image_comparison(['figure_align_labels'], extensions=['png', 'svg'],
+@image_comparison(['figure_align_labels'], extensions=['png', 'svg'], style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.01)
 def test_align_labels():
     fig = plt.figure(layout='tight')
@@ -68,8 +73,7 @@ def test_align_labels():
 
 @image_comparison(['figure_align_titles_tight.png',
                    'figure_align_titles_constrained.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.022,
-                  style='mpl20')
+                  style='mpl20', tol=0 if platform.machine() == 'x86_64' else 0.021)
 def test_align_titles():
     for layout in ['tight', 'constrained']:
         fig, axs = plt.subplots(1, 2, layout=layout, width_ratios=[2, 1])
@@ -147,8 +151,6 @@ def test_figure_label():
     assert plt.get_figlabels() == ['', 'today']
     plt.figure(fig_today)
     assert plt.gcf() == fig_today
-    with pytest.raises(ValueError):
-        plt.figure(Figure())
 
 
 def test_figure_label_replaced():
@@ -209,8 +211,8 @@ def test_clf_keyword():
     assert [t.get_text() for t in fig2.texts] == []
 
 
-@image_comparison(['figure_today.png'],
-                  tol=0 if platform.machine() == 'x86_64' else 0.015)
+@image_comparison(['figure_today.png'], style='mpl20',
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_figure():
     # named figure support
     fig = plt.figure('today')
@@ -225,7 +227,7 @@ def test_figure():
     plt.close('tomorrow')
 
 
-@image_comparison(['figure_legend.png'])
+@image_comparison(['figure_legend.png'], style='mpl20')
 def test_figure_legend():
     fig, axs = plt.subplots(2)
     axs[0].plot([0, 1], [1, 0], label='x', color='g')
@@ -322,7 +324,7 @@ def test_add_subplot_invalid():
         fig.add_subplot(ax)
 
 
-@image_comparison(['figure_suptitle.png'])
+@image_comparison(['figure_suptitle.png'], style='mpl20')
 def test_suptitle():
     fig, _ = plt.subplots()
     fig.suptitle('hello', color='r')
@@ -364,19 +366,42 @@ def test_get_suptitle_supxlabel_supylabel():
     assert fig.get_supylabel() == 'supylabel'
 
 
+def test_remove_suptitle_supxlabel_supylabel():
+    fig = plt.figure()
+
+    title = fig.suptitle('suptitle')
+    xlabel = fig.supxlabel('supxlabel')
+    ylabel = fig.supylabel('supylabel')
+
+    assert len(fig.texts) == 3
+    assert fig._suptitle is not None
+    assert fig._supxlabel is not None
+    assert fig._supylabel is not None
+
+    title.remove()
+    assert fig._suptitle is None
+    xlabel.remove()
+    assert fig._supxlabel is None
+    ylabel.remove()
+    assert fig._supylabel is None
+
+    assert not fig.texts
+
+
 @image_comparison(['alpha_background'],
                   # only test png and svg. The PDF output appears correct,
                   # but Ghostscript does not preserve the background color.
                   extensions=['png', 'svg'],
-                  savefig_kwarg={'facecolor': (0, 1, 0.4),
-                                 'edgecolor': 'none'})
+                  savefig_kwarg={'facecolor': (0, 1, 0.4), 'edgecolor': 'none'},
+                  style='_classic_test')
 def test_alpha():
     # We want an image which has a background color and an alpha of 0.4.
     fig = plt.figure(figsize=[2, 1])
     fig.set_facecolor((0, 1, 0.4))
     fig.patch.set_alpha(0.4)
-    fig.patches.append(mpl.patches.CirclePolygon(
-        [20, 20], radius=15, alpha=0.6, facecolor='red'))
+    fig.add_artist(mpl.patches.CirclePolygon(
+        [20, 20], radius=15, alpha=0.6, facecolor='red',
+        transform=mtransforms.IdentityTransform()))
 
 
 def test_too_many_figures():
@@ -814,7 +839,7 @@ def test_tightbbox():
     ax.set_xlim(0, 1)
     t = ax.text(1., 0.5, 'This dangles over end')
     renderer = fig.canvas.get_renderer()
-    x1Nom0 = 9.035  # inches
+    x1Nom0 = 8.9875  # inches
     assert abs(t.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     assert abs(ax.get_tightbbox(renderer).x1 - x1Nom0 * fig.dpi) < 2
     assert abs(fig.get_tightbbox(renderer).x1 - x1Nom0) < 0.05
@@ -1376,7 +1401,8 @@ def test_subfigure_dpi():
 
 
 @image_comparison(['test_subfigure_ss.png'], style='mpl20',
-                  savefig_kwarg={'facecolor': 'teal'}, tol=0.02)
+                  savefig_kwarg={'facecolor': 'teal'},
+                  tol=0 if platform.machine() == 'x86_64' else 0.022)
 def test_subfigure_ss():
     # test assigning the subfigure via subplotspec
     np.random.seed(19680801)
@@ -1551,6 +1577,7 @@ def test_subfigures_wspace_hspace():
 def test_subfigure_remove():
     fig = plt.figure()
     sfs = fig.subfigures(2, 2)
+    sfs[1, 1].subplots()
     sfs[1, 1].remove()
     assert len(fig.subfigs) == 3
 
@@ -1605,6 +1632,8 @@ def test_add_axes_kwargs():
     plt.close()
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig, ax = plt.subplots()
@@ -1627,6 +1656,8 @@ def test_ginput(recwarn):  # recwarn undoes warn filters at exit.
     np.testing.assert_allclose(fig.ginput(3), [(.3, .4), (.5, .6)])
 
 
+@pytest.mark.skipif(sys.platform == 'emscripten',
+                    reason='emscripten does not support threads')
 def test_waitforbuttonpress(recwarn):  # recwarn undoes warn filters at exit.
     warnings.filterwarnings("ignore", "cannot show the figure")
     fig = plt.figure()
@@ -1690,6 +1721,9 @@ def test_unpickle_with_device_pixel_ratio():
     assert fig.dpi == 42*7
     fig2 = pickle.loads(pickle.dumps(fig))
     assert fig2.dpi == 42
+    assert all(
+        [orig / 7 == restore for orig, restore in zip(fig.bbox.max, fig2.bbox.max)]
+    )
 
 
 def test_gridspec_no_mutate_input():
@@ -1843,6 +1877,7 @@ def test_subfigure_stale_propagation():
     ((6, 4), (6, 4)),
     ((6, 4, "in"), (6, 4)),
     ((5.08, 2.54, "cm"), (2, 1)),
+    ((50.8, 25.4, "mm"), (2, 1)),
     ((600, 400, "px"), (6, 4)),
 ])
 def test_figsize(figsize, figsize_inches):
@@ -1850,6 +1885,84 @@ def test_figsize(figsize, figsize_inches):
     assert tuple(fig.get_size_inches()) == figsize_inches
 
 
+def test_figsize_partial_none():
+    default_w, default_h = mpl.rcParams["figure.figsize"]
+
+    fig = plt.figure(figsize=(None, 4))
+    w, h = fig.get_size_inches()
+    assert (w, h) == (default_w, 4)
+
+    fig = plt.figure(figsize=(6, None))
+    w, h = fig.get_size_inches()
+    assert (w, h) == (6, default_h)
+
+
+def test_figsize_both_none():
+    with pytest.raises(ValueError,
+                       match=r"figsize=\(None, None\) is invalid"):
+        plt.figure(figsize=(None, None))
+
+
 def test_figsize_invalid_unit():
     with pytest.raises(ValueError, match="Invalid unit 'um'"):
         plt.figure(figsize=(6, 4, "um"))
+
+
+def test_artist_sublists():
+    # The ArtistList functionality is covered in test_axes.py::test_artist_sublists.
+    # Here we simply check that the artists go to the correct sublist for their type.
+    fig = plt.figure()
+
+    im = fig.figimage(np.arange(25).reshape(5, 5))
+    txt = fig.text(0.5, 0.5, 'foo')
+
+    line = mlines.Line2D([0, 1], [0, 1])
+    patch = mpatch.Rectangle((0, 0), 0.5, 0.5)
+    box = AnchoredOffsetbox(child=TextArea('bar'), loc='upper left')
+
+    for artist in line, patch, box:
+        fig.add_artist(artist)
+
+    leg = fig.legend([line], ['baz'])
+
+    assert list(fig.images) == [im]
+    assert list(fig.texts) == [txt]
+    assert list(fig.lines) == [line]
+    assert list(fig.patches) == [patch]
+    assert list(fig.legends) == [leg]
+    assert list(fig.artists) == [box]
+
+
+def test_artist_sublist_deprecations():
+    fig = plt.figure()
+
+    lines = [
+        mlines.Line2D(
+            [0, 1], [0, 1/n], figure=fig, transform=fig.transFigure)
+        for n in range(1, 7)]
+
+    # Adding items should warn.
+    match = r'Modification of the \(Sub\)Figure.lines property'
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines.append(lines[-2])
+    assert list(fig.lines) == [lines[-2]]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines.append(lines[-1])
+    assert list(fig.lines) == lines[-2:]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines.insert(-2, lines[1])
+    assert list(fig.lines) == [lines[1], lines[-2], lines[-1]]
+
+    # Modifying items should warn.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines[0] = lines[0]
+    assert list(fig.lines) == [lines[0], lines[-2], lines[-1]]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        fig.lines[1:1] = lines[1:-2]
+    assert list(fig.lines) == lines
+
+    # Deleting items (multiple or single) should warn.
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        del fig.lines[-1]
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
+        del fig.lines[1:]

@@ -1,6 +1,6 @@
 """
 =======================
-Colorbar Tick Labelling
+Colorbar Tick labelling
 =======================
 
 Vertical colorbars have ticks, tick labels, and labels visible on the *y* axis,

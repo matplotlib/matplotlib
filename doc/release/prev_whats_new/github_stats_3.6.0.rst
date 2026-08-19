@@ -2,17 +2,17 @@
 
 .. _github-stats-3-6-0:
 
-GitHub statistics for 3.6.0 (Sep 15, 2022)
+GitHub statistics for 3.6.0 (Sep 16, 2022)
 ==========================================
 
-GitHub statistics for 2021/11/16 (tag: v3.5.0) - 2022/09/15
+GitHub statistics for 2021/11/16 (tag: v3.5.0) - 2022/09/16
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 202 issues and merged 894 pull requests.
+We closed 223 issues and merged 900 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/65?closed=1>`__
 
-The following 174 authors contributed 4425 commits.
+The following 167 authors contributed 3677 commits.
 
 * Abhishek K M
 * Adeel Hassan
@@ -25,7 +25,6 @@ The following 174 authors contributed 4425 commits.
 * andrzejnovak
 * Andrés Martínez
 * Anna Mastori
-* AnnaMastori
 * Ante Sikic
 * Antony Lee
 * arndRemy
@@ -73,7 +72,6 @@ The following 174 authors contributed 4425 commits.
 * Haziq Khurshid
 * Henry
 * henrybeUM
-* Hood
 * Hood Chatham
 * Ian Hunt-Isaak
 * Ian Thomas
@@ -103,14 +101,13 @@ The following 174 authors contributed 4425 commits.
 * kislovskiy
 * KIU Shueng Chuan
 * kjain
-* kolibril13
 * krassowski
 * Krish-sysadmin
-* Leeh Peter
 * lgfunderburk
 * Liam Toney
 * Lucas Ricci
 * Luke Davis
+* Lumberbot (aka Jack)
 * luz paz
 * mackopes
 * MAKOMO
@@ -122,8 +119,7 @@ The following 174 authors contributed 4425 commits.
 * Matthew Feickert
 * Matthias Bussonnier
 * Mauricio Collares
-* MeeseeksMachine
-* melissawm
+* Melissa Weber Mendonça
 * Mr-Milk
 * Navid C. Constantinou
 * Nickolaos Giannatos
@@ -143,13 +139,12 @@ The following 174 authors contributed 4425 commits.
 * Raphael Quast
 * rditlar9
 * Richard Penney
-* richardsheridan
+* Richard Sheridan
 * Rike-Benjamin Schuppner
 * Robert Cimrman
 * Roberto Toro
 * root
 * Ruth Comer
-* Ruth G. N
 * Ruth Nainggolan
 * Ryan May
 * Rémi Achard
@@ -165,7 +160,6 @@ The following 174 authors contributed 4425 commits.
 * Sven Eschlbeck
 * sveneschlbeck
 * takimata
-* tfpf
 * Thomas A Caswell
 * Tim Hoffmann
 * Tobias Megies
@@ -175,7 +169,6 @@ The following 174 authors contributed 4425 commits.
 * unknown
 * Uwe Hubert
 * vfdev-5
-* Vishal Chandratreya
 * Vishal Pankaj Chandratreya
 * Vishnu V K
 * vk0812
@@ -191,7 +184,7 @@ The following 174 authors contributed 4425 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (894):
+Pull Requests (900):
 
 * :ghpull:`23814`: Consolidate release notes for 3.6
 * :ghpull:`23899`: Backport PR #23885 on branch v3.6.x (DOC: Rearrange navbar-end elements)
@@ -1042,10 +1035,12 @@ Pull Requests (894):
 * :ghpull:`21379`: Simplify filename tracking in FT2Font.
 * :ghpull:`21278`: Clear findfont cache when calling addfont().
 * :ghpull:`21400`: Use bbox.{size,bounds,width,height,p0,...} where appropriate.
+* :ghpull:`21402`: Do not use mutables as default parameters
 * :ghpull:`21408`: Reword annotations tutorial section titles.
 * :ghpull:`21371`: Rename default branch
 * :ghpull:`21389`: Log pixel coordinates in event_handling coords_demo example on terminal/console
 * :ghpull:`21376`: Factor common parts of saving to different formats using pillow.
+* :ghpull:`21385`: Document what indexing a GridSpec returns
 * :ghpull:`21377`: Enable tests for text path based markers
 * :ghpull:`21283`: Demonstrate inset_axes in scatter_hist example.
 * :ghpull:`21356`: Raise an exception when find_tex_file fails to find a file.
@@ -1066,10 +1061,13 @@ Pull Requests (894):
 * :ghpull:`21213`: Compress comments in make_image.
 * :ghpull:`21187`: Deprecate error_msg_foo helpers.
 * :ghpull:`21190`: Deprecate mlab.stride_windows.
+* :ghpull:`17096`: Add conda environment.yml for developers
 * :ghpull:`21152`: Rename ``**kw`` to ``**kwargs``.
 * :ghpull:`21087`: Move colormap examples from userdemo to images_contours_and_fields.
 * :ghpull:`21074`: Deprecate MarkerStyle(None).
+* :ghpull:`20345`: ENH: call update_ticks before we return them to the user
 * :ghpull:`20990`: Explicit registration of canvas-specific tool subclasses.
+* :ghpull:`21055`: Support marker="none" to mean "no marker".
 * :ghpull:`21049`: Simplify setting Legend attributes
 * :ghpull:`21056`: Deprecate support for no-args MarkerStyle().
 * :ghpull:`21059`: Remove dummy test command from setup.py
@@ -1087,9 +1085,31 @@ Pull Requests (894):
 * :ghpull:`20957`: legend_handler_map cleanups.
 * :ghpull:`20955`: Remove unused HostAxes._get_legend_handles.
 * :ghpull:`20851`: Try to install the Noto Sans CJK font
+* :ghpull:`20898`: Reword BoundaryNorm docs.
 
-Issues (202):
+Issues (223):
 
+* :ghissue:`22262`: [ENH]: Support for custom/special ticks without complex workarounds
+* :ghissue:`20746`: autoinfer norms from scale names in the "norm" kwarg of imshow() and friends.
+* :ghissue:`16935`: Unable to append to array.array after using it in a plot
+* :ghissue:`19080`: deprecation of validCap, validJoin makes pydoc spam out many, many warnings
+* :ghissue:`7556`: document when derived values (ex tick locations and labels) are computed
+* :ghissue:`16217`: pcolormesh with shading=gouraud gives error when saved as eps
+* :ghissue:`22690`: [Bug]: supports_blit is True with MacOSX backend
+* :ghissue:`7089`: matplotlibrc reader cannot handle rcparams with a hash
+* :ghissue:`4058`: regularize ``get_window_extent``
+* :ghissue:`16747`: Incosistent keyword arguments
+* :ghissue:`21285`: legend.get_window_extent() fails
+* :ghissue:`21802`: [Bug]: Pickled figure artists can no longer be picked
+* :ghissue:`25038`: [Bug]: Saving eps figure with usetex and no text in the plot fails
+* :ghissue:`21722`: [MNT]: Is the macosx backend (very slowly) leaking strings?
+* :ghissue:`6800`: Calling savefig() changes the return value of ax.get_xticklabels()
+* :ghissue:`21259`: [Bug]: Memory leak in 3.4.3
+* :ghissue:`20055`: new "layout" class
+* :ghissue:`6418`: Update virtualenv + OSX + conda guide
+* :ghissue:`14055`: Purpose of Scatter plot with pie-chart markers example
+* :ghissue:`23230`: [Doc]: How to turn off markers in stem plot
+* :ghissue:`23845`: [Doc]: Rearrange nav bar icons
 * :ghissue:`23827`: backend_gtk3agg.py calls set_device_scale
 * :ghissue:`23560`: [Doc]: mpl_toolkits.axes_grid still mentioned as maintained
 * :ghissue:`23794`: [Doc]: Version switcher broken in devdocs
@@ -1150,6 +1170,7 @@ Issues (202):
 * :ghissue:`23172`: [Bug]: Calling matplotlib.pyplot.show() outside of matplotlib.pyplot.rc_context no longer works
 * :ghissue:`23019`: [Bug]: ``UnicodeDecodeError`` when using some special and accented characters in TeX
 * :ghissue:`23334`: [Doc]: Tk embedding example crashes Spyder
+* :ghissue:`23339`: MultiCursor should be able to bind to axes in more than one figure...
 * :ghissue:`23298`: [Bug]: get_backend() clears figures from Gcf.figs if they were created under rc_context
 * :ghissue:`21942`: [ENH]: add width/height_ratios to subplots and friends
 * :ghissue:`23028`: [ENH]: contour kwarg for negative_linestyle
@@ -1207,7 +1228,6 @@ Issues (202):
 * :ghissue:`22726`: [Bug]: tripcolor ignores clim
 * :ghissue:`21635`: [ENH]: Add a nightly wheel build
 * :ghissue:`9994`: document where nightly wheels are published
-* :ghissue:`22350`: [Bug]: text.usetex Vs. DateFormatter
 * :ghissue:`4976`: missing imshow() subplots when using tight_layout()
 * :ghissue:`22150`: [ENH]: Tool icons are hardly visible in Tk when using a dark theme
 * :ghissue:`22662`: Leave color parameter empty should be fine[ENH]:
@@ -1243,7 +1263,6 @@ Issues (202):
 * :ghissue:`22369`: [Doc]: Incorrect comment in example code for creating adjacent subplots
 * :ghissue:`19174`: connectionstyle arc3 with high rad value pushes up data interval of x-axis and y-axis.
 * :ghissue:`8351`: seaborn styles make "+", "x" markers invisible; proposed workaround for shipped styles
-* :ghissue:`22278`: Deprecate/remove maxdict
 * :ghissue:`19276`: imshow with very large arrays not working as expected
 * :ghissue:`22035`: [ENH]: Specify a custom focal length / FOV for the 3d camera
 * :ghissue:`22264`: [Bug]: new constrained_layout causes axes to go invisible(?)
@@ -1292,3 +1311,4 @@ Issues (202):
 * :ghissue:`17986`: MEP22 per-backend tool registration
 * :ghissue:`4938`: Feature request: add option to disable mathtext parsing
 * :ghissue:`11435`: plt.subplot eats my subplots
+* :ghissue:`6103`: ticklabels empty when not interactive

@@ -9,17 +9,16 @@ GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2024/05/15
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 97 issues and merged 450 pull requests.
+We closed 103 issues and merged 456 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/78?closed=1>`__
 
-The following 175 authors contributed 2584 commits.
+The following 163 authors contributed 1906 commits.
 
 * 0taj
 * Abdul Razak Taha
 * Adam J. Stewart
 * Adam Turner
 * Aditi Gautam
-* agautam478
 * Alan Lau
 * Albert Y. Shih
 * Alec Vercruysse
@@ -28,7 +27,7 @@ The following 175 authors contributed 2584 commits.
 * Allan Haldane
 * Amirreza Aflakparast
 * Ananya Devarakonda
-* ananya314
+* Andrew Kim
 * Anja Beck
 * Anjini2004
 * Ant Lockyer
@@ -42,7 +41,6 @@ The following 175 authors contributed 2584 commits.
 * Binaya Sharma
 * Cameron
 * Chaoyi Hu
-* chaoyihu
 * Chiraag Balu
 * Christoph Hasse
 * ConstableCatnip
@@ -54,10 +52,8 @@ The following 175 authors contributed 2584 commits.
 * danielcobej
 * David Gilbertson
 * David Stansby
-* ddale1128@gmail.com
 * dependabot[bot]
 * Devilsaint
-* dohyun
 * Drew Kinneer
 * DWesl
 * Elisa Heckelmann
@@ -65,7 +61,6 @@ The following 175 authors contributed 2584 commits.
 * Elliott Sales de Andrade
 * Eric Firing
 * Eric Prestat
-* esibinga
 * Eva Sibinga
 * Evgenii Radchenko
 * Faisal Fawad
@@ -89,8 +84,6 @@ The following 175 authors contributed 2584 commits.
 * Issam Arabi
 * Jacob Stevens-Haas
 * Jacob Tomlinson
-* Jake
-* Jake Stevens-Haas
 * James Salsman
 * Jaroza727
 * Jeremy Farrell
@@ -123,7 +116,6 @@ The following 175 authors contributed 2584 commits.
 * Matthew Morrison
 * Matthias Bussonnier
 * Melissa Weber Mendonça
-* melissawm
 * mliu08
 * Mostafa Noah
 * MostafaNouh0011
@@ -146,7 +138,6 @@ The following 175 authors contributed 2584 commits.
 * QuadroTec
 * Rafael Tsuha
 * Raghuram Sirigiri
-* Raphael
 * Raphael Quast
 * Ratnabali Dutta
 * rawwash
@@ -157,24 +148,21 @@ The following 175 authors contributed 2584 commits.
 * Ruth Comer
 * samGreer
 * Samuel Diebolt
-* saranti
 * Scott Shambaugh
 * Sebastian Berg
 * Seohyeon Lee
 * Sheepfan0828
 * ShivamPathak99
 * Shriya Kalakata
-* shriyakalakata
 * Stefan
 * Steffen Rehberg
-* stevezhang1999
 * Sudhanshu Pandey
 * Talha Irfan
 * thehappycheese
 * Thomas A Caswell
 * Tiago Lubiana
 * Tim Hoffmann
-* tobias
+* Tobias Thrien
 * Tom Sarantis
 * trananso
 * turnipseason
@@ -192,7 +180,7 @@ The following 175 authors contributed 2584 commits.
 
 GitHub issues and pull requests:
 
-Pull Requests (450):
+Pull Requests (456):
 
 * :ghpull:`28206`: Backport PR #28205 on branch v3.9.x (TST: Fix tests with older versions of ipython)
 * :ghpull:`28207`: TST: Followup corrections to #28205
@@ -270,6 +258,7 @@ Pull Requests (450):
 * :ghpull:`23597`: Always use PyQT/PySide6 for GitHub CI
 * :ghpull:`28013`: Avoid plt.xticks/plt.yticks in gallery examples.
 * :ghpull:`28006`: Fix deprecation warnings in ft2font extension
+* :ghpull:`28003`: [pre-commit.ci] pre-commit autoupdate
 * :ghpull:`27723`: ci: Enable testing on M1 macOS
 * :ghpull:`26375`: Add ``widths``, ``heights`` and ``angles`` setter to ``EllipseCollection``
 * :ghpull:`27999`: Remove documentation that some backends don't support hatching.
@@ -380,6 +369,7 @@ Pull Requests (450):
 * :ghpull:`25815`: [TST] Make jpl units instantiated with datetimes consistent with mpl converters
 * :ghpull:`27729`: DOC: Improve colormap normalization example
 * :ghpull:`27732`: TST: Remove memory leak test
+* :ghpull:`27631`: DOC: update doc/readme.txt & remove devel/readme
 * :ghpull:`27733`: ci: Simplify CodeQL setup
 * :ghpull:`27692`: Add method to update position of arrow patch
 * :ghpull:`27736`: Fix incorrect API reference in docs
@@ -465,6 +455,8 @@ Pull Requests (450):
 * :ghpull:`27013`: Add test_contour under test_datetime.py
 * :ghpull:`27497`: Clarify that set_axisbelow doesn't move grids below images.
 * :ghpull:`27498`: Remove unnecessary del local variables at end of Gcf.destroy.
+* :ghpull:`27476`: Added smoke test for Axes.imshow to test_datetime.py
+* :ghpull:`27282`: DOC: add collection-fontsrecommended to dependencies
 * :ghpull:`27466`: Add test_eventplot to test_datetime.py
 * :ghpull:`25905`: Use annotate coordinate systems to simplify label_subplots.
 * :ghpull:`27471`: Doc: visualizing_tests and ``triage_tests`` tools
@@ -499,6 +491,7 @@ Pull Requests (450):
 * :ghpull:`27387`: Revert "MNT: add _version.py to .gitignore"
 * :ghpull:`27347`: FIX: scale norm of collections when first array is set
 * :ghpull:`27374`: MNT: add _version.py to .gitignore
+* :ghpull:`27335`: DOC: clarify stackplot limits
 * :ghpull:`19011`: Simplify tk tooltip setup.
 * :ghpull:`27367`: Fix _find_fonts_by_props docstring
 * :ghpull:`27359`: Fix build on PyPy
@@ -567,6 +560,7 @@ Pull Requests (450):
 * :ghpull:`27086`: Rename py namespace to mpl in extension code
 * :ghpull:`27082`: MAINT: Update environment.yml to match requirements files
 * :ghpull:`27072`: Remove datetime test stubs for spectral methods/table
+* :ghpull:`26954`: add a mypy pre-commit hook
 * :ghpull:`26830`: Update stix table with Unicode names
 * :ghpull:`26969`: DOC: add units to user/explain [ci doc]
 * :ghpull:`27028`: Added test_hist in test_datetime.py
@@ -633,20 +627,27 @@ Pull Requests (450):
 * :ghpull:`26787`: Remove unused Axis private init helpers.
 * :ghpull:`26629`: DOC: organize figure API
 * :ghpull:`26690`: Make generated pgf code more robust against later changes of tex engine.
-* :ghpull:`26577`: Bugfix: data sanitizing for barh
 * :ghpull:`26684`: Update PR template doc links
 * :ghpull:`26686`: PR template: shorten comment and pull up top
 * :ghpull:`26670`: Added sanitize_sequence to kwargs in _preprocess_data
 * :ghpull:`26634`: [MNT] Move SubplotParams from figure to gridspec
 * :ghpull:`26609`: Cleanup AutoMinorLocator implementation.
 * :ghpull:`26293`: Added get_xmargin(), get_ymargin() and get_zmargin() and tests.
+* :ghpull:`26505`: ci: Don't install recommended packages on Ubuntu
 * :ghpull:`26516`: Replace reference to %pylab by %matplotlib.
 * :ghpull:`26483`: Improve legend(loc='best') warning and test
 * :ghpull:`26482`: [DOC]: print pydata sphinx/mpl theme versions
 * :ghpull:`23787`: Use pybind11 for C/C++ extensions
 
-Issues (97):
+Issues (103):
 
+* :ghissue:`18107`: More strict handling of legend(labels)
+* :ghissue:`22324`: [Bug]: zoom on overlapping axes triggers all axes
+* :ghissue:`1502`: twin axis panning / zooming should be toggleable
+* :ghissue:`17786`: Pyplot methods should link to their parents
+* :ghissue:`28959`: [Bug]: Broken functionality: Qt5/PySide2, using interactive mode, fig.canvas.draw() then fig.canvas.flush_events() leaves plot in non-interactive state.
+* :ghissue:`23815`: [MNT]: Slowly move towards pyproject.toml?
+* :ghissue:`7869`: Take text objects into account in legend autopositioning.
 * :ghissue:`28202`: [Bug]: Qt test_ipython fails on older ipython
 * :ghissue:`28145`: [TST] Upcoming dependency test failures
 * :ghissue:`28034`: [TST] Upcoming dependency test failures
@@ -733,7 +734,6 @@ Issues (97):
 * :ghissue:`26990`: [Doc]: Histogram path example renders poorly in HTML
 * :ghissue:`25738`: [MNT]: Improve readability of _mathtext_data.stix_virtual_fonts table
 * :ghissue:`11129`: Highlight past winners for JDH plotting contest in docs
-* :ghissue:`24050`: No error message in matplotlib.axes.Axes.legend() if there are more labels than handles
 * :ghissue:`10922`: ENH: clear() method for widgets.RadioButtons
 * :ghissue:`18295`: How to modify ticklabels in axisartist?
 * :ghissue:`24996`: [Bug]: for non-rectilinear axes, axvline/axhline should behave as "draw a gridline at that x/y"

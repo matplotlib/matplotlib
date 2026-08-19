@@ -22,10 +22,9 @@ a dependency to building the docs.
 Qt Bindings
 -----------
 
-There are currently 2 actively supported Qt versions, Qt5 and Qt6, and two
-supported Python bindings per version -- `PyQt5
-<https://www.riverbankcomputing.com/static/Docs/PyQt5/>`_ and `PySide2
-<https://doc.qt.io/qtforpython-5/contents.html>`_ for Qt5 and `PyQt6
+There are currently 2 actively supported Qt versions, Qt5 and Qt6. `PyQt5
+<https://www.riverbankcomputing.com/static/Docs/PyQt5/>`_ is the supported
+Python binding for Qt5 and there are both `PyQt6
 <https://www.riverbankcomputing.com/static/Docs/PyQt6/>`_ and `PySide6
 <https://doc.qt.io/qtforpython/contents.html>`_ for Qt6 [#]_.  Matplotlib's
 qtagg and qtcairo backends (``matplotlib.backends.backend_qtagg`` and
@@ -35,13 +34,12 @@ parts factored out in the ``matplotlib.backends.backend_qt`` module.
 At runtime, these backends select the actual binding used as follows:
 
 1. If a binding's ``QtCore`` subpackage is already imported, that binding is
-   selected (the order for the check is ``PyQt6``, ``PySide6``, ``PyQt5``,
-   ``PySide2``).
+   selected (the order for the check is ``PyQt6``, ``PySide6``, ``PyQt5``).
 2. If the :envvar:`QT_API` environment variable is set to one of "PyQt6",
-   "PySide6", "PyQt5", "PySide2" (case-insensitive), that binding is selected.
+   "PySide6", "PyQt5" (case-insensitive), that binding is selected.
    (See also the documentation on :ref:`environment-variables`.)
 3. Otherwise, the first available backend in the order ``PyQt6``, ``PySide6``,
-   ``PyQt5``, ``PySide2`` is selected.
+   ``PyQt5`` is selected.
 
 In the past, Matplotlib used to have separate backends for each version of Qt
 (e.g. qt4agg/``matplotlib.backends.backend_qt4agg`` and
@@ -62,8 +60,9 @@ change without warning [#]_.
 
 .. [#] There is also `PyQt4
        <https://www.riverbankcomputing.com/static/Docs/PyQt4/>`_ and `PySide
-       <https://srinikom.github.io/pyside-docs/>`_ for Qt4 but these are no
-       longer supported by Matplotlib and upstream support for Qt4 ended
+       <https://srinikom.github.io/pyside-docs/>`_ for Qt4 and `PySide2
+       <https://doc.qt.io/qtforpython-5/contents.html>`_ for Qt5 but these are
+       no longer supported by Matplotlib. Upstream support for Qt4 ended
        in 2015.
 .. [#] Despite the slight API differences, the more important distinction
        between the PyQt and Qt for Python series of bindings is licensing.

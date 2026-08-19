@@ -5,41 +5,27 @@
 GitHub statistics for 3.8.4 (Apr 03, 2024)
 ==========================================
 
-GitHub statistics for 2023/09/15 (tag: v3.8.0) - 2024/04/03
+GitHub statistics for 2024/02/15 (tag: v3.8.3) - 2024/04/03
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 3 issues and merged 27 pull requests.
+We closed 5 issues and merged 27 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/89?closed=1>`__
 
-The following 26 authors contributed 351 commits.
+The following 12 authors contributed 38 commits.
 
-* 0taj
 * Alec Vercruysse
 * Alexander Volkov
-* Antony Lee
-* Anvi Verma
-* Chiraag Balu
 * David Gilbertson
 * David Stansby
-* dependabot[bot]
 * Elliott Sales de Andrade
-* Eric Firing
-* Greg Lucas
-* Gurudatta Shanbhag
-* hannah
-* James Salsman
 * Jody Klymak
 * Kyle Sunden
 * lkkmpn
-* Lucia Korpas
-* Matthew Morrison
 * Oscar Gustafsson
 * Ruth Comer
-* Samuel Diebolt
 * Thomas A Caswell
 * Tim Hoffmann
-* wemi3
 
 GitHub issues and pull requests:
 
@@ -73,8 +59,10 @@ Pull Requests (27):
 * :ghpull:`27802`: Backport PR #27794 on branch v3.8.x (Remove old reference to 72 DPI in figure_size_units.py)
 * :ghpull:`27794`: Remove old reference to 72 DPI in figure_size_units.py
 
-Issues (3):
+Issues (5):
 
+* :ghissue:`3382`: colormap support for 3d quiver
+* :ghissue:`8484`: a more user-friendly way to specify color for each arrow in 3D quiver?
 * :ghissue:`27953`: [Bug]: Pyplot can no longer set axes properties
 * :ghissue:`11759`: The color of the 3D arrow head does not match that of the arrow body
 * :ghissue:`27826`: [Bug]: Unexpected behavior of scatter.legend_elements

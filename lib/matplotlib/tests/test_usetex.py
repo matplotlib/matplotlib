@@ -26,10 +26,11 @@ def test_usetex():
     kwargs = {"verticalalignment": "baseline", "size": 24,
               "bbox": dict(pad=0, edgecolor="k", facecolor="none")}
     ax.text(0.2, 0.7,
-            # the \LaTeX macro exercises character sizing and placement,
+            # The \LaTeX macro exercises character sizing and placement,
             # \left[ ... \right\} draw some variable-height characters,
-            # \sqrt and \frac draw horizontal rules, \mathrm changes the font
-            r'\LaTeX\ $\left[\int\limits_e^{2e}'
+            # \sqrt and \frac draw horizontal rules, \mathrm changes the font,
+            # the minus sign hits character code 0 in the Type 1 font that LaTeX uses.
+            r'\LaTeX\ $\left[\int\limits_e^{-2e}'
             r'\sqrt\frac{\log^3 x}{x}\,\mathrm{d}x \right\}$',
             **kwargs)
     ax.text(0.2, 0.3, "lg", **kwargs)
@@ -41,6 +42,18 @@ def test_usetex():
     for y in {t.get_position()[1] for t in ax.texts}:
         ax.axhline(y)
     ax.set_axis_off()
+
+
+def test_usetex_fallback(monkeypatch):
+    # Smoke test that the base draw_tex implementation works.
+    from matplotlib.backend_bases import RendererBase
+    from matplotlib.backends.backend_agg import RendererAgg
+    monkeypatch.setattr(RendererAgg, 'draw_tex', RendererBase.draw_tex)
+
+    plt.rcParams["text.usetex"] = True
+    fig, ax = plt.subplots()
+    ax.text(0, 0, "foo_bar")
+    fig.canvas.draw()
 
 
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
@@ -66,7 +79,7 @@ def test_mathdefault():
     fig.canvas.draw()
 
 
-@image_comparison(['eqnarray.png'])
+@image_comparison(['eqnarray.png'], style='mpl20')
 def test_multiline_eqnarray():
     text = (
         r'\begin{eqnarray*}'

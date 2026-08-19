@@ -2,21 +2,20 @@
 
 .. _github-stats-3-7-1:
 
-GitHub statistics for 3.7.1 (Mar 03, 2023)
+GitHub statistics for 3.7.1 (Mar 04, 2023)
 ==========================================
 
-GitHub statistics for 2023/02/13 (tag: v3.7.0) - 2023/03/03
+GitHub statistics for 2023/02/13 (tag: v3.7.0) - 2023/03/04
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 14 issues and merged 62 pull requests.
+We closed 18 issues and merged 62 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/80?closed=1>`__
 
-The following 16 authors contributed 129 commits.
+The following 15 authors contributed 85 commits.
 
 * Albert Y. Shih
 * Antony Lee
-* devRD
 * Elliott Sales de Andrade
 * Fabian Joswig
 * Greg Lucas
@@ -98,8 +97,9 @@ Pull Requests (62):
 * :ghpull:`25215`: Backport PR #25198 - DOC: remove constrained_layout kwarg from examples
 * :ghpull:`25198`: DOC: remove constrained_layout kwarg from examples
 
-Issues (14):
+Issues (18):
 
+* :ghissue:`25602`: [Bug]: Any operation on matplotlib fails due to gtk4 backend error
 * :ghissue:`25361`: [Doc]: matplotlib.patches.ArrowStyle
 * :ghissue:`25365`: [Bug]: Inconsistent size/padx for spacers in NavigationToolbar2Tk._rescale and _Spacer
 * :ghissue:`25212`: [Bug]: LICENSE_QHULL is included in wheel only the second time
@@ -108,9 +108,12 @@ Issues (14):
 * :ghissue:`25338`: [Bug]: set_val of rangeslider sets incorrect value
 * :ghissue:`25300`: [Bug]: Unable to pickle figure with draggable legend
 * :ghissue:`25223`: [Doc]: ``layout="none"`` for figure constructor?
+* :ghissue:`24844`: [Doc]: Add alt-text to images in 3.6 release notes
 * :ghissue:`25219`: [Bug]: axes.set_xlim with string dates raises when plotting with datetimes
 * :ghissue:`21666`: [Doc]: Sidebar not always very helpful
 * :ghissue:`25298`: [Bug]: ``axes.labelsize`` is ignored
 * :ghissue:`25233`: [MNT]: FFMpegWriter does not check if out path exists when initialized.
+* :ghissue:`25269`: [Bug]: backend error when in use on Windows
 * :ghissue:`25242`: [Bug]: Relative paths in ``plt.style.use()`` no longer work in 3.7
 * :ghissue:`25251`: [CI]: eslint failure
+* :ghissue:`25227`: [Bug]: errors using pycharm backend

@@ -1,0 +1,36 @@
+---
+# clang-tidy configuration for matplotlib's src/ directory.
+#
+# Philosophy: enable checks that find real bugs (memory safety, undefined
+# behaviour, security) and suppress checks that are high-noise style rules
+# inappropriate for a C/C++ codebase that interfaces heavily with C APIs
+# (CPython, FreeType, libagg) via pybind11.
+#
+# Run with:
+#   clang-tidy -p <build_dir> --config-file=src/.clang-tidy <file>
+
+Checks: >
+  bugprone-*,
+  clang-analyzer-*,
+  objc-*,
+  performance-move-const-arg,
+  performance-move-constructor-init,
+  performance-no-automatic-move,
+  portability-*,
+  -bugprone-assignment-in-if-condition,
+  -bugprone-easily-swappable-parameters,
+  -bugprone-implicit-widening-of-multiplication-result,
+  -bugprone-macro-parentheses,
+  -bugprone-narrowing-conversions,
+  -bugprone-reserved-identifier,
+  -bugprone-throwing-static-initialization,
+  -clang-analyzer-optin.cplusplus.UninitializedObject,
+  -clang-analyzer-optin.performance.Padding,
+
+# Only report findings in matplotlib's own src/ headers, not in pybind11,
+# Python.h, agg, or other vendored includes.
+HeaderFilterRegex: '.*/matplotlib/src/.*'
+
+WarningsAsErrors: ''
+
+CheckOptions: []

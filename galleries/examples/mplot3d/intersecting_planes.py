@@ -12,7 +12,7 @@ order. This does not work correctly if Artists overlap each other mutually. In t
 example, we lift the problem of mutual overlap by segmenting the planes at their
 intersections, making four parts out of each plane.
 
-This examples only works correctly for planes that cut each other in haves. This
+This examples only works correctly for planes that cut each other in halves. This
 limitation is intentional to keep the code more readable. Cutting at arbitrary
 positions would of course be possible but makes the code even more complex.
 Thus, this example is more a demonstration of the concept how to work around

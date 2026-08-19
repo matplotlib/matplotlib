@@ -56,7 +56,7 @@ When opening a pull request on Github, please ensure that:
 
 * Changes were made on a :ref:`feature branch <make-feature-branch>`.
 
-* :ref:`pre-commit <pre-commit-hooks>` checks for spelling, formatting, etc pass
+* :ref:`prek <pre-commit-hooks>` checks for spelling, formatting, etc pass
 
 * The pull request targets the :ref:`main branch <pr-branch-selection>`
 
@@ -162,6 +162,12 @@ Labels
   See the `list of labels <https://github.com/matplotlib/matplotlib/labels>`__.
 * If the PR makes changes to the wheel building Action, add the
   "Run cibuildwheel" label to enable testing wheels.
+* If the PR does not yet have the quality and clarity needed for an effective
+  review, you can use the "status: autoclose candidate" label. This will trigger
+  a two-weeks countdown after which the PR will be automatically closed if no
+  further improvements have been made. See
+  `the autoclose workflow <https://github.com/matplotlib/matplotlib/blob/main/.github/workflows/autoclose_comment.yml>`__
+  for more details.
 
 .. _pr-milestones:
 
@@ -202,11 +208,20 @@ Review
   push changes to the contributor branch, or merge the PR and then
   open a new PR against upstream.
 
-* If you push to a contributor branch leave a comment explaining what
+* If you push to a contributor branch, leave a comment explaining what
   you did, ex "I took the liberty of pushing a small clean-up PR to
   your branch, thanks for your work.".  If you are going to make
   substantial changes to the code or intent of the PR please check
   with the contributor first.
+
+* If you find yourself spending too much time on a PR, or feeling frustrated,
+  it's ok to step back. You can ask for help from other reviewers, or if you are
+  the only reviewer, you can ask the contributor to find another reviewer or to
+  wait until you have more time. Make sure to communicate with the contributor
+  to set the right expectations, e.g. "I currently don't have the bandwidth to
+  review this PR, but will try to loop someone else in." If you feel like this
+  PR is not a good fit for the project, you can close it with an explanation or
+  add the "status: autoclose candidate" label to trigger the autoclose workflow.
 
 .. _pr-approval:
 
@@ -222,8 +237,9 @@ fundamental and can easily be reverted at any time in the future.
 
 Some explicit rules following from this:
 
-* *Documentation and examples* may be merged with a single approval.  Use
-  the threshold "is this better than it was?" as the review criteria.
+* Small and medium sized *Documentation and examples* may be merged with a single approval.
+  Use the threshold "is this better than it was?" as the review criteria. Large documentation
+  PRs (e.g. adds large new sections or new rst pages) require two reviews.
 
 * Minor *infrastructure updates*, e.g. temporary pinning of broken dependencies
   or small changes to the CI configuration, may be merged with a single
@@ -352,7 +368,7 @@ MeeseeksDev will inform you that the backport needs to be done
 manually.
 
 The target branch is configured by putting ``on-merge: backport to
-TARGETBRANCH`` in the milestone description on it's own line.
+TARGETBRANCH`` in the milestone description on its own line.
 
 If the bot is not working as expected, please report issues to
 `MeeseeksDev <https://github.com/MeeseeksBox/MeeseeksDev>`__.

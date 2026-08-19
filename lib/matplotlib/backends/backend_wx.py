@@ -30,7 +30,7 @@ from matplotlib.path import Path
 from matplotlib.transforms import Affine2D
 
 import wx
-import wx.svg
+import wx.svg  # noqa: F401
 
 _log = logging.getLogger(__name__)
 
@@ -767,9 +767,9 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
         # flip y so y=0 is bottom of canvas
         if not wx.Platform == '__WXMSW__':
             scale = self.GetDPIScaleFactor()
-            return x*scale, self.figure.bbox.height - y*scale
+            return x*scale, self.get_width_height(physical=True)[1] - y*scale
         else:
-            return x, self.figure.bbox.height - y
+            return x, self.get_width_height(physical=True)[1] - y
 
     def _on_key_down(self, event):
         """Capture key press."""
@@ -789,7 +789,7 @@ class _FigureCanvasWxBase(FigureCanvasBase, wx.Panel):
 
     def set_cursor(self, cursor):
         # docstring inherited
-        cursor = wx.Cursor(_api.check_getitem({
+        cursor = wx.Cursor(_api.getitem_checked({
             cursors.MOVE: wx.CURSOR_HAND,
             cursors.HAND: wx.CURSOR_HAND,
             cursors.POINTER: wx.CURSOR_ARROW,
@@ -956,10 +956,16 @@ class FigureFrameWx(wx.Frame):
         # otherwise the toolbar further resizes the canvas.
         w, h = map(math.ceil, fig.bbox.size)
         self.canvas.SetInitialSize(self.FromDIP(wx.Size(w, h)))
-        self.canvas.SetMinSize(self.FromDIP(wx.Size(2, 2)))
         self.canvas.SetFocus()
 
+        # Size the frame to the canvas's initial size *before* relaxing the
+        # canvas min size.  ``SetInitialSize`` sets both the size and the min
+        # size to (w, h); with wxPython 4.3 (wxWidgets 3.3) ``Fit`` uses the
+        # current min size, so shrinking it to (2, 2) first collapses the
+        # window to a tiny size (GH #32143).  Relax the min size afterwards so
+        # the user can still resize the window smaller.
         self.Fit()
+        self.canvas.SetMinSize(self.FromDIP(wx.Size(2, 2)))
 
         self.Bind(wx.EVT_CLOSE, self._on_close)
 
@@ -1033,6 +1039,7 @@ class FigureManagerWx(FigureManagerBase):
             # As this can be called from non-GUI thread from plt.close use
             # wx.CallAfter to ensure thread safety.
             wx.CallAfter(frame.Close)
+        super().destroy()
 
     def full_screen_toggle(self):
         # docstring inherited
@@ -1189,7 +1196,7 @@ class NavigationToolbar2Wx(NavigationToolbar2, wx.ToolBar):
                 dialog.Destroy()
 
     def draw_rubberband(self, event, x0, y0, x1, y1):
-        height = self.canvas.figure.bbox.height
+        height = self.canvas.get_width_height(physical=True)[1]
         sf = 1 if wx.Platform == '__WXMSW__' else self.canvas.GetDPIScaleFactor()
         self.canvas._rubberband_rect = (x0/sf, (height - y0)/sf,
                                         x1/sf, (height - y1)/sf)

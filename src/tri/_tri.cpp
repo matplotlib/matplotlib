@@ -1031,7 +1031,7 @@ int TriContourGenerator::get_exit_edge(int tri,
         case 1: return  2;
         case 2: return  0;
         case 3: return  2;
-        case 4: return  1;
+        case 4: return  1; // NOLINT(bugprone-branch-clone)
         case 5: return  1;
         case 6: return  0;
         case 7: return -1;
@@ -1472,7 +1472,7 @@ TrapezoidMapTriFinder::initialize()
     _tree->assert_valid(false);
 
     // Randomly shuffle all edges other than first 2.
-    std::mt19937 rng(1234);
+    std::mt19937 rng(1234);  // NOLINT(bugprone-random-generator-seed)
     std::shuffle(_edges.begin()+2, _edges.end(), rng);
 
     // Add edges, one at a time, to tree.

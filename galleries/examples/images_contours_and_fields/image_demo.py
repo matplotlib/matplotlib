@@ -8,6 +8,8 @@ The most common way to plot images in Matplotlib is with
 functionality of imshow and the many images you can create.
 """
 
+from PIL import Image
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -40,8 +42,7 @@ plt.show()
 # It is also possible to show images of pictures.
 
 # A sample image
-with cbook.get_sample_data('grace_hopper.jpg') as image_file:
-    image = plt.imread(image_file)
+image = Image.open(cbook.get_sample_data("grace_hopper.jpg"))
 
 # And another image, using 256x256 16-bit integers.
 w, h = 256, 256

@@ -25,9 +25,9 @@ class SkewXTick(maxis.XTick):
             for artist in [self.gridline, self.tick1line, self.tick2line,
                            self.label1, self.label2]:
                 stack.callback(artist.set_visible, artist.get_visible())
-            needs_lower = transforms.interval_contains(
+            needs_lower = transforms._interval_contains(
                 self.axes.lower_xlim, self.get_loc())
-            needs_upper = transforms.interval_contains(
+            needs_upper = transforms._interval_contains(
                 self.axes.upper_xlim, self.get_loc())
             self.tick1line.set_visible(
                 self.tick1line.get_visible() and needs_lower)
@@ -133,7 +133,7 @@ class SkewXAxes(Axes):
 register_projection(SkewXAxes)
 
 
-@image_comparison(['skew_axes.png'], remove_text=True)
+@image_comparison(['skew_axes.png'], remove_text=True, style='_classic_test')
 def test_set_line_coll_dash_image():
     fig = plt.figure()
     ax = fig.add_subplot(1, 1, 1, projection='skewx')
@@ -145,7 +145,7 @@ def test_set_line_coll_dash_image():
     ax.axvline(0, color='b')
 
 
-@image_comparison(['skew_rects.png'], remove_text=True,
+@image_comparison(['skew_rects.png'], remove_text=True, style='_classic_test',
                   tol=0 if platform.machine() == 'x86_64' else 0.009)
 def test_skew_rectangle():
 

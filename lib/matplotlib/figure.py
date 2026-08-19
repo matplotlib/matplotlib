@@ -26,6 +26,7 @@ list of examples) .  More information about Figures can be found at
 :ref:`figure-intro`.
 """
 
+from collections.abc import MutableSequence
 from contextlib import ExitStack
 import inspect
 import itertools
@@ -39,7 +40,7 @@ import numpy as np
 import matplotlib as mpl
 from matplotlib import _blocking_input, backend_bases, _docstring, projections
 from matplotlib.artist import (
-    Artist, allow_rasterization, _finalize_rasterization)
+    Artist, ArtistList, allow_rasterization, _finalize_rasterization)
 from matplotlib.backend_bases import (
     DrawEvent, FigureCanvasBase, NonGuiException, MouseButton, _get_renderer)
 import matplotlib._api as _api
@@ -54,10 +55,10 @@ from matplotlib.layout_engine import (
     PlaceHolderLayoutEngine
 )
 import matplotlib.legend as mlegend
-from matplotlib.patches import Rectangle
+from matplotlib.lines import Line2D
+from matplotlib.patches import Patch, Rectangle
 from matplotlib.text import Text
-from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo,
-                                   TransformedBbox)
+from matplotlib.transforms import (Affine2D, Bbox, BboxTransformTo, TransformedBbox)
 
 _log = logging.getLogger(__name__)
 
@@ -115,6 +116,70 @@ class _AxesStack:
         self._counter = itertools.count(next_counter)
 
 
+class _FigureArtistList(ArtistList, MutableSequence):
+    """
+    A sublist of Figure children based on their type.  This subclass exists only to
+    provide deprecation warnings.  When the deprecations expire, use ArtistList
+    directly.
+    """
+    @property
+    def _dep_message(self):
+        return (f'Modification of the (Sub)Figure.{self._prop_name} property '
+                'was deprecated in Matplotlib %(since)s and will stop working '
+                'in %(removal)s.  Use %(alternative)s instead.')
+
+    def insert(self, index, item):
+        _api.warn_deprecated(
+            '3.12',
+            message=self._dep_message,
+            alternative='(Sub)Figure.add_artist')
+        try:
+            index = self._parent._children.index(self[index])
+        except IndexError:
+            index = None
+        self._parent.add_artist(item)
+        if index is not None:
+            # Move new item to the specified index, if there's something to
+            # put it before.
+            self._parent._children[index:index] = [self._parent._children.pop()]
+
+    def __setitem__(self, key, item):
+        _api.warn_deprecated(
+            '3.12',
+            message=self._dep_message,
+            alternative='Artist.remove() and (Sub)Figure.add_artist')
+        del self[key]
+        if isinstance(key, slice):
+            key = key.start
+        if not np.iterable(item):
+            self.insert(key, item)
+            return
+
+        try:
+            index = self._parent._children.index(self[key])
+        except IndexError:
+            index = None
+        for i, artist in enumerate(item):
+            self._parent.add_artist(artist)
+        if index is not None:
+            # Move new items to the specified index, if there's something
+            # to put it before.
+            i = -(i + 1)
+            self._parent._children[index:index] = self._parent._children[i:]
+            del self._parent._children[i:]
+
+    def __delitem__(self, key):
+        _api.warn_deprecated(
+            '3.12',
+            message=self._dep_message,
+            alternative='Artist.remove()')
+        if isinstance(key, slice):
+            for artist in self[key]:
+                artist.remove()
+        else:
+            self[key].remove()
+
+
 class FigureBase(Artist):
     """
     Base class for `.Figure` and `.SubFigure` containing the methods that add
@@ -142,16 +207,36 @@ class FigureBase(Artist):
         }
 
         self._localaxes = []  # track all Axes
-        self.artists = []
-        self.lines = []
-        self.patches = []
-        self.texts = []
-        self.images = []
-        self.legends = []
         self.subfigs = []
+        self._children = []  # All artists except SubFigure and Axes
         self.stale = True
         self.suppressComposite = None
         self.set(**kwargs)
+
+    @property
+    def artists(self):
+        return _FigureArtistList(self, 'artists', invalid_types=(
+            mimage.FigureImage, mlegend.Legend, Line2D, Patch, Text))
+
+    @property
+    def images(self):
+        return _FigureArtistList(self, 'images', valid_types=mimage.FigureImage)
+
+    @property
+    def legends(self):
+        return _FigureArtistList(self, 'legends', valid_types=mlegend.Legend)
+
+    @property
+    def lines(self):
+        return _FigureArtistList(self, 'lines', valid_types=Line2D)
+
+    @property
+    def patches(self):
+        return _FigureArtistList(self, 'patches', valid_types=Patch)
+
+    @property
+    def texts(self):
+        return _FigureArtistList(self, 'texts', valid_types=Text)
 
     def _get_draw_artists(self, renderer):
         """Also runs apply_aspect"""
@@ -376,9 +461,16 @@ default: %(va)s
         else:
             suplab = self.text(x, y, t, **kwargs)
             setattr(self, info['name'], suplab)
+            suplab._remove_method = functools.partial(self._remove_suplabel,
+                                                      name=info['name'])
+
         suplab._autopos = autopos
         self.stale = True
         return suplab
+
+    def _remove_suplabel(self, label, name):
+        self._children.remove(label)
+        setattr(self, name, None)
 
     @_docstring.Substitution(x0=0.5, y0=0.98, name='super title', ha='center',
                              va='top', rc='title')
@@ -516,8 +608,8 @@ default: %(va)s
             The added artist.
         """
         artist.set_figure(self)
-        self.artists.append(artist)
-        artist._remove_method = self.artists.remove
+        self._children.append(artist)
+        artist._remove_method = self._children.remove
 
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
@@ -947,7 +1039,7 @@ default: %(va)s
 
         for name in ax._axis_names:  # Break link between any shared Axes
             grouper = ax._shared_axes[name]
-            siblings = [other for other in grouper.get_siblings(ax) if other is not ax]
+            siblings = grouper.get_siblings(ax, include_self=False)
             if not siblings:  # Axes was not shared along this axis; we're done.
                 continue
             grouper.remove(ax)
@@ -983,12 +1075,7 @@ default: %(va)s
             ax.clear()
             self.delaxes(ax)  # Remove ax from self._axstack.
 
-        self.artists = []
-        self.lines = []
-        self.patches = []
-        self.texts = []
-        self.images = []
-        self.legends = []
+        self._children = []
         self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
@@ -1136,8 +1223,8 @@ default: %(va)s
         # explicitly set the bbox transform if the user hasn't.
         kwargs.setdefault("bbox_transform", self.transSubfigure)
         l = mlegend.Legend(self, handles, labels, **kwargs)
-        self.legends.append(l)
-        l._remove_method = self.legends.remove
+        self._children.append(l)
+        l._remove_method = self._children.remove
         self.stale = True
         return l
 
@@ -1186,8 +1273,8 @@ default: %(va)s
         text.set_figure(self)
         text.stale_callback = _stale_figure_callback
 
-        self.texts.append(text)
-        text._remove_method = self.texts.remove
+        self._children.append(text)
+        text._remove_method = self._children.remove
         self.stale = True
         return text
 
@@ -2481,9 +2568,12 @@ class Figure(FigureBase):
             The figure dimensions. This can be
 
             - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
-              "cm" (centimenter), "px" (pixel).
+              "cm" (centimenter), "mm" (millimeter), "px" (pixel).
             - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
               ``(width, height, "in")``.
+
+            One of *width* or *height* may be ``None``; the respective value is
+            taken from :rc:`figure.figsize`.
 
         dpi : float, default: :rc:`figure.dpi`
             Dots per inch.
@@ -2642,7 +2732,7 @@ None}, default: None
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
 
-        FigureCanvasBase(self)  # Set self.canvas.
+        self._set_base_canvas()
 
         if subplotpars is None:
             subplotpars = SubplotParams()
@@ -2766,7 +2856,7 @@ None}, default: None
 
         .. warning::
 
-            This does not manage an GUI event loop. Consequently, the figure
+            This does not manage a GUI event loop. Consequently, the figure
             may only be shown briefly or not shown at all if you or your
             environment are not managing an event loop.
 
@@ -2996,6 +3086,18 @@ None}, default: None
 
         return w_pad, h_pad, wspace, hspace
 
+    def _set_base_canvas(self):
+        """
+        Initialize self.canvas with a FigureCanvasBase instance.
+
+        This is used upon initialization of the Figure, but also
+        to reset the canvas when decoupling from pyplot.
+        """
+        FigureCanvasBase(self)  # Set self.canvas as a side-effect
+        # undo any high-dpi scaling
+        if self._dpi != self._original_dpi:
+            self.dpi = self._original_dpi
+
     def set_canvas(self, canvas):
         """
         Set the canvas that contains the figure
@@ -3099,8 +3201,8 @@ None}, default: None
         if norm is None:
             im._check_exclusionary_keywords(colorizer, vmin=vmin, vmax=vmax)
             im.set_clim(vmin, vmax)
-        self.images.append(im)
-        im._remove_method = self.images.remove
+        self._children.append(im)
+        im._remove_method = self._children.remove
         self.stale = True
         return im
 
@@ -3136,6 +3238,10 @@ None}, default: None
         """
         if h is None:  # Got called with a single pair as argument.
             w, h = w
+        if w is None or h is None:
+            raise ValueError(
+                "Figure.set_size_inches does not accept None; provide both "
+                "width and height explicitly")
         size = np.array([w, h])
         if not np.isfinite(size).all() or (size < 0).any():
             raise ValueError(f'figure size must be positive finite not {size}')
@@ -3309,8 +3415,9 @@ None}, default: None
         self.__dict__ = state
 
         # re-initialise some of the unstored state information
-        FigureCanvasBase(self)  # Set self.canvas.
-
+        self._set_base_canvas()
+        # force the bounding boxes to respect current dpi
+        self.dpi_scale_trans.clear().scale(self._dpi)
         if restore_to_pylab:
             # lazy import to avoid circularity
             import matplotlib.pyplot as plt
@@ -3734,7 +3841,7 @@ def _parse_figsize(figsize, dpi):
         This can be
 
         - a tuple ``(width, height, unit)``, where *unit* is one of "in" (inch),
-          "cm" (centimenter), "px" (pixel).
+          "cm" (centimeter), "mm" (millimeter), "px" (pixel).
         - a tuple ``(width, height)``, which is interpreted in inches, i.e. as
           ``(width, height, "in")``.
 
@@ -3743,25 +3850,45 @@ def _parse_figsize(figsize, dpi):
     """
     num_parts = len(figsize)
     if num_parts == 2:
-        return figsize
+        x, y = figsize
     elif num_parts == 3:
         x, y, unit = figsize
         if unit == 'in':
             pass
         elif unit == 'cm':
-            x /= 2.54
-            y /= 2.54
+            if x is not None:
+                x /= 2.54
+            if y is not None:
+                y /= 2.54
+        elif unit == 'mm':
+            if x is not None:
+                x /= 25.4
+            if y is not None:
+                y /= 25.4
         elif unit == 'px':
-            x /= dpi
-            y /= dpi
+            if x is not None:
+                x /= dpi
+            if y is not None:
+                y /= dpi
         else:
             raise ValueError(
                 f"Invalid unit {unit!r} in 'figsize'; "
-                "supported units are 'in', 'cm', 'px'"
+                "supported units are 'in', 'cm', 'mm', 'px'"
             )
-        return x, y
     else:
         raise ValueError(
             "Invalid figsize format, expected (x, y) or (x, y, unit) but got "
             f"{figsize!r}"
         )
+
+    if x is None and y is None:
+        raise ValueError(
+            "figsize=(None, None) is invalid; at least one of width or "
+            "height must be provided")
+
+    default_width, default_height = mpl.rcParams["figure.figsize"]
+    if x is None:
+        x = default_width
+    if y is None:
+        y = default_height
+    return x, y

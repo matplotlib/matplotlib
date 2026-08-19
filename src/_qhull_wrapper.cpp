@@ -7,6 +7,9 @@
  */
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+#include <pybind11/subinterpreter.h>
+#endif
 
 #ifdef _MSC_VER
 /* The Qhull header does not declare this as extern "C", but only MSVC seems to
@@ -54,7 +57,9 @@ static void
 get_facet_vertices(qhT* qh, const facetT* facet, int indices[3])
 {
     vertexT *vertex, **vertexp;
-    FOREACHvertex_(facet->vertices) {
+    // After qh_triangulate() every non-upperdelaunay facet is a triangle, so
+    // this macro iterates exactly 3 times; the analyzer cannot prove this.
+    FOREACHvertex_(facet->vertices) {  // NOLINT(clang-analyzer-security.ArrayBound)
         *indices++ = qh_pointid(qh, vertex->point);
     }
 }
@@ -66,7 +71,9 @@ get_facet_neighbours(const facetT* facet, std::vector<int>& tri_indices,
                      int indices[3])
 {
     facetT *neighbor, **neighborp;
-    FOREACHneighbor_(facet) {
+    // After qh_triangulate() every non-upperdelaunay facet is a triangle with
+    // exactly 3 neighbors; the analyzer cannot prove this.
+    FOREACHneighbor_(facet) {  // NOLINT(clang-analyzer-security.ArrayBound)
         *indices++ = (neighbor->upperdelaunay ? -1 : tri_indices[neighbor->id]);
     }
 }
@@ -229,7 +236,11 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
             int indices[3];
             tri_indices[facet->id] = i++;
             get_facet_vertices(qh, facet, indices);
-            *triangles_ptr++ = (facet->toporient ? indices[0] : indices[2]);
+            // The analyzer takes a path where FOREACHvertex_ executes zero
+            // times, leaving indices[] uninitialized.  After qh_triangulate()
+            // every non-upperdelaunay facet is a triangle with exactly 3
+            // vertices, so this cannot happen.
+            *triangles_ptr++ = (facet->toporient ? indices[0] : indices[2]);  // NOLINT(clang-analyzer-core.uninitialized.Assign)
             *triangles_ptr++ = indices[1];
             *triangles_ptr++ = (facet->toporient ? indices[2] : indices[0]);
         }
@@ -276,7 +287,12 @@ delaunay(const CoordArray& x, const CoordArray& y, int verbose)
     return delaunay_impl(npoints, x.data(), y.data(), verbose == 0);
 }
 
+#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
+PYBIND11_MODULE(_qhull, m,
+                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
+#else
 PYBIND11_MODULE(_qhull, m, py::mod_gil_not_used())
+#endif
 {
     m.doc() = "Computing Delaunay triangulations.\n";
 

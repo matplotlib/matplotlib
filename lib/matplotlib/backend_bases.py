@@ -411,10 +411,12 @@ class RendererBase:
                     gc0.set_linewidth(lw)
                 if Nlinestyles:
                     gc0.set_dashes(*ls)
-                if len(ec) == 4 and ec[3] == 0.0:
+                ec_rgba = colors.to_rgba(ec)
+                # Fully transparent edges are treated as "no stroke".
+                if ec_rgba[3] == 0.0:
                     gc0.set_linewidth(0)
                 else:
-                    gc0.set_foreground(ec)
+                    gc0.set_foreground(ec_rgba, isRGBA=True)
             if Nhatchcolors:
                 gc0.set_hatch_color(hc)
             if fc is not None and len(fc) == 4 and fc[3] == 0:
@@ -504,7 +506,7 @@ class RendererBase:
         mtext : `~matplotlib.text.Text`
             The original text object to be rendered.
         """
-        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX")
+        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath="TeX", mtext=mtext)
 
     def draw_text(self, gc, x, y, s, prop, angle, ismath=False, mtext=None):
         """
@@ -538,9 +540,9 @@ class RendererBase:
         rendering backends, and indeed many builtin backends do not support
         this.  Rather, TeX rendering is provided by `~.RendererBase.draw_tex`.
         """
-        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath)
+        self._draw_text_as_path(gc, x, y, s, prop, angle, ismath, mtext)
 
-    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath):
+    def _draw_text_as_path(self, gc, x, y, s, prop, angle, ismath, mtext):
         """
         Draw the text by converting them to paths using `.TextToPath`.
 
@@ -548,9 +550,15 @@ class RendererBase:
         `~.RendererBase.draw_text`; setting *ismath* to "TeX" triggers TeX
         rendering.
         """
+        if mtext is not None:
+            features = mtext.get_fontfeatures()
+            language = mtext.get_language()
+        else:
+            features = language = None
         text2path = self._text2path
         fontsize = self.points_to_pixels(prop.get_size_in_points())
-        verts, codes = text2path.get_text_path(prop, s, ismath=ismath)
+        verts, codes = text2path.get_text_path(prop, s, ismath=ismath,
+                                               features=features, language=language)
         path = Path(verts, codes)
         if self.flipy():
             width, height = self.get_canvas_width_height()
@@ -1262,7 +1270,7 @@ class LocationEvent(Event):
     xdata, ydata : float or None
         Data coordinates of the mouse within *inaxes*, or *None* if the mouse
         is not over an Axes.
-    modifiers : frozenset
+    modifiers : frozenset[str]
         The keyboard modifiers currently being pressed (except for KeyEvent).
     """
 
@@ -1433,7 +1441,7 @@ class MouseEvent(LocationEvent):
     def __str__(self):
         return (f"{self.name}: "
                 f"xy=({self.x}, {self.y}) xydata=({self.xdata}, {self.ydata}) "
-                f"button={self.button} dblclick={self.dblclick} "
+                f"button={self.button} dblclick={self.dblclick} step={self.step} "
                 f"inaxes={self.inaxes}")
 
 
@@ -1740,6 +1748,10 @@ class FigureCanvasBase:
 
     filetypes = _default_filetypes
 
+    # global counter to assign unique ids to blit backgrounds
+    # see _get_blit_background_id()
+    _last_blit_background_id = 0
+
     @_api.classproperty
     def supports_blit(cls):
         """If this Canvas sub-class supports blitting."""
@@ -1763,8 +1775,9 @@ class FigureCanvasBase:
         self.toolbar = None  # NavigationToolbar2 will set me
         self._is_idle_drawing = False
         # We don't want to scale up the figure DPI more than once.
-        figure._original_dpi = figure.dpi
+        figure._original_dpi = getattr(figure, '_original_dpi', figure.dpi)
         self._device_pixel_ratio = 1
+        self._blit_backgrounds = {}
         super().__init__()  # Typically the GUI widget init (if any).
 
     callbacks = property(lambda self: self.figure._canvas_callbacks)
@@ -1839,6 +1852,51 @@ class FigureCanvasBase:
 
     def blit(self, bbox=None):
         """Blit the canvas in bbox (default entire canvas)."""
+
+    @classmethod
+    def _get_blit_background_id(cls):
+        """
+        Get a globally unique id that can be used to store a blit background.
+
+        Blitting support is canvas-dependent, so blitting mechanisms should
+        store their backgrounds in the canvas, more precisely in
+        ``canvas._blit_backgrounds[id]``. The id must be obtained via this
+        function to ensure it is globally unique.
+
+        The content of ``canvas._blit_backgrounds[id]`` is not specified.
+        We leave this freedom to the blitting mechanism.
+
+        Blitting mechanisms must not expect that a background that they
+        have stored is still there at a later time. The canvas may have
+        been switched out, or we may add other mechanisms later that
+        invalidate blit backgrounds (e.g. dpi changes).
+        Therefore, always query as `_blit_backgrounds.get(id)` and be
+        prepared for a None return value.
+
+        Note: The blit background API is still experimental and may change
+        in the future without warning.
+        """
+        cls._last_blit_background_id += 1
+        return cls._last_blit_background_id
+
+    def _release_blit_background_id(self, bb_id):
+        """
+        Release a blit background id that is no longer needed.
+
+        This removes the respective entry from the internal storage, i.e.
+        the ``canvas._blit_backgrounds`` dict, and thus allows to free the
+        associated memory.
+
+        After releasing the id you must not use it anymore.
+
+        It is safe to release an id that has not been used with the canvas
+        or that has already been released.
+
+        Note: The blit background API is still experimental and may change
+        in the future without warning.
+        """
+        if bb_id in self._blit_backgrounds:
+            del self._blit_backgrounds[bb_id]
 
     def inaxes(self, xy):
         """
@@ -2001,8 +2059,16 @@ class FigureCanvasBase:
         width, height : int
             The size of the figure, in points or pixels, depending on the
             backend.
+
+        Notes
+        -----
+        This method normally truncates the height/width to remove any fractional pixel.
+        However, if the height/width is extremely close to the integer pixel (within
+        1e-8 pixel), the height/width is instead rounded up to account for
+        floating-point precision effects.
         """
-        return tuple(int(size / (1 if physical else self.device_pixel_ratio))
+        # The tolerance of 1e-8 covers a floating-point tick for even 100,000 pixels
+        return tuple(int(size / (1 if physical else self.device_pixel_ratio) + 1e-8)
                      for size in self.figure.bbox.max)
 
     @classmethod
@@ -2592,7 +2658,7 @@ def scroll_handler(event, canvas=None, toolbar=None):
         # is required for interactive navigation.
         return
 
-    if event.key == "control":  # zoom towards the mouse position
+    if event.key in {"control", "x", "y"}:  # zoom towards the mouse position
         toolbar.push_current()
 
         xmin, xmax = ax.get_xlim()
@@ -2604,10 +2670,21 @@ def scroll_handler(event, canvas=None, toolbar=None):
         x, y = ax.transScale.transform((event.xdata, event.ydata))
 
         scale_factor = 0.85 ** event.step
-        new_xmin = x - (x - xmin) * scale_factor
-        new_xmax = x + (xmax - x) * scale_factor
-        new_ymin = y - (y - ymin) * scale_factor
-        new_ymax = y + (ymax - y) * scale_factor
+        # Determine which axes to scale based on key
+        zoom_x = event.key in {"control", "x"}
+        zoom_y = event.key in {"control", "y"}
+
+        if zoom_x:
+            new_xmin = x - (x - xmin) * scale_factor
+            new_xmax = x + (xmax - x) * scale_factor
+        else:
+            new_xmin, new_xmax = xmin, xmax
+
+        if zoom_y:
+            new_ymin = y - (y - ymin) * scale_factor
+            new_ymax = y + (ymax - y) * scale_factor
+        else:
+            new_ymin, new_ymax = ymin, ymax
 
         inv_scale = ax.transScale.inverted()
         (new_xmin, new_ymin), (new_xmax, new_ymax) = inv_scale.transform(
@@ -2806,7 +2883,9 @@ class FigureManagerBase:
             f"shown")
 
     def destroy(self):
-        pass
+        # managers may have swapped the canvas to a GUI-framework specific one.
+        # restore the base canvas when the manager is destroyed.
+        self.canvas.figure._set_base_canvas()
 
     def full_screen_toggle(self):
         pass
@@ -3470,20 +3549,6 @@ class ToolContainerBase:
         for filename in [filename, filename + self._icon_extension]:
             if os.path.isfile(filename):
                 return os.path.abspath(filename)
-        for fname in [  # Fallback; once deprecation elapses.
-            tool.image,
-            tool.image + self._icon_extension,
-            cbook._get_data_path("images", tool.image),
-            cbook._get_data_path("images", tool.image + self._icon_extension),
-        ]:
-            if os.path.isfile(fname):
-                _api.warn_deprecated(
-                    "3.9", message=f"Loading icon {tool.image!r} from the current "
-                    "directory or from Matplotlib's image directory.  This behavior "
-                    "is deprecated since %(since)s and will be removed in %(removal)s; "
-                    "Tool.image should be set to a path relative to the Tool's source "
-                    "file, or to an absolute path.")
-                return os.path.abspath(fname)
 
     def trigger_tool(self, name):
         """

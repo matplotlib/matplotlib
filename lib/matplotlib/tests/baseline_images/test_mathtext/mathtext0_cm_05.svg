@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN"
+  "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" width="378pt" height="54pt" viewBox="0 0 378 54" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="text_1">
+   <!-- $\left\lfloor M \middle/ ? \middle\backslash ? \right\rfloor \left\lfloor \frac{M}{B} \middle/ ? \middle\backslash ? \right\rfloor \left\lfloor \frac{\frac{M}{I}}{B} \middle/ ? \middle\backslash ? \right\rfloor \left\lfloor \frac{\frac{M}{I}}{\frac{B}{U}} \middle/ ? \middle\backslash ? \right\rfloor \left\lfloor\frac{\frac{\frac{M}{I}}{N}}{\frac{\frac{B}{U}}{G}} \middle/ ? \middle\backslash ? \right\rfloor$ -->
+   <g transform="translate(31.64 30.84)">
+    <text>
+     <tspan x="0" y="-10.97375" style="font-size: 9.407166px; font-family: 'cmex10'">¥</tspan>
+     <tspan x="33.16008" y="-10.97375" style="font-size: 9.407166px; font-family: 'cmex10'">²</tspan>
+     <tspan x="46.14357" y="-10.97375" style="font-size: 9.407166px; font-family: 'cmex10'">¦</tspan>
+     <tspan x="4.44133" y="-0.0675" style="font-size: 16px; font-family: 'cmmi10'">M</tspan>
+     <tspan x="19.964767" y="-2.895625" style="font-size: 11.28125px; font-family: 'cmmi10'">=</tspan>
+     <tspan x="25.605392" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="38.588882" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="79.469785" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="95.835004" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="139.059429" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="157.195599" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="204.057766" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="224.601696" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="274.931937" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="298.292609" y="-0.0675" style="font-size: 16px; font-family: 'cmr10'">?</tspan>
+     <tspan x="50.5849" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">¥</tspan>
+     <tspan x="70.659253" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">±</tspan>
+     <tspan x="87.024472" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">²</tspan>
+     <tspan x="103.389691" y="-12.614375" style="font-size: 15.270358px; font-family: 'cmex10'">¦</tspan>
+     <tspan x="58.792847" y="-5.5675" style="font-size: 11.2px; font-family: 'cmmi10'">M</tspan>
+     <tspan x="59.792847" y="5.08875" style="font-size: 11.2px; font-family: 'cmmi10'">B</tspan>
+     <tspan x="118.471463" y="5.08875" style="font-size: 11.2px; font-family: 'cmmi10'">B</tspan>
+     <tspan x="110.597638" y="-17.864375" style="font-size: 13.050163px; font-family: 'cmex10'">j</tspan>
+     <tspan x="128.477947" y="-17.864375" style="font-size: 13.050163px; font-family: 'cmex10'">.</tspan>
+     <tspan x="146.614117" y="-17.864375" style="font-size: 13.050163px; font-family: 'cmex10'">/</tspan>
+     <tspan x="164.750286" y="-17.864375" style="font-size: 13.050163px; font-family: 'cmex10'">k</tspan>
+     <tspan x="119.171463" y="-13.026875" style="font-size: 7.84px; font-family: 'cmmi10'">M</tspan>
+     <tspan x="121.171463" y="-5.5675" style="font-size: 7.84px; font-family: 'cmmi10'">I</tspan>
+     <tspan x="181.762039" y="-13.026875" style="font-size: 7.84px; font-family: 'cmmi10'">M</tspan>
+     <tspan x="182.762039" y="2.791875" style="font-size: 7.84px; font-family: 'cmmi10'">B</tspan>
+     <tspan x="182.762039" y="10.25125" style="font-size: 7.84px; font-family: 'cmmi10'">U</tspan>
+     <tspan x="183.762039" y="-5.5675" style="font-size: 7.84px; font-family: 'cmmi10'">I</tspan>
+     <tspan x="251.121413" y="-5.5675" style="font-size: 7.84px; font-family: 'cmmi10'">N</tspan>
+     <tspan x="251.121413" y="14.156703" style="font-size: 7.84px; font-family: 'cmmi10'">G</tspan>
+     <tspan x="171.624111" y="-17.744531" style="font-size: 16.01798px; font-family: 'cmex10'">j</tspan>
+     <tspan x="191.068523" y="-17.744531" style="font-size: 16.01798px; font-family: 'cmex10'">.</tspan>
+     <tspan x="211.612453" y="-17.744531" style="font-size: 16.01798px; font-family: 'cmex10'">/</tspan>
+     <tspan x="232.156383" y="-17.744531" style="font-size: 16.01798px; font-family: 'cmex10'">k</tspan>
+     <tspan x="240.59431" y="-21.385953" style="font-size: 15.142362px; font-family: 'cmex10'">¹</tspan>
+     <tspan x="259.125952" y="-21.385953" style="font-size: 15.142362px; font-family: 'cmex10'">Á</tspan>
+     <tspan x="282.486624" y="-21.385953" style="font-size: 15.142362px; font-family: 'cmex10'">Â</tspan>
+     <tspan x="305.847296" y="-21.385953" style="font-size: 15.142362px; font-family: 'cmex10'">º</tspan>
+     <tspan x="251.611413" y="-18.248438" style="font-size: 5.488px; font-family: 'cmmi10'">M</tspan>
+     <tspan x="252.611413" y="-13.026875" style="font-size: 5.488px; font-family: 'cmmi10'">I</tspan>
+     <tspan x="252.611413" y="1.184062" style="font-size: 5.488px; font-family: 'cmmi10'">B</tspan>
+     <tspan x="252.611413" y="6.405625" style="font-size: 5.488px; font-family: 'cmmi10'">U</tspan>
+    </text>
+    <rect x="58.792847" y="-4.5675" width="10.866406" height="1"/>
+    <rect x="119.171463" y="-12.626875" width="7.606484" height="0.7"/>
+    <rect x="118.471463" y="-4.5675" width="9.006484" height="1"/>
+    <rect x="181.762039" y="-12.626875" width="7.606484" height="0.7"/>
+    <rect x="181.062039" y="-4.5675" width="9.006484" height="1"/>
+    <rect x="182.762039" y="3.191875" width="5.94125" height="0.7"/>
+    <rect x="251.611413" y="-18.268438" width="5.324539" height="0.49"/>
+    <rect x="251.121413" y="-12.626875" width="6.304539" height="0.7"/>
+    <rect x="250.421413" y="-4.5675" width="7.704539" height="1"/>
+    <rect x="252.611413" y="1.164062" width="4.158875" height="0.49"/>
+    <rect x="251.121413" y="6.928891" width="6.163281" height="0.7"/>
+   </g>
+  </g>
+ </g>
+</svg>

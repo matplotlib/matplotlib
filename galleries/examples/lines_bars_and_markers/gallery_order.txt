@@ -1,0 +1,56 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+
+# lines
+simple_plot
+linestyles
+line_demo_dash_control
+markevery_demo
+joinstyle
+capstyle
+marker_reference
+axline
+multicolored_line
+lines_with_ticks_demo
+
+# bars
+barchart
+bar_label_demo
+bar_stacked
+bar_colors
+hat_graph
+gradient_bar
+barh
+horizontal_barchart_distribution
+broken_barh
+
+# scatter
+scatter_demo2
+multivariate_marker_plot
+scatter_star_poly
+scatter_with_legend
+scatter_masked
+scatter_hist
+
+# step and stairs
+stairs_demo
+step_demo
+
+# filled
+fill
+fill_between_alpha
+fill_between_demo
+fill_betweenx_demo
+stackplot_demo
+
+# sticks
+eventcollection_demo
+eventplot_demo
+timeline
+vline_hline_demo
+span_regions
+stem_plot
+
+# other
+categorical_variables
+masked_demo
+spectrum_demo

@@ -27,7 +27,7 @@ import matplotlib.text as mtext
 import matplotlib.transforms as transforms
 
 
-_quiver_doc = """
+_quiver_doc = r"""
 Plot a 2D field of arrows.
 
 Call signature::
@@ -113,11 +113,14 @@ angles : {'uv', 'xy'} or array-like, default: 'uv'
     Note: inverting a data axis will correspondingly invert the
     arrows only with ``angles='xy'``.
 
-pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
+pivot : {'tail', 'middle', 'tip'}, default: 'tail'
     The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
     rotates about this point.
 
-    'mid' is a synonym for 'middle'.
+    .. admonition:: Discouraged
+
+        'mid' is a synonym for 'middle', which is retained for backwards
+        compatibility.  New code should use 'middle'.
 
 scale : float, optional
     Scales the length of the arrow inversely.
@@ -135,15 +138,12 @@ scale : float, optional
     The arrow length unit is given by the *scale_units* parameter.
 
 scale_units : {'width', 'height', 'dots', 'inches', 'x', 'y', 'xy'}, default: 'width'
+    The physical image unit, which is used for rendering the scaled arrow data U, V.
 
-    The physical image unit, which is used for rendering the scaled arrow data *U*, *V*.
+    The rendered arrow length is given by:
 
-    The rendered arrow length is given by
-
-        length in x direction = $\\frac{u}{\\mathrm{scale}} \\mathrm{scale_unit}$
-
-        length in y direction = $\\frac{v}{\\mathrm{scale}} \\mathrm{scale_unit}$
-
+    - length in x direction = :math:`\frac{u}{\mathrm{scale}}\,\mathrm{scale\_unit}`
+    - length in y direction = :math:`\frac{v}{\mathrm{scale}}\,\mathrm{scale\_unit}`
     For example, ``(u, v) = (0.5, 0)`` with ``scale=10, scale_units="width"`` results
     in a horizontal arrow with a length of *0.5 / 10 * "width"*, i.e. 0.05 times the
     Axes width.
@@ -345,47 +345,57 @@ class QuiverKey(martist.Artist):
         self._labelsep_inches = labelsep
 
         self.labelpos = labelpos
-        self.labelcolor = labelcolor
-        self.fontproperties = fontproperties or dict()
-        self.kw = kwargs
+        self._kw = kwargs  # Remove when kw deprecation elapses.
+        self.vector = mcollections.PolyCollection(
+            [], **{**self.Q.polykw, **kwargs})
         self.text = mtext.Text(
             text=label,
             horizontalalignment=self.halign[self.labelpos],
             verticalalignment=self.valign[self.labelpos],
-            fontproperties=self.fontproperties)
-        if self.labelcolor is not None:
-            self.text.set_color(self.labelcolor)
+            fontproperties=fontproperties or {})
+        if labelcolor is not None:
+            self.text.set_color(labelcolor)
         self._dpi_at_last_init = None
         self.zorder = zorder if zorder is not None else Q.zorder + 0.1
+
+    kw = _api.deprecated("3.11")(  # Also remove self._kw when deprecation elapses.
+        property(lambda self: self._kw))
+    fontproperties = _api.deprecated(
+        "3.11", alternative="quiverkey.text.get_fontproperties()")(
+            property(lambda self: self.text.get_fontproperties()))
+    labelcolor = _api.deprecated(
+        "3.11", alternative="quiverkey.text.get_color()")(
+            property(lambda self: self.text.get_color()))
+    verts = _api.deprecated(
+        "3.11", alternative="[p.vertices for p in quiverkey.vector.get_paths()]")(
+            property(lambda self: [p.vertices for p in self.vector.get_paths()]))
 
     @property
     def labelsep(self):
         return self._labelsep_inches * self.Q.axes.get_figure(root=True).dpi
 
     def _init(self):
-        if True:  # self._dpi_at_last_init != self.axes.get_figure().dpi
-            if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=True).dpi:
-                self.Q._init()
-            self._set_transform()
-            with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
-                                   # Hack: save and restore the Umask
-                                   Umask=ma.nomask):
-                u = self.U * np.cos(np.radians(self.angle))
-                v = self.U * np.sin(np.radians(self.angle))
-                self.verts = self.Q._make_verts([[0., 0.]],
-                                                np.array([u]), np.array([v]), 'uv')
-            kwargs = self.Q.polykw
-            kwargs.update(self.kw)
-            self.vector = mcollections.PolyCollection(
-                self.verts,
-                offsets=[(self.X, self.Y)],
-                offset_transform=self.get_transform(),
-                **kwargs)
-            if self.color is not None:
-                self.vector.set_color(self.color)
-            self.vector.set_transform(self.Q.get_transform())
-            self.vector.set_figure(self.get_figure())
-            self._dpi_at_last_init = self.Q.axes.get_figure(root=True).dpi
+        if False:  # self._dpi_at_last_init == self.axes.get_figure().dpi
+            return
+        if self.Q._dpi_at_last_init != self.Q.axes.get_figure(root=True).dpi:
+            self.Q._init()
+        self._set_transform()
+        with cbook._setattr_cm(self.Q, pivot=self.pivot[self.labelpos],
+                               # Hack: save and restore the Umask
+                               Umask=ma.nomask):
+            u = self.U * np.cos(np.radians([self.angle]))
+            v = self.U * np.sin(np.radians([self.angle]))
+            verts = self.Q._make_verts([[0., 0.]], u, v, 'uv')
+        self.vector.set(
+            verts=verts,
+            offsets=[(self.X, self.Y)],
+            offset_transform=self.get_transform(),
+            transform=self.Q.get_transform(),
+            figure=self.get_figure(),
+        )
+        if self.color is not None:
+            self.vector.set_color(self.color)
+        self._dpi_at_last_init = self.Q.axes.get_figure(root=True).dpi
 
     def _text_shift(self):
         return {
@@ -406,7 +416,7 @@ class QuiverKey(martist.Artist):
 
     def _set_transform(self):
         fig = self.Q.axes.get_figure(root=False)
-        self.set_transform(_api.check_getitem({
+        self.set_transform(_api.getitem_checked({
             "data": self.Q.axes.transData,
             "axes": self.Q.axes.transAxes,
             "figure": fig.transFigure,
@@ -490,11 +500,8 @@ class Quiver(mcollections.PolyCollection):
     """
     Specialized PolyCollection for arrows.
 
-    The only API method is set_UVC(), which can be used
-    to change the size, orientation, and color of the
-    arrows; their locations are fixed when the class is
-    instantiated.  Possibly this method will be useful
-    in animations.
+    Use set_UVC to change the size, orientation, and color of the
+    arrows; their locations can be set using set_offsets().
 
     Much of the work in this class is done in the draw()
     method so that as much information as possible is available
@@ -617,7 +624,7 @@ class Quiver(mcollections.PolyCollection):
         """Return a scale factor for converting from units to pixels."""
         bb = self.axes.bbox
         vl = self.axes.viewLim
-        return _api.check_getitem({
+        return _api.getitem_checked({
             'x': bb.width / vl.width,
             'y': bb.height / vl.height,
             'xy': np.hypot(*bb.size) / np.hypot(*vl.size),

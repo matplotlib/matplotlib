@@ -258,10 +258,6 @@ class TexManager:
             report = subprocess.check_output(
                 command, cwd=cwd if cwd is not None else cls._cache_dir,
                 stderr=subprocess.STDOUT)
-        except FileNotFoundError as exc:
-            raise RuntimeError(
-                f'Failed to process string with tex because {command[0]} '
-                'could not be found') from exc
         except subprocess.CalledProcessError as exc:
             raise RuntimeError(
                 '{prog} was not able to process the following string:\n'
@@ -274,6 +270,10 @@ class TexManager:
                     tex=tex.encode('unicode_escape'),
                     exc=exc.output.decode('utf-8', 'backslashreplace'))
                 ) from None
+        except (FileNotFoundError, OSError) as exc:
+            raise RuntimeError(
+                f'Failed to process string with tex because {command[0]} '
+                'could not be found') from exc
         _log.debug(report)
         return report
 
@@ -299,8 +299,8 @@ class TexManager:
                 Path(tmpdir, "file.tex").write_text(
                     cls._get_tex_source(tex, fontsize), encoding='utf-8')
                 cls._run_checked_subprocess(
-                    ["latex", "-interaction=nonstopmode", "--halt-on-error",
-                     "file.tex"], tex, cwd=tmpdir)
+                    ["latex", "-interaction=nonstopmode", "-halt-on-error",
+                     "-no-shell-escape", "file.tex"], tex, cwd=tmpdir)
                 Path(tmpdir, "file.dvi").replace(dvipath)
                 # Also move the tex source to the main cache directory, but
                 # only for backcompat.

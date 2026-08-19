@@ -272,7 +272,7 @@ ax.set_xlabel(label)
 # Unit support works by querying the type of data passed to the plotting
 # function and dispatching to the first converter in a list that accepts that
 # type of data.  So below, if ``x`` has ``datetime`` objects in it, the
-# converter will be ``_SwitchableDateConverter``; if it has has strings in it,
+# converter will be ``_SwitchableDateConverter``; if it has strings in it,
 # it will be sent to the ``StrCategoryConverter``.
 
 for k, v in munits.registry.items():

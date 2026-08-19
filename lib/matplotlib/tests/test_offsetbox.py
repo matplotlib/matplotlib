@@ -16,7 +16,7 @@ from matplotlib.offsetbox import (
     OffsetBox, OffsetImage, PaddedBox, TextArea, VPacker, _get_packed_offsets)
 
 
-@image_comparison(['offsetbox_clipping'], remove_text=True)
+@image_comparison(['offsetbox_clipping'], remove_text=True, style='_classic_test')
 def test_offsetbox_clipping():
     # - create a plot
     # - put an AnchoredOffsetbox with a child DrawingArea

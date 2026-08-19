@@ -8,7 +8,8 @@ horizontal lines, at given *x* / *y* positions. They are usually used to mark
 special data values, e.g. in this example the center and limit values of the
 sigmoid function.
 
-`~.axes.Axes.axline` draws infinite straight lines in arbitrary directions.
+`~.axes.Axes.axline` draws infinite straight lines defined either by two
+points or by a point and a slope.
 
 .. redirect-from:: /gallery/pyplot/axline
 """

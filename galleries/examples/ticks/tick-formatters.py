@@ -103,3 +103,6 @@ setup(axs2[6], title="PercentFormatter(xmax=5)")
 axs2[6].xaxis.set_major_formatter(ticker.PercentFormatter(xmax=5))
 
 plt.show()
+
+# %%
+# .. tags:: component: ticks, purpose: reference

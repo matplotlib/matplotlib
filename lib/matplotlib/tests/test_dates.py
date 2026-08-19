@@ -140,7 +140,7 @@ def test_axhline():
     mdates._reset_epoch_test_example()
 
 
-@image_comparison(['date_axhspan.png'])
+@image_comparison(['date_axhspan.png'], style='mpl20')
 def test_date_axhspan():
     # test axhspan with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -152,7 +152,7 @@ def test_date_axhspan():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(['date_axvspan.png'])
+@image_comparison(['date_axvspan.png'], style='mpl20')
 def test_date_axvspan():
     # test axvspan with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -164,7 +164,7 @@ def test_date_axvspan():
     fig.autofmt_xdate()
 
 
-@image_comparison(['date_axhline.png'])
+@image_comparison(['date_axhline.png'], style='mpl20')
 def test_date_axhline():
     # test axhline with date inputs
     t0 = datetime.datetime(2009, 1, 20)
@@ -176,7 +176,7 @@ def test_date_axhline():
     fig.subplots_adjust(left=0.25)
 
 
-@image_comparison(['date_axvline.png'])
+@image_comparison(['date_axvline.png'], style='mpl20')
 def test_date_axvline():
     # test axvline with date inputs
     t0 = datetime.datetime(2000, 1, 20)
@@ -226,7 +226,7 @@ def _new_epoch_decorator(thefunc):
     return wrapper
 
 
-@image_comparison(['RRuleLocator_bounds.png'])
+@image_comparison(['RRuleLocator_bounds.png'], style='mpl20')
 def test_RRuleLocator():
     import matplotlib.testing.jpl_units as units
     units.register()
@@ -270,12 +270,12 @@ def test_RRuleLocator_close_minmax():
     assert list(map(str, mdates.num2date(loc.tick_values(d1, d2)))) == expected
 
 
-@image_comparison(['DateFormatter_fractionalSeconds.png'])
+@image_comparison(['DateFormatter_fractionalSeconds.png'], style='mpl20')
 def test_DateFormatter():
     import matplotlib.testing.jpl_units as units
     units.register()
 
-    # Lets make sure that DateFormatter will allow us to have tick marks
+    # Let's make sure that DateFormatter will allow us to have tick marks
     # at intervals of fractional seconds.
 
     t0 = datetime.datetime(2001, 1, 1, 0, 0, 0)
@@ -373,7 +373,7 @@ def test_drange():
     end = datetime.datetime(2011, 1, 2, tzinfo=mdates.UTC)
     delta = datetime.timedelta(hours=1)
     # We expect 24 values in drange(start, end, delta), because drange returns
-    # dates from an half open interval [start, end)
+    # dates from a half open interval [start, end)
     assert len(mdates.drange(start, end, delta)) == 24
 
     # Same if interval ends slightly earlier
@@ -890,13 +890,13 @@ def test_auto_date_locator_intmult_tz():
         locator.axis.set_view_interval(*mdates.date2num([date1, date2]))
         return locator
 
-    results = ([datetime.timedelta(weeks=52*200),
-                ['1980-01-01 00:00:00-08:00', '2000-01-01 00:00:00-08:00',
-                 '2020-01-01 00:00:00-08:00', '2040-01-01 00:00:00-08:00',
-                 '2060-01-01 00:00:00-08:00', '2080-01-01 00:00:00-08:00',
-                 '2100-01-01 00:00:00-08:00', '2120-01-01 00:00:00-08:00',
-                 '2140-01-01 00:00:00-08:00', '2160-01-01 00:00:00-08:00',
-                 '2180-01-01 00:00:00-08:00', '2200-01-01 00:00:00-08:00']
+    results = ([datetime.timedelta(weeks=52*20),
+                ['1996-01-01 00:00:00-08:00', '1998-01-01 00:00:00-08:00',
+                 '2000-01-01 00:00:00-08:00', '2002-01-01 00:00:00-08:00',
+                 '2004-01-01 00:00:00-08:00', '2006-01-01 00:00:00-08:00',
+                 '2008-01-01 00:00:00-08:00', '2010-01-01 00:00:00-08:00',
+                 '2012-01-01 00:00:00-08:00', '2014-01-01 00:00:00-08:00',
+                 '2016-01-01 00:00:00-08:00']
                 ],
                [datetime.timedelta(weeks=52),
                 ['1997-01-01 00:00:00-08:00', '1997-02-01 00:00:00-08:00',
@@ -953,7 +953,7 @@ def test_auto_date_locator_intmult_tz():
             assert st == expected
 
 
-@image_comparison(['date_inverted_limit.png'])
+@image_comparison(['date_inverted_limit.png'], style='mpl20')
 def test_date_inverted_limit():
     # test ax hline with date inputs
     t0 = datetime.datetime(2009, 1, 20)

@@ -9,10 +9,10 @@ GitHub statistics for 2024/08/12 (tag: v3.9.2) - 2024/11/30
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 6 issues and merged 62 pull requests.
+We closed 7 issues and merged 62 pull requests.
 The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/95?closed=1>`__
 
-The following 18 authors contributed 90 commits.
+The following 17 authors contributed 90 commits.
 
 * Andresporcruz
 * Antony Lee
@@ -24,7 +24,6 @@ The following 18 authors contributed 90 commits.
 * hannah
 * Kyle Sunden
 * Kyra Cho
-* kyracho
 * Lumberbot (aka Jack)
 * Michael Hinton
 * Oscar Gustafsson
@@ -45,7 +44,6 @@ Pull Requests (62):
 * :ghpull:`29153`: Bump codecov/codecov-action from 4 to 5 in the actions group
 * :ghpull:`29149`: Backport CI config updates to v3.9.x
 * :ghpull:`29121`: Backport PR #29120 on branch v3.9.x (DOC: Switch nested pie example from cmaps to color_sequences)
-* :ghpull:`29071`: Bump pypa/gh-action-pypi-publish from 1.10.3 to 1.11.0 in the actions group
 * :ghpull:`29046`: Backport PR #28981 on branch v3.9.x (FIX: macos: Use standard NSApp run loop in our input hook)
 * :ghpull:`28981`: FIX: macos: Use standard NSApp run loop in our input hook
 * :ghpull:`29041`: Backport PR #29035 on branch v3.9.x (FIX: Don't set_wmclass on GTK3)
@@ -58,6 +56,7 @@ Pull Requests (62):
 * :ghpull:`29014`: FIX: fake out setuptools scm in tox on ci
 * :ghpull:`29010`: Backport PR #29005 on branch v3.9.x (DOC: Update meson-python intersphinx link)
 * :ghpull:`29006`: Backport PR #28993 on branch v3.9.x (FIX: contourf hatches use multiple edgecolors)
+* :ghpull:`29005`: DOC: Update meson-python intersphinx link
 * :ghpull:`28993`: FIX: contourf hatches use multiple edgecolors
 * :ghpull:`28988`: Backport PR #28987 on branch v3.9.x (Fix: Do not use numeric tolerances for axline special cases)
 * :ghpull:`28947`: Backport PR #28925 on branch v3.9.x (TST: handle change in pytest.importorskip behavior)
@@ -100,9 +99,10 @@ Pull Requests (62):
 * :ghpull:`28689`: ci: Enable testing on Python 3.13
 * :ghpull:`28724`: Backport fixes from #28711
 
-Issues (6):
+Issues (7):
 
 * :ghissue:`28960`: [Bug]: High CPU utilization of the macosx backend
+* :ghissue:`29008`: [Bug]: intersphinx on meson-python is broken
 * :ghissue:`28990`: [Bug]: no longer able to set multiple hatch colors
 * :ghissue:`28870`: [Bug]: axline doesn't work with some axes scales
 * :ghissue:`28386`: [Bug]: Minor issue - Drawing an axline sets slopes less than 1E-8 to 0

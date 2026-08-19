@@ -21,6 +21,11 @@ s.set_urls(['https://www.bbc.com/news', 'https://www.google.com/', None])
 fig.savefig('scatter.svg')
 
 # %%
+# .. raw:: html
+#
+#    <object data="../../_static/scatter.svg" type="image/svg+xml"></object>
+
+# %%
 
 fig = plt.figure()
 delta = 0.025
@@ -35,3 +40,8 @@ im = plt.imshow(Z, interpolation='bilinear', cmap="gray",
 
 im.set_url('https://www.google.com/')
 fig.savefig('image.svg')
+
+# %%
+# .. raw:: html
+#
+#    <object data="../../_static/image.svg" type="image/svg+xml"></object>

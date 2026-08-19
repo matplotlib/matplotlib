@@ -11,6 +11,7 @@ In Matplotlib they are drawn into a dedicated `~.axes.Axes`.
    End-users most likely won't need to directly use this module's API.
 """
 
+import functools
 import logging
 
 import numpy as np
@@ -194,6 +195,17 @@ class _ColorbarAxesLocator:
             or getattr(self._orig_locator, "get_subplotspec", lambda: None)())
 
 
+def _remove_cbar_axes(ax, cbar):
+    """
+    Replacement remove method for a colorbar's axes, so that the colorbar is
+    properly removed.
+
+    Note we define this at the module level to preserve pickling. A lambda or
+    local def within the Colorbar.__init__ method will not work.
+    """
+    cbar.remove()
+
+
 @_docstring.interpd
 class Colorbar:
     r"""
@@ -349,7 +361,7 @@ class Colorbar:
         self.values = values
         self.boundaries = boundaries
         self.extend = extend
-        self._inside = _api.check_getitem(
+        self._inside = _api.getitem_checked(
             {'neither': slice(0, None), 'both': slice(1, -1),
              'min': slice(1, None), 'max': slice(0, -1)},
             extend=extend)
@@ -426,6 +438,14 @@ class Colorbar:
             "xlim_changed", self._do_extends)
         self._extend_cid2 = self.ax.callbacks.connect(
             "ylim_changed", self._do_extends)
+
+        # Ensure proper cleanup when `cbar.ax.remove()` is called.  We ensure
+        # this by overriding the Axes' remove method, so that `cbar.ax.remove()`
+        # actually calls `cbar.remove()`.  In turn, we store the original Axes'
+        # remove method in `_ax_remove`, which `cbar.remove()` will eventually
+        # call to clean up the Axes itself.
+        self._ax_remove = self.ax._remove_method
+        self.ax._remove_method = functools.partial(_remove_cbar_axes, cbar=self)
 
     @property
     def long_axis(self):
@@ -1032,7 +1052,7 @@ class Colorbar:
                 if self.ax in a._colorbars:
                     a._colorbars.remove(self.ax)
 
-        self.ax.remove()
+        self._ax_remove(self.ax)
 
         self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
         self.mappable.colorbar = None
@@ -1098,7 +1118,7 @@ class Colorbar:
             # If we still aren't scaled after autoscaling, use 0, 1 as default
             self.norm.vmin = 0
             self.norm.vmax = 1
-        self.norm.vmin, self.norm.vmax = mtransforms.nonsingular(
+        self.norm.vmin, self.norm.vmax = mtransforms._nonsingular(
             self.norm.vmin, self.norm.vmax, expander=0.1)
         if (not isinstance(self.norm, colors.BoundaryNorm) and
                 (self.boundaries is None)):
@@ -1340,7 +1360,7 @@ ColorbarBase = Colorbar  # Backcompat API
 def _normalize_location_orientation(location, orientation):
     if location is None:
         location = _get_ticklocation_from_orientation(orientation)
-    loc_settings = _api.check_getitem({
+    loc_settings = _api.getitem_checked({
         "left":   {"location": "left", "anchor": (1.0, 0.5),
                    "panchor": (0.0, 0.5), "pad": 0.10},
         "right":  {"location": "right", "anchor": (0.0, 0.5),
@@ -1358,13 +1378,13 @@ def _normalize_location_orientation(location, orientation):
 
 
 def _get_orientation_from_location(location):
-    return _api.check_getitem(
+    return _api.getitem_checked(
         {None: None, "left": "vertical", "right": "vertical",
          "top": "horizontal", "bottom": "horizontal"}, location=location)
 
 
 def _get_ticklocation_from_orientation(orientation):
-    return _api.check_getitem(
+    return _api.getitem_checked(
         {None: "right", "vertical": "right", "horizontal": "bottom"},
         orientation=orientation)
 
