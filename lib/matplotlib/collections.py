@@ -359,9 +359,14 @@ class Collection(mcolorizer.ColorizingArtist):
 
     @artist.allow_rasterization
     def draw(self, renderer):
-        if not self.get_visible() or len(self.get_offsets()) == 0:
+        if not self.get_visible():
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
+
+        # Bail if the collection does not have any offsets (e.g., an empty scatter plot)
+        if len(self.get_offsets()) == 0:
+            renderer.close_group(self.__class__.__name__)
+            return
 
         self.update_scalarmappable()
 
