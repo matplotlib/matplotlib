@@ -209,7 +209,7 @@ class FigureBase(Artist):
         self._localaxes = []  # track all Axes
         self.subfigs = []
         self._children = []  # All artists except SubFigure and Axes
-        self._children_by_layer = {"base": self._children, "overlay": []}
+        self._children_by_layer = {"base": self._children}
         # Note: "patch" layer is added by Figure/SubFigure.__init__ after
         # self.patch is created, since FigureBase has no self.patch of its own.
         self.stale = True
@@ -326,59 +326,39 @@ class FigureBase(Artist):
 
     def get_children(self, *, layer=None):
         """Get a list of artists contained in the figure."""
-        patch_list = self._children_by_layer.get("patch", [])
+        layers = list(self._children_by_layer) if layer is None else [layer]
+        result = []
+        for name in layers:
+            layer_children = self._children_by_layer.get(name, [])
+            artists = []
+            lines = []
+            patches = []
+            texts = []
+            images = []
+            legends = []
 
-        if layer is None:
-            sources = [
-                a for key, lst in self._children_by_layer.items()
-                if key != "patch"
-                for a in lst
-            ]
-        elif layer == "patch":
-            return list(patch_list)
-        else:
-            sources = self._children_by_layer.get(layer, [])
+            for a in layer_children:
+                if isinstance(a, mimage.FigureImage):
+                    images.append(a)
+                elif isinstance(a, mlegend.Legend):
+                    legends.append(a)
+                elif isinstance(a, Line2D):
+                    lines.append(a)
+                elif isinstance(a, Patch):
+                    patches.append(a)
+                elif isinstance(a, Text):
+                    texts.append(a)
+                else:
+                    artists.append(a)
 
-        artists = []
-        lines = []
-        patches = []
-        texts = []
-        images = []
-        legends = []
+            result += artists
+            if name == "base":
+                result += self._localaxes
+            result += [*lines, *patches, *texts, *images, *legends]
+            if name == "base":
+                result += self.subfigs
 
-        for a in sources:
-            if isinstance(a, mimage.FigureImage):
-                images.append(a)
-            elif isinstance(a, mlegend.Legend):
-                legends.append(a)
-            elif isinstance(a, Line2D):
-                lines.append(a)
-            elif isinstance(a, Patch):
-                patches.append(a)
-            elif isinstance(a, Text):
-                texts.append(a)
-            else:
-                artists.append(a)
-
-        prefix = patch_list if layer is None else []
-
-        if layer is None or layer == "base":
-            return [*prefix,
-                    *artists,
-                    *self._localaxes,
-                    *lines,
-                    *patches,
-                    *texts,
-                    *images,
-                    *legends,
-                    *self.subfigs]
-        else:
-            return [*artists,
-                    *lines,
-                    *patches,
-                    *texts,
-                    *images,
-                    *legends]
+        return result
 
     def get_figure(self, root=None):
         """
@@ -676,7 +656,7 @@ default: %(va)s
             The added artist.
         """
         artist.set_figure(self)
-        target = self._children_by_layer[layer or "base"]
+        target = self._children_by_layer.setdefault(layer or "base", [])
         target.append(artist)
         artist._remove_method = target.remove
 
@@ -1148,7 +1128,6 @@ default: %(va)s
         self._children_by_layer = {
             "patch": [self.patch],
             "base": self._children,
-            "overlay": [],
         }
         self.subplotpars.reset()
         if not keep_observers:
@@ -2459,9 +2438,9 @@ class SubFigure(FigureBase):
             in_layout=False, transform=self.transSubfigure)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
-        # Now that self.patch exists, register it as its own layer so that
-        # _draw_layer(renderer, "patch") draws it first before "base".
-        self._children_by_layer["patch"] = [self.patch]
+        # Rebuild the dict with "patch" as the first key so that iterating
+        # _children_by_layer in insertion order always draws patch first.
+        self._children_by_layer = {"patch": [self.patch], **self._children_by_layer}
 
     @property
     def canvas(self):
@@ -2574,12 +2553,10 @@ class SubFigure(FigureBase):
         try:
             renderer.open_group('subfigure', gid=self.get_gid())
             self._apply_aspects(renderer)
-            # Patch layer: always first (figure background)
-            self._draw_layer(renderer, "patch")
-            # Pass 1: base layer
-            self._draw_layer(renderer, "base")
-            # Pass 2: overlay layer
-            self._draw_layer(renderer, "overlay")
+            # Draw all layers in dict insertion order:
+            # patch (background) → base → any additional layers.
+            for _layer in self._children_by_layer:
+                self._draw_layer(renderer, _layer)
             renderer.close_group('subfigure')
 
         finally:
@@ -2810,9 +2787,6 @@ None}, default: None
             in_layout=False)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
-        # even if this line is removed it not cause any error
-        # as self.clear() below rebuilds the dictionary
-        self._children_by_layer["patch"] = [self.patch]
 
         self._set_base_canvas()
 
@@ -3441,13 +3415,10 @@ None}, default: None
 
                 self._apply_aspects(renderer)
 
-                # Patch layer: always first (figure background)
-                self._draw_layer(renderer, "patch")
-                # Pass 1: base layer
-                self._draw_layer(renderer, "base")
-
-                # Pass 2: overlay layer
-                self._draw_layer(renderer, "overlay")
+                # Draw all layers in dict insertion order:
+                # patch (background) → base → any additional layers.
+                for _layer in self._children_by_layer:
+                    self._draw_layer(renderer, _layer)
 
                 renderer.close_group('figure')
             finally:

@@ -28,6 +28,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatch
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea
 import matplotlib.transforms as mtransforms
+from matplotlib.text import Text
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'], style='mpl20',
@@ -1977,13 +1978,11 @@ def test_two_pass_base_only():
     ax.plot([0, 1], [0, 1], color='blue', lw=5)
 
     # Add overlay elements
-    from matplotlib.text import Text
     overlay_text = Text(
         0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
         transform=fig.transFigure, figure=fig
     )
     fig.add_artist(overlay_text, layer="overlay")
-    import matplotlib.lines as mlines
     overlay_line = mlines.Line2D(
         [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
     )
@@ -2009,13 +2008,12 @@ def test_two_pass_overlay_only():
     ax.plot([0, 1], [0, 1], color='blue', lw=5)
 
     # Add overlay elements
-    from matplotlib.text import Text
+
     overlay_text = Text(
         0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
         transform=fig.transFigure, figure=fig
     )
     fig.add_artist(overlay_text, layer="overlay")
-    import matplotlib.lines as mlines
     overlay_line = mlines.Line2D(
         [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
     )
@@ -2039,13 +2037,11 @@ def test_two_pass_composite():
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1], color='blue', lw=5)
 
-    from matplotlib.text import Text
     overlay_text = Text(
         0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
         transform=fig.transFigure, figure=fig
     )
     fig.add_artist(overlay_text, layer="overlay")
-    import matplotlib.lines as mlines
     overlay_line = mlines.Line2D(
         [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
     )
