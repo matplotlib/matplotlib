@@ -366,6 +366,7 @@ class Collection(mcolorizer.ColorizingArtist):
         # Bail if the collection does not have any offsets (e.g., an empty scatter plot)
         if len(self.get_offsets()) == 0:
             renderer.close_group(self.__class__.__name__)
+            self.stale = False
             return
 
         self.update_scalarmappable()
