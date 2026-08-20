@@ -1890,12 +1890,11 @@ class _BracedText(Token):
         super().__init__()
         self.mayReturnEmpty = True
         self.mayIndexError = False
-        self.errmsg = "Expected '{'"
 
     def parseImpl(self, instring: str, loc: int,
                   do_actions: bool = True) -> tuple[int, str]:
         if loc >= len(instring) or instring[loc] != "{":
-            raise ParseException(instring, loc, self.errmsg, self)
+            raise ParseException(instring, loc, "Expected '{'", self)
         chars = []
         depth = 0
         while loc < len(instring):
