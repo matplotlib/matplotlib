@@ -337,6 +337,8 @@ def test_fontinfo():
         (r'$a_2_2$', r'Double subscript'),
         (r'$a^2_a^2$', r'Double superscript'),
         (r'$a = {b$', r"Expected '}'"),
+        (r'$\text$', r'Expected \text'),
+        (r'$\text{foo$', r'Expected \text'),
     ],
     ids=[
         'hspace without value',
@@ -366,6 +368,8 @@ def test_fontinfo():
         'double subscript',
         'super on sub without braces',
         'unclosed group',
+        'text without argument',
+        'text with unclosed argument',
     ]
 )
 def test_mathtext_exceptions(math, msg):
