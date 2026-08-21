@@ -9,9 +9,6 @@ assumed to be Hz.)
     :include-source: true
     :alt: Time series and its power spectral density (psd), where the psd is correctly labeled with frequency units
 
-    import matplotlib.pyplot as plt
-    import numpy as np
-
     # Sampling period in units of days
     dt = 1/24
 
