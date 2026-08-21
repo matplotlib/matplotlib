@@ -125,9 +125,19 @@ else
   new_preprocessor = []
 endif
 
+# Even though Meson defaults to hidden visibility, our bundled libraries like FreeType
+# may themselves export their own symbols individually. So force all symbols other than
+# the Python module initialization function to be hidden with a linker version script.
+mapfile = 'hidden-symbols.map'
+vflag = cc.get_supported_link_arguments([
+  '-Wl,--version-script,@0@/@1@'.format(meson.current_source_dir(), mapfile)
+])
+
 foreach ext, kwargs : extension_data
   additions = {
     'cpp_args': [new_preprocessor] + kwargs.get('cpp_args', []),
+    'link_args': [vflag] + kwargs.get('link_args', []),
+    'link_depends': [mapfile] + kwargs.get('link_depends', []),
   }
   py3.extension_module(
     ext,
