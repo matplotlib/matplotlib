@@ -13,7 +13,7 @@ assumed to be Hz.)
     dt = 1/24
 
     # Create example signal: sinusoid with red noise
-    np.random.seed(19680801) # Fixing random state for reproducibility
+    np.random.seed(19680801)  # Fixing random state for reproducibility.
     t = np.arange(0, 20, dt)
     nse = np.random.randn(len(t))
     r = np.exp(-t / 0.05)
