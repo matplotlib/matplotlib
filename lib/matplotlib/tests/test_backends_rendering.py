@@ -6,7 +6,12 @@ import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.artist import Artist, BlendMode
+from matplotlib.backends.backend_agg import RendererAgg
+from matplotlib.backends.backend_cairo import RendererCairo
+from matplotlib.backends.backend_pdf import RendererPdf
+from matplotlib.backends.backend_pgf import RendererPgf
 from matplotlib.backends.backend_svg import RendererSVG
+from matplotlib.figure import Figure
 from matplotlib.patches import Circle, Rectangle
 from matplotlib.testing._markers import needs_pgf_pdflatex
 from matplotlib.testing.decorators import image_comparison
@@ -252,3 +257,13 @@ def test_interleaved_groups_svg():
     renderer.open_group("bleh")
     with pytest.raises(RuntimeError, match="Cannot close the blend group"):
         renderer.close_blend_group()
+
+
+@pytest.mark.parametrize('renderer', [RendererAgg(1, 1, 1),
+                                      RendererCairo(1),
+                                      RendererPdf(StringIO(), 1, 1, 1),
+                                      RendererPgf(Figure(), StringIO()),
+                                      RendererSVG(1, 1, StringIO())])
+def test_group_invalid_blend_mode(renderer):
+    with pytest.raises(ValueError, match="not a valid value for blend_mode"):
+        renderer.open_blend_group("invalid_blend_mode")

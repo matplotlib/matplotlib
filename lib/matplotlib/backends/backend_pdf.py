@@ -27,6 +27,7 @@ from PIL import Image
 import matplotlib as mpl
 from matplotlib import _api, _text_helpers, _type1font, cbook, dviread
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.artist import BlendMode
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -2425,6 +2426,8 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
         # docstring inherited
+        if blend_mode is not None:
+            _api.check_in_list(BlendMode, blend_mode=blend_mode)
         stream, self.file.currentstream = self.file.currentstream, None
         name = next(self.file._transparency_group_seq)
         groupOb = self.file.reserveObject('transparency group')

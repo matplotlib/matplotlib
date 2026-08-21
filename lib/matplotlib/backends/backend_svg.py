@@ -14,7 +14,8 @@ import numpy as np
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, font_manager as fm
+from matplotlib import _api, cbook, font_manager as fm
+from matplotlib.artist import BlendMode
 from matplotlib.backend_bases import (
      _Backend, FigureCanvasBase, FigureManagerBase, RendererBase)
 from matplotlib.backends.backend_mixed import MixedModeRenderer
@@ -726,6 +727,8 @@ class RendererSVG(RendererBase):
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
         # docstring inherited
+        if blend_mode is not None:
+            _api.check_in_list(BlendMode, blend_mode=blend_mode)
         if knockout:
             _log.warning("Knockout blend groups are not supported by the SVG backend. "
                          "Falling back to a non-knockout blend group.")

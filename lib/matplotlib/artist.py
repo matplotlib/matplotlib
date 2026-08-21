@@ -1532,8 +1532,7 @@ Supported properties are
             "hue", "saturation", "color", "luminosity",
             "knockout", "clear", "erase", "atop", "xor", and "plus".
         """
-        if blend_mode not in BlendMode:
-            raise ValueError(f"{blend_mode} is not a supported blend mode")
+        _api.check_in_list(BlendMode, blend_mode=blend_mode)
         self._blend_mode = blend_mode
 
     def get_blend_mode(self):

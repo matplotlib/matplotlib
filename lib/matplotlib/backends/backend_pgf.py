@@ -14,8 +14,8 @@ import weakref
 from PIL import Image
 
 import matplotlib as mpl
-from matplotlib import cbook, font_manager as fm
-from matplotlib.artist import _BlendModePDFSpec
+from matplotlib import _api, cbook, font_manager as fm
+from matplotlib.artist import _BlendModePDFSpec, BlendMode
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, RendererBase
 )
@@ -775,10 +775,12 @@ class RendererPgf(RendererBase):
         if self.fh.closed:
             return  # we can simply return because blending is irrelevant to layout
 
-        if blend_mode is not None and blend_mode not in _BlendModePDFSpec:
-            _log.warning(f"The '{blend_mode}' blend mode is not supported by the "
-                         f"PGF backend. Falling back to the 'normal' blend mode.")
-            blend_mode = "normal"
+        if blend_mode is not None:
+            _api.check_in_list(BlendMode, blend_mode=blend_mode)
+            if blend_mode not in _BlendModePDFSpec:
+                _log.warning(f"The '{blend_mode}' blend mode is not supported by the "
+                             f"PGF backend. Falling back to the 'normal' blend mode.")
+                blend_mode = "normal"
         self._group_blend_modes.append(blend_mode)
         if blend_mode is not None:
             _writeln(self.fh, r"\pgfsetblendmode{%s}" % blend_mode)

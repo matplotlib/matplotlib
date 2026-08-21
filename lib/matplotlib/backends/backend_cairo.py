@@ -28,6 +28,7 @@ except ImportError:
             "is installed") from err
 
 from .. import _api, cbook, font_manager
+from matplotlib.artist import BlendMode
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase,
     RendererBase)
@@ -351,6 +352,8 @@ class RendererCairo(RendererBase):
 
     def open_blend_group(self, blend_mode, *, alpha=1, knockout=False):
         # docstring inherited
+        if blend_mode is not None:
+            _api.check_in_list(BlendMode, blend_mode=blend_mode)
         self._group_states.append(
             _GroupState(blend_mode, alpha, self._override_blend_mode_to_knockout)
         )

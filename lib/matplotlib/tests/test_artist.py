@@ -354,7 +354,7 @@ def test_set_alpha_for_array():
 
 def test_set_blend_mode():
     art = martist.Artist()
-    with pytest.raises(ValueError, match="not a supported blend mode"):
+    with pytest.raises(ValueError, match="not a valid value for blend_mode"):
         art.set_blend_mode("invalid_blend_mode")
 
 
