@@ -363,6 +363,12 @@ class Collection(mcolorizer.ColorizingArtist):
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
 
+        # Bail if the collection does not have any offsets (e.g., an empty scatter plot)
+        if len(self.get_offsets()) == 0:
+            renderer.close_group(self.__class__.__name__)
+            self.stale = False
+            return
+
         self.update_scalarmappable()
 
         transform, offset_trf, offsets, paths = self._prepare_points()
