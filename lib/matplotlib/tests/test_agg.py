@@ -432,3 +432,23 @@ def test_path_autosnap(fig_test, fig_ref):
 
     axt.autoscale_view()
     axr.autoscale_view()
+
+
+def test_draw_text_images_bounds():
+    # Positions must describe bitmaps inside the buffer, as the renderer indexes
+    # into it without checking.
+    fig = plt.figure(figsize=(1, 1), dpi=40)
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    gc = renderer.new_gc()
+    buffer = np.zeros(16, dtype=np.uint8)
+
+    for positions in [[[1 << 20, 4, 4, 5, 20]],  # Offset past the end.
+                      [[0, 400, 400, 5, 39]],  # Larger than the buffer.
+                      [[0, -4, 4, 5, 20]]]:  # Negative size.
+        with pytest.raises(ValueError, match='outside of buffer'):
+            renderer._renderer.draw_text_images(
+                buffer, np.array(positions, dtype=np.intp), gc)
+
+    renderer._renderer.draw_text_images(
+        buffer, np.array([[0, 2, 2, 1, 3]], dtype=np.intp), gc)
