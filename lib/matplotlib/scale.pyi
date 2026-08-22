@@ -114,7 +114,7 @@ class SymmetricalLogScale(ScaleBase):
         *,
         base: float = ...,
         linthresh: float = ...,
-        subs: Iterable[int] | None = ...,
+        subs: Iterable[int] | Literal["auto", "all"] | None = ...,
         linscale: float = ...
     ) -> None: ...
     @property
