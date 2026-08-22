@@ -251,17 +251,19 @@ Some explicit rules following from this:
   subdirectories of :file:`doc/api/next_api_changes`, and significant new
   features have an entry in :file:`doc/user/whats_new`.
 
-  - If a PR already has a positive review, a core developer (e.g. the first
-    reviewer, but not necessarily) may champion that PR for merging.  In order
-    to do so, they should ping all core devs both on GitHub and on the dev
-    mailing list, and label the PR with the "Merge with single review?" label.
-    Other core devs can then either review the PR and merge or reject it, or
-    simply request that it gets a second review before being merged.  If no one
-    asks for such a second review within a week, the PR can then be merged on
-    the basis of that single review.
+Championing Pull Requests
+^^^^^^^^^^^^^^^^^^^^^^^^^
+If a PR already has a positive review, a core developer (e.g. the first reviewer, but
+not necessarily) may champion that PR for merging.  In order to do so, they should label
+the PR with the "Merge with single review?" label and ping core devs on GitHub, the
+weekly development meeting, the development channel on discourse and the dev mailing
+list. Other core devs can then either review the PR and merge or reject it, or simply
+request that it gets a second review before being merged.  If no one asks for such a
+second review within a week, the PR can then be merged on the basis of that single
+review.
 
-    A core dev should only champion one PR at a time and we should try to keep
-    the flow of championed PRs reasonable.
+A core dev should only champion one PR at a time and we should try to keep the flow of
+championed PRs reasonable.
 
 .. _pr-automated-tests:
 
