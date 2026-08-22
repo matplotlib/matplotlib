@@ -62,6 +62,17 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
             self._draw_rect_callback(painter)
+
+            if self._crosshair is not None:
+                x = self._crosshair.x
+                y = rect.height() - int(self._crosshair.y)
+                x0 = rect.left() + self._crosshair.x0
+                x1 = rect.left() + self._crosshair.x1
+                y0 = rect.top() + self._crosshair.y0
+                y1 = rect.top() + self._crosshair.y1
+                painter.setPen(QtGui.QPen(QtCore.Qt.GlobalColor.red))
+                painter.drawLine(x0, y, x1, y)
+                painter.drawLine(x, y0, x, y1)
         finally:
             painter.end()
 
