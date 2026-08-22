@@ -1,0 +1,10 @@
+Default focus behavior of ``FigureCanvasTkAgg``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Previously, when a `.FigureCanvasTkAgg` object was created, focus was set to the
+canvas by default. Now, focus is not set anymore. If focus is desired on the canvas,
+it can be set explicitly after creation using the ``focus_set()`` method of Tkinter
+widgets.
+
+See :doc:`../../../gallery/user_interfaces/embedding_in_tk_sgskip` for an example of
+focus-setting in an embedded Matplotlib figure in a Tkinter application.
