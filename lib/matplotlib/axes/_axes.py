@@ -8113,7 +8113,8 @@ such objects
     @_docstring.interpd
     def psd(self, x, NFFT=None, Fs=None, Fc=None, detrend=None,
             window=None, noverlap=None, pad_to=None,
-            sides=None, scale_by_freq=None, return_line=None, **kwargs):
+            sides=None, scale_by_freq=None, return_line=None, Funits=None,
+            **kwargs):
         r"""
         Plot the power spectral density.
 
@@ -8146,6 +8147,12 @@ such objects
 
         return_line : bool, default: False
             Whether to include the line object plotted in the returned values.
+
+        Funits : str, default: 'Hz'
+            Units for the sampling frequency *Fs*. It is used to label the
+            xaxis and yaxis.
+
+            .. versionadded:: 3.12
 
         Returns
         -------
@@ -8194,6 +8201,8 @@ such objects
         """
         if Fc is None:
             Fc = 0
+        if Funits is None:
+            Funits = 'Hz'
 
         pxx, freqs = mlab.psd(x=x, NFFT=NFFT, Fs=Fs, detrend=detrend,
                               window=window, noverlap=noverlap, pad_to=pad_to,
@@ -8201,12 +8210,12 @@ such objects
         freqs += Fc
 
         if scale_by_freq in (None, True):
-            psd_units = 'dB/Hz'
+            psd_units = 'dB/%s' % Funits
         else:
             psd_units = 'dB'
 
         line = self.plot(freqs, 10 * np.log10(pxx), **kwargs)
-        self.set_xlabel('Frequency')
+        self.set_xlabel('Frequency (%s)' % Funits)
         self.set_ylabel('Power Spectral Density (%s)' % psd_units)
         self.grid(True)
 

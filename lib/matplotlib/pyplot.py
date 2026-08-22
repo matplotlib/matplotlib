@@ -4070,6 +4070,7 @@ def psd(
     sides: Literal["default", "onesided", "twosided"] | None = None,
     scale_by_freq: bool | None = None,
     return_line: bool | None = None,
+    Funits: str | None = None,
     *,
     data: DataParamType = None,
     **kwargs,
@@ -4086,6 +4087,7 @@ def psd(
         sides=sides,
         scale_by_freq=scale_by_freq,
         return_line=return_line,
+        Funits=Funits,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )

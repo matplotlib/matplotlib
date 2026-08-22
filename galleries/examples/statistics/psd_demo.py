@@ -33,6 +33,9 @@ ax0.plot(t, s)
 ax0.set_xlabel('Time (s)')
 ax0.set_ylabel('Signal')
 ax1.psd(s, NFFT=512, Fs=1 / dt)
+# If dt had other units (e.g. days instead of seconds),
+# then the units of Fs (e.g. cycles per day or cps) can be specified
+# by the keyword Funits (e.g. Funits='cpd') in psd.
 
 plt.show()
 

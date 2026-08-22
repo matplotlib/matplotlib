@@ -653,6 +653,7 @@ class Axes(_AxesBase):
         sides: Literal["default", "onesided", "twosided"] | None = ...,
         scale_by_freq: bool | None = ...,
         return_line: bool | None = ...,
+        Funits: str | None = ...,
         data: DataParamType = ...,
         **kwargs
     ) -> tuple[np.ndarray, np.ndarray] | tuple[np.ndarray, np.ndarray, Line2D]: ...

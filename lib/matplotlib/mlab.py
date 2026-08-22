@@ -362,9 +362,9 @@ def _spectral_helper(x, y=None, NFFT=None, Fs=None, detrend_func=None,
 
         result[slc] *= scaling_factor
 
-        # MATLAB divides by the sampling frequency so that density function
-        # has units of dB/Hz and can be integrated by the plotted frequency
-        # values. Perform the same scaling here.
+        # Divide by the sampling frequency so that density function
+        # has units of V**2/Hz, if x is measured in units of V and the sampling
+        # frequency is measured in Hz.
         if scale_by_freq:
             result /= Fs
             # Scale the spectrum by the norm of the window to compensate for
@@ -470,10 +470,10 @@ detrend : {'none', 'mean', 'linear'} or callable, default: 'none'
     `.detrend_mean`. 'linear' calls `.detrend_linear`.
 
 scale_by_freq : bool, default: True
-    Whether the resulting density values should be scaled by the scaling
-    frequency, which gives density in units of 1/Hz.  This allows for
-    integration over the returned frequency values.  The default is True for
-    MATLAB compatibility.""")
+    Whether the resulting density values should be divided by the sampling
+    frequency, which gives density in units of 1/Hz, if the sampling rate
+    is measured in Hz.  This allows for integration over the returned
+    frequency values.  The default is True for MATLAB compatibility.""")
 
 
 @_docstring.interpd
