@@ -238,6 +238,7 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         self._draw_pending = False
         self._is_drawing = False
         self._draw_rect_callback = lambda painter: None
+        self._draw_whisker_callback = lambda painter: None
         self._in_resize_event = False
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_OpaquePaintEvent)
@@ -527,6 +528,31 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
             except Exception:
                 # Uncaught exceptions are fatal for PyQt5, so catch them.
                 traceback.print_exc()
+
+    def drawWhiskers(self, line, ws=20):
+        lines = []
+        if line is not None:
+            x0, y0, x1, y1 = [int(pt / self.device_pixel_ratio) for pt in line]
+            ws = int(ws / self.device_pixel_ratio)
+            lines = [(x0, y0, x1, y1)]
+            if x0 == x1:  # vertical line
+                lines += [(x0 - ws // 2, y0, x0 + ws // 2, y0),
+                          (x1 - ws // 2, y1, x1 + ws // 2, y1)]
+            elif y0 == y1:  # horizontal line
+                lines += [(x0, y0 - ws // 2, x0, y0 + ws // 2),
+                          (x1, y1 - ws // 2, x1, y1 + ws // 2)]
+            else:
+                lines = []
+
+        def _draw_whisker_callback(painter):
+            for color, width in [("white", 3), ("black", 1)]:
+                painter.setPen(QtGui.QPen(
+                    QtGui.QColor(color), width / self.device_pixel_ratio))
+                for whisker_line in lines:
+                    painter.drawLine(*whisker_line)
+
+        self._draw_whisker_callback = _draw_whisker_callback
+        self.update()
 
     def drawRectangle(self, rect):
         # Draw the zoom rectangle to the QPainter.  _draw_rect_callback needs
@@ -928,8 +954,18 @@ class NavigationToolbar2QT(NavigationToolbar2, QtWidgets.QToolBar):
         rect = [int(val) for val in (x0, y0, x1 - x0, y1 - y0)]
         self.canvas.drawRectangle(rect)
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        height = self.canvas.figure.bbox.height
+        y1 = height - y1
+        y0 = height - y0
+        whisk = [int(val) for val in (x0, y0, x1, y1)]
+        self.canvas.drawWhiskers(whisk, ws)
+
     def remove_rubberband(self):
         self.canvas.drawRectangle(None)
+
+    def remove_whiskers(self):
+        self.canvas.drawWhiskers(None)
 
     def configure_subplots(self):
         if self._subplot_dialog is None:

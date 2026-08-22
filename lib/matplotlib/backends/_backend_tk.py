@@ -659,6 +659,8 @@ class FigureManagerTk(FigureManagerBase):
 
 
 class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
+    _whiskers_tag = "_matplotlib_zoom_whiskers"
+
     def __init__(self, canvas, window=None, *, pack_toolbar=True):
         """
         Parameters
@@ -785,6 +787,25 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
             self.canvas._tkcanvas.create_rectangle(
                 x0, y0, x1, y1, outline='white', dash=(3, 3)))
 
+    def draw_whiskers(self, event, x0, y0, x1, y1, ws=20):
+        self.remove_whiskers()
+        height = self.canvas.figure.bbox.height
+        y0 = height - y0
+        y1 = height - y1
+        lines = [(x0, y0, x1, y1)]
+        if x1 == x0:  # vertical line
+            lines += [(x0 - ws//2, y0, x0 + ws//2, y0),
+                      (x1 - ws//2, y1, x1 + ws//2, y1)]
+        elif y1 == y0:  # horizontal line
+            lines += [(x0, y0 - ws//2, x0, y0 + ws//2),
+                      (x1, y1 - ws//2, x1, y1 + ws//2)]
+        else:
+            return
+        for color, width in [("white", 3), ("black", 1)]:
+            for line in lines:
+                self.canvas._tkcanvas.create_line(
+                    *line, fill=color, width=width, tags=self._whiskers_tag)
+
     def remove_rubberband(self):
         if self.canvas._rubberband_rect_white:
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_white)
@@ -792,6 +813,9 @@ class NavigationToolbar2Tk(NavigationToolbar2, tk.Frame):
         if self.canvas._rubberband_rect_black:
             self.canvas._tkcanvas.delete(self.canvas._rubberband_rect_black)
             self.canvas._rubberband_rect_black = None
+
+    def remove_whiskers(self):
+        self.canvas._tkcanvas.delete(self._whiskers_tag)
 
     def _set_image_for_button(self, button):
         """
