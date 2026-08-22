@@ -280,8 +280,8 @@ icon at the top right of the page. Then, find the "Incubator" channel.
 Good first issues
 -----------------
 
-We have marked some issues as `good first issue
-<https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ because we
+We have marked some issues as `🌱 Good first issue
+<https://github.com/matplotlib/matplotlib/issues?q=state%3Aopen%20label%3A%22%F0%9F%8C%B1%20Good%20first%20issue%22>`_ because we
 think they are a good entry point into the process of contributing to Matplotlib. These
 issues are well documented, do not require a deep understanding of the internals of
 Matplotlib, and do not need urgent resolution. Good first issues are intended to onboard
@@ -300,7 +300,7 @@ guide you through each step:
 
 1. Navigate to the `issues page <https://github.com/matplotlib/matplotlib/issues/>`_.
 2. Filter labels with `"Difficulty: Easy" <https://github.com/matplotlib/matplotlib/labels/Difficulty%3A%20Easy>`_
-   & `"Good first Issue" <https://github.com/matplotlib/matplotlib/labels/good%20first%20issue>`_ (optional).
+   & `"🌱 Good first Issue" <https://github.com/matplotlib/matplotlib/issues?q=state%3Aopen%20label%3A%22%F0%9F%8C%B1%20Good%20first%20issue%22>`_ (optional).
 3. Click on an issue you would like to work on, and check to see if the issue has a pull request opened to resolve it.
 
    * A good way to judge if you chose a suitable issue is by asking yourself, "Can I
