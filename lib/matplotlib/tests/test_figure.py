@@ -1334,6 +1334,63 @@ class TestSubplotMosaic:
         assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
                    for ax in ax_dict.values())
 
+    @staticmethod
+    def _share_groups(ax_dict, which):
+        """Return the sharing groups of *ax_dict* as sorted lists of labels."""
+        groups = {
+            frozenset(id(sib) for sib in
+                      getattr(ax, f"get_shared_{which}_axes")()
+                      .get_siblings(ax))
+            for ax in ax_dict.values()
+        }
+        return sorted(
+            sorted(label for label, ax in ax_dict.items() if id(ax) in group)
+            for group in groups
+        )
+
+    @pytest.mark.parametrize("share, expected", [
+        ("none", [["A"], ["B"], ["C"], ["D"]]),
+        ("all", [["A", "B", "C", "D"]]),
+        ("row", [["A", "B"], ["C", "D"]]),
+        ("col", [["A", "C"], ["B", "D"]]),
+    ])
+    def test_share_string_grid(self, share, expected):
+        # On a plain grid the mosaic spellings must agree with `subplots`.
+        fig = plt.figure()
+        ax_dict = fig.subplot_mosaic("AB;CD", sharex=share, sharey=share)
+        assert self._share_groups(ax_dict, "x") == expected
+        assert self._share_groups(ax_dict, "y") == expected
+
+    @pytest.mark.parametrize("bool_spelling, str_spelling",
+                             [(True, "all"), (False, "none")])
+    def test_share_bool_matches_string(self, bool_spelling, str_spelling):
+        mosaic = "AAE;C.E"
+        from_bool = plt.figure().subplot_mosaic(mosaic, sharex=bool_spelling)
+        from_str = plt.figure().subplot_mosaic(mosaic, sharex=str_spelling)
+        assert (self._share_groups(from_bool, "x")
+                == self._share_groups(from_str, "x"))
+
+    def test_share_spanning_axes(self):
+        # 'E' spans both rows, so sharing by row transitively joins every
+        # Axes, while sharing by column leaves 'E' on its own.
+        by_row = plt.figure().subplot_mosaic("AAE;C.E", sharex="row")
+        assert self._share_groups(by_row, "x") == [["A", "C", "E"]]
+        by_col = plt.figure().subplot_mosaic("AAE;C.E", sharex="col")
+        assert self._share_groups(by_col, "x") == [["A", "C"], ["E"]]
+
+    def test_share_nested(self):
+        # Axes of a nested mosaic belong to the outer cell holding them.
+        ax_dict = plt.figure().subplot_mosaic([["A", [["B"], ["C"]]]],
+                                              sharex="col")
+        assert self._share_groups(ax_dict, "x") == [["A"], ["B", "C"]]
+
+    def test_share_invalid(self):
+        fig = plt.figure()
+        with pytest.raises(ValueError, match="not a valid value for sharex"):
+            fig.subplot_mosaic("AB", sharex="peculiar")
+        with pytest.raises(TypeError, match="must be an instance of bool"):
+            fig.subplot_mosaic("AB", sharey=1)
+
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""

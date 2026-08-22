@@ -1896,8 +1896,8 @@ def subplots(
 def subplot_mosaic(
     mosaic: str,
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: str = ...,
@@ -1912,8 +1912,8 @@ def subplot_mosaic(
 def subplot_mosaic[T](
     mosaic: list[HashableList[T]],
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: T = ...,
@@ -1928,8 +1928,8 @@ def subplot_mosaic[T](
 def subplot_mosaic(
     mosaic: list[HashableList[Hashable]],
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["none", "all", "row", "col"] = ...,
+    sharey: bool | Literal["none", "all", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: Any = ...,
@@ -1943,8 +1943,8 @@ def subplot_mosaic(
 def subplot_mosaic[T](
     mosaic: str | list[HashableList[T]] | list[HashableList[Hashable]],
     *,
-    sharex: bool = False,
-    sharey: bool = False,
+    sharex: bool | Literal["none", "all", "row", "col"] = False,
+    sharey: bool | Literal["none", "all", "row", "col"] = False,
     width_ratios: ArrayLike | None = None,
     height_ratios: ArrayLike | None = None,
     empty_sentinel: Any = '.',
@@ -1996,11 +1996,28 @@ def subplot_mosaic[T](
         This only allows only single character Axes labels and does
         not allow nesting but is very terse.
 
-    sharex, sharey : bool, default: False
-        If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
-        among all subplots.  In that case, tick label visibility and axis units
-        behave as for `subplots`.  If False, each subplot's x- or y-axis will
-        be independent.
+    sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+        Controls sharing of properties among the x-axis (*sharex*) or y-axis
+        (*sharey*):
+
+        - True or 'all': x- or y-axis will be shared among all subplots.
+        - False or 'none': each subplot x- or y-axis will be independent.
+        - 'row': each subplot row will share an x- or y-axis.
+        - 'col': each subplot column will share an x- or y-axis.
+
+        In the shared cases, tick label visibility and axis units behave as
+        for `subplots`.
+
+        Because an Axes of a mosaic may span several rows or columns, it
+        belongs to every row or column it covers and therefore joins the
+        groups of all of them.  For instance in ``'AAE;C.E'`` the Axes *E*
+        spans both rows, so ``sharex='row'`` shares the x-axis among *A*,
+        *C* and *E* alike.  The Axes of a nested mosaic are attributed to
+        the cell of the outer mosaic holding them.
+
+        .. versionchanged:: 3.12
+           The 'none', 'all', 'row' and 'col' spellings were added; before
+           only the booleans were accepted.
 
     width_ratios : array-like of length *ncols*, optional
         Defines the relative widths of the columns. Each column gets a

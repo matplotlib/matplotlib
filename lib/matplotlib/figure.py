@@ -2034,11 +2034,28 @@ default: %(va)s
             The Axes identifiers may be `str` or a non-iterable hashable
             object (e.g. `tuple` s may not be used).
 
-        sharex, sharey : bool, default: False
-            If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
-            among all subplots.  In that case, tick label visibility and axis
-            units behave as for `subplots`.  If False, each subplot's x- or
-            y-axis will be independent.
+        sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+            Controls sharing of properties among the x-axis (*sharex*) or
+            y-axis (*sharey*):
+
+            - True or 'all': x- or y-axis will be shared among all subplots.
+            - False or 'none': each subplot x- or y-axis will be independent.
+            - 'row': each subplot row will share an x- or y-axis.
+            - 'col': each subplot column will share an x- or y-axis.
+
+            In the shared cases, tick label visibility and axis units behave
+            as for `subplots`.
+
+            Because an Axes of a mosaic may span several rows or columns, it
+            belongs to every row or column it covers and therefore joins the
+            groups of all of them.  For instance in ``'AAE;C.E'`` the Axes
+            *E* spans both rows, so ``sharex='row'`` shares the x-axis among
+            *A*, *C* and *E* alike.  The Axes of a nested mosaic are
+            attributed to the cell of the outer mosaic holding them.
+
+            .. versionchanged:: 3.12
+               The 'none', 'all', 'row' and 'col' spellings were added; before
+               only the booleans were accepted.
 
         width_ratios : array-like of length *ncols*, optional
             Defines the relative widths of the columns. Each column gets a
@@ -2117,8 +2134,16 @@ default: %(va)s
 
         per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
-        # Only accept strict bools to allow a possible future API expansion.
-        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+        # Normalize the bool spellings to the string spellings used by
+        # `.Figure.subplots`, so that the two APIs accept the same values.
+        if not isinstance(sharex, str):
+            _api.check_isinstance(bool, sharex=sharex)
+            sharex = "all" if sharex else "none"
+        if not isinstance(sharey, str):
+            _api.check_isinstance(bool, sharey=sharey)
+            sharey = "all" if sharey else "none"
+        _api.check_in_list(["all", "row", "col", "none"],
+                           sharex=sharex, sharey=sharey)
 
         def _make_array(inp):
             """
@@ -2277,13 +2302,66 @@ default: %(va)s
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        ax0 = next(iter(ret.values()))
-        for ax in ret.values():
-            if sharex:
+        def _share_groups(mode, along_rows):
+            """
+            Group the Axes of the mosaic that should share an axis.
+
+            Parameters
+            ----------
+            mode : {'all', 'row', 'col', 'none'}
+                The sharing mode requested by the user.
+            along_rows : bool
+                If True group by shared *rows*, otherwise by shared *columns*.
+
+            Returns
+            -------
+            list of list of Axes
+                Each inner list is one group of Axes to be shared together;
+                the first entry is the Axes the others are shared with.  The
+                groups are empty if *mode* is ``'none'``.
+
+            Notes
+            -----
+            An Axes that spans several rows (columns) belongs to every row
+            (column) it covers, so it transitively merges the groups of all
+            of those rows (columns).  For example, in ``'AAE;C.E'`` the Axes
+            *E* spans both rows, so ``sharex='row'`` places *A*, *C* and *E*
+            in a single group.  Axes of a nested mosaic are attributed to the
+            cell of the *outer* mosaic that contains them.
+            """
+            if mode == 'none':
+                return []
+            axs = list(ret.values())
+            if mode == 'all':
+                return [axs]
+            # Grouper is a union-find; joining each Axes first keeps the
+            # mosaic order and makes sure un-grouped Axes are still present.
+            grouper = cbook.Grouper()
+            by_index = {}
+            for ax in axs:
+                grouper.join(ax)
+                ss = ax.get_subplotspec().get_topmost_subplotspec()
+                for i in (ss.rowspan if along_rows else ss.colspan):
+                    by_index.setdefault(i, []).append(ax)
+            for group in by_index.values():
+                grouper.join(*group)
+            return list(grouper)
+
+        for group in _share_groups(sharex, along_rows=(sharex == 'row')):
+            ax0, *rest = group
+            for ax in rest:
                 ax.sharex(ax0)
-                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
-            if sharey:
+        for group in _share_groups(sharey, along_rows=(sharey == 'row')):
+            ax0, *rest = group
+            for ax in rest:
                 ax.sharey(ax0)
+        # Match `.Figure.subplots`: only hide the inner tick labels when the
+        # sharing actually lines the Axes up along that direction.
+        if sharex in ['col', 'all']:
+            for ax in ret.values():
+                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
+        if sharey in ['row', 'all']:
+            for ax in ret.values():
                 ax._label_outer_yaxis(skip_non_rectangular_axes=True)
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
