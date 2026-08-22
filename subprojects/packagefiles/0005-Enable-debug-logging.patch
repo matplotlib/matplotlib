@@ -1,0 +1,26 @@
+From dc723711549e7710e074b210f48391c6b07c013e Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Sat, 1 Aug 2026 01:46:51 -0400
+Subject: [PATCH 5/5] Enable debug logging
+
+Signed-off-by: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+---
+ include/freetype/config/ftoption.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/freetype/config/ftoption.h b/include/freetype/config/ftoption.h
+index b857e0ebb..bef9e6853 100644
+--- a/include/freetype/config/ftoption.h
++++ b/include/freetype/config/ftoption.h
+@@ -473,7 +473,7 @@ FT_BEGIN_HEADER
+    *
+    *   This option needs a C99 compiler.
+    */
+-/* #define FT_DEBUG_LOGGING */
++#define FT_DEBUG_LOGGING
+ 
+ 
+   /**************************************************************************
+-- 
+2.55.0
+
