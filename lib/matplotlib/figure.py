@@ -209,6 +209,9 @@ class FigureBase(Artist):
         self._localaxes = []  # track all Axes
         self.subfigs = []
         self._children = []  # All artists except SubFigure and Axes
+        self._children_by_layer = {"base": self._children}
+        # Note: "patch" layer is added by Figure/SubFigure.__init__ after
+        # self.patch is created, since FigureBase has no self.patch of its own.
         self.stale = True
         self.suppressComposite = None
         self.set(**kwargs)
@@ -238,14 +241,8 @@ class FigureBase(Artist):
     def texts(self):
         return _FigureArtistList(self, 'texts', valid_types=Text)
 
-    def _get_draw_artists(self, renderer):
-        """Also runs apply_aspect"""
-        artists = self.get_children()
-
-        artists.remove(self.patch)
-        artists = sorted(
-            (artist for artist in artists if not artist.get_animated()),
-            key=lambda artist: artist.get_zorder())
+    def _apply_aspects(self, renderer):
+        """Apply aspect ratios to all axes and children."""
         for ax in self._localaxes:
             locator = ax.get_axes_locator()
             ax.apply_aspect(locator(ax, renderer) if locator else None)
@@ -255,7 +252,32 @@ class FigureBase(Artist):
                     locator = child.get_axes_locator()
                     child.apply_aspect(
                         locator(child, renderer) if locator else None)
+
+    def _get_draw_artists(self, renderer, layer):
+        artists = self.get_children(layer=layer)
+        artists = sorted(
+            (artist for artist in artists if not artist.get_animated()),
+            key=lambda artist: artist.get_zorder())
         return artists
+
+    def _draw_layer(self, renderer, layer):
+        """
+        Draw the specified layer of artists.
+
+        Parameters
+        ----------
+        renderer : `.RendererBase`
+        layer : str
+            The layer to draw.
+        """
+        artists = self._get_draw_artists(renderer, layer=layer)
+        if not artists:
+            return
+
+        renderer.open_group(layer)
+        mimage._draw_list_compositing_images(
+            renderer, self, artists, self.suppressComposite)
+        renderer.close_group(layer)
 
     def autofmt_xdate(
             self, bottom=0.2, rotation=30, ha='right', which='major'):
@@ -302,17 +324,41 @@ class FigureBase(Artist):
             self.subplots_adjust(bottom=bottom)
         self.stale = True
 
-    def get_children(self):
+    def get_children(self, *, layer=None):
         """Get a list of artists contained in the figure."""
-        return [self.patch,
-                *self.artists,
-                *self._localaxes,
-                *self.lines,
-                *self.patches,
-                *self.texts,
-                *self.images,
-                *self.legends,
-                *self.subfigs]
+        layers = list(self._children_by_layer) if layer is None else [layer]
+        result = []
+        for name in layers:
+            layer_children = self._children_by_layer.get(name, [])
+            artists = []
+            lines = []
+            patches = []
+            texts = []
+            images = []
+            legends = []
+
+            for a in layer_children:
+                if isinstance(a, mimage.FigureImage):
+                    images.append(a)
+                elif isinstance(a, mlegend.Legend):
+                    legends.append(a)
+                elif isinstance(a, Line2D):
+                    lines.append(a)
+                elif isinstance(a, Patch):
+                    patches.append(a)
+                elif isinstance(a, Text):
+                    texts.append(a)
+                else:
+                    artists.append(a)
+
+            result += artists
+            if name == "base":
+                result += self._localaxes
+            result += [*lines, *patches, *texts, *images, *legends]
+            if name == "base":
+                result += self.subfigs
+
+        return result
 
     def get_figure(self, root=None):
         """
@@ -585,7 +631,7 @@ default: %(va)s
 
     frameon = property(get_frameon, set_frameon)
 
-    def add_artist(self, artist, clip=False):
+    def add_artist(self, artist, clip=False, *, layer=None):
         """
         Add an `.Artist` to the figure.
 
@@ -601,6 +647,8 @@ default: %(va)s
             ``figure.transSubfigure``.
         clip : bool, default: False
             Whether the added artist should be clipped by the figure patch.
+        layer : str, default: None
+            The layer to add the artist to. If None, the base layer is used.
 
         Returns
         -------
@@ -608,8 +656,9 @@ default: %(va)s
             The added artist.
         """
         artist.set_figure(self)
-        self._children.append(artist)
-        artist._remove_method = self._children.remove
+        target = self._children_by_layer.setdefault(layer or "base", [])
+        target.append(artist)
+        artist._remove_method = target.remove
 
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
@@ -1076,6 +1125,10 @@ default: %(va)s
             self.delaxes(ax)  # Remove ax from self._axstack.
 
         self._children = []
+        self._children_by_layer = {
+            "patch": [self.patch],
+            "base": self._children,
+        }
         self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
@@ -2385,6 +2438,9 @@ class SubFigure(FigureBase):
             in_layout=False, transform=self.transSubfigure)
         self._set_artist_props(self.patch)
         self.patch.set_antialiased(False)
+        # Rebuild the dict with "patch" as the first key so that iterating
+        # _children_by_layer in insertion order always draws patch first.
+        self._children_by_layer = {"patch": [self.patch], **self._children_by_layer}
 
     @property
     def canvas(self):
@@ -2494,13 +2550,13 @@ class SubFigure(FigureBase):
         if not self.get_visible():
             return
 
-        artists = self._get_draw_artists(renderer)
-
         try:
             renderer.open_group('subfigure', gid=self.get_gid())
-            self.patch.draw(renderer)
-            mimage._draw_list_compositing_images(
-                renderer, self, artists, self.get_figure(root=True).suppressComposite)
+            self._apply_aspects(renderer)
+            # Draw all layers in dict insertion order:
+            # patch (background) → base → any additional layers.
+            for _layer in self._children_by_layer:
+                self._draw_layer(renderer, _layer)
             renderer.close_group('subfigure')
 
         finally:
@@ -3348,7 +3404,6 @@ None}, default: None
 
         with self._render_lock:
 
-            artists = self._get_draw_artists(renderer)
             try:
                 renderer.open_group('figure', gid=self.get_gid())
                 if self.axes and self.get_layout_engine() is not None:
@@ -3358,9 +3413,12 @@ None}, default: None
                         pass
                         # ValueError can occur when resizing a window.
 
-                self.patch.draw(renderer)
-                mimage._draw_list_compositing_images(
-                    renderer, self, artists, self.suppressComposite)
+                self._apply_aspects(renderer)
+
+                # Draw all layers in dict insertion order:
+                # patch (background) → base → any additional layers.
+                for _layer in self._children_by_layer:
+                    self._draw_layer(renderer, _layer)
 
                 renderer.close_group('figure')
             finally:
