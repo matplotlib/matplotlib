@@ -143,6 +143,8 @@ def subprocess_run_helper(func, *args, timeout, extra_env=None):
     extra_env : dict[str, str]
         Any additional environment variables to be set for the subprocess.
     """
+    if is_ci_environment():
+        timeout *= 6
     target = func.__name__
     module = func.__module__
     file = func.__code__.co_filename
