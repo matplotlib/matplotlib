@@ -243,6 +243,50 @@ ax[3].set_title('BoundaryNorm: extend="both"')
 plt.show()
 
 # %%
+# Categorical mapping with BoundaryNorm
+# ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+# BoundaryNorm assigns data to discrete
+# "bins" based on the lower bound.
+# For categorical data, we can define
+# boundaries that wrap around
+# each integer ID to ensure a consistent
+# color mapping.
+# Create a discrete colormap and use
+# BoundaryNorm to map specific
+# integer IDs to colors. The 'bounds' array
+# defines the edges for each bin.
+data =np.array([
+    [101, 205, 302, 101],
+    [205, 302, 101, 205],
+    [302, 101, 205, 302],
+    [101, 205, 302, 101]
+])
+codings = {
+    101: "lightskyblue",
+    205: "lightcoral",
+    302: "lightgreen"
+}
+
+cmap_cat = colors.ListedColormap(list(codings.values()))
+
+bounds = [101, 205, 302, 303]
+norm_cat = colors.BoundaryNorm(bounds, cmap_cat.N)
+
+fig, ax = plt.subplots(figsize=(6, 4), layout='constrained')
+im = ax.pcolormesh(data, cmap=cmap_cat, norm=norm_cat)
+
+# Tick centering logic
+bin_centers = np.array(bounds[:-1]) + np.diff(bounds) / 2
+cbar = fig.colorbar(im, ax=ax)
+cbar.set_ticks(bin_centers)
+cbar.set_ticklabels(list(codings.keys()))
+cbar.ax.tick_params(axis='y', which='minor', length=0)
+
+cbar.set_label('Categories')
+ax.set_title("Categorical Colormapping using BoundaryNorm")
+plt.show()
+
+# %%
 # TwoSlopeNorm: Different mapping on either side of a center
 # ----------------------------------------------------------
 #
