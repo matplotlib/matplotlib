@@ -813,6 +813,46 @@ def test_boxstyle_errors(fmt, match):
         BoxStyle(fmt)
 
 
+def test_fancybbox_patch_screen_proportional_mutation_aspect():
+    fig, ax = plt.subplots(figsize=(10, 5))
+    w, h = 0.18, 1.0
+    patch = mpatches.FancyBboxPatch(
+        (0.3, 0), w, h,
+        boxstyle=BoxStyle("Round", pad=0, rounding_size=w / 2),
+        mutation_aspect="screen-proportional")
+    ax.add_patch(patch)
+    ax.autoscale_view()
+    fig.canvas.draw()
+
+    # The corner of the Round box must be a circular arc in display space,
+    # i.e. the rounding is isotropic on screen.
+    verts = patch.get_transform().transform(patch.get_path().vertices)
+    # Bottom-right corner: verts[1] = (x1 - dr, y0), verts[2] = (x1, y0),
+    # verts[3] = (x1, y0 + dr).
+    np.testing.assert_allclose(verts[2, 0] - verts[1, 0],
+                               verts[3, 1] - verts[2, 1])
+
+    # A plain numeric mutation_aspect does not compensate the axes aspect.
+    patch.set_mutation_aspect(1)
+    verts = patch.get_transform().transform(patch.get_path().vertices)
+    assert not np.isclose(verts[2, 0] - verts[1, 0],
+                          verts[3, 1] - verts[2, 1])
+
+    with pytest.raises(ValueError, match="mutation_aspect"):
+        patch.set_mutation_aspect("bogus")
+
+
+def test_fancybbox_patch_screen_proportional_without_axes():
+    # Without an Axes the screen aspect cannot be resolved; it falls back to 1.
+    patch = mpatches.FancyBboxPatch(
+        (0, 0), 0.2, 0.1,
+        boxstyle=BoxStyle("Round", pad=0, rounding_size=0.1),
+        mutation_aspect="screen-proportional")
+    verts = patch.get_path().vertices
+    np.testing.assert_allclose(verts[2, 0] - verts[1, 0],
+                               verts[3, 1] - verts[2, 1])
+
+
 @image_comparison(['annulus.png'], style='mpl20')
 def test_annulus():
 

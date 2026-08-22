@@ -4053,11 +4053,17 @@ class FancyBboxPatch(Patch):
             Scaling factor applied to the attributes of the box style
             (e.g. pad or rounding_size).
 
-        mutation_aspect : float, default: 1
+        mutation_aspect : float or str, default: 1
             The height of the rectangle will be squeezed by this value before
             the mutation and the mutated box will be stretched by the inverse
             of it. For example, this allows different horizontal and vertical
             padding.
+
+            The special value ``"screen-proportional"`` resolves the aspect
+            dynamically from the axes at draw time, so that the box is scaled
+            proportionally to the display scaling of the data.  This keeps
+            features such as the rounding of ``"Round"`` boxstyles circular
+            on screen, independent of the axes aspect ratio.
 
         Other Parameters
         ----------------
@@ -4140,8 +4146,15 @@ class FancyBboxPatch(Patch):
 
         Parameters
         ----------
-        aspect : float
+        aspect : float or "screen-proportional"
+            A float value, or the string ``"screen-proportional"`` to resolve
+            the aspect dynamically from the axes at draw time (see
+            `.FancyBboxPatch` for details).
         """
+        if (not isinstance(aspect, (int, float))
+                and aspect != "screen-proportional"):
+            raise ValueError(
+                "mutation_aspect must be a number or 'screen-proportional'")
         self._mutation_aspect = aspect
         self.stale = True
 
@@ -4150,10 +4163,26 @@ class FancyBboxPatch(Patch):
         return (self._mutation_aspect if self._mutation_aspect is not None
                 else 1)  # backcompat.
 
+    def _get_screen_proportional_aspect(self):
+        """Return the mutation aspect that is isotropic in display space."""
+        axes = self.axes
+        if axes is None:
+            return 1
+        # Display-space size of the Axes and of one data unit in each
+        # direction, so that the box is scaled like the data on screen.
+        bbox = axes.get_window_extent()
+        txmin, txmax = axes.xaxis.get_transform().transform(axes.get_xbound())
+        tymin, tymax = axes.yaxis.get_transform().transform(axes.get_ybound())
+        xsize = max(abs(txmax - txmin), 1e-30)
+        ysize = max(abs(tymax - tymin), 1e-30)
+        return bbox.width * ysize / (bbox.height * xsize)
+
     def get_path(self):
         """Return the mutated path of the rectangle."""
         boxstyle = self.get_boxstyle()
         m_aspect = self.get_mutation_aspect()
+        if m_aspect == "screen-proportional":
+            m_aspect = self._get_screen_proportional_aspect()
         # Call boxstyle with y, height squeezed by aspect_ratio.
         path = boxstyle(self._x, self._y / m_aspect,
                         self._width, self._height / m_aspect,
