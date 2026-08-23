@@ -209,9 +209,6 @@ class FigureBase(Artist):
         self._localaxes = []  # track all Axes
         self.subfigs = []
         self._children = []  # All artists except SubFigure and Axes
-        self._children_by_layer = {"base": self._children}
-        # Note: "patch" layer is added by Figure/SubFigure.__init__ after
-        # self.patch is created, since FigureBase has no self.patch of its own.
         self.stale = True
         self.suppressComposite = None
         self.set(**kwargs)
@@ -2440,7 +2437,10 @@ class SubFigure(FigureBase):
         self.patch.set_antialiased(False)
         # Rebuild the dict with "patch" as the first key so that iterating
         # _children_by_layer in insertion order always draws patch first.
-        self._children_by_layer = {"patch": [self.patch], **self._children_by_layer}
+        self._children_by_layer = {
+            "patch": [self.patch],
+            "base": self._children,
+        }
 
     @property
     def canvas(self):
