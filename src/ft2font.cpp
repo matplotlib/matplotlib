@@ -7,6 +7,8 @@
 #include <cstdio>
 #include <iterator>
 #include <map>
+#include <mutex>
+#include <new>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -17,8 +19,13 @@
 #endif
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
-    : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
+    // calloc(width, height) performs the width*height overflow check internally
+    // and returns nullptr on overflow or allocation failure.
+    : m_buffer((unsigned char *)calloc(width, height)), m_width(width), m_height(height)
 {
+    if (!m_buffer && width != 0 && height != 0) {
+        throw std::bad_alloc();
+    }
 }
 
 FT2Image::~FT2Image()
@@ -218,6 +225,8 @@ void FT2Font::close()
     glyphs.clear();
 
     if (face) {
+        // FT_Done_Face mutates the shared _ft2Library; serialize it.
+        std::scoped_lock lock{_ft2LibraryMutex};
         FT_Done_Face(face);
         face = nullptr;
     }

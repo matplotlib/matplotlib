@@ -41,30 +41,27 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
 
     unsigned stride(width * 4);
 
-    pixBuffer = new agg::int8u[NUMBYTES];
-    renderingBuffer.attach(pixBuffer, width, height, stride);
+    pixBuffer.reset(new agg::int8u[NUMBYTES]);
+    renderingBuffer.attach(pixBuffer.get(), width, height, stride);
     pixFmt.attach(renderingBuffer);
     rendererBase.attach(pixFmt);
     rendererBase.clear(_fill_color);
     rendererAA.attach(rendererBase);
     rendererBin.attach(rendererBase);
     hatch_size = int(dpi);
-    hatchBuffer = new agg::int8u[hatch_size * hatch_size * 4];
-    hatchRenderingBuffer.attach(hatchBuffer, hatch_size, hatch_size, hatch_size * 4);
+    hatchBuffer.reset(new agg::int8u[hatch_size * hatch_size * 4]);
+    hatchRenderingBuffer.attach(hatchBuffer.get(), hatch_size, hatch_size, hatch_size * 4);
 }
 
 RendererAgg::~RendererAgg()
 {
-    delete[] hatchBuffer;
-    delete[] alphaBuffer;
-    delete[] pixBuffer;
 }
 
 void RendererAgg::create_alpha_buffers()
 {
     if (!alphaBuffer) {
-        alphaBuffer = new agg::int8u[width * height];
-        alphaMaskRenderingBuffer.attach(alphaBuffer, width, height, width);
+        alphaBuffer.reset(new agg::int8u[width * height]);
+        alphaMaskRenderingBuffer.attach(alphaBuffer.get(), width, height, width);
         rendererBaseAlphaMask.attach(pixfmtAlphaMask);
         rendererAlphaMask.attach(rendererBaseAlphaMask);
     }
