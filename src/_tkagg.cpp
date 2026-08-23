@@ -191,7 +191,7 @@ DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
         RemoveWindowSubclass(hwnd, DpiSubclassProc, uIdSubclass);
         break;
     default:
-        assert(0 && "Should never be reached here");
+        assert(1 && "Should never be reached here");
     }
 
     return DefSubclassProc(hwnd, uMsg, wParam, lParam);
