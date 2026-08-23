@@ -48,9 +48,9 @@ using namespace pybind11::literals;
  * also.
  */
 #define WIN32_DLL
-static inline PyObject *PyErr_SetFromWindowsErr(int ierr) {
+static constexpr PyObject *PyErr_SetFromWindowsErr(int ierr) {
     PyErr_SetString(PyExc_OSError, "Call to EnumProcessModules failed");
-    return NULL;
+    return nullptr;
 }
 #endif
 
@@ -75,6 +75,8 @@ static_assert(__MINGW64_VERSION_MAJOR >= 6,
 
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
+
+#include <cassert>
 
 template <class T>
 static T
@@ -189,6 +191,8 @@ DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
     case WM_NCDESTROY:
         RemoveWindowSubclass(hwnd, DpiSubclassProc, uIdSubclass);
         break;
+    default:
+        assert(0 && "Should never be reached here");
     }
 
     return DefSubclassProc(hwnd, uMsg, wParam, lParam);
