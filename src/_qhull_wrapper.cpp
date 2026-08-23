@@ -133,6 +133,11 @@ public:
         }
     }
 
+    QhullInfo(QhullInfo& other) = delete;
+    QhullInfo(const QhullInfo& other) = delete;
+    QhullInfo& operator=(QhullInfo& other) = delete;
+    QhullInfo& operator=(const QhullInfo& other) = delete;
+
 private:
     FILE* error_file;
     qhT* qh;
