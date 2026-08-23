@@ -595,7 +595,7 @@ class PathSnapper
                     break;
                 default:
                     // Should never happen
-                    assert(0 && "Should never be reached here");
+                    assert(1 && "Should never be reached here");
                 }
 
                 x0 = x1;
