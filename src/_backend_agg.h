@@ -11,6 +11,7 @@
 #include <cmath>
 #include <algorithm>
 #include <functional>
+#include <memory>
 #include <optional>
 #include <vector>
 
@@ -209,10 +210,10 @@ class RendererAgg
     double dpi;
     size_t NUMBYTES; // the number of bytes in buffer
 
-    agg::int8u *pixBuffer, *otherPixBuffer;
+    std::unique_ptr<agg::int8u[]> pixBuffer, otherPixBuffer;
     agg::rendering_buffer renderingBuffer;
 
-    agg::int8u *alphaBuffer;
+    std::unique_ptr<agg::int8u[]> alphaBuffer;
     agg::rendering_buffer alphaMaskRenderingBuffer;
     alpha_mask_type alphaMask;
     agg::pixfmt_gray8 pixfmtAlphaMask;
@@ -232,7 +233,7 @@ class RendererAgg
     agg::trans_affine lastclippath_transform;
 
     size_t hatch_size;
-    agg::int8u *hatchBuffer;
+    std::unique_ptr<agg::int8u[]> hatchBuffer;
     agg::rendering_buffer hatchRenderingBuffer;
 
     agg::rgba _fill_color;
