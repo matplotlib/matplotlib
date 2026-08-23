@@ -230,8 +230,6 @@ void FT2Font::close()
     layout_cache.clear();
 
     if (face) {
-        // FT_Done_Face mutates the shared _ft2Library; serialize it.
-        std::scoped_lock lock{_ft2LibraryMutex};
         FT_Done_Face(face);
         face = nullptr;
     }
