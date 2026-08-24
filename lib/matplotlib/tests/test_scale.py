@@ -497,3 +497,26 @@ def test_val_in_range_array():
     out = mscale._scale_mapping['log'](axis=None).val_in_range(
         np.array([[1.0, -1.0], [0.5, np.nan]]))
     np.testing.assert_array_equal(out, [[True, False], [True, False]])
+
+
+def test_val_in_range_scalar_only_scale():
+    # Custom scale whose limit_range_for_scale only accepts scalars
+    class ScalarOnlyScale(mscale.ScaleBase):
+        name = "scalaronly"
+
+        def get_transform(self):
+            return IdentityTransform()
+
+        def limit_range_for_scale(self, vmin, vmax, minpos):
+            return (minpos if vmin <= 0 else vmin, minpos if vmax <= 0 else vmax)
+
+    scale = ScalarOnlyScale(axis=None)
+    arr = np.array([-1.0, 0.0, 1.0, 2.0, np.nan, np.inf])
+    expected = [False, False, True, True, False, False]
+    np.testing.assert_array_equal(scale.val_in_range(arr), expected)
+
+    # Scalar input returns bool
+    assert scale.val_in_range(1.0) is True
+    assert scale.val_in_range(-1.0) is False
+    assert scale.val_in_range(np.nan) is False
+

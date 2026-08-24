@@ -127,10 +127,25 @@ class ScaleBase:
         with np.errstate(invalid='ignore'):
             try:
                 vmin, vmax = self.limit_range_for_scale(arr, arr, minpos=1e-300)
-            except (TypeError, ValueError):
-                result = np.zeros(arr.shape, dtype=bool)
-            else:
                 result = np.isfinite(arr) & (vmin == arr) & (vmax == arr)
+            except (TypeError, ValueError):
+                try:
+                    if arr.size == 0:
+                        result = np.zeros(arr.shape, dtype=bool)
+                    else:
+                        def _single_val_in_range(x):
+                            if not np.isfinite(x):
+                                return False
+                            try:
+                                vmin, vmax = self.limit_range_for_scale(x, x, minpos=1e-300)
+                                return bool((vmin == x) and (vmax == x))
+                            except (TypeError, ValueError):
+                                return False
+
+                        vec_val_in_range = np.vectorize(_single_val_in_range, otypes=[bool])
+                        result = vec_val_in_range(arr)
+                except Exception:
+                    result = np.zeros(arr.shape, dtype=bool)
         return bool(result) if arr.ndim == 0 else result
 
 
