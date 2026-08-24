@@ -162,7 +162,11 @@ class Animation:
     frame_seq: Iterable[Artist]
     event_source: EventSourceProtocol | None  # TODO: We should remove None
     def __init__(
-        self, fig: Figure, event_source: EventSourceProtocol, blit: bool = ...
+        self,
+        fig: Figure,
+        event_source: EventSourceProtocol,
+        blit: bool = ...,
+        start_paused: bool = ...,
     ) -> None: ...
     def __del__(self) -> None: ...
     def save(
