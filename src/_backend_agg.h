@@ -527,18 +527,12 @@ inline void RendererAgg::draw_markers(GCAgg &gc,
                     marker_path, subpix_marker_trans};
                 auto marker_path_nan_removed = PathNanRemover{
                     marker_path_transformed, true, marker_path.has_codes()};
-                auto marker_path_snapped = PathSnapper{
-                    marker_path_nan_removed,
-                    gc.snap_mode, marker_path.total_vertices(),
-                    points_to_pixels(gc.linewidth)};
-                auto marker_path_curve = agg::conv_curve{marker_path_snapped};
+                auto marker_path_curve = agg::conv_curve{marker_path_nan_removed};
 
-                if (!marker_path_snapped.is_snapping()) {
-                    // If the path snapper isn't in effect, at least make sure the marker
-                    // at (0, 0) is in the center of a pixel.  This, importantly, makes
-                    // the circle markers look centered around the point they refer to.
-                    subpix_marker_trans *= agg::trans_affine_translation(0.5, 0.5);
-                }
+                // If the path snapper isn't in effect, at least make sure the marker
+                // at (0, 0) is in the center of a pixel.  This, importantly, makes
+                // the circle markers look centered around the point they refer to.
+                subpix_marker_trans *= agg::trans_affine_translation(0.5, 0.5);
 
                 // maxim's suggestions for cached scanlines
                 agg::scanline_storage_aa8 scanlines;
