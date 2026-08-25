@@ -325,33 +325,33 @@ class FigureBase(Artist):
         """Get a list of artists contained in the figure."""
         layers = list(self._children_by_layer) if layer is None else [layer]
         result = []
-        for name in layers:
-            layer_children = self._children_by_layer.get(name, [])
-            artists = []
-            lines = []
-            patches = []
-            texts = []
-            images = []
-            legends = []
 
-            for a in layer_children:
-                if isinstance(a, mimage.FigureImage):
-                    images.append(a)
-                elif isinstance(a, mlegend.Legend):
-                    legends.append(a)
-                elif isinstance(a, Line2D):
-                    lines.append(a)
-                elif isinstance(a, Patch):
-                    patches.append(a)
-                elif isinstance(a, Text):
-                    texts.append(a)
+        # Define the types in the exact order they should be appended
+        ordered_types = (Line2D, Patch, Text, mimage.FigureImage, mlegend.Legend)
+
+        for name in layers:
+            children = self._children_by_layer.get(name, [])
+
+            buckets = {cls: [] for cls in ordered_types}
+            artists = []
+
+            for a in children:
+                # Route the artist to its bucket, or artists
+                matched = next(
+                    (cls for cls in ordered_types if isinstance(a, cls)), None
+                )
+                if matched:
+                    buckets[matched].append(a)
                 else:
                     artists.append(a)
 
             result += artists
             if name == "base":
                 result += self._localaxes
-            result += [*lines, *patches, *texts, *images, *legends]
+
+            for cls in ordered_types:
+                result += buckets[cls]
+
             if name == "base":
                 result += self.subfigs
 
