@@ -178,7 +178,23 @@ reliability and consistency in documentation. They are not interchangeable.
 
 Headings
 --------
-Use sentence case for headings.
+We aim to follow the recommendations from the
+`Python documentation <https://devguide.python.org/documenting/#sections>`_
+and the `Sphinx reStructuredText documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`_
+for section markup characters, i.e.:
+
+- ``#`` with overline, for parts. This is reserved for the main title in
+  ``index.rst``. All other pages should start with "chapter" or lower.
+- ``*`` with overline, for chapters
+- ``=``, for sections
+- ``-``, for subsections
+- ``^``, for subsubsections
+- ``"``, for paragraphs
+
+This may not yet be applied consistently in existing docs.
+
+Use `sentence case <https://apastyle.apa.org/style-grammar-guidelines/capitalization/sentence-case>`__
+``Upper lower`` for section titles.
 
 .. table::
    :width: 100%
@@ -316,17 +332,12 @@ subordinating conjunctive phrases.
 Formatting
 ==========
 
-The following guidelines specify how to incorporate code and use appropriate
+It is useful to strive for consistency in the Matplotlib documentation. The
+following guidelines specify how to incorporate code and use appropriate
 formatting for Matplotlib documentation.
 
-Code
-----
-
-Matplotlib is a Python library and follows the same standards for
-documentation.
-
-Comments
-^^^^^^^^
+Code examples
+-------------
 Examples of Python code have comments before or on the same line.
 
 .. table::
@@ -347,7 +358,7 @@ Examples of Python code have comments before or on the same line.
    +---------------------------------------+---------------------------------+
 
 Outputs
-^^^^^^^
+-------
 When generating visuals with Matplotlib using ``.py`` files in examples,
 display the visual with `matplotlib.pyplot.show` to display the visual.
 Keep the documentation clear of Python output lines.
@@ -370,6 +381,21 @@ Keep the documentation clear of Python output lines.
    |    ax.plot([1, 2, 3], [1, 2, 3])   |    ax.plot([1, 2, 3], [1, 2, 3])   |
    |    fig.show()                      |                                    |
    +------------------------------------+------------------------------------+
+
+Mathematical expressions
+------------------------
+Use Sphinx's built in math support:
+
+- **Inline math:** Use the ``:math:``
+  `role <https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#math>`__
+- **Math blocks:** Use the ``.. math::``
+  `directive <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#math>`__
+
+In rare cases we want the rendering of the mathematical text in the
+documentation html to exactly match with the rendering of the mathematical
+expression in the Matplotlib figure. In these cases, you can use the
+`matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
+:doc:`../users/explain/text/mathtext` tutorial.)
 
 reStructuredText
 ----------------
@@ -413,40 +439,22 @@ exclusively for performing actions in a determined order.
 Tables
 ^^^^^^
 Use ASCII tables with reStructuredText standards in organizing content.
-Markdown tables and the csv-table directive are not accepted.
+Given the size of the table and length of each entry, use:
 
-.. table::
-   :width: 100%
-   :widths: 50, 50
++-------------+-------------------------------+--------------------+
+|             | small table                   | large table        |
++-------------+-------------------------------+--------------------+
+| short entry | `simple or grid table`_       | `grid table`_      |
++-------------+-------------------------------+--------------------+
+| long entry  | `list table`_                 | `csv table`_       |
++-------------+-------------------------------+--------------------+
 
-   +--------------------------------+----------------------------------------+
-   | Correct                        | Incorrect                              |
-   +================================+========================================+
-   | +----------+----------+        | ::                                     |
-   | | Correct  | Incorrect|        |                                        |
-   | +==========+==========+        |     | Correct | Incorrect |            |
-   | | OK       | Not OK   |        |     | ------- | --------- |            |
-   | +----------+----------+        |     | OK      | Not OK    |            |
-   |                                |                                        |
-   +--------------------------------+----------------------------------------+
-   | ::                             | ::                                     |
-   |                                |                                        |
-   |     +----------+----------+    |     .. csv-table::                     |
-   |     | Correct  | Incorrect|    |        :header: "correct", "incorrect" |
-   |     +==========+==========+    |        :widths: 10, 10                 |
-   |     | OK       | Not OK   |    |                                        |
-   |     +----------+----------+    |        "OK   ", "Not OK"               |
-   |                                |                                        |
-   +--------------------------------+                                        |
-   | ::                             |                                        |
-   |                                |                                        |
-   |     ===========  ===========   |                                        |
-   |       Correct     Incorrect    |                                        |
-   |     ===========  ===========   |                                        |
-   |     OK           Not OK        |                                        |
-   |     ===========  ===========   |                                        |
-   |                                |                                        |
-   +--------------------------------+----------------------------------------+
+For more information, see `rst tables <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#tables>`_.
+
+.. _`simple or grid table`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#tables
+.. _`grid table`: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#grid-tables
+.. _`list table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#list-table
+.. _`csv table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#csv-table-1
 
 
 Additional resources

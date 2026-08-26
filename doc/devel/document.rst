@@ -2,9 +2,9 @@
 
 .. _documenting-matplotlib:
 
-===================
-Write documentation
-===================
+=============================
+Write and build documentation
+=============================
 
 All documentation is built from the :file:`doc/` folder, but (as explained in this guide)
 some of these files are generated from inline docstrings or sphinx gallery files.
@@ -167,97 +167,8 @@ a good introduction into using ReST. More complete information is available in
 the `reStructuredText reference documentation
 <https://docutils.sourceforge.io/rst.html#reference-documentation>`_.
 
-This section contains additional information and conventions how ReST is used
-in the Matplotlib documentation.
-
-Formatting and style conventions
---------------------------------
-
-It is useful to strive for consistency in the Matplotlib documentation.  Here
-are some formatting and style conventions that are used.
-
-Section formatting
-^^^^^^^^^^^^^^^^^^
-
-Use `sentence case <https://apastyle.apa.org/style-grammar-guidelines/capitalization/sentence-case>`__
-``Upper lower`` for section titles, e.g., ``Possible hangups`` rather than
-``Possible Hangups``.
-
-We aim to follow the recommendations from the
-`Python documentation <https://devguide.python.org/documenting/#sections>`_
-and the `Sphinx reStructuredText documentation <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#sections>`_
-for section markup characters, i.e.:
-
-- ``#`` with overline, for parts. This is reserved for the main title in
-  ``index.rst``. All other pages should start with "chapter" or lower.
-- ``*`` with overline, for chapters
-- ``=``, for sections
-- ``-``, for subsections
-- ``^``, for subsubsections
-- ``"``, for paragraphs
-
-This may not yet be applied consistently in existing docs.
-
-Table formatting
-^^^^^^^^^^^^^^^^
-Given the size of the table and length of each entry, use:
-
-+-------------+-------------------------------+--------------------+
-|             | small table                   | large table        |
-+-------------+-------------------------------+--------------------+
-| short entry | `simple or grid table`_       | `grid table`_      |
-+-------------+-------------------------------+--------------------+
-| long entry  | `list table`_                 | `csv table`_       |
-+-------------+-------------------------------+--------------------+
-
-For more information, see `rst tables <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#tables>`_.
-
-.. _`simple or grid table`: https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html#tables
-.. _`grid table`: https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html#grid-tables
-.. _`list table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#list-table
-.. _`csv table`: https://docutils.sourceforge.io/docs/ref/rst/directives.html#csv-table-1
-
-Function arguments
-^^^^^^^^^^^^^^^^^^
-
-Function arguments and keywords within docstrings should be referred to using
-the ``*emphasis*`` role. This will keep Matplotlib's documentation consistent
-with Python's documentation:
-
-.. code-block:: rst
-
-  Here is a description of *argument*
-
-Do not use the ```default role```:
-
-.. code-block:: rst
-
-   Do not describe `argument` like this.  As per the next section,
-   this syntax will (unsuccessfully) attempt to resolve the argument as a
-   link to a class or method in the library.
-
-nor the ````literal```` role:
-
-.. code-block:: rst
-
-   Do not describe ``argument`` like this.
-
-
-Mathematical expressions
-------------------------
-Use sphinx's built in math support:
-
-- **Inline math:** Use the ``:math:``
-  `role <https://www.sphinx-doc.org/en/master/usage/restructuredtext/roles.html#math>`__
-- **Math blocks:** Use the ``.. math::``
-  `directive <https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#math>`__
-
-In rare cases we want the rendering of the mathematical text in the
-documentation html to exactly match with the rendering of the mathematical
-expression in the Matplotlib figure. In these cases, you can use the
-`matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
-:doc:`../users/explain/text/mathtext` tutorial.)
-
+You can find additional information and conventions how ReST is used in the
+Matplotlib documentation in the :doc:`Matplotlib Documentation style guide <style_guide>`.
 
 .. _internal-section-refs:
 
@@ -565,7 +476,6 @@ Do not use the ```default role``` or the ````literal```` role:
 .. code-block:: rst
 
   Neither `argument` nor ``argument`` should be used.
-
 
 Quotes for strings
 ^^^^^^^^^^^^^^^^^^
@@ -978,7 +888,6 @@ these ``*.rst`` files from the source location to the build location (see
 
 In the Python files, to exclude an example from having a plot generated, insert
 "sgskip" somewhere in the filename.
-
 
 The format of these files is relatively straightforward.  Properly
 formatted comment blocks are treated as ReST_ text, the code is
