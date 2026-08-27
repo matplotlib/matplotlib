@@ -163,6 +163,12 @@ Fonts
    .. literalinclude:: ../../LICENSE/LICENSE_LAST_RESORT_FONT
       :language: none
 
+.. dropdown:: OpenMoji Color (subset)
+   :class-container: sdd
+
+   .. literalinclude:: ../../LICENSE/LICENSE_OPENMOJI
+      :language: none
+
 .. dropdown:: STIX
    :class-container: sdd
 
