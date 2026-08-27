@@ -33,10 +33,13 @@ from ._backend_gtk import (  # noqa: F401 # pylint: disable=W0611
     TimerGTK as TimerGTK4,
 )
 
+# With a new enough version, we can use nearest scaling instead of linear, which helps
+# preserve sharpness on fractional HiDPI displays.
+_USE_SCALED_TEXTURE = Gtk.check_version(4, 10, 0) is None
 # For GTK 4.14, there is enough path implementation to use the snapshot for the zoom
 # tool, and then we don't need Cairo.
 _USE_SNAPSHOT_ZOOM = Gtk.check_version(4, 14, 0) is None
-if _USE_SNAPSHOT_ZOOM:
+if _USE_SNAPSHOT_ZOOM or _USE_SCALED_TEXTURE:
     from gi.repository import Gsk
 else:
     try:

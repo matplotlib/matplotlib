@@ -1,5 +1,10 @@
+from math import ceil, floor
+
 from . import backend_agg, backend_gtk4
-from .backend_gtk4 import GLib, Gdk, _BackendGTK4
+from .backend_gtk4 import GLib, Gdk, Graphene, _BackendGTK4, _USE_SCALED_TEXTURE
+
+if _USE_SCALED_TEXTURE:
+    from .backend_gtk4 import Gsk
 
 
 class FigureCanvasGTK4Agg(backend_agg.FigureCanvasAgg,
@@ -20,10 +25,29 @@ class FigureCanvasGTK4Agg(backend_agg.FigureCanvasAgg,
                                                   Gdk.MemoryFormat.R8G8B8A8,
                                                   buf, view.strides[0])
 
-        okay, rect = self.compute_bounds(self)
-        if not okay:  # Bounds were invalid for some reason.
-            return
-        snapshot.append_texture(self._texture, rect)
+        width = self.get_width()
+        height = self.get_height()
+        # Yes, Graphene.Rect really does have this strange initialization API.
+        area = Graphene.Rect()
+        Graphene.Rect.init(
+            area,
+            # Snap the texture to a physical pixel so it is not blurred.
+            1 - ceil(self.device_pixel_ratio) / self.device_pixel_ratio,
+            1 - ceil(self.device_pixel_ratio) / self.device_pixel_ratio,
+            ceil(width * self.device_pixel_ratio),
+            ceil(height * self.device_pixel_ratio))
+
+        snapshot.save()
+        snapshot.scale(1 / self.device_pixel_ratio, 1 / self.device_pixel_ratio)
+
+        if (_USE_SCALED_TEXTURE and
+                self._texture.get_height() == floor(area.size.height)):
+            snapshot.append_scaled_texture(self._texture, Gsk.ScalingFilter.NEAREST,
+                                           area)
+        else:
+            snapshot.append_texture(self._texture, area)
+
+        snapshot.restore()
 
 
 @_BackendGTK4.export
