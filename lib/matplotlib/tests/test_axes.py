@@ -3217,6 +3217,16 @@ class TestScatter:
                         facecolors=["#ffffff", "#000000", "#f0f0f0"],
                             facecolor="#ffffff")
 
+    @check_figures_equal()
+    def test_scatter_color_none(self, fig_test, fig_ref):
+        ax_test = fig_test.subplots()
+        ax_test.scatter([1], [1], facecolor='red', edgecolor='none')
+        ax_test.scatter([2], [2], facecolor='none', edgecolor='blue')
+
+        ax_ref = fig_ref.subplots()
+        ax_ref.scatter([1], [1], facecolor='red', edgecolor=(0, 0, 0, 0))
+        ax_ref.scatter([2], [2], facecolor=(0, 0, 0, 0), edgecolor='blue')
+
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
     return (c, edgecolors, kwargs, xsize)

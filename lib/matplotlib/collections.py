@@ -394,7 +394,7 @@ class Collection(mcolorizer.ColorizingArtist):
         edgecolors = self.get_edgecolor()
         do_single_path_optimization = False
         if (len(paths) == 1 and len(trans) <= 1 and
-                len(facecolors) == 1 and len(edgecolors) == 1 and
+                len(facecolors) <= 1 and len(edgecolors) <= 1 and
                 len(self._linewidths) == 1 and
                 all(ls[1] is None for ls in self._linestyles) and
                 len(self._antialiaseds) == 1 and len(self._urls) == 1 and
@@ -415,14 +415,16 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_capstyle(self._capstyle)
 
         if do_single_path_optimization:
-            gc.set_foreground(tuple(edgecolors[0]), isRGBA=True)
+            edgecolor = edgecolors[0] if len(edgecolors) == 1 else (0, 0, 0, 0)
+            facecolor = facecolors[0] if len(facecolors) == 1 else (0, 0, 0, 0)
+            gc.set_foreground(tuple(edgecolor), isRGBA=True)
             gc.set_linewidth(self._linewidths[0])
             gc.set_dashes(*self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])
             gc.set_url(self._urls[0])
             renderer.draw_markers(
                 gc, paths[0], combined_transform.frozen(),
-                mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
+                mpath.Path(offsets), offset_trf, tuple(facecolor))
         else:
             # The current new API of draw_path_collection() is provisional
             # and will be changed in a future PR.
