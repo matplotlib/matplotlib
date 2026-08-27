@@ -150,10 +150,9 @@ class ImageConverter:
         png_path: Path,
         width: int | None = None,
         height: int | None = None,
-        mode: str | None = None
+        mode: str = "RGBA_8"
     ) -> None:
         """Adds an action to export a PNG file."""
-        mode = "RGBA_8" if mode is None else mode
         original_width, original_height = self._original_size
 
         if width is None and height is None:
