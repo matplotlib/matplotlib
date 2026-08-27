@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32">
+<defs>
+
+<path id="s1" d="m16 16 3.08-8.2a9 9 0 0 1 2.39 1.35z"/>
+<path id="s2" d="m16 16 2.78-.9a3 3 0 0 1 .14.9z"/>
+<path id="s3" d="m16 16 9.22 7.18a12 12 0 0 1-1.93 1.96z"/>
+<path id="s4" d="m16 16 1.22 7.2a7 7 0 0 1-2.85-.08z"/>
+<path id="s5" d="m16 16-4.8 3.33a6 6 0 0 1-.47-.8z"/>
+<path id="s6" d="M16 16 5.94 17.83a10.2 10.2 0 0 1 .85-6.27z"/>
+<path id="s7" d="M16 16 8.51 7.03A12 12 0 0 1 13.4 4.6z"/>
+
+<mask id="m">
+<rect width="100%" height="100%" fill="black"/>
+<g fill="white">
+<use href="#s1"/><use href="#s2"/><use href="#s3"/><use href="#s4"/>
+<use href="#s5"/><use href="#s6"/><use href="#s7"/>
+</g>
+</mask>
+
+</defs>
+
+<circle cx="16" cy="16" r="14" fill="#fff"/>
+<g stroke="#000" fill-opacity=".8" stroke-opacity="0.5" stroke-width="1">
+<use href="#s1" fill="#ceff29" mask="url(#m)" />
+<use href="#s2" fill="#004cff" mask="url(#m)" />
+<use href="#s3" fill="#ff6800" mask="url(#m)" />
+<use href="#s4" fill="#7dff7a" mask="url(#m)" />
+<use href="#s5" fill="#29ffce" mask="url(#m)" />
+<use href="#s6" fill="#ffc400" mask="url(#m)" />
+<use href="#s7" fill="#ff6800" mask="url(#m)" />
+</g>
+
+</svg>
