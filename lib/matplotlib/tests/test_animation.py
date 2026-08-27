@@ -103,6 +103,19 @@ def test_null_movie_writer(anim):
     assert writer._count == anim._save_count
 
 
+def test_frame_size():
+    # Test that the frame size is the canvas size and not the figure size
+    fig = plt.figure(figsize=(1, 2.03), dpi=100)
+    assert fig.bbox.height < 203  # due to floating-point precision
+    assert fig.canvas.get_width_height() == (100, 203)
+
+    anim = animation.FuncAnimation(fig, lambda frame: tuple(), frames=1)
+    writer = NullMovieWriter()
+    anim.save("unused.null", dpi=100, writer=writer)
+
+    assert writer.frame_size == fig.canvas.get_width_height()
+
+
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
 def test_animation_delete(anim):
     if platform.python_implementation() == 'PyPy':
