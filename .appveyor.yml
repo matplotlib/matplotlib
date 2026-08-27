@@ -40,6 +40,11 @@ cache:
   - '%USERPROFILE%\.cache\matplotlib'
 
 init:
+  # Force enable long path support, because micromamba isn't doing it correctly.
+  # https://github.com/mamba-org/mamba/issues/4392
+  - ps:
+      New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem"
+      -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
   - ps:
       Invoke-Webrequest
       -URI https://micro.mamba.pm/api/micromamba/win-64/latest
