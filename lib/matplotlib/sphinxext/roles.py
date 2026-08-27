@@ -141,6 +141,7 @@ def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=No
     """
     mpltype = text
     type_to_link_target = {
+        'blend mode': 'blend-modes',
         'color': 'colors_def',
         'hatch': 'hatch_def',
         'linestyle': 'linestyle_def',

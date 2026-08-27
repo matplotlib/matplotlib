@@ -24,6 +24,7 @@ Color
 Artist styles
 =============
 
+.. autodata:: matplotlib.typing.BlendModeType
 .. autodata:: matplotlib.typing.LineStyleType
 .. autodata:: matplotlib.typing.DrawStyleType
 .. autodata:: matplotlib.typing.MarkEveryType

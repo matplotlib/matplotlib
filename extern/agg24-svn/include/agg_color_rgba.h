@@ -178,6 +178,104 @@ namespace agg
             *this = from_wavelength(wavelen, gamma);
         }
 
+#ifdef MPL_ADD_AGG_HSL_BLEND_MODES
+        // The following functions are used for the non-separable blend modes
+        // They are near-literal implementations of pseudocode provided in the
+        // PDF specification (e.g., pages 326-327 of the PDF 1.7 specification,
+        // https://opensource.adobe.com/dc-acrobat-sdk-docs/pdfstandards/PDF32000_2008.pdf)
+
+        double max_rgb() const
+        {
+            double max_rg = ((r > g) ? r : g);
+            return (max_rg > b) ? max_rg : b;
+        }
+
+        double min_rgb() const
+        {
+            double min_rg = ((r < g) ? r : g);
+            return (min_rg < b) ? min_rg : b;
+        }
+
+        double luminosity() const
+        {
+            return 0.3*r + 0.59*g + 0.11*b;
+        }
+
+        rgba& clip_color()
+        {
+            double L = luminosity();
+            double N = min_rgb();
+            double X = max_rgb();
+            if (N < 0.)
+            {
+                r = L + (((r - L) * L) / (L - N));
+                g = L + (((g - L) * L) / (L - N));
+                b = L + (((b - L) * L) / (L - N));
+            }
+            if (X > 1.)
+            {
+                r = L + (((r - L) * (1 - L)) / (X - L));
+                g = L + (((g - L) * (1 - L)) / (X - L));
+                b = L + (((b - L) * (1 - L)) / (X - L));
+            }
+            return *this;
+        }
+
+        rgba& set_luminosity(double L)
+        {
+            double D = L - luminosity();
+            r += D;
+            g += D;
+            b += D;
+            return clip_color();
+        }
+
+        double saturation() const
+        {
+            return max_rgb() - min_rgb();
+        }
+
+        // Helper method to get pointers to the min/mid/max color channels in that order
+        std::array<double*, 3> get_min_mid_max_pointers()
+        {
+            std::array<double*, 3> out = {&r, &g, &b};
+
+            // Do a bubble sort on the three pointers based on the values
+            if (*out[0] > *out[1])
+            {
+                std::swap(out[0], out[1]);
+            }
+            if (*out[1] > *out[2])
+            {
+                std::swap(out[1], out[2]);
+
+                // We need to perform the third check only if the second swap happened
+                if (*out[0] > *out[1])
+                {
+                    std::swap(out[0], out[1]);
+                }
+            }
+            return out;
+        }
+
+        rgba& set_saturation(double S)
+        {
+            auto [cmin, cmid, cmax] = get_min_mid_max_pointers();
+            if (*cmax > *cmin)
+            {
+                *cmid = ((*cmid - *cmin) * S) / (*cmax - *cmin);
+                *cmax = S;
+            }
+            else
+            {
+                *cmid = 0;
+                *cmax = 0;
+            }
+            *cmin = 0;
+            return *this;
+        }
+#endif
+
     };
 
     inline rgba operator+(const rgba& a, const rgba& b)

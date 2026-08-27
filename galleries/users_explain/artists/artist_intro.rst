@@ -83,6 +83,7 @@ We can interrogate the full list of settable properties with
     animated = False
     antialiased or aa = True
     bbox = Bbox(x0=0.004013842290585101, y0=0.013914221641967...
+    blend_mode = normal
     children = []
     clip_box = TransformedBbox(     Bbox(x0=0.0, y0=0.0, x1=1.0, ...
     clip_on = True
