@@ -47,10 +47,8 @@ Generates PDF and PNG variants of the Matplotlib app icon and toolbar icons.
 #
 # Conversion and Compression Notes:
 #
-# This script requires `inkscape` and `optipng` binaries. These were chosen due to
+# This script requires `inkscape` and `oxipng` binaries. These were chosen due to
 # being dependencies of the documentation build process.
-#
-# Optionally, this script uses `pngcrush` if present to further optimize PNG files.
 #
 # Output PNG files have the following pixel dimensions:
 #
