@@ -65,6 +65,15 @@ _log = logging.getLogger(__name__)
 
 def _stale_figure_callback(self, val):
     if (fig := self.get_figure(root=False)) is not None:
+        if val and hasattr(fig, '_stale_layers'):
+            for layer_name, artists in fig._children_by_layer.items():
+                if self in artists:
+                    fig._stale_layers[layer_name] = True
+                    break
+            else:
+                if (self in getattr(fig, '_localaxes', []) or
+                        self in getattr(fig, 'subfigs', [])):
+                    fig._stale_layers["base"] = True
         fig.stale = val
 
 
@@ -653,9 +662,13 @@ default: %(va)s
             The added artist.
         """
         artist.set_figure(self)
-        target = self._children_by_layer.setdefault(layer or "base", [])
+        resolved_layer = layer or "base"
+        target = self._children_by_layer.setdefault(resolved_layer, [])
         target.append(artist)
         artist._remove_method = target.remove
+
+        self._stale_layers[resolved_layer] = True
+        artist.stale_callback = _stale_figure_callback
 
         if not artist.is_transform_set():
             artist.set_transform(self.transSubfigure)
@@ -1126,6 +1139,7 @@ default: %(va)s
             "patch": [self.patch],
             "base": self._children,
         }
+        self._stale_layers = {"patch": True, "base": True}
         self.subplotpars.reset()
         if not keep_observers:
             self._axobservers = cbook.CallbackRegistry()
@@ -2441,6 +2455,7 @@ class SubFigure(FigureBase):
             "patch": [self.patch],
             "base": self._children,
         }
+        self._stale_layers = {"patch": True, "base": True}
 
     @property
     def canvas(self):
@@ -2561,6 +2576,7 @@ class SubFigure(FigureBase):
 
         finally:
             self.stale = False
+            self._stale_layers = {k: False for k in self._stale_layers}
 
 
 @_docstring.interpd
@@ -3423,6 +3439,7 @@ None}, default: None
                 renderer.close_group('figure')
             finally:
                 self.stale = False
+                self._stale_layers = {k: False for k in self._stale_layers}
 
             DrawEvent("draw_event", self.canvas, renderer)._process()
 

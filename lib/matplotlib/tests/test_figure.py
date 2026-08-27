@@ -2046,3 +2046,43 @@ def test_two_pass_composite():
         [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
     )
     fig.add_artist(overlay_line, layer="overlay")
+
+
+def test_stale_layers_via_add_artist():
+    fig = plt.figure()
+    overlay = Text(0.5, 0.9, "overlay")
+    fig.add_artist(overlay, layer="overlay")
+    fig.draw_without_rendering()
+
+    assert fig._stale_layers["overlay"] is False
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+    # change only overlay
+    overlay.set_visible(False)
+    assert fig._stale_layers["overlay"] is True
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+
+
+def test_stale_layers_via_text():
+    fig = plt.figure()
+    t = fig.text(0.5, 0.5, "hello")
+    fig.draw_without_rendering()
+
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+    t.set_color("red")
+    assert fig._stale_layers["base"] is True
+    assert fig._stale_layers["patch"] is False
+
+
+def test_stale_layers_via_axes_text():
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, "hello")
+    fig.draw_without_rendering()
+
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+    t.set_color("red")
+    assert fig._stale_layers["base"] is True
+    assert fig._stale_layers["patch"] is False
