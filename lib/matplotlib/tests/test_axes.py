@@ -3220,6 +3220,24 @@ class TestScatter:
                         facecolors=["#ffffff", "#000000", "#f0f0f0"],
                             facecolor="#ffffff")
 
+    @pytest.mark.parametrize('edgecolor, facecolor, linestyle',
+                             [('red', 'blue', 'solid'),
+                              ('red', 'blue', 'dashed'),
+                              ('red', 'none', 'solid'),
+                              ('none', 'blue', 'solid')])
+    @check_figures_equal()
+    def test_empty_scatter(self, fig_test, fig_ref, edgecolor, facecolor, linestyle):
+        # Verify that a spurious marker is not plotted in the bottom-left corner
+        # https://github.com/matplotlib/matplotlib/issues/32219
+        ax_test = fig_test.subplots()
+        ax_test.scatter([], [], ec=edgecolor, fc=facecolor, ls=linestyle, clip_on=False)
+        ax_test.set_xlim(0, 1)
+        ax_test.set_ylim(0, 1)
+
+        ax_ref = fig_ref.subplots()
+        ax_ref.set_xlim(0, 1)
+        ax_ref.set_ylim(0, 1)
+
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):
     return (c, edgecolors, kwargs, xsize)
