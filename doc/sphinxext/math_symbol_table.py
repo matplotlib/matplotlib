@@ -1,5 +1,6 @@
 import re
-from docutils.parsers.rst import Directive
+
+from sphinx.util.docutils import SphinxDirective
 
 from matplotlib import _mathtext, _mathtext_data
 
@@ -111,7 +112,7 @@ def run(state_machine):
     return []
 
 
-class MathSymbolTableDirective(Directive):
+class MathSymbolTableDirective(SphinxDirective):
     has_content = False
     required_arguments = 0
     optional_arguments = 0
@@ -119,6 +120,7 @@ class MathSymbolTableDirective(Directive):
     option_spec = {}
 
     def run(self):
+        self.env.note_dependency(__file__)
         return run(self.state_machine)
 
 
