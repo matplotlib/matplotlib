@@ -368,10 +368,9 @@ class NavigationToolbar2GTK4(_NavigationToolbar2GTK, Gtk.Box):
             if text is None:
                 self.append(Gtk.Separator())
                 continue
-            image = Gtk.Image.new_from_gicon(
-                Gio.Icon.new_for_string(
-                    str(cbook._get_data_path('images',
-                                             f'{image_file}-symbolic.svg'))))
+            path = str(cbook._get_data_path('images', f'{image_file}-symbolic.svg'))
+            icon = Gtk.IconPaintable.new_for_file(Gio.File.new_for_path(path), 24, 1)
+            image = Gtk.Picture.new_for_paintable(icon)
             self._gtk_ids[text] = button = (
                 Gtk.ToggleButton() if callback in ['zoom', 'pan'] else
                 Gtk.Button())
