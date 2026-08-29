@@ -247,7 +247,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
-          if [[ "${{ matrix.python-version }}" != 3.*t ]]; then
+          if [[ "${{ matrix.python-version }}" != 3.*t && "${{ matrix.python-version }}" != 3.15 ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
