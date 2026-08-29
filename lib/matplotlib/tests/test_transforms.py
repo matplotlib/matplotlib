@@ -851,6 +851,20 @@ def test_bbox_frozen_copies_minpos():
     assert_array_equal(frozen.minpos, bbox.minpos)
 
 
+def test_bbox_pixel_bounds():
+    # The rounded bounds must cover every pixel the bbox touches, and must not
+    # grow a bbox that already lands on pixel edges.
+    assert mtransforms.Bbox.from_extents(1, 2, 3, 4)._pixel_bounds() == (1, 2, 3, 4)
+    assert mtransforms.Bbox.from_extents(
+        1.2, 2.8, 3.1, 4.9)._pixel_bounds() == (1, 2, 4, 5)
+    # *scale* divides first, so rounding happens in the scaled space.
+    assert mtransforms.Bbox.from_extents(
+        1.2, 2.8, 3.1, 4.9)._pixel_bounds(scale=2) == (0, 1, 2, 3)
+    # *clip* clamps to the canvas.
+    assert mtransforms.Bbox.from_extents(
+        -1.5, -1.5, 3.1, 4.9)._pixel_bounds(clip=(3, 4)) == (0, 0, 3, 4)
+
+
 def test_bbox_intersection():
     bbox_from_ext = mtransforms.Bbox.from_extents
     inter = mtransforms.Bbox.intersection
