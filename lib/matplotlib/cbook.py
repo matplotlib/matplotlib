@@ -2175,6 +2175,26 @@ def _setattr_cm(obj, **kwargs):
                 setattr(obj, attr, orig)
 
 
+# TODO: Could be used in Line2D.set_data and other setters that mutate an artist
+# more than once, and so can leave it half-updated when they raise.
+@contextlib.contextmanager
+def _safe_state_update(obj):
+    """
+    Context manager to make an in-place update of *obj* all-or-nothing.
+
+    Yields a snapshot of ``obj.__dict__``, which is restored if the body raises, so
+    that an update mutating *obj* incrementally -- and able to fail partway through
+    -- leaves it as it was rather than half-updated.
+    """
+    state = obj.__dict__.copy()
+    try:
+        yield state
+    except Exception:
+        obj.__dict__.clear()
+        obj.__dict__.update(state)
+        raise
+
+
 class _OrderedSet(collections.abc.MutableSet):
     def __init__(self):
         self._od = collections.OrderedDict()

@@ -5,7 +5,9 @@ from unittest import mock
 
 import contourpy
 import numpy as np
-from numpy.testing import assert_array_almost_equal, assert_array_almost_equal_nulp
+from numpy.testing import (
+    assert_array_almost_equal, assert_array_almost_equal_nulp,
+    assert_array_equal)
 import matplotlib as mpl
 from matplotlib import pyplot as plt, rc_context, ticker
 from matplotlib.colors import LogNorm, same_color
@@ -896,3 +898,100 @@ def test_clabel_manual_subset():
     cs = ax.contour([[1, 2], [3, 4]], levels=[1.5, 2.5, 3.5])
     # Attempt to label only one specific level manually
     ax.clabel(cs, levels=[2.5], manual=[(0.5, 0.5)])
+
+
+@pytest.mark.parametrize("levels", [None, [-0.5, 0, 0.5]])
+@pytest.mark.parametrize("plotter", ["contour", "contourf"])
+@check_figures_equal()
+def test_contour_set_data(fig_test, fig_ref, plotter, levels):
+    x, y = np.meshgrid(np.linspace(-3, 3, 20), np.linspace(-3, 3, 20))
+    z1 = np.sin(x) * np.cos(y)
+    z2 = np.cos(x) * np.sin(y)
+
+    cs = getattr(fig_test.subplots(), plotter)(x, y, z1, levels=levels)
+    orig_levels = cs.levels.copy()
+    cs.set_data(x, y, z2)
+    # The levels are kept, also where they were autoscaled from the old data.
+    assert_array_equal(cs.levels, orig_levels)
+    getattr(fig_ref.subplots(), plotter)(x, y, z2, levels=orig_levels)
+
+
+@check_figures_equal()
+def test_contour_set_data_z_only(fig_test, fig_ref):
+    z1 = np.arange(25).reshape((5, 5)) % 7
+    z2 = np.arange(25).reshape((5, 5)) % 5
+    fig_test.subplots().contour(z1, levels=[1, 2, 3]).set_data(z2)
+    fig_ref.subplots().contour(z2, levels=[1, 2, 3])
+
+
+def test_contour_set_data_updates_artist_state():
+    x, y = np.meshgrid(np.linspace(0, 1, 5), np.linspace(0, 1, 5))
+    fig = plt.figure()
+    cs = fig.add_subplot().contour(x, y, x + y, levels=[0.5, 1, 1.5])
+    fig.canvas.draw()
+    assert not cs.stale
+    cs.set_data(2 * x - 1, 2 * y - 1, x + y)
+    assert cs.stale
+    assert cs.sticky_edges.x == [-1, 1]
+    assert cs.sticky_edges.y == [-1, 1]
+
+
+def test_contour_set_data_changing_levels():
+    # The (levels, allsegs) signature is the only way set_data could change the
+    # levels, which would leave the colors and the colorbar mismatched.
+    segs = [[np.array([[0.0, 0.0], [1.0, 1.0]])]]
+    cs = mpl.contour.ContourSet(plt.figure().add_subplot(), [0.5], segs)
+    cs.set_data([0.5], segs)  # Same levels, new segments: fine.
+    with pytest.raises(ValueError, match="cannot change the contour levels"):
+        cs.set_data([0.25, 0.75], segs * 2)
+    assert_array_equal(cs.levels, [0.5])  # Rolled back, not half-applied.
+
+
+def test_contour_set_data_keeps_algorithm_and_corner_mask():
+    z = np.array([[1.0, 2.0], [3.0, 4.0]])
+    cs = plt.figure().add_subplot().contour(
+        z, algorithm='mpl2005', corner_mask=False)
+    cs.set_data(z * 2)
+    assert cs._algorithm == 'mpl2005'
+    assert cs._corner_mask is False
+    # They describe how the contours are computed, so they can also be re-set.
+    cs.set_data(z * 2, algorithm='serial', corner_mask=True)
+    assert cs._algorithm == 'serial'
+    assert cs._corner_mask is True
+
+
+def _assert_set_data_rejects(exc, match, args=(), **kwargs):
+    # A rejected set_data() must raise and leave the contour set exactly as it was,
+    # rather than with the levels or the contour generator already swapped out.
+    z = np.arange(9).reshape((3, 3))
+    fig = plt.figure()
+    cs = fig.add_subplot().contour(z)
+    before = (cs.levels.copy(), [p.vertices.copy() for p in cs.get_paths()],
+              cs.zmin, cs.zmax, cs._contour_generator)
+    with pytest.raises(exc, match=match):
+        cs.set_data(*(args or (z,)), **kwargs)
+    assert_array_equal(cs.levels, before[0])
+    for path, vertices in zip(cs.get_paths(), before[1], strict=True):
+        assert_array_equal(path.vertices, vertices)
+    assert (cs.zmin, cs.zmax, cs._contour_generator) == before[2:]
+    fig.canvas.draw()  # Must not raise.
+
+
+@pytest.mark.parametrize("kwargs", [
+    {"levels": [1, 2]}, {"colors": "red"}, {"cmap": "plasma"},
+    {"linewidths": 2}, {"linestyles": "dashed"}, {"extend": "both"},
+    {"alpha": 0.5}, {"hatches": ["/"]}, {"zorder": 5},
+])
+def test_contour_set_data_rejects_style_kwargs(kwargs):
+    # Only the keywords that feed the contour generator are accepted; anything
+    # affecting the appearance would leave the levels and the colors mismatched.
+    _assert_set_data_rejects(TypeError, "unexpected keyword arguments", **kwargs)
+
+
+@pytest.mark.parametrize("args", [
+    (np.arange(5), np.arange(5), np.empty((3, 4))),  # mismatched shapes
+    (np.arange(7),),                                 # z is not 2D
+    (np.empty((3, 3)),) * 5,                         # too many arguments
+])
+def test_contour_set_data_rejects_bad_data(args):
+    _assert_set_data_rejects((TypeError, ValueError), None, args)
