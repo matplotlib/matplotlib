@@ -1718,7 +1718,6 @@ class TextBox(AxesWidget):
         self.cursor_index = self.text_disp._char_index_at(event.x)
         self._rendercursor()
 
-    @_call_with_reparented_event
     def _resize(self, event):
         self.stop_typing()
 
