@@ -917,10 +917,11 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             Only the keywords of that function that control *how the contours are
             computed* are accepted, and they keep their current values if not
             given: *corner_mask*, *algorithm* and the *xunits*/*yunits* unit
-            keywords for `~.Axes.contour`. Keywords that control how the contours
-            *look* (*levels*, *colors*, *cmap*, *linewidths*, ...) raise
-            `TypeError`; set those with the corresponding `.Collection` setters, or
-            create a new contour set.
+            keywords for `~.Axes.contour`, or *triangles* and *mask* for
+            `~.Axes.tricontour`. Keywords that control how the contours *look*
+            (*levels*, *colors*, *cmap*, *linewidths*, ...) raise `TypeError`; set
+            those with the corresponding `.Collection` setters, or create a new
+            contour set.
 
         Notes
         -----
