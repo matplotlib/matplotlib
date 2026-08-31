@@ -1860,6 +1860,35 @@ def test_resample_dtypes(dtype, ndim):
     axes_image.make_image(None)[0]
 
 
+def test_rgba_stage_unpremultiplies_resampled_alpha():
+    # Issue 32240: resampling in the 'rgba' stage happens in premultiplied
+    # alpha space, so the RGB channels must be restored afterwards.  The
+    # original colors must come back independently of the alpha channel, and a
+    # zero resampled alpha must not be divided by.
+    rgb = np.array([0.2, 0.4, 0.6])
+
+    def render(alpha):
+        data = np.empty((4, 4, 4))
+        data[..., :3] = rgb
+        data[..., 3] = alpha
+        fig, ax = plt.subplots()
+        axes_image = ax.imshow(data, interpolation='nearest',
+                               interpolation_stage='rgba')
+        with np.errstate(divide='raise', invalid='raise'):
+            image = axes_image.make_image(None)[0]
+        # Trim the partially covered pixels at the edges of the image.
+        return image[2:-2, 2:-2]
+
+    opaque = render(1)
+    for alpha in (0.25, 0.5, 0.75):
+        partial = render(alpha)
+        assert_array_equal(partial[..., :3], opaque[..., :3])
+        assert_allclose(partial[..., 3], alpha * 255, atol=1)
+
+    # A fully transparent image resamples to a zero alpha everywhere.
+    assert_array_equal(render(0)[..., 3], 0)
+
+
 @pytest.mark.parametrize('intp_stage', ('data', 'rgba'))
 @check_figures_equal(extensions=['png', 'pdf', 'svg'])
 def test_interpolation_stage_rgba_respects_alpha_param(fig_test, fig_ref, intp_stage):
