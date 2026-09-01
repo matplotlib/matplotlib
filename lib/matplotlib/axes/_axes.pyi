@@ -551,7 +551,6 @@ class Axes(_AxesBase):
         vmax: float | tuple[float, ...] | None = ...,
         colorizer: Colorizer | None = ...,
         shading: Literal["flat", "nearest", "gouraud", "auto"] | None = ...,
-        antialiased: bool = ...,
         data: DataParamType = ...,
         **kwargs
     ) -> QuadMesh: ...
