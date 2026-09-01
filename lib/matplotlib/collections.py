@@ -173,6 +173,12 @@ class Collection(mcolorizer.ColorizingArtist):
         self._us_lw = [0]
         self._linewidths = [0]
 
+        # For drawing, indicates whether the collection elements that share an edge
+        # are to be treated as contiguous (e.g., the output of pcolor) as opposed to
+        # merely happenstance.  This should not be set to True if the collection
+        # elements may overlap.
+        self._treat_patches_as_contiguous = False
+
         self._gapcolor = None  # Currently only used by LineCollection.
 
         # Flags set by _set_mappable_flags: are colors from mapping an array?
@@ -373,6 +379,21 @@ class Collection(mcolorizer.ColorizingArtist):
 
         transform, offset_trf, offsets, paths = self._prepare_points()
 
+        # If supported by the renderer, draw contiguous, antialiased patches without
+        # strokes using the "plus" blend mode in an isolated blend group so that the
+        # fractional alphas at edges are added to make the intended total alpha.
+        # If the alphas were instead blended as if they were unrelated opacities,
+        # the resulting alpha would be smaller (i.e., more transparent), which would
+        # manifest as slightly transparent line artifacts along patch edges.
+        isolate = (renderer._supports_isolated_group_and_plus_blend_mode
+                   and self._treat_patches_as_contiguous
+                   and np.all(self._antialiaseds)
+                   and (self._edgecolors.size == 0 or self._edgecolors[0][3] == 0))
+        if isolate:
+            blend_mode = self.get_blend_mode()
+            self.set_blend_mode("plus")
+            renderer.open_blend_group(blend_mode)
+
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
         gc.set_blend_mode(self.get_blend_mode())
@@ -511,6 +532,9 @@ class Collection(mcolorizer.ColorizingArtist):
                             transform.translate(xo, yo)
                         renderer.draw_path(gc0, path, transform, rgbFace)
 
+        if isolate:
+            renderer.close_blend_group()
+            self.set_blend_mode(blend_mode)
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
@@ -2546,6 +2570,7 @@ class QuadMesh(_MeshData, Collection):
         if not self.get_visible():
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
+
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
         offsets = self.get_offsets()
@@ -2654,6 +2679,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         # This is called after the initializers to make sure the kwargs
         # have all been processed and available for the masking calculations
         self._set_unmasked_verts()
+
+        self._treat_patches_as_contiguous = True
 
     def _get_unmasked_polys(self):
         """Get the unmasked regions using the coordinates and array"""

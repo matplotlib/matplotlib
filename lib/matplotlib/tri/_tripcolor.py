@@ -147,6 +147,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
             colors = facecolors
         collection = PolyCollection(verts, alpha=alpha, array=colors,
                                     cmap=cmap, norm=norm, **kwargs)
+        collection._treat_patches_as_contiguous = True
 
     collection._scale_norm(norm, vmin, vmax)
     ax.grid(False)
