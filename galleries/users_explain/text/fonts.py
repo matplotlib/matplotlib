@@ -183,27 +183,4 @@ contains that glyph.
 
 A majority of this work was done by Aitik Gupta supported by Google Summer of
 Code 2021.
-
-Text shaping
-------------
-
-Some scripts cannot be drawn by taking a string one character at a time.  Arabic
-letters change shape depending on their neighbours, and right-to-left text is
-stored in logical order but drawn in visual order.  As of Matplotlib 3.11 this is
-handled for you: FreeType is driven through libraqm, which uses HarfBuzz to shape
-the string and a bidi implementation to reorder it.
-
-Pass the logical string, the one you would read aloud::
-
-    ax.set_title("الإمارات")
-
-Before 3.11 no shaping was done, and the usual workaround was to pre-process the
-string with ``arabic_reshaper`` and ``python-bidi``::
-
-    ax.set_title(get_display(arabic_reshaper.reshape("الإمارات")))
-
-That pre-processing must now be removed.  The string it produces is already in
-visual order, so Matplotlib reorders it a second time and the label is drawn
-backwards.  Nothing is raised, and the output still looks like Arabic to a reader
-who does not read Arabic.
 """  # noqa: E501
