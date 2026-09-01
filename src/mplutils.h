@@ -64,7 +64,7 @@ inline void check_trailing_shape(T array, char const* name, long d1)
 {
     if (array.ndim() != 2) {
         throw py::value_error(
-            "Expected 2-dimensional array, got %d"_s.format(array.ndim()));
+            "Expected 2-dimensional array, got {}"_s.format(array.ndim()));
     }
     if (array.size() == 0) {
         // Sometimes things come through as atleast_2d, etc., but they're empty, so
@@ -73,7 +73,7 @@ inline void check_trailing_shape(T array, char const* name, long d1)
     }
     if (array.shape(1) != d1) {
         throw py::value_error(
-            "%s must have shape (N, %d), got (%d, %d)"_s.format(
+            "{} must have shape (N, {}), got ({}, {})"_s.format(
                 name, d1, array.shape(0), array.shape(1)));
     }
 }
@@ -83,7 +83,7 @@ inline void check_trailing_shape(T array, char const* name, long d1, long d2)
 {
     if (array.ndim() != 3) {
         throw py::value_error(
-            "Expected 3-dimensional array, got %d"_s.format(array.ndim()));
+            "Expected 3-dimensional array, got {}"_s.format(array.ndim()));
     }
     if (array.size() == 0) {
         // Sometimes things come through as atleast_3d, etc., but they're empty, so
@@ -92,7 +92,7 @@ inline void check_trailing_shape(T array, char const* name, long d1, long d2)
     }
     if (array.shape(1) != d1 || array.shape(2) != d2) {
         throw py::value_error(
-            "%s must have shape (N, %d, %d), got (%d, %d, %d)"_s.format(
+            "{} must have shape (N, {}, {}), got ({}, {}, {})"_s.format(
                 name, d1, d2, array.shape(0), array.shape(1), array.shape(2)));
     }
 }
