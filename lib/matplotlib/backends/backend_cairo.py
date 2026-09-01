@@ -92,6 +92,8 @@ _GroupState = namedtuple(
 
 
 class RendererCairo(RendererBase):
+    _supports_isolated_group_and_plus_blend_mode = True
+
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)
