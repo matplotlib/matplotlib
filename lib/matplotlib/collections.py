@@ -2580,6 +2580,19 @@ class QuadMesh(_MeshData, Collection):
             renderer.draw_gouraud_triangles(
                 gc, triangles, colors, transform.frozen())
         else:
+            # If supported by the renderer, draw antialiased patches without strokes
+            # using the "plus" blend mode in an isolated blend group so that the
+            # fractional alphas at edges are added to make the intended total alpha.
+            # If the alphas were instead blended as if they were unrelated opacities,
+            # the resulting alpha would be smaller (i.e., more transparent), which would
+            # manifest as slightly transparent line artifacts along patch edges.
+            isolate = (renderer._supports_isolated_group_and_plus_blend_mode
+                       and self._antialiased
+                       and (self._edgecolors.size == 0 or self._edgecolors[0][3] == 0))
+            if isolate:
+                gc.set_blend_mode("plus")
+                renderer.open_blend_group(self.get_blend_mode())
+
             renderer.draw_quad_mesh(
                 gc, transform.frozen(),
                 coordinates.shape[1] - 1, coordinates.shape[0] - 1,
@@ -2587,6 +2600,9 @@ class QuadMesh(_MeshData, Collection):
                 # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
                 self.get_facecolor().reshape((-1, 4)),
                 self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+
+            if isolate:
+                renderer.close_blend_group()
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False

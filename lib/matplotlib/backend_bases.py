@@ -151,6 +151,8 @@ class RendererBase:
     * `draw_path_collection`
     * `draw_quad_mesh`
     """
+    _supports_isolated_group_and_plus_blend_mode = False
+
     def __init__(self):
         super().__init__()
         self._texmanager = None
