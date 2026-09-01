@@ -6693,15 +6693,6 @@ or pandas.DataFrame
 
         Other Parameters
         ----------------
-        antialiaseds : bool, default: False
-            The default *antialiaseds* is False if the default
-            *edgecolors*\ ="none" is used.  This eliminates artificial lines
-            at patch boundaries, and works regardless of the value of alpha.
-            If *edgecolors* is not "none", then the default *antialiaseds*
-            is taken from :rc:`patch.antialiased`.
-            Stroking the edges may be preferred if *alpha* is 1, but will
-            cause artifacts otherwise.
-
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -6761,15 +6752,6 @@ or pandas.DataFrame
             kwargs['edgecolors'] = kwargs.pop('edgecolor')
         ec = kwargs.setdefault('edgecolors', 'none')
 
-        # aa setting will default via collections to patch.antialiased
-        # unless the boundary is not stroked, in which case the
-        # default will be False; with unstroked boundaries, aa
-        # makes artifacts that are often disturbing.
-        if 'antialiaseds' in kwargs:
-            kwargs['antialiased'] = kwargs.pop('antialiaseds')
-        if 'antialiased' not in kwargs and cbook._str_lower_equal(ec, "none"):
-            kwargs['antialiased'] = False
-
         kwargs.setdefault('snap', False)
 
         if np.ma.isMaskedArray(X) or np.ma.isMaskedArray(Y):
@@ -6796,7 +6778,7 @@ or pandas.DataFrame
     @_preprocess_data()
     @_docstring.interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-                   vmax=None, colorizer=None, shading=None, antialiased=False,
+                   vmax=None, colorizer=None, shading=None,
                    **kwargs):
         """
         Create a pseudocolor plot with a non-regular rectangular grid.
@@ -7007,7 +6989,7 @@ or pandas.DataFrame
         kwargs.setdefault('snap', mpl.rcParams['pcolormesh.snap'])
 
         collection = mcoll.QuadMesh(
-            coords, antialiased=antialiased, shading=shading,
+            coords, shading=shading,
             array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
@@ -7206,7 +7188,7 @@ or pandas.DataFrame
             collection = mcoll.QuadMesh(
                 coords, array=C,
                 alpha=alpha, cmap=cmap, norm=norm, colorizer=colorizer,
-                antialiased=False, edgecolors="none")
+                edgecolors="none")
             self.add_collection(collection, autolim=False)
             xl, xr, yb, yt = x.min(), x.max(), y.min(), y.max()
             ret = collection
