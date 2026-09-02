@@ -1285,19 +1285,23 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             super().draw(renderer)
             return
         # In presence of hatching, draw contours one at a time.
+        linewidths = self.get_linewidths()
+        linestyles = self.get_linestyles()
         edgecolors = self.get_edgecolors()
         if edgecolors.size == 0:
             edgecolors = ("none",)
-        for idx in range(n_paths):
-            with self._cm_set(
-                paths=[paths[idx]],
-                hatch=self.hatches[idx % len(self.hatches)],
-                array=[self.get_array()[idx]],
-                linewidths=[self.get_linewidths()[idx % len(self.get_linewidths())]],
-                linestyles=[self.get_linestyles()[idx % len(self.get_linestyles())]],
-                edgecolors=edgecolors[idx % len(edgecolors)],
-            ):
-                super().draw(renderer)
+        # Give self instead of gc to the context manager since gc is not passed on
+        with self._prep_for_contiguous_drawing(renderer, self):
+            for idx in range(n_paths):
+                with self._cm_set(
+                    paths=[paths[idx]],
+                    hatch=self.hatches[idx % len(self.hatches)],
+                    array=[self.get_array()[idx]],
+                    linewidths=[linewidths[idx % len(linewidths)]],
+                    linestyles=[linestyles[idx % len(linestyles)]],
+                    edgecolors=edgecolors[idx % len(edgecolors)],
+                ):
+                    super().draw(renderer)
 
 
 @_docstring.interpd
