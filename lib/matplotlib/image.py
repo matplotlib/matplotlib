@@ -572,7 +572,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                     A = A * alpha_in[..., None]
                     A[..., 3] = alpha_in
                 res = _resample(self, A, out_shape, t)
-                # Unpremultiply.  Zeroes in the divisor are replaced by ones,
+                # Demultiply.  Zeroes in the divisor are replaced by ones,
                 # which leaves the corresponding (premultiplied) RGB values
                 # untouched.  Dividing the whole contiguous array is several
                 # times faster than np.divide(..., where=...) into the strided
