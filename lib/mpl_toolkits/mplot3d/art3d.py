@@ -1360,7 +1360,7 @@ class Poly3DCollection(PolyCollection):
             num_faces = len(segments3d)
             num_verts = np.fromiter(map(len, segments3d), dtype=np.intp)
             max_verts = num_verts.max(initial=0)
-            segments = np.empty((num_faces, max_verts, 3))
+            segments = np.full((num_faces, max_verts, 3), np.nan)
             for i, face in enumerate(segments3d):
                 segments[i, :len(face)] = face
             self._faces = segments
