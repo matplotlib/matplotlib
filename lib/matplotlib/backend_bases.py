@@ -979,7 +979,7 @@ class GraphicsContextBase:
 
     def set_hatch_color(self, hatch_color):
         """Set the hatch color."""
-        self._hatch_color = hatch_color
+        self._hatch_color = colors.to_rgba(hatch_color)
 
     def get_hatch_linewidth(self):
         """Get the hatch linewidth."""
