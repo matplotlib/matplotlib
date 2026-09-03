@@ -121,6 +121,20 @@ class BarContainer(Container):
         else:
             raise ValueError("orientation must be 'vertical' or 'horizontal'.")
 
+    @property
+    def widths(self):
+        """
+        Return the widths of the bars.
+
+        .. versionadded:: 3.12
+        """
+        if self.orientation == 'vertical':
+            return [p.get_width() for p in self.patches]
+        elif self.orientation == 'horizontal':
+            return [p.get_height() for p in self.patches]
+        else:
+            raise ValueError("orientation must be 'vertical' or 'horizontal'.")
+
 
 class ErrorbarContainer(Container):
     """
