@@ -458,6 +458,17 @@ class RendererPgf(RendererBase):
                      r"\pgfsys@defobject{currentpattern}"
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
             _writeln(self.fh, r"\begin{pgfscope}")
+
+            # hatch linewidth and color
+            lw = gc.get_hatch_linewidth() * mpl_pt_to_in * latex_in_to_pt
+            hatch_rgba = gc.get_hatch_color()
+            _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
+            _writeln(self.fh,
+                     r"\definecolor{currenthatch}{rgb}{%f,%f,%f}"
+                     % hatch_rgba[:3])
+            _writeln(self.fh, r"\pgfsetstrokecolor{currenthatch}")
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % hatch_rgba[3])
+
             _writeln(self.fh,
                      r"\pgfpathrectangle"
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
