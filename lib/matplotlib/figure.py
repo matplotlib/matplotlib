@@ -68,12 +68,12 @@ def _stale_figure_callback(self, val):
         if val and hasattr(fig, '_stale_layers'):
             for layer_name, artists in fig._children_by_layer.items():
                 if self in artists:
-                    fig._stale_layers[layer_name] = True
+                    fig._stale_layers[layer_name] = val
                     break
             else:
                 if (self in getattr(fig, '_localaxes', []) or
                         self in getattr(fig, 'subfigs', [])):
-                    fig._stale_layers["base"] = True
+                    fig._stale_layers["base"] = val
         fig.stale = val
 
 
@@ -276,14 +276,18 @@ class FigureBase(Artist):
         layer : str
             The layer to draw.
         """
-        artists = self._get_draw_artists(renderer, layer=layer)
-        if not artists:
-            return
+        try:
+            artists = self._get_draw_artists(renderer, layer=layer)
+            if not artists:
+                return
 
-        renderer.open_group(layer)
-        mimage._draw_list_compositing_images(
-            renderer, self, artists, self.suppressComposite)
-        renderer.close_group(layer)
+            renderer.open_group(layer)
+            mimage._draw_list_compositing_images(
+                renderer, self, artists, self.suppressComposite)
+            renderer.close_group(layer)
+        finally:
+            if hasattr(self, '_stale_layers'):
+                self._stale_layers[layer] = False
 
     def autofmt_xdate(
             self, bottom=0.2, rotation=30, ha='right', which='major'):
@@ -2576,7 +2580,6 @@ class SubFigure(FigureBase):
 
         finally:
             self.stale = False
-            self._stale_layers = {k: False for k in self._stale_layers}
 
 
 @_docstring.interpd
@@ -3439,7 +3442,6 @@ None}, default: None
                 renderer.close_group('figure')
             finally:
                 self.stale = False
-                self._stale_layers = {k: False for k in self._stale_layers}
 
             DrawEvent("draw_event", self.canvas, renderer)._process()
 
