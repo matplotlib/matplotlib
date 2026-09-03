@@ -25,6 +25,7 @@ class BarContainer(Container):
     errorbar: None | ErrorbarContainer
     datavalues: None | ArrayLike
     orientation: None | Literal["vertical", "horizontal"]
+    group_positions: None | ArrayLike
     def __init__(
         self,
         patches: list[Rectangle],
@@ -32,6 +33,7 @@ class BarContainer(Container):
         *,
         datavalues: ArrayLike | None = ...,
         orientation: Literal["vertical", "horizontal"] | None = ...,
+        group_positions: ArrayLike | None = ...,
         **kwargs
     ) -> None: ...
     @property
