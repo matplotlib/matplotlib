@@ -5534,7 +5534,7 @@ or pandas.DataFrame
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
                cmap=None, norm=None, vmin=None, vmax=None,
-               alpha=None, linewidths=None, edgecolors='face',
+               alpha=None, linewidths=None, edgecolors='none',
                reduce_C_function=np.mean, mincnt=None, marginals=False,
                colorizer=None, **kwargs):
         """
@@ -5654,12 +5654,11 @@ or pandas.DataFrame
         linewidths : float, default: *None*
             If *None*, defaults to :rc:`patch.linewidth`.
 
-        edgecolors : {'face', 'none', *None*} or color, default: 'face'
+        edgecolors : {'face', 'none', *None*} or color, default: 'none'
             The color of the hexagon edges. Possible values are:
 
             - 'face': Draw the edges in the same color as the fill color.
-            - 'none': No edges are drawn. This can sometimes lead to unsightly
-              unpainted pixels between the hexagons.
+            - 'none': No edges are drawn.
             - *None*: Draw outlines in the default color.
             - An explicit color.
 
@@ -5833,6 +5832,7 @@ or pandas.DataFrame
             offsets=offsets,
             offset_transform=mtransforms.AffineDeltaTransform(self.transData)
         )
+        collection._treat_patches_as_contiguous = True
 
         # Set normalizer if bins is 'log'
         if cbook._str_equal(bins, 'log'):
@@ -5913,7 +5913,8 @@ or pandas.DataFrame
 
             trans = getattr(self, f"get_{zname}axis_transform")(which="grid")
             bar = mcoll.PolyCollection(
-                verts, transform=trans, edgecolors="face")
+                verts, transform=trans, edgecolors="none")
+            bar._treat_patches_as_contiguous = True
             bar.set_array(values)
             bar.set_cmap(cmap)
             bar.set_norm(norm)
