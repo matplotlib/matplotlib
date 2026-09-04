@@ -160,7 +160,7 @@ class EventSourceProtocol(Protocol):
 
 class Animation:
     frame_seq: Iterable[Artist]
-    event_source: EventSourceProtocol | None  # TODO: We should remove None
+    event_source: EventSourceProtocol
     def __init__(
         self, fig: Figure, event_source: EventSourceProtocol, blit: bool = ...
     ) -> None: ...

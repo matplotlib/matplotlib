@@ -946,7 +946,7 @@ class Animation:
             self._fig.canvas.mpl_disconnect(self._resize_id)
         self._fig.canvas.mpl_disconnect(self._close_id)
         self.event_source.remove_callback(self._step)
-        self.event_source = None
+        self.event_source.stop()
 
     def save(self, filename, writer=None, fps=None, dpi=None, codec=None,
              bitrate=None, extra_args=None, metadata=None, extra_anim=None,
@@ -1483,7 +1483,7 @@ class TimedAnimation(Animation):
                     # Remove the resize callback if we were blitting
                     self._fig.canvas.mpl_disconnect(self._resize_id)
                 self._fig.canvas.mpl_disconnect(self._close_id)
-                self.event_source = None
+                self.event_source.stop()
                 return False
 
         self.event_source.interval = self._interval
