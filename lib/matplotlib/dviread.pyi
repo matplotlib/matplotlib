@@ -89,7 +89,7 @@ class Vf(Dvi):
     def __init__(self, filename: str | os.PathLike) -> None: ...
     def __getitem__(self, code: int) -> Page: ...
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class TexMetrics:
     tex_width: int
     tex_height: int

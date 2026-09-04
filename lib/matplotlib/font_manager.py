@@ -386,7 +386,7 @@ class FontPath(str):
         return f'FontPath{self._as_tuple()}'
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class FontEntry:
     """
     A class for storing Font properties.
@@ -1076,7 +1076,7 @@ class _JSONEncoder(json.JSONEncoder):
         if isinstance(o, FontManager):
             return dict(o.__dict__, __class__='FontManager')
         elif isinstance(o, FontEntry):
-            d = dict(o.__dict__, __class__='FontEntry')
+            d = dict(dataclasses.asdict(o), __class__='FontEntry')
             try:
                 # Cache paths of fonts shipped with Matplotlib relative to the
                 # Matplotlib data path, which helps in the presence of venvs.
