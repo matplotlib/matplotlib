@@ -953,7 +953,7 @@ def _mul1220(num1, num2):
     return (num1*num2) >> 20
 
 
-@dataclasses.dataclass(frozen=True, kw_only=True)
+@dataclasses.dataclass(frozen=True, kw_only=True, slots=True)
 class TexMetrics:
     """
     Metrics of a glyph, with TeX semantics.

@@ -15,7 +15,7 @@ import matplotlib.patches as patches
 from matplotlib.typing import ColorType
 
 
-@dataclass
+@dataclass(frozen=True, kw_only=True, slots=True)
 class ItemProperties:
     fontsize: float = 14
     labelcolor: ColorType = 'black'
