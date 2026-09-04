@@ -922,6 +922,12 @@ def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file)
     font.set_size(12, 72)
+    with pytest.warns(UserWarning,
+                      match=r'Glyph 6504 \(\\N{TAI LE LETTER OO}\) missing from '
+                            r'font\(s\) DejaVu Sans\.'):
+        with pytest.raises(RuntimeError, match='failed to find glyph to load'):
+            # Character doesn't exist in DejaVu Sans, and no fallback defined.
+            font.load_char(0x1968)
     for glyph in [font.load_char(ord('M')),
                   font.load_glyph(font.get_char_index(ord('M')))]:
         assert glyph is not None
@@ -935,7 +941,7 @@ def test_ft2font_loading():
         assert glyph.vertBearingY == 64
         assert glyph.vertAdvance == 832
         assert glyph.bbox == (54, 0, 574, 576)
-    assert font.get_num_glyphs() == 2  # Both count as loaded.
+    assert font.get_num_glyphs() == 2  # Both valid glyphs count as loaded.
     # But neither has been placed anywhere.
     assert font.get_width_height() == (0, 0)
     assert font.get_descent() == 0
