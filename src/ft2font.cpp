@@ -537,9 +537,13 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
             ft_glyph_warn(charcode, glyph_seen_fonts);
             if (charcode_error) {
                 THROW_FT_ERROR("charcode loading", charcode_error);
-            }
-            else if (glyph_error) {
+            } else if (glyph_error) {
                 THROW_FT_ERROR("charcode loading", glyph_error);
+            } else {
+                throw std::runtime_error{
+                    "charcode loading (ft2font.cpp line " + std::to_string(__LINE__) +
+                    ") failed to find glyph to load"
+                };
             }
         } else if (ft_object_with_glyph->warn_if_used) {
             ft_glyph_warn(charcode, glyph_seen_fonts);

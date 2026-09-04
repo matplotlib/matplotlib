@@ -356,6 +356,10 @@ const char *PyGlyph__doc__ = R"""(
 static PyGlyph *
 PyGlyph_from_FT2Font(const FT2Font *font)
 {
+    if (font == nullptr || font->get_num_glyphs() == 0) {
+        throw std::runtime_error("No glyphs have been loaded.");
+    }
+
     const FT_Face &face = font->get_face();
     const FT_Glyph &glyph = font->get_last_glyph();
 
