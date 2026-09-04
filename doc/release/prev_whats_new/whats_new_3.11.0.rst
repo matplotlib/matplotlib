@@ -781,7 +781,8 @@ additional fonts over the builtin DejaVu Sans.
     Arabic, Persian, Urdu and Hebrew was to reorder the string before passing it in,
     typically with ``arabic_reshaper`` and ``python-bidi``::
 
-        ax.set_title(get_display(arabic_reshaper.reshape(text)))
+        preprocessed = get_display(arabic_reshaper.reshape(text))
+        ax.set_title(preprocessed)
 
     Matplotlib now reorders the string itself, so a string that arrives already in
     visual order is reordered a second time and is drawn backwards. Nothing is
