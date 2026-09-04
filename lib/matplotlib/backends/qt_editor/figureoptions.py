@@ -7,6 +7,7 @@
 
 from itertools import chain
 from matplotlib import cbook, cm, colors as mcolors, markers, image as mimage
+from matplotlib.patches import BoxStyle
 from matplotlib.backends.qt_compat import QtGui
 from matplotlib.backends.qt_editor import _formlayout
 from matplotlib.dates import DateConverter, num2date
@@ -251,8 +252,48 @@ def figure_edit(axes, parent=None):
             if axes.legend_ is not None:
                 old_legend = axes.get_legend()
                 draggable = old_legend._draggable is not None
+                bbox_to_anchor = old_legend._bbox_to_anchor
+                bbox_to_anchor_kwargs = {}
+                if bbox_to_anchor is not None:
+                    # Keep the same bbox anchor and transform.
+                    bbox_to_anchor_kwargs = {
+                        "bbox_to_anchor": bbox_to_anchor._bbox,
+                        "bbox_transform": bbox_to_anchor._transform,
+                    }
+
                 ncols = old_legend._ncols
-            new_legend = axes.legend(ncols=ncols)
+                new_legend = axes.legend(
+                    loc=old_legend._loc,
+                    ncols=ncols,
+                    numpoints=old_legend.numpoints,
+                    markerscale=old_legend.markerscale,
+                    scatterpoints=old_legend.scatterpoints,
+                    borderpad=old_legend.borderpad,
+                    labelspacing=old_legend.labelspacing,
+                    handlelength=old_legend.handlelength,
+                    handleheight=old_legend.handleheight,
+                    handletextpad=old_legend.handletextpad,
+                    borderaxespad=old_legend.borderaxespad,
+                    columnspacing=old_legend.columnspacing,
+                    mode=old_legend._mode,
+                    fancybox=isinstance(
+                        old_legend.legendPatch.get_boxstyle(),
+                        BoxStyle.Round,
+                    ),
+                    shadow=old_legend.shadow,
+                    title=old_legend.get_title().get_text(),
+                    title_fontproperties=old_legend.get_title().get_fontproperties(),
+                    frameon=old_legend.get_frame_on(),
+                    framealpha=old_legend.legendPatch.get_alpha(),
+                    edgecolor=old_legend.legendPatch.get_edgecolor(),
+                    facecolor=old_legend.legendPatch.get_facecolor(),
+                    linewidth=old_legend.legendPatch.get_linewidth(),
+                    alignment=old_legend._alignment,
+                    prop=old_legend.prop,
+                    **bbox_to_anchor_kwargs,
+                )
+            else:
+                new_legend = axes.legend(ncols=ncols)
             if new_legend:
                 new_legend.set_draggable(draggable)
 
