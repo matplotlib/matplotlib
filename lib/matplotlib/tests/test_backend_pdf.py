@@ -732,3 +732,30 @@ def test_scatter_polar(fig_test, fig_ref):
     ax_ref = fig_ref.subplots(subplot_kw={'projection': 'polar'})
     ax_ref.scatter(theta, r, c=c, s=50)
     ax_ref.set_ylim(0, 2)
+
+
+@check_figures_equal(extensions=["pdf"], tol=1.0)
+def test_hexbin_negative_offsets(fig_test, fig_ref):
+    """
+    Test path collection culling with non-canvas-space offsets.
+
+    Hexbin uses a repeated polygon path with offsets transformed by
+    AffineDeltaTransform.  The transformed offsets are displacements, not the
+    final canvas-space marker centers, so PDF backend culling must account for
+    the transformed path bounds as well.
+    """
+    rng = np.random.default_rng(19680801)
+    x = rng.normal(size=10_000)
+    y = rng.normal(size=10_000)
+
+    ax_test = fig_test.subplots()
+    ax_test.hexbin(x, y, gridsize=25, edgecolors="none")
+    ax_test.set_xlim(-2.0, 2.0)
+    ax_test.set_ylim(-2.0, 2.0)
+    ax_test.set_axis_off()
+
+    ax_ref = fig_ref.subplots()
+    ax_ref.hexbin(x + 2.0, y + 2.0, gridsize=25, edgecolors="none")
+    ax_ref.set_xlim(0.0, 4.0)
+    ax_ref.set_ylim(0.0, 4.0)
+    ax_ref.set_axis_off()
