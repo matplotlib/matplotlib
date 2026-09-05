@@ -19,14 +19,16 @@ Interface::
 
 import dataclasses
 import enum
+import io
 import logging
 import os
 import re
 import struct
 import subprocess
 import sys
+import typing
 from collections import namedtuple
-from functools import cache, cached_property, lru_cache, partial, wraps
+from functools import cache, cached_property, lru_cache, partial
 from pathlib import Path
 
 import fontTools.agl
@@ -53,20 +55,400 @@ _log = logging.getLogger(__name__)
 #   pre:       expecting the preamble
 #   outer:     between pages (followed by a page or the postamble,
 #              also e.g. font definitions are allowed)
-#   page:      processing a page
+#   inpage:    processing a page
+#   post:      within the postamble
 #   post_post: state after the postamble (our current implementation
 #              just stops reading)
 #   finale:    the finale (unimplemented in our current implementation)
 
-_dvistate = enum.Enum('DviState', 'pre outer inpage post_post finale')
+_dvistate = enum.Enum('DviState', 'pre outer inpage post post_post finale')
+
+
+def _read_num(f, nbytes: int, signed: bool, strict=True):
+    """Read N bytes from a file as an big-endian number."""
+    b = f.read(nbytes)
+    if strict:
+        assert len(b) == nbytes
+    return int.from_bytes(b, "big", signed=signed)
+
+
+class Ops:
+    """
+    Low-level tools for reading a DVI file as a sequence of ops.
+
+    This is just using a class for namespacing purposes, don't make instances of it.
+    Rather, you want to use functions like Ops.read_file, Ops.read_io, etc.
+    """
+    Op = namedtuple('Op', 'code name args')
+
+    @dataclasses.dataclass(slots=True)
+    class DispatchTable:
+        """
+        Storage for how to interpret different bytes as operations, and unpack
+        their arguments. A table is naturally 256 entries long, covering every
+        possible single-byte value. It starts with every entry being a placeholder,
+        and the convention is to replace these placeholders with the .op() method.
+
+        The existing provided tables are:
+         - Ops.tbl_dvi, which is used for normal DVI files.
+         - Ops.tbl_vf_outer, which is used for VF files outside of packets.
+         - Ops.tbl_vf_inner, which is used for VF files inside of packets.
+
+        The ability to create other tables is available to anybody, but would
+        probably be a niche requirement in practice.
+        """
+        entries: list = dataclasses.field(
+            repr=False,
+            default_factory=lambda: [('unknown', 0, ['delta'], ['delta'], None)] * 256)
+
+        def op(self,
+            bmin: int, bmax: int, opname: str,
+            arg_types: str ='', arg_names: str ='', extra=None):
+            """
+            Can be used standalone, or as a decorator.
+
+            Parameters
+            ----------
+            bmin : int
+                Minimum byte for this op.
+
+            bmax : int
+                Maximum byte for this op. This creates an inclusive range.
+
+            opname : str
+                The reported symbolic name of the op. This is conventionally used
+                for dispatch, like with `.dviread.VM`.
+
+            arg_types : str
+                Space-separated series of extraction specifiers (see below).
+
+            arg_names : str
+                Space-separated series of argument names, one per extraction specifier.
+
+            extra : Fn[file, **args] -> dict, or None
+                An optional callback which extracts additional arguments, based on the
+                values of previously extracted arguments.
+
+            Returns
+            -------
+            decorator : Fn[extra_fn] -> None
+                A more ergonomic way to provide the `extra` param, if desired.
+
+            Extraction Specifiers
+            ---------------------
+            delta : the difference between the current op's code and `bmin`.
+            u1 : An unsigned 1-byte number.
+            u2 : An unsigned 2-byte number.
+            u3 : An unsigned 3-byte number.
+            u4 : An unsigned 4-byte number.
+            s1 : A signed 1-byte number.
+            s2 : A signed 2-byte number.
+            s3 : A signed 3-byte number.
+            s4 : A signed 4-byte number.
+            slen : A signed number `delta` bytes long, or if `delta` is 0, None.
+            slen1 : A signed number `delta`+1 bytes long.
+            ulen1 : An unsigned number `delta`+1 bytes long.
+            olen1 : A number `delta+1` bytes long, which is signed if `delta` == 3.
+            fin : Attempt to finish the file by reading up to 7 bytes.
+            @x : a byte string `x` bytes long, where `x` is a previous argument.
+
+            >>> from matplotlib.dviread import Ops
+            >>> my_table = Ops.DispatchTable()
+            >>> with my_table as t:
+            ...    t.op(0, 22, 'my_op_name', 'u1 u2', 'arg_a arg_b')
+            ...    @t.op(23, 23, 'my_op_2', 'u4', 'length')
+            ...    def _extra(f, length: int) -> dict:
+            ...        b: bytes = f.read(length)
+            ...        return { 'payload': b }
+            ...
+            ...    # While extra arguments offer a comprehensive escape hatch,
+            ...    # using a previous argument as a length is directly supported.
+            ...    # So the more idiomatic version of the previous example would be:
+            ...    t.op(23, 23, 'my_op_2',
+            ...        'u4      @length',
+            ...        'length  payload')
+            """
+
+            arg_types = (' ' + arg_types).split()
+            arg_names = (' ' + arg_names).split()
+            entry = (opname, bmin, arg_types, arg_names, extra)
+            for i in range(bmin, bmax+1):
+                self.entries[i] = entry
+
+            # Optional decorator support
+            def decorator(fn):
+                entry = (opname, bmin, arg_types, arg_names, fn)
+                for i in range(bmin, bmax+1):
+                    self.entries[i] = entry
+            return decorator
+
+        def __enter__(self):
+            return self
+        def __exit__(self, *exc):
+            return False
+
+    @classmethod
+    def read_op(cls, f, table: DispatchTable) -> Op | None:
+        """Returns None if we've run out of file."""
+        opcode = f.read(1)
+        if not opcode:
+            return None
+        opcode = int(opcode[0])
+        entry = table.entries[opcode]
+        args = cls._parse_args(f, opcode, entry)
+        opname = entry[0]
+        return cls.Op(opcode, opname, args)
+
+    @classmethod
+    def read_io(cls, f, table=None) -> typing.Generator[Op, None, None]:
+        """Read ops from a file-like object."""
+        table = table or cls.tbl_dvi
+        while True:
+            op = cls.read_op(f, table)
+            if op:
+                yield op
+            else:
+                break
+
+    @classmethod
+    def read_file(cls, filename: str, **kwargs) -> typing.Generator[Op, None, None]:
+        """Open a file and read ops from it."""
+        with open(filename, "rb") as f:
+            yield from cls.read_io(f, **kwargs)
+
+    @classmethod
+    def read_bytes(cls, b: bytes, **kwargs) -> typing.Generator[Op, None, None]:
+        """Read ops from an in-memory byte sequence."""
+        yield from cls.read_io(io.BytesIO(b), **kwargs)
+
+    # Internals
+    _parsers = {
+        'delta': lambda f, delta: delta,
+        'u1': lambda f, delta: _read_num(f, 1, False),
+        'u2': lambda f, delta: _read_num(f, 2, False),
+        'u3': lambda f, delta: _read_num(f, 3, False),
+        'u4': lambda f, delta: _read_num(f, 4, False),
+        's1': lambda f, delta: _read_num(f, 1, True),
+        's2': lambda f, delta: _read_num(f, 2, True),
+        's3': lambda f, delta: _read_num(f, 3, True),
+        's4': lambda f, delta: _read_num(f, 4, True),
+        'slen': lambda f, delta: _read_num(f, delta, True) if delta else None,
+        'slen1': lambda f, delta: _read_num(f, delta + 1, True),
+        'ulen1': lambda f, delta: _read_num(f, delta + 1, False),
+        'olen1': lambda f, delta: _read_num(f, delta + 1, delta == 3),
+        'fin': lambda f, delta: _read_num(f, 7, False, strict=False),
+    }
+    @classmethod
+    def _parse_args(cls, f, opcode, entry) -> dict:
+        opname, base, types, names, extra_fn = entry
+        delta = opcode-base
+        result = {}
+        for t, n in zip(types, names):
+            if t.startswith("@"):
+                result[n] = f.read(result[t[1:]])
+            else:
+                result[n] = cls._parsers[t](f, delta)
+
+        # Support arbitrary logic for extra params
+        if extra_fn:
+            extra = extra_fn(f, **result)
+            result.update(extra)
+
+        return result
+
+    # Available dispatch tables
+    tbl_dvi = DispatchTable()
+    with tbl_dvi as t:
+        t.op(0, 127, 'set_char', 'delta', 'c')
+        t.op(128, 128, 'set_char', 'u1', 'c')
+        t.op(129, 129, 'set_char', 'u2', 'c')
+        t.op(130, 130, 'set_char', 'u3', 'c')
+        t.op(131, 131, 'set_char', 's4', 'c')
+        t.op(132, 132, 'set_rule', 's4 s4', 'height width')
+
+        t.op(133, 133, 'put_char', 'u1', 'c')
+        t.op(134, 134, 'put_char', 'u2', 'c')
+        t.op(135, 135, 'put_char', 'u3', 'c')
+        t.op(136, 136, 'put_char', 's4', 'c')
+        t.op(137, 137, 'put_rule', 's4 s4', 'height width')
+
+        t.op(138, 138, 'nop')
+        t.op(139, 139, 'bop',
+            "s4 s4 s4 s4 s4 s4 s4 s4 s4 s4 s4",
+            "c0 c1 c2 c3 c4 c5 c6 c7 c8 c9 p")
+        t.op(140, 140, 'eop')
+
+        t.op(141, 141, 'push')
+        t.op(142, 142, 'pop')
+
+        t.op(143, 146, 'right', 'slen1', 'amount')
+        t.op(147, 147, 'w0')
+        t.op(148, 151, 'w', 'slen1', 'new_w')
+        t.op(152, 152, 'x0')
+        t.op(153, 156, 'x', 'slen1', 'new_x')
+
+        t.op(157, 160, 'down', 'slen1', 'amount')
+        t.op(161, 161, 'y0')
+        t.op(162, 165, 'y', 'slen1', 'new_y')
+        t.op(166, 166, 'z0')
+        t.op(167, 170, 'z', 'slen1', 'new_z')
+
+        t.op(171, 234, 'fnt_num', 'delta', 'n')
+        t.op(235, 238, 'fnt_num', 'slen1', 'n')
+
+        t.op(239, 242, 'special', 'ulen1 @k', 'k text')
+
+        t.op(243, 246, 'fnt_def',
+            'olen1 u4 s4 u4 u1 u1 @a   @l',
+            'k     c  s  d  a  l  area name')
+
+        t.op(247, 247, 'pre',
+            "u1 u4  u4  u4  u1 @k",
+            "i  num den mag k  cmnt")
+        t.op(248, 248, 'post',
+            'u4 u4  u4  u4  u4 u4 u2 u2',
+            'p  num den mag l  u  s  t')
+        t.op(249, 249, 'post_post', 'u4 u1 fin', 'q i padding')
+
+        t.op(250, 250, 'begin_reflect')
+        t.op(251, 251, 'end_reflect')
+
+        @t.op(252, 252, 'define_native_font',
+            'u4 u4 u2    u1 @l u4',
+            'k  s  flags l  n  i')
+        def _extra(f, flags: int, **_) -> dict:
+            read_arg = partial(_read_num, f)
+            effects = {}
+            if flags & 0x0200:
+                effects["rgba"] = [read_arg(1, False) for _ in range(4)]
+            if flags & 0x1000:
+                effects["extend"] = read_arg(4, True) / 65536
+            if flags & 0x2000:
+                effects["slant"] = read_arg(4, True) / 65536
+            if flags & 0x4000:
+                effects["embolden"] = read_arg(4, True) / 65536
+            return {'effects': effects}
+
+        @t.op(253, 253, 'set_glyphs', 'u4 u2', 'w k')
+        def _extra(f, w, k) -> dict:
+            read_arg = partial(_read_num, f)
+            xy = [read_arg(4, True) for _ in range(2 * k)]
+            g = [read_arg(2, False) for _ in range(k)]
+            return {'xy': xy, 'g': g}
+
+        @t.op(254, 254, 'set_text_and_glyphs', 'u2', 'l')
+        def _extra(f, l: int) -> dict:
+            read_arg = partial(_read_num, f)
+            t = f.read(2 * l)  # utf16
+            w = read_arg(4, False)
+            k = read_arg(2, False)
+            xy = [read_arg(4, True) for _ in range(2 * k)]
+            g = [read_arg(2, False) for _ in range(k)]
+            return {'t': t, 'w': w, 'k': k, 'xy': xy, 'g': g}
+
+        t.op(255, 255, 'malformed')
+
+    # Operations that are valid inside a VF packet. This is a subset of DVI.
+    tbl_vf_inner = DispatchTable()
+    with tbl_vf_inner as t:
+        t.op(0, 127, 'set_char', 'delta', 'c')
+        t.op(128, 128, 'set_char', 'u1', 'c')
+        t.op(129, 129, 'set_char', 'u2', 'c')
+        t.op(130, 130, 'set_char', 'u3', 'c')
+        t.op(131, 131, 'set_char', 's4', 'c')
+        t.op(132, 132, 'set_rule', 's4 s4', 'height width')
+
+        t.op(133, 133, 'put_char', 'u1', 'c')
+        t.op(134, 134, 'put_char', 'u2', 'c')
+        t.op(135, 135, 'put_char', 'u3', 'c')
+        t.op(136, 136, 'put_char', 's4', 'c')
+        t.op(137, 137, 'put_rule', 's4 s4', 'height width')
+
+        t.op(139, 139, 'malformed')
+        t.op(138, 138, 'nop')
+        t.op(140, 140, 'malformed')
+
+        t.op(141, 141, 'push')
+        t.op(142, 142, 'pop')
+
+        t.op(143, 146, 'right', 'slen1', 'amount')
+        t.op(147, 147, 'w0')
+        t.op(148, 151, 'w', 'slen1', 'new_w')
+        t.op(152, 152, 'x0')
+        t.op(153, 156, 'x', 'slen1', 'new_x')
+
+        t.op(157, 160, 'down', 'slen1', 'amount')
+        t.op(161, 161, 'y0')
+        t.op(162, 165, 'y', 'slen1', 'new_y')
+        t.op(166, 166, 'z0')
+        t.op(167, 170, 'z', 'slen1', 'new_z')
+
+        t.op(171, 234, 'fnt_num', 'delta', 'n')
+        t.op(235, 238, 'fnt_num', 'slen1', 'n')
+
+        t.op(239, 242, 'special', 'ulen1 @k', 'k text')
+
+        t.op(243, 255, 'malformed')
+
+    # Operations that are valid outside a VF packet.
+    tbl_vf_outer = DispatchTable()
+    with tbl_vf_outer as t:
+        t.op(0, 241, 'char_packet',
+            'delta u1 u3  @pl',
+            'pl    cc tfm dvi')
+        t.op(242, 242, 'char_packet',
+            'u4 u4 u4  @pl',
+            'pl cc tfm dvi')
+        t.op(243, 246, 'fnt_def',
+            'olen1 u4 s4 u4 u1 u1 @a   @l',
+            'k     c  s  d  a  l  area name')
+        t.op(247, 247, 'pre',
+            'u1 u1 @k   u4 u4',
+            'i  k  cmnt cs ds')
+        t.op(248, 248, 'post', 'fin', 'padding')
+        t.op(249, 255, 'malformed')
+
+    del t
 
 # The marks on a page consist of text and boxes. A page also has dimensions.
 Page = namedtuple('Page', 'text boxes height width descent')
-Box = namedtuple('Box', 'x y height width')
 
 
-# Also a namedtuple, for backcompat.
-class Text(namedtuple('Text', 'x y font glyph width')):
+# Supports namedtuple interface with fields 'x y height width'
+# for backwards compatibility, but is a dataclass.
+@dataclasses.dataclass(slots=True, frozen=True)
+class Box:
+    """
+    A rectangle defined within the dvi file.
+    """
+
+    x: int
+    y: int
+    height: int
+    width: int
+
+    # Format varies by backend, so we just provide it verbatim. Default is None.
+    color: str | None = None
+
+    def _as_legacy_tuple(self):
+        # In the future, we should add a deprecation warning to this central location.
+        # This will help us catch and clean up uses of the old API.
+        return (self.x, self.y, self.height, self.width)
+
+    def __iter__(self):
+        return iter(self._as_legacy_tuple())
+
+    def __getitem__(self, i):
+        return self._as_legacy_tuple()[i]
+
+    def replace(self, /, **kwargs):
+        return dataclasses.replace(self, **kwargs)
+
+
+# Supports namedtuple interface with fields 'x y font glyph width'
+# for backwards compatibility, but is a dataclass.
+@dataclasses.dataclass(slots=True, frozen=True)
+class Text:
     """
     A glyph in the dvi file.
 
@@ -80,6 +462,15 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     dvi units.
     """
 
+    x: int
+    y: int
+    font: 'DviFont'
+    glyph: int
+    width: int
+
+    # Format varies by backend, so we just provide it verbatim. Default is None.
+    color: str | None = None
+
     @property
     def index(self):
         """
@@ -91,6 +482,20 @@ class Text(namedtuple('Text', 'x y font glyph width')):
     font_path = property(lambda self: self.font.resolve_path())
     font_size = property(lambda self: self.font.size)
     font_effects = property(lambda self: self.font.effects)
+
+    def _as_legacy_tuple(self):
+        # In the future, we should add a deprecation warning to this central location.
+        # This will help us catch and clean up uses of the old API.
+        return (self.x, self.y, self.font, self.glyph, self.width)
+
+    def __iter__(self):
+        return iter(self._as_legacy_tuple())
+
+    def __getitem__(self, i):
+        return self._as_legacy_tuple()[i]
+
+    def replace(self, /, **kwargs):
+        return dataclasses.replace(self, **kwargs)
 
     @property  # To be deprecated together with font_path, font_size, font_effects.
     def glyph_name_or_index(self):
@@ -140,199 +545,62 @@ class Text(namedtuple('Text', 'x y font glyph width')):
         return glyph_str or glyph_name
 
 
-# Opcode argument parsing
-#
-# Each of the following functions takes a Dvi object and delta, which is the
-# difference between the opcode and the minimum opcode with the same meaning.
-# Dvi opcodes often encode the number of argument bytes in this delta.
-_arg_mapping = dict(
-    # raw: Return delta as is.
-    raw=lambda dvi, delta: delta,
-    # u1: Read 1 byte as an unsigned number.
-    u1=lambda dvi, delta: dvi._read_arg(1, signed=False),
-    # u4: Read 4 bytes as an unsigned number.
-    u4=lambda dvi, delta: dvi._read_arg(4, signed=False),
-    # s4: Read 4 bytes as a signed number.
-    s4=lambda dvi, delta: dvi._read_arg(4, signed=True),
-    # slen: Read delta bytes as a signed number, or None if delta is None.
-    slen=lambda dvi, delta: dvi._read_arg(delta, signed=True) if delta else None,
-    # slen1: Read (delta + 1) bytes as a signed number.
-    slen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=True),
-    # ulen1: Read (delta + 1) bytes as an unsigned number.
-    ulen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=False),
-    # olen1: Read (delta + 1) bytes as an unsigned number if less than 4 bytes,
-    # as a signed number if 4 bytes.
-    olen1=lambda dvi, delta: dvi._read_arg(delta + 1, signed=(delta == 3)),
-)
-
-
-def _dispatch(table, min, max=None, state=None, args=('raw',)):
+@dataclasses.dataclass(slots=True)
+class VM:
     """
-    Decorator for dispatch by opcode. Sets the values in *table*
-    from *min* to *max* to this method, adds a check that the Dvi state
-    matches *state* if not None, reads arguments from the file according
-    to *args*.
-
-    Parameters
-    ----------
-    table : dict[int, callable]
-        The dispatch table to be filled in.
-
-    min, max : int
-        Range of opcodes that calls the registered function; *max* defaults to
-        *min*.
-
-    state : _dvistate, optional
-        State of the Dvi object in which these opcodes are allowed.
-
-    args : list[str], default: ['raw']
-        Sequence of argument specifications:
-
-        - 'raw': opcode minus minimum
-        - 'u1': read one unsigned byte
-        - 'u4': read four bytes, treat as an unsigned number
-        - 's4': read four bytes, treat as a signed number
-        - 'slen': read (opcode - minimum) bytes, treat as signed
-        - 'slen1': read (opcode - minimum + 1) bytes, treat as signed
-        - 'ulen1': read (opcode - minimum + 1) bytes, treat as unsigned
-        - 'olen1': read (opcode - minimum + 1) bytes, treat as unsigned
-          if under four bytes, signed if four bytes
+    Tracks the state of a DVI document over a series of ops.
     """
-    def decorate(method):
-        get_args = [_arg_mapping[x] for x in args]
+    # Default fields that you usually shouldn't provide
+    stack: list = dataclasses.field(default_factory=list)
+    text: list = dataclasses.field(default_factory=list)
+    boxes: list = dataclasses.field(default_factory=list)
+    colors: list[str] = dataclasses.field(default_factory=list)
+    down_stack: list = dataclasses.field(default_factory=list)
+    fonts: dict = dataclasses.field(default_factory=dict)
+    state: _dvistate = _dvistate.pre
+    baseline_v: None | int = None
+    h: int = 0
+    v: int = 0
+    w: int = 0
+    x: int = 0
+    y: int = 0
+    z: int = 0
+    f: int = 0
 
-        @wraps(method)
-        def wrapper(self, byte):
-            if state is not None and self.state != state:
-                raise ValueError("state precondition failed")
-            return method(self, *[f(self, byte-min) for f in get_args])
-        if max is None:
-            table[min] = wrapper
+    @property
+    def color(self) -> str | None:
+        """The current color according to color push/pop specials."""
+        return self.colors[-1] if self.colors else None
+
+    def _put_char(self, char):
+        font = self.fonts[self.f]
+        color = self.color
+        if isinstance(font, cbook._ExceptionInfo):
+            raise font.to_exception()
+        elif font._vf is None:
+            self.text.append(Text(self.h, self.v, font, char,
+                                  font._width_of(char), color))
         else:
-            for i in range(min, max+1):
-                assert table[i] is None
-                table[i] = wrapper
-        return wrapper
-    return decorate
+            scale = font._scale
+            for x, y, f, g, w in font._vf[char].text:
+                newf = DviFont(scale=_mul1220(scale, f._scale),
+                               metrics=f._metrics, texname=f.texname, vf=f._vf)
+                self.text.append(Text(self.h + _mul1220(x, scale),
+                                      self.v + _mul1220(y, scale),
+                                      newf, g, newf._width_of(g), color))
+            self.boxes.extend([Box(self.h + _mul1220(x, scale),
+                                   self.v + _mul1220(y, scale),
+                                   _mul1220(a, scale), _mul1220(b, scale), color)
+                               for x, y, a, b in font._vf[char].boxes])
 
+    def _assert_state(self, opname, state):
+        if self.state != state:
+            raise ValueError(f"""state precondition failed:
+                op {opname} must be used in state {state},
+                but was used in state {self.state}""")
 
-class Dvi:
-    """
-    A reader for a dvi ("device-independent") file, as produced by TeX.
-
-    The current implementation can only iterate through pages in order,
-    and does not even attempt to verify the postamble.
-
-    This class can be used as a context manager to close the underlying
-    file upon exit. Pages can be read via iteration. Here is an overly
-    simple way to extract text without trying to detect whitespace::
-
-        >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
-        ...     for page in dvi:
-        ...         print(''.join(chr(t.glyph) for t in page.text))
-    """
-    # dispatch table
-    _dtable = [None] * 256
-    _dispatch = partial(_dispatch, _dtable)
-
-    def __init__(self, filename, dpi):
-        """
-        Read the data from the file named *filename* and convert
-        TeX's internal units to units of *dpi* per inch.
-        *dpi* only sets the units and does not limit the resolution.
-        Use None to return TeX's internal units.
-        """
-        _log.debug('Dvi: %s', filename)
-        self.file = open(filename, 'rb')
-        self.dpi = dpi
-        self.fonts = {}
-        self.state = _dvistate.pre
-        self._missing_font = None
-
-    def __enter__(self):
-        """Context manager enter method, does nothing."""
-        return self
-
-    def __exit__(self, etype, evalue, etrace):
-        """
-        Context manager exit method, closes the underlying file if it is open.
-        """
-        self.close()
-
-    def __iter__(self):
-        """
-        Iterate through the pages of the file.
-
-        Yields
-        ------
-        Page
-            Details of all the text and box objects on the page.
-            The Page tuple contains lists of Text and Box tuples and
-            the page dimensions, and the Text and Box tuples contain
-            coordinates transformed into a standard Cartesian
-            coordinate system at the dpi value given when initializing.
-            The coordinates are floating point numbers, but otherwise
-            precision is not lost and coordinate values are not clipped to
-            integers.
-        """
-        while self._read():
-            yield self._output()
-
-    def close(self):
-        """Close the underlying file if it is open."""
-        if not self.file.closed:
-            self.file.close()
-
-    def _output(self):
-        """
-        Output the text and boxes belonging to the most recent page.
-        page = dvi._output()
-        """
-        minx = miny = np.inf
-        maxx = maxy = -np.inf
-        maxy_pure = -np.inf
-        for elt in self.text + self.boxes:
-            if isinstance(elt, Box):
-                x, y, h, w = elt
-                e = 0  # zero depth
-            else:  # glyph
-                x, y, font, g, w = elt
-                h, e = font._height_depth_of(g)
-            minx = min(minx, x)
-            miny = min(miny, y - h)
-            maxx = max(maxx, x + w)
-            maxy = max(maxy, y + e)
-            maxy_pure = max(maxy_pure, y)
-        if self._baseline_v is not None:
-            maxy_pure = self._baseline_v  # This should normally be the case.
-            self._baseline_v = None
-
-        if not self.text and not self.boxes:  # Avoid infs/nans from inf+/-inf.
-            return Page(text=[], boxes=[], width=0, height=0, descent=0)
-
-        if self.dpi is None:
-            # special case for ease of debugging: output raw dvi coordinates
-            return Page(text=self.text, boxes=self.boxes,
-                        width=maxx-minx, height=maxy_pure-miny,
-                        descent=maxy-maxy_pure)
-
-        # convert from TeX's "scaled points" to dpi units
-        d = self.dpi / (72.27 * 2**16)
-        descent = (maxy - maxy_pure) * d
-
-        text = [Text((x-minx)*d, (maxy-y)*d - descent, f, g, w*d)
-                for (x, y, f, g, w) in self.text]
-        boxes = [Box((x-minx)*d, (maxy-y)*d - descent, h*d, w*d)
-                 for (x, y, h, w) in self.boxes]
-
-        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
-                    height=(maxy_pure-miny)*d, descent=descent)
-
-    def _read(self):
-        """
-        Read one page from the file. Return True if successful,
-        False if there were no more pages.
-        """
+    def _reconsider_baseline_v(self):
+        """Should be called in ops that modify self.stack or self.down_stack."""
         # Pages appear to start with the sequence
         #   bop (begin of page)
         #   xxx comment
@@ -351,168 +619,104 @@ class Dvi:
         # reaches 3, while at least three "downs" have been executed (excluding
         # those popped out (corresponding to the chemformula preamble)), as the
         # baseline (the "down" count is necessary to handle xcolor).
-        down_stack = [0]
-        self._baseline_v = None
-        while True:
-            byte = self.file.read(1)[0]
-            self._dtable[byte](self, byte)
-            if self._missing_font:
-                raise self._missing_font.to_exception()
-            name = self._dtable[byte].__name__
-            if name == "_push":
-                down_stack.append(down_stack[-1])
-            elif name == "_pop":
-                down_stack.pop()
-            elif name == "_down":
-                down_stack[-1] += 1
-            if (self._baseline_v is None
-                    and len(getattr(self, "stack", [])) == 3
-                    and down_stack[-1] >= 4):
-                self._baseline_v = self.v
-            if byte == 140:                         # end of page
-                return True
-            if self.state is _dvistate.post_post:   # end of file
-                self.close()
-                return False
+        if (self.baseline_v is None
+                and len(getattr(self, "stack", [])) == 3
+                and self.down_stack[-1] >= 4):
+            self.baseline_v = self.v
 
-    def _read_arg(self, nbytes, signed=False):
-        """
-        Read and return a big-endian integer *nbytes* long.
-        Signedness is determined by the *signed* keyword.
-        """
-        return int.from_bytes(self.file.read(nbytes), "big", signed=signed)
+    def _op_pre(self, _, i, num, den, mag, k, cmnt):
+        self._assert_state("pre", _dvistate.pre)
+        if i not in [2, 7]:  # 2: pdftex, luatex; 7: xetex
+            raise ValueError(f"Unknown dvi format {i}")
+        if num != 25400000 or den != 7227 * 2**16:
+            raise ValueError("Nonstandard units in dvi file")
+            # meaning: TeX always uses those exact values, so it
+            # should be enough for us to support those
+            # (There are 72.27 pt to an inch so 7227 pt =
+            # 7227 * 2**16 sp to 100 in. The numerator is multiplied
+            # by 10^5 to get units of 10**-7 meters.)
+        if mag != 1000:
+            raise ValueError("Nonstandard magnification in dvi file")
+            # meaning: LaTeX seems to frown on setting \mag, so
+            # I think we can assume this is constant
+        self.state = _dvistate.outer
 
-    @_dispatch(min=0, max=127, state=_dvistate.inpage)
-    def _set_char_immediate(self, char):
-        self._put_char_real(char)
-        if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
-            return
-        self.h += self.fonts[self.f]._width_of(char)
-
-    @_dispatch(min=128, max=131, state=_dvistate.inpage, args=('olen1',))
-    def _set_char(self, char):
-        self._put_char_real(char)
-        if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
-            return
-        self.h += self.fonts[self.f]._width_of(char)
-
-    @_dispatch(132, state=_dvistate.inpage, args=('s4', 's4'))
-    def _set_rule(self, a, b):
-        self._put_rule_real(a, b)
-        self.h += b
-
-    @_dispatch(min=133, max=136, state=_dvistate.inpage, args=('olen1',))
-    def _put_char(self, char):
-        self._put_char_real(char)
-
-    def _put_char_real(self, char):
-        font = self.fonts[self.f]
-        if isinstance(font, cbook._ExceptionInfo):
-            self._missing_font = font
-        elif font._vf is None:
-            self.text.append(Text(self.h, self.v, font, char,
-                                  font._width_of(char)))
-        else:
-            scale = font._scale
-            for x, y, f, g, w in font._vf[char].text:
-                newf = DviFont(scale=_mul1220(scale, f._scale),
-                               metrics=f._metrics, texname=f.texname, vf=f._vf)
-                self.text.append(Text(self.h + _mul1220(x, scale),
-                                      self.v + _mul1220(y, scale),
-                                      newf, g, newf._width_of(g)))
-            self.boxes.extend([Box(self.h + _mul1220(x, scale),
-                                   self.v + _mul1220(y, scale),
-                                   _mul1220(a, scale), _mul1220(b, scale))
-                               for x, y, a, b in font._vf[char].boxes])
-
-    @_dispatch(137, state=_dvistate.inpage, args=('s4', 's4'))
-    def _put_rule(self, a, b):
-        self._put_rule_real(a, b)
-
-    def _put_rule_real(self, a, b):
-        if a > 0 and b > 0:
-            self.boxes.append(Box(self.h, self.v, a, b))
-
-    @_dispatch(138)
-    def _nop(self, _):
-        pass
-
-    @_dispatch(139, state=_dvistate.outer, args=('s4',)*11)
-    def _bop(self, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
+    def _op_bop(self, _, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, p):
+        self._assert_state("bop", _dvistate.outer)
         self.state = _dvistate.inpage
         self.h = self.v = self.w = self.x = self.y = self.z = 0
         self.stack = []
         self.text = []          # list of Text objects
         self.boxes = []         # list of Box objects
+        self.baseline_v = None
+        self.down_stack = [0]
 
-    @_dispatch(140, state=_dvistate.inpage)
-    def _eop(self, _):
+    def _op_eop(self, _):
+        self._assert_state("eop", _dvistate.inpage)
         self.state = _dvistate.outer
-        del self.h, self.v, self.w, self.x, self.y, self.z, self.stack
+        self.h = self.v = self.w = self.x = self.y = self.z = 0
+        self.stack = []
 
-    @_dispatch(141, state=_dvistate.inpage)
-    def _push(self, _):
+    def _op_post(self, _, **kwargs):
+        self._assert_state("post", _dvistate.outer)
+        self.state = _dvistate.post
+
+    def _op_post_post(self, _, **kwargs):
+        self._assert_state("post_post", _dvistate.post)
+        self.state = _dvistate.post_post
+
+    def _op_nop(self, _):
+        pass
+
+    def _op_push(self, _):
+        self.down_stack.append(self.down_stack[-1])
         self.stack.append((self.h, self.v, self.w, self.x, self.y, self.z))
+        self._reconsider_baseline_v()
 
-    @_dispatch(142, state=_dvistate.inpage)
-    def _pop(self, _):
+    def _op_pop(self, _):
+        self.down_stack.pop()
         self.h, self.v, self.w, self.x, self.y, self.z = self.stack.pop()
+        self._reconsider_baseline_v()
 
-    @_dispatch(min=143, max=146, state=_dvistate.inpage, args=('slen1',))
-    def _right(self, b):
-        self.h += b
+    def _op_down(self, _, amount: int):
+        self.down_stack[-1] += 1
+        self.v += amount
+        self._reconsider_baseline_v()
 
-    @_dispatch(min=147, max=151, state=_dvistate.inpage, args=('slen',))
-    def _right_w(self, new_w):
-        if new_w is not None:
-            self.w = new_w
+    def _op_right(self, _, amount: int):
+        self.h += amount
+
+    def _op_w0(self, _):
         self.h += self.w
 
-    @_dispatch(min=152, max=156, state=_dvistate.inpage, args=('slen',))
-    def _right_x(self, new_x):
-        if new_x is not None:
-            self.x = new_x
+    def _op_w(self, _, new_w: int):
+        self.w = new_w
+        self.h += self.w
+
+    def _op_x0(self, _):
         self.h += self.x
 
-    @_dispatch(min=157, max=160, state=_dvistate.inpage, args=('slen1',))
-    def _down(self, a):
-        self.v += a
+    def _op_x(self, _, new_x: int):
+        self.x = new_x
+        self.h += self.x
 
-    @_dispatch(min=161, max=165, state=_dvistate.inpage, args=('slen',))
-    def _down_y(self, new_y):
-        if new_y is not None:
-            self.y = new_y
+    def _op_y0(self, _):
         self.v += self.y
 
-    @_dispatch(min=166, max=170, state=_dvistate.inpage, args=('slen',))
-    def _down_z(self, new_z):
-        if new_z is not None:
-            self.z = new_z
+    def _op_y(self, _, new_y: int):
+        self.y = new_y
+        self.v += self.y
+
+    def _op_z0(self, _):
         self.v += self.z
 
-    @_dispatch(min=171, max=234, state=_dvistate.inpage)
-    def _fnt_num_immediate(self, k):
-        self.f = k
+    def _op_z(self, _, new_z: int):
+        self.z = new_z
+        self.v += self.z
 
-    @_dispatch(min=235, max=238, state=_dvistate.inpage, args=('olen1',))
-    def _fnt_num(self, new_f):
-        self.f = new_f
-
-    @_dispatch(min=239, max=242, args=('ulen1',))
-    def _xxx(self, datalen):
-        special = self.file.read(datalen)
-        _log.debug(
-            'Dvi._xxx: encountered special: %s',
-            ''.join([chr(ch) if 32 <= ch < 127 else '<%02x>' % ch
-                     for ch in special]))
-
-    @_dispatch(min=243, max=246, args=('olen1', 'u4', 'u4', 'u4', 'u1', 'u1'))
-    def _fnt_def(self, k, c, s, d, a, l):
-        self._fnt_def_real(k, c, s, d, a, l)
-
-    def _fnt_def_real(self, k, c, s, d, a, l):
-        n = self.file.read(a + l)
-        fontname = n[-l:]
+    def _op_fnt_def(self, _, k, c, s, d, area: str, name: str, **kwargs):
+        n = area + name
+        fontname = name
         if fontname.startswith(b"[") and c == 0x4c756146:  # c == "LuaF"
             # See https://chat.stackexchange.com/rooms/106428 (and also
             # https://tug.org/pipermail/dvipdfmx/2021-January/000168.html).
@@ -542,90 +746,172 @@ class Dvi:
             vf = None
         self.fonts[k] = DviFont(scale=s, metrics=tfm, texname=n, vf=vf)
 
-    @_dispatch(247, state=_dvistate.pre, args=('u1', 'u4', 'u4', 'u4', 'u1'))
-    def _pre(self, i, num, den, mag, k):
-        self.file.read(k)  # comment in the dvi file
-        if i not in [2, 7]:  # 2: pdftex, luatex; 7: xetex
-            raise ValueError(f"Unknown dvi format {i}")
-        if num != 25400000 or den != 7227 * 2**16:
-            raise ValueError("Nonstandard units in dvi file")
-            # meaning: TeX always uses those exact values, so it
-            # should be enough for us to support those
-            # (There are 72.27 pt to an inch so 7227 pt =
-            # 7227 * 2**16 sp to 100 in. The numerator is multiplied
-            # by 10^5 to get units of 10**-7 meters.)
-        if mag != 1000:
-            raise ValueError("Nonstandard magnification in dvi file")
-            # meaning: LaTeX seems to frown on setting \mag, so
-            # I think we can assume this is constant
-        self.state = _dvistate.outer
+    def _op_fnt_num(self, _, n: int):
+        self.f = n
 
-    @_dispatch(248, state=_dvistate.outer)
-    def _post(self, _):
-        self.state = _dvistate.post_post
-        # TODO: actually read the postamble and finale?
-        # currently post_post just triggers closing the file
+    def _op_put_char(self, _, c):
+        self._put_char(c)
 
-    @_dispatch(249, args=())
-    def _post_post(self):
-        raise NotImplementedError
+    def _op_set_char(self, _, c):
+        self._put_char(c)
+        if isinstance(self.fonts[self.f], cbook._ExceptionInfo):
+            return
+        self.h += self.fonts[self.f]._width_of(c)
 
-    @_dispatch(250, args=())
-    def _begin_reflect(self):
-        raise NotImplementedError
+    def _op_set_rule(self, _, height, width):
+        if height > 0 and width > 0:
+            self.boxes.append(Box(self.h, self.v, height, width, self.color))
+        self.h += width
 
-    @_dispatch(251, args=())
-    def _end_reflect(self):
-        raise NotImplementedError
+    def _op_put_rule(self, _, height, width):
+        if height > 0 and width > 0:
+            self.boxes.append(Box(self.h, self.v, height, width, self.color))
 
-    @_dispatch(252, args=())
-    def _define_native_font(self):
-        k = self._read_arg(4, signed=False)
-        s = self._read_arg(4, signed=False)
-        flags = self._read_arg(2, signed=False)
-        l = self._read_arg(1, signed=False)
-        n = self.file.read(l)
-        i = self._read_arg(4, signed=False)
-        effects = {}
-        if flags & 0x0200:
-            effects["rgba"] = [self._read_arg(1, signed=False) for _ in range(4)]
-        if flags & 0x1000:
-            effects["extend"] = self._read_arg(4, signed=True) / 65536
-        if flags & 0x2000:
-            effects["slant"] = self._read_arg(4, signed=True) / 65536
-        if flags & 0x4000:
-            effects["embolden"] = self._read_arg(4, signed=True) / 65536
+    def _op_special(self, _, k: int, text: bytes):
+        if text.startswith(b'color push'):
+            color = text[len('color push'):].decode('utf-8').strip()
+            self.colors.append(color)
+        elif text == b'color pop':
+            self.colors.pop()
+        _log.debug('Dvi._xxx: encountered special: %r', text)
+
+    def _op_define_native_font(self, _, k, s, flags, l, n, i, effects):
         self.fonts[k] = DviFont.from_xetex(s, n, i, effects)
 
-    @_dispatch(253, args=())
-    def _set_glyphs(self):
-        w = self._read_arg(4, signed=False)
-        k = self._read_arg(2, signed=False)
-        xy = [self._read_arg(4, signed=True) for _ in range(2 * k)]
-        g = [self._read_arg(2, signed=False) for _ in range(k)]
+    def _op_set_glyphs(self, _, w, k, xy, g):
         font = self.fonts[self.f]
         for i in range(k):
             self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
-                                  font, g[i], font._width_of(g[i])))
+                                  font, g[i], font._width_of(g[i]), self.color))
         self.h += w
 
-    @_dispatch(254, args=())
-    def _set_text_and_glyphs(self):
-        l = self._read_arg(2, signed=False)
-        t = self.file.read(2 * l)  # utf16
-        w = self._read_arg(4, signed=False)
-        k = self._read_arg(2, signed=False)
-        xy = [self._read_arg(4, signed=True) for _ in range(2 * k)]
-        g = [self._read_arg(2, signed=False) for _ in range(k)]
+    def _op_set_text_and_glyphs(self, _, l: int, t: bytes, w: int, k: int, xy, g):
         font = self.fonts[self.f]
         for i in range(k):
             self.text.append(Text(self.h + xy[2 * i], self.v + xy[2 * i + 1],
-                                  font, g[i], font._width_of(g[i])))
+                                  font, g[i], font._width_of(g[i]), self.color))
         self.h += w
 
-    @_dispatch(255)
-    def _malformed(self, raw):
-        raise ValueError("unknown command: byte 255")
+    def _op_begin_reflect(self, _, **kwargs):
+        raise NotImplementedError()
+
+    def _op_end_reflect(self, _, **kwargs):
+        raise NotImplementedError()
+
+    def _op_malformed(self, _):
+        raise ValueError("Malformed DVI data")
+
+
+class Dvi:
+    """
+    A reader for a dvi ("device-independent") file, as produced by TeX.
+
+    The current implementation can only iterate through pages in order,
+    and does not even attempt to verify the postamble.
+
+    This class can be used as a context manager to close the underlying
+    file upon exit. Pages can be read via iteration. Here is an overly
+    simple way to extract text without trying to detect whitespace::
+
+        >>> with matplotlib.dviread.Dvi('input.dvi', 72) as dvi:
+        ...     for page in dvi:
+        ...         print(''.join(chr(t.glyph) for t in page.text))
+    """
+
+    def __init__(self, filename, dpi):
+        """
+        Read the data from the file named *filename* and convert
+        TeX's internal units to units of *dpi* per inch.
+        *dpi* only sets the units and does not limit the resolution.
+        Use None to return TeX's internal units.
+        """
+        _log.debug('Dvi: %s', filename)
+        self.file = open(filename, 'rb')
+        self.dpi = dpi
+
+    def __enter__(self):
+        """Context manager enter method, does nothing."""
+        return self
+
+    def __exit__(self, etype, evalue, etrace):
+        """
+        Context manager exit method, closes the underlying file if it is open.
+        """
+        self.close()
+
+    def close(self):
+        """Close the underlying file if it is open."""
+        if not self.file.closed:
+            self.file.close()
+
+    def __iter__(self):
+        """
+        Iterate through the pages of the file.
+
+        Yields
+        ------
+        Page
+            Details of all the text and box objects on the page.
+            The Page tuple contains lists of Text and Box tuples and
+            the page dimensions, and the Text and Box tuples contain
+            coordinates transformed into a standard Cartesian
+            coordinate system at the dpi value given when initializing.
+            The coordinates are floating point numbers, but otherwise
+            precision is not lost and coordinate values are not clipped to
+            integers.
+        """
+        vm = VM()
+        for opcode, opname, args in Ops.read_io(self.file):
+            getattr(vm, f"_op_{opname}")(opcode, **args)
+            if opname == "eop":
+                yield self._output_page(vm, self.dpi)
+
+    def _output_page(self, vm: VM, dpi: int) -> Page:
+        """Output the text and boxes belonging to the most recent page."""
+        minx = miny = np.inf
+        maxx = maxy = -np.inf
+        maxy_pure = -np.inf
+        for elt in vm.text + vm.boxes:
+            if isinstance(elt, Box):
+                x, y, h, w = elt
+                e = 0  # zero depth
+            else:  # glyph
+                x, y, font, g, w = elt
+                h, e = font._height_depth_of(g)
+            minx = min(minx, x)
+            miny = min(miny, y - h)
+            maxx = max(maxx, x + w)
+            maxy = max(maxy, y + e)
+            maxy_pure = max(maxy_pure, y)
+        if vm.baseline_v is not None:
+            maxy_pure = vm.baseline_v  # This should normally be the case.
+            vm.baseline_v = None
+
+        if not vm.text and not vm.boxes:  # Avoid infs/nans from inf+/-inf.
+            return Page(text=[], boxes=[], width=0, height=0, descent=0)
+
+        if dpi is None:
+            # special case for ease of debugging: output raw dvi coordinates
+            return Page(text=vm.text, boxes=vm.boxes,
+                        width=maxx-minx, height=maxy_pure-miny,
+                        descent=maxy-maxy_pure)
+
+        # convert from TeX's "scaled points" to dpi units
+        d = dpi / (72.27 * 2**16)
+        descent = (maxy - maxy_pure) * d
+
+        text = [
+            t.replace(x=(t.x-minx)*d, y=(maxy-t.y)*d - descent, width=t.width * d)
+            for t in vm.text
+        ]
+        boxes = [
+            b.replace(
+                x=(b.x-minx)*d, y=(maxy-b.y)*d - descent,
+                height=b.height*d, width=b.width*d)
+            for b in vm.boxes]
+
+        return Page(text=text, boxes=boxes, width=(maxx-minx)*d,
+                    height=(maxy_pure-miny)*d, descent=descent)
 
 
 class DviFont:
@@ -824,7 +1110,7 @@ class DviFont:
         return self._encoding[idx]
 
 
-class Vf(Dvi):
+class Vf:
     r"""
     A virtual font (\*.vf file) containing subroutines for dvi files.
 
@@ -836,8 +1122,16 @@ class Vf(Dvi):
     -----
     The virtual font format is a derivative of dvi:
     http://mirrors.ctan.org/info/knuth/virtual-fonts
-    This class reuses some of the machinery of `Dvi`
-    but replaces the `!_read` loop and dispatch mechanism.
+
+    The format is:
+     - ``pre`` op (247)
+     - font definitions (243-246)
+     - character packets (0-242)
+     - postamble (248)
+
+    Each character packet declares its payload length, and the payload is made
+    of (a subset of) the normal DVI ops. This is exposed as a Page object
+    and represents a single glyph, which is accessible via __getitem__.
 
     Examples
     --------
@@ -849,102 +1143,56 @@ class Vf(Dvi):
     """
 
     def __init__(self, filename):
-        super().__init__(filename, 0)
-        try:
-            self._first_font = None
-            self._chars = {}
-            self._read()
-        finally:
-            self.close()
+        self._chars = {}
+
+        self.inner_vm = VM(state=_dvistate.outer)
+        self.state = _dvistate.pre
+        for op in Ops.read_file(filename, table=Ops.tbl_vf_outer):
+            opcode, opname, args = op
+            getattr(self, f"_op_{opname}")(opcode, **args)
+        del self.inner_vm
+        del self.state
 
     def __getitem__(self, code):
         return self._chars[code]
 
-    def _read(self):
-        """
-        Read one page from the file. Return True if successful,
-        False if there were no more pages.
-        """
-        packet_char = packet_ends = None
-        packet_len = packet_width = None
-        while True:
-            byte = self.file.read(1)[0]
-            # If we are in a packet, execute the dvi instructions
-            if self.state is _dvistate.inpage:
-                byte_at = self.file.tell()-1
-                if byte_at == packet_ends:
-                    self._finalize_packet(packet_char, packet_width)
-                    packet_len = packet_char = packet_width = None
-                    # fall through to out-of-packet code
-                elif byte_at > packet_ends:
-                    raise ValueError("Packet length mismatch in vf file")
-                else:
-                    if byte in (139, 140) or byte >= 243:
-                        raise ValueError(f"Inappropriate opcode {byte} in vf file")
-                    Dvi._dtable[byte](self, byte)
-                    continue
-
-            # We are outside a packet
-            if byte < 242:          # a short packet (length given by byte)
-                packet_len = byte
-                packet_char = self._read_arg(1)
-                packet_width = self._read_arg(3)
-                packet_ends = self._init_packet(byte)
-                self.state = _dvistate.inpage
-            elif byte == 242:       # a long packet
-                packet_len = self._read_arg(4)
-                packet_char = self._read_arg(4)
-                packet_width = self._read_arg(4)
-                self._init_packet(packet_len)
-            elif 243 <= byte <= 246:
-                k = self._read_arg(byte - 242, byte == 246)
-                c = self._read_arg(4)
-                s = self._read_arg(4)
-                d = self._read_arg(4)
-                a = self._read_arg(1)
-                l = self._read_arg(1)
-                self._fnt_def_real(k, c, s, d, a, l)
-                if self._first_font is None:
-                    self._first_font = k
-            elif byte == 247:       # preamble
-                i = self._read_arg(1)
-                k = self._read_arg(1)
-                x = self.file.read(k)
-                cs = self._read_arg(4)
-                ds = self._read_arg(4)
-                self._pre(i, x, cs, ds)
-            elif byte == 248:       # postamble (just some number of 248s)
-                break
-            else:
-                raise ValueError(f"Unknown vf opcode {byte}")
-
-    def _init_packet(self, pl):
-        if self.state != _dvistate.outer:
-            raise ValueError("Misplaced packet in vf file")
-        self.h = self.v = self.w = self.x = self.y = self.z = 0
-        self.stack = []
-        self.text = []
-        self.boxes = []
-        self.f = self._first_font
-        self._missing_font = None
-        return self.file.tell() + pl
-
-    def _finalize_packet(self, packet_char, packet_width):
-        if not self._missing_font:  # Otherwise we don't have full glyph definition.
-            self._chars[packet_char] = Page(
-                text=self.text, boxes=self.boxes, width=packet_width,
-                height=None, descent=None)
-        self.state = _dvistate.outer
-
-    def _pre(self, i, x, cs, ds):
+    def _op_pre(self, _, i, k, cmnt, cs, ds):
         if self.state is not _dvistate.pre:
             raise ValueError("pre command in middle of vf file")
         if i != 202:
             raise ValueError(f"Unknown vf format {i}")
-        if len(x):
-            _log.debug('vf file comment: %s', x)
+        if len(cmnt):
+            _log.debug('vf file comment: %s', cmnt)
         self.state = _dvistate.outer
         # cs = checksum, ds = design size
+
+    def _op_fnt_def(self, code: int, **kwargs):
+        if self.state is not _dvistate.outer:
+            raise ValueError(f"fnt_def command cannot be used in state {self.state}")
+        self.inner_vm._op_fnt_def(code, **kwargs)
+
+    def _op_char_packet(self, _, pl: int, cc: int, tfm: int, dvi: bytes):
+        if self.state is not _dvistate.outer:
+            raise ValueError(
+                f"char_packet command cannot be used in state {self.state}")
+        vm = self.inner_vm
+
+        # Just feed these right on in to the inner VM, wrapping as a page
+        vm._op_bop(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
+        for op in Ops.read_bytes(dvi):
+            opcode, opname, args = op
+            getattr(vm, f"_op_{opname}")(opcode, **args)
+        vm._op_eop(0)
+
+        # Create a Page object from that, and store it in self._chars.
+        # Note, some prior logic was explicitly lenient about missing fonts here.
+        # It's unclear if this still needs to be explicitly handled. Tests welcome!
+        self._chars[cc] = Page(
+            text=vm.text, boxes=vm.boxes, width=tfm,
+            height=None, descent=None)
+
+    def _op_post(self, _, **kwargs):
+        pass
 
 
 def _mul1220(num1, num2):
@@ -1373,12 +1621,13 @@ if __name__ == '__main__':
                 else:
                     print(f"font: {font_name}")
                 print(f"scale: {font._scale / 2 ** 20}")
-                _print_fields("x", "y", "glyph", "chr", "w")
+                _print_fields("x", "y", "glyph", "chr", "w", "color")
                 for text in group:
                     _print_fields(text.x, text.y, text.glyph,
-                                  text._as_unicode_or_name(), text.width)
+                                  text._as_unicode_or_name(), text.width,
+                                  text.color or "(default)")
             if page.boxes:
                 print("--- BOXES ---")
-                _print_fields("x", "y", "h", "w")
+                _print_fields("x", "y", "h", "w", "color")
                 for box in page.boxes:
-                    _print_fields(box.x, box.y, box.height, box.width)
+                    _print_fields(box.x, box.y, box.height, box.width, box.color)
