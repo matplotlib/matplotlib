@@ -338,7 +338,8 @@ class Line3D(lines.Line2D):
         for name, xyz in zip('xyz', args):
             if not np.iterable(xyz):
                 raise RuntimeError(f'{name} must be a sequence')
-        self._verts3d = args
+        # Coerce to arrays so draw() can rely on .shape (e.g. list + NaN).
+        self._verts3d = tuple(np.asarray(xyz) for xyz in args)
         self.stale = True
 
     def get_data_3d(self):
