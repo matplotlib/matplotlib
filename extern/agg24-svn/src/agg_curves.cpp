@@ -21,7 +21,6 @@ namespace agg
 {
 
     //------------------------------------------------------------------------
-    const double curve_distance_epsilon                  = 1e-30;
     const double curve_collinearity_epsilon              = 1e-30;
     const double curve_angle_tolerance_epsilon           = 0.01;
     enum curve_recursion_limit_e { curve_recursion_limit = 32 };
