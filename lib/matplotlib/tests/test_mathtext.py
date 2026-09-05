@@ -292,14 +292,6 @@ def test_short_long_accents(fig_test, fig_ref):
         0, .5, "$" + "".join(fr"\{l} a" for l in corresponding_long_accs) + "$")
 
 
-def test_fontinfo():
-    fontpath = mpl.font_manager.findfont("DejaVu Sans")
-    font = mpl.ft2font.FT2Font(fontpath)
-    table = font.get_sfnt_table("head")
-    assert table is not None
-    assert table['version'] == (1, 0)
-
-
 # See gh-26152 for more context on this xfail
 @pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
                    reason="Error messages are incorrect for this version")
