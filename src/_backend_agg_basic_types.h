@@ -96,6 +96,7 @@ class GCAgg
     double alpha;
     bool forced_alpha;
     agg::comp_op_e comp_op;
+    agg::filling_rule_e filling_rule;
     agg::rgba color;
     bool isaa;
 
@@ -162,6 +163,20 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 {"saturation", agg::comp_op_hsl_saturation},
                 {"color", agg::comp_op_hsl_color},
                 {"luminosity", agg::comp_op_hsl_luminosity},
+            };
+            value = enum_values.at(src.cast<std::string>());
+            return true;
+        }
+    };
+
+    template <> struct type_caster<agg::filling_rule_e> {
+    public:
+        PYBIND11_TYPE_CASTER(agg::filling_rule_e, const_name("filling_rule_e"));
+
+        bool load(handle src, bool) {
+            const std::unordered_map<std::string, agg::filling_rule_e> enum_values = {
+                {"nonzero", agg::fill_non_zero},
+                {"evenodd", agg::fill_even_odd},
             };
             value = enum_values.at(src.cast<std::string>());
             return true;
@@ -278,6 +293,7 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             value.alpha = src.attr("_alpha").cast<double>();
             value.forced_alpha = src.attr("_forced_alpha").cast<bool>();
             value.comp_op = src.attr("_blend_mode").cast<agg::comp_op_e>();
+            value.filling_rule = src.attr("_fill_rule").cast<agg::filling_rule_e>();
             value.color = src.attr("_rgb").cast<agg::rgba>();
             value.isaa = src.attr("_antialiased").cast<bool>();
             value.cap = src.attr("_capstyle").cast<agg::line_cap_e>();

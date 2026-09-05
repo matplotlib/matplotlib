@@ -556,8 +556,10 @@ class RendererPgf(RendererBase):
                      r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
                      % tuple(rgbFace[:3]))
             _writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
-        if has_fill and fillopacity != 1.0:
-            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            if fillopacity != 1.0:
+                _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            if gc.get_fill_rule() == "evenodd":
+                _writeln(self.fh, r"\pgfseteorule")
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
