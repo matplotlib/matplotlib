@@ -8,6 +8,7 @@ import sys
 import weakref
 
 import numpy as np
+from numpy.testing import assert_array_equal
 import pytest
 
 import matplotlib as mpl
@@ -114,6 +115,44 @@ def test_frame_size():
     anim.save("unused.null", dpi=100, writer=writer)
 
     assert writer.frame_size == fig.canvas.get_width_height()
+
+
+def test_blit_fractional_bbox():
+    # A blitted frame must be identical to an unblitted one: with a fractional
+    # Axes bbox the cached background has to cover the partially covered edge
+    # pixels, or they are never restored and the damage accumulates.
+    frames = []
+    for blit in [True, False]:
+        fig = plt.figure(figsize=(2, 2), dpi=100)
+        # Fractional bbox edges, landing near the top of a pixel so that the
+        # pixels they partially cover are mostly inside the Axes.
+        ax = fig.add_axes([0.12, 0.14, 0.7845, 0.739])
+        ax.set(xlim=(0, 1), ylim=(0, 1), xticks=[], yticks=[])
+        assert ax.bbox.x1 % 1 == pytest.approx(0.9)
+        assert ax.bbox.y1 % 1 == pytest.approx(0.8)
+        # Blitting draws animated artists over the background regardless of
+        # zorder, so keep this one above the spines to test only the restore.
+        line = ax.axvline(0, color='red', zorder=5)
+
+        def animate(i):
+            line.set_xdata([i / 4, i / 4])
+            return [line]
+
+        anim = animation.FuncAnimation(
+            fig, animate, frames=5, blit=blit, cache_frame_data=False)
+        fig.canvas.draw()  # triggers Animation._start
+
+        rendered = []
+        for _ in range(5):
+            anim._step()  # no GUI event loop, so step the timer by hand
+            rendered.append(np.asarray(fig.canvas.buffer_rgba()).copy())
+        frames.append(rendered)
+        plt.close(fig)
+
+    # NB: check_figures_equal() cannot be used here, as it compares the figures
+    # via savefig(), which redraws them in full and so discards the blitting.
+    blitted, unblitted = frames
+    assert_array_equal(blitted, unblitted)
 
 
 @pytest.mark.parametrize('anim', [dict(klass=dict)], indirect=['anim'])
