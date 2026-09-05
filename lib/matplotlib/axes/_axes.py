@@ -5534,7 +5534,7 @@ or pandas.DataFrame
     def hexbin(self, x, y, C=None, gridsize=100, bins=None,
                xscale='linear', yscale='linear', extent=None,
                cmap=None, norm=None, vmin=None, vmax=None,
-               alpha=None, linewidths=None, edgecolors='face',
+               alpha=None, linewidths=None, edgecolors='none',
                reduce_C_function=np.mean, mincnt=None, marginals=False,
                colorizer=None, **kwargs):
         """
@@ -5654,12 +5654,11 @@ or pandas.DataFrame
         linewidths : float, default: *None*
             If *None*, defaults to :rc:`patch.linewidth`.
 
-        edgecolors : {'face', 'none', *None*} or color, default: 'face'
+        edgecolors : {'face', 'none', *None*} or color, default: 'none'
             The color of the hexagon edges. Possible values are:
 
             - 'face': Draw the edges in the same color as the fill color.
-            - 'none': No edges are drawn. This can sometimes lead to unsightly
-              unpainted pixels between the hexagons.
+            - 'none': No edges are drawn.
             - *None*: Draw outlines in the default color.
             - An explicit color.
 
@@ -5833,6 +5832,7 @@ or pandas.DataFrame
             offsets=offsets,
             offset_transform=mtransforms.AffineDeltaTransform(self.transData)
         )
+        collection._treat_patches_as_contiguous = True
 
         # Set normalizer if bins is 'log'
         if cbook._str_equal(bins, 'log'):
@@ -5913,7 +5913,8 @@ or pandas.DataFrame
 
             trans = getattr(self, f"get_{zname}axis_transform")(which="grid")
             bar = mcoll.PolyCollection(
-                verts, transform=trans, edgecolors="face")
+                verts, transform=trans, edgecolors="none")
+            bar._treat_patches_as_contiguous = True
             bar.set_array(values)
             bar.set_cmap(cmap)
             bar.set_norm(norm)
@@ -6693,15 +6694,6 @@ or pandas.DataFrame
 
         Other Parameters
         ----------------
-        antialiaseds : bool, default: False
-            The default *antialiaseds* is False if the default
-            *edgecolors*\ ="none" is used.  This eliminates artificial lines
-            at patch boundaries, and works regardless of the value of alpha.
-            If *edgecolors* is not "none", then the default *antialiaseds*
-            is taken from :rc:`patch.antialiased`.
-            Stroking the edges may be preferred if *alpha* is 1, but will
-            cause artifacts otherwise.
-
         data : indexable object, optional
             DATA_PARAMETER_PLACEHOLDER
 
@@ -6761,15 +6753,6 @@ or pandas.DataFrame
             kwargs['edgecolors'] = kwargs.pop('edgecolor')
         ec = kwargs.setdefault('edgecolors', 'none')
 
-        # aa setting will default via collections to patch.antialiased
-        # unless the boundary is not stroked, in which case the
-        # default will be False; with unstroked boundaries, aa
-        # makes artifacts that are often disturbing.
-        if 'antialiaseds' in kwargs:
-            kwargs['antialiased'] = kwargs.pop('antialiaseds')
-        if 'antialiased' not in kwargs and cbook._str_lower_equal(ec, "none"):
-            kwargs['antialiased'] = False
-
         kwargs.setdefault('snap', False)
 
         if np.ma.isMaskedArray(X) or np.ma.isMaskedArray(Y):
@@ -6796,7 +6779,7 @@ or pandas.DataFrame
     @_preprocess_data()
     @_docstring.interpd
     def pcolormesh(self, *args, alpha=None, norm=None, cmap=None, vmin=None,
-                   vmax=None, colorizer=None, shading=None, antialiased=False,
+                   vmax=None, colorizer=None, shading=None,
                    **kwargs):
         """
         Create a pseudocolor plot with a non-regular rectangular grid.
@@ -7007,7 +6990,7 @@ or pandas.DataFrame
         kwargs.setdefault('snap', mpl.rcParams['pcolormesh.snap'])
 
         collection = mcoll.QuadMesh(
-            coords, antialiased=antialiased, shading=shading,
+            coords, shading=shading,
             array=C, colorizer=colorizer, alpha=alpha, **kwargs)
         collection._scale_norm(norm, vmin, vmax)
 
@@ -7206,7 +7189,7 @@ or pandas.DataFrame
             collection = mcoll.QuadMesh(
                 coords, array=C,
                 alpha=alpha, cmap=cmap, norm=norm, colorizer=colorizer,
-                antialiased=False, edgecolors="none")
+                edgecolors="none")
             self.add_collection(collection, autolim=False)
             xl, xr, yb, yt = x.min(), x.max(), y.min(), y.max()
             ret = collection
