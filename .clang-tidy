@@ -26,6 +26,7 @@ Checks: >
   -bugprone-throwing-static-initialization,
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-analyzer-optin.performance.Padding,
+  -clang-analyzer-optin.osx.cocoa.localizability.NonLocalizedStringChecker
 
 # Only report findings in matplotlib's own src/ headers, not in pybind11,
 # Python.h, agg, or other vendored includes.

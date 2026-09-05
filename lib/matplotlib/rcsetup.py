@@ -1363,7 +1363,6 @@ _validators = {
     "figure.autolayout":       validate_bool,
     "figure.max_open_warning": validate_int,
     "figure.raise_window":     validate_bool,
-    "macosx.window_mode":      ["system", "tab", "window"],
 
     "figure.subplot.left":   validate_float,
     "figure.subplot.right":  validate_float,
@@ -1392,6 +1391,10 @@ _validators = {
     # default directory in savefig dialog box
     "savefig.directory":    _validate_pathlike,
     "savefig.transparent":  validate_bool,
+
+    "macos.appearance":   ["system", "light", "dark"],
+    "macos.window_mode":  ["system", "tab", "window"],
+    "macosx.window_mode": ["system", "tab", "window"],
 
     "tk.window_focus": validate_bool,  # Maintain shell focus for TkAgg
 
@@ -3424,6 +3427,21 @@ _DEFINITION = [
         type=Literal["landscape", "portrait"],
         validator=["landscape", "portrait"],
         description="orientation of saved figure, for PostScript output only"
+    ),
+    _Subsection("macOS backend parameters"),
+    _Param(
+        "macos.appearance",
+        default="system",
+        validator=["system", "light", "dark"],
+        description="Whether windows and controls use a light or dark appearance. "
+                    "'system' uses 'Appearance' from System Settings."
+    ),
+    _Param(
+        "macos.window_mode",
+        default="system",
+        validator=["system", "tab", "window"],
+        description="How to open new figures (system, tab, window). "
+                    "'system' uses 'Prefer tabs...' from System Settings."
     ),
     _Subsection("Mac OSX backend parameters"),
     _Param(
