@@ -246,6 +246,46 @@ def test_figureoptions_with_datetime_axes():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_figureoptions_preserves_custom_dash_tuple(monkeypatch):
+    from matplotlib.backends.qt_editor import figureoptions
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([1, 2], [1, 2], label="line", linestyle=(5, (10, 3)))
+    before = line._unscaled_dash_pattern
+
+    def fake_fedit(datalist, apply, **kwargs):
+        general = [ax.get_title()]
+        for name, axis in ax._axis_map.items():
+            axis_min, axis_max = getattr(ax, f"get_{name}lim")()
+            general.extend([axis_min, axis_max, axis.label.get_text(),
+                            axis.get_scale()])
+        general.append(False)
+
+        curves = []
+        for curve, _, _ in datalist[1][0]:
+            fields = dict(curve)
+            curves.append([
+                fields['Label'],
+                fields['Line style'][0],
+                fields['Draw style'][0],
+                fields['Width'],
+                fields['Color (RGBA)'],
+                fields['Style'][0],
+                fields['Size'],
+                fields['Face color (RGBA)'],
+                fields['Edge color (RGBA)'],
+            ])
+
+        apply([general, curves])
+        return None
+
+    monkeypatch.setattr(figureoptions._formlayout, "fedit", fake_fedit)
+    figureoptions.figure_edit(ax, parent=None)
+
+    assert line._unscaled_dash_pattern == before
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
     fig, ax = plt.subplots()
