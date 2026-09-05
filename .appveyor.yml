@@ -68,6 +68,8 @@ install:
 
   - micromamba env create -f environment.yml python=%PYTHON_VERSION% %EXTRA_PACKAGES%
   - micromamba activate mpl-dev
+  # Install browsers for testing
+  - playwright install --with-deps
 
 build_script:
   # Now build the thing..
