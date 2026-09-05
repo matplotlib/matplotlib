@@ -6,7 +6,7 @@ import pytest
 
 import matplotlib.backends.backend_webagg_core
 from matplotlib.backends.backend_webagg_core import (
-    FigureCanvasWebAggCore, NavigationToolbar2WebAgg,
+    FigureCanvasWebAggCore, FigureManagerWebAgg, NavigationToolbar2WebAgg,
 )
 from matplotlib.testing import subprocess_run_for_testing
 
@@ -35,6 +35,22 @@ def test_webagg_fallback(backend):
 def test_webagg_core_no_toolbar():
     fm = matplotlib.backends.backend_webagg_core.FigureManagerWebAgg
     assert fm._toolbar2_class is None
+
+
+def test_zoom_whiskers_require_client_support():
+    supported = MagicMock()
+    supported.supports_zoom_whiskers = True
+    unsupported = MagicMock(spec=["send_json"])
+    manager = FigureManagerWebAgg.__new__(FigureManagerWebAgg)
+    manager.web_sockets = {supported, unsupported}
+
+    manager._send_event("whiskers", x0=0, y0=0, x1=1, y1=1, ws=20)
+    supported.send_json.assert_called_once()
+    unsupported.send_json.assert_not_called()
+
+    manager._send_event("rubberband", x0=0, y0=0, x1=1, y1=1)
+    assert supported.send_json.call_count == 2
+    unsupported.send_json.assert_called_once()
 
 
 def test_toolbar_button_dispatch_allowlist():
