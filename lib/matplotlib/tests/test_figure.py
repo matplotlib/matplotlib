@@ -28,6 +28,7 @@ import matplotlib.lines as mlines
 import matplotlib.patches as mpatch
 from matplotlib.offsetbox import AnchoredOffsetbox, TextArea
 import matplotlib.transforms as mtransforms
+from matplotlib.text import Text
 
 
 @image_comparison(['figure_align_labels'], extensions=['png', 'svg'], style='mpl20',
@@ -1966,3 +1967,122 @@ def test_artist_sublist_deprecations():
         del fig.lines[-1]
     with pytest.warns(mpl.MatplotlibDeprecationWarning, match=match):
         del fig.lines[1:]
+
+
+@image_comparison(
+    baseline_images=['two_pass_base_only'], extensions=['png'], style='mpl20'
+)
+def test_two_pass_base_only():
+    """Verify that bypassing the overlay pass leaves only the base layer."""
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], color='blue', lw=5)
+
+    # Add overlay elements
+    overlay_text = Text(
+        0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
+        transform=fig.transFigure, figure=fig
+    )
+    fig.add_artist(overlay_text, layer="overlay")
+    overlay_line = mlines.Line2D(
+        [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
+    )
+    fig.add_artist(overlay_line, layer="overlay")
+
+    # Mock _draw_layer to skip the overlay layer
+    original_draw_layer = fig._draw_layer
+    def mock_draw_layer(renderer, layer):
+        if layer == "overlay":
+            return
+        original_draw_layer(renderer, layer)
+    fig._draw_layer = mock_draw_layer
+
+
+@image_comparison(
+    baseline_images=['two_pass_overlay_only'], extensions=['png'], style='mpl20'
+)
+def test_two_pass_overlay_only():
+    """
+    Verify that bypassing the base pass leaves only the overlay layer (transparent).
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], color='blue', lw=5)
+
+    # Add overlay elements
+
+    overlay_text = Text(
+        0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
+        transform=fig.transFigure, figure=fig
+    )
+    fig.add_artist(overlay_text, layer="overlay")
+    overlay_line = mlines.Line2D(
+        [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
+    )
+    fig.add_artist(overlay_line, layer="overlay")
+
+    original_draw_layer = fig._draw_layer
+    def mock_draw_layer(renderer, layer):
+        if (layer == "base" or layer == "patch"):
+            return
+        original_draw_layer(renderer, layer)
+    fig._draw_layer = mock_draw_layer
+
+
+@image_comparison(
+    baseline_images=['two_pass_composite'], extensions=['png'], style='mpl20'
+)
+def test_two_pass_composite():
+    """
+    Verify that the base and overlay layers compose correctly when drawn together.
+    """
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], color='blue', lw=5)
+
+    overlay_text = Text(
+        0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
+        transform=fig.transFigure, figure=fig
+    )
+    fig.add_artist(overlay_text, layer="overlay")
+    overlay_line = mlines.Line2D(
+        [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
+    )
+    fig.add_artist(overlay_line, layer="overlay")
+
+
+def test_stale_layers_via_add_artist():
+    fig = plt.figure()
+    overlay = Text(0.5, 0.9, "overlay")
+    fig.add_artist(overlay, layer="overlay")
+    fig.draw_without_rendering()
+
+    assert fig._stale_layers["overlay"] is False
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+    # change only overlay
+    overlay.set_visible(False)
+    assert fig._stale_layers["overlay"] is True
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+
+
+def test_stale_layers_via_text():
+    fig = plt.figure()
+    t = fig.text(0.5, 0.5, "hello")
+    fig.draw_without_rendering()
+
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+    t.set_color("red")
+    assert fig._stale_layers["base"] is True
+    assert fig._stale_layers["patch"] is False
+
+
+def test_stale_layers_via_axes_text():
+    fig, ax = plt.subplots()
+    t = ax.text(0.5, 0.5, "hello")
+    fig.draw_without_rendering()
+
+    assert fig._stale_layers["base"] is False
+    assert fig._stale_layers["patch"] is False
+    t.set_color("red")
+    assert fig._stale_layers["base"] is True
+    assert fig._stale_layers["patch"] is False

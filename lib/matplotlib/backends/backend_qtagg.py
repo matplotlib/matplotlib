@@ -4,15 +4,59 @@ Render to qt from agg.
 
 
 from matplotlib.transforms import Bbox
+from matplotlib.backend_bases import DrawEvent
 
 from .qt_compat import QT_API, QtCore, QtGui
-from .backend_agg import FigureCanvasAgg
+from .backend_agg import FigureCanvasAgg, RendererAgg
 from .backend_qt import _BackendQT, FigureCanvasQT
 from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
     FigureManagerQT, NavigationToolbar2QT)
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
+
+    def __init__(self, figure=None):
+        super().__init__(figure=figure)
+        self._layer_renderers = {}
+        self._renderer_key = None
+
+    def draw(self):
+        """
+        Render the figure using the per-layer caching optimization.
+        """
+        fig = self.figure
+        w, h = self.get_width_height(physical=True)
+        dpi = fig.dpi
+
+        # Run layout engine once before drawing
+        if fig.axes and fig.get_layout_engine() is not None:
+            try:
+                fig.get_layout_engine().execute(fig)
+            except ValueError:
+                pass
+
+        key = (w, h, dpi)
+        is_resized = getattr(self, '_renderer_key', None) != key
+        if is_resized:
+            self._renderer_key = key
+
+        for layer_name in fig._children_by_layer:
+            stale = fig._stale_layers.get(layer_name, True)
+
+            # Re-render if: layer is stale OR canvas was resized
+            if stale or is_resized:
+                layer_renderer = RendererAgg(w, h, dpi)
+                fig._draw_layer(layer_renderer, layer_name)
+
+                self._layer_renderers[layer_name] = layer_renderer
+
+        fig.stale = False
+
+        # Fire the draw event
+        base_renderer = self._layer_renderers.get("patch")
+        DrawEvent("draw_event", self, base_renderer)._process()
+
+        self.update()
 
     def paintEvent(self, event):
         """
@@ -23,9 +67,8 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         """
         self._draw_idle()  # Only does something if a draw is pending.
 
-        # If the canvas does not have a renderer, then give up and wait for
-        # FigureCanvasAgg.draw(self) to be called.
-        if not hasattr(self, 'renderer'):
+        # If the layers haven't been rendered yet, give up and wait for draw()
+        if not self._layer_renderers:
             return
 
         painter = QtGui.QPainter(self)
@@ -46,21 +89,29 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             right = left + width
             # create a buffer using the image bounding box
             bbox = Bbox([[left, bottom], [right, top]])
-            buf = memoryview(self.copy_from_bbox(bbox))
-
-            if QT_API == "PyQt6":
-                from PyQt6 import sip
-                ptr = int(sip.voidptr(buf))
-            else:
-                ptr = buf
 
             painter.eraseRect(rect)  # clear the widget canvas
-            qimage = QtGui.QImage(ptr, buf.shape[1], buf.shape[0],
-                                  QtGui.QImage.Format.Format_RGBA8888)
-            qimage.setDevicePixelRatio(self.device_pixel_ratio)
-            # set origin using original QT coordinates
             origin = QtCore.QPoint(rect.left(), rect.top())
-            painter.drawImage(origin, qimage)
+
+            for layer_name in self.figure._children_by_layer:
+                if layer_name in self._layer_renderers:
+                    layer_renderer = self._layer_renderers[layer_name]
+
+                    buf = memoryview(layer_renderer.copy_from_bbox(bbox))
+
+                    if QT_API == "PyQt6":
+                        from PyQt6 import sip
+                        ptr = int(sip.voidptr(buf))
+                    else:
+                        ptr = buf
+
+                    qimage = QtGui.QImage(ptr, buf.shape[1], buf.shape[0],
+                                          QtGui.QImage.Format.Format_RGBA8888)
+                    qimage.setDevicePixelRatio(self.device_pixel_ratio)
+
+                    # Qt's QPainter natively handles alpha blending!
+                    painter.drawImage(origin, qimage)
+
             self._draw_rect_callback(painter)
         finally:
             painter.end()
