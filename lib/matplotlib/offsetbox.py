@@ -37,6 +37,7 @@ from matplotlib.image import BboxImage
 from matplotlib.patches import (
     FancyBboxPatch, FancyArrowPatch, bbox_artist as mbbox_artist)
 from matplotlib.transforms import Bbox, BboxBase, TransformedBbox
+from matplotlib.backends.backend_mixed import MixedModeRenderer
 
 
 DEBUG = False
@@ -689,9 +690,6 @@ class DrawingArea(OffsetBox):
         self.dpi_transform.clear()
         self.dpi_transform.scale(dpi_cor)
 
-        # At this point the DrawingArea has a transform
-        # to the display space so the path created is
-        # good for clipping children
         tpath = mtransforms.TransformedPath(
             mpath.Path([[0, 0], [0, self.height],
                         [self.width, self.height],
@@ -700,7 +698,28 @@ class DrawingArea(OffsetBox):
         for c in self._children:
             if self._clip_children and not (c.clipbox or c._clippath):
                 c.set_clip_path(tpath)
-            c.draw(renderer)
+            if c.get_rasterized() and isinstance(renderer, MixedModeRenderer):
+                # When using MixedModeRenderer (PDF/SVG/PS), the figure DPI is
+                # set to the vector renderer's DPI (typically 72 pt/inch), so
+                # dpi_cor ≈ 1.0. But rasterized children are drawn into a
+                # RendererAgg buffer at renderer.dpi (the user's requested DPI).
+                # The child's transform is dpi_transform + offset_transform,
+                # where offset_transform is a translation in vector-DPI display
+                # units. Both must be scaled to raster-DPI pixel coordinates.
+                mag = renderer.get_image_magnification()
+                raster_dpi_cor = dpi_cor * mag
+                off_mat = self.offset_transform.get_matrix().copy()
+                scaled_off = off_mat.copy()
+                scaled_off[:2, 2] *= mag  # scale tx and ty to raster DPI
+                self.dpi_transform.clear()
+                self.dpi_transform.scale(raster_dpi_cor)
+                self.offset_transform.set_matrix(scaled_off)
+                c.draw(renderer)
+                self.dpi_transform.clear()
+                self.dpi_transform.scale(dpi_cor)
+                self.offset_transform.set_matrix(off_mat)
+            else:
+                c.draw(renderer)
 
         _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
@@ -900,7 +919,26 @@ class AuxTransformBox(OffsetBox):
     def draw(self, renderer):
         # docstring inherited
         for c in self._children:
-            c.draw(renderer)
+            if c.get_rasterized() and isinstance(renderer, MixedModeRenderer):
+                # offset_transform and ref_offset_transform store display-unit
+                # translations computed at vector DPI (typically 72 pt/inch for
+                # PDF/SVG/PS). When rasterizing, the RendererAgg buffer uses
+                # renderer.dpi (user DPI). Scale the translation components so
+                # the child draws at the correct position in the raster buffer.
+                mag = renderer.get_image_magnification()
+                off_mat = self.offset_transform.get_matrix().copy()
+                ref_mat = self.ref_offset_transform.get_matrix().copy()
+                scaled_off = off_mat.copy()
+                scaled_off[:2, 2] *= mag  # scale tx and ty only
+                scaled_ref = ref_mat.copy()
+                scaled_ref[:2, 2] *= mag
+                self.offset_transform.set_matrix(scaled_off)
+                self.ref_offset_transform.set_matrix(scaled_ref)
+                c.draw(renderer)
+                self.offset_transform.set_matrix(off_mat)
+                self.ref_offset_transform.set_matrix(ref_mat)
+            else:
+                c.draw(renderer)
         _bbox_artist(self, renderer, fill=False, props=dict(pad=0.))
         self.stale = False
 
