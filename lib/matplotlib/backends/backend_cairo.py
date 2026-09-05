@@ -378,10 +378,25 @@ class RendererCairo(RendererBase):
             ctx.save()
             self.gc.set_blend_mode(group_state.blend_mode)
             ctx.set_source(group)
-            if group_state.alpha != 1:
-                ctx.paint_with_alpha(group_state.alpha)
+
+            # For these two Porter-Duff compositing operators, we need to mask out fully
+            # transparent pixels, otherwise those pixels will override the backdrop
+            if group_state.blend_mode in {'knockout', 'clear'}:
+                # Extract the 8-bit alpha channel
+                mask_surface = ctx.get_target().create_similar_image(
+                    cairo.FORMAT_A8, self.width, self.height)
+                mask_ctx = cairo.Context(mask_surface)
+                mask_ctx.set_source(group)
+                mask_ctx.paint()
+                mask_surface.flush()
+
+                # Pixels that are not fully transparent are painted with the group alpha
+                mask_buf = np.asarray(mask_surface.get_data())
+                mask_buf[mask_buf > 0] = 255 * group_state.alpha + 0.5  # round to int
+                ctx.mask_surface(mask_surface)
             else:
-                ctx.paint()
+                ctx.paint_with_alpha(group_state.alpha)
+
             ctx.restore()
 
 
