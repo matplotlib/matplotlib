@@ -364,6 +364,12 @@ class TruetypeFonts(Fonts, metaclass=abc.ABCMeta):
         self._fonts['default'] = default_font
         self._fonts['regular'] = default_font
 
+    def _normalize_font_pattern(self, pattern: str) -> str:
+        for option in ['stretch', 'style', 'variant', 'weight']:
+            if f':{option}' not in pattern:
+                pattern = f'{pattern}:{option}=normal'
+        return pattern
+
     def _get_font(self, font: str) -> FT2Font:
         basename = self.fontmap.get(font, font)
         cached_font = self._fonts.get(basename)
@@ -492,7 +498,7 @@ class BakomaFonts(TruetypeFonts):
 
         super().__init__(default_font_prop, load_glyph_flags)
         for key, val in self._fontmap.items():
-            fullpath = findfont(val)
+            fullpath = findfont(self._normalize_font_pattern(val))
             self.fontmap[key] = fullpath
             self.fontmap[val] = fullpath
 
@@ -617,7 +623,7 @@ class UnicodeFonts(TruetypeFonts):
             }
 
             for size, name in stixsizedaltfonts.items():
-                fullpath = findfont(name)
+                fullpath = findfont(self._normalize_font_pattern(name))
                 self.fontmap[size] = fullpath
                 self.fontmap[name] = fullpath
 
@@ -719,7 +725,7 @@ class DejaVuFonts(UnicodeFonts, metaclass=abc.ABCMeta):
             '5': 'STIXSizeFiveSym',
         })
         for key, name in self._fontmap.items():
-            fullpath = findfont(name)
+            fullpath = findfont(self._normalize_font_pattern(name))
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
 
@@ -748,9 +754,9 @@ class DejaVuSerifFonts(DejaVuFonts):
     """
     _fontmap = {
         'rm': 'DejaVu Serif',
-        'it': 'DejaVu Serif:italic',
+        'it': 'DejaVu Serif:style=italic',
         'bf': 'DejaVu Serif:weight=bold',
-        'bfit': 'DejaVu Serif:italic:bold',
+        'bfit': 'DejaVu Serif:style=italic:weight=bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Serif Display',
@@ -769,9 +775,9 @@ class DejaVuSansFonts(DejaVuFonts):
     """
     _fontmap = {
         'rm': 'DejaVu Sans',
-        'it': 'DejaVu Sans:italic',
+        'it': 'DejaVu Sans:style=italic',
         'bf': 'DejaVu Sans:weight=bold',
-        'bfit': 'DejaVu Sans:italic:bold',
+        'bfit': 'DejaVu Sans:style=italic:weight=bold',
         'sf': 'DejaVu Sans',
         'tt': 'DejaVu Sans Mono',
         'ex': 'DejaVu Sans Display',
@@ -796,11 +802,11 @@ class StixFonts(UnicodeFonts):
     """
     _fontmap = {
         'rm': 'STIXGeneral',
-        'it': 'STIXGeneral:italic',
+        'it': 'STIXGeneral:style=italic',
         'bf': 'STIXGeneral:weight=bold',
-        'bfit': 'STIXGeneral:italic:bold',
+        'bfit': 'STIXGeneral:style=italic:weight=bold',
         'nonunirm': 'STIXNonUnicode',
-        'nonuniit': 'STIXNonUnicode:italic',
+        'nonuniit': 'STIXNonUnicode:style=italic',
         'nonunibf': 'STIXNonUnicode:weight=bold',
         '0': 'STIXGeneral',
         '1': 'STIXSizeOneSym',
@@ -815,7 +821,7 @@ class StixFonts(UnicodeFonts):
     def __init__(self, default_font_prop: FontProperties, load_glyph_flags: LoadFlags):
         TruetypeFonts.__init__(self, default_font_prop, load_glyph_flags)
         for key, name in self._fontmap.items():
-            fullpath = findfont(name)
+            fullpath = findfont(self._normalize_font_pattern(name))
             self.fontmap[key] = fullpath
             self.fontmap[name] = fullpath
 
