@@ -219,6 +219,85 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_figureoptions_preserves_legend_settings():
+    from matplotlib.backends.qt_editor import figureoptions
+
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], label="line a")
+    ax.plot([0, 1], [1, 0], label="line b")
+
+    old_legend = ax.legend(
+        loc="lower left",
+        bbox_to_anchor=(0.1, 0.2, 0.3, 0.4),
+        ncols=2,
+        numpoints=2,
+        markerscale=1.5,
+        borderpad=0.9,
+        labelspacing=0.6,
+        handlelength=1.8,
+        handleheight=0.9,
+        handletextpad=0.7,
+        borderaxespad=0.3,
+        columnspacing=1.6,
+        mode="expand",
+        fancybox=True,
+        shadow=True,
+        title="Legend title",
+        frameon=True,
+        framealpha=0.4,
+        alignment="right",
+    )
+    old_bbox = old_legend._bbox_to_anchor
+
+    def fake_fedit(datalist, **kwargs):
+        general = list(datalist[0][0])
+        general[-1] = True
+        payload = [general]
+        if len(datalist) > 1:
+            payload.append(list(datalist[1]))
+        if len(datalist) > 2:
+            payload.append(list(datalist[2]))
+        kwargs["apply"](payload)
+
+    with mock.patch(
+        "matplotlib.backends.qt_editor.figureoptions._formlayout.fedit",
+        side_effect=fake_fedit,
+    ):
+        figureoptions.figure_edit(ax)
+
+    new_legend = ax.get_legend()
+
+    assert new_legend._loc == old_legend._loc
+    assert new_legend._ncols == old_legend._ncols
+    assert new_legend.numpoints == old_legend.numpoints
+    assert new_legend.markerscale == old_legend.markerscale
+    assert new_legend.scatterpoints == old_legend.scatterpoints
+    assert new_legend.borderpad == old_legend.borderpad
+    assert new_legend.labelspacing == old_legend.labelspacing
+    assert new_legend.handlelength == old_legend.handlelength
+    assert new_legend.handleheight == old_legend.handleheight
+    assert new_legend.handletextpad == old_legend.handletextpad
+    assert new_legend.borderaxespad == old_legend.borderaxespad
+    assert new_legend.columnspacing == old_legend.columnspacing
+    assert new_legend._mode == old_legend._mode
+    assert new_legend._alignment == old_legend._alignment
+    assert new_legend.shadow == old_legend.shadow
+    assert new_legend.get_frame_on() == old_legend.get_frame_on()
+    assert new_legend.legendPatch.get_alpha() == pytest.approx(
+        old_legend.legendPatch.get_alpha())
+    assert new_legend.legendPatch.get_linewidth() == pytest.approx(
+        old_legend.legendPatch.get_linewidth())
+    assert list(new_legend.legendPatch.get_facecolor()) == pytest.approx(
+        list(old_legend.legendPatch.get_facecolor()))
+    assert list(new_legend.legendPatch.get_edgecolor()) == pytest.approx(
+        list(old_legend.legendPatch.get_edgecolor()))
+    assert new_legend.get_title().get_text() == old_legend.get_title().get_text()
+    assert new_legend.prop == old_legend.prop
+    assert new_legend._bbox_to_anchor._bbox.bounds == old_bbox._bbox.bounds
+    assert new_legend._bbox_to_anchor._transform == old_bbox._transform
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_save_figure_return(tmp_path):
     fig, ax = plt.subplots()
     ax.imshow([[1]])
