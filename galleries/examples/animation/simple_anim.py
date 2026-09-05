@@ -38,6 +38,35 @@ ani = animation.FuncAnimation(
 plt.show()
 
 # %%
+# Contours are updated the same way, with `.ContourSet.set_data`. Recontouring
+# the existing artist is faster than removing the contour set and making a new
+# one, and it keeps the contours in the same place in the draw order, which
+# matters when blitting. The levels are not recomputed, so the colors mean
+# the same thing in every frame.
+
+fig, ax = plt.subplots()
+
+X, Y = np.meshgrid(np.linspace(-3, 3, 100), np.linspace(-3, 3, 100))
+
+
+def f(t):
+    return np.sin(X + t) * np.cos(Y - t)
+
+
+cs = ax.contour(X, Y, f(0), levels=np.linspace(-0.9, 0.9, 7))
+
+
+def animate_contour(i):
+    cs.set_data(X, Y, f(i / 25))  # update the data.
+    return cs,
+
+
+ani_contour = animation.FuncAnimation(
+    fig, animate_contour, interval=20, blit=True, save_count=50)
+
+plt.show()
+
+# %%
 #
 # .. tags::
 #    component: animation,

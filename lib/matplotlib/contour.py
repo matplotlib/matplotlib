@@ -891,6 +891,67 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return artists, labels
 
+    def set_data(self, *args, **kwargs):
+        """
+        Set new data and recompute the contours.
+
+        Call signatures::
+
+            set_data(Z)
+            set_data(X, Y, Z)
+
+        This reuses the existing artist, which is faster than removing the
+        contour set and creating a new one, and keeps its styling and its
+        place in the draw tree.
+
+        .. versionadded:: 3.12
+
+        Parameters
+        ----------
+        *args
+            The new data, interpreted as by the function that created this
+            contour set, i.e. `~.Axes.contour`, `~.Axes.contourf`,
+            `~.Axes.tricontour` or `~.Axes.tricontourf`.
+
+        **kwargs
+            Only the keywords of that function that control *how the contours are
+            computed* are accepted, and they keep their current values if not
+            given: *corner_mask*, *algorithm* and the *xunits*/*yunits* unit
+            keywords for `~.Axes.contour`, or *triangles* and *mask* for
+            `~.Axes.tricontour`. Keywords that control how the contours *look*
+            (*levels*, *colors*, *cmap*, *linewidths*, ...) raise `TypeError`; set
+            those with the corresponding `.Collection` setters, or create a new
+            contour set.
+
+        Notes
+        -----
+        The *levels* are not recomputed; the new data is contoured at the
+        levels already in use, so that the colors and the colorbar stay
+        valid. Create a new contour set if you need different levels.
+
+        Existing contour labels are not moved. The Axes limits are not
+        rescaled, as for other artists' data setters.
+        """
+        # _process_args() both validates and mutates: by the time it can fail it has
+        # already rebound the levels, zmin/zmax and the contour generator, so a
+        # rejected call would otherwise leave the contour set half-updated.
+        with cbook._safe_state_update(self) as state:
+            kwargs = self._process_args(*args, **kwargs)
+            if kwargs:
+                raise TypeError(
+                    f"set_data() got unexpected keyword arguments {[*kwargs]}")
+            if not np.array_equal(state['levels'], self.levels):
+                # Only reachable through the ContourSet(ax, levels, allsegs)
+                # signature. Keeping the levels fixed is what lets us skip
+                # reprocessing the layers and the colors here, so enforce it rather
+                # than silently mismatching them.
+                raise ValueError("set_data() cannot change the contour levels")
+            if self._paths is state['_paths']:  # Not set by _process_args.
+                self._paths = self._make_paths_from_contour_generator()
+        self.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
+        self.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
+        self.stale = True
+
     def _process_args(self, *args, **kwargs):
         """
         Process *args* and *kwargs*; override in derived classes.
@@ -937,8 +998,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
     def _make_paths_from_contour_generator(self):
         """Compute ``paths`` using C extension."""
-        if self._paths is not None:
-            return self._paths
         cg = self._contour_generator
         empty_path = Path(np.empty((0, 2)))
         vertices_and_codes = (
@@ -1315,6 +1374,11 @@ class QuadContourSet(ContourSet):
     %(contour_set_attributes)s
     """
 
+    # Set on the first _process_args; a later call from set_data keeps these rather
+    # than falling back to the rcParams.
+    _algorithm = None
+    _corner_mask = None
+
     def _process_args(self, *args, corner_mask=None, algorithm=None, **kwargs):
         """
         Process args and kwargs.
@@ -1332,10 +1396,13 @@ class QuadContourSet(ContourSet):
         else:
             import contourpy
 
-            algorithm = mpl._val_or_rc(algorithm, 'contour.algorithm')
+            algorithm = mpl._val_or_rc(
+                algorithm or self._algorithm, 'contour.algorithm')
             mpl.rcParams.validate["contour.algorithm"](algorithm)
             self._algorithm = algorithm
 
+            if corner_mask is None:
+                corner_mask = self._corner_mask
             if corner_mask is None:
                 if self._algorithm == "mpl2005":
                     # mpl2005 does not support corner_mask=True so if not
@@ -1530,6 +1597,7 @@ levels : int or array-like, optional
 Returns
 -------
 `~.contour.QuadContourSet`
+    Use `.ContourSet.set_data` to recontour new data with the same artist.
 
 Other Parameters
 ----------------
