@@ -308,6 +308,9 @@ class HandlerLine2D(HandlerNpoints):
 
         legline.set_transform(trans)
 
+        if hasattr(orig_handle, "_highlight_svg"):
+            legline._highlight_svg = orig_handle._highlight_svg
+
         return [legline]
 
 
@@ -504,10 +507,13 @@ class HandlerPathCollection(HandlerRegularPolyCollection):
     r"""Handler for `.PathCollection`\s, which are used by `~.Axes.scatter`."""
 
     def create_collection(self, orig_handle, sizes, offsets, offset_transform):
-        return type(orig_handle)(
+        leg_handle = type(orig_handle)(
             [orig_handle.get_paths()[0]], sizes=sizes,
             offsets=offsets, offset_transform=offset_transform,
         )
+        if hasattr(orig_handle, "_highlight_svg"):
+            leg_handle._highlight_svg = orig_handle._highlight_svg
+        return leg_handle
 
 
 class HandlerCircleCollection(HandlerRegularPolyCollection):
