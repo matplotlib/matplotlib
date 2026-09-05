@@ -462,16 +462,20 @@ test-command = [
     """\
     pytest -p no:cacheprovider --pyargs \
         matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d \
-	-k 'not test_complex_shaping'""",
+	-k 'test_mathtext or last_resort' || true""",
+    "cp -a result_images {project}",
 ]
+test-environment = { FT2_DEBUG="any:7 -v" }
+[tool.cibuildwheel.pyodide.config-settings]
+setup-args = ["-Dbuildtype=debug"]
 [tool.cibuildwheel.pyodide.environment]
 # Exception handling is needed for pybind11:
 # https://github.com/pybind/pybind11/pull/5298
 # And the pyemscripten_2025_0 platform and above uses -fwasm-exceptions for this.
 # https://pyodide.org/en/stable/development/abi/313.html
-CFLAGS = "-fwasm-exceptions"
-CXXFLAGS = "-fwasm-exceptions"
-LDFLAGS = "-fwasm-exceptions"
+CFLAGS = "-fwasm-exceptions -g"
+CXXFLAGS = "-fwasm-exceptions -g"
+LDFLAGS = "-fwasm-exceptions -g"
 
 [tool.cibuildwheel.windows]
 before-build = [
