@@ -63,14 +63,20 @@ class BarContainer(Container):
         If 'vertical', the bars are assumed to be vertical.
         If 'horizontal', the bars are assumed to be horizontal.
 
+    group_positions : None or array-like
+        The center positions of the bar groups if the container is part of a
+        grouped bar plot (e.g. created by `.Axes.grouped_bar`). *None* otherwise.
+
+        .. versionadded:: 3.12
     """
 
     def __init__(self, patches, errorbar=None, *, datavalues=None,
-                 orientation=None, **kwargs):
+                 orientation=None, group_positions=None, **kwargs):
         self.patches = patches
         self.errorbar = errorbar
         self.datavalues = datavalues
         self.orientation = orientation
+        self.group_positions = group_positions
         super().__init__(patches, **kwargs)
 
     @property
@@ -112,6 +118,20 @@ class BarContainer(Container):
             return [p.get_x() + p.get_width() / 2 for p in self.patches]
         elif self.orientation == 'horizontal':
             return [p.get_y() + p.get_height() / 2 for p in self.patches]
+        else:
+            raise ValueError("orientation must be 'vertical' or 'horizontal'.")
+
+    @property
+    def widths(self):
+        """
+        Return the widths of the bars.
+
+        .. versionadded:: 3.12
+        """
+        if self.orientation == 'vertical':
+            return [p.get_width() for p in self.patches]
+        elif self.orientation == 'horizontal':
+            return [p.get_height() for p in self.patches]
         else:
             raise ValueError("orientation must be 'vertical' or 'horizontal'.")
 

@@ -3363,6 +3363,7 @@ or pandas.DataFrame
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
                                label=label, color=color, **styles, **kwargs)
+            bc.group_positions = group_centers
             bar_containers.append(bc)
 
         if tick_labels is not None:
