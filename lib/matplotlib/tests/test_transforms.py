@@ -11,6 +11,7 @@ import matplotlib.patches as mpatches
 import matplotlib.transforms as mtransforms
 from matplotlib.transforms import Affine2D, Bbox, TransformedBbox, _ScaledRotation
 from matplotlib.path import Path
+from matplotlib._path import count_bboxes_overlapping_bbox
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 from unittest.mock import MagicMock
 
@@ -883,6 +884,30 @@ def test_bbox_as_strings():
     asdict = eval(format(b, fmt), {'Bbox': dict})
     for k, v in asdict.items():
         assert eval(format(getattr(b, k), fmt)) == v
+
+
+def test_count_bboxes_overlapping_bbox():
+    for invalid_bbox in [
+        [[[[None]], None]],
+        [1, 2, 3],
+        [],
+        [[1], [2]],
+    ]:
+        with pytest.raises(ValueError):
+            count_bboxes_overlapping_bbox(invalid_bbox, None)
+
+    corners = (
+        [[0, 0], [2, 2]],
+        [[8, 0], [10, 2]],
+        [[0, 8], [2, 10]],
+        [[8, 8], [10, 10]],
+    )
+    center = [[4, 4], [6, 6]]
+    bbox = [[0, 0], [10, 10]]
+
+    assert count_bboxes_overlapping_bbox(bbox, corners) == 4
+    assert count_bboxes_overlapping_bbox(bbox, (center, )) == 1
+    assert count_bboxes_overlapping_bbox(bbox, (center, *corners)) == 5
 
 
 def test_str_transform():
