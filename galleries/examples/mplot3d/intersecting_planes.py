@@ -1,4 +1,6 @@
 """
+.. _intersecting_planes:
+
 ===================
 Intersecting planes
 ===================
