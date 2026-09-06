@@ -117,3 +117,19 @@ def test_generate_normals():
     ax = fig.add_subplot(projection='3d')
     ax.add_collection3d(shape)
     plt.draw()
+
+
+def test_poly3dcollection_ragged_padding_no_overflow():
+    # Ragged faces pad to a rectangular array. Padding must not overflow when
+    # projected before _invalid_vertices is applied. See #32272.
+    square = np.zeros((4, 3))
+    triangle = np.zeros((3, 3))
+    collection = Poly3DCollection([square, triangle])
+    assert np.all(np.isnan(collection._faces[collection._invalid_vertices]))
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    ax.add_collection(collection, autolim=False)
+    ax.set(xlim=(0, 1), ylim=(0, 1), zlim=(0, 1))
+    with np.errstate(over="raise"):
+        fig.canvas.draw()
