@@ -1376,9 +1376,8 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
     for (auto &glyph : glyphs) {
         auto ft_object = static_cast<PyFT2Font *>(glyph.ftface->generic.data);
 
-        // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
-        auto const& linear_hori_advance =
-            ft_object->load_glyph_cached(glyph.index, load_flags) / 1024.0;
+        FT_Fixed linear_hori_advance = 0;
+        ft_object->load_glyph_cached(glyph.index, load_flags, linear_hori_advance);
 
         double prev_kern = 0.0;
         if (prev_advance) {
@@ -1396,7 +1395,8 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
         prev_x = x + glyph.x_offset;
         x += glyph.x_advance;
         y += glyph.y_advance;
-        prev_advance = linear_hori_advance;
+        // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
+        prev_advance = linear_hori_advance / 1024.0;
     }
 
     return items;
@@ -1477,9 +1477,8 @@ PyFT2Font_render_glyph_run(
              // FreeType's y is upwards.
              round(0x40 * (height - y + dx * sin + dy * cos))});
 
-        auto rendered =
-            std::unique_ptr<std::remove_pointer_t<FT_Glyph>, decltype(&FT_Done_Glyph)>(
-                font->render_glyph(glyph_index, load_flags, render_mode), &FT_Done_Glyph);
+        FT2Font::GlyphPtr rendered{
+            font->render_glyph(glyph_index, load_flags, render_mode), &FT_Done_Glyph};
         auto bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(rendered.get());
         FT_Bitmap bitmap;
         FT_Bitmap_Init(&bitmap);
@@ -1870,11 +1869,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             [ft2Library](PyFT2Font *self, FT_UInt idx, LoadFlags flags,
                          FT_Render_Mode render_mode)
             {
-                auto const& glyph =
-                    std::unique_ptr<std::remove_pointer_t<FT_Glyph>,
-                                    decltype(&FT_Done_Glyph)>(
-                        self->render_glyph(idx, static_cast<FT_Int32>(flags), render_mode),
-                        &FT_Done_Glyph);
+                FT2Font::GlyphPtr glyph{
+                    self->render_glyph(idx, static_cast<FT_Int32>(flags), render_mode),
+                    &FT_Done_Glyph};
                 return PyPositionedBitmap{
                     ft2Library, reinterpret_cast<FT_BitmapGlyph>(glyph.get())};
             })
