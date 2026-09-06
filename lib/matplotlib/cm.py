@@ -91,6 +91,9 @@ class ColormapRegistry(Mapping):
         self._cmaps = cmaps
         self._builtin_cmaps = tuple(cmaps)
 
+    def __contains__(self, item):
+        return item in self._cmaps
+
     def __getitem__(self, item):
         cmap = _api.getitem_checked(self._cmaps, colormap=item, _error_cls=KeyError)
         return cmap.copy()

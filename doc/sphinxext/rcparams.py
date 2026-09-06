@@ -1,3 +1,5 @@
+import typing
+
 from docutils.parsers.rst import Directive
 
 from matplotlib import rcsetup
@@ -9,6 +11,16 @@ class RcParamsDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = False
     option_spec = {}
+
+    @staticmethod
+    def format_type(etype: typing.Any) -> str:
+        if etype is None:
+            return ""
+        if isinstance(etype, type):
+            return etype.__name__
+        if isinstance(etype, typing._LiteralGenericAlias):
+            return " | ".join(repr(v) for v in etype.__args__)
+        return str(etype)
 
     def run(self):
         """
@@ -24,6 +36,8 @@ class RcParamsDirective(Directive):
                 title_char = '-' if isinstance(elem, rcsetup._Section) else '~'
                 lines += [
                     '',
+                    '.. rst-class:: rcparams-section',
+                    '',
                     elem.title,
                     title_char * len(elem.title),
                     '',
@@ -33,11 +47,13 @@ class RcParamsDirective(Directive):
             elif isinstance(elem, rcsetup._Param):
                 if elem.name[0] == '_':
                     continue
+                typestr = self.format_type(elem.type)
                 lines += [
                     f'.. _rcparam_{elem.name.replace(".", "_")}:',
                     '',
-                    f'{elem.name}: ``{elem.default!r}``',
+                    f'{elem.name} : {typestr} = ``{elem.default!r}``',
                     f'   {elem.description if elem.description else "*no description*"}'
+                    '',
                 ]
         self.state_machine.insert_input(lines, 'rcParams table')
         return []

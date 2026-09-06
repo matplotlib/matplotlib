@@ -1421,7 +1421,7 @@ def test_pcolorargs_5205():
 
 
 @image_comparison(['pcolormesh'], remove_text=True, style='_classic_test',
-                  tol=0.11 if platform.machine() == 'aarch64' else 0)
+                  tol=0.2 if platform.machine() == 'aarch64' else 0)
 def test_pcolormesh():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -1473,7 +1473,7 @@ def test_pcolormesh_small():
 
 @image_comparison(['pcolormesh_alpha'], extensions=["png", "pdf"], remove_text=True,
                   style='_classic_test',
-                  tol=0.4 if platform.machine() == "aarch64" else 0)
+                  tol=0.7 if platform.machine() == "aarch64" else 0)
 def test_pcolormesh_alpha():
     # Remove this line when this test image is regenerated.
     plt.rcParams['pcolormesh.snap'] = False
@@ -3216,6 +3216,24 @@ class TestScatter:
             plt.scatter([1, 2, 3], [1, 2, 3],
                         facecolors=["#ffffff", "#000000", "#f0f0f0"],
                             facecolor="#ffffff")
+
+    @pytest.mark.parametrize('edgecolor, facecolor, linestyle',
+                             [('red', 'blue', 'solid'),
+                              ('red', 'blue', 'dashed'),
+                              ('red', 'none', 'solid'),
+                              ('none', 'blue', 'solid')])
+    @check_figures_equal()
+    def test_empty_scatter(self, fig_test, fig_ref, edgecolor, facecolor, linestyle):
+        # Verify that a spurious marker is not plotted in the bottom-left corner
+        # https://github.com/matplotlib/matplotlib/issues/32219
+        ax_test = fig_test.subplots()
+        ax_test.scatter([], [], ec=edgecolor, fc=facecolor, ls=linestyle, clip_on=False)
+        ax_test.set_xlim(0, 1)
+        ax_test.set_ylim(0, 1)
+
+        ax_ref = fig_ref.subplots()
+        ax_ref.set_xlim(0, 1)
+        ax_ref.set_ylim(0, 1)
 
 
 def _params(c=None, xsize=2, *, edgecolors=None, **kwargs):

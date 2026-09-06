@@ -553,11 +553,11 @@ class FigureManagerTk(FigureManagerBase):
             # supported Tk version is increased to 8.6, as Tk 8.6+ natively
             # supports PNG images.
             icon_fname = str(cbook._get_data_path(
-                'images/matplotlib.png'))
+                'images/matplotlib_small.png'))
             icon_img = ImageTk.PhotoImage(file=icon_fname, master=window)
 
             icon_fname_large = str(cbook._get_data_path(
-                'images/matplotlib_large.png'))
+                'images/matplotlib.png'))
             icon_img_large = ImageTk.PhotoImage(
                 file=icon_fname_large, master=window)
 

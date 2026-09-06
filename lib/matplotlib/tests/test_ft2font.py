@@ -1,6 +1,8 @@
 import itertools
 import io
 import os
+import shutil
+import sys
 from pathlib import Path
 from typing import cast
 
@@ -154,6 +156,39 @@ def test_ft2font_valid_args():
     assert font.fname == file_str
     font = ft2font.FT2Font(PathLikeClass(file_bytes))
     assert font.fname == file_bytes
+
+
+def test_ft2font_unicode_path(tmp_path):
+    file = tmp_path / 'DéjàVu-Sans-日本語.ttf'
+    shutil.copyfile(fm.findfont('DejaVu Sans'), file)
+
+    font = ft2font.FT2Font(str(file))
+    font.set_text('foo')
+    assert font.fname == str(file)
+
+    file_bytes = os.fsencode(file)
+    font = ft2font.FT2Font(file_bytes)
+    font.set_text('foo')
+    assert font.fname == file_bytes
+
+
+def test_ft2font_no_mmap(monkeypatch):
+    # Simulate platforms without the mmap module (e.g. WASI), which should fall
+    # back to streaming reads through the Python file object.
+    monkeypatch.setitem(sys.modules, 'mmap', None)
+    file = fm.findfont('DejaVu Sans')
+    font = ft2font.FT2Font(file)
+    font.set_text('foo')
+    assert font.fname == file
+
+
+def test_ft2font_unmappable_file(tmp_path):
+    # An empty file cannot be mmapped and falls back to streaming reads, which
+    # should then raise the usual FreeType error for an invalid font.
+    file = tmp_path / 'empty.ttf'
+    file.touch()
+    with pytest.raises(RuntimeError):
+        ft2font.FT2Font(str(file))
 
 
 def test_ft2font_invalid_args(tmp_path):
@@ -898,6 +933,12 @@ def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file)
     font.set_size(12, 72)
+    with pytest.warns(UserWarning,
+                      match=r'Glyph 6504 \(\\N{TAI LE LETTER OO}\) missing from '
+                            r'font\(s\) DejaVu Sans\.'):
+        with pytest.raises(RuntimeError, match='failed to find glyph to load'):
+            # Character doesn't exist in DejaVu Sans, and no fallback defined.
+            font.load_char(0x1968)
     for glyph in [font.load_char(ord('M')),
                   font.load_glyph(font.get_char_index(ord('M')))]:
         assert glyph is not None
@@ -911,7 +952,7 @@ def test_ft2font_loading():
         assert glyph.vertBearingY == 64
         assert glyph.vertAdvance == 832
         assert glyph.bbox == (54, 0, 574, 576)
-    assert font.get_num_glyphs() == 2  # Both count as loaded.
+    assert font.get_num_glyphs() == 2  # Both valid glyphs count as loaded.
     # But neither has been placed anywhere.
     assert font.get_width_height() == (0, 0)
     assert font.get_descent() == 0

@@ -32,7 +32,7 @@ fig2, ax2 = plt.subplots()
 n_levels = 6
 ax2.contour(x, y, z, n_levels, colors='black', linestyles='-')
 cs = ax2.contourf(x, y, z, n_levels, colors='none',
-                  hatches=['.', '/', '\\', None, '\\\\', '*'],
+                  hatches=['.', '/', '\\', None, r'\\', '*'],
                   extend='lower')
 
 # create a legend for the contour set

@@ -92,7 +92,7 @@ def composite_images(images, renderer, magnification=1.0):
         if data is not None:
             x *= magnification
             y *= magnification
-            parts.append((data, x, y, image._get_scalar_alpha()))
+            parts.append((data, x, y))
             bboxes.append(
                 Bbox([[x, y], [x + data.shape[1], y + data.shape[0]]]))
 
@@ -104,10 +104,10 @@ def composite_images(images, renderer, magnification=1.0):
     output = np.zeros(
         (int(bbox.height), int(bbox.width), 4), dtype=np.uint8)
 
-    for data, x, y, alpha in parts:
+    for data, x, y in parts:
         trans = Affine2D().translate(x - bbox.x0, y - bbox.y0)
-        _image.resample(data, output, trans, _image.NEAREST,
-                        resample=False, alpha=alpha)
+        # Agg resampler assumes data is not premultiplied when dtype is uint8
+        _image.resample(data, output, trans, _image.NEAREST, resample=False)
 
     return output, bbox.x0 / magnification, bbox.y0 / magnification
 
@@ -151,7 +151,8 @@ def _draw_list_compositing_images(
 
         for a in artists:
             if (isinstance(a, _ImageBase) and a.can_composite() and
-                    a.get_clip_on() and not a.get_clip_path()):
+                    a.get_clip_on() and not a.get_clip_path() and
+                    a.get_blend_mode() == "normal"):
                 image_group.append(a)
             else:
                 flush_images()
@@ -460,8 +461,6 @@ class _ImageBase(mcolorizer.ColorizingArtist):
             if not (A.ndim == 2 or A.ndim == 3 and A.shape[-1] in (3, 4)):
                 raise ValueError(f"Invalid shape {A.shape} for image data")
 
-            float_rgba_in = A.ndim == 3 and A.shape[-1] == 4 and A.dtype.kind == 'f'
-
             # if antialiased, this needs to change as window sizes
             # change:
             interpolation_stage = self._interpolation_stage
@@ -565,13 +564,22 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 # Resample in premultiplied alpha space.  (TODO: Consider
                 # implementing premultiplied-space resampling in
                 # span_image_resample_rgba_affine::generate?)
-                if float_rgba_in and np.ndim(alpha) == 0 and np.any(A[..., 3] < 1):
-                    # Do not modify original RGBA input
-                    A = A.copy()
-                A[..., :3] *= A[..., 3:]
+                # Multiplying the whole array and then restoring the alpha channel
+                # is faster than an in-place multiply of the strided A[..., :3]
+                # view.  If alpha is uniformly 1, premultiplication can be skipped.
+                alpha_in = A[..., 3]
+                if (alpha_in != 1).any():
+                    A = A * alpha_in[..., None]
+                    A[..., 3] = alpha_in
                 res = _resample(self, A, out_shape, t)
-                np.divide(res[..., :3], res[..., 3:], out=res[..., :3],
-                            where=res[..., 3:] != 0)
+                # Demultiply.  Zeroes in the divisor are replaced by ones,
+                # which leaves the corresponding (premultiplied) RGB values
+                # untouched.  Dividing the whole contiguous array is several
+                # times faster than np.divide(..., where=...) into the strided
+                # res[..., :3] view.
+                alpha_out = res[..., 3].copy()
+                res /= np.where(alpha_out != 0, alpha_out, 1)[..., None]
+                res[..., 3] = alpha_out
                 if post_apply_alpha:
                     res[..., 3] *= alpha
 
@@ -649,7 +657,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
         # actually render the image.
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
-        gc.set_alpha(self._get_scalar_alpha())
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_url(self.get_url())
         gc.set_gid(self.get_gid())
         if (renderer.option_scale_image()  # Renderer supports transform kwarg.
@@ -657,6 +665,7 @@ class _ImageBase(mcolorizer.ColorizingArtist):
                 and self.get_transform().is_affine):
             im, l, b, trans = self.make_image(renderer, unsampled=True)
             if im is not None:
+                gc.set_alpha(self._get_scalar_alpha())
                 trans = Affine2D().scale(im.shape[1], im.shape[0]) + trans
                 renderer.draw_image(gc, l, b, im, trans)
         else:

@@ -3608,8 +3608,8 @@ class _AxesBase(martist.Artist):
             Transparency of gridlines: 0 (transparent) to 1 (opaque).
         grid_linewidth : float
             Width of gridlines in points.
-        grid_linestyle : str
-            Any valid `.Line2D` line style spec.
+        grid_linestyle : :mpltype:`linestyle`
+            Linestyle of the gridlines.
 
         Examples
         --------

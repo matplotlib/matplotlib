@@ -617,8 +617,7 @@ def test_image_composite_background():
     ax.set_xlim(0, 12)
 
 
-@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test',
-                  tol=0.07)
+@image_comparison(['image_composite_alpha'], remove_text=True, style='_classic_test')
 def test_image_composite_alpha():
     """
     Tests that the alpha value is recognized and correctly applied in the
@@ -1859,6 +1858,26 @@ def test_resample_dtypes(dtype, ndim):
     axes_image = ax.imshow(data)
     # Before fix the following raises ValueError for some dtypes.
     axes_image.make_image(None)[0]
+
+
+@pytest.mark.parametrize('alpha', [0, 0.25, 0.5, 0.75, 1])
+def test_rgba_stage_demultiplies_resampled_alpha(alpha):
+    # Issue 32240: resampling in the 'rgba' stage happens in premultiplied alpha
+    # space, so the RGB channels are demultiplied afterwards.  The original
+    # colors must come back independently of the alpha channel, and a zero
+    # resampled alpha must not be divided by.
+    rgb = [0.2, 0.4, 0.6]
+    data = np.empty((4, 4, 4))
+    data[..., :3] = rgb
+    data[..., 3] = alpha
+    fig, ax = plt.subplots()
+    axes_image = ax.imshow(data, interpolation='nearest', interpolation_stage='rgba')
+    image = axes_image.make_image(None)[0]
+    # A fully transparent image premultiplies to zero and is never divided back.
+    expected_rgb = np.multiply(rgb, 255) if alpha else [0, 0, 0]
+    # The rendered image is a single flat colour, so compare against it directly.
+    assert_array_equal(np.unique(image.reshape(-1, 4), axis=0),
+                       [[*expected_rgb, int(alpha * 255)]])
 
 
 @pytest.mark.parametrize('intp_stage', ('data', 'rgba'))

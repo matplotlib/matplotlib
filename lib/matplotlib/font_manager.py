@@ -36,14 +36,13 @@ import logging
 from numbers import Integral
 import os
 from pathlib import Path
-import plistlib
 import re
 import subprocess
 import sys
 import threading
 
 import matplotlib as mpl
-from matplotlib import _api, _afm, cbook, ft2font
+from matplotlib import _api, _afm, cbook, ft2font, _c_internal_utils
 from matplotlib._fontconfig_pattern import (
     parse_fontconfig_pattern, generate_fontconfig_pattern)
 from matplotlib.rcsetup import _validators
@@ -265,13 +264,12 @@ def _get_fontconfig_fonts():
 
 @cache
 def _get_macos_fonts():
-    """Cache and list the font paths known to ``system_profiler SPFontsDataType``."""
-    try:
-        d, = plistlib.loads(
-            subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
-    except (OSError, subprocess.CalledProcessError, plistlib.InvalidFileException):
+    """Cache and list the font paths known to CoreText."""
+    path_strings = _c_internal_utils.get_available_fonts()
+    if path_strings:
+        return [Path(path_string) for path_string in path_strings]
+    else:
         return []
-    return [Path(entry["path"]) for entry in d["_items"]]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
@@ -388,7 +386,7 @@ class FontPath(str):
         return f'FontPath{self._as_tuple()}'
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass(frozen=True, slots=True)
 class FontEntry:
     """
     A class for storing Font properties.
@@ -1078,7 +1076,7 @@ class _JSONEncoder(json.JSONEncoder):
         if isinstance(o, FontManager):
             return dict(o.__dict__, __class__='FontManager')
         elif isinstance(o, FontEntry):
-            d = dict(o.__dict__, __class__='FontEntry')
+            d = dict(dataclasses.asdict(o), __class__='FontEntry')
             try:
                 # Cache paths of fonts shipped with Matplotlib relative to the
                 # Matplotlib data path, which helps in the presence of venvs.
@@ -1175,7 +1173,7 @@ class FontManager:
     # Increment this version number whenever the font cache data
     # format or behavior has changed and requires an existing font
     # cache files to be rebuilt.
-    __version__ = '3.11.0'
+    __version__ = '3.12.0a1'
 
     def __init__(self, size=None, weight='normal'):
         self._version = self.__version__
@@ -1614,8 +1612,9 @@ class FontManager:
                 break
         if best_font is not None and (_normalize_weight(prop.get_weight()) !=
                                       _normalize_weight(best_font.weight)):
-            _log.warning('findfont: Failed to find font weight %s, now using %s.',
-                         prop.get_weight(), best_font.weight)
+            _log.warning(
+                'findfont: Failed to find font weight %s for %s, now using %s.',
+                prop.get_weight(), best_font.name, best_font.weight)
 
         if best_font is None or best_score >= 10.0:
             if fallback_to_default:

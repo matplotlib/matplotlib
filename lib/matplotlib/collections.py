@@ -363,12 +363,19 @@ class Collection(mcolorizer.ColorizingArtist):
             return
         renderer.open_group(self.__class__.__name__, self.get_gid())
 
+        # Bail if the collection does not have any offsets (e.g., an empty scatter plot)
+        if len(self.get_offsets()) == 0:
+            renderer.close_group(self.__class__.__name__)
+            self.stale = False
+            return
+
         self.update_scalarmappable()
 
         transform, offset_trf, offsets, paths = self._prepare_points()
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_snap(self.get_snap())
 
         if self._hatch:
@@ -675,7 +682,7 @@ class Collection(mcolorizer.ColorizingArtist):
 
         Parameters
         ----------
-        ls : {'-', '--', '-.', ':', '', ...} or (offset, on-off-seq) or list thereof
+        ls : :mpltype:`linestyle` or list of :mpltype:`linestyle`
             If a list, the individual elements are assigned to the elements of the
             collection.
 
@@ -1933,14 +1940,8 @@ class EventCollection(LineCollection):
             The line width of the event lines, in points.
         color : :mpltype:`color` or list of :mpltype:`color`, default: :rc:`lines.color`
             The color of the event lines.
-        linestyle : str or tuple or list thereof, default: 'solid'
-            Valid strings are ['solid', 'dashed', 'dashdot', 'dotted',
-            '-', '--', '-.', ':']. Dash tuples should be of the form::
-
-                (offset, onoffseq),
-
-            where *onoffseq* is an even length tuple of on and off ink
-            in points.
+        linestyle : :mpltype:`linestyle`, default: 'solid'
+            The linestyle of the event lines.
         antialiased : bool or list thereof, default: :rc:`lines.antialiased`
             Whether to use antialiasing for drawing the lines.
         **kwargs
@@ -2320,6 +2321,7 @@ class TriMesh(Collection):
 
         gc = renderer.new_gc()
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
         renderer.draw_gouraud_triangles(gc, verts, colors, transform.frozen())
         gc.restore()
@@ -2570,6 +2572,7 @@ class QuadMesh(_MeshData, Collection):
         gc = renderer.new_gc()
         gc.set_snap(self.get_snap())
         self._set_gc_clip(gc)
+        gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
 
         if self._shading == 'gouraud':

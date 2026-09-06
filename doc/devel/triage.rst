@@ -190,7 +190,7 @@ The following workflow is a good way to approach issue triaging:
     If the issue is clearly defined, the fix seems relatively straightforward,
     and there is consensus on what the solution is among maintainers, label the
     issue as
-    `Good first issue <https://github.com/matplotlib/matplotlib/issues?q=sort%3Aupdated-desc%20state%3Aopen%20label%3A%22Good%20first%20issue%22>`_
+    `🌱 Good first issue <https://github.com/matplotlib/matplotlib/issues?q=state%3Aopen%20label%3A%22%F0%9F%8C%B1%20Good%20first%20issue%22>`_
     (and possibly a description of the fix or a hint as to where in the
     code base to look to get started).
 

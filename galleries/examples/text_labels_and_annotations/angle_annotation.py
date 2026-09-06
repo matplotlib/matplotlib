@@ -91,7 +91,7 @@ class AngleAnnotation(Arc):
             * "axes min", "axes max": minimum or maximum of relative Axes
               width, height
 
-        ax : `matplotlib.axes.Axes`
+        ax : `matplotlib.axes.Axes`, default: current Axes
             The Axes to add the angle annotation to.
 
         text : str
@@ -128,7 +128,7 @@ class AngleAnnotation(Arc):
                        xytext=(0, 0), textcoords="offset points",
                        annotation_clip=True)
         self.kw.update(text_kw or {})
-        self.text = ax.annotate(text, xy=self._center, **self.kw)
+        self.text = self.ax.annotate(text, xy=self._center, **self.kw)
 
     def get_size(self):
         factor = 1.

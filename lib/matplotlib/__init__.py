@@ -250,7 +250,7 @@ def _check_versions():
     from . import ft2font  # noqa: F401
 
     for modname, minver in [
-            ("cycler", "0.10"),
+            ("cycler", "0.12.0"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.3.1"),
             ("numpy", "1.25"),
@@ -575,7 +575,10 @@ def _get_config_or_cache_dir(xdg_base_getter):
             if os.access(str(configdir), os.W_OK) and configdir.is_dir():
                 return str(configdir)
             _log.warning("%s is not a writable directory", configdir)
-        issue_msg = "the default path ({configdir})"
+        if os.environ.get('MPLCONFIGDIR'):
+            issue_msg = f"MPLCONFIGDIR ({configdir})"
+        else:
+            issue_msg = f"the default path ({configdir})"
     else:
         issue_msg = "resolving the home directory"
     # If the config or cache directory cannot be created or is not a writable

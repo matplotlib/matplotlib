@@ -40,7 +40,7 @@ axs['patches'].fill_between(x, np.sin(x) * 4 + 30, y2=0,
 axs['patches'].add_patch(Ellipse((4, 50), 10, 10, fill=True,
                                  hatch='*', facecolor='y'))
 axs['patches'].add_patch(Polygon([(10, 20), (30, 50), (50, 10)],
-                                 hatch='\\/...', facecolor='g'))
+                                 hatch=r'\/...', facecolor='g'))
 axs['patches'].set_xlim(0, 40)
 axs['patches'].set_ylim(10, 60)
 axs['patches'].set_aspect(1)

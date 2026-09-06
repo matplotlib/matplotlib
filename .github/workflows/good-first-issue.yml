@@ -9,7 +9,7 @@ permissions: {}
 
 jobs:
   add-comment:
-    if: github.event.label.name == 'Good first issue'
+    if: github.event.label.name == '🌱 Good first issue'
     runs-on: ubuntu-latest
     permissions:
       issues: write

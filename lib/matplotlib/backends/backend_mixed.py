@@ -68,6 +68,14 @@ class MixedModeRenderer:
         # to the underlying C implementation).
         return getattr(self._renderer, attr)
 
+    def close_blend_group(self):
+        # docstring inherited
+        # If rasterizing can be stopped, stop it before closing the group
+        if self._raster_depth == 0 and self._rasterizing:
+            self.stop_rasterizing()
+            self._rasterizing = False
+        self._renderer.close_blend_group()
+
     def start_rasterizing(self):
         """
         Enter "raster" mode.  All subsequent drawing commands (until

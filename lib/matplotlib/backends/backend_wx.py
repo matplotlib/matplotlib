@@ -935,10 +935,16 @@ class FigureFrameWx(wx.Frame):
         # otherwise the toolbar further resizes the canvas.
         w, h = map(math.ceil, fig.bbox.size)
         self.canvas.SetInitialSize(self.FromDIP(wx.Size(w, h)))
-        self.canvas.SetMinSize(self.FromDIP(wx.Size(2, 2)))
         self.canvas.SetFocus()
 
+        # Size the frame to the canvas's initial size *before* relaxing the
+        # canvas min size.  ``SetInitialSize`` sets both the size and the min
+        # size to (w, h); with wxPython 4.3 (wxWidgets 3.3) ``Fit`` uses the
+        # current min size, so shrinking it to (2, 2) first collapses the
+        # window to a tiny size (GH #32143).  Relax the min size afterwards so
+        # the user can still resize the window smaller.
         self.Fit()
+        self.canvas.SetMinSize(self.FromDIP(wx.Size(2, 2)))
 
         self.Bind(wx.EVT_CLOSE, self._on_close)
 
@@ -1043,7 +1049,7 @@ def _load_bitmap(filename):
 
 def _set_frame_icon(frame):
     bundle = wx.IconBundle()
-    for image in ('matplotlib.png', 'matplotlib_large.png'):
+    for image in ('matplotlib_small.png', 'matplotlib.png'):
         icon = wx.Icon(_load_bitmap(image))
         if not icon.IsOk():
             return
