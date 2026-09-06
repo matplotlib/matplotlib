@@ -3432,6 +3432,7 @@ _DEFINITION = [
     _Param(
         "macos.appearance",
         default="system",
+        type=Literal["system", "light", "dark"],
         validator=["system", "light", "dark"],
         description="Whether windows and controls use a light or dark appearance. "
                     "'system' uses 'Appearance' from System Settings."
@@ -3439,6 +3440,7 @@ _DEFINITION = [
     _Param(
         "macos.window_mode",
         default="system",
+        type=Literal["system", "tab", "window"],
         validator=["system", "tab", "window"],
         description="How to open new figures (system, tab, window). "
                     "'system' uses 'Prefer tabs...' from System Settings."
