@@ -7992,7 +7992,19 @@ such objects
            Previously, `~.Axes.hist2d` would force the axes limits to match the
            extents of the histogram; now, autoscaling also takes other plot
            elements into account.
+
+        .. versionchanged:: 3.12
+           *x* and *y* (and *range*, if given) are now passed through the axes'
+           unit converters before binning, so e.g. datetime inputs are handled
+           the same way as in `~.Axes.plot` and `~.Axes.scatter`. Previously
+           they were passed unconverted to `numpy.histogram2d`.
         """
+
+        x, y = self._process_unit_info([("x", x), ("y", y)], kwargs)
+        if range is not None:
+            (xmin, xmax), (ymin, ymax) = range
+            range = (self.convert_xunits((xmin, xmax)),
+                     self.convert_yunits((ymin, ymax)))
 
         h, xedges, yedges = np.histogram2d(x, y, bins=bins, range=range,
                                            density=density, weights=weights)

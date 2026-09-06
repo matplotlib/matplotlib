@@ -2919,6 +2919,37 @@ def test_hist2d_autolimits():
     assert ax.get_autoscale_on()  # Autolimits have not been disabled.
 
 
+def test_hist2d_datetime():
+    # Regression test for gh-17319: hist2d must apply the same unit
+    # conversion to x/y as plot()/scatter() so datetime input lands on the
+    # same (small, date2num-like) numeric scale, instead of raw
+    # nanosecond-scale datetime64 integers.
+    x = np.arange(np.datetime64('2020-01-01'), np.datetime64('2020-01-11'))
+    y = np.arange(10.)
+
+    ax_hist2d = plt.figure().add_subplot()
+    ax_hist2d.hist2d(x, y, bins=5)
+
+    ax_plot = plt.figure().add_subplot()
+    ax_plot.plot(x, y)
+
+    assert ax_hist2d.get_xlim() == ax_plot.get_xlim()
+    # sanity check: this is a small (date2num-like) scale, not raw datetime64
+    assert all(abs(lim) < 1e6 for lim in ax_hist2d.get_xlim())
+
+
+def test_hist2d_datetime_range():
+    # The `range` parameter should also be converted, so datetime bounds
+    # work the same way as passing already-converted (float) bounds.
+    x = np.arange(np.datetime64('2020-01-01'), np.datetime64('2020-01-11'))
+    y = np.arange(10.)
+    xlim = np.array([np.datetime64('2020-01-01'), np.datetime64('2020-01-11')])
+
+    h, xedges, yedges, pc = plt.figure().add_subplot().hist2d(
+        x, y, bins=5, range=[xlim, [0, 10]])
+    assert all(abs(e) < 1e6 for e in (xedges[0], xedges[-1]))
+
+
 class TestScatter:
     @image_comparison(['scatter'], style='mpl20', remove_text=True)
     def test_scatter_plot(self):
