@@ -44,6 +44,36 @@ def _rotate_point(angle, x, y):
     return (cos * x - sin * y, sin * x + cos * y)
 
 
+def _get_font_height_metrics(font, fontsize, dpi,
+                             _cache=weakref.WeakKeyDictionary()):
+    """
+    Return the ascent, descent and line gap of *font*, in pixels, or
+    ``(None, None, None)`` if it carries neither metrics table.
+
+    Keyed on the font rather than on font properties, which resolve to a font
+    via the rcParams, and held weakly so that caching never keeps a font alive.
+    """
+    if (metrics := _cache.get(font)) is None:
+        metrics = _cache[font] = {}
+    if (key := (fontsize, dpi)) not in metrics:
+        possible = [
+            ('OS/2', 'sTypoLineGap', 'sTypoAscender', 'sTypoDescender'),
+            ('hhea', 'lineGap', 'ascent', 'descent')
+        ]
+        metrics[key] = (None, None, None)
+        for table_name, linegap_key, ascent_key, descent_key in possible:
+            table = font.get_sfnt_table(table_name)
+            if table is None:
+                continue
+            # Rescale to font size/DPI if the metrics were available.
+            units_per_em = font.get_sfnt_table('head')['unitsPerEm']
+            scale = 1 / units_per_em * fontsize * dpi / 72
+            metrics[key] = (table[ascent_key] * scale, -table[descent_key] * scale,
+                            table[linegap_key] * scale)
+            break
+    return metrics[key]
+
+
 def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
     """Call ``renderer.get_text_width_height_descent``, caching the results."""
 
@@ -444,22 +474,8 @@ class Text(Artist):
                     self._fontproperties)
             if min_ascent is None:
                 font = get_font(fontManager._find_fonts_by_props(self._fontproperties))
-                possible = [
-                    ('OS/2', 'sTypoLineGap', 'sTypoAscender', 'sTypoDescender'),
-                    ('hhea', 'lineGap', 'ascent', 'descent')
-                ]
-                for table_name, linegap_key, ascent_key, descent_key in possible:
-                    table = font.get_sfnt_table(table_name)
-                    if table is None:
-                        continue
-                    # Rescale to font size/DPI if the metrics were available.
-                    fontsize = self._fontproperties.get_size_in_points()
-                    units_per_em = font.get_sfnt_table('head')['unitsPerEm']
-                    scale = 1 / units_per_em * fontsize * dpi / 72
-                    line_gap = table[linegap_key] * scale
-                    min_ascent = table[ascent_key] * scale
-                    min_descent = -table[descent_key] * scale
-                    break
+                min_ascent, min_descent, line_gap = _get_font_height_metrics(
+                    font, self._fontproperties.get_size_in_points(), dpi)
         if None in (min_ascent, min_descent):
             # Fallback to font measurement.
             _, h, min_descent = _get_text_metrics_with_cache(
