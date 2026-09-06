@@ -10,6 +10,7 @@
 #include <pybind11/numpy.h>
 
 #include <map>
+#include <memory>
 #include <optional>
 #include <set>
 #include <string>
@@ -103,6 +104,7 @@ class FT2Font
   public:
     using LanguageRange = std::tuple<std::string, int, int>;
     using LanguageType = std::optional<std::vector<LanguageRange>>;
+    using GlyphPtr = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, decltype(&FT_Done_Glyph)>;
 
     FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used);
     virtual ~FT2Font();
@@ -134,9 +136,10 @@ class FT2Font
                                  FT_Error &glyph_error,
                                  std::set<FT_String*> &glyph_seen_fonts);
     void load_glyph(FT_UInt glyph_index, FT_Int32 flags);
-    FT_Glyph load_glyph_copy(FT_UInt glyph_index, FT_Int32 flags,
-                             FT_Fixed *linear_hori_advance = nullptr);
-    FT_Fixed load_glyph_cached(FT_UInt glyph_index, FT_Int32 flags);
+    void load_glyph_copy(FT_UInt glyph_index, FT_Int32 flags,
+                         GlyphPtr &glyph, FT_Fixed &linear_hori_advance);
+    void load_glyph_cached(FT_UInt glyph_index, FT_Int32 flags,
+                           FT_Fixed &linear_hori_advance);
     FT_Glyph render_glyph(FT_UInt glyph_index, FT_Int32 flags, FT_Render_Mode render_mode);
     std::tuple<long, long> get_width_height();
     std::tuple<long, long> get_bitmap_offset();
