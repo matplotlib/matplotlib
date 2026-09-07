@@ -2210,6 +2210,8 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
         [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
     rgb = rgba[..., :-1]
     alpha = rgba[..., -1]
+    if alpha.min() == 0xff:
+        return rgba
     # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
     mask = alpha != 0
     for channel in np.rollaxis(rgb, -1):
