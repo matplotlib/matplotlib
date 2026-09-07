@@ -1,8 +1,7 @@
 ``BarContainer`` properties and attributes
 ------------------------------------------
 
-In addition to the existing `~.BarContainer.bottoms`, `~.BarContainer.tops`,
-and `~.BarContainer.position_centers` properties, `.BarContainer` gained a new
+ `.BarContainer` gained a new
 `~.BarContainer.widths` property.
 
 Additionally, `.BarContainer` gained a new ``group_positions`` attribute, which
