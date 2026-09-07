@@ -206,6 +206,38 @@ def test_count_bitmaps():
     assert count_tag(fig5, "path") == 1  # axis patch
 
 
+def test_rasterized_zorder_axes_hierarchy():
+    # With rasterized artists ending an Axes draw, MixedModeRenderer must flush
+    # before close_group so SVG axes groups stay siblings (#32174).
+    fig, axs = plt.subplots(ncols=2)
+    for ax in axs:
+        ax.scatter([1, 2], [1, 2], rasterized=True, zorder=10)
+
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+
+    # Strip the default namespace so ElementTree tag matching stays simple.
+    buf = buf.replace(' xmlns="http://www.w3.org/2000/svg"', '', 1)
+    root = xml.etree.ElementTree.fromstring(buf)
+
+    axes_parents = {}
+
+    def walk(elem, axes_ancestor=None):
+        gid = elem.get('id') if elem.tag == 'g' else None
+        next_ancestor = axes_ancestor
+        if gid is not None and gid.startswith('axes_'):
+            axes_parents[gid] = axes_ancestor
+            next_ancestor = gid
+        for child in elem:
+            walk(child, next_ancestor)
+
+    walk(root)
+    assert set(axes_parents) >= {'axes_1', 'axes_2'}
+    assert axes_parents['axes_1'] is None
+    assert axes_parents['axes_2'] is None
+
+
 # Use Computer Modern Sans Serif, not Helvetica (which has no \textwon).
 @mpl.style.context('default')
 @needs_usetex
