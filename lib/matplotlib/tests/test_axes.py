@@ -2920,34 +2920,43 @@ def test_hist2d_autolimits():
 
 
 def test_hist2d_datetime():
-    # Regression test for gh-17319: hist2d must apply the same unit
-    # conversion to x/y as plot()/scatter() so datetime input lands on the
-    # same (small, date2num-like) numeric scale, instead of raw
-    # nanosecond-scale datetime64 integers.
+    # Regression test for gh-17319: hist2d's returned bin edges for
+    # datetime input should be on the same numeric scale as
+    # matplotlib.dates.date2num (i.e. equivalent to converting the dates
+    # yourself and calling np.histogram2d directly), not raw
+    # (nanosecond-scale) datetime64 integers.
     x = np.arange(np.datetime64('2020-01-01'), np.datetime64('2020-01-11'))
     y = np.arange(10.)
 
-    ax_hist2d = plt.figure().add_subplot()
-    ax_hist2d.hist2d(x, y, bins=5)
+    ax = plt.figure().add_subplot()
+    h, xedges, yedges, pc = ax.hist2d(x, y, bins=5)
 
-    ax_plot = plt.figure().add_subplot()
-    ax_plot.plot(x, y)
-
-    assert ax_hist2d.get_xlim() == ax_plot.get_xlim()
-    # sanity check: this is a small (date2num-like) scale, not raw datetime64
-    assert all(abs(lim) < 1e6 for lim in ax_hist2d.get_xlim())
+    expected_h, expected_xedges, expected_yedges = np.histogram2d(
+        mdates.date2num(x), y, bins=5)
+    np.testing.assert_array_equal(xedges, expected_xedges)
+    np.testing.assert_array_equal(yedges, expected_yedges)
+    np.testing.assert_array_equal(h, expected_h)
 
 
 def test_hist2d_datetime_range():
-    # The `range` parameter should also be converted, so datetime bounds
-    # work the same way as passing already-converted (float) bounds.
+    # The `range` parameter should be converted through the unit converters
+    # just like x/y, so passing datetime bounds is equivalent to manually
+    # converting them (e.g. via `date2num`) and passing the result.
     x = np.arange(np.datetime64('2020-01-01'), np.datetime64('2020-01-11'))
     y = np.arange(10.)
-    xlim = np.array([np.datetime64('2020-01-01'), np.datetime64('2020-01-11')])
+    xlim_datetime = [np.datetime64('2020-01-01'), np.datetime64('2020-01-11')]
+    xlim_converted = mdates.date2num(xlim_datetime)
 
-    h, xedges, yedges, pc = plt.figure().add_subplot().hist2d(
-        x, y, bins=5, range=[xlim, [0, 10]])
-    assert all(abs(e) < 1e6 for e in (xedges[0], xedges[-1]))
+    h_datetime, xedges_datetime, yedges_datetime, _ = (
+        plt.figure().add_subplot().hist2d(
+            x, y, bins=5, range=[xlim_datetime, [0, 10]]))
+    h_converted, xedges_converted, yedges_converted, _ = (
+        plt.figure().add_subplot().hist2d(
+            mdates.date2num(x), y, bins=5, range=[xlim_converted, [0, 10]]))
+
+    np.testing.assert_array_equal(xedges_datetime, xedges_converted)
+    np.testing.assert_array_equal(yedges_datetime, yedges_converted)
+    np.testing.assert_array_equal(h_datetime, h_converted)
 
 
 class TestScatter:
