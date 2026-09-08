@@ -10,7 +10,7 @@ import pytest
 
 import matplotlib as mpl
 from matplotlib import cm
-from matplotlib.testing import subprocess_run_helper, is_ci_environment
+from matplotlib.testing import subprocess_run_helper
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.dates import rrulewrapper  # type: ignore[attr-defined]
 from matplotlib.lines import VertexSelector
@@ -326,6 +326,6 @@ def _test_axeswidget_interactive():
 def test_axeswidget_interactive():
     subprocess_run_helper(
         _test_axeswidget_interactive,
-        timeout=120 if is_ci_environment() else 20,
+        timeout=20,
         extra_env={'MPLBACKEND': 'tkagg'}
     )
