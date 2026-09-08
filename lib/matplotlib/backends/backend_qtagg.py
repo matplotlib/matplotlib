@@ -36,15 +36,15 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
                 pass
 
         key = (w, h, dpi)
-        is_resized = getattr(self, '_renderer_key', None) != key
+        is_resized = self._renderer_key != key
         if is_resized:
             self._renderer_key = key
 
         for layer_name in fig._children_by_layer:
-            stale = fig._stale_layers.get(layer_name, True)
+            layer_stale = fig._stale_layers.get(layer_name, True)
 
             # Re-render if: layer is stale OR canvas was resized
-            if stale or is_resized:
+            if layer_stale or is_resized:
                 layer_renderer = RendererAgg(w, h, dpi)
                 fig._draw_layer(layer_renderer, layer_name)
 

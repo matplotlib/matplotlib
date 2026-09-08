@@ -13,6 +13,9 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
+from matplotlib.testing.decorators import image_comparison
+import matplotlib.lines as mlines
+from matplotlib.text import Text
 
 try:
     from matplotlib.backends.qt_compat import QtCore  # type: ignore[attr-defined]
@@ -426,3 +429,23 @@ def test_qtagg_layer_caching():
         assert "base" not in drawn_layers2
         assert "overlay" in drawn_layers2
         assert drawn_layers2 == ["overlay"]
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+@image_comparison(
+    baseline_images=['two_pass_composite'], extensions=['png'], style='mpl20'
+)
+def test_two_pass_composite():
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1], color='blue', lw=5)
+
+    overlay_text = Text(
+        0.5, 0.5, "Overlay Text", color='red', fontsize=20, ha='center',
+        transform=fig.transFigure, figure=fig
+    )
+    fig.add_artist(overlay_text, layer="overlay")
+
+    overlay_line = mlines.Line2D(
+        [0, 1], [1, 0], color='red', lw=5, transform=fig.transFigure
+    )
+    fig.add_artist(overlay_line, layer="overlay")
