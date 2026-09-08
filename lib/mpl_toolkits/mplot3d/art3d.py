@@ -338,7 +338,7 @@ class Line3D(lines.Line2D):
         for name, xyz in zip('xyz', args):
             if not np.iterable(xyz):
                 raise RuntimeError(f'{name} must be a sequence')
-        self._verts3d = tuple(np.asarray(xyz) for xyz in args)
+        self._verts3d = args
         self.stale = True
 
     def get_data_3d(self):
@@ -360,7 +360,7 @@ class Line3D(lines.Line2D):
         if np.any(scale_mask):
             mask = np.broadcast_to(
                 scale_mask,
-                (len(self._verts3d), *self._verts3d[0].shape)
+                (len(self._verts3d), *np.shape(self._verts3d[0]))
             )
             xs3d, ys3d, zs3d = np.ma.array(self._verts3d,
                                            dtype=float, mask=mask).filled(np.nan)
