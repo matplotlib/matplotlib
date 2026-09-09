@@ -408,11 +408,11 @@ run the event loop until a key is pressed on stdin.
 Interactive figures, even with Matplotlib in "interactive mode", may not work
 in REPL if an appropriate :c:data:`PyOS_InputHook` is not registered.  This
 management is left to upstream libraries or downstream code -- either explicit
-user code or shell initialization -- in all backends but the native Mac
-backend.  Input hooks, and helpers to install them, are usually included with
-the Python bindings for GUI toolkits and may be registered on import.  For the
-Mac backend Matplotlib owns the code wrapping the native GUI toolkit and we
-register :c:data:`PyOS_InputHook` on application initialization.
+user code or shell initialization -- in all toolkits but native macOS.  Input
+hooks, and helpers to install them, are usually included with the Python
+bindings for GUI toolkits and may be registered on import.  For the macOS
+native toolkit Matplotlib owns code that exposes the toolkit to Python and thus
+we register :c:data:`PyOS_InputHook` on GUI application initialization.
 
 IPython also ships input hook functions for all of the GUI frameworks
 Matplotlib supports which can be installed via ``%matplotlib``.  This is the
