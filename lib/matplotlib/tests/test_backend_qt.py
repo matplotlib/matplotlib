@@ -249,14 +249,24 @@ def test_figureoptions_preserves_legend_settings():
     )
     old_bbox = old_legend._bbox_to_anchor
 
+    def form_values(form):
+        values = []
+        for label, value in form:
+            if label is None:
+                continue
+            if isinstance(value, (list, tuple)):
+                value = value[0]
+            values.append(value)
+        return values
+
     def fake_fedit(datalist, **kwargs):
-        general = list(datalist[0][0])
+        general = form_values(datalist[0][0])
         general[-1] = True
         payload = [general]
         if len(datalist) > 1:
-            payload.append([curve[0] for curve in datalist[1]])
+            payload.append([form_values(curve[0]) for curve in datalist[1][0]])
         if len(datalist) > 2:
-            payload.append([mappable[0] for mappable in datalist[2]])
+            payload.append([form_values(mappable[0]) for mappable in datalist[2][0]])
         kwargs["apply"](payload)
 
     with mock.patch(
