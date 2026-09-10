@@ -681,6 +681,20 @@ def test_span_selector_onselect(ax, interactive):
     onselect.assert_called_once()
 
 
+def test_selector_state_is_reset_when_callback_raises(ax):
+    onselect = mock.Mock(side_effect=[RuntimeError, None])
+    tool = widgets.SpanSelector(ax, onselect, 'horizontal')
+
+    with pytest.raises(RuntimeError):
+        click_and_drag(tool, start=(100, 100), end=(150, 100))
+
+    assert tool._eventpress is None
+    assert tool._eventrelease is None
+
+    click_and_drag(tool, start=(100, 100), end=(150, 100))
+    assert tool._selection_completed
+
+
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
 def test_span_selector_ignore_outside(ax, ignore_event_outside):
     onselect = mock.Mock(spec=noop, return_value=None)

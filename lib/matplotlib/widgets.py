@@ -2502,10 +2502,12 @@ class _SelectorWidget(AxesWidget):
         if not self.ignore(event) and self._eventpress:
             event = self._clean_event(event)
             self._eventrelease = event
-            self._release(event)
-            self._eventpress = None
-            self._eventrelease = None
-            self._state.discard('move')
+            try:
+                self._release(event)
+            finally:
+                self._eventpress = None
+                self._eventrelease = None
+                self._state.discard('move')
             return True
         return False
 
