@@ -32,6 +32,7 @@ def test_tmpconfigdir_warning(tmp_path):
             [sys.executable, "-c", "import matplotlib"],
             env={**os.environ, "MPLCONFIGDIR": str(tmp_path)},
             stderr=subprocess.PIPE, text=True, check=True)
+        assert f"MPLCONFIGDIR ({tmp_path.resolve()})" in proc.stderr
         assert "set the MPLCONFIGDIR" in proc.stderr
     finally:
         os.chmod(tmp_path, mode)

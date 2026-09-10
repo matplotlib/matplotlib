@@ -575,7 +575,10 @@ def _get_config_or_cache_dir(xdg_base_getter):
             if os.access(str(configdir), os.W_OK) and configdir.is_dir():
                 return str(configdir)
             _log.warning("%s is not a writable directory", configdir)
-        issue_msg = "the default path ({configdir})"
+        if os.environ.get('MPLCONFIGDIR'):
+            issue_msg = f"MPLCONFIGDIR ({configdir})"
+        else:
+            issue_msg = f"the default path ({configdir})"
     else:
         issue_msg = "resolving the home directory"
     # If the config or cache directory cannot be created or is not a writable

@@ -4,7 +4,7 @@ import operator
 from unittest import mock
 
 import matplotlib as mpl
-from matplotlib.backend_bases import DrawEvent, KeyEvent, MouseEvent
+from matplotlib.backend_bases import DrawEvent, KeyEvent, MouseEvent, ResizeEvent
 import matplotlib.colors as mcolors
 import matplotlib.widgets as widgets
 import matplotlib.pyplot as plt
@@ -1096,6 +1096,8 @@ def test_TextBox(ax, toolbar):
     KeyEvent("key_press_event", ax.figure.canvas, "5")._process()
 
     assert text_change_event.call_count == 3
+
+    ResizeEvent("resize_event", ax.figure.canvas)._process()  # smoke test
 
 
 def test_RadioButtons(ax):

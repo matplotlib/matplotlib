@@ -440,7 +440,9 @@ class Op(Enum):
 
     close_fill_stroke = b'b'
     fill_stroke = b'B'
+    fill_evenodd_stroke = b'B*'
     fill = b'f'
+    fill_evenodd = b'f*'
     closepath = b'h'
     close_stroke = b's'
     stroke = b'S'
@@ -481,7 +483,7 @@ class Op(Enum):
         return self.value
 
     @classmethod
-    def paint_path(cls, fill, stroke):
+    def paint_path(cls, fill, stroke, *, fill_rule="nonzero"):
         """
         Return the PDF operator to paint a path.
 
@@ -494,11 +496,15 @@ class Op(Enum):
         """
         if stroke:
             if fill:
+                if fill_rule == "evenodd":
+                    return cls.fill_evenodd_stroke
                 return cls.fill_stroke
             else:
                 return cls.stroke
         else:
             if fill:
+                if fill_rule == "evenodd":
+                    return cls.fill_evenodd
                 return cls.fill
             else:
                 return cls.endpath
@@ -1983,7 +1989,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             path, transform,
             rgbFace is None and gc.get_hatch_path() is None,
             gc.get_sketch_params())
-        self.file.output(self.gc.paint())
+        self.file.output(self.gc.paint(fill_rule=gc._fill_rule))
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
@@ -2043,16 +2049,11 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             name = self.file.pathCollectionObject(
                 gc, path, transform, padding, filled, stroked)
             path_codes.append(name)
-            # Compute the extent of each marker path to enable per-marker
-            # bounds checking. This allows us to skip markers that are
-            # completely outside the visible canvas while preserving markers
-            # that are partially visible.
-            if len(path.vertices):
-                bbox = path.get_extents(transform)
-                # Store half-width and half-height for efficient bounds checking
-                path_extents.append((bbox.width / 2, bbox.height / 2))
-            else:
-                path_extents.append((0, 0))
+            # Compute each transformed path's exact bounds for per-marker
+            # canvas checks.  Offsets are not necessarily full canvas-space
+            # centers, e.g. for collections using AffineDeltaTransform, so
+            # cull based on the final path bounds translated by the offset.
+            path_extents.append(path.get_extents(transform).frozen())
 
         # Create a mapping from path_id to extent for efficient lookup
         path_extent_map = dict(zip(path_codes, path_extents))
@@ -2068,26 +2069,12 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
                 facecolors, edgecolors, linewidths, linestyles,
                 antialiaseds, urls, offset_position, hatchcolors=hatchcolors):
 
-            # Optimization: Fast path for markers with centers inside canvas.
-            # This avoids the dictionary lookup for the common case where
-            # markers are visible, improving performance for large scatter plots.
-            if 0 <= xo <= canvas_width and 0 <= yo <= canvas_height:
-                # Marker center is inside canvas - definitely render it
-                self.check_gc(gc0, rgbFace)
-                dx, dy = xo - lastx, yo - lasty
-                output(1, 0, 0, 1, dx, dy, Op.concat_matrix, path_id,
-                       Op.use_xobject)
-                lastx, lasty = xo, yo
-                continue
-
-            # Marker center is outside canvas - check if partially visible.
-            # Skip markers completely outside visible canvas bounds to reduce
-            # PDF file size. Use per-marker extents to handle large markers
-            # correctly: only skip if the marker's bounding box doesn't
-            # intersect the canvas at all.
-            extent_x, extent_y = path_extent_map[path_id]
-            if not (-extent_x <= xo <= canvas_width + extent_x
-                    and -extent_y <= yo <= canvas_height + extent_y):
+            # Skip markers completely outside the canvas to reduce PDF size.
+            # Use the translated path bounds, not the offset alone: the offset
+            # need not be the marker center in canvas coordinates.
+            bbox = path_extent_map[path_id]
+            if (bbox.x1 + xo < 0 or bbox.x0 + xo > canvas_width
+                    or bbox.y1 + yo < 0 or bbox.y0 + yo > canvas_height):
                 continue
 
             self.check_gc(gc0, rgbFace)
@@ -2508,12 +2495,12 @@ class GraphicsContextPdf(GraphicsContextBase):
                 (_fillcolor is not None and
                  (len(_fillcolor) <= 3 or _fillcolor[3] != 0.0)))
 
-    def paint(self):
+    def paint(self, *, fill_rule="nonzero"):
         """
         Return the appropriate pdf operator to cause the path to be
         stroked, filled, or both.
         """
-        return Op.paint_path(self.fill(), self.stroke())
+        return Op.paint_path(self.fill(), self.stroke(), fill_rule=fill_rule)
 
     capstyles = {'butt': 0, 'round': 1, 'projecting': 2}
     joinstyles = {'miter': 0, 'round': 1, 'bevel': 2}

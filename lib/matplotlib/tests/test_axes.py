@@ -2296,6 +2296,8 @@ def test_grouped_bar_return_value():
     for bc in ret.bar_containers:
         assert isinstance(bc, BarContainer)
         assert bc in ax.containers
+        np.testing.assert_array_equal(bc.group_positions, [0, 1, 2])
+        assert bc.widths == [p.get_width() for p in bc.patches]
 
     ret.remove()
     for bc in ret.bar_containers:

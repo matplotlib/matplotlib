@@ -295,6 +295,8 @@ template <class path_t>
 inline void
 RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc)
 {
+    theRasterizer.filling_rule(gc.filling_rule);
+
     // Render face
     if (face) {
         theRasterizer.add_path(path);
@@ -379,6 +381,8 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
             agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, sa, sg);
         }
     }
+
+    theRasterizer.filling_rule(agg::fill_non_zero);
 
     // Render stroke
     if (gc.linewidth != 0.0) {

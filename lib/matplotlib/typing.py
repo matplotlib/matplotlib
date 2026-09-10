@@ -61,6 +61,9 @@ type BlendModeType = (
 )
 """Blend modes.  See :ref:`blend-modes`."""
 
+type FillRuleType = Literal["nonzero", "evenodd"]
+"""Fill rule options."""
+
 type LineStyleType = (
     Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
             "", "none", " ", "None"] |

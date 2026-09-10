@@ -1,5 +1,6 @@
 import re
-from docutils.parsers.rst import Directive
+
+from sphinx.util.docutils import SphinxDirective
 
 from matplotlib import _mathtext, _mathtext_data
 
@@ -32,7 +33,7 @@ symbols = [
      5,
      _mathtext.Parser._overunder_symbols | _mathtext.Parser._dropsub_symbols],
     ["Standard function names",
-     5,
+     4,
      {fr"\{fn}" for fn in _mathtext.Parser._function_names}],
     ["Binary operation symbols",
      4,
@@ -87,31 +88,34 @@ def run(state_machine):
 
     lines = []
     for category, columns, syms in symbols:
+        lines.append(f'**{category}**')
+        lines.append('')
+        lines.append(f'.. grid:: 1 1 {columns} {columns}')
+        if category == "Hebrew":  # Hebrew is rtl
+            lines.append('    :reverse:')
+        lines.append('')
         syms = sorted(syms,
                       # Sort by Unicode and place variants immediately
                       # after standard versions.
                       key=lambda sym: (render_symbol(sym, ignore_variant=True),
-                                       sym.startswith(r"\var")),
-                      reverse=(category == "Hebrew"))  # Hebrew is rtl
-        rendered_syms = [f"{render_symbol(sym)} ``{sym}``" for sym in syms]
-        columns = min(columns, len(syms))
-        lines.append("**%s**" % category)
-        lines.append('')
-        max_width = max(map(len, rendered_syms))
-        header = (('=' * max_width) + ' ') * columns
-        lines.append(header.rstrip())
-        for part in range(0, len(rendered_syms), columns):
-            row = " ".join(
-                sym.rjust(max_width) for sym in rendered_syms[part:part + columns])
-            lines.append(row)
-        lines.append(header.rstrip())
+                                       sym.startswith(r"\var")))
+        size = 'sd-fs-4' if category == 'Standard function names' else 'sd-fs-1'
+        for sym in syms:
+            rendered = render_symbol(sym)
+            lines.append(f'    .. grid-item-card:: {rendered}')
+            lines.append(f'        :class-title: {size}')
+            lines.append('        :shadow: none')
+            lines.append('        :text-align: center')
+            lines.append('')
+            lines.append(f'        ``{sym}``')
+            lines.append('')
         lines.append('')
 
     state_machine.insert_input(lines, "Symbol table")
     return []
 
 
-class MathSymbolTableDirective(Directive):
+class MathSymbolTableDirective(SphinxDirective):
     has_content = False
     required_arguments = 0
     optional_arguments = 0
@@ -119,6 +123,7 @@ class MathSymbolTableDirective(Directive):
     option_spec = {}
 
     def run(self):
+        self.env.note_dependency(__file__)
         return run(self.state_machine)
 
 

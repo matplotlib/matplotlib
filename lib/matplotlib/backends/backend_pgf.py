@@ -463,6 +463,17 @@ class RendererPgf(RendererBase):
                      r"\pgfsys@defobject{currentpattern}"
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
             _writeln(self.fh, r"\begin{pgfscope}")
+
+            # hatch linewidth and color
+            lw = gc.get_hatch_linewidth() * mpl_pt_to_in * latex_in_to_pt
+            hatch_rgba = gc.get_hatch_color()
+            _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
+            _writeln(self.fh,
+                     r"\definecolor{currenthatch}{rgb}{%f,%f,%f}"
+                     % hatch_rgba[:3])
+            _writeln(self.fh, r"\pgfsetstrokecolor{currenthatch}")
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % hatch_rgba[3])
+
             _writeln(self.fh,
                      r"\pgfpathrectangle"
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
@@ -545,8 +556,10 @@ class RendererPgf(RendererBase):
                      r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
                      % tuple(rgbFace[:3]))
             _writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
-        if has_fill and fillopacity != 1.0:
-            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            if fillopacity != 1.0:
+                _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            if gc.get_fill_rule() == "evenodd":
+                _writeln(self.fh, r"\pgfseteorule")
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt

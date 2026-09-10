@@ -1519,7 +1519,7 @@ type _LineStyleType = (
 type _MarkerType = int | str
 
 
-@dataclass
+@dataclass(eq=False, frozen=True, slots=True)
 class _Param:
     name: str
     default: Any
@@ -1535,13 +1535,13 @@ class _Param:
     description: str | None = None
 
 
-@dataclass
+@dataclass(eq=False, frozen=True, slots=True)
 class _Section:
     title: str
     description: str | None = None
 
 
-@dataclass
+@dataclass(eq=False, frozen=True, slots=True)
 class _Subsection:
     title: str
     description: str | None = None

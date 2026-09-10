@@ -1265,7 +1265,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
     if labels is None:
         labels = itertools.repeat(None)
     elif len(labels) != ncols:
-        raise ValueError("Dimensions of labels and X must be compatible")
+        raise ValueError(f"The number of labels ({len(labels)}) must match the"
+            f" number of columns ({ncols}).")
 
     input_whis = whis
     for ii, (x, label) in enumerate(zip(X, labels)):
@@ -2231,6 +2232,8 @@ def _premultiplied_argb32_to_unmultiplied_rgba8888(buf):
         [2, 1, 0, 3] if sys.byteorder == "little" else [1, 2, 3, 0], axis=2)
     rgb = rgba[..., :-1]
     alpha = rgba[..., -1]
+    if alpha.min() == 0xff:
+        return rgba
     # Un-premultiply alpha.  The formula is the same as in cairo-png.c.
     mask = alpha != 0
     for channel in np.rollaxis(rgb, -1):

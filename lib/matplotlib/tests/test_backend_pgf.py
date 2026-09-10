@@ -148,6 +148,8 @@ def test_rcupdate():
                {'font.family': 'monospace',
                 'font.size': 10,
                 'figure.subplot.left': .1,
+                'hatch.color': 'orange',
+                'hatch.linewidth': 2,
                 'lines.markersize': 20,
                 'pgf.rcfonts': False,
                 'pgf.texsystem': 'pdflatex',

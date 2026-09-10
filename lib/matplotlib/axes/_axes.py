@@ -3363,6 +3363,7 @@ or pandas.DataFrame
             else:
                 bc = self.barh(lefts, hs, height=bar_width, align="edge",
                                label=label, color=color, **styles, **kwargs)
+            bc.group_positions = group_centers
             bar_containers.append(bc)
 
         if tick_labels is not None:
@@ -3859,7 +3860,7 @@ or pandas.DataFrame
             string with ``absval`` and/or ``frac`` placeholders.  For example, to label
             each wedge with its value and the percentage in brackets::
 
-                wedge_labels="{absval:d} ({frac:.0%})"
+                labels="{absval:d} ({frac:.0%})"
 
         distance : float, default: 0.6
             The radial position of the labels, relative to the pie radius. Values > 1

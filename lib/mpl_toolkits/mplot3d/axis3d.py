@@ -36,7 +36,7 @@ def _tick_update_position(tick, tickxs, tickys, labelpos):
     tick.gridline.set_data([0], [0])
 
 
-@dataclass
+@dataclass(eq=False, frozen=True, slots=True)
 class _UpdatedArtists:
     """
     Class to supply artists that have been updated ready to draw.
@@ -44,10 +44,10 @@ class _UpdatedArtists:
     We track the types of artists individually, because they need
     different handling in the tightbox calculation.
     """
-    line: mlines.Line2D = None
-    ticks: list = None
-    offset_text: mtext.Text = None
-    label: mtext.Text = None
+    line: mlines.Line2D | None = None
+    ticks: list | None = None
+    offset_text: mtext.Text | None = None
+    label: mtext.Text | None = None
 
     def __iter__(self):
         """Yield all updated artists in the correct order for drawing"""
