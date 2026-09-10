@@ -19,7 +19,7 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
-from ._data_containers._helpers import containerize_draw, _get_graph, check_container
+from ._data_containers._helpers import _get_graph, check_container
 from ._data_containers.description import Desc
 
 # Imported here for backward compatibility, even though they don't
@@ -382,6 +382,7 @@ class Line2D(Artist):
 
         self._container = self._init_container()
         self.__query = None
+        self.__query_hash = None
 
         # Convert sequences to NumPy arrays.
         if not np.iterable(xdata):
@@ -513,7 +514,9 @@ class Line2D(Artist):
         return self._container.query(_get_graph(self.axes))[0]
 
     def _cache_query(self):
-        self.__query = self._container.query(_get_graph(self.axes))[0]
+        self.__query, query_hash = self._container.query(_get_graph(self.axes))
+        self._invalidx = self._invalidy = (query_hash != self.__query_hash)
+        self.__query_hash = query_hash
 
     def contains(self, mouseevent):
         """
@@ -838,8 +841,7 @@ class Line2D(Artist):
         super().set_transform(t)
 
     @allow_rasterization
-    @containerize_draw
-    def draw(self, renderer, *, graph=None):
+    def draw(self, renderer):
         # docstring inherited
 
         if not self.get_visible():
@@ -847,8 +849,9 @@ class Line2D(Artist):
 
         self._cache_query()
 
-        if self._invalidy or self._invalidx:
+        if self._invalidx or self._invalidy:
             self.recache()
+
         self.ind_offset = 0  # Needed for contains() method.
         if self._subslice and self.axes:
             x0, x1 = self.axes.get_xbound()
@@ -1405,6 +1408,7 @@ class Line2D(Artist):
             raise RuntimeError('x must be a sequence')
         self._container.x = copy.copy(x)
         self.__query = None
+        self.__query_hash = None
         self._invalidx = True
         self.stale = True
 
@@ -1426,6 +1430,7 @@ class Line2D(Artist):
             raise RuntimeError('y must be a sequence')
         self._container.y = copy.copy(y)
         self.__query = None
+        self.__query_hash = None
         self._invalidy = True
         self.stale = True
 
