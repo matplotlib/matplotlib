@@ -143,7 +143,6 @@ class FuncContainer:
         xfuncs, yfuncs, xyfuncs : dict[str, tuple[shape, func]]
 
         """
-        # TODO validate no collisions
         self._desc: dict[str, Desc] = {}
 
         def _split(input_dict):
@@ -158,10 +157,9 @@ class FuncContainer:
         self._xyfuncs = _split(xyfuncs) if xyfuncs is not None else {}
         self._cache: MutableMapping[Union[str, int], Any] = LFUCache(64)
 
-    def _query_hash(self, coord_transform, size):
-        # TODO find a better way to compute the hash key, this is not sentative to
-        # scale changes, only limit changes
-        data_bounds = tuple(coord_transform.transform([[0, 0], [1, 1]]).flatten())
+    def _query_hash(self, data_lim, size):
+        xlims, ylims = data_lim.evaluate({"x": [0, 1], "y": [0, 1]}).values()
+        data_bounds = (*(float(x) for x in xlims), *(float(y) for y in ylims))
         hash_key = hash((data_bounds, size))
         return hash_key
 
@@ -170,10 +168,6 @@ class FuncContainer:
         graph: Graph,
         parent_coordinates: str = "axes",
     ) -> tuple[dict[str, Any], Union[str, int]]:
-        # hash_key = self._query_hash(coord_transform, size)
-        # if hash_key in self._cache:
-        #    return self._cache[hash_key], hash_key
-
         desc = Desc(("N",))
         xy = {"x": desc, "y": desc}
         data_lim = graph.evaluator(
@@ -190,21 +184,26 @@ class FuncContainer:
         xpix, ypix = np.ceil(np.abs(np.diff(screen_dims["x"]))), np.ceil(
             np.abs(np.diff(screen_dims["y"]))
         )
+        xpix = int(xpix)
+        ypix = int(ypix)
+
+        hash_key = self._query_hash(data_lim, (xpix, ypix))
+        if hash_key in self._cache:
+            return self._cache[hash_key], hash_key
 
         x_data = data_lim.evaluate(
             {
-                "x": np.linspace(0, 1, int(xpix) * 2),
-                "y": np.zeros(int(xpix) * 2),
+                "x": np.linspace(0, 1, xpix * 2),
+                "y": np.zeros(xpix * 2),
             }
         )["x"]
         y_data = data_lim.evaluate(
             {
-                "x": np.zeros(int(ypix) * 2),
-                "y": np.linspace(0, 1, int(ypix) * 2),
+                "x": np.zeros(ypix * 2),
+                "y": np.linspace(0, 1, ypix * 2),
             }
         )["y"]
 
-        hash_key = str(uuid.uuid4())
         ret = self._cache[hash_key] = dict(
             **{k: f(x_data) for k, f in self._xfuncs.items()},
             **{k: f(y_data) for k, f in self._yfuncs.items()},
