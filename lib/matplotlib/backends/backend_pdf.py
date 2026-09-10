@@ -440,7 +440,9 @@ class Op(Enum):
 
     close_fill_stroke = b'b'
     fill_stroke = b'B'
+    fill_evenodd_stroke = b'B*'
     fill = b'f'
+    fill_evenodd = b'f*'
     closepath = b'h'
     close_stroke = b's'
     stroke = b'S'
@@ -481,7 +483,7 @@ class Op(Enum):
         return self.value
 
     @classmethod
-    def paint_path(cls, fill, stroke):
+    def paint_path(cls, fill, stroke, *, fill_rule="nonzero"):
         """
         Return the PDF operator to paint a path.
 
@@ -494,11 +496,15 @@ class Op(Enum):
         """
         if stroke:
             if fill:
+                if fill_rule == "evenodd":
+                    return cls.fill_evenodd_stroke
                 return cls.fill_stroke
             else:
                 return cls.stroke
         else:
             if fill:
+                if fill_rule == "evenodd":
+                    return cls.fill_evenodd
                 return cls.fill
             else:
                 return cls.endpath
@@ -1983,7 +1989,7 @@ class RendererPdf(_backend_pdf_ps.RendererPDFPSBase):
             path, transform,
             rgbFace is None and gc.get_hatch_path() is None,
             gc.get_sketch_params())
-        self.file.output(self.gc.paint())
+        self.file.output(self.gc.paint(fill_rule=gc._fill_rule))
 
     def draw_path_collection(self, gc, master_transform, paths, all_transforms,
                              offsets, offset_trans, facecolors, edgecolors,
@@ -2489,12 +2495,12 @@ class GraphicsContextPdf(GraphicsContextBase):
                 (_fillcolor is not None and
                  (len(_fillcolor) <= 3 or _fillcolor[3] != 0.0)))
 
-    def paint(self):
+    def paint(self, *, fill_rule="nonzero"):
         """
         Return the appropriate pdf operator to cause the path to be
         stroked, filled, or both.
         """
-        return Op.paint_path(self.fill(), self.stroke())
+        return Op.paint_path(self.fill(), self.stroke(), fill_rule=fill_rule)
 
     capstyles = {'butt': 0, 'round': 1, 'projecting': 2}
     joinstyles = {'miter': 0, 'round': 1, 'bevel': 2}

@@ -11,7 +11,8 @@ from matplotlib.backends.backend_pdf import RendererPdf
 from matplotlib.backends.backend_pgf import RendererPgf
 from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.figure import Figure
-from matplotlib.patches import Circle, Rectangle
+from matplotlib.patches import Circle, PathPatch, Polygon, Rectangle
+from matplotlib.path import Path
 from matplotlib.testing._markers import needs_pgf_pdflatex
 from matplotlib.testing.decorators import image_comparison
 
@@ -277,3 +278,56 @@ def test_group_invalid_blend_mode(renderer):
 
     with pytest.raises(ValueError, match="not a valid value for blend_mode"):
         renderer_instance.open_blend_group("invalid_blend_mode")
+
+
+def plot_fill_rule_comparison():
+    deg = np.arange(6) * 144
+    x = np.sin(deg * np.pi / 180)
+    y = np.cos(deg * np.pi / 180)
+    star = np.stack([x, y], axis=1)
+
+    square_vertices = np.array([[-1, -1], [-1, 1], [1, 1], [1, -1], [-1, -1]])
+    square_codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO]
+
+    fig, axs = plt.subplots(1, 2, figsize=(4, 5))
+
+    for ax, fill_rule in zip(axs, ['nonzero', 'evenodd']):
+        stroked_star = Polygon(star + [0, 4], closed=False,
+                               ec='b', lw=5, ls=(0, (5, 1)),
+                               fc='r', hatch='xx', fill_rule=fill_rule)
+        ax.add_patch(stroked_star)
+
+        nonstroked_star = Polygon(star + [0, 2], closed=False, ec='none',
+                                  fc='r', hatch='xx', fill_rule=fill_rule)
+        ax.add_patch(nonstroked_star)
+
+        squares = Path(np.vstack([square_vertices * 0.9,
+                                  square_vertices / 3 + [0, 0.5],
+                                  square_vertices / 3 + [0.3, 0],
+                                  (square_vertices / 3)[::-1, :] + [0, -0.5]]),
+                       square_codes * 4)
+
+        ax.add_patch(PathPatch(squares, fc='g', ec='m', fill_rule=fill_rule))
+
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 5.1)
+        ax.set_aspect('equal')
+        ax.set_axis_off()
+
+
+@image_comparison(['fill_rules'], extensions=['png', 'svg', 'pdf'], style='mpl20')
+def test_fill_rules():
+    plot_fill_rule_comparison()
+
+
+@pytest.mark.backend('cairo')
+@image_comparison(['fill_rules_cairo.png'], style='mpl20')
+def test_fill_rules_cairo():
+    plot_fill_rule_comparison()
+
+
+@needs_pgf_pdflatex
+@pytest.mark.backend('pgf')
+@image_comparison(['fill_rules_pgf.pdf'], style='mpl20')
+def test_fill_rules_pgf():
+    plot_fill_rule_comparison()

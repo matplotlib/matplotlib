@@ -423,6 +423,11 @@ class GraphicsContextCairo(GraphicsContextBase):
         'luminosity':  cairo.OPERATOR_HSL_LUMINOSITY,
     }
 
+    _filld = {
+        'nonzero': cairo.FILL_RULE_WINDING,
+        'evenodd': cairo.FILL_RULE_EVEN_ODD,
+    }
+
     def __init__(self, renderer):
         super().__init__()
         self.renderer = renderer
@@ -500,6 +505,11 @@ class GraphicsContextCairo(GraphicsContextBase):
         else:
             self.ctx.set_operator(_api.getitem_checked(self._operatord,
                                                        blend_mode=self._blend_mode))
+
+    def set_fill_rule(self, fill_rule):
+        super().set_fill_rule(fill_rule)
+        self.ctx.set_fill_rule(_api.getitem_checked(self._filld,
+                                                    fill_rule=self._fill_rule))
 
 
 class _CairoRegion:
