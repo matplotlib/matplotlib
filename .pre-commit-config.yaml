@@ -66,13 +66,13 @@ repos:
         name: isort (python)
         files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/
   - repo: https://github.com/rstcheck/rstcheck
-    rev: 77490ffa33bfc0928975ae3cf904219903db755d  # frozen: v6.2.5
+    rev: d8774e96810795967ed9603f445b4e751e7b313f  # frozen: v6.3.0
     hooks:
       - id: rstcheck
         additional_dependencies:
-          - rstcheck-core!=1.3  # https://github.com/rstcheck/rstcheck-core/pull/114#pullrequestreview-4239740896
           - sphinx>=1.8.1
           - tomli
+        args: ["--sphinx-source-dir", "doc"]
   - repo: https://github.com/adrienverge/yamllint
     rev: cba56bcde1fdd01c1deb3f945e69764c291a6530  # frozen: v1.38.0
     hooks:
