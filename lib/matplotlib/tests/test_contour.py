@@ -958,6 +958,11 @@ def test_contour_set_data_keeps_algorithm_and_corner_mask():
     cs.set_data(z * 2, algorithm='serial', corner_mask=True)
     assert cs._algorithm == 'serial'
     assert cs._corner_mask is True
+    # Switching to mpl2005 turns corner_mask off unless requested, as contour() does,
+    # rather than inheriting a corner_mask=True that mpl2005 does not support.
+    cs = plt.figure().add_subplot().contour(z)
+    cs.set_data(z * 2, algorithm='mpl2005')
+    assert cs._corner_mask is False
 
 
 def _assert_set_data_rejects(exc, match, args=(), **kwargs):

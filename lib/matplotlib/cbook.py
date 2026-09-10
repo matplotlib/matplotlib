@@ -2185,13 +2185,15 @@ def _safe_state_update(obj):
     Yields a snapshot of ``obj.__dict__``, which is restored if the body raises, so
     that an update mutating *obj* incrementally -- and able to fail partway through
     -- leaves it as it was rather than half-updated.
+
+    The snapshot is shallow: it undoes attributes being *rebound*, not an object that
+    one of them refers to being mutated in place, nor changes to other objects.
     """
     state = obj.__dict__.copy()
     try:
         yield state
     except Exception:
-        obj.__dict__.clear()
-        obj.__dict__.update(state)
+        obj.__dict__ = state
         raise
 
 

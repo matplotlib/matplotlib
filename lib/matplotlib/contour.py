@@ -901,7 +901,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             set_data(X, Y, Z)
 
         This reuses the existing artist, which is faster than removing the
-        contour set and creating a new one, and keeps its styling and its
+        ``ContourSet`` and creating a new one, and keeps its styling and its
         place in the draw tree.
 
         .. versionadded:: 3.12
@@ -910,7 +910,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
         ----------
         *args
             The new data, interpreted as by the function that created this
-            contour set, i.e. `~.Axes.contour`, `~.Axes.contourf`,
+            ``ContourSet``, i.e. `~.Axes.contour`, `~.Axes.contourf`,
             `~.Axes.tricontour` or `~.Axes.tricontourf`.
 
         **kwargs
@@ -921,13 +921,13 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             `~.Axes.tricontour`. Keywords that control how the contours *look*
             (*levels*, *colors*, *cmap*, *linewidths*, ...) raise `TypeError`; set
             those with the corresponding `.Collection` setters, or create a new
-            contour set.
+            ``ContourSet``.
 
         Notes
         -----
         The *levels* are not recomputed; the new data is contoured at the
         levels already in use, so that the colors and the colorbar stay
-        valid. Create a new contour set if you need different levels.
+        valid. Create a new ``ContourSet`` if you need different levels.
 
         Existing contour labels are not moved. The Axes limits are not
         rescaled, as for other artists' data setters.
@@ -1402,14 +1402,16 @@ class QuadContourSet(ContourSet):
             self._algorithm = algorithm
 
             if corner_mask is None:
-                corner_mask = self._corner_mask
-            if corner_mask is None:
                 if self._algorithm == "mpl2005":
                     # mpl2005 does not support corner_mask=True so if not
-                    # specifically requested then disable it.
+                    # specifically requested then disable it, even when set_data
+                    # switches to it from an algorithm that had it enabled.
                     corner_mask = False
+                elif self._corner_mask is not None:
+                    corner_mask = self._corner_mask
                 else:
                     corner_mask = mpl.rcParams['contour.corner_mask']
+
             self._corner_mask = corner_mask
 
             x, y, z = self._contour_args(args, kwargs)

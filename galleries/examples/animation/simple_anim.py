@@ -39,8 +39,8 @@ plt.show()
 
 # %%
 # Contours are updated the same way, with `.ContourSet.set_data`. Recontouring
-# the existing artist is faster than removing the contour set and making a new
-# one, and it keeps the contours in the same place in the draw order, which
+# the existing artist is faster than removing the ``ContourSet`` and making a
+# new one, and it keeps the contours in the same place in the draw order, which
 # matters when blitting. The levels are not recomputed, so the colors mean
 # the same thing in every frame.
 
