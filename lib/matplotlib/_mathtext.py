@@ -2267,12 +2267,18 @@ class Parser:
                                        content=Group(OneOrMore(p.token)) +
                                        ZeroOrMore(Literal("\\\\").suppress()))("parts"))
 
+        # \limits and \nolimits force (resp. forbid) the sub/superscripts of the
+        # preceding operator to be placed above/below rather than to the side.
+        p.limits = Regex(r"\\(?:no)?limits(?![A-Za-z])")("limits")
+
         p.subsuper = (
             (Optional(p.placeable)("nucleus")
+             + Optional(p.limits)
              + OneOrMore(one_of(["_", "^"]) - p.placeable)("subsuper")
              + Regex("'*")("apostrophes"))
             | Regex("'+")("apostrophes")
-            | (p.named_placeable("nucleus") + Regex("'*")("apostrophes"))
+            | (p.named_placeable("nucleus")
+               + Optional(p.limits) + Regex("'*")("apostrophes"))
         )
 
         p.simple = p.space | p.customspace | p.font | p.subsuper
@@ -2627,6 +2633,7 @@ class Parser:
         nucleus = toks.get("nucleus", Hbox(0))
         subsuper = toks.get("subsuper", [])
         napostrophes = len(toks.get("apostrophes", []))
+        limits = toks.get("limits")
 
         if not subsuper and not napostrophes:
             return nucleus
@@ -2662,8 +2669,15 @@ class Parser:
             super.kern()
             super.hpack()
 
-        # Handle over/under symbols, such as sum or prod
-        if self.is_overunder(nucleus):
+        # Handle over/under symbols, such as sum or prod.  \limits and
+        # \nolimits override the default placement for the nucleus.
+        if limits == r"\limits":
+            overunder = True
+        elif limits == r"\nolimits":
+            overunder = False
+        else:
+            overunder = self.is_overunder(nucleus)
+        if overunder:
             vlist = []
             shift = 0.
             width = nucleus.width
