@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-03-12T19:45:35.284542</dc:date>
+    <dc:date>2026-09-11T11:57:05.026933</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev2072+gb1cf5d4866.d20260312, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v0.1.0.dev55212+unknown.g25781de6a, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
-   <g transform="translate(152.16 30.117188) scale(0.12 -0.12)">
+   <g transform="translate(156.84 30.117188) scale(0.12 -0.12)">
     <defs>
      <path id="DejaVuSans-d5c" d="M 3113 0 
 L 3113 2219 
@@ -140,11 +140,11 @@ z
     <use xlink:href="#DejaVuSans-3" transform="translate(83.789062 0.96875)"/>
     <use xlink:href="#DejaVuSans-d5d" transform="translate(115.576172 0.96875)"/>
     <use xlink:href="#DejaVuSans-3" transform="translate(199.365234 0.96875)"/>
-    <use xlink:href="#DejaVuSans-c46" transform="translate(250.634766 0.96875)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(353.90625 0.96875)"/>
-    <use xlink:href="#DejaVuSans-d46" transform="translate(385.693359 0.96875)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(458.886719 0.96875)"/>
-    <use xlink:href="#DejaVuSans-c4a" transform="translate(510.15625 0.96875)"/>
+    <use xlink:href="#DejaVuSans-c46" transform="translate(231.152344 0.96875)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(314.941406 0.96875)"/>
+    <use xlink:href="#DejaVuSans-d46" transform="translate(346.728516 0.96875)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(419.921875 0.96875)"/>
+    <use xlink:href="#DejaVuSans-c4a" transform="translate(451.708984 0.96875)"/>
    </g>
   </g>
  </g>
