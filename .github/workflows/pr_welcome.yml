@@ -54,7 +54,7 @@ jobs:
           issue-opened-msg: ""
       - name: Run agentscan if first-contribution left a comment
         if: "${{ steps.first-contribution.outputs.comment-url != '' }}"
-        uses: MatteoGabriele/agentscan-action@c7d61446e7aece6bdd3edcee4558bbfc0392615e  # v2.5.0
+        uses: MatteoGabriele/agentscan-action@8112fb79b33fafb8506159df20129a34209ac410  # v2.5.0
         with:
           mode: labels
           scan-pull-requests: true
