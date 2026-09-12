@@ -206,7 +206,7 @@ class RendererAgg
     double dpi;
     size_t NUMBYTES; // the number of bytes in buffer
 
-    agg::int8u *pixBuffer;
+    agg::int8u *pixBuffer, *otherPixBuffer;
     agg::rendering_buffer renderingBuffer;
 
     agg::int8u *alphaBuffer;
@@ -295,6 +295,20 @@ template <class path_t>
 inline void
 RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc)
 {
+    // Render first in an isolated buffer if the path blend mode is other than "normal"
+    // and if more than one of fill/hatch/stroke is active to avoid internal blending
+    bool isolate = (gc.comp_op != agg::comp_op_src_over) &&
+                   ((bool(face) + gc.has_hatchpath() + (gc.linewidth != 0)) > 1);
+    if (isolate) {
+        if (!otherPixBuffer) {
+            otherPixBuffer = new agg::int8u[NUMBYTES];
+        }
+        memset(otherPixBuffer, 0, NUMBYTES);
+        renderingBuffer.attach(otherPixBuffer, width, height, width * 4);
+    } else {
+        pixFmt.comp_op(gc.comp_op);
+    }
+
     theRasterizer.filling_rule(gc.filling_rule);
 
     // Render face
@@ -432,6 +446,19 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
             }
         }
     }
+
+    // If rendered in an isolated buffer, blend back into the primary buffer
+    if (isolate) {
+        agg::rendering_buffer otherRenderingBuffer;
+        otherRenderingBuffer.attach(otherPixBuffer, width, height, width * 4);
+        pixfmt otherPixFmt(otherRenderingBuffer);
+
+        renderingBuffer.attach(pixBuffer, width, height, width * 4);
+        pixFmt.comp_op(gc.comp_op);
+        rendererBase.blend_from(otherPixFmt);
+    }
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PathIterator>
@@ -442,8 +469,6 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     if (color.a != 0.0) {
         face = color;
     }
-
-    pixFmt.comp_op(gc.comp_op);
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
@@ -470,8 +495,6 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
         curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
 
     _draw_path(sketch, has_clippath, face, gc);
-
-    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PathIterator>
@@ -1007,7 +1030,6 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               AntialiasedArray &antialiaseds,
                                               ColorArray &hatchcolors)
 {
-    pixFmt.comp_op(gc.comp_op);
     _draw_path_collection_generic(gc,
                                   master_transform,
                                   gc.cliprect,
@@ -1025,7 +1047,6 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   true,
                                   true,
                                   hatchcolors);
-    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class CoordinateArray>
@@ -1121,7 +1142,6 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     DashesVector linestyles;
     ColorArray hatchcolors = py::array_t<double>().reshape({0, 4}).unchecked<double, 2>();
 
-    pixFmt.comp_op(gc.comp_op);
     _draw_path_collection_generic(gc,
                                   master_transform,
                                   gc.cliprect,
@@ -1139,7 +1159,6 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   true, // check_snap
                                   false,
                                   hatchcolors);
-    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PointArray, class ColorArray>
