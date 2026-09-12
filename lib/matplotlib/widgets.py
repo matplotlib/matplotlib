@@ -325,12 +325,8 @@ class SliderBase(AxesWidget):
         self.drag_active = False
         self.valfmt = valfmt
 
-        if orientation == "vertical":
-            ax.set_ylim(valmin, valmax)
-            axis = ax.yaxis
-        else:
-            ax.set_xlim(valmin, valmax)
-            axis = ax.xaxis
+        self._update_bounds()
+        axis = self.ax.yaxis if self.orientation == "vertical" else self.ax.xaxis
 
         self._fmt = axis.get_major_formatter()
         if not isinstance(self._fmt, ticker.ScalarFormatter):
@@ -377,6 +373,13 @@ class SliderBase(AxesWidget):
         """Reset the slider to the initial value."""
         if np.any(self.val != self.valinit):
             self.set_val(self.valinit)
+
+    def _update_bounds(self):
+        """Update the slider bounds."""
+        if self.orientation == "vertical":
+            self.ax.set_ylim((self.valmin, self.valmax))
+        else:
+            self.ax.set_xlim((self.valmin, self.valmax))
 
 
 class Slider(SliderBase):
@@ -630,6 +633,29 @@ class Slider(SliderBase):
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
+
+    def update_range(self, valmin=None, valmax=None, valstep=None):
+        """
+        Set the slider range.
+
+        The slider value is coerced to the closest number
+        in the *valstep* grid.
+
+        Parameters
+        ----------
+        valmin, valmax, valstep : float or None
+            The range limits. If None, the respective limit is not updated.
+        """
+        if valmin:
+            self.valmin = valmin
+        if valmax:
+            self.valmax = valmax
+        if valstep:
+            self.valstep = valstep
+        self._update_bounds()
+        val = self._value_in_bounds(self._value_in_bounds(self.val))
+        if val not in [None, self.val]:
+            self.set_val(val)
 
     def on_changed(self, func):
         """
