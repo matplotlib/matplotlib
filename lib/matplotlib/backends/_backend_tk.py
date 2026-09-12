@@ -6,6 +6,7 @@ import math
 import os.path
 import pathlib
 import sys
+import time
 import tkinter as tk
 import tkinter.filedialog
 import tkinter.font
@@ -159,6 +160,7 @@ class TimerTk(TimerBase):
 
     def _timer_start(self):
         self._timer_stop()
+        self._next_fire = time.monotonic() + self._interval / 1000
         self._timer = self.parent.after(self._interval, self._on_timer)
 
     def _timer_stop(self):
@@ -168,23 +170,18 @@ class TimerTk(TimerBase):
 
     def _on_timer(self):
         super()._on_timer()
-        # Tk after() is only a single shot, so we need to add code here to
-        # reset the timer if we're not operating in single shot mode.  However,
-        # if _timer is None, this means that _timer_stop has been called; so
-        # don't recreate the timer in that case.
-        if not self._single and self._timer:
-            if self._interval > 0:
-                self._timer = self.parent.after(self._interval, self._on_timer)
-            else:
-                # Edge case: Tcl after 0 *prepends* events to the queue
-                # so a 0 interval does not allow any other events to run.
-                # This incantation is cancellable and runs as fast as possible
-                # while also allowing events and drawing every frame. GH#18236
-                self._timer = self.parent.after_idle(
-                    lambda: self.parent.after(self._interval, self._on_timer)
-                )
-        else:
+        # Tk's after() is a single shot, so repeating means rescheduling here.
+        if self._single or not self._timer:
             self._timer = None
+            return
+        now = time.monotonic()
+        interval = self._interval / 1000
+        self._next_fire += interval
+        if self._next_fire <= now:
+            # Drop the firings missed while the callback overran.
+            self._next_fire += interval * ((now - self._next_fire) // interval + 1)
+        self._timer = self.parent.after(
+            max(1, round((self._next_fire - now) * 1000)), self._on_timer)
 
     def _timer_set_interval(self):
         if self._timer is not None:

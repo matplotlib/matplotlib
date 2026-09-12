@@ -196,6 +196,8 @@ class TimerQT(TimerBase):
         # Create a new timer and connect the timeout() signal to the
         # _on_timer method.
         self._timer = QtCore.QTimer()
+        # The default coarse timer is allowed to drift by up to 5%.
+        self._timer.setTimerType(QtCore.Qt.TimerType.PreciseTimer)
         self._timer.timeout.connect(self._on_timer)
         super().__init__(*args, **kwargs)
 

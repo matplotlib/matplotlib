@@ -124,13 +124,20 @@ class TimerAsyncio(backend_bases.TimerBase):
         super().__init__(*args, **kwargs)
 
     async def _timer_task(self, interval):
+        loop = asyncio.get_running_loop()
+        next_fire = loop.time() + interval
         while True:
             try:
-                await asyncio.sleep(interval)
+                await asyncio.sleep(next_fire - loop.time())
                 self._on_timer()
 
                 if self._single:
                     break
+                # Drop the firings missed while the callback overran.
+                now = loop.time()
+                next_fire += interval
+                if next_fire <= now:
+                    next_fire += interval * ((now - next_fire) // interval + 1)
             except asyncio.CancelledError:
                 break
 
