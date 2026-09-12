@@ -1,0 +1,129 @@
+---
+# Exercises the documented build paths from doc/devel/development_setup.rst.
+name: Dev builds
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+      - v[0-9]+.[0-9]+.x
+  pull_request:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build:
+    permissions:
+      contents: read
+    name: "Dev builds on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    defaults:
+      run:
+        # Login shell so the conda environment can be activated in its step.
+        shell: bash -el {0}
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
+        with:
+          fetch-depth: 0  # full history so setuptools-scm can determine the version
+          persist-credentials: false
+
+      - uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405  # v6.2.0
+        with:
+          python-version: '3.13'
+          cache: pip
+          cache-dependency-path: pyproject.toml
+
+      - uses: astral-sh/setup-uv@08807647e7069bb48b6ef5acd8ec9567f424441b  # v8.1.0
+        with:
+          enable-cache: true
+
+      - uses: mamba-org/setup-micromamba@d7c9bd84e824b79d2af72a2d4196c7f4300d3476  # v3.0.0
+        with:
+          init-shell: bash
+          cache-downloads: true
+
+      - name: Build with venv + pip
+        id: venv_pip
+        continue-on-error: true
+        run: |
+          rm -rf build
+          python -m venv .venv-pip
+          source .venv-pip/bin/activate 2>/dev/null || source .venv-pip/Scripts/activate
+          python -m pip install -U pip
+          python -m pip install --group dev
+          # Strawberry Perl's gcc on PATH shadows MSVC, so --vsenv forces MSVC.
+          VSENV=()
+          [ "$RUNNER_OS" = Windows ] && VSENV=(--config-settings=setup-args=--vsenv)
+          python -m pip install --verbose --no-build-isolation --group dev "${VSENV[@]}" --editable .
+          python -c "import matplotlib; print(matplotlib.__file__, matplotlib.__version__)"
+
+      - name: Build with conda + pip
+        id: conda
+        continue-on-error: true
+        run: |
+          rm -rf build
+          # Create the env here rather than via setup-micromamba's
+          # environment-file input, which crashes on environment.yml's
+          # nbconvert[execute] spec.
+          micromamba create -y -n mpl-dev -f environment.yml
+          micromamba activate mpl-dev
+          # conda's MSVC setup doesn't run under bash, so --vsenv forces MSVC.
+          VSENV=()
+          [ "$RUNNER_OS" = Windows ] && VSENV=(--config-settings=setup-args=--vsenv)
+          python -m pip install --verbose --no-build-isolation --group dev "${VSENV[@]}" --editable .
+          python -c "import matplotlib; print(matplotlib.__file__, matplotlib.__version__)"
+
+      - name: Build with uv pip
+        id: uv_pip
+        continue-on-error: true
+        run: |
+          rm -rf build
+          uv venv --python 3.13 .venv-uvpip
+          source .venv-uvpip/bin/activate 2>/dev/null || source .venv-uvpip/Scripts/activate
+          uv pip install --group dev
+          VSENV=()
+          [ "$RUNNER_OS" = Windows ] && VSENV=(-C setup-args=--vsenv)
+          uv pip install --verbose --no-build-isolation --group dev "${VSENV[@]}" --editable .
+          python -c "import matplotlib; print(matplotlib.__file__, matplotlib.__version__)"
+
+      - name: Build with uv sync
+        id: uv_sync
+        continue-on-error: true
+        env:
+          UV_PROJECT_ENVIRONMENT: .venv-uvsync
+        run: |
+          rm -rf build
+          # Build separately without isolation, since meson-python editable breaks if
+          # its build env is deleted.
+          uv sync --python 3.13 --group dev --no-install-project
+          source .venv-uvsync/bin/activate 2>/dev/null || source .venv-uvsync/Scripts/activate
+          VSENV=()
+          [ "$RUNNER_OS" = Windows ] && VSENV=(-C setup-args=--vsenv)
+          uv pip install --verbose --no-build-isolation --group dev "${VSENV[@]}" --editable .
+          python -c "import matplotlib; print(matplotlib.__file__, matplotlib.__version__)"
+
+      - name: Summary
+        if: always()
+        env:
+          VENV_PIP_OUTCOME: ${{ steps.venv_pip.outcome }}
+          CONDA_OUTCOME: ${{ steps.conda.outcome }}
+          UV_PIP_OUTCOME: ${{ steps.uv_pip.outcome }}
+          UV_SYNC_OUTCOME: ${{ steps.uv_sync.outcome }}
+        run: |
+          echo "venv + pip : $VENV_PIP_OUTCOME"
+          echo "conda      : $CONDA_OUTCOME"
+          echo "uv pip     : $UV_PIP_OUTCOME"
+          echo "uv sync    : $UV_SYNC_OUTCOME"
+          test "$VENV_PIP_OUTCOME" = success \
+            && test "$CONDA_OUTCOME" = success \
+            && test "$UV_PIP_OUTCOME" = success \
+            && test "$UV_SYNC_OUTCOME" = success
