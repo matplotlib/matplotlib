@@ -503,18 +503,24 @@ class SymmetricalLogTransform(Transform):
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale
+        self._base_log = np.log(base)
+
+    def _log_b(self, x):
+        # Use specialized logs if possible, as they can be more accurate; e.g.
+        # log(.001) / log(10) = -2.999... (whether math.log or np.log) due to
+        # floating point error.
+        return (np.log10(x) if self.base == 10 else
+                np.log2(x) if self.base == 2 else
+                np.log(x) / self._base_log)
 
     def transform_non_affine(self, values):
-        log_base = np.log(self.base)
-
         abs_a = np.abs(values)
         inside = abs_a <= self.linthresh
         if np.all(inside):  # Fast path: all values in linear region
             return values * self.linscale
         with np.errstate(divide="ignore", invalid="ignore"):
             out = np.sign(values) * self.linthresh * (
-                self.linscale - np.log(self.linthresh) / log_base +
-                np.log(abs_a) / log_base)
+                self.linscale - self._log_b(self.linthresh) + self._log_b(abs_a))
         out[inside] = values[inside] * self.linscale
         return out
 
@@ -537,6 +543,7 @@ class InvertedSymmetricalLogTransform(Transform):
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale
+        self._base_log = np.log(base)
 
     @_api.deprecated("3.11", name="invlinthresh", obj_type="attribute",
                      alternative=".inverted().transform(linthresh)")
@@ -554,7 +561,7 @@ class InvertedSymmetricalLogTransform(Transform):
             return values / self.linscale
         with np.errstate(divide="ignore", invalid="ignore"):
             out = np.sign(values) * self.linthresh * np.exp(
-                (abs_a / self.linthresh - self.linscale) * np.log(self.base))
+                (abs_a / self.linthresh - self.linscale) * self._base_log)
         out[inside] = values[inside] / self.linscale
         return out
 
@@ -583,7 +590,7 @@ class SymmetricalLogScale(ScaleBase):
         .. note::
             This parameter is unused and about to be removed in the future.
             It can already now be left out because of special preprocessing,
-            so that ``SymmetricalLocSacle(base=2)`` is valid.
+            so that ``SymmetricalLogScale(base=2)`` is valid.
 
     base : float, default: 10
         The base of the logarithm.
