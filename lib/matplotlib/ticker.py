@@ -21,6 +21,9 @@ choosing of tick locations. A useful semi-automatic tick locator is
 `MultipleLocator`. It is initialized with a base, e.g., 10, and it picks
 axis limits and ticks that are multiples of that base.
 
+Locators must return at least a single tick below ``vmin`` and a single tick
+above ``vmax``.
+
 The Locator subclasses defined here are:
 
 ======================= =======================================================
