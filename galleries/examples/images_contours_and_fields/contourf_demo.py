@@ -1,4 +1,5 @@
 """
+.. _contourf_demo:
 =============
 Contourf demo
 =============
