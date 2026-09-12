@@ -634,41 +634,79 @@ def test_fallback_to_different_backend():
 
 
 def _impl_test_interactive_timers():
-    # A timer with <1 millisecond gets converted to int and therefore 0
-    # milliseconds, which the mac framework interprets as singleshot.
-    # We only want singleshot if we specify that ourselves, otherwise we want
-    # a repeating timer
+    import statistics
+    import time
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
-    pause_time = 0.5
+
     fig = plt.figure()
-    plt.pause(pause_time)
-    timer = fig.canvas.new_timer(0.1)
-    mock = Mock()
-    timer.add_callback(mock)
-    timer.start()
-    plt.pause(pause_time)
-    timer.stop()
-    assert mock.call_count > 1
 
-    # Now turn it into a single shot timer and verify only one gets triggered
-    mock.reset_mock()
-    timer.single_shot = True
-    timer.start()
-    plt.pause(pause_time)
-    assert mock.call_count == 1
+    # These are independent of each other, so share one event loop.
 
-    # Make sure we can start the timer a second time
-    timer.start()
-    plt.pause(pause_time)
-    assert mock.call_count == 2
-    plt.close("all")
+    # Never started, and changing its properties must not start it either.
+    idle = fig.canvas.new_timer(20)
+    idle_mock = Mock()
+    idle.add_callback(idle_mock)
+    idle.interval = 30
+    idle.single_shot = True
+    idle.single_shot = False
+
+    # Too slow to fire below unless the update reaches the running timer.
+    repeating = fig.canvas.new_timer(10_000)
+    repeating_mock = Mock()
+    repeating.add_callback(repeating_mock)
+    repeating.start()
+    repeating.interval = 50
+
+    # Started as a repeating timer, then switched before it has fired.
+    single = fig.canvas.new_timer(50)
+    single_mock = Mock()
+    single.add_callback(single_mock)
+    single.start()
+    single.single_shot = True
+
+    # Restarts itself from inside its own callback.
+    rearm = fig.canvas.new_timer(50)
+    rearm.single_shot = True
+    rearm_mock = Mock(side_effect=lambda: rearm.start())
+    rearm.add_callback(rearm_mock)
+    rearm.start()
+
+    fig.canvas.start_event_loop(0.5)
+    repeating.stop()
+    rearm.stop()
+    rearm_stopped_at = rearm_mock.call_count
+    single.start()
+
+    assert idle_mock.call_count == 0, "A timer fired without being started"
+    assert repeating_mock.call_count > 1, "Interval update did not reach the timer"
+    assert single_mock.call_count == 1, \
+        f"Single shot fired {single_mock.call_count} times"
+    assert rearm_stopped_at > 1, "Timer did not restart from its callback"
+
+    fig.canvas.start_event_loop(0.25)
+    assert single_mock.call_count == 2, \
+        f"Restarted single shot fired {single_mock.call_count - 1} times"
+    assert rearm_mock.call_count == rearm_stopped_at, "stop() did not cancel the timer"
+
+    # A slow callback must not push back the firings that follow it.  Measuring
+    # the firings against each other survives a runner that is short on CPU.
+    interval = 0.1
+    fires = []
+    slow = fig.canvas.new_timer(interval * 1000)
+    slow.add_callback(lambda: (fires.append(time.perf_counter()),
+                               time.sleep(interval * 0.8)))
+    slow.start()
+    fig.canvas.start_event_loop(0.7)
+    slow.stop()
+    assert len(fires) >= 4, f"Slow callback only fired {len(fires)} times"
+    spacing = statistics.median(b - a for a, b in zip(fires, fires[1:]))
+    assert spacing < interval * 1.15, \
+        f"Slow callback drifted to {spacing * 1000:.0f}ms spacing"
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
 def test_interactive_timers(env):
-    if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
-        pytest.skip("gtk3cairo timers do not work in remote CI")
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
     _run_helper(_impl_test_interactive_timers,

@@ -1,5 +1,8 @@
+import asyncio
 import os
+import statistics
 import sys
+import time
 from unittest.mock import MagicMock
 
 import pytest
@@ -78,3 +81,30 @@ def test_websocket_rejects_cross_origin(host, origin, allowed):
     ws.request = MagicMock()
     ws.request.headers = {"Host": host}
     assert ws.check_origin(origin) is allowed
+
+
+async def _run_asyncio_timer(single_shot, callback_s, loop_s):
+    interval = 0.05
+    timer = matplotlib.backends.backend_webagg_core.TimerAsyncio(interval * 1000)
+    timer.single_shot = single_shot
+    fires = []
+    timer.add_callback(
+        lambda: (fires.append(asyncio.get_running_loop().time()),
+                 time.sleep(callback_s)))
+    timer.start()
+    await asyncio.sleep(loop_s)
+    timer.stop()
+    return interval, fires
+
+
+def test_asyncio_timer_single_shot():
+    _, fires = asyncio.run(_run_asyncio_timer(True, 0, 0.3))
+    assert len(fires) == 1
+
+
+def test_asyncio_timer_no_drift():
+    # A slow callback must not push back the firings that follow it.
+    interval, fires = asyncio.run(_run_asyncio_timer(False, 0.04, 0.5))
+    assert len(fires) >= 4
+    spacing = statistics.median(b - a for a, b in zip(fires, fires[1:]))
+    assert spacing < interval * 1.4
