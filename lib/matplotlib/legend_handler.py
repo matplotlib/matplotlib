@@ -112,7 +112,7 @@ class HandlerBase:
             The legend for which these legend artists are being created.
         orig_handle : :class:`matplotlib.artist.Artist` or similar
             The object for which these legend artists are being created.
-        fontsize : int
+        fontsize : float
             The fontsize in pixels. The artists being created should
             be scaled according to the given fontsize.
         handlebox : `~matplotlib.offsetbox.OffsetBox`
@@ -152,7 +152,7 @@ class HandlerBase:
         xdescent, ydescent, width, height : int
             The rectangle (*xdescent*, *ydescent*, *width*, *height*) that the
             legend artists being created should fit within.
-        fontsize : int
+        fontsize : float
             The fontsize in pixels. The legend artists being created should
             be scaled according to the given fontsize.
         trans : `~matplotlib.transforms.Transform`
