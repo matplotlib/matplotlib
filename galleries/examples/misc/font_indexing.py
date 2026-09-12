@@ -5,6 +5,9 @@ Font indexing
 
 This example shows how the font tables relate to one another.
 """
+# sphinx_gallery_thumbnail_path = "_static/font_indexing.png"
+# Recreate the thumbnail with:
+# python doc/generate_gallery_thumbnails.py font_indexing
 
 import os
 
