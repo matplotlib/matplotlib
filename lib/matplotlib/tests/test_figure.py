@@ -655,6 +655,20 @@ def test_savefig_pixel_ratio(backend):
     assert ratio1 == ratio2
 
 
+@pytest.mark.parametrize("target", ["figure", "subfigure"])
+def test_set_dpi_savefig(target):
+    fig = Figure(figsize=(2, 1), dpi=40)
+    fig.canvas._set_device_pixel_ratio(2)
+    (fig if target == "figure" else fig.subfigures()).set_dpi(60)
+
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format="png", dpi="figure")
+        assert Image.open(buf).size == (120, 60)
+
+    assert fig.dpi == 120
+    assert fig.canvas.device_pixel_ratio == 2
+
+
 def test_savefig_preserve_layout_engine():
     fig = plt.figure(layout='compressed')
     fig.savefig(io.BytesIO(), bbox_inches='tight')
@@ -1724,6 +1738,27 @@ def test_unpickle_with_device_pixel_ratio():
     assert all(
         [orig / 7 == restore for orig, restore in zip(fig.bbox.max, fig2.bbox.max)]
     )
+
+
+@pytest.mark.parametrize("target", ["figure", "subfigure"])
+@pytest.mark.parametrize("set_dpi_first", [False, True])
+@pytest.mark.parametrize("device_pixel_ratio", [1, 7])
+def test_unpickle_with_set_dpi(target, set_dpi_first, device_pixel_ratio):
+    fig = Figure(dpi=42)
+    target = fig if target == "figure" else fig.subfigures()
+
+    if set_dpi_first:
+        target.set_dpi(84)
+        fig.canvas._set_device_pixel_ratio(device_pixel_ratio)
+    else:
+        fig.canvas._set_device_pixel_ratio(device_pixel_ratio)
+        target.set_dpi(84)
+
+    assert fig.dpi == 84 * device_pixel_ratio
+    restored = pickle.loads(pickle.dumps(fig))
+    assert restored.dpi == 84
+    np.testing.assert_allclose(
+        fig.bbox.max / device_pixel_ratio, restored.bbox.max)
 
 
 def test_gridspec_no_mutate_input():
