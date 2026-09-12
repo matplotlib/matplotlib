@@ -78,8 +78,21 @@ class PathIterator
         m_simplify_threshold = other.m_simplify_threshold;
     }
 
+    inline PathIterator& operator=(const PathIterator& other) {
+        if (this == &other) return *this;
+        m_vertices = other.m_vertices;
+        m_codes = other.m_codes;
+
+        m_iterator = 0;
+        m_total_vertices = other.m_total_vertices;
+
+        m_should_simplify = other.m_should_simplify;
+        m_simplify_threshold = other.m_simplify_threshold;
+        return *this;
+    }
+
     inline void
-    set(py::object vertices, py::object codes, bool should_simplify, double simplify_threshold)
+    set(py::object vertices, py::object codes, bool should_simplify = false, double simplify_threshold = 0.0)
     {
         m_should_simplify = should_simplify;
         m_simplify_threshold = simplify_threshold;
@@ -99,11 +112,6 @@ class PathIterator
         }
 
         m_iterator = 0;
-    }
-
-    inline void set(py::object vertices, py::object codes)
-    {
-        set(vertices, codes, false, 0.0);
     }
 
     inline unsigned vertex(double *x, double *y)
@@ -126,7 +134,7 @@ class PathIterator
         }
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_iterator = path_id;
     }
@@ -136,7 +144,7 @@ class PathIterator
         return m_total_vertices;
     }
 
-    inline bool should_simplify() const
+    constexpr bool should_simplify() const
     {
         return m_should_simplify;
     }

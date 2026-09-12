@@ -27,9 +27,7 @@ struct XY
     double x;
     double y;
 
-    XY() : x(0), y(0) {}
-
-    XY(double x_, double y_) : x(x_), y(y_)
+    XY(double x_ = 0, double y_ = 0) : x(x_), y(y_)
     {
     }
 
@@ -116,7 +114,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
     bool all_done;
 
     size_t n = safe_first_shape(points);
-    assert(safe_first_shape(inside_flag) >= n);
+    assert(static_cast<size_t>(safe_first_shape(inside_flag)) >= n);
 
     std::vector<uint8_t> yflag0(n);
     std::vector<uint8_t> subpath_flag(n);
@@ -238,13 +236,13 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
 }
 
 template <class PathIterator, class PointArray, class ResultArray>
-inline void points_in_path(PointArray &points,
+constexpr void points_in_path(PointArray &points,
                            const double r,
                            PathIterator &path,
                            agg::trans_affine &trans,
                            ResultArray &result)
 {
-    assert(safe_first_shape(result) >= safe_first_shape(points));
+    assert(static_cast<py::ssize_t>(safe_first_shape(result)) >= safe_first_shape(points));
     for (auto i = 0; i < safe_first_shape(points); ++i) {
         result[i] = false;
     }
@@ -1021,6 +1019,14 @@ void __add_number(double val, char format_code, int precision,
 {
     char *str = PyOS_double_to_string(
         val, format_code, precision, Py_DTSF_ADD_DOT_0, nullptr);
+    if (str == nullptr) {
+        const char* template_msg = "Cannot call PyOS_double_to_string within %s "
+        "with the following arguments: val=%f, format_code=%c, precision=%d";
+        int sz = std::snprintf(nullptr, 0, template_msg, __func__, val, format_code, precision);
+        std::vector<char> buf(sz + 1); // note +1 for null terminator
+        std::sprintf(buf.data(), template_msg, __func__, val, format_code, precision); // certain to fit
+        throw std::invalid_argument(buf.data());
+    }
     // Delete trailing zeros and decimal point
     char *c = str + strlen(str) - 1;  // Start at last character.
     // Rewind through all the zeros and, if present, the trailing decimal

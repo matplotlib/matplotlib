@@ -20,6 +20,7 @@
 extern "C" {
 #include <ft2build.h>
 #include FT_BITMAP_H
+#include FT_ERRORS_H
 #include FT_FREETYPE_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
@@ -37,7 +38,7 @@ namespace py = pybind11;
 #define FIXED_MINOR(val) (unsigned short)(val & 0xffff)
 
 // Error handling (error codes are loaded as described in fterror.h).
-inline char const* ft_error_string(FT_Error error) {
+constexpr char const* ft_error_string(FT_Error error) {
 #undef __FTERRORS_H__
 #define FT_ERROR_START_LIST     switch (error) {
 #define FT_ERRORDEF( e, v, s )    case v: return s;
