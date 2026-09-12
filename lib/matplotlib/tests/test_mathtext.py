@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import logging
 from pathlib import Path
 import platform
 import re
@@ -292,14 +293,6 @@ def test_short_long_accents(fig_test, fig_ref):
         0, .5, "$" + "".join(fr"\{l} a" for l in corresponding_long_accs) + "$")
 
 
-def test_fontinfo():
-    fontpath = mpl.font_manager.findfont("DejaVu Sans")
-    font = mpl.ft2font.FT2Font(fontpath)
-    table = font.get_sfnt_table("head")
-    assert table is not None
-    assert table['version'] == (1, 0)
-
-
 # See gh-26152 for more context on this xfail
 @pytest.mark.xfail(pyparsing_version.release == (3, 1, 0),
                    reason="Error messages are incorrect for this version")
@@ -377,6 +370,35 @@ def test_mathtext_exceptions(math, msg):
     match = re.escape(msg) if isinstance(msg, str) else msg
     with pytest.raises(ValueError, match=match):
         parser.parse(math)
+
+
+def test_mathtext_fonts(caplog):
+    # Changing these `font.*` rcParams should not affect mathtext, as that uses bundled
+    # fonts with a specific mapping to style/weight. TODO: font.stretch and font.variant
+    # are difficult to test as we don't have anything that might accidentally be
+    # substituted there.
+    mpl.rcParams['font.style'] = 'italic'
+    mpl.rcParams['font.weight'] = 100
+    # Use explicitly available default so that it doesn't warn.
+    default_font = fm.FontProperties('DejaVu Sans:style=normal:weight=normal')
+
+    _mathtext.BakomaFonts(default_font, LoadFlags.DEFAULT)
+    dejavusans = _mathtext.DejaVuSansFonts(default_font, LoadFlags.DEFAULT)
+    dejavuserif = _mathtext.DejaVuSerifFonts(default_font, LoadFlags.DEFAULT)
+    stix = _mathtext.StixFonts(default_font, LoadFlags.DEFAULT)
+    stixsans = _mathtext.StixSansFonts(default_font, LoadFlags.DEFAULT)
+
+    # Setting font.style should not have accidentally changed any roman font to italic.
+    assert dejavusans.fontmap['rm'].endswith('DejaVuSans.ttf')
+    assert dejavuserif.fontmap['rm'].endswith('DejaVuSerif.ttf')
+    assert stix.fontmap['rm'].endswith('STIXGeneral.ttf')
+    assert stixsans.fontmap['rm'].endswith('STIXGeneral.ttf')
+    # No bakoma font is actually italic, so that setting won't affect it.
+
+    # If `font.weight` leaked into the mathtext setup, then it should cause a warning to
+    # be logged from the font manager for a missing font weight.
+    records = [record for record in caplog.records if record.levelno == logging.WARNING]
+    assert records == []
 
 
 def test_get_unicode_index_exception():
