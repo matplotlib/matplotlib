@@ -573,9 +573,7 @@ def test_backend_fallback_headless_auto_backend(tmp_path):
     assert backend.strip().lower() == "agg"
 
 
-@pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
-    reason="headless")
+@pytest.mark.skipif(not _c_internal_utils.display_is_valid(), reason="headless")
 def test_backend_fallback_headful(tmp_path):
     if parse_version(pytest.__version__) >= parse_version('8.2.0'):
         pytest_kwargs = dict(exc_type=ImportError)
