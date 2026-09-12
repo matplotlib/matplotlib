@@ -514,15 +514,15 @@ class SymmetricalLogTransform(Transform):
                 np.log(x) / self._base_log)
 
     def transform_non_affine(self, values):
-        abs_a = np.abs(values)
-        inside = abs_a <= self.linthresh
+        scaled = values / self.linthresh
+        abs_scaled = np.abs(scaled)
+        inside = abs_scaled <= 1
         if np.all(inside):  # Fast path: all values in linear region
-            return values * self.linscale
+            return scaled * self.linscale
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self.linthresh * (
-                self.linscale - self._log_b(self.linthresh) + self._log_b(abs_a))
-        out[inside] = values[inside] * self.linscale
-        return out
+            out = self._log_b(abs_scaled) + self.linscale
+        out[inside] = abs_scaled[inside] * self.linscale
+        return np.sign(scaled) * out
 
     def inverted(self):
         return InvertedSymmetricalLogTransform(self.base, self.linthresh,
@@ -553,17 +553,14 @@ class InvertedSymmetricalLogTransform(Transform):
         return invlinthresh
 
     def transform_non_affine(self, values):
-        invlinthresh = self.inverted().transform(self.linthresh)
-
-        abs_a = np.abs(values)
-        inside = abs_a <= invlinthresh
+        abs_values = np.abs(values)
+        inside = abs_values <= self.linscale
         if np.all(inside):  # Fast path: all values in linear region
-            return values / self.linscale
+            return values / self.linscale * self.linthresh
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self.linthresh * np.exp(
-                (abs_a / self.linthresh - self.linscale) * self._base_log)
-        out[inside] = values[inside] / self.linscale
-        return out
+            out = np.exp(self._base_log * (abs_values - self.linscale))
+        out[inside] = abs_values[inside] / self.linscale
+        return np.sign(values) * self.linthresh * out
 
     def inverted(self):
         return SymmetricalLogTransform(self.base,
