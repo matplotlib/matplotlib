@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-03-12T19:45:40.640954</dc:date>
+    <dc:date>2026-09-11T11:57:05.058530</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev2072+gb1cf5d4866.d20260312, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v0.1.0.dev55212+unknown.g25781de6a, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
-   <g transform="translate(155.58 30.117188) scale(0.12 -0.12)">
+   <g transform="translate(160.14 30.117188) scale(0.12 -0.12)">
     <defs>
      <path id="STIXGeneral-Regular-4e6" d="M 3661 -198 
 L 3238 -198 
@@ -140,11 +140,11 @@ z
     <use xlink:href="#DejaVuSans-3" transform="translate(61.999939 0.40625)"/>
     <use xlink:href="#STIXGeneral-Regular-4e5" transform="translate(93.787048 0.40625)"/>
     <use xlink:href="#DejaVuSans-3" transform="translate(155.786987 0.40625)"/>
-    <use xlink:href="#DejaVuSerif-87e" transform="translate(206.53894 0.40625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(309.292847 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(341.079956 0.40625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(403.079895 0.40625)"/>
-    <use xlink:href="#DejaVuSerif-882" transform="translate(453.831848 0.40625)"/>
+    <use xlink:href="#DejaVuSerif-87e" transform="translate(187.574097 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(271.363159 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(303.150269 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(365.150208 0.40625)"/>
+    <use xlink:href="#DejaVuSerif-882" transform="translate(396.937317 0.40625)"/>
    </g>
   </g>
  </g>
