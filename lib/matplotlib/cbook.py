@@ -68,7 +68,7 @@ def _get_running_interactive_framework():
     -------
     Optional[str]
         One of the following values: "qt", "gtk3", "gtk4", "wx", "tk",
-        "macosx", "headless", ``None``.
+        "macos", "macosx", "headless", ``None``.
     """
     # Use ``sys.modules.get(name)`` rather than ``name in sys.modules`` as
     # entries can also have been explicitly set to None.
@@ -100,6 +100,9 @@ def _get_running_interactive_framework():
                 frame = frame.f_back
         # Preemptively break reference cycle between locals and the frame.
         del frame
+    macos = sys.modules.get("matplotlib.backends._macos")
+    if macos and macos.is_initialized():
+        return "macos"
     macosx = sys.modules.get("matplotlib.backends._macosx")
     if macosx and macosx.event_loop_is_running():
         return "macosx"

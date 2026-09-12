@@ -1230,8 +1230,9 @@ def use(backend, *, force=True):
         backend names, which are case-insensitive:
 
         - interactive backends:
-          GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo, MacOSX, nbAgg, notebook, QtAgg,
-          QtCairo, TkAgg, TkCairo, WebAgg, WX, WXAgg, WXCairo, Qt5Agg, Qt5Cairo
+          GTK3Agg, GTK3Cairo, GTK4Agg, GTK4Cairo, LegacyMac, macOS, MacOSX,
+          nbAgg, notebook, QtAgg, QtCairo, TkAgg, TkCairo, WebAgg, WX, WXAgg,
+          WXCairo, Qt5Agg, Qt5Cairo
 
         - non-interactive backends:
           agg, cairo, pdf, pgf, ps, svg, template
