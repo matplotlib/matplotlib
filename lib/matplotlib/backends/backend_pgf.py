@@ -438,6 +438,16 @@ class RendererPgf(RendererBase):
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
 
+        # Use an isolated blend group if the path blend mode is other than "normal" and
+        # if more than one of fill/hatch/stroke is active to avoid internal blending
+        isolate = ((blend_mode := gc.get_blend_mode()) != "normal" and
+                   sum([rgbFace is not None,
+                        gc.get_hatch() is not None,
+                        gc.get_linewidth() > 0]) > 1)
+        if isolate:
+            self.open_blend_group(blend_mode)
+            gc.set_blend_mode("normal")
+
         # draw any fill, and stroke too if no hatches
         stroke_with_fill = rgbFace is not None and not gc.get_hatch()
         if rgbFace is not None:
@@ -516,6 +526,9 @@ class RendererPgf(RendererBase):
             self._print_pgf_path(gc, path, transform, rgbFace)
             self._pgf_path_draw(stroke=True, fill=False)
             _writeln(self.fh, r"\end{pgfscope}")
+
+        if isolate:
+            self.close_blend_group()
 
     def _print_pgf_blend(self, gc):
         if (blend_mode := gc.get_blend_mode()) not in _BlendModePDFSpec:
