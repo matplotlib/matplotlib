@@ -73,6 +73,7 @@ class RendererAgg(RendererBase):
     The renderer handles all the drawing primitives using a graphics
     context instance that controls the colors/styles
     """
+    _supports_isolated_group_and_plus_blend_mode = True
 
     def __init__(self, width, height, dpi):
         super().__init__()
