@@ -62,6 +62,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
             origin = QtCore.QPoint(rect.left(), rect.top())
             painter.drawImage(origin, qimage)
             self._draw_rect_callback(painter)
+            self._draw_whisker_callback(painter)
         finally:
             painter.end()
 

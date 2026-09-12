@@ -1,0 +1,11 @@
+Single-axis zoom indicators are optional for backends
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`~matplotlib.backend_bases.NavigationToolbar2.draw_whiskers` and
+`~matplotlib.backend_bases.NavigationToolbar2.remove_whiskers` are optional
+backend API methods for drawing the single-axis zoom indicator. Their
+default implementations do nothing, so third-party backends continue to zoom
+without displaying the indicator.
+
+WebAgg clients must advertise the ``supports_zoom_whiskers`` capability to
+receive ``whiskers`` events.

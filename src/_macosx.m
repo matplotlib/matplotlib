@@ -170,6 +170,7 @@ static int wait_for_stdin() {
 
 @interface View : NSView <NSWindowDelegate>
 {   NSRect rubberband;
+    NSRect whiskers;
     @public double device_scale;
 }
 - (void)drawRect:(NSRect)rect;
@@ -190,7 +191,9 @@ static int wait_for_stdin() {
 - (void)otherMouseUp:(NSEvent*)event;
 - (void)otherMouseDragged:(NSEvent*)event;
 - (void)setRubberband:(NSRect)rect;
+- (void)setWhiskers:(NSRect)rect;
 - (void)removeRubberband;
+- (void)removeWhiskers;
 - (NSString*)convertKeyEvent:(NSEvent*)event;
 - (void)keyDown:(NSEvent*)event;
 - (void)keyUp:(NSEvent*)event;
@@ -532,12 +535,50 @@ FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 }
 
 static PyObject*
+FigureCanvas_set_whiskers(FigureCanvas* self, PyObject* args)
+{
+    View* view = self->view;
+    if (!view) {
+        PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
+        return NULL;
+    }
+    int x0, y0, x1, y1, ws;
+    if (!PyArg_ParseTuple(args, "iiiii", &x0, &y0, &x1, &y1, &ws)) {
+        return NULL;
+    }
+    x0 /= view->device_scale;
+    x1 /= view->device_scale;
+    y0 /= view->device_scale;
+    y1 /= view->device_scale;
+    ws /= view->device_scale;
+    NSRect whiskers = NSZeroRect;
+    if (x0 == x1) { // vertical line
+        x0 -= ws/2;
+        whiskers = NSMakeRect(x0, y0 < y1 ? y0 : y1,
+                                     ws, abs(y1 - y0));
+    } else if (y0 == y1) { // horizontal line
+        y0 -= ws/2;
+        whiskers = NSMakeRect(x0 < x1 ? x0 : x1, y0,
+                                     abs(x1 - x0), ws);
+    }
+    [view setWhiskers: whiskers];
+    Py_RETURN_NONE;
+}
+
+static PyObject*
 FigureCanvas_remove_rubberband(FigureCanvas* self)
 {
     BEGIN_OBJC_ENTRY
     [self->view removeRubberband];
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
+}
+
+static PyObject*
+FigureCanvas_remove_whiskers(FigureCanvas* self)
+{
+    [self->view removeWhiskers];
+    Py_RETURN_NONE;
 }
 
 static PyObject*
@@ -624,10 +665,18 @@ static PyTypeObject FigureCanvasType = {
          (PyCFunction)FigureCanvas_set_rubberband,
          METH_VARARGS,
          PyDoc_STR("Specify a new rubberband rectangle and invalidate it.")},
+        {"set_whiskers",
+         (PyCFunction)FigureCanvas_set_whiskers,
+         METH_VARARGS,
+         PyDoc_STR("Specify new whiskers and invalidate them.")},
         {"remove_rubberband",
          (PyCFunction)FigureCanvas_remove_rubberband,
          METH_NOARGS,
          PyDoc_STR("Remove the current rubberband rectangle.")},
+        {"remove_whiskers",
+         (PyCFunction)FigureCanvas_remove_whiskers,
+         METH_NOARGS,
+         PyDoc_STR("Remove the current whiskers.")},
         {"_start_event_loop",
          (PyCFunction)FigureCanvas__start_event_loop,
          METH_KEYWORDS | METH_VARARGS,
@@ -1388,6 +1437,41 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
         [[NSColor blackColor] setStroke];
         [black_path stroke];
     }
+    if (!NSIsEmptyRect(whiskers)) {
+        // Whiskers are stored as a rectangle. Draw a center line along the rectangle's
+        // long axis and short perpendicular caps at each end. The rectangle is
+        // constructed so its longer side corresponds to the zoom direction.
+        NSBezierPath *path = [NSBezierPath bezierPath];
+        if (whiskers.size.width < whiskers.size.height) { // Vertical whiskers
+            int ws = whiskers.size.width;
+            int x  = whiskers.origin.x + ws/2;
+            int y1 = whiskers.origin.y;
+            int y2 = whiskers.origin.y + whiskers.size.height;
+            [path moveToPoint: NSMakePoint(x, y1)];
+            [path lineToPoint: NSMakePoint(x, y2)];
+            [path moveToPoint: NSMakePoint(x - ws/2, y1)];
+            [path lineToPoint: NSMakePoint(x + ws/2, y1)];
+            [path moveToPoint: NSMakePoint(x - ws/2, y2)];
+            [path lineToPoint: NSMakePoint(x + ws/2, y2)];
+        } else { // Horizontal whiskers
+            int hs = whiskers.size.height;
+            int y  = whiskers.origin.y + hs/2;
+            int x1 = whiskers.origin.x;
+            int x2 = whiskers.origin.x + whiskers.size.width;
+            [path moveToPoint: NSMakePoint(x1, y)];
+            [path lineToPoint: NSMakePoint(x2, y)];
+            [path moveToPoint: NSMakePoint(x1, y - hs/2)];
+            [path lineToPoint: NSMakePoint(x1, y + hs/2)];
+            [path moveToPoint: NSMakePoint(x2, y - hs/2)];
+            [path lineToPoint: NSMakePoint(x2, y + hs/2)];
+        }
+        [path setLineWidth: 3.0];
+        [[NSColor whiteColor] setStroke];
+        [path stroke];
+        [path setLineWidth: 1.0];
+        [[NSColor blackColor] setStroke];
+        [path stroke];
+    }
 
   exit:
     Py_XDECREF(renderer_buffer);
@@ -1605,11 +1689,25 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     rubberband = rect;
 }
 
+- (void)setWhiskers:(NSRect)rect
+{
+    [self setNeedsDisplayInRect:
+        NSInsetRect(NSUnionRect(rect, whiskers), -2, -2)];
+    whiskers = rect;
+}
+
 - (void)removeRubberband
 {
     if (NSIsEmptyRect(rubberband)) { return; }
     [self setNeedsDisplayInRect: rubberband];
     rubberband = NSZeroRect;
+}
+
+- (void)removeWhiskers
+{
+    if (NSIsEmptyRect(whiskers)) { return; }
+    [self setNeedsDisplayInRect: NSInsetRect(whiskers, -2, -2)];
+    whiskers = NSZeroRect;
 }
 
 - (NSString*)convertKeyEvent:(NSEvent*)event
