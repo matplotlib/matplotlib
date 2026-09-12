@@ -245,6 +245,403 @@ def test_figureoptions_with_datetime_axes():
         fig.canvas.manager.toolbar.edit_parameters()
 
 
+@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+@pytest.mark.parametrize(
+    "has_legend_initial,target_visible",
+    [
+        (False, True),  # No legend initially -> should create and be visible
+        (False, False),  # No legend initially -> still no legend or invisible
+        (True, True),  # Legend exists -> set to visible
+        (True, False),  # Legend exists -> set to invisible
+    ],
+)
+def test_legend_present_absent_toggle(has_legend_initial, target_visible):
+    import numpy as np
+
+    from matplotlib.colors import ListedColormap
+
+    fig, ax = plt.subplots()
+    try:
+        # Add a line that can go into legend
+        ax.plot([1, 2, 3], label="Line 1")
+
+        # Add an image mappable (covers mappables branch; custom cmap not in registry)
+        data = np.arange(4).reshape(2, 2)
+        custom_cmap = ListedColormap(["#000000", "#ffffff"], name="__unit_custom__")
+        img = ax.imshow(data, cmap=custom_cmap)
+        img.set_label("heat")
+
+        # Initial legend setup
+        if has_legend_initial:
+            leg = ax.legend(ncols=2)
+            leg.set_draggable(True)
+            ax.legend_.set_visible(not target_visible)
+        else:
+            assert ax.legend_ is None
+
+        with (
+            mock.patch.object(fig.canvas, "draw") as mock_draw,
+            mock.patch.object(fig.canvas, "toolbar", create=True),
+        ):
+            callback = None
+
+            def fake_fedit(datalist, title, parent=None, icon=None, apply=None):
+                nonlocal callback
+                callback = apply
+                return datalist
+
+            with mock.patch.object(
+                matplotlib.backends.qt_editor.figureoptions._formlayout,
+                "fedit",
+                side_effect=fake_fedit,
+            ):
+                matplotlib.backends.qt_editor.figureoptions.figure_edit(ax)
+
+            # —— General properties —— #
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+            xlabel = ax.get_xlabel()
+            ylabel = ax.get_ylabel()
+            xscale_now = ax.get_xscale()
+            yscale_now = ax.get_yscale()
+
+            # Switch scale to trigger symlog branch safely (avoid negative issues)
+            xscale_new = "symlog" if xscale_now != "symlog" else "linear"
+
+            # Force xlim changes to trigger push_current
+            new_xmin = xlim[0] - 1.0
+            new_xmax = xlim[1] + 1.0
+
+            general_block = [
+                "Title",  # title
+                new_xmin,
+                new_xmax,  # X: Min/Max
+                xlabel,
+                xscale_new,  # X: Label/Scale
+                ylim[0],
+                ylim[1],  # Y: Min/Max (unchanged)
+                ylabel,
+                yscale_now,  # Y: Label/Scale (unchanged)
+                target_visible,  # Legend visible (second last popped)
+                True,  # (Re-)Generate automatic legend (last popped)
+            ]
+
+            # —— Curves block —— #
+            # marker='none' covers False branch for marker handling
+            curves_block = [
+                [
+                    "Line 1",
+                    "-",
+                    "default",
+                    1.5,
+                    "#1f77b4ff",
+                    "none",
+                    6.0,
+                    "#1f77b4ff",
+                    "#1f77b4ff",
+                ]
+            ]
+
+            # —— Mappables block (Image 6-tuple) —— #
+            low, high = img.get_clim()
+            mappables_block = [
+                [
+                    "heat",
+                    custom_cmap,
+                    low,
+                    high,
+                    "nearest",
+                    "auto",
+                ]
+            ]
+
+            form_data = [general_block, curves_block, mappables_block]
+
+            assert callback is not None
+            general_block_copy = list(general_block)
+            # shallow copy is enough for flat list
+            curves_block_copy = [list(row) for row in curves_block]
+            # copy the inner list(s) as well
+            callback(form_data)
+            # Only provide (label, cmap, low, high) 4-tuple without interpolation/stage
+            mappables_block_len4 = [["heat", custom_cmap, low, high]]
+            callback([general_block_copy, curves_block_copy, mappables_block_len4])
+
+            # Basic assertions to confirm the branch executed without errors
+            assert img.get_cmap().name == custom_cmap.name
+            assert img.get_clim() == tuple(sorted((low, high)))
+            # —— Assertions for legend —— #
+            if target_visible:
+                assert ax.legend_ is not None
+                assert ax.legend_.get_visible() is True
+                if has_legend_initial:
+                    # ncols should not exceed number of visible items
+                    handle_count = len(ax.legend_.texts)
+                    expected_ncols = min(2, max(1, handle_count))
+                    assert ax.legend_._ncols == expected_ncols
+                    # Draggability is preserved
+                    assert ax.legend_._draggable is not None
+            else:
+                # Legend should be None or invisible
+                assert (ax.legend_ is None) or (ax.legend_.get_visible() is False)
+
+            # —— Assertions for mappables writeback —— #
+            assert img.get_label() == "heat"
+            assert img.get_cmap().name == custom_cmap.name
+            assert img.get_clim() == tuple(sorted((low, high)))
+            if hasattr(img, "get_interpolation"):
+                assert img.get_interpolation() == "nearest"
+            if hasattr(img, "get_interpolation_stage"):
+                assert img.get_interpolation_stage() == "auto"
+
+            # —— Assertions for scale/limits, redraw, and navigation stack —— #
+            assert ax.get_xscale() == xscale_new
+            assert ax.get_xlim() != xlim  # changed
+            assert mock_draw.called
+            assert fig.canvas.toolbar.push_current.called
+
+    finally:
+        plt.close(fig)
+
+
+@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+def test_figure_edit_with_date_axis():
+    import datetime as dt
+
+    fig, ax = plt.subplots()
+    try:
+        xs = [dt.datetime(2024, 1, i + 1) for i in range(3)]
+        ax.plot(xs, [1, 2, 3], label="d")
+
+        cb = {}
+
+        def fake_fedit(datalist, title, parent=None, icon=None, apply=None):
+            cb["apply"] = apply
+            return datalist
+
+        with (
+            mock.patch.object(fig.canvas, "draw"),
+            mock.patch.object(fig.canvas, "toolbar", create=True),
+            mock.patch.object(
+                matplotlib.backends.qt_editor.figureoptions._formlayout,
+                "fedit",
+                side_effect=fake_fedit,
+            ),
+        ):
+            matplotlib.backends.qt_editor.figureoptions.figure_edit(ax)
+            # Keep original values; scale unchanged; legend False, regenerate False
+            xlim = ax.get_xlim()
+            ylim = ax.get_ylim()
+            form = [
+                [
+                    "",
+                    xlim[0],
+                    xlim[1],
+                    ax.get_xlabel(),
+                    ax.get_xscale(),
+                    ylim[0],
+                    ylim[1],
+                    ax.get_ylabel(),
+                    ax.get_yscale(),
+                    False,
+                    False,
+                ],
+                [
+                    [
+                        "d",
+                        "-",
+                        "default",
+                        1.5,
+                        "#1f77b4ff",
+                        "none",
+                        6.0,
+                        "#1f77b4ff",
+                        "#1f77b4ff",
+                    ]
+                ],
+            ]
+            cb["apply"](form)
+    finally:
+        plt.close(fig)
+
+
+@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+def test_skip_nolegend_line():
+    fig, ax = plt.subplots()
+    try:
+        # Lines with label "_nolegend_" should be skipped from legend
+        ax.plot([1, 2, 3], label="_nolegend_")
+        apply_ref = {}
+
+        def fake_fedit(datalist, title, parent=None, icon=None, apply=None):
+            apply_ref["apply"] = apply
+            return datalist
+
+        with (
+            mock.patch.object(fig.canvas, "draw"),
+            mock.patch.object(fig.canvas, "toolbar", create=True),
+            mock.patch.object(
+                matplotlib.backends.qt_editor.figureoptions._formlayout,
+                "fedit",
+                side_effect=fake_fedit,
+            ),
+        ):
+            matplotlib.backends.qt_editor.figureoptions.figure_edit(ax)
+            # No curves block provided; only general
+            xlim, ylim = ax.get_xlim(), ax.get_ylim()
+            form = [
+                [
+                    "",
+                    xlim[0],
+                    xlim[1],
+                    "",
+                    ax.get_xscale(),
+                    ylim[0],
+                    ylim[1],
+                    "",
+                    ax.get_yscale(),
+                    False,
+                    False,
+                ]
+            ]
+            apply_ref["apply"](form)
+    finally:
+        plt.close(fig)
+
+
+@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+def test_skip_mappable_without_array():
+    fig, ax = plt.subplots()
+    try:
+        # A mappable without array (PathCollection):
+        # get_array() is None if c= not provided
+        coll = ax.scatter([0, 1], [0, 1], label="noarray")
+        assert coll.get_array() is None
+
+        with (
+            mock.patch.object(fig.canvas, "draw") as _draw,
+            mock.patch.object(fig.canvas, "toolbar", create=True),
+        ):
+            cb = None
+
+            def fake_fedit(datalist, title, parent=None, icon=None, apply=None):
+                nonlocal cb
+                cb = apply
+                return datalist
+
+            with mock.patch.object(
+                matplotlib.backends.qt_editor.figureoptions._formlayout,
+                "fedit",
+                side_effect=fake_fedit,
+            ):
+                matplotlib.backends.qt_editor.figureoptions.figure_edit(ax)
+
+            # Minimal apply: only provide General block, keep legend unchanged
+            xlim, ylim = ax.get_xlim(), ax.get_ylim()
+            general = [
+                "T",
+                xlim[0],
+                xlim[1],
+                ax.get_xlabel(),
+                ax.get_xscale(),
+                ylim[0],
+                ylim[1],
+                ax.get_ylabel(),
+                ax.get_yscale(),
+                bool(ax.legend_),  # Legend visible
+                False,  # Do not regenerate legend
+            ]
+            assert cb is not None
+            cb([general])  # No curves/mappables blocks triggers skip path
+
+            assert _draw.called
+    finally:
+        plt.close(fig)
+
+
+@pytest.mark.backend("QtAgg", skip_on_importerror=True)
+def test_generate_legend_false_keeps_old_legend():
+    fig, ax = plt.subplots()
+    try:
+        ax.plot([0, 1], [0, 1], label="L1")
+        old = ax.legend(ncols=2)
+        old.set_draggable(True)
+
+        with (
+            mock.patch.object(fig.canvas, "draw") as _draw,
+            mock.patch.object(fig.canvas, "toolbar", create=True),
+        ):
+            cb = None
+
+            def fake_fedit(datalist, title, parent=None, icon=None, apply=None):
+                nonlocal cb
+                cb = apply
+                return datalist
+
+            with mock.patch.object(
+                matplotlib.backends.qt_editor.figureoptions._formlayout,
+                "fedit",
+                side_effect=fake_fedit,
+            ):
+                matplotlib.backends.qt_editor.figureoptions.figure_edit(ax)
+
+            # —— General block —— #
+            xlim, ylim = ax.get_xlim(), ax.get_ylim()
+            general = [
+                "T",
+                xlim[0],
+                xlim[1],
+                ax.get_xlabel(),
+                ax.get_xscale(),
+                ylim[0],
+                ylim[1],
+                ax.get_ylabel(),
+                ax.get_yscale(),
+                True,  # Legend visible
+                False,  # Key: do not regenerate legend
+            ]
+
+            # —— Curves block: fill from existing line, no change —— #
+            line = ax.lines[0]
+            from matplotlib import colors as mcolors
+
+            color_hex = mcolors.to_hex(
+                mcolors.to_rgba(line.get_color(), line.get_alpha()), keep_alpha=True
+            )
+            face_hex = mcolors.to_hex(
+                mcolors.to_rgba(line.get_markerfacecolor(), line.get_alpha()),
+                keep_alpha=True,
+            )
+            edge_hex = mcolors.to_hex(
+                mcolors.to_rgba(line.get_markeredgecolor(), line.get_alpha()),
+                keep_alpha=True,
+            )
+            curves_block = [
+                [
+                    line.get_label(),
+                    line.get_linestyle(),
+                    line.get_drawstyle(),
+                    line.get_linewidth(),
+                    color_hex,
+                    line.get_marker() or "none",
+                    line.get_markersize(),
+                    face_hex,
+                    edge_hex,
+                ]
+            ]
+
+            assert cb is not None
+            cb([general, curves_block])  # Pass General + Curves (no mappables)
+
+            # —— Assertions: legend object not replaced —— #
+            assert ax.legend_ is old  # Critical: legend not rebuilt
+            assert ax.legend_.get_visible() is True
+            assert ax.legend_._draggable is not None  # draggable preserved
+            assert _draw.called
+    finally:
+        plt.close(fig)
+
+
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_double_resize():
     # Check that resizing a figure twice keeps the same window size
