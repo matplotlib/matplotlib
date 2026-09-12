@@ -166,7 +166,7 @@ typing = [
 install = ['--tags=data,python-runtime,runtime']
 
 [tool.setuptools_scm]
-version_scheme = "release-branch-semver"
+version_scheme = "semver-pep440-release-branch"
 local_scheme = "node-and-date"
 parentdir_prefix_version = "matplotlib-"
 fallback_version = "0.0+UNKNOWN"
