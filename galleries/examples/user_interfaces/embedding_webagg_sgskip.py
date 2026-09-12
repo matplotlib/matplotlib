@@ -86,8 +86,7 @@ html_content = """<!DOCTYPE html>
              will use to communicate to the server.  This websocket object can
              also be a "fake" websocket that underneath multiplexes messages
              from multiple figures, if necessary. */
-          var websocket_type = mpl.get_websocket_type();
-          var websocket = new websocket_type("%(ws_uri)sws");
+          var websocket = new WebSocket("/ws");
 
           // mpl.figure creates a new figure on the webpage.
           var fig = new mpl.figure(
@@ -123,8 +122,7 @@ class MyApplication(tornado.web.Application):
         def get(self):
             manager = self.application.manager
             ws_uri = f"ws://{self.request.host}/"
-            content = html_content % {
-                "ws_uri": ws_uri, "fig_id": manager.num}
+            content = html_content % {"fig_id": manager.num}
             self.write(content)
 
     class MplJs(tornado.web.RequestHandler):
