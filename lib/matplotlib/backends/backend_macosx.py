@@ -1,25 +1,16 @@
-from . import backend_legacymac as _legacymac
 from matplotlib.backend_bases import _Backend
 
+from ._backend_legacymac import (
+    FigureCanvasLegacyMac as FigureCanvasMac,
+    FigureManagerLegacyMac as FigureManagerMac,
+    NavigationToolbar2LegacyMac as NavigationToolbar2Mac,
+    TimerLegacyMac as TimerMac)
 
-class TimerMac(_legacymac.TimerLegacyMac):
-    pass
-
-
-class FigureCanvasMac(_legacymac.FigureCanvasLegacyMac):
-    pass
-
-
-class FigureManagerMac(_legacymac.FigureManagerLegacyMac):
-    pass
-
-
-class NavigationToolbar2Mac(_legacymac.NavigationToolbar2LegacyMac):
-    pass
+__all__ = [FigureCanvasMac, FigureManagerMac, NavigationToolbar2Mac, TimerMac]
 
 
 @_Backend.export
 class _BackendMac(_Backend):
     FigureCanvas = FigureCanvasMac
     FigureManager = FigureManagerMac
-    mainloop = _legacymac.FigureManagerLegacyMac.start_main_loop
+    mainloop = FigureManagerMac.start_main_loop

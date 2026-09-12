@@ -9,7 +9,7 @@ python_sources = [
   'backend_gtk4.py',
   'backend_gtk4agg.py',
   'backend_gtk4cairo.py',
-  'backend_legacymac.py',
+  '_backend_legacymac.py',
   'backend_macosx.py',
   'backend_macos.py',
   'backend_mixed.py',
