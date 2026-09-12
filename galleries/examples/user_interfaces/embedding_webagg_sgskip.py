@@ -121,7 +121,6 @@ class MyApplication(tornado.web.Application):
 
         def get(self):
             manager = self.application.manager
-            ws_uri = f"ws://{self.request.host}/"
             content = html_content % {"fig_id": manager.num}
             self.write(content)
 
