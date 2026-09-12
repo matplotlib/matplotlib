@@ -1,5 +1,6 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://json.schemastore.org/appveyor.json",
   "allOf": [
     {
       "$ref": "#/definitions/job"
@@ -135,6 +136,7 @@
         "Ubuntu1804",
         "Ubuntu2004",
         "Ubuntu2204",
+        "Ubuntu2404",
         "Previous Ubuntu",
         "Previous Ubuntu1604",
         "Previous Ubuntu1804",
@@ -144,6 +146,7 @@
         "Visual Studio 2017",
         "Visual Studio 2019",
         "Visual Studio 2022",
+        "Visual Studio 2026",
         "Visual Studio 2017 Preview",
         "Visual Studio 2019 Preview",
         "Previous Visual Studio 2013",
@@ -172,6 +175,7 @@
     "jobScalars": {
       "title": "job scalars",
       "type": "object",
+      "additionalProperties": false,
       "properties": {
         "image": {
           "$ref": "#/definitions/image"
@@ -204,29 +208,7 @@
             }
           ]
         }
-      },
-      "allOf": [
-        {
-          "not": {
-            "required": ["skip_tags"]
-          }
-        },
-        {
-          "not": {
-            "required": ["skip_commits"]
-          }
-        },
-        {
-          "not": {
-            "required": ["skip_branch_with_pr"]
-          }
-        },
-        {
-          "not": {
-            "required": ["skip_non_tags"]
-          }
-        }
-      ]
+      }
     },
     "job": {
       "title": "job",
@@ -776,6 +758,5 @@
       }
     }
   },
-  "id": "https://json.schemastore.org/appveyor.json",
   "title": "JSON schema for AppVeyor CI configuration files"
 }
