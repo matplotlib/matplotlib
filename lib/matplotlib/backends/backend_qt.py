@@ -478,11 +478,19 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if hasattr(self, "_event_loop") and self._event_loop.isRunning():
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
+        timer = None
         if timeout > 0:
-            _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
-
-        with _allow_interrupt_qt(event_loop):
-            qt_compat._exec(event_loop)
+            timer = QtCore.QTimer(self)
+            timer.setSingleShot(True)
+            timer.setTimerType(QtCore.Qt.TimerType.PreciseTimer)
+            timer.timeout.connect(event_loop.quit)
+            timer.start(int(timeout * 1000))
+        try:
+            with _allow_interrupt_qt(event_loop):
+                qt_compat._exec(event_loop)
+        finally:
+            if timer is not None:
+                timer.stop()
 
     def stop_event_loop(self, event=None):
         # docstring inherited
