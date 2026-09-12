@@ -4,7 +4,15 @@ Manage figures for the pyplot interface.
 
 import atexit
 from collections import OrderedDict
+from contextvars import ContextVar
 
+class classproperty:
+    def __init__(self, f):
+        self.f = f
+    def __get__(self, obj, owner):
+        return self.f(owner)
+
+figs_cvar = ContextVar("figs_cvar")
 
 class Gcf:
     """
@@ -21,14 +29,24 @@ class Gcf:
     figure/manager numbers to managers, and a set of class methods that
     manipulate this `OrderedDict`.
 
+    To allow the use of pyplot from multiple threads or async coroutines, the
+    class state must be stored in a context variable.
+
     Attributes
     ----------
     figs : OrderedDict
         `OrderedDict` mapping numbers to managers; the active manager is at the
-        end.
+        end. Uses a context variable to maintain an independent `OrderedDict`
+        for each threading/async context.
     """
 
-    figs = OrderedDict()
+    @classproperty
+    def figs(cls):
+        x = figs_cvar.get(None)
+        if x is None:
+            x = OrderedDict()
+            figs_cvar.set(x)
+        return x
 
     @classmethod
     def get_fig_manager(cls, num):
