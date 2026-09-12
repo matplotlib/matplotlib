@@ -1546,6 +1546,46 @@ class Axis(martist.Artist):
             values.append(self.minorTicks[0].get_tick_padding())
         return max(values, default=0)
 
+    def _align_xtick_label_baselines(self, renderer):
+
+        # Shift x-axis tick label1's down so their baselines align,
+        # compensating for differing ascents.
+
+        if self.axis_name != 'x':
+            return
+
+        entries = []
+        for tick in self.get_major_ticks():
+            label = tick.label1
+            if not (label.get_visible() and label.get_text()):
+                continue
+            try:
+                _, info, _ = label._get_layout(renderer)
+            except Exception:
+                continue
+            if not info:
+                continue
+            ascent = info[0][1][1]
+            entries.append((tick, label, ascent))
+
+        if not entries:
+            return
+
+        max_ascent = max(a for _, _, a in entries)
+        fig = self.get_figure(root=True)
+        dpi_scale_trans = fig.dpi_scale_trans
+        dpi = fig.dpi
+
+        for tick, label, ascent in entries:
+            base_trans = tick._get_text1_transform()[0]
+            extra_px = max_ascent - ascent
+            if extra_px <= 0.5:
+                label.set_transform(base_trans)
+                continue
+            shift = mtransforms.ScaledTranslation(
+                0, -extra_px / dpi, dpi_scale_trans)
+            label.set_transform(label.get_transform() + shift)
+
     @martist.allow_rasterization
     def draw(self, renderer):
         # docstring inherited
@@ -1556,6 +1596,8 @@ class Axis(martist.Artist):
 
         ticks_to_draw = self._update_ticks()
         tlb1, tlb2 = self._get_ticklabel_bboxes(ticks_to_draw, renderer)
+
+        self._align_xtick_label_baselines(renderer)
 
         for tick in ticks_to_draw:
             tick.draw(renderer)
