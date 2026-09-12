@@ -10,7 +10,9 @@ source_hash = 36bc4f1cc413335368ee656c42afca65c5a3987e8768cc28cf11ba775e785a5f
 
 # First patch allows using our bundled HarfBuzz.
 # Second patch fixes symbol problems on wasm.
-diff_files = freetype-2.14.1-static-harfbuzz.patch, freetype-2.14.1-wasm-visibility.patch
+# Third and fourth fix debug logging https://gitlab.freedesktop.org/freetype/freetype/-/merge_requests/438
+# Fifth enables debug logging.
+diff_files = freetype-2.14.1-static-harfbuzz.patch, freetype-2.14.1-wasm-visibility.patch, 0003-Add-missing-dlg-logging-library-to-meson-build.patch, 0004-Fix-debug-logging-when-NDEBUG-is-set.patch, 0005-Enable-debug-logging.patch
 
 [provide]
 freetype2 = freetype_dep

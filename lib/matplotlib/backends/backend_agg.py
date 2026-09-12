@@ -194,7 +194,16 @@ class RendererAgg(RendererBase):
         sin = math.sin(math.radians(angle))
         load_flags = get_hinting_flag()
         for font, size, glyph_index, slant, extend, dx, dy in glyphs:  # dy is upwards.
+            print(f'Rendering {font.fname}@{size}/{self.dpi}:',
+                  glyph_index, slant, extend, dx, dy)
             font.set_size(size, self.dpi)
+            print(
+                f'set_transform {sin=} {cos=}',
+                (0x10000 * np.array([[cos, -sin], [sin, cos]])
+                 @ [[extend, extend * slant], [0, 1]]).round().astype(int),
+                [round(0x40 * (x + dx * cos - dy * sin)),
+                 # FreeType's y is upwards.
+                 round(0x40 * (self.height - y + dx * sin + dy * cos))])
             font._set_transform(
                 (0x10000 * np.array([[cos, -sin], [sin, cos]])
                  @ [[extend, extend * slant], [0, 1]]).round().astype(int),
@@ -209,6 +218,9 @@ class RendererAgg(RendererBase):
             if not gc.get_antialiased():
                 buffer *= 0xff
             # draw_text_image's y is downwards & the bitmap bottom side.
+            print(f'draw_text_image at {bitmap.left=} {self.height=} {bitmap.top=} '
+                  f'{buffer.shape[0]=} {int(self.height)=} '
+                  f'{int(self.height) - bitmap.top + buffer.shape[0]=}')
             self._renderer.draw_text_image(
                 buffer,
                 bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
@@ -221,6 +233,7 @@ class RendererAgg(RendererBase):
         gc1.set_linewidth(0)
         gc1.set_snap(gc.get_snap())
         for dx, dy, w, h in boxes:  # dy is upwards.
+            print(f'Draw rect {dx=} {dy=} {w=} {h=}')
             if gc1.get_snap() in [None, True]:
                 # Prevent thin bars from disappearing by growing symmetrically.
                 if w < 1:
