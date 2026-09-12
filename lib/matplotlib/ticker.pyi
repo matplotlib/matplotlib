@@ -100,7 +100,14 @@ class ScalarFormatter(Formatter):
     def format_data_short(self, value: float | np.ma.MaskedArray) -> str: ...
     def format_data(self, value: float) -> str: ...
 
-class LogFormatter(Formatter):
+class _SymmetricalLogMixin:
+    def _val2axpos(self, val: float) -> float: ...
+    def _axpos2val(self, val: float) -> float: ...
+    def _firsttickval(self) -> float: ...
+    def _val2decnum(self, val: float) -> float: ...
+    def _decnum2val(self, val: float) -> float: ...
+
+class LogFormatter(_SymmetricalLogMixin, Formatter):
     minor_thresholds: tuple[float, float]
     def __init__(
         self,
@@ -108,6 +115,7 @@ class LogFormatter(Formatter):
         labelOnlyBase: bool = ...,
         minor_thresholds: tuple[float, float] | None = ...,
         linthresh: float | None = ...,
+        linscale: float | None = ...,
     ) -> None: ...
     def set_base(self, base: float) -> None: ...
     labelOnlyBase: bool
@@ -257,17 +265,25 @@ class LogLocator(Locator):
         numticks: int | None = ...,
     ) -> None: ...
 
-class SymmetricalLogLocator(Locator):
+class SymmetricalLogLocator(_SymmetricalLogMixin, Locator):
     numticks: int
     def __init__(
         self,
         transform: Transform | None = ...,
-        subs: Sequence[float] | None = ...,
+        subs: Sequence[float] | Literal["auto", "all"] | None = ...,
         linthresh: float | None = ...,
         base: float | None = ...,
+        linscale: float | None = ...,
+        *,
+        numticks: int | None = ...,
     ) -> None: ...
     def set_params(
-        self, subs: Sequence[float] | None = ..., numticks: int | None = ...
+        self,
+        subs: Sequence[float] | Literal["auto", "all"] | None = ...,
+        numticks: int | None = ...,
+        base: float | None = ...,
+        linthresh: float | None = ...,
+        linscale: float | None = ...,
     ) -> None: ...
 
 class AsinhLocator(Locator):
