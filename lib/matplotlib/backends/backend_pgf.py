@@ -437,15 +437,18 @@ class RendererPgf(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        _writeln(self.fh, r"\begin{pgfscope}")
-        # draw the path
-        self._print_pgf_blend(gc)
-        self._print_pgf_clip(gc)
-        self._print_pgf_path_styles(gc, rgbFace)
-        self._print_pgf_path(gc, path, transform, rgbFace)
-        self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
-                            fill=rgbFace is not None)
-        _writeln(self.fh, r"\end{pgfscope}")
+
+        # draw any fill, and stroke too if no hatches
+        stroke_with_fill = rgbFace is not None and not gc.get_hatch()
+        if rgbFace is not None:
+            _writeln(self.fh, r"\begin{pgfscope}")
+            self._print_pgf_blend(gc)
+            self._print_pgf_clip(gc)
+            self._print_pgf_path_styles(gc, rgbFace)
+            self._print_pgf_path(gc, path, transform, rgbFace)
+            self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0 and stroke_with_fill,
+                                fill=True)
+            _writeln(self.fh, r"\end{pgfscope}")
 
         # if present, draw pattern on top
         if gc.get_hatch():
@@ -473,6 +476,9 @@ class RendererPgf(RendererBase):
                      % hatch_rgba[:3])
             _writeln(self.fh, r"\pgfsetstrokecolor{currenthatch}")
             _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % hatch_rgba[3])
+            _writeln(self.fh, r"\pgfsetdash{}{0pt}")
+            _writeln(self.fh, r"\pgfsetfillcolor{currenthatch}")
+            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % hatch_rgba[3])
 
             _writeln(self.fh,
                      r"\pgfpathrectangle"
@@ -480,7 +486,7 @@ class RendererPgf(RendererBase):
             _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
-            self._pgf_path_draw(stroke=True)
+            self._pgf_path_draw(stroke=True, fill=True)
             _writeln(self.fh, r"\end{pgfscope}")
             _writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
@@ -499,6 +505,16 @@ class RendererPgf(RendererBase):
                 _writeln(self.fh, r"\pgfsys@transformshift{-%din}{0in}" % repx)
                 _writeln(self.fh, r"\pgfsys@transformshift{0in}{1in}")
 
+            _writeln(self.fh, r"\end{pgfscope}")
+
+        # draw any stroke if not already drwan with fill
+        if (gc.get_linewidth() != 0.0 and not stroke_with_fill):
+            _writeln(self.fh, r"\begin{pgfscope}")
+            self._print_pgf_blend(gc)
+            self._print_pgf_clip(gc)
+            self._print_pgf_path_styles(gc, rgbFace)
+            self._print_pgf_path(gc, path, transform, rgbFace)
+            self._pgf_path_draw(stroke=True, fill=False)
             _writeln(self.fh, r"\end{pgfscope}")
 
     def _print_pgf_blend(self, gc):
