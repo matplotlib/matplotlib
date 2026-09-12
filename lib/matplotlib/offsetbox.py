@@ -909,10 +909,14 @@ class AnchoredOffsetbox(OffsetBox):
     """
     An OffsetBox placed according to location *loc*.
 
-    AnchoredOffsetbox has a single child.  When multiple children are needed,
-    use an extra OffsetBox to enclose them.  By default, the offset box is
-    anchored against its parent Axes. You may explicitly specify the
-    *bbox_to_anchor*.
+    AnchoredOffsetbox has a single child.  When multiple children are needed, use an
+    extra OffsetBox to enclose them.  By default, the offset box is anchored against its
+    parent Axes, SubFigure or Figure. You may explicitly specify the *bbox_to_anchor*.
+
+    .. versionadded:: 3.12
+       `.AnchoredOffsetbox` can now be added directly to a `.Figure` or `.SubFigure`,
+       and will by default be anchored to that parent.
+
     """
     zorder = 5  # zorder of the legend
 
@@ -1024,7 +1028,8 @@ class AnchoredOffsetbox(OffsetBox):
     def get_bbox_to_anchor(self):
         """Return the bbox that the box is anchored to."""
         if self._bbox_to_anchor is None:
-            return self.axes.bbox
+            return (self.axes.bbox if self.axes is not None else
+                    self.get_figure(root=False).bbox)
         else:
             transform = self._bbox_to_anchor_transform
             if transform is None:
