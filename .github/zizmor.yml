@@ -9,6 +9,7 @@ rules:
       - conflictcheck.yml:3
       - labeler.yml:3
       - pr_welcome.yml:4
+      - verify_pr_template.yml:8
   cache-poisoning:
     ignore:
       # cygwin.yml is a test-only workflow; no artifacts are published.
