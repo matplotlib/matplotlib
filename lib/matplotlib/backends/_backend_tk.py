@@ -169,9 +169,13 @@ class TimerTk(TimerBase):
         self._timer = None
 
     def _on_timer(self):
+        timer = self._timer
         super()._on_timer()
+        if self._timer is not timer:
+            # A callback stopped or restarted us; leave its timer alone.
+            return
         # Tk's after() is a single shot, so repeating means rescheduling here.
-        if self._single or not self._timer:
+        if self._single:
             self._timer = None
             return
         now = time.monotonic()

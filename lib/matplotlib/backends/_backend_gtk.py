@@ -103,15 +103,15 @@ class TimerGTK(TimerBase):
             self._timer_start()
 
     def _on_timer(self):
+        timer = self._timer
         super()._on_timer()
-
-        # Gtk timeout_add() requires that the callback returns True if it
-        # is to be called again.
+        if self._timer is not timer:
+            # A callback stopped or restarted us; leave its timer alone.
+            return GLib.SOURCE_REMOVE
         if self.callbacks and not self._single:
-            return True
-        else:
-            self._timer = None
-            return False
+            return GLib.SOURCE_CONTINUE
+        self._timer = None
+        return GLib.SOURCE_REMOVE
 
 
 class _FigureCanvasGTK(FigureCanvasBase):
