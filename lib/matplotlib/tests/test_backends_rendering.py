@@ -331,3 +331,46 @@ def test_fill_rules_cairo():
 @image_comparison(['fill_rules_pgf.pdf'], style='mpl20')
 def test_fill_rules_pgf():
     plot_fill_rule_comparison()
+
+
+def plot_patch_blending():
+    data = np.arange(35).reshape((7, 5)) % 7
+
+    fc_list = ['none', 'none', 'none', 'none', 'm', 'm', 'm', 'm']
+    ec_list = ['none', 'c', 'none', 'c', 'none', 'c', 'none', 'c']
+    lw_list = [0, 5, 0, 5, 0, 5, 0, 5]
+    hatch_list = [None, None, '*', '*', None, None, '*', '*']
+    hatchcolor_list = [None, None, 'y', 'y', None, None, 'y', 'y']
+
+    fig, axs = plt.subplots(2, 8, figsize=(8, 2), layout='constrained')
+
+    for i, blend_mode in enumerate(['normal', 'multiply']):
+        for ax, fc, ec, lw, hatch, hatchcolor in zip(axs[i, :], fc_list,
+                                                     ec_list, lw_list,
+                                                     hatch_list, hatchcolor_list):
+            ax.imshow(data, cmap='jet')
+
+            circle = Circle((3, 3), 3, fc=fc, ec=ec, lw=lw,
+                            hatch=hatch, hatchcolor=hatchcolor, blend_mode=blend_mode)
+            ax.add_patch(circle)
+
+            ax.autoscale_view()
+            ax.set_axis_off()
+
+
+@image_comparison(['patch_blending'], extensions=['png', 'svg', 'pdf'], style='mpl20')
+def test_patch_blending():
+    plot_patch_blending()
+
+
+@pytest.mark.backend('cairo')
+@image_comparison(['patch_blending_cairo.png'], style='mpl20')
+def test_patch_blending_cairo():
+    plot_patch_blending()
+
+
+@needs_pgf_pdflatex
+@pytest.mark.backend('pgf')
+@image_comparison(['patch_blending_pgf.pdf'], style='mpl20')
+def test_patch_blending_pgf():
+    plot_patch_blending()
