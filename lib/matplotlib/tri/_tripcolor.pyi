@@ -5,7 +5,7 @@ from matplotlib.tri._triangulation import Triangulation
 
 from numpy.typing import ArrayLike
 
-from typing import overload, Literal
+from typing import Any, Literal, overload
 
 @overload
 def tripcolor(
@@ -20,7 +20,7 @@ def tripcolor(
     vmax: float | None = ...,
     shading: Literal["flat"] = ...,
     facecolors: ArrayLike | None = ...,
-    **kwargs
+    **kwargs: Any,
 ) -> PolyCollection: ...
 @overload
 def tripcolor(
@@ -36,7 +36,7 @@ def tripcolor(
     vmax: float | None = ...,
     shading: Literal["flat"] = ...,
     facecolors: ArrayLike | None = ...,
-    **kwargs
+    **kwargs: Any,
 ) -> PolyCollection: ...
 @overload
 def tripcolor(
@@ -51,7 +51,7 @@ def tripcolor(
     vmax: float | None = ...,
     shading: Literal["gouraud"],
     facecolors: ArrayLike | None = ...,
-    **kwargs
+    **kwargs: Any,
 ) -> TriMesh: ...
 @overload
 def tripcolor(
@@ -67,5 +67,5 @@ def tripcolor(
     vmax: float | None = ...,
     shading: Literal["gouraud"],
     facecolors: ArrayLike | None = ...,
-    **kwargs
+    **kwargs: Any,
 ) -> TriMesh: ...
