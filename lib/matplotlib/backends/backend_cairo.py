@@ -133,6 +133,18 @@ class RendererCairo(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
+
+        # Use an isolated blend group if the path blend mode is other than "normal" and
+        # if more than one of fill/hatch/stroke is active to avoid internal blending
+        hatch_path = gc.get_hatch_path()
+        isolate = ((blend_mode := gc.get_blend_mode()) != "normal" and
+                   sum([rgbFace is not None,
+                        hatch_path is not None,
+                        gc.get_linewidth() > 0]) > 1)
+        if isolate:
+            self.open_blend_group(blend_mode)
+            gc.set_blend_mode("normal")
+
         ctx = gc.ctx
         # Clip the path to the actual rendering extents if it isn't filled.
         clip = (ctx.clip_extents()
@@ -147,7 +159,6 @@ class RendererCairo(RendererBase):
             _set_rgba(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
             ctx.fill_preserve()
             ctx.restore()
-        hatch_path = gc.get_hatch_path()
         if hatch_path:
             dpi = int(self.dpi)
             hatch_surface = ctx.get_target().create_similar(
@@ -167,6 +178,9 @@ class RendererCairo(RendererBase):
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
+
+        if isolate:
+            self.close_blend_group()
 
     def draw_markers(self, gc, marker_path, marker_trans, path, transform,
                      rgbFace=None):
