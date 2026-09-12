@@ -116,6 +116,29 @@ class TimerGTK(TimerBase):
 
 class _FigureCanvasGTK(FigureCanvasBase):
     _timer_cls = TimerGTK
+    _event_loop = None
+
+    def start_event_loop(self, timeout=0):
+        # docstring inherited
+        if self._event_loop is not None and self._event_loop.is_running():
+            raise RuntimeError("Event loop already running")
+        self._event_loop = loop = GLib.MainLoop()
+        source = None
+        if timeout > 0:
+            source = GLib.timeout_source_new(int(timeout * 1000))
+            source.set_callback(lambda *args: (loop.quit(), GLib.SOURCE_REMOVE)[1])
+            source.attach(loop.get_context())
+        try:
+            loop.run()
+        finally:
+            if source is not None:
+                source.destroy()
+            self._event_loop = None
+
+    def stop_event_loop(self):
+        # docstring inherited
+        if self._event_loop is not None:
+            self._event_loop.quit()
 
 
 class _FigureManagerGTK(FigureManagerBase):
