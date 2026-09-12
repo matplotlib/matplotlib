@@ -1,0 +1,3 @@
+``BboxBase.corners``
+~~~~~~~~~~~~~~~~~~~~
+... is deprecated with no replacement.
