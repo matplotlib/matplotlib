@@ -53,7 +53,7 @@ class ErrorbarContainer(Container):
         **kwargs
     ) -> None: ...
 
-class PieContainer(Container):
+class PieContainer:
     wedges: list[Wedge]
     def __init__(
         self,
@@ -70,6 +70,7 @@ class PieContainer(Container):
     def add_texts(self,
         texts: list[Text],
     ) -> None: ...
+    def remove(self) -> None: ...
 
 class StemContainer(Container):
     markerline: Line2D
