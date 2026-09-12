@@ -1934,6 +1934,16 @@ Timer__timer_stop(Timer* self)
     RETURN_NULL_OR_NONE
 }
 
+static PyObject*
+Timer__timer_update(Timer* self)
+{
+    // _timer_start re-reads the interval and single-shot flag.
+    if (self->timer) {
+        return Timer__timer_start(self, NULL);
+    }
+    Py_RETURN_NONE;
+}
+
 static void
 Timer_dealloc(Timer* self)
 {
@@ -1961,6 +1971,12 @@ static PyTypeObject TimerType = {
          METH_VARARGS},
         {"_timer_stop",
          (PyCFunction)Timer__timer_stop,
+         METH_NOARGS},
+        {"_timer_set_interval",
+         (PyCFunction)Timer__timer_update,
+         METH_NOARGS},
+        {"_timer_set_single_shot",
+         (PyCFunction)Timer__timer_update,
          METH_NOARGS},
         {}  // sentinel
     },
