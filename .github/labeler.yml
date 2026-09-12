@@ -47,8 +47,9 @@
 "GUI: MacOSX":
   - changed-files:
       - any-glob-to-any-file:
-          - 'lib/matplotlib/backends/backend_legacymac.py'
+          - 'lib/matplotlib/backends/*backend_*mac*.py*'
           - 'src/_legacymac.m'
+          - 'src/macos/**'
 "GUI: nbagg":
   - changed-files:
       - any-glob-to-any-file:
