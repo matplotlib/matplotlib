@@ -16,6 +16,7 @@ python_sources = [
   'backend_pdf.py',
   'backend_pgf.py',
   'backend_ps.py',
+  'backend_pyodide.py',
   'backend_qt.py',
   'backend_qtagg.py',
   'backend_qtcairo.py',
