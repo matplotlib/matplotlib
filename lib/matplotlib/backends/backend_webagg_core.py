@@ -103,11 +103,10 @@ class TimerTornado(backend_bases.TimerBase):
 
         if self._timer is None:
             return
-        elif self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            ioloop.remove_timeout(self._timer)
-        else:
+        elif isinstance(self._timer, tornado.ioloop.PeriodicCallback):
             self._timer.stop()
+        else:
+            tornado.ioloop.IOLoop.instance().remove_timeout(self._timer)
         self._timer = None
 
     def _timer_set_interval(self):
@@ -115,6 +114,8 @@ class TimerTornado(backend_bases.TimerBase):
         if self._timer is not None:
             self._timer_stop()
             self._timer_start()
+
+    _timer_set_single_shot = _timer_set_interval
 
 
 class TimerAsyncio(backend_bases.TimerBase):
@@ -150,6 +151,8 @@ class TimerAsyncio(backend_bases.TimerBase):
         if self._task is not None:
             self._timer_stop()
             self._timer_start()
+
+    _timer_set_single_shot = _timer_set_interval
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):

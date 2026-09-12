@@ -154,8 +154,8 @@ class TimerTk(TimerBase):
 
     def __init__(self, parent, *args, **kwargs):
         self._timer = None
-        super().__init__(*args, **kwargs)
         self.parent = parent
+        super().__init__(*args, **kwargs)
 
     def _timer_start(self):
         self._timer_stop()
@@ -185,6 +185,10 @@ class TimerTk(TimerBase):
                 )
         else:
             self._timer = None
+
+    def _timer_set_interval(self):
+        if self._timer is not None:
+            self._timer_start()
 
 
 class FigureCanvasTk(FigureCanvasBase):
