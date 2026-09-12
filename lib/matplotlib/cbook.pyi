@@ -3,6 +3,7 @@ from collections.abc import Callable, Collection, Generator, Iterable, Iterator
 import contextlib
 import os
 from pathlib import Path
+import weakref
 
 from matplotlib.artist import Artist
 
@@ -28,6 +29,9 @@ class CallbackRegistry:
         *,
         signals: Iterable[Any] | None = ...,
     ) -> None: ...
+    @property
+    def by_cid(self) -> set[int]: ...
+    def clear_above(self, threshold: int) -> None: ...
     def connect(self, signal: Any, func: Callable) -> int: ...
     @overload
     def disconnect(self, cid_or_func: int) -> None: ...
