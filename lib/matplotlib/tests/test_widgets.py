@@ -681,6 +681,110 @@ def test_span_selector_onselect(ax, interactive):
     onselect.assert_called_once()
 
 
+@pytest.mark.parametrize('selector_factory', [
+    lambda ax, onselect: widgets.SpanSelector(ax, onselect, 'horizontal'),
+    lambda ax, onselect: widgets.SpanSelector(ax, onselect, 'horizontal',
+                                              interactive=True),
+    lambda ax, onselect: widgets.RectangleSelector(ax, onselect),
+    lambda ax, onselect: widgets.RectangleSelector(ax, onselect,
+                                                   interactive=True),
+], ids=['SpanSelector', 'SpanSelector-interactive',
+        'RectangleSelector', 'RectangleSelector-interactive'])
+def test_selector_callback_exception_resets_state(ax, selector_factory):
+    # An exception from onselect must not leave the selector in a dragging
+    # state.
+    calls = []
+
+    def onselect(*args):
+        calls.append(args)
+        if len(calls) == 1:
+            raise RuntimeError("callback failure")
+
+    tool = selector_factory(ax, onselect)
+    # The default handler prints callback exceptions instead of raising them
+    # when a GUI framework is running; force propagation for this test.
+    ax.figure.canvas.callbacks.exception_handler = None
+
+    # Drag with the 'move' modifier held so that the 'move' state really is
+    # set when the callback raises.
+    with pytest.raises(RuntimeError, match="callback failure"):
+        MouseEvent._from_ax_coords(
+            "button_press_event", ax, (100, 100), 1, key=' ')._process()
+        MouseEvent._from_ax_coords(
+            "motion_notify_event", ax, (150, 150), 1, key=' ')._process()
+        MouseEvent._from_ax_coords(
+            "button_release_event", ax, (150, 150), 1, key=' ')._process()
+
+    assert tool._eventpress is None
+    assert tool._eventrelease is None
+    assert 'move' not in tool._state
+
+    # The selector can still be used after the callback raised.  Start away
+    # from the previous shape so an interactive selector creates a new one
+    # rather than moving the existing one.
+    click_and_drag(tool, start=(20, 20), end=(70, 70))
+    assert len(calls) == 2
+    assert tool._selection_completed
+
+
+def test_lasso_selector_callback_exception_resets_state(ax):
+    # LassoSelector uses the shared release handler but has a different
+    # callback signature.
+    calls = []
+
+    def onselect(verts):
+        calls.append(verts)
+        if len(calls) == 1:
+            raise RuntimeError("callback failure")
+
+    tool = widgets.LassoSelector(ax, onselect)
+    ax.figure.canvas.callbacks.exception_handler = None
+
+    with pytest.raises(RuntimeError, match="callback failure"):
+        click_and_drag(tool, start=(100, 100), end=(150, 150))
+
+    assert tool._eventpress is None
+    assert tool._eventrelease is None
+
+    click_and_drag(tool, start=(100, 100), end=(150, 150))
+    assert len(calls) == 2
+
+
+def test_span_selector_callback_exception_does_not_leak_to_other_selector():
+    # A failed selector must not consume events that are meant for a selector
+    # on another Axes.
+    fig, (ax1, ax2) = plt.subplots(2, 1)
+    fig.canvas.draw()
+    # The default handler prints callback exceptions instead of raising them
+    # when a GUI framework is running; force propagation for this test.
+    fig.canvas.callbacks.exception_handler = None
+
+    top_calls = []
+
+    def failing_onselect(vmin, vmax):
+        top_calls.append((vmin, vmax))
+        raise RuntimeError("callback failure")
+
+    selections = []
+    top = widgets.SpanSelector(ax1, failing_onselect, 'horizontal')
+    bottom = widgets.SpanSelector(
+        ax2, lambda vmin, vmax: selections.append((vmin, vmax)),
+        'horizontal')
+
+    with pytest.raises(RuntimeError, match="callback failure"):
+        click_and_drag(top, start=(0.2, 0.2), end=(0.5, 0.2))
+
+    top_extents = top.extents
+
+    click_and_drag(bottom, start=(0.2, 0.2), end=(0.6, 0.2))
+
+    # The failed selector must not react to the events on the other Axes.
+    assert len(top_calls) == 1
+    assert top.extents == top_extents
+    assert selections == [(0.2, 0.6)]
+    assert bottom._selection_completed
+
+
 @pytest.mark.parametrize('ignore_event_outside', [True, False])
 def test_span_selector_ignore_outside(ax, ignore_event_outside):
     onselect = mock.Mock(spec=noop, return_value=None)
