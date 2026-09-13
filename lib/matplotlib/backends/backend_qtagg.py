@@ -53,7 +53,7 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         fig.stale = False
 
         # Fire the draw event
-        base_renderer = self._layer_renderers.get("patch")
+        base_renderer = self._layer_renderers.get("base")
         DrawEvent("draw_event", self, base_renderer)._process()
 
         self.update()
