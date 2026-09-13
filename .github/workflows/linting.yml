@@ -17,11 +17,7 @@ jobs:
           persist-credentials: false
       - uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece  # v3.0.0
         with:
-          extra-args: --hook-stage manual --all-files --skip oxipng
-      # Only run oxipng on the last diff, because we haven't updated all images.
-      - uses: j178/prek-action@4e14d07f9231acabce116ccfca13b13dd9755ece  # v3.0.0
-        with:
-          extra-args: --hook-stage manual --from-ref origin/${{ github.base_ref }} oxipng
+          extra-args: --hook-stage manual --all-files
 
   ruff:
     name: ruff
