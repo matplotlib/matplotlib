@@ -193,26 +193,41 @@ class RendererAgg(RendererBase):
         cos = math.cos(math.radians(angle))
         sin = math.sin(math.radians(angle))
         load_flags = get_hinting_flag()
+        # Hoist everything that does not vary per glyph out of the loop below
+        antialiased = gc.get_antialiased()
+        render_mode = RenderMode.NORMAL if antialiased else RenderMode.MONO
+        height = self.height
+        int_height = int(height)
+        dpi = self.dpi
+        draw_text_image = self._renderer.draw_text_image
+        # The FreeType transform matrix depends only on the (fixed) rotation angle and
+        # on the per-glyph slant/extend font effects, which are (0, 1) for everything
+        # except TeX; cache it instead of building a new NumPy array for every glyph.
+        matrices = {}
+        prev_font = prev_size = None
         for font, size, glyph_index, slant, extend, dx, dy in glyphs:  # dy is upwards.
-            font.set_size(size, self.dpi)
+            if font is not prev_font or size != prev_size:
+                font.set_size(size, dpi)
+                prev_font, prev_size = font, size
+            matrix = matrices.get((slant, extend))
+            if matrix is None:
+                matrix = matrices[(slant, extend)] = (
+                    (0x10000 * np.array([[cos, -sin], [sin, cos]])
+                     @ [[extend, extend * slant], [0, 1]])
+                    .round().astype(int).tolist())
             font._set_transform(
-                (0x10000 * np.array([[cos, -sin], [sin, cos]])
-                 @ [[extend, extend * slant], [0, 1]]).round().astype(int),
+                matrix,
                 [round(0x40 * (x + dx * cos - dy * sin)),
                  # FreeType's y is upwards.
-                 round(0x40 * (self.height - y + dx * sin + dy * cos))]
+                 round(0x40 * (height - y + dx * sin + dy * cos))]
             )
-            bitmap = font._render_glyph(
-                glyph_index, load_flags,
-                RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
+            bitmap = font._render_glyph(glyph_index, load_flags, render_mode)
             buffer = bitmap.buffer
-            if not gc.get_antialiased():
+            if not antialiased:
                 buffer *= 0xff
             # draw_text_image's y is downwards & the bitmap bottom side.
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+            draw_text_image(
+                buffer, bitmap.left, int_height - bitmap.top + buffer.shape[0], 0, gc)
 
         rgba = gc.get_rgb()
         if len(rgba) == 3 or gc.get_forced_alpha():
