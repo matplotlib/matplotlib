@@ -133,11 +133,7 @@ class TimerAsyncio(backend_bases.TimerBase):
 
                 if self._single:
                     break
-                # Drop the firings missed while the callback overran.
-                now = loop.time()
-                next_fire += interval
-                if next_fire <= now:
-                    next_fire += interval * ((now - next_fire) // interval + 1)
+                next_fire, _ = self._next_delay(next_fire, interval, loop.time())
             except asyncio.CancelledError:
                 break
 

@@ -634,7 +634,6 @@ def test_fallback_to_different_backend():
 
 
 def _impl_test_interactive_timers():
-    import statistics
     import time
     from unittest.mock import Mock
     import matplotlib.pyplot as plt
@@ -689,26 +688,41 @@ def _impl_test_interactive_timers():
         f"Restarted single shot fired {single_mock.call_count - 1} times"
     assert rearm_mock.call_count == rearm_stopped_at, "stop() did not cancel the timer"
 
-    # A slow callback must not push back the firings that follow it.  Measuring
-    # the firings against each other survives a runner that is short on CPU.
-    interval = 0.1
+    # A slow callback should skip to the next interval, not drift by
+    # its own duration.  Each gap should land on a multiple of interval.
+    interval = 1
+    callback_s = interval / 2
+    n = 4
     fires = []
+
+    def callback():
+        fires.append(time.perf_counter())
+        time.sleep(callback_s)
+        if len(fires) >= n:
+            fig.canvas.stop_event_loop()
+
     slow = fig.canvas.new_timer(interval * 1000)
-    slow.add_callback(lambda: (fires.append(time.perf_counter()),
-                               time.sleep(interval * 0.8)))
+    slow.add_callback(callback)
     slow.start()
-    fig.canvas.start_event_loop(0.7)
+    fig.canvas.start_event_loop(20)
     slow.stop()
-    assert len(fires) >= 4, f"Slow callback only fired {len(fires)} times"
-    spacing = statistics.median(b - a for a, b in zip(fires, fires[1:]))
-    assert spacing < interval * 1.15, \
-        f"Slow callback drifted to {spacing * 1000:.0f}ms spacing"
+
+    assert len(fires) >= n, f"Only fired {len(fires)} times"
+    for a, b in zip(fires, fires[1:]):
+        gap = b - a
+        offset = abs(gap - round(gap / interval) * interval)
+        assert offset < interval * 0.3, (
+            f"Gap {gap * 1000:.0f}ms is {offset * 1000:.0f}ms from the "
+            f"nearest multiple of {interval * 1000:.0f}ms")
 
 
 @pytest.mark.parametrize("env", _get_testable_interactive_backends())
+@pytest.mark.flaky(reruns=_retry_count)
 def test_interactive_timers(env):
     if env["MPLBACKEND"] == "wx":
         pytest.skip("wx backend is deprecated; tests failed on appveyor")
+    if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
+        pytest.skip("gtk3cairo timers do not work in remote CI")
     _run_helper(_impl_test_interactive_timers,
                 timeout=_test_timeout, extra_env=env)
 

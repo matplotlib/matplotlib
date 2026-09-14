@@ -1,6 +1,5 @@
 import asyncio
 import os
-import statistics
 import sys
 import time
 from unittest.mock import MagicMock
@@ -102,9 +101,40 @@ def test_asyncio_timer_single_shot():
     assert len(fires) == 1
 
 
+async def _time_n_fires(interval, callback_s, n, max_wait_s):
+    # Collect n fire timestamps, bounded by max_wait_s in case a timer stalls.
+    timer = matplotlib.backends.backend_webagg_core.TimerAsyncio(interval * 1000)
+    fires = []
+    done = asyncio.Event()
+
+    def callback():
+        fires.append(asyncio.get_running_loop().time())
+        if callback_s:
+            time.sleep(callback_s)
+        if len(fires) >= n:
+            done.set()
+
+    timer.add_callback(callback)
+    timer.start()
+    try:
+        await asyncio.wait_for(done.wait(), timeout=max_wait_s)
+    except asyncio.TimeoutError:
+        pass
+    timer.stop()
+    return fires
+
+
 def test_asyncio_timer_no_drift():
-    # A slow callback must not push back the firings that follow it.
-    interval, fires = asyncio.run(_run_asyncio_timer(False, 0.04, 0.5))
-    assert len(fires) >= 4
-    spacing = statistics.median(b - a for a, b in zip(fires, fires[1:]))
-    assert spacing < interval * 1.4
+    # A slow callback should skip to the next interval, not drift by
+    # its own duration.  Each gap should land on a multiple of interval.
+    interval = 1
+    callback_s = interval / 2
+    n = 4
+    fires = asyncio.run(_time_n_fires(interval, callback_s, n, max_wait_s=20))
+    assert len(fires) >= n, f"Only fired {len(fires)} times"
+    for a, b in zip(fires, fires[1:]):
+        gap = b - a
+        offset = abs(gap - round(gap / interval) * interval)
+        assert offset < interval * 0.3, (
+            f"Gap {gap * 1000:.0f}ms is {offset * 1000:.0f}ms from the "
+            f"nearest multiple of {interval * 1000:.0f}ms")

@@ -178,14 +178,9 @@ class TimerTk(TimerBase):
         if self._single:
             self._timer = None
             return
-        now = time.monotonic()
-        interval = self._interval / 1000
-        self._next_fire += interval
-        if self._next_fire <= now:
-            # Drop the firings missed while the callback overran.
-            self._next_fire += interval * ((now - self._next_fire) // interval + 1)
-        self._timer = self.parent.after(
-            max(1, round((self._next_fire - now) * 1000)), self._on_timer)
+        self._next_fire, delay = self._next_delay(
+            self._next_fire, self._interval / 1000, time.monotonic())
+        self._timer = self.parent.after(max(1, round(delay * 1000)), self._on_timer)
 
     def _timer_set_interval(self):
         if self._timer is not None:

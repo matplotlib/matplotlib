@@ -1242,6 +1242,20 @@ class TimerBase:
     def _timer_set_single_shot(self):
         """Used to set single shot on underlying timer object."""
 
+    @staticmethod
+    def _next_delay(next_fire, interval, now):
+        """
+        Compute the next absolute fire time and delay for a repeating timer
+        that reschedules itself, skipping any intervals a slow callback
+        caused it to miss instead of drifting by the callback's duration.
+
+        *next_fire*, *interval*, and *now* must be in the same units.
+        """
+        next_fire += interval
+        if next_fire <= now:
+            next_fire += interval * ((now - next_fire) // interval + 1)
+        return next_fire, next_fire - now
+
     def _on_timer(self):
         """
         Runs all function that have been registered as callbacks. Functions
