@@ -16,6 +16,7 @@ no figure with the number exists, a new one is created.
     methods on Figure and Axes instances. See :ref:`api_interfaces` for an
     explanation of the trade-offs between the implicit and explicit interfaces.
 
+.. redirect-from:: /gallery/subplots_axes_and_figures/multiple_figs_demo
 """
 import matplotlib.pyplot as plt
 import numpy as np
