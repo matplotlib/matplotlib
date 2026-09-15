@@ -1,6 +1,7 @@
 import functools
 import os
 import sys
+import time
 import traceback
 
 import matplotlib as mpl
@@ -193,10 +194,7 @@ class TimerQT(TimerBase):
     """Subclass of `.TimerBase` using QTimer events."""
 
     def __init__(self, *args, **kwargs):
-        # Create a new timer and connect the timeout() signal to the
-        # _on_timer method.
-        self._timer = QtCore.QTimer()
-        self._timer.timeout.connect(self._on_timer)
+        self._timer = None
         super().__init__(*args, **kwargs)
 
     def __del__(self):
@@ -208,17 +206,45 @@ class TimerQT(TimerBase):
             if str(e) != ignore_msg:
                 raise
 
+    def _new_qtimer(self, msec):
+        # QTimer's own repeat mode can drift on some platforms, so drive it
+        # as a single shot and reschedule ourselves from a fixed schedule.
+        timer = QtCore.QTimer()
+        timer.setTimerType(QtCore.Qt.TimerType.PreciseTimer)
+        timer.setSingleShot(True)
+        timer.timeout.connect(self._on_timer)
+        timer.start(msec)
+        return timer
+
     def _timer_set_single_shot(self):
-        self._timer.setSingleShot(self._single)
+        pass
 
     def _timer_set_interval(self):
-        self._timer.setInterval(self._interval)
+        if self._timer is not None:
+            self._timer_start()
 
     def _timer_start(self):
-        self._timer.start()
+        self._timer_stop()
+        self._next_fire = time.monotonic() + self._interval / 1000
+        self._timer = self._new_qtimer(self._interval)
 
     def _timer_stop(self):
-        self._timer.stop()
+        if self._timer is not None:
+            self._timer.stop()
+            self._timer = None
+
+    def _on_timer(self):
+        timer = self._timer
+        super()._on_timer()
+        if self._timer is not timer:
+            # A callback stopped or restarted us; leave its timer alone.
+            return
+        if self._single:
+            self._timer = None
+            return
+        self._next_fire, delay = self._next_delay(
+            self._next_fire, self._interval / 1000, time.monotonic())
+        self._timer = self._new_qtimer(max(1, round(delay * 1000)))
 
 
 class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
@@ -478,11 +504,19 @@ class FigureCanvasQT(FigureCanvasBase, QtWidgets.QWidget):
         if hasattr(self, "_event_loop") and self._event_loop.isRunning():
             raise RuntimeError("Event loop already running")
         self._event_loop = event_loop = QtCore.QEventLoop()
+        timer = None
         if timeout > 0:
-            _ = QtCore.QTimer.singleShot(int(timeout * 1000), event_loop.quit)
-
-        with _allow_interrupt_qt(event_loop):
-            qt_compat._exec(event_loop)
+            timer = QtCore.QTimer(self)
+            timer.setSingleShot(True)
+            timer.setTimerType(QtCore.Qt.TimerType.PreciseTimer)
+            timer.timeout.connect(event_loop.quit)
+            timer.start(int(timeout * 1000))
+        try:
+            with _allow_interrupt_qt(event_loop):
+                qt_compat._exec(event_loop)
+        finally:
+            if timer is not None:
+                timer.stop()
 
     def stop_event_loop(self, event=None):
         # docstring inherited
