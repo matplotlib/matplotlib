@@ -1,5 +1,6 @@
-from matplotlib import cbook
+from matplotlib import _api, cbook
 from matplotlib.artist import Artist
+from matplotlib.pie import Pie
 
 
 class Container(tuple):
@@ -201,3 +202,11 @@ class StemContainer(Container):
         self.stemlines = stemlines
         self.baseline = baseline
         super().__init__(markerline_stemlines_baseline, **kwargs)
+
+
+@_api.caching_module_getattr
+class __getattr__:
+    @_api.deprecated("3.12", alternative="matplotlib.pie.Pie")
+    @property
+    def PieContainer(self):
+        return Pie

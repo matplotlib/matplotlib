@@ -1,5 +1,7 @@
+import pytest
 import numpy as np
 from numpy.testing import assert_array_equal
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 
 
@@ -53,3 +55,11 @@ def test_barcontainer_position_centers__bottoms__tops():
     assert_array_equal(container.position_centers, pos)
     assert_array_equal(container.bottoms, bottoms)
     assert_array_equal(container.tops, bottoms + heights)
+
+
+def test_piecontainer_deprecated():
+    import matplotlib.container as mc
+    mc.__getattr__.cache_clear()
+    with pytest.warns(mpl.MatplotlibDeprecationWarning, match="PieContainer"):
+        pc = mc.PieContainer([], [], True)
+    assert isinstance(pc, mpl.pie.Pie)
