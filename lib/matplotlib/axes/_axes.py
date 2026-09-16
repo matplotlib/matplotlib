@@ -3675,10 +3675,17 @@ or pandas.DataFrame
         Returns
         -------
         `.Pie`
-            Artist with all the wedge patches and any associated text objects.
+            Artist with all the wedge patches, shadow patches, and any
+            associated text objects.
 
         .. versionchanged:: 3.11
            Previously the wedges and texts were returned in a tuple.
+
+        .. versionchanged:: 3.12
+           The returned `.Pie` artist replaces the deprecated
+           ``matplotlib.container.PieContainer``.  The wedges, shadows and
+           labels are now children of the returned artist instead of being
+           added to the Axes directly.
 
         Notes
         -----

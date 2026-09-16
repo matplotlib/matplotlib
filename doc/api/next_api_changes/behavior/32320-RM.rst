@@ -1,0 +1,8 @@
+Axes.pie returns a Pie artist
+-----------------------------
+
+`~.Axes.pie` now returns a `.Pie` artist instead of a
+``matplotlib.container.PieContainer``.  The wedge patches, shadows and labels
+are children of the returned `.Pie` and are no longer added to
+`.Axes.patches` and `.Axes.texts`; use `.Pie.wedges` and `.Pie.texts` to
+access them.
