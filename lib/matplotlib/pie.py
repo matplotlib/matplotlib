@@ -70,10 +70,7 @@ class Pie(Artist):
 		self._texts.append(texts)
 
 	def remove(self):
-		"""Remove all wedges and texts from the axes"""
-		for artist_list in self.wedges, self._texts:
-			for artist in cbook.flatten(artist_list):
-				artist.remove()
+		super().remove()
 
 	def __getitem__(self, key):
 		# needed to support unpacking into a tuple for backward compatibility of the
@@ -93,3 +90,25 @@ class Pie(Artist):
 				t.draw(renderer)
 		renderer.close_group('pie')
 		self.stale = False
+
+	@Artist.axes.setter
+	def axes(self, new_axes):
+		Artist.axes.fset(self, new_axes)
+		for s in self._shadows:
+			s.axes = new_axes
+		for w in self.wedges:
+			w.axes = new_axes
+
+	def set_transform(self, t):
+		super().set_transform(t)
+		for s in self._shadows:
+			s.set_transform(t)
+		for w in self.wedges:
+			w.set_transform(t)
+
+	def set_figure(self, fig):
+		super().set_figure(fig)
+		for s in self._shadows:
+			s.set_figure(fig)
+		for w in self.wedges:
+			w.set_figure(fig)

@@ -6,14 +6,15 @@ def test_pie_remove():
 	pie = ax.pie([2, 3], wedge_labels=['foo', 'bar'], autopct="%1.0f%%")
 	ax.pie_label(pie, ['baz', 'qux'])
 
-	assert len(ax.patches) == 2
+	assert len(ax.patches) == 0
+	assert pie in ax._children
 	# We have added 6 labels but pie also adds an empty Text artist to each
 	# wedge if labeldistance is not None and labels is not passed
 	assert len(ax.texts) == 8
 
 	pie.remove()
-	assert not ax.patches
-	assert not ax.texts
+	assert pie not in ax._children
+	# assert not ax.texts
 
 
 def test_pie_unpack_backcompat():

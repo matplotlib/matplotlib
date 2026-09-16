@@ -3763,6 +3763,7 @@ or pandas.DataFrame
             wedgeprops = {}
 
         slices = []
+        shadows = []
 
         for frac, label, expl in zip(fracs, labels, explode):
             x_pos, y_pos = center
@@ -3779,7 +3780,6 @@ or pandas.DataFrame
                                label=label)
             w.set(**wedgeprops)
             slices.append(w)
-            self.add_patch(w)
 
             if shadow:
                 # Make sure to add a shadow after the call to add_patch so the
@@ -3787,11 +3787,12 @@ or pandas.DataFrame
                 shadow_dict = {'ox': -0.02, 'oy': -0.02, 'label': '_nolegend_'}
                 if isinstance(shadow, dict):
                     shadow_dict.update(shadow)
-                self.add_patch(mpatches.Shadow(w, **shadow_dict))
+                shadows.append(mpatches.Shadow(w, **shadow_dict))
 
             theta1 = theta2
 
-        pie = Pie(slices, x, normalize)
+        pie = Pie(slices, x, normalize, shadows)
+        self.add_artist(pie)
 
         if wedge_labels is not None:
             self.pie_label(pie, wedge_labels, distance=wedge_label_distance,
