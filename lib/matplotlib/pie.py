@@ -104,6 +104,10 @@ class Pie(Artist):
         """Return the Artists contained by the pie."""
         return [*self._shadows, *self.wedges, *cbook.flatten(self._texts)]
 
+    def get_legend_handles(self):
+        """Return the artists to be used as legend handles."""
+        return list(self.wedges)
+
     def get_tightbbox(self, renderer=None):
         # docstring inherited
         if renderer is None:
