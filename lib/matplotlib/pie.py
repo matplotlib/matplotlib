@@ -2,6 +2,7 @@ from matplotlib import cbook
 from .artist import Artist
 from .transforms import Bbox
 
+
 class Pie(Artist):
     """
     Compound Artist representing a pie chart.
@@ -88,7 +89,7 @@ class Pie(Artist):
     def draw(self, renderer):
         if not self.get_visible():
             return
-        renderer.open_group('pie', gid=self.get_gid())
+        renderer.open_group("pie", gid=self.get_gid())
         for s in self._shadows:
             s.draw(renderer)
         for w in self.wedges:
@@ -96,7 +97,7 @@ class Pie(Artist):
         for t_list in self._texts:
             for t in t_list:
                 t.draw(renderer)
-        renderer.close_group('pie')
+        renderer.close_group("pie")
         self.stale = False
 
     def get_children(self):
@@ -107,9 +108,11 @@ class Pie(Artist):
         # docstring inherited
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
-        bboxes = [bbox for child in self.get_children()
-                  if (bbox := child.get_tightbbox(renderer)) is not None
-                  and bbox._is_finite()]
+        bboxes = [
+            bbox
+            for child in self.get_children()
+            if (bbox := child.get_tightbbox(renderer)) is not None and bbox._is_finite()
+        ]
         return Bbox.union(bboxes) if bboxes else None
 
     @Artist.axes.setter
