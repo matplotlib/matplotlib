@@ -219,6 +219,41 @@ def test_figureoptions():
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_figureoptions_keeps_dash_tuple_linestyle():
+    # A dash tuple reports as its nearest named style, so the combobox cannot
+    # show one. Accepting the dialog without touching that combobox used to
+    # write the name back and replace the pattern with the style's default.
+    from matplotlib.backends.qt_editor import figureoptions
+
+    fig, ax = plt.subplots()
+    line, = ax.plot([1, 2, 3], linestyle=(0, (1, 10)))
+    expected = line._unscaled_dash_pattern
+
+    captured = {}
+
+    def fake_fedit(datalist, **kwargs):
+        captured["datalist"] = datalist
+        captured["apply"] = kwargs["apply"]
+
+    def unchanged(entries):
+        # What fedit hands back when nothing is edited: the current value of
+        # each field, which for a combobox is the head of its list.
+        return [value[0] if isinstance(value, list) else value
+                for name, value in entries if name is not None]
+
+    with mock.patch.object(_formlayout, "fedit", fake_fedit):
+        figureoptions.figure_edit(ax)
+
+    general = captured["datalist"][0][0]
+    curves = captured["datalist"][1][0]
+    captured["apply"]([unchanged(general),
+                       [tuple(unchanged(curvedata))
+                        for curvedata, _, _ in curves]])
+
+    assert line._unscaled_dash_pattern == expected
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
 def test_save_figure_return(tmp_path):
     fig, ax = plt.subplots()
     ax.imshow([[1]])
