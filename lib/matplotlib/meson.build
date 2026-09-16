@@ -126,6 +126,7 @@ typing_sources = [
   'patches.pyi',
   'patheffects.pyi',
   'path.pyi',
+  'pie.pyi',
   'quiver.pyi',
   'rcsetup.pyi',
   'sankey.pyi',
