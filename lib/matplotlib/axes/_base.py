@@ -1033,7 +1033,7 @@ class _AxesBase(martist.Artist):
                 mtransforms.ScaledTranslation(
                     0, -1 * pad_points / 72,
                     self.get_figure(root=False).dpi_scale_trans),
-                "top", labels_align)
+                "baseline", labels_align)
 
     def get_xaxis_text2_transform(self, pad_points):
         """
