@@ -1,0 +1,4 @@
+# Explicit example order. See https://matplotlib.org/devdocs/devel/document.html#order-examples
+pyplot_simple
+pyplot_two_subplots
+multiple_figs_demo
