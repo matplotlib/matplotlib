@@ -57,6 +57,7 @@ python_sources = [
   'patches.py',
   'patheffects.py',
   'path.py',
+  'pie.py',
   'pylab.py',
   'pyplot.py',
   'quiver.py',
