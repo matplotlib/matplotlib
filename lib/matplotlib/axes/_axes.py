@@ -3793,6 +3793,8 @@ or pandas.DataFrame
 
         pie = Pie(slices, x, normalize, shadows)
         self.add_artist(pie)
+        for w in slices:
+            self._update_patch_limits(w)
 
         if wedge_labels is not None:
             self.pie_label(pie, wedge_labels, distance=wedge_label_distance,

@@ -1,5 +1,6 @@
 from matplotlib import cbook
 from .artist import Artist
+from .transforms import Bbox
 
 class Pie(Artist):
 	"""
@@ -37,6 +38,7 @@ class Pie(Artist):
 			Shadow patches associated with the wedges.
 		"""
 		super().__init__()
+		self.set_clip_on(False)
 		self.wedges = wedges
 		self._texts = []
 		self._values = values
@@ -96,6 +98,19 @@ class Pie(Artist):
 				t.draw(renderer)
 		renderer.close_group('pie')
 		self.stale = False
+
+	def get_children(self):
+		"""Return the Artists contained by the pie."""
+		return [*self._shadows, *self.wedges, *cbook.flatten(self._texts)]
+
+	def get_tightbbox(self, renderer=None):
+		# docstring inherited
+		if renderer is None:
+			renderer = self.get_figure(root=True)._get_renderer()
+		bboxes = [bbox for child in self.get_children()
+				  if (bbox := child.get_tightbbox(renderer)) is not None
+				  and bbox._is_finite()]
+		return Bbox.union(bboxes) if bboxes else None
 
 	@Artist.axes.setter
 	def axes(self, new_axes):
