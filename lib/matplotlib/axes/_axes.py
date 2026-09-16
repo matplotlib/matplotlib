@@ -3843,19 +3843,19 @@ or pandas.DataFrame
 
         return pie
 
-    def pie_label(self, container, /, labels, *, distance=0.6,
+    def pie_label(self, pie, /, labels, *, distance=0.6,
                   textprops=None, rotate=False, alignment='auto'):
         """
         Label a pie chart.
 
         .. versionadded:: 3.11
 
-        Adds labels to wedges in the given `.PieContainer`.
+        Adds labels to wedges in the given `.Pie`.
 
         Parameters
         ----------
-        container : `.PieContainer`
-            Container with all the wedges, likely returned from `.pie`.
+        pie : `.Pie`
+            Pie artist with all the wedges, likely returned from `.pie`.
 
         labels : str or list of str
             A sequence of strings providing the labels for each wedge, or a format
@@ -3908,17 +3908,17 @@ or pandas.DataFrame
         if isinstance(labels, str):
             # Assume we have a format string
             labels = [labels.format(absval=val, frac=frac) for val, frac in
-                      zip(container.values, container.fracs)]
+                      zip(pie.values, pie.fracs)]
             if mpl._val_or_rc(textprops.get("usetex"), "text.usetex"):
                 # escape % (i.e. \%) if it is not already escaped
                 labels = [re.sub(r"([^\\])%", r"\1\\%", s) for s in labels]
-        elif (nw := len(container.wedges)) != (nl := len(labels)):
+        elif (nw := len(pie.wedges)) != (nl := len(labels)):
             raise ValueError(
                 f'The number of labels ({nl}) must match the number of wedges ({nw})')
 
         texts = []
 
-        for wedge, label in zip(container.wedges, labels):
+        for wedge, label in zip(pie.wedges, labels):
             thetam = 2 * np.pi * 0.5 * (wedge.theta1 + wedge.theta2) / 360
             xt = wedge.center[0] + distance * wedge.r * math.cos(thetam)
             yt = wedge.center[1] + distance * wedge.r * math.sin(thetam)
@@ -3932,13 +3932,13 @@ or pandas.DataFrame
                 if alignment == 'outer':
                     label_alignment_v = 'bottom' if yt > 0 else 'top'
                 label_rotation = (np.rad2deg(thetam) + (0 if xt > 0 else 180))
-            t = self.text(xt, yt, label, clip_on=False, rotation=label_rotation,
+            t = mtext.Text(xt, yt, label, clip_on=False, rotation=label_rotation,
                           horizontalalignment=label_alignment_h,
                           verticalalignment=label_alignment_v)
             t.set(**textprops)
             texts.append(t)
 
-        container.add_texts(texts)
+        pie.add_texts(texts)
 
         return texts
 

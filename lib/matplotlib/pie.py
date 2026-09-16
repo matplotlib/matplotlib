@@ -68,6 +68,12 @@ class Pie(Artist):
 	def add_texts(self, texts):
 		"""Add a list of `~matplotlib.text.Text` objects to the pie artist."""
 		self._texts.append(texts)
+		fig = self.get_figure(root=False)
+		for t in texts:
+			t.set_figure(fig)
+			t.axes = self.axes
+			if not t.is_transform_set():
+				t.set_transform(self.get_transform())
 
 	def remove(self):
 		super().remove()
@@ -98,6 +104,9 @@ class Pie(Artist):
 			s.axes = new_axes
 		for w in self.wedges:
 			w.axes = new_axes
+		for t_list in self._texts:
+			for t in t_list:
+				t.axes = new_axes
 
 	def set_transform(self, t):
 		super().set_transform(t)
@@ -105,6 +114,9 @@ class Pie(Artist):
 			s.set_transform(t)
 		for w in self.wedges:
 			w.set_transform(t)
+		for t_list in self._texts:
+			for txt in t_list:
+				txt.set_transform(t)
 
 	def set_figure(self, fig):
 		super().set_figure(fig)
@@ -112,3 +124,6 @@ class Pie(Artist):
 			s.set_figure(fig)
 		for w in self.wedges:
 			w.set_figure(fig)
+		for t_list in self._texts:
+			for t in t_list:
+				t.set_figure(fig)
