@@ -3,4 +3,4 @@ matplotlib.container.PieContainer
 
 ``matplotlib.container.PieContainer`` is deprecated.  `~.Axes.pie` now returns
 a `.Pie` artist, which collects the wedge patches, shadows and labels as child
-artists.  Use `.Pie`, `.Pie.wedges` and `.Pie.texts` instead.
+artists.  Use `.Pie` with its ``wedges`` and `.Pie.texts` attributes instead.

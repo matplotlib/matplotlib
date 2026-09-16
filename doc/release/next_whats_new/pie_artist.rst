@@ -10,8 +10,8 @@ as one object::
     pie.remove()
 
 Because the wedges and labels are children of the `.Pie`, they are no longer
-added to `.Axes.patches` and `.Axes.texts` directly.  Access them through
-`~.Pie.wedges` and `~.Pie.texts` instead.
+added to ``Axes.patches`` and ``Axes.texts`` directly.  Access them through
+``Pie.wedges`` and `.Pie.texts` instead.
 
 Compound artists can provide their own legend entries by implementing
 `~.Pie.get_legend_handles`; `.Axes.legend` uses this to show the individual
