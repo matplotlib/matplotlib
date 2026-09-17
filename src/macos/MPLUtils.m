@@ -261,6 +261,86 @@ NSColor *MPLGetRGBColor(int rgb, CGFloat alpha)
 }
 
 
+MPLViewAppearance MPLGetViewAppearance(NSView *view)
+{
+    NSString *bestMatch = [[view effectiveAppearance] bestMatchFromAppearancesWithNames:@[
+        NSAppearanceNameAqua,
+        NSAppearanceNameDarkAqua,
+        NSAppearanceNameAccessibilityHighContrastAqua,
+        NSAppearanceNameAccessibilityHighContrastDarkAqua
+    ]];
+
+    if ([bestMatch isEqualToString:NSAppearanceNameDarkAqua]) {
+        return MPLViewAppearanceDark;
+
+    } else if ([bestMatch isEqualToString:NSAppearanceNameAccessibilityHighContrastAqua]) {
+        return MPLViewAppearanceHighContrastLight;
+
+    } else if ([bestMatch isEqualToString:NSAppearanceNameAccessibilityHighContrastDarkAqua]) {
+        return MPLViewAppearanceHighContrastDark;
+    }
+
+    return MPLViewAppearanceLight;
+}
+
+
+void MPLAddContinuousRoundedRect(
+    CGContextRef context,
+    CGRect rect,
+    CGFloat tl, // topLeftRadius
+    CGFloat tr, // topRightRadius
+    CGFloat bl, // bottomLeftRadius
+    CGFloat br  // bottomRightRadius
+) {
+    /*
+        These constants are widely-circulated in the macOS/iOS developer community.
+        They were reversed-engineered from Apple's own squircle implementation when
+        iOS 7 originally shipped back in 2013.
+    */
+    const CGFloat mA = 1.528665;
+    const CGFloat mB = 1.08849;   // Actual AppKit value. Typically '1.088493' in blog posts.
+    const CGFloat mC = 0.868407;
+    const CGFloat mD = 0.631494;
+    const CGFloat mE = 0.0749114; // Actual AppKit value. Typically '0.074911' in blog posts.
+    const CGFloat mF = 0.372824;
+    const CGFloat mG = 0.169060;
+
+    __auto_type corner = ^(
+        CGFloat cx,  CGFloat cy,
+        CGFloat dx0, CGFloat dy0, CGFloat dx1, CGFloat dy1
+    ) {
+        CGContextAddLineToPoint(context, cx + dx0 * mA, cy + dy0 * mA);
+
+        CGContextAddCurveToPoint(context,
+            cx + dx0 * mB,              cy + dy0 * mB,
+            cx + dx0 * mC,              cy + dy0 * mC,
+            cx + (dx0 * mD + dx1 * mE), cy + (dy0 * mD + dy1 * mE)
+        );
+
+        CGContextAddCurveToPoint(context,
+            cx + (dx0 * mF + dx1 * mG),  cy + (dy0 * mF + dy1 * mG),
+            cx + (dx0 * mG + dx1 * mF),  cy + (dy0 * mG + dy1 * mF),
+            cx + (dx0 * mE + dx1 * mD),  cy + (dy0 * mE + dy1 * mD)
+        );
+
+        CGContextAddCurveToPoint(context,
+            cx + dx1 * mC,  cy + dy1 * mC,
+            cx + dx1 * mB,  cy + dy1 * mB,
+            cx + dx1 * mA,  cy + dy1 * mA
+        );
+    };
+
+    CGContextMoveToPoint(context, CGRectGetMinX(rect) + mA * tl, CGRectGetMinY(rect));
+
+    corner( CGRectGetMaxX(rect), CGRectGetMinY(rect), -tr,  0,   0,   tr );
+    corner( CGRectGetMaxX(rect), CGRectGetMaxY(rect),  0,  -br, -br,  0  );
+    corner( CGRectGetMinX(rect), CGRectGetMaxY(rect),  bl,  0,   0,  -bl );
+    corner( CGRectGetMinX(rect), CGRectGetMinY(rect),  0,   tl,  tl,  0  );
+
+    CGContextClosePath(context);
+}
+
+
 static CGImageRef _Nullable sCreateImage(
     CGSize size, CGFloat scale, BOOL flipped,
     CFStringRef colorSpaceName, size_t componentCount, CGBitmapInfo bitmapInfo,

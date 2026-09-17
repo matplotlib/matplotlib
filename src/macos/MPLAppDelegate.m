@@ -1,4 +1,5 @@
 #import "MPLAppDelegate.h"
+#import "MPLNavigationToolbar2.h"
 #import "MPLUtils.h"
 
 
@@ -86,6 +87,11 @@
         currentItem = item;
     };
 
+    __auto_type toolbarCallbackItem = ^(NSString *title, MPLToolbarTag tag) {
+        item(title, 0, @"", @selector(performToolbarCallback:));
+        [currentItem setTag:tag];
+    };
+
     __auto_type separator = ^() {
         [currentMenu addItem:[NSMenuItem separatorItem]];
     };
@@ -102,6 +108,9 @@
     item(@"Close All", optionCommand, @"w", @selector(closeAll:));
     [currentItem setTarget:NSApp];
     [currentItem setAlternate:YES];
+    separator();
+    item(@"Save\u2026", command, @"s", @selector(performToolbarCallback:));
+    [currentItem setTag:MPLToolbarTagNameSaveFigure];
 
     menu(@"Edit");
     item(@"Undo",       command,      @"z", @selector(undo:));
@@ -112,6 +121,16 @@
     item(@"Paste",      command,      @"v", @selector(paste:));
     item(@"Delete",     0,            @"",  @selector(delete:));
     item(@"Select All", command,      @"a", @selector(selectAll:));
+
+    menu(@"Tools");
+    toolbarCallbackItem(@"Home",     MPLToolbarTagHome);
+    toolbarCallbackItem(@"Back",     MPLToolbarTagBack);
+    toolbarCallbackItem(@"Forward",  MPLToolbarTagForward);
+    separator();
+    toolbarCallbackItem(@"Pan",      MPLToolbarTagPan);
+    toolbarCallbackItem(@"Zoom",     MPLToolbarTagZoom);
+    separator();
+    toolbarCallbackItem(@"Subplots", MPLToolbarTagConfigureSubplots);
 
     menu(@"Window");
     item(@"Minimize",           command, @"m", @selector(performMiniaturize:));

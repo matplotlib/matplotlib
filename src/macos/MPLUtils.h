@@ -110,6 +110,30 @@ extern NSColor *MPLGetRGBColor(int rgb, CGFloat alpha);
 
 
 /*
+    Returns whether the NSView's effectiveAppearance is light, dark,
+    high-contrast light, or high-contrast dark.
+*/
+typedef NS_ENUM(NSInteger, MPLViewAppearance) {
+    MPLViewAppearanceLight,
+    MPLViewAppearanceDark,
+    MPLViewAppearanceHighContrastLight,
+    MPLViewAppearanceHighContrastDark
+};
+
+extern MPLViewAppearance MPLGetViewAppearance(NSView *view);
+
+
+/*
+    Adds a continuous rounded rectangle path to the context and closes it.
+*/
+extern void MPLAddContinuousRoundedRect(
+    CGContextRef context, CGRect rect,
+    CGFloat topLeftRadius, CGFloat topRightRadius,
+    CGFloat bottomLeftRadius, CGFloat bottomRightRadius
+);
+
+
+/*
     Create a sRGB+alpha image of the specified width, height, and scale factor.
     (0, 0) corresponds to the upper-left corner.
 */

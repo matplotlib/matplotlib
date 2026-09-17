@@ -48,10 +48,13 @@
                                                                    backing: NSBackingStoreBuffered
                                                                      defer: YES];
 
+    [window setMinSize:CGSizeMake(120.0, 120.0)];
+
     if ((self = [super initWithWindow:window])) {
         [window setDelegate:self];
         [window makeFirstResponder:figureCanvas];
         [window setReleasedWhenClosed:NO];
+        [window setAutorecalculatesKeyViewLoop:YES];
 
         // Match the window's color space to our Agg buffer.
         // This prevents an in-process color space conversion when compositing and
@@ -187,6 +190,9 @@
     // Move canvas upwards
     canvasFrame.origin.y = toolbarFrame.size.height;
     [canvas setFrame:canvasFrame];
+
+    [toolbar setNextResponder:[canvas nextResponder]];
+    [canvas setNextResponder:toolbar];
 
     // Adjust toolbar width and place at origin of window
     toolbarFrame.origin = CGPointZero;

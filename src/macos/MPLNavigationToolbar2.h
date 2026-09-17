@@ -3,6 +3,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef NS_ENUM(NSInteger, MPLToolbarTag) {
+    MPLToolbarTagNone = 0,
+
+    MPLToolbarTagHome,
+    MPLToolbarTagBack,
+    MPLToolbarTagForward,
+
+    MPLToolbarTagPan,
+    MPLToolbarTagZoom,
+
+    MPLToolbarTagConfigureSubplots,
+    MPLToolbarTagNameSaveFigure
+};
+
+
 @interface MPLNavigationToolbar2 : NSView
 
 - (instancetype) init NS_DESIGNATED_INITIALIZER;
@@ -19,11 +34,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void) addSeparator;
 
-- (void) updateSelectedItem:(NSString *)callback;
+- (void) updateSelectedItem:(NSString *)callbackName;
 - (void) updateMessage:(NSString *)message;
 
 - (void) updateHistoryItemsWithBackEnabled: (BOOL) backEnabled
                             forwardEnabled: (BOOL) forwardEnabled;
+
+- (IBAction) performToolbarCallback:(id)sender;
 
 @end
 

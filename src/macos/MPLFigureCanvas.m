@@ -234,6 +234,15 @@
 }
 
 
+- (BOOL) _isFullKeyboardAccessEvent:(NSEvent *)event
+{
+    return (
+        [[event characters] characterAtIndex:0] == NSTabCharacter &&
+        [[NSApplication sharedApplication] isFullKeyboardAccessEnabled]
+    );
+}
+
+
 - (NSString *) _keyStringWithString: (nullable NSString *) characters
                       modifierFlags: (NSEventModifierFlags) flags
                       controlString: (NSString *) controlString
@@ -292,13 +301,21 @@
 
 - (void) keyDown:(NSEvent *)event
 {
-    [self _handleKeyDownOrUp:event isPress:YES];
+    if ([self _isFullKeyboardAccessEvent:event]) {
+        [super keyDown:event];
+    } else {
+        [self _handleKeyDownOrUp:event isPress:YES];
+    }
 }
 
 
 - (void) keyUp:(NSEvent *)event
 {
-    [self _handleKeyDownOrUp:event isPress:NO];
+    if ([self _isFullKeyboardAccessEvent:event]) {
+        [super keyUp:event];
+    } else {
+        [self _handleKeyDownOrUp:event isPress:NO];
+    }
 }
 
 
