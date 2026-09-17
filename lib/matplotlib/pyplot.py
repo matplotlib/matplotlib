@@ -130,7 +130,6 @@ if TYPE_CHECKING:
     from matplotlib.container import (
         BarContainer,
         ErrorbarContainer,
-        PieContainer,
         StemContainer,
     )
     from matplotlib.figure import SubFigure
@@ -138,6 +137,7 @@ if TYPE_CHECKING:
     from matplotlib.mlab import GaussianKDE
     from matplotlib.image import AxesImage, FigureImage
     from matplotlib.patches import FancyArrow, StepPatch
+    from matplotlib.pie import Pie
     from matplotlib.quiver import Barbs, Quiver, QuiverKey
     from matplotlib.scale import ScaleBase
     from matplotlib.typing import (
