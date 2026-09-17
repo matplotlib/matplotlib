@@ -1,5 +1,6 @@
 [run]
 branch = true
+patch = subprocess
 source =
     matplotlib
     mpl_toolkits
