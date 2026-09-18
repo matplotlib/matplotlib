@@ -27,6 +27,21 @@ def test_xtick_labels_share_baseline():
     assert bboxes[0].y0 == pytest.approx(bboxes[1].y0)
 
 
+def test_xtick_labels_with_matching_ascents_keep_top_alignment():
+    fig, axs = plt.subplots(2)
+    for ax, label in zip(axs, ["1", "foo"]):
+        ax.set_xticks([0, 1], [label, label])
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    label_pads = [
+        ax.bbox.y0 - ax.get_xticklabels()[0].get_window_extent(renderer).y1
+        for ax in axs
+    ]
+
+    assert label_pads[0] == pytest.approx(label_pads[1])
+
+
 def test_axis_not_in_layout():
     fig1, (ax1_left, ax1_right) = plt.subplots(ncols=2, layout='constrained')
     fig2, (ax2_left, ax2_right) = plt.subplots(ncols=2, layout='constrained')

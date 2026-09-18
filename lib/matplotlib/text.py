@@ -563,11 +563,10 @@ class Text(Artist):
                 xmax if halign == "right" else
                 (xmin + xmax) / 2  # halign == "center"
             )
-            if valign == "top" and len(lines) == 1 and angle == 0:
-                # Use the font ascent as the stable baseline reference for
-                # single-line labels, while preserving the position of labels
-                # whose measured ascent already matches it.
-                offsety = ymax + min_ascent - baseline
+            baseline_ascent = getattr(self, "_baseline_ascent", None)
+            if (valign == "top" and len(lines) == 1 and angle == 0
+                    and baseline_ascent is not None):
+                offsety = ymax + baseline_ascent - baseline
             else:
                 offsety = (
                     ymin if valign == "bottom" else

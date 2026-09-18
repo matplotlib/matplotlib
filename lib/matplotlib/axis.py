@@ -2668,6 +2668,39 @@ class XAxis(Axis):
             t < y < t + self._pickradius)
         return inaxis, {}
 
+    def _get_ticklabel_bboxes(self, ticks, renderer):
+        # Top alignment normally preserves the padding from the Axes, but can
+        # give plain, horizontal labels different baselines when their measured
+        # ascents differ.  Only normalize groups that actually differ so that
+        # uniformly sized labels keep their existing position.
+        for labels in ([tick.label1 for tick in ticks],
+                       [tick.label2 for tick in ticks]):
+            layouts = []
+            for label in labels:
+                label._baseline_ascent = None
+                if (not label.get_visible()
+                        or not label.get_in_layout()
+                        or not label.get_text()
+                        or label.get_verticalalignment() != "top"
+                        or label.get_rotation() != 0
+                        or label.get_rotation_mode() == "anchor"):
+                    continue
+                _, line_layouts, _ = label._get_layout(renderer)
+                if len(line_layouts) != 1:
+                    continue
+                line, (_, ascent, _), _ = line_layouts[0]
+                _, ismath = label._preprocess_math(line)
+                if ismath is False:
+                    layouts.append((label, ascent))
+
+            ascents = [ascent for _, ascent in layouts]
+            if ascents and not np.allclose(ascents, ascents[0]):
+                baseline_ascent = min(ascents)
+                for label, _ in layouts:
+                    label._baseline_ascent = baseline_ascent
+
+        return super()._get_ticklabel_bboxes(ticks, renderer)
+
     def set_label_position(self, position):
         """
         Set the label position (top or bottom)
