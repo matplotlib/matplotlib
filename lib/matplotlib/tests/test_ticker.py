@@ -591,6 +591,16 @@ class TestFixedLocator:
         fixed.set_params(nbins=7)
         assert fixed.nbins == 7
 
+    def test_locs_is_a_copy_of_ndarray_input(self):
+        # FixedLocator must not alias a caller-supplied ndarray: mutating it
+        # in place afterward should not retroactively move already-set tick
+        # locations. Regression for #32313.
+        locs = np.array([1., 2., 3.])
+        fixed = mticker.FixedLocator(locs)
+        assert fixed.locs is not locs
+        locs[:] = [10., 20., 30.]
+        np.testing.assert_array_equal(fixed.locs, [1., 2., 3.])
+
 
 class TestIndexLocator:
     def test_set_params(self):

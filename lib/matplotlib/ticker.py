@@ -1856,7 +1856,10 @@ class FixedLocator(Locator):
     """
 
     def __init__(self, locs, nbins=None):
-        self.locs = np.asarray(locs)
+        # Copy (rather than np.asarray, which is a no-op for an ndarray
+        # input) so later in-place mutation of a caller-supplied array
+        # doesn't retroactively move already-set tick locations.
+        self.locs = np.array(locs)
         _api.check_shape((None,), locs=self.locs)
         self.nbins = max(nbins, 2) if nbins is not None else None
 
