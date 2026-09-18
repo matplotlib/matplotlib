@@ -1018,7 +1018,7 @@ SubplotTool_close(SubplotTool *self, PyObject *args)
 
 static PyTypeObject SubplotToolType = {
     PyVarObject_HEAD_INIT(NULL, 0)
-    .tp_name = "matplotlib.backends._macosx.SubplotTool",
+    .tp_name = "matplotlib.backends._macos.SubplotTool",
     .tp_doc = PyDoc_STR(""),
     .tp_basicsize = sizeof(SubplotTool),
     .tp_flags = Py_TPFLAGS_DEFAULT | Py_TPFLAGS_BASETYPE,
