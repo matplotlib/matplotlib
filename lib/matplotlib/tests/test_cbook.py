@@ -182,6 +182,20 @@ class Test_boxplot_stats:
         assert bstats_true[0]['whishi'] == 25
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
+    def test_empty_x_and_empty_labels(self):
+        assert cbook.boxplot_stats([], labels=[]) == []
+        assert cbook.boxplot_stats(np.array([]), labels=[]) == []
+        assert cbook.boxplot_stats(np.empty((0, 0)), labels=[]) == []
+
+    def test_empty_x_without_labels_is_one_dataset(self):
+        results = cbook.boxplot_stats([])
+        assert len(results) == 1
+        assert np.isnan(results[0]['med'])
+
+    def test_empty_column_array_keeps_label_mismatch(self):
+        with pytest.raises(ValueError, match="number of labels"):
+            cbook.boxplot_stats(np.empty((0, 3)), labels=[])
+
 
 class Hashable:
     def dummy(self): pass
