@@ -563,13 +563,19 @@ class Text(Artist):
                 xmax if halign == "right" else
                 (xmin + xmax) / 2  # halign == "center"
             )
-            offsety = (
-                ymin if valign == "bottom" else
-                ymax if valign == "top" else
-                (ymin + ymax) / 2 if valign == "center" else
-                ymin + descent if valign == "baseline" else
-                ymin + height_rot - baseline / 2  # valign == "center_baseline"
-            )
+            if valign == "top" and len(lines) == 1 and angle == 0:
+                # Use the font ascent as the stable baseline reference for
+                # single-line labels, while preserving the position of labels
+                # whose measured ascent already matches it.
+                offsety = ymax + min_ascent - baseline
+            else:
+                offsety = (
+                    ymin if valign == "bottom" else
+                    ymax if valign == "top" else
+                    (ymin + ymax) / 2 if valign == "center" else
+                    ymin + descent if valign == "baseline" else
+                    ymin + height_rot - baseline / 2  # valign == "center_baseline"
+                )
         else:
             xmin1, ymin1 = corners_horiz[0]
             xmax1, ymax1 = corners_horiz[2]
