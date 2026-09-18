@@ -184,6 +184,9 @@
         [valueField setTranslatesAutoresizingMaskIntoConstraints:NO];
         [valueField bind:NSValueBinding toObject:self withKeyPath:keyName options:bindingOptions];
 
+        [slider setAccessibilityTitleUIElement:labelField];
+        [valueField setAccessibilityTitleUIElement:labelField];
+
         [rowView addSubview:labelField];
         [rowView addSubview:slider];
         [rowView addSubview:valueField];
