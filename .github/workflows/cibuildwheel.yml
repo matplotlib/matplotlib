@@ -110,7 +110,7 @@ jobs:
             cibw_archs: "ARM64"
           - os: macos-15-intel
             cibw_archs: "x86_64"
-          - os: macos-14
+          - os: macos-15
             cibw_archs: "arm64"
 
     steps:
