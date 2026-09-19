@@ -325,20 +325,18 @@ jobs:
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 
       - name: Collect macOS crash logs
-        if: always() && runner.os == 'macOS'
+        if: failure() && runner.os == 'macOS'
         run: |
-          mkdir -p "$RUNNER_TEMP/macos-logs"
-          cp -R "$HOME/Library/Logs" "$RUNNER_TEMP/macos-logs/" 2>/dev/null || true
-          sudo cp -R "/Library/Logs" "$RUNNER_TEMP/macos-logs/system" 2>/dev/null || true
-          log show --last 30m --style compact > "$RUNNER_TEMP/macos-logs/unified.log" 2>&1 || true
+          mkdir -p ./macos_crash_logs
+          cp -R "$HOME/Library/Logs" ./macos_crash_logs 2>/dev/null || true
+          sudo cp -R "/Library/Logs" ./macos_crash_logs 2>/dev/null || true
 
       - name: Upload macOS crash logs
-        if: always() && runner.os == 'macOS'
+        if: failure() && runner.os == 'macOS'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: macos-crash-logs
-          path: ${{ runner.temp }}/macos-logs
-          if-no-files-found: warn
+          path: ./macos_crash_logs
 
       - name: Cleanup non-failed image files
         if: failure()
