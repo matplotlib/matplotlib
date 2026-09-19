@@ -2452,21 +2452,33 @@ class Parser:
                                       "Unknown symbol: %s" % c) from err
 
         if c in self._spaced_symbols:
-            # iterate until we find previous character, needed for cases
-            # such as $=-2$, ${ -2}$, $ -2$, or $   -2$.
+            # Find the previous and next characters (skipping spaces), needed
+            # for cases such as $=-2$, ${ -2}$, $ -2$, or $   -2$.  loc points
+            # at the start of this symbol, so the next character is looked for
+            # after its source token, which may be a multi-character command
+            # such as "\doteq".
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
-            # Binary operators at start of string should not be spaced
-            # Also, operators in sub- or superscripts should not be spaced
+            next_char = next(
+                (c for c in s[loc + len(toks["sym"]):] if c != ' '), '')
+            # A binary operator acting as a unary operator -- at the start of
+            # the string, or following another operator or an opening delimiter
+            # -- is not spaced.  Operators in sub- or superscripts are not
+            # spaced either.
             if (self._needs_space_after_subsuper or (
                     c in self._binary_operators and (
-                    len(s[:loc].split()) == 0 or prev_char in {
-                        '{', *self._left_delims, *self._relation_symbols}))):
+                    prev_char in {'', '{', *self._left_delims,
+                                  *self._relation_symbols}))):
                 return [char]
-            else:
-                return [Hlist([self._make_space(0.2),
-                               char,
-                               self._make_space(0.2)],
-                              do_kern=True)]
+            # Otherwise a spaced symbol gets a space on each side, except on a
+            # side where it abuts the start or end of the (sub-)expression: TeX
+            # discards the glue at the boundaries of a math list, so e.g. in
+            # "a$=b$" there is no space before the "=" (gh-23315).
+            left_space = prev_char not in {'', '{', *self._left_delims}
+            right_space = next_char not in {'', '}', *self._right_delims}
+            return [Hlist([*([self._make_space(0.2)] if left_space else []),
+                           char,
+                           *([self._make_space(0.2)] if right_space else [])],
+                          do_kern=True)]
         elif c in self._punctuation_symbols:
             prev_char = next((c for c in s[:loc][::-1] if c != ' '), '')
             next_char = next((c for c in s[loc + 1:] if c != ' '), '')
