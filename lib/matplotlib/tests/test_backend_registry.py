@@ -41,8 +41,8 @@ def test_list_builtin():
     assert not has_duplicates(backends)
     # Compare using sets as order is not important
     assert {*backends} == {
-        'gtk3agg', 'gtk3cairo', 'gtk4agg', 'gtk4cairo', 'macosx', 'nbagg', 'notebook',
-        'qtagg', 'qtcairo', 'qt5agg', 'qt5cairo', 'tkagg',
+        'gtk3agg', 'gtk3cairo', 'gtk4agg', 'gtk4cairo', 'legacymac', 'macos', 'macosx',
+        'nbagg', 'notebook', 'qtagg', 'qtcairo', 'qt5agg', 'qt5cairo', 'tkagg',
         'tkcairo', 'webagg', 'wx', 'wxagg', 'wxcairo', 'agg', 'cairo', 'pdf', 'pgf',
         'ps', 'svg', 'template',
     }
@@ -52,9 +52,9 @@ def test_list_builtin():
     'filter,expected',
     [
         (BackendFilter.INTERACTIVE,
-         ['gtk3agg', 'gtk3cairo', 'gtk4agg', 'gtk4cairo', 'macosx', 'nbagg', 'notebook',
-          'qtagg', 'qtcairo', 'qt5agg', 'qt5cairo', 'tkagg',
-          'tkcairo', 'webagg', 'wx', 'wxagg', 'wxcairo']),
+         ['gtk3agg', 'gtk3cairo', 'gtk4agg', 'gtk4cairo', 'legacymac', 'macos',
+          'macosx', 'nbagg', 'notebook', 'qtagg', 'qtcairo', 'qt5agg', 'qt5cairo',
+          'tkagg', 'tkcairo', 'webagg', 'wx', 'wxagg', 'wxcairo']),
         (BackendFilter.NON_INTERACTIVE,
          ['agg', 'cairo', 'pdf', 'pgf', 'ps', 'svg', 'template']),
     ]
@@ -71,7 +71,7 @@ def test_list_gui_frameworks():
     assert not has_duplicates(frameworks)
     # Compare using sets as order is not important
     assert {*frameworks} == {
-        "gtk3", "gtk4", "macosx", "qt", "qt5", "qt6", "tk", "wx",
+        "gtk3", "gtk4", "legacymac", "macos", "macosx", "qt", "qt5", "qt6", "tk", "wx",
     }
 
 
