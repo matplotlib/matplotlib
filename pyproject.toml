@@ -128,7 +128,7 @@ doc = [
 test = [
     "black<27",
     "certifi",
-    "coverage!=6.3",
+    "coverage>=7.10",
     "psutil; sys_platform != 'cygwin'",
     "pytest!=4.6.0,!=5.4.0,!=8.1.0",
     "pytest-cov",
