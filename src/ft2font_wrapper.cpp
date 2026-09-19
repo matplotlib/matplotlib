@@ -10,9 +10,14 @@
 #include "ft2font.h"
 #include "mplutils.h"
 
+#include <cmath>
 #include <set>
 #include <sstream>
 #include <unordered_map>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846264338328
+#endif
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -1406,7 +1411,8 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
     for (auto &glyph : glyphs) {
         auto ft_object = static_cast<PyFT2Font *>(glyph.ftface->generic.data);
 
-        ft_object->load_glyph(glyph.index, load_flags);
+        FT_Fixed linear_hori_advance = 0;
+        ft_object->load_glyph_cached(glyph.index, load_flags, linear_hori_advance);
 
         double prev_kern = 0.0;
         if (prev_advance) {
@@ -1425,11 +1431,124 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
         x += glyph.x_advance;
         y += glyph.y_advance;
         // Note, linearHoriAdvance is a 16.16 instead of 26.6 fixed-point value.
-        prev_advance = ft_object->get_face()->glyph->linearHoriAdvance / 1024.0;
+        prev_advance = linear_hori_advance / 1024.0;
     }
 
     return items;
 }
+
+const char *PyFT2Font_render_glyph_run__doc__ = R"""(
+    Render a run of glyphs, packed for a single blit by the renderer.
+
+    Every glyph in the run is positioned and rasterized here, so that drawing
+    text does not cross into Python once per glyph.
+
+    Parameters
+    ----------
+    glyphs : list of (FT2Font, float, int, float, float, float, float)
+        The font, size, glyph index, slant, extend and offsets of each glyph,
+        as produced by `.FT2Font._layout` or the mathtext parser.
+    dpi : float
+        The resolution to size the fonts at.
+    x, y : float
+        Where to place the run.  *y* is downwards.
+    angle : float
+        The rotation of the run, in degrees.
+    height : float
+        The height of the target canvas, as *y* is measured from its top.
+    flags : LoadFlags
+        The flags to load the glyphs with.
+    render_mode : RenderMode
+        The mode to rasterize the glyphs with.
+
+    Returns
+    -------
+    buffer : np.ndarray of uint8
+        The coverage bitmaps of every glyph, packed end to end.
+    positions : np.ndarray of int
+        One row per glyph, holding its offset into *buffer*, its number of rows
+        and columns, and the x and y to blit it at.
+)""";
+
+static py::tuple
+PyFT2Font_render_glyph_run(
+    FT_Library ft2Library, py::sequence glyphs, double dpi, double x, double y,
+    double angle, double height, LoadFlags flags, FT_Render_Mode render_mode)
+{
+    auto load_flags = static_cast<FT_Int32>(flags);
+    auto cos = std::cos(angle * (M_PI / 180.0));
+    auto sin = std::sin(angle * (M_PI / 180.0));
+    auto round = [](double value) { return (FT_Fixed)std::nearbyint(value); };
+
+    auto done_bitmap = [ft2Library](FT_Bitmap *b) { FT_Bitmap_Done(ft2Library, b); };
+
+    std::vector<uint8_t> buffer;
+    std::vector<py::ssize_t> positions;
+    PyFT2Font *sized_font = nullptr;
+    double sized_size = 0;
+
+    for (auto const& item : glyphs) {
+        auto const& glyph = item.cast<py::tuple>();
+        auto font = glyph[0].cast<PyFT2Font *>();
+        auto const& size = glyph[1].cast<double>();
+        auto const& glyph_index = glyph[2].cast<FT_UInt>();
+        auto const& slant = glyph[3].cast<double>();
+        auto const& extend = glyph[4].cast<double>();
+        auto const& dx = glyph[5].cast<double>();
+        auto const& dy = glyph[6].cast<double>();  // Upwards.
+
+        // set_size recurses into the fallbacks, so only call it on a change.
+        if (font != sized_font || size != sized_size) {
+            font->set_size(size, dpi);
+            sized_font = font;
+            sized_size = size;
+        }
+        font->_set_transform(
+            {{{round(0x10000 * extend * cos),
+               round(0x10000 * (extend * slant * cos - sin))},
+              {round(0x10000 * extend * sin),
+               round(0x10000 * (extend * slant * sin + cos))}}},
+            {round(0x40 * (x + dx * cos - dy * sin)),
+             // FreeType's y is upwards.
+             round(0x40 * (height - y + dx * sin + dy * cos))});
+
+        FT2Font::GlyphPtr rendered{
+            font->render_glyph(glyph_index, load_flags, render_mode), &FT_Done_Glyph};
+        auto bitmap_glyph = reinterpret_cast<FT_BitmapGlyph>(rendered.get());
+        FT_Bitmap bitmap;
+        FT_Bitmap_Init(&bitmap);
+        std::unique_ptr<FT_Bitmap, decltype(done_bitmap)> converted{&bitmap, done_bitmap};
+        FT_CHECK(FT_Bitmap_Convert, ft2Library, &bitmap_glyph->bitmap, &bitmap, 1);
+        auto rows = static_cast<py::ssize_t>(bitmap.rows);
+        auto cols = static_cast<py::ssize_t>(bitmap.width);
+
+        positions.push_back(static_cast<py::ssize_t>(buffer.size()));
+        positions.push_back(rows);
+        positions.push_back(cols);
+        positions.push_back(bitmap_glyph->left);
+        positions.push_back(static_cast<py::ssize_t>(height) - bitmap_glyph->top + rows);
+        for (auto row = 0; row < rows; row++) {
+            auto start = bitmap.buffer + row * bitmap.pitch;
+            buffer.insert(buffer.end(), start, start + cols);
+        }
+        if (render_mode == FT_RENDER_MODE_MONO) {
+            // Monochrome bitmaps convert to 0 and 1, but are blitted as coverage.
+            for (auto i = buffer.size() - rows * cols; i < buffer.size(); i++) {
+                buffer[i] *= 0xff;
+            }
+        }
+    }
+
+    auto n = static_cast<py::ssize_t>(positions.size() / 5);
+    return py::make_tuple(
+        py::array_t<uint8_t>{static_cast<py::ssize_t>(buffer.size()), buffer.data()},
+        py::array_t<py::ssize_t>{{n, static_cast<py::ssize_t>(5)}, positions.data()});
+}
+
+/**********************************************************************
+ * Deprecations
+ * */
+
 
 #ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
 PYBIND11_MODULE(ft2font, m,
@@ -1785,12 +1904,22 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             [ft2Library](PyFT2Font *self, FT_UInt idx, LoadFlags flags,
                          FT_Render_Mode render_mode)
             {
-                auto face = self->get_face();
-                FT_CHECK(FT_Load_Glyph, face, idx, static_cast<FT_Int32>(flags));
-                FT_CHECK(FT_Render_Glyph, face->glyph, render_mode);
-                return PyPositionedBitmap{ft2Library, face->glyph};
+                FT2Font::GlyphPtr glyph{
+                    self->render_glyph(idx, static_cast<FT_Int32>(flags), render_mode),
+                    &FT_Done_Glyph};
+                return PyPositionedBitmap{
+                    ft2Library, reinterpret_cast<FT_BitmapGlyph>(glyph.get())};
             })
         ;
+
+    m.def("_render_glyph_run",
+          [ft2Library](py::sequence glyphs, double dpi, double x, double y, double angle,
+                       double height, LoadFlags flags, FT_Render_Mode render_mode) {
+              return PyFT2Font_render_glyph_run(ft2Library, glyphs, dpi, x, y, angle,
+                                                height, flags, render_mode);
+          },
+          "glyphs"_a, "dpi"_a, "x"_a, "y"_a, "angle"_a, "height"_a, "flags"_a,
+          "render_mode"_a, PyFT2Font_render_glyph_run__doc__);
 
     // Ensure FreeType library is closed after all instances of FT2Font are gone by
     // tying a weak ref to the class itself.
