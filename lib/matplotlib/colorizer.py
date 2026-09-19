@@ -805,7 +805,8 @@ def _ensure_norm(norm, n_components=1):
             _api.check_isinstance((colors.MultiNorm, None, tuple), norm=norm)
         if norm is None:
             norm = colors.MultiNorm(['linear']*n_components)
-        else:  # iterable, i.e. multiple strings or Normalize objects
+        elif not isinstance(norm, colors.MultiNorm):
+            # iterable, i.e. multiple strings or Normalize objects
             norm = colors.MultiNorm(norm)
         if isinstance(norm, colors.MultiNorm) and norm.n_components == n_components:
             return norm
