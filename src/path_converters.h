@@ -5,6 +5,7 @@
 
 #include <pybind11/pybind11.h>
 
+#include <cassert>
 #include <cmath>
 #include <cstdint>
 #include <limits>
@@ -48,7 +49,7 @@
  output.  It is designed to be as fast as possible vs. the STL's queue
  which is more flexible.
  */
-template <int QueueSize>
+template <unsigned short QueueSize>
 class EmbeddedQueue
 {
   protected:
@@ -59,14 +60,6 @@ class EmbeddedQueue
 
     struct item
     {
-        item() = default;
-
-        inline void set(const unsigned cmd_, const double x_, const double y_)
-        {
-            cmd = cmd_;
-            x = x_;
-            y = y_;
-        }
         unsigned cmd;
         double x;
         double y;
@@ -75,17 +68,17 @@ class EmbeddedQueue
     int m_queue_write;
     item m_queue[QueueSize];
 
-    inline void queue_push(const unsigned cmd, const double x, const double y)
+    constexpr void queue_push(const unsigned cmd, const double x, const double y)
     {
-        m_queue[m_queue_write++].set(cmd, x, y);
+        m_queue[m_queue_write++] = item{cmd, x, y};
     }
 
-    inline bool queue_nonempty()
+    constexpr bool queue_nonempty()
     {
         return m_queue_read < m_queue_write;
     }
 
-    inline bool queue_pop(unsigned *cmd, double *x, double *y)
+    constexpr bool queue_pop(unsigned *cmd, double *x, double *y)
     {
         if (queue_nonempty()) {
             const item &front = m_queue[m_queue_read++];
@@ -102,7 +95,7 @@ class EmbeddedQueue
         return false;
     }
 
-    inline void queue_clear()
+    constexpr void queue_clear()
     {
         m_queue_read = 0;
         m_queue_write = 0;
@@ -123,7 +116,7 @@ static const size_t num_extra_points_map[] =
    that matter, like crypto.  We are implementing this ourselves
    rather than using the C stdlib so that the seed state is not shared
    with other third-party code. There are recent C++ options, but we
-   still require nothing later than C++98 for compatibility
+   still require nothing later than C++17 for compatibility
    reasons. */
 class RandomNumberGenerator
 {
@@ -138,9 +131,9 @@ private:
 
 public:
     RandomNumberGenerator() : m_seed(0) {}
-    RandomNumberGenerator(int seed) : m_seed(seed) {}
+    RandomNumberGenerator(uint32_t seed) : m_seed(seed) {}
 
-    void seed(int seed)
+    void seed(uint32_t seed)
     {
         m_seed = seed;
     }
@@ -174,26 +167,28 @@ class PathNanRemover : protected EmbeddedQueue<4>
     /* has_codes should be true if the path contains bezier curve segments, or
      * closed loops, as this requires a slower algorithm to remove the NaNs.
      * When in doubt, set to true.
+     *
+     * Also ignore all close/end_poly commands until after the first valid
+     * (nan-free) command is encountered
      */
     PathNanRemover(VertexSource &source, bool remove_nans, bool has_codes)
         : m_source(&source), m_remove_nans(remove_nans), m_has_codes(has_codes),
+          valid_segment_exists(false),
           m_last_segment_valid(false), m_was_broken(false),
           m_initX(nan("")), m_initY(nan(""))
     {
-        // ignore all close/end_poly commands until after the first valid
-        // (nan-free) command is encountered
-        valid_segment_exists = false;
+
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         queue_clear();
         m_source->rewind(path_id);
     }
 
-    inline unsigned vertex(double *x, double *y)
+    constexpr unsigned vertex(double *x, double *y)
     {
-        unsigned code;
+        unsigned code = 0;
 
         if (!m_remove_nans) {
             return m_source->vertex(x, y);
@@ -373,7 +368,7 @@ class PathClipper : public EmbeddedQueue<3>
         m_cliprect.y2 += 1.0;
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_has_init = false;
         m_was_clipped = false;
@@ -598,7 +593,11 @@ class PathSnapper
                     x_start = x1;
                     y_start = y1;
                     break;
+                default:
+                    // Should never happen
+                    assert(1 && "Should never be reached here");
                 }
+
                 x0 = x1;
                 y0 = y1;
             }
@@ -636,14 +635,14 @@ class PathSnapper
         source.rewind(0);
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_source->rewind(path_id);
     }
 
-    inline unsigned vertex(double *x, double *y)
+    constexpr unsigned vertex(double *x, double *y)
     {
-        unsigned code;
+        unsigned code = 0;
         code = m_source->vertex(x, y);
         if (m_snap && agg::is_vertex(code)) {
             *x = floor(*x + 0.5) + m_snap_value;
@@ -652,7 +651,7 @@ class PathSnapper
         return code;
     }
 
-    inline bool is_snapping()
+    constexpr bool is_snapping()
     {
         return m_snap;
     }
@@ -725,7 +724,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
         // empty
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         queue_clear();
         m_moveto = true;
@@ -1000,7 +999,7 @@ class PathSimplifier : protected EmbeddedQueue<9>
     double m_currVecStartX;
     double m_currVecStartY;
 
-    inline void _push(double *x, double *y)
+    constexpr void _push(double *x, double *y)
     {
         bool needToPushBack = (m_dnorm2BackwardMax > 0.0);
 
@@ -1151,7 +1150,7 @@ class Sketch
         return code;
     }
 
-    inline void rewind(unsigned path_id)
+    constexpr void rewind(unsigned path_id)
     {
         m_has_last = false;
         m_p = 0.0;
