@@ -1,5 +1,7 @@
 import numpy as np
 
+import pytest
+
 import matplotlib.pyplot as plt
 from matplotlib.axis import XTick
 from matplotlib.testing.decorators import check_figures_equal
@@ -9,6 +11,35 @@ def test_tick_labelcolor_array():
     # Smoke test that we can instantiate a Tick with labelcolor as array.
     ax = plt.axes()
     XTick(ax, 0, labelcolor=np.array([1, 0, 0, 1]))
+
+
+def test_xtick_labels_share_baseline():
+    fig, ax = plt.subplots(figsize=(.5, .5), layout="constrained")
+    ax.set_xlim(-2, 3)
+    ax.set_xticks([0, 1])
+    ax.xaxis.set_major_formatter(
+        lambda x, pos: "pol." if x == 0 else str(int(x)))
+
+    fig.canvas.draw()
+    bboxes = [label.get_window_extent(fig.canvas.get_renderer())
+              for label in ax.get_xticklabels()]
+
+    assert bboxes[0].y0 == pytest.approx(bboxes[1].y0)
+
+
+def test_xtick_labels_with_matching_ascents_keep_top_alignment():
+    fig, axs = plt.subplots(2)
+    for ax, label in zip(axs, ["1", "foo"]):
+        ax.set_xticks([0, 1], [label, label])
+
+    fig.canvas.draw()
+    renderer = fig.canvas.get_renderer()
+    label_pads = [
+        ax.bbox.y0 - ax.get_xticklabels()[0].get_window_extent(renderer).y1
+        for ax in axs
+    ]
+
+    assert label_pads[0] == pytest.approx(label_pads[1])
 
 
 def test_axis_not_in_layout():
