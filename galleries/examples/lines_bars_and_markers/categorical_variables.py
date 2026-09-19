@@ -1,4 +1,6 @@
 """
+.. _categorical_variables:
+
 ==============================
 Plotting categorical variables
 ==============================
