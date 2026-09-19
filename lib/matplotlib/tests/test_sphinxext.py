@@ -59,6 +59,24 @@ def test_plot_directive_exception_fails_build(tmp_path):
     assert "RuntimeError: plot directive failure" in proc.stderr
 
 
+def test_plot_directive_warning_propagation(tmp_path):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    import warnings
+    warnings.warn("A warning occurred")
+
+""")
+
+    proc = build_sphinx_html(
+        tmp_path, tmp_path / 'doctrees', tmp_path / '_build' / 'html',
+        expected_returncode=1)
+
+    assert "Python warning during plot execution: A warning occurred (UserWarning)" in proc.stderr
+
+
 def test_tinypages(tmp_path):
     shutil.copytree(tinypages, tmp_path, dirs_exist_ok=True,
                     ignore=shutil.ignore_patterns('_build', 'doctrees',
