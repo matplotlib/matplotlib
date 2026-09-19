@@ -72,8 +72,14 @@ void RendererAgg::create_alpha_buffers()
 
 BufferRegion *RendererAgg::copy_from_bbox(agg::rect_d in_rect)
 {
-    agg::rect_i rect(
-        (int)in_rect.x1, height - (int)in_rect.y2, (int)in_rect.x2, height - (int)in_rect.y1);
+    // Must match BboxBase._pixel_bounds (lib/matplotlib/transforms.py).
+    // The rect is half-open (BufferRegion sizes itself as x2 - x1), so round
+    // outwards to cover every pixel the bbox touches; truncating the exclusive
+    // upper edges would drop the topmost row and rightmost column.
+    agg::rect_i rect((int)std::floor(in_rect.x1),
+                     height - (int)std::ceil(in_rect.y2),
+                     (int)std::ceil(in_rect.x2),
+                     height - (int)std::floor(in_rect.y1));
 
     BufferRegion *reg = nullptr;
     reg = new BufferRegion(rect);
