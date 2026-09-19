@@ -112,6 +112,20 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
                     # Qt's QPainter natively handles alpha blending!
                     painter.drawImage(origin, qimage)
 
+            # For blitting
+            if hasattr(self, 'renderer') and self.renderer is not None:
+                buf = memoryview(self.renderer.copy_from_bbox(bbox))
+                if QT_API == "PyQt6":
+                    from PyQt6 import sip
+                    ptr = int(sip.voidptr(buf))
+                else:
+                    ptr = buf
+
+                qimage = QtGui.QImage(ptr, buf.shape[1], buf.shape[0],
+                                      QtGui.QImage.Format.Format_RGBA8888)
+                qimage.setDevicePixelRatio(self.device_pixel_ratio)
+                painter.drawImage(origin, qimage)
+
             self._draw_rect_callback(painter)
         finally:
             painter.end()
