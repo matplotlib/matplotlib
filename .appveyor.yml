@@ -26,6 +26,7 @@ environment:
     PYTHONIOENCODING: UTF-8
     PYTEST_ARGS: -rfEsXR --numprocesses=auto --timeout=300 --durations=25
                  --cov-report= --cov=lib --log-level=DEBUG
+                 --browser chromium --browser firefox --browser webkit
 
   matrix:
     - PYTHON_VERSION: "3.12"
@@ -68,6 +69,8 @@ install:
 
   - micromamba env create -f environment.yml python=%PYTHON_VERSION% %EXTRA_PACKAGES%
   - micromamba activate mpl-dev
+  # Install browsers for testing
+  - playwright install --with-deps
 
 build_script:
   # Now build the thing..
