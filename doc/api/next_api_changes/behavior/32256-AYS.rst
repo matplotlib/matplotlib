@@ -1,0 +1,9 @@
+Better antialiasing default for contiguous filled patches
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The plotting methods that produce a collection of contiguous filled patches
+(`.Axes.contourf()`, `.Axes.pcolor()`, `.Axes.pcolormesh()`,
+`.Axes.tricontourf()`, and `.Axes.tripcolor()`) would previously default to no
+antialiasing when no edgecolor was specified to avoid a rendering artifact of
+faint lines between patches.  That rendering artifact has now been fixed.
+These methods now use the value of rcParams ``patch.antialiased`` as the default
+for antialiasing.

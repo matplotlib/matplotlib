@@ -11,6 +11,20 @@ from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
 
 
+@pytest.fixture
+def sample_triang():
+    x = np.asarray([0, 0.5, 1, 0,   0.5, 1,   0, 0.5, 1, 0.75])
+    y = np.asarray([0, 0,   0, 0.5, 0.5, 0.5, 1, 1,   1, 0.75])
+    triangles = np.asarray([
+        [0, 1, 3], [1, 4, 3],
+        [1, 2, 4], [2, 5, 4],
+        [3, 4, 6], [4, 7, 6],
+        [4, 5, 9], [7, 4, 9], [8, 7, 9], [5, 8, 9]])
+
+    # Triangulation with same number of points and triangles.
+    return mtri.Triangulation(x, y, triangles)
+
+
 class TestTriangulationParams:
     x = [-1, 0, 1, 0]
     y = [0, -1, 0, 1]
@@ -233,30 +247,19 @@ def test_delaunay_robust():
 
 
 @image_comparison(['tripcolor1.png'], style='mpl20')
-def test_tripcolor():
-    x = np.asarray([0, 0.5, 1, 0,   0.5, 1,   0, 0.5, 1, 0.75])
-    y = np.asarray([0, 0,   0, 0.5, 0.5, 0.5, 1, 1,   1, 0.75])
-    triangles = np.asarray([
-        [0, 1, 3], [1, 4, 3],
-        [1, 2, 4], [2, 5, 4],
-        [3, 4, 6], [4, 7, 6],
-        [4, 5, 9], [7, 4, 9], [8, 7, 9], [5, 8, 9]])
+def test_tripcolor(sample_triang):
+    Cpoints = sample_triang.x + 0.5*sample_triang.y
 
-    # Triangulation with same number of points and triangles.
-    triang = mtri.Triangulation(x, y, triangles)
-
-    Cpoints = x + 0.5*y
-
-    xmid = x[triang.triangles].mean(axis=1)
-    ymid = y[triang.triangles].mean(axis=1)
+    xmid = sample_triang.x[sample_triang.triangles].mean(axis=1)
+    ymid = sample_triang.y[sample_triang.triangles].mean(axis=1)
     Cfaces = 0.5*xmid + ymid
 
     plt.subplot(121)
-    plt.tripcolor(triang, Cpoints, edgecolors='k')
+    plt.tripcolor(sample_triang, Cpoints, edgecolors='k')
     plt.title('point colors')
 
     plt.subplot(122)
-    plt.tripcolor(triang, facecolors=Cfaces, edgecolors='k')
+    plt.tripcolor(sample_triang, facecolors=Cfaces, edgecolors='k')
     plt.title('facecolors')
 
 
@@ -1403,3 +1406,37 @@ def test_tricontourf_path():
     assert_array_almost_equal(paths[0].vertices, expected_vertices)
     assert_array_equal(paths[0].codes, [1, 2, 2, 2, 79, 1, 2, 2, 2, 79])
     assert_array_almost_equal(paths[0].to_polygons(), np.split(expected_vertices, [5]))
+
+
+@image_comparison(['tripcolor_antialiasing.png'], style='mpl20')
+def test_tripcolor_antialiasing(sample_triang):
+    data = np.arange(len(sample_triang.triangles))
+
+    fig, axs = plt.subplots(1, 3, figsize=(5, 2), layout="constrained")
+
+    for i, antialiased in enumerate([None, False, True]):
+        kwargs = {'cmap': 'inferno', 'alpha': 0.5}
+        if antialiased is not None:
+            kwargs['antialiased'] = antialiased
+
+        axs[i].tripcolor(sample_triang, data, **kwargs)
+
+        axs[i].set_aspect("equal")
+        axs[i].set_axis_off()
+
+
+@image_comparison(['tricontourf_antialiasing.png'], style='mpl20')
+def test_tricontourf_antialiasing(sample_triang):
+    data = sample_triang.x + sample_triang.y**2
+
+    fig, axs = plt.subplots(1, 3, figsize=(5, 2), layout="constrained")
+
+    for i, antialiased in enumerate([None, False, True]):
+        kwargs = {'cmap': 'inferno', 'alpha': 0.5}
+        if antialiased is not None:
+            kwargs['antialiased'] = antialiased
+
+        axs[i].tricontourf(sample_triang, data, **kwargs)
+
+        axs[i].set_aspect("equal")
+        axs[i].set_axis_off()
