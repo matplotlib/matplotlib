@@ -1,8 +1,4 @@
 {
-  "hostRequirements": {
-    "memory": "8gb",
-    "cpus": 4
-  },
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:1": {},
