@@ -7,7 +7,8 @@
     "ghcr.io/devcontainers/features/desktop-lite:1": {},
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
       "packages": "inkscape,ffmpeg,dvipng,lmodern,cm-super,texlive-latex-base,texlive-latex-extra,texlive-fonts-recommended,texlive-latex-recommended,texlive-pictures,texlive-xetex,fonts-wqy-zenhei,graphviz,fonts-crosextra-carlito,fonts-freefont-otf,fonts-comic-neue,fonts-noto-cjk,optipng"
-    }
+    },
+    "ghcr.io/devcontainers/features/conda:1": {}
   },
   "onCreateCommand": "bash .devcontainer/setup.sh",
   "postCreateCommand": "",
