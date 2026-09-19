@@ -242,7 +242,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
                 4,
                 1
             };
-            return py::buffer_info(renderer->pixBuffer, shape, strides);
+            return py::buffer_info(renderer->pixBuffer.get(), shape, strides);
         });
 
     py::classh<BufferRegion>(m, "BufferRegion", py::buffer_protocol())
