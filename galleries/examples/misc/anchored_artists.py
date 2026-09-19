@@ -22,12 +22,12 @@ from matplotlib.offsetbox import (AnchoredOffsetbox, AuxTransformBox, DrawingAre
 from matplotlib.patches import Circle, Ellipse
 
 
-def draw_text(ax):
+def draw_text(fig):
     """Draw a text-box anchored to the upper-left corner of the figure."""
     box = AnchoredOffsetbox(child=TextArea("Figure 1a"),
                             loc="upper left", frameon=True)
     box.patch.set_boxstyle("round,pad=0.,rounding_size=0.2")
-    ax.add_artist(box)
+    fig.add_artist(box)
 
 
 def draw_circles(ax):
@@ -68,7 +68,7 @@ def draw_sizebar(ax):
 fig, ax = plt.subplots()
 ax.set_aspect(1)
 
-draw_text(ax)
+draw_text(fig)
 draw_circles(ax)
 draw_ellipse(ax)
 draw_sizebar(ax)
