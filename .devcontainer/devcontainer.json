@@ -3,7 +3,7 @@
     "memory": "8gb",
     "cpus": 4
   },
-  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
   "features": {
     "ghcr.io/devcontainers/features/desktop-lite:1": {},
     "ghcr.io/rocker-org/devcontainer-features/apt-packages:1": {
