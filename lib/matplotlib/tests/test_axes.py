@@ -2921,6 +2921,46 @@ def test_hist2d_autolimits():
     assert ax.get_autoscale_on()  # Autolimits have not been disabled.
 
 
+def test_hist2d_datetime():
+    # Regression test for gh-17319: hist2d's returned bin edges for
+    # datetime input should be on the same numeric scale as
+    # matplotlib.dates.date2num (i.e. equivalent to converting the dates
+    # yourself and calling np.histogram2d directly), not raw
+    # (nanosecond-scale) datetime64 integers.
+    x = np.arange(np.datetime64('2020-01-01'), np.datetime64('2020-01-11'))
+    y = np.arange(10.)
+
+    ax = plt.figure().add_subplot()
+    h, xedges, yedges, pc = ax.hist2d(x, y, bins=5)
+
+    expected_h, expected_xedges, expected_yedges = np.histogram2d(
+        mdates.date2num(x), y, bins=5)
+    np.testing.assert_array_equal(xedges, expected_xedges)
+    np.testing.assert_array_equal(yedges, expected_yedges)
+    np.testing.assert_array_equal(h, expected_h)
+
+
+def test_hist2d_datetime_range():
+    # The `range` parameter should be converted through the unit converters
+    # just like x/y, so passing datetime bounds is equivalent to manually
+    # converting them (e.g. via `date2num`) and passing the result.
+    x = np.arange(np.datetime64('2020-01-01'), np.datetime64('2020-01-11'))
+    y = np.arange(10.)
+    xlim_datetime = [np.datetime64('2020-01-01'), np.datetime64('2020-01-11')]
+    xlim_converted = mdates.date2num(xlim_datetime)
+
+    h_datetime, xedges_datetime, yedges_datetime, _ = (
+        plt.figure().add_subplot().hist2d(
+            x, y, bins=5, range=[xlim_datetime, [0, 10]]))
+    h_converted, xedges_converted, yedges_converted, _ = (
+        plt.figure().add_subplot().hist2d(
+            mdates.date2num(x), y, bins=5, range=[xlim_converted, [0, 10]]))
+
+    np.testing.assert_array_equal(xedges_datetime, xedges_converted)
+    np.testing.assert_array_equal(yedges_datetime, yedges_converted)
+    np.testing.assert_array_equal(h_datetime, h_converted)
+
+
 class TestScatter:
     @image_comparison(['scatter'], style='mpl20', remove_text=True)
     def test_scatter_plot(self):
