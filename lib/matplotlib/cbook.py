@@ -1258,6 +1258,25 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
     # output is a list of dicts
     bxpstats = []
 
+    # `_reshape_2D([])` is one empty column, so empty *labels* would mismatch.
+    # Empty X + empty labels is zero datasets, not one unlabeled empty set.
+    if labels is not None:
+        unpacked = _unpack_to_numpy(X)
+        if isinstance(unpacked, np.ndarray):
+            if unpacked.ndim <= 1:
+                zero_datasets = unpacked.size == 0
+            elif unpacked.ndim == 2:
+                zero_datasets = unpacked.shape[1] == 0
+            else:
+                zero_datasets = False
+        else:
+            try:
+                zero_datasets = len(unpacked) == 0
+            except TypeError:
+                zero_datasets = False
+        if zero_datasets and len(labels) == 0:
+            return []
+
     # convert X to a list of lists
     X = _reshape_2D(X, "X")
 

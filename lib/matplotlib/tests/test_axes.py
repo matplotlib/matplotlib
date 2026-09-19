@@ -10191,6 +10191,13 @@ def test_boxplot_tick_labels():
     assert [l.get_text() for l in ax.get_xticklabels()] == ['A', 'B', 'C']
 
 
+def test_boxplot_empty_x_and_empty_tick_labels():
+    fig, ax = plt.subplots()
+    result = ax.boxplot([], tick_labels=[])
+    assert result['boxes'] == []
+    plt.close(fig)
+
+
 @needs_usetex
 @check_figures_equal()
 def test_latex_pie_percent(fig_test, fig_ref):

@@ -4931,6 +4931,9 @@ or pandas.DataFrame
 
         # input validation
         N = len(bxpstats)
+        if N == 0:
+            return dict(whiskers=[], caps=[], boxes=[],
+                        medians=[], fliers=[], means=[])
         datashape_message = ("List of boxplot statistics and `{0}` "
                              "values must have same the length")
         # check position
