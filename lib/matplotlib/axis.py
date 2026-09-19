@@ -1319,7 +1319,7 @@ class Axis(martist.Artist):
         # attribute, and the derived code below will check for that
         # and use it if it's available (else just use 0..1)
 
-    def _set_lim(self, v0, v1, *, emit=True, auto):
+    def _set_lim(self, v0, v1, *, emit=True, auto, propagate=True):
         """
         Set view limits.
 
@@ -1336,6 +1336,8 @@ class Axis(martist.Artist):
         auto : bool or None, default: False
             Whether to turn on autoscaling of the x-axis. True turns on, False
             turns off, None leaves unchanged.
+        propagate : bool, default: True
+            Whether to propagate the limits to shared axes.
         """
         name = self._get_axis_name()
 
@@ -1381,11 +1383,14 @@ class Axis(martist.Artist):
 
         if emit:
             self.axes.callbacks.process(f"{name}lim_changed", self.axes)
+
+        if propagate:
             # Call all of the other Axes that are shared with this one
             for other in self._get_shared_axes():
                 if other is self.axes:
                     continue
-                other._axis_map[name]._set_lim(v0, v1, emit=False, auto=auto)
+                other._axis_map[name]._set_lim(
+                    v0, v1, emit=False, auto=auto, propagate=False)
                 if emit:
                     other.callbacks.process(f"{name}lim_changed", other)
                 if ((other_fig := other.get_figure(root=False)) !=
