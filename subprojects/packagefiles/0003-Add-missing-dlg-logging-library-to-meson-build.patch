@@ -1,0 +1,28 @@
+From a4279b16570434a2d46f073d221a1d3a5034f9e7 Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Fri, 31 Jul 2026 23:09:34 -0400
+Subject: [PATCH 3/5] Add missing dlg logging library to meson build
+
+Without this source file, the final library fails to link if you set
+`FT_DEBUG_LOGGING` for the build.
+
+Signed-off-by: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+---
+ meson.build | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/meson.build b/meson.build
+index 046163ecd..c731ed938 100644
+--- a/meson.build
++++ b/meson.build
+@@ -236,6 +236,7 @@ endif
+ # might make these platform-specific files much smaller, and could be moved
+ # into `ftsystem.c` as well.
+ 
++ft2_sources += 'src/dlg/dlgwrap.c'
+ if host_machine.system() == 'windows'
+   winmod = import('windows')
+   ft2_sources += [
+-- 
+2.55.0
+
