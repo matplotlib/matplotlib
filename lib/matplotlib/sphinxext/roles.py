@@ -21,6 +21,7 @@ roles, you'll see one of the following error messages:
 
     Unknown interpreted text role "mpltype".
     Unknown interpreted text role "rc".
+    Unknown interpreted text role "rcd".
 
 To fix this, you can add this module as extension to your sphinx :file:`conf.py`::
 
