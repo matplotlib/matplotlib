@@ -94,13 +94,18 @@ _RC_WILDCARD_LINK_MAPPING = {
 }
 
 
-def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None,
+                  *, with_default: bool = False):
     """
     Sphinx role ``:rc:`` to highlight and link ``rcParams`` entries.
 
     Usage: Give the desired ``rcParams`` key as parameter.
 
     :code:`:rc:`figure.dpi`` will render as: :rc:`figure.dpi`
+
+    If *with_default* is ``True`` (the ``:rcd:`` role), the default value is
+    appended in parentheses. The ``:rc:`` role renders the link alone, without
+    the default, since the linked rcParams entry already states it.
     """
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
@@ -114,16 +119,24 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
     qr += ref_nodes
     node_list = [qr]
 
-    # The default backend would be printed as "agg", but that's not correct (as
-    # the default is actually determined by fallback).
-    if text in rcParamsDefault and text != "backend":
-        node_list.extend([
-            nodes.Text(' (default: '),
-            nodes.literal('', repr(rcParamsDefault[text])),
-            nodes.Text(')'),
+    if with_default:
+        # The default backend would be printed as "agg", but that's not correct
+        # (as the default is actually determined by fallback).
+        if text in rcParamsDefault and text != "backend":
+            node_list.extend([
+                nodes.Text(' (default: '),
+                nodes.literal('', repr(rcParamsDefault[text])),
+                nodes.Text(')'),
             ])
 
     return node_list, messages
+
+
+def _rcparam_role_with_default(name, rawtext, text, lineno, inliner,
+                                options=None, content=None):
+    """Sphinx role ``:rcd:`` — like ``:rc:`` but appends the default value."""
+    return _rcparam_role(name, rawtext, text, lineno, inliner, options, content,
+                         with_default=True)
 
 
 def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -156,6 +169,7 @@ def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=No
 
 def setup(app):
     app.add_role("rc", _rcparam_role)
+    app.add_role("rcd", _rcparam_role_with_default)
     app.add_role("mpltype", _mpltype_role)
     app.add_node(
         _QueryReference,

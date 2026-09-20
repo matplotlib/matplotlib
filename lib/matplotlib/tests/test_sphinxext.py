@@ -337,3 +337,58 @@ Some plots
     assert not (img_dir / "range6_range6.png").exists()
     assert not (img_dir / "range6_range10.png").exists()
     assert not (img_dir / "range4.png").exists()
+
+
+class TestRcParamRole:
+    """Unit tests for the :rc: and :rcd: roles in matplotlib.sphinxext.roles.
+
+    These exercise the role functions directly without a full Sphinx build, so
+    they run fast and isolate the role logic from the rest of the doc build.
+    """
+
+    def _make_inliner(self):
+        from docutils.parsers.rst.states import Inliner, Struct
+        from docutils.utils import new_document
+        from docutils.frontend import OptionParser
+
+        settings = OptionParser(components=(Inliner,)).get_default_values()
+        settings.report_level = 5
+        document = new_document('test', settings)
+        inliner = Inliner()
+        inliner.document = document
+        inliner.reporter = document.reporter
+        inliner.notify = getattr(document, 'note_source', lambda *a, **k: None)
+        inliner.language = type('Lang', (), {'labels': {}, 'bibliographic_fields': {}})()
+        return inliner
+
+    def test_rc_role_does_not_append_default(self):
+        from matplotlib.sphinxext.roles import _rcparam_role
+        inliner = self._make_inliner()
+        nodes_list, messages = _rcparam_role(
+            'rc', ':rc:`figure.dpi`', 'figure.dpi', 1, inliner)
+        text = ''.join(n.astext() for n in nodes_list)
+        assert 'figure.dpi' in text
+        # The :rc: role must NOT append the default value.
+        assert 'default:' not in text
+
+    def test_rcd_role_appends_default(self):
+        from matplotlib.sphinxext.roles import _rcparam_role_with_default
+        inliner = self._make_inliner()
+        nodes_list, messages = _rcparam_role_with_default(
+            'rcd', ':rcd:`figure.dpi`', 'figure.dpi', 1, inliner)
+        text = ''.join(n.astext() for n in nodes_list)
+        assert 'figure.dpi' in text
+        # The :rcd: role MUST append the default value.
+        assert 'default:' in text
+
+    def test_rcd_role_skips_default_for_backend(self):
+        from matplotlib.sphinxext.roles import _rcparam_role_with_default
+        from matplotlib import rcParamsDefault
+        inliner = self._make_inliner()
+        # 'backend' is intentionally excluded from default rendering because
+        # the default is determined by fallback, not the rcParamsDefault value.
+        nodes_list, messages = _rcparam_role_with_default(
+            'rcd', ':rcd:`backend`', 'backend', 1, inliner)
+        text = ''.join(n.astext() for n in nodes_list)
+        assert 'backend' in text
+        assert 'default:' not in text
