@@ -21,6 +21,7 @@ roles, you'll see one of the following error messages:
 
     Unknown interpreted text role "mpltype".
     Unknown interpreted text role "rc".
+    Unknown interpreted text role "rc-no-default".
 
 To fix this, you can add this module as extension to your sphinx :file:`conf.py`::
 
@@ -94,13 +95,12 @@ _RC_WILDCARD_LINK_MAPPING = {
 }
 
 
-def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+def _rcparam_nodes(rawtext, text, lineno, inliner, *, show_default):
     """
-    Sphinx role ``:rc:`` to highlight and link ``rcParams`` entries.
+    Build the nodes for an ``rcParams`` reference.
 
-    Usage: Give the desired ``rcParams`` key as parameter.
-
-    :code:`:rc:`figure.dpi`` will render as: :rc:`figure.dpi`
+    Shared by the ``:rc:`` and ``:rc-no-default:`` roles; *show_default*
+    decides whether the parameter's default value is appended.
     """
     # Generate a pending cross-reference so that Sphinx will ensure this link
     # isn't broken at some point in the future.
@@ -116,7 +116,7 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
 
     # The default backend would be printed as "agg", but that's not correct (as
     # the default is actually determined by fallback).
-    if text in rcParamsDefault and text != "backend":
+    if show_default and text in rcParamsDefault and text != "backend":
         node_list.extend([
             nodes.Text(' (default: '),
             nodes.literal('', repr(rcParamsDefault[text])),
@@ -124,6 +124,31 @@ def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=No
             ])
 
     return node_list, messages
+
+
+def _rcparam_role(name, rawtext, text, lineno, inliner, options=None, content=None):
+    """
+    Sphinx role ``:rc:`` to highlight and link ``rcParams`` entries.
+
+    Usage: Give the desired ``rcParams`` key as parameter.
+
+    :code:`:rc:`figure.dpi`` will render as: :rc:`figure.dpi`
+    """
+    return _rcparam_nodes(rawtext, text, lineno, inliner, show_default=True)
+
+
+def _rcparam_no_default_role(name, rawtext, text, lineno, inliner,
+                             options=None, content=None):
+    """
+    Sphinx role ``:rc-no-default:``, like ``:rc:`` but without the default.
+
+    Use this where the default value would be noise or actively misleading --
+    for instance in a parameter specification that already states its own
+    default, or in prose that is about the parameter rather than its value.
+
+    :code:`:rc-no-default:`figure.dpi`` renders as ``rcParams["figure.dpi"]``.
+    """
+    return _rcparam_nodes(rawtext, text, lineno, inliner, show_default=False)
 
 
 def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -156,6 +181,7 @@ def _mpltype_role(name, rawtext, text, lineno, inliner, options=None, content=No
 
 def setup(app):
     app.add_role("rc", _rcparam_role)
+    app.add_role("rc-no-default", _rcparam_no_default_role)
     app.add_role("mpltype", _mpltype_role)
     app.add_node(
         _QueryReference,

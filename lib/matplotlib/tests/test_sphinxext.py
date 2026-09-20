@@ -337,3 +337,59 @@ Some plots
     assert not (img_dir / "range6_range6.png").exists()
     assert not (img_dir / "range6_range10.png").exists()
     assert not (img_dir / "range4.png").exists()
+
+
+def _run_rc_role(role, text, role_name='rc'):
+    """Call an rcParams role with a stub inliner and return its nodes."""
+    from docutils import nodes
+
+    class _StubInliner:
+        def interpreted(self, title, _rawsource, _role, _lineno):
+            return [nodes.reference('', title, refuri='')], []
+
+    node_list, messages = role(
+        role_name, f':{role_name}:`{text}`', text, 1, _StubInliner())
+    assert messages == []
+    return node_list
+
+
+def test_rc_role_shows_the_default():
+    from matplotlib.sphinxext.roles import _rcparam_role
+
+    rendered = ''.join(n.astext() for n in _run_rc_role(_rcparam_role,
+                                                        'figure.dpi'))
+    assert 'rcParams["figure.dpi"]' in rendered
+    assert '(default:' in rendered
+
+
+def test_rc_no_default_role_omits_the_default():
+    from matplotlib.sphinxext.roles import _rcparam_no_default_role
+
+    rendered = ''.join(n.astext()
+                       for n in _run_rc_role(_rcparam_no_default_role,
+                                             'figure.dpi'))
+    assert 'rcParams["figure.dpi"]' in rendered
+    assert 'default' not in rendered
+
+
+def test_rc_roles_link_to_the_same_target():
+    from matplotlib.sphinxext.roles import (
+        _rcparam_no_default_role, _rcparam_role)
+
+    # Only the trailing default differs; the reference itself is identical,
+    # including the wildcard mapping.
+    for param in ['figure.dpi', 'font.*']:
+        with_default = _run_rc_role(_rcparam_role, param)[0]
+        without = _run_rc_role(_rcparam_no_default_role, param)[0]
+        assert with_default.astext() == without.astext()
+        assert with_default['highlight'] == without['highlight'] == param
+
+
+def test_rc_role_skips_the_backend_default():
+    # The default backend resolves by fallback, so it is deliberately not
+    # printed even by the role that shows defaults.
+    from matplotlib.sphinxext.roles import _rcparam_role
+
+    rendered = ''.join(n.astext() for n in _run_rc_role(_rcparam_role,
+                                                        'backend'))
+    assert 'default' not in rendered

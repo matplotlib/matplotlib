@@ -733,6 +733,12 @@ rcParams can be referenced with the custom ``:rc:`` role:
 :literal:`:rc:\`foo\`` yields ``rcParams["foo"] = 'default'``, which is a link
 to the :file:`matplotlibrc` file description.
 
+Where the default value would be noise or actively misleading, use
+``:rc-no-default:`` instead: :literal:`:rc-no-default:\`foo\`` yields
+``rcParams["foo"]``, linking the same way but without appending the value.
+This is the one to reach for in a parameter specification that already states
+its own default, where ``:rc:`` would print the default twice.
+
 Setters and getters
 -------------------
 
