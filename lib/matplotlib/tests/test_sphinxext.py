@@ -392,3 +392,15 @@ class TestRcParamRole:
         text = ''.join(n.astext() for n in nodes_list)
         assert 'backend' in text
         assert 'default:' not in text
+
+    def test_rc_role_with_wildcard_mapping(self):
+        """The :rc: role should resolve wildcard entries via _RC_WILDCARD_LINK_MAPPING."""
+        from matplotlib.sphinxext.roles import _rcparam_role, _RC_WILDCARD_LINK_MAPPING
+        # 'font.*' is a known wildcard mapping
+        assert 'font.*' in _RC_WILDCARD_LINK_MAPPING
+        inliner = self._make_inliner()
+        nodes_list, messages = _rcparam_role(
+            'rc', ':rc:`font.*`', 'font.*', 1, inliner)
+        text = ''.join(n.astext() for n in nodes_list)
+        assert 'font' in text
+        assert 'default:' not in text  # :rc: never appends default
