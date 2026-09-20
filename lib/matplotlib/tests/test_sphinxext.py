@@ -347,11 +347,23 @@ class TestRcParamRole:
     """
 
     def _make_inliner(self):
+        import warnings
         from docutils.parsers.rst.states import Inliner, Struct
         from docutils.utils import new_document
-        from docutils.frontend import OptionParser
 
-        settings = OptionParser(components=(Inliner,)).get_default_values()
+        # Build default settings without using the deprecated
+        # docutils.frontend.OptionParser (which raises a DeprecationWarning
+        # under PYTHONWARNINGS=error). get_default_settings is the
+        # non-deprecated replacement.
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore', DeprecationWarning)
+            try:
+                from docutils.frontend import get_default_settings
+                settings = get_default_settings(components=(Inliner,))
+            except ImportError:
+                # Fallback for older docutils without get_default_settings.
+                from docutils.frontend import OptionParser
+                settings = OptionParser(components=(Inliner,)).get_default_values()
         settings.report_level = 5
         document = new_document('test', settings)
         inliner = Inliner()
