@@ -40,6 +40,11 @@ class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
         if is_resized:
             self._renderer_key = key
 
+        # Clear the blit buffer on full redraws so that any old blitted
+        # artists are wiped out.
+        if hasattr(self, 'renderer') and self.renderer is not None:
+            self.renderer.clear()
+
         for layer_name in fig._children_by_layer:
             layer_stale = fig._stale_layers.get(layer_name, True)
 
