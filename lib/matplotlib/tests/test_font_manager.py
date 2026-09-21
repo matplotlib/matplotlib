@@ -225,7 +225,11 @@ def _test_macos_can_use_appkit_after_using_coretext():
 
 @pytest.mark.skipif(sys.platform != 'darwin', reason='macOS only')
 def test_macos_can_use_appkit_after_using_coretext(tmpdir, monkeypatch):
-    subprocess_run_helper(_test_macos_can_use_appkit_after_using_coretext, timeout=10)
+    subprocess_run_helper(
+        _test_macos_can_use_appkit_after_using_coretext,
+        timeout=10,
+        extra_env={"MPLBACKEND": "agg"}
+    )
 
 
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
