@@ -215,6 +215,19 @@ def test_get_macos_fonts(tmpdir, monkeypatch):
     assert assorted_system_fonts.issubset(fonts_found)
 
 
+def _test_macos_can_use_appkit_after_using_coretext():
+    # Make sure that AppKit works after using _get_macos_fonts(). See #32376
+    _get_macos_fonts()
+    mpl.use("macosx")
+    plt.figure()
+    plt.show(block=False)
+
+
+@pytest.mark.skipif(sys.platform != 'darwin', reason='macOS only')
+def test_macos_can_use_appkit_after_using_coretext(tmpdir, monkeypatch):
+    subprocess_run_helper(_test_macos_can_use_appkit_after_using_coretext, timeout=10)
+
+
 @pytest.mark.skipif(sys.platform != 'linux' or not has_fclist,
                     reason='only Linux with fontconfig installed')
 def test_user_fonts_linux(tmpdir, monkeypatch):
