@@ -379,18 +379,12 @@ jobs:
               -instr-profile default.profdata > info.lcov
           fi
 
-      - name: Collect macOS crash logs
-        if: failure() && runner.os == 'macOS'
-        run: |
-          mkdir -p ./macos_crash_logs
-          cp -R "$HOME/Library/Logs/DiagnosticReports/" ./macos_crash_logs/ 2>/dev/null
-
       - name: Upload macOS crash logs
         if: failure() && runner.os == 'macOS'
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: macos-crash-logs
-          path: ./macos_crash_logs
+          path: ~/Library/Logs/DiagnosticReports/*
 
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
