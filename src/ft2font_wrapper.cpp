@@ -935,6 +935,32 @@ const char *PyFT2Font_get_char_index__doc__ = R"""(
     .get_name_index
 )""";
 
+const char *PyFT2Font__get_font_for_char__doc__ = R"""(
+    Return the font that has a glyph for a character code point.
+
+    .. warning::
+        This API uses the fallback list and is both private and provisional: do not use
+        it directly.
+
+    Parameters
+    ----------
+    codepoint : int
+        A character code point in the current charmap (which defaults to Unicode.)
+
+    Returns
+    -------
+    FT2Font or None
+        This font if it has a glyph for *codepoint*; otherwise, the first font in the
+        fallback list (searched recursively) that does, or None if no font does.
+)""";
+
+static PyFT2Font *
+PyFT2Font__get_font_for_char(PyFT2Font *self, FT_ULong codepoint)
+{
+    // Every font in the fallback chain came from Python, so it is a PyFT2Font.
+    return static_cast<PyFT2Font *>(self->get_font_for_char(codepoint));
+}
+
 const char *PyFT2Font_get_sfnt__doc__ = R"""(
     Load the entire SFNT names table.
 
@@ -1780,6 +1806,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def("get_char_index", &PyFT2Font::get_char_index,
              "codepoint"_a, py::kw_only(), "_fallback"_a=true,
              PyFT2Font_get_char_index__doc__)
+        .def("_get_font_for_char", &PyFT2Font__get_font_for_char, "codepoint"_a,
+             py::return_value_policy::reference,
+             PyFT2Font__get_font_for_char__doc__)
         .def("get_sfnt", &PyFT2Font_get_sfnt, PyFT2Font_get_sfnt__doc__)
         .def("get_name_index", &PyFT2Font::get_name_index, "name"_a,
              PyFT2Font_get_name_index__doc__)
@@ -1894,9 +1923,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .def_property_readonly(
           "fname", &PyFT2Font_fname,
           "The original filename for this object.")
-        .def_property_readonly(
-          "_fallbacks", [](PyFT2Font *self) { return self->fallbacks; },
-          "The fallback fonts used to find glyphs missing from this font.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             return self.get_image().request();

@@ -691,11 +691,11 @@ class UnicodeFonts(TruetypeFonts):
                 # https://github.com/matplotlib/matplotlib/issues/29173.
                 text_font = get_font(
                     fontManager._find_fonts_by_props(self.default_font_prop))
-                for fallback_font in [text_font, *text_font._fallbacks]:
-                    if fallback_font.get_char_index(uniindex, _fallback=False):
-                        _log.info("Substituting symbol %a from font %s.",
-                                  sym, fallback_font.family_name)
-                        return fallback_font, uniindex, False
+                fallback_font = text_font._get_font_for_char(uniindex)
+                if fallback_font is not None:
+                    _log.info("Substituting symbol %a from font %s.",
+                              sym, fallback_font.family_name)
+                    return fallback_font, uniindex, False
                 _log.warning("Font %r does not have a glyph for %a [U+%x], "
                              "substituting with a dummy symbol.",
                              new_fontname, sym, uniindex)
