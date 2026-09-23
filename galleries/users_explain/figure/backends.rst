@@ -32,6 +32,8 @@ PyQt/PySide, PyGObject, Tkinter, wxPython, or macOS/Cocoa); also referred to
 as "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
+.. _selecting-a-backend:
+
 Selecting a backend
 -------------------
 
@@ -288,6 +290,33 @@ Debugging the figure windows not showing
 ----------------------------------------
 
 Sometimes things do not work as expected, usually during an install.
+
+Using Matplotlib with WSL
+^^^^^^^^^^^^^^^^^^^^^^^^^
+
+WSL2 distributions can display Linux GUI applications through WSLg.  When
+WSLg is available, it provides the display environment variables that GUI
+toolkits use, so Matplotlib can select an interactive backend in the same way
+as it does on other Linux systems.  You do not need to install or configure
+an X server separately.
+
+Make sure that a GUI toolkit supported by Matplotlib (for example, Qt or
+Tk) is installed in the WSL environment.  If Matplotlib cannot find a usable
+interactive backend, check that WSLg is running and that ``DISPLAY`` or
+``WAYLAND_DISPLAY`` is set in the shell where Python is started.  You can
+inspect the selected backend with:
+
+.. code-block:: python3
+
+   import matplotlib
+
+   print(matplotlib.get_backend())
+
+If no display is available (for example, when running a script in a headless
+WSL environment), select the non-interactive ``Agg`` backend and save figures
+to files instead.  See :ref:`the-builtin-backends` for the available
+interactive backends and :ref:`selecting-a-backend` for ways to configure a
+backend explicitly.
 
 If you are using a Notebook or integrated development environment (see :ref:`notebooks-and-ides`),
 please consult their documentation for debugging figures not working in their
