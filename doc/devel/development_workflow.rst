@@ -517,9 +517,9 @@ will run on all supported platforms and versions of Python.
 * Codecov and CodeQL are currently for information only. Their failure is not
   necessarily a blocker.
 
-Make sure the Linting, GitHub Actions, AppVeyor, CircleCI, and Azure pipelines are
-passing before merging. All checks are listed at the bottom of the GitHub page of your
-pull request.
+Make sure the Linting, GitHub Actions, and CircleCI checks are passing before
+merging. All checks are listed at the bottom of the GitHub page of your pull
+request.
 
 .. list-table::
     :header-rows: 1
@@ -539,17 +539,10 @@ pull request.
     * - CircleCI
       - :ref:`documentation build <writing-rest-pages>`
       - Search the CircleCI log for ``WARNING``.
-    * - | GitHub Actions
-        | AppVeyor
-        | Azure pipelines
+    * - GitHub Actions
       - :ref:`tests <testing>`
-      - | Search the log for ``FAILURES``. Subsequent section should contain information
-          on failed tests.
-        |
-        | On Azure, find the images as *artifacts* of the Azure job:
-        | 1. Click *Details* on the check on the GitHub PR page.
-        | 2. Click *View more details on Azure Pipelines* to go to Azure.
-        | 3. On the overview page *artifacts* are listed in the section *Related*.
+      - Search the log for ``FAILURES``. The subsequent section should contain
+        information on failed tests.
 
 Skip CI checks
 --------------
@@ -573,12 +566,6 @@ on individual commits by including the following strings in the commit message:
     * - ``[skip doc]``
       - Skip documentation checks.
       - For when you didn't change documentation.
-    * - ``[skip appveyor]``
-      - Skip AppVeyor run.
-      - Substring must be in first line of commit message.
-    * - ``[skip azp]``
-      - Skip Azure Pipelines.
-      -
     * - ``[skip actions]``
       - Skip GitHub Actions.
       -
