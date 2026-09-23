@@ -81,6 +81,7 @@ import matplotlib.artist as martist
 import matplotlib.colors as mcolors
 import matplotlib.text as mtext
 from matplotlib.collections import LineCollection
+from matplotlib.font_manager import FontProperties
 from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch
 from matplotlib.path import Path
@@ -296,6 +297,36 @@ class LabelBase(mtext.Text):
         self.set_rotation(angle_orig)
 
         return bbox
+
+
+class _AxisLabelFontProperties(FontProperties):
+    """Inherit the reference label's size until a size is explicitly set."""
+
+    __slots__ = ("_ref_artist",)
+
+    def __init__(self, properties, ref_artist):
+        self.__dict__.update(properties.__dict__)
+        self._ref_artist = ref_artist
+
+    def get_size(self):
+        if self._ref_artist is not None:
+            return self._ref_artist.get_fontsize()
+        return super().get_size()
+
+    get_size_in_points = get_size
+
+    def set_size(self, size):
+        super().set_size(size)
+        self._ref_artist = None
+
+    def __copy__(self):
+        # FontProperties.__copy__ returns a plain FontProperties snapshot.
+        properties = super().__copy__()
+        properties.set_size(self.get_size())
+        return properties
+
+    def __hash__(self):
+        return hash(self.copy())
 
 
 class AxisLabel(AttributeCopier, LabelBase):
@@ -1025,6 +1056,9 @@ class AxisArtist(martist.Artist):
             transform=tr,
             axis_direction=self._axis_direction,
         )
+        if "labelsize" not in kwargs:
+            self.label._fontproperties = _AxisLabelFontProperties(
+                self.label.get_fontproperties(), self.axis.label)
         self.label.set_figure(self.axes.get_figure(root=False))
         labelpad = kwargs.get("labelpad", 5)
         self.label.set_pad(labelpad)
