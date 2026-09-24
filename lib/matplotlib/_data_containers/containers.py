@@ -37,18 +37,16 @@ class DataContainer(Protocol):
         """
         Query the data container for data.
 
-        We are given the data limits and the screen size so that we have an
-        estimate of how finely (or not) we need to sample the data we wrapping.
-
         Parameters
         ----------
-        coord_transform : matplotlib.transform.Transform
-            Must go from axes fraction space -> data space
-
-        size : 2 integers
-            xpixels, ypixels
-
-            The size in screen / render units that we have to fill.
+        graph : matplotlib._data_containers.Graph
+            This is a graph that represents the available operations.
+            Most commonly, this is used to get information on the pan/zoom of
+            an Axes, which allows a Container to reactively produce data
+            (e.g. compute only the relevant region, dynamically downscale, etc)
+        parent_coordinates: str, Optional
+            This provides a small insight into where the data sits within the
+            Graph.
 
         Returns
         -------
@@ -63,7 +61,10 @@ class DataContainer(Protocol):
 
     def describe(self) -> dict[str, Desc]:
         """
-        Describe the data a query will return
+        Describe the data a query will return.
+
+        This provides the set of keys as well as the relative shapes and
+        coordinate systems of each key
 
         Returns
         -------
@@ -77,6 +78,20 @@ class NoNewKeys(ValueError): ...
 
 class ArrayContainer:
     def __init__(self, coordinates: dict[str, str] | None = None, /, **data):
+        """A container which represents numpy arrays.
+
+        Arrays in an ArrayContainer are only updated via an explicit call to
+        :meth:`ArrayContainer.update`.
+
+        Parameters
+        ----------
+        coordinates: dict[str, str]
+            A mapping of string keys to string coordinate systems for data in
+            the container
+        **data
+            The initial arrays for the container
+
+        """
         coordinates = coordinates or {}
         self._data = data
         self._cache_key = str(uuid.uuid4())
@@ -100,6 +115,16 @@ class ArrayContainer:
         return dict(self._desc)
 
     def update(self, **data):
+        """Update the data in the container.
+
+        Arrays must be of the same shape, and no new arrays may be added.
+        Only updated arrays need to be included.
+
+        Parameters
+        ----------
+        **data:
+            The new arrays
+        """
         # TODO check that this is still consistent with desc!
         if not all(k in self._data for k in data):
             raise NoNewKeys(
@@ -135,7 +160,7 @@ class FuncContainer:
         what the (relative) shapes will be in relation to each other. For now this
         is a list of integers and strings, where the strings are "generic" values.
 
-        For example if two functions report shapes: ``{'bins':[N],  'edges': [N + 1]``
+        For example if two functions report shapes: ``{'bins':[N],  'edges': [N + 1]``}
         then when called, *edges* will always have one more entry than bins.
 
         Parameters

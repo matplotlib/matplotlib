@@ -2,25 +2,11 @@ from .description import Desc, desc_like
 from .conversion_edge import Graph, TransformEdge
 
 
-def containerize_draw(draw_func):
-    def draw(self, renderer, *, graph=None):
-        if graph is None:
-            graph = Graph([])
-
-        ax = self.axes
-        if ax is None:
-            implicit_graph = Graph([])
-        else:
-            desc: Desc = Desc(("N",), coordinates="data")
-            xy: dict[str, Desc] = {"x": desc, "y": desc}
-            implicit_graph = _get_graph(ax)
-
-        return draw_func(self, renderer, graph=graph+implicit_graph)
-
-    return draw
-
-
 def _get_graph(ax):
+    """Compute the Graph for a given axes.
+
+    Produces a minimal graph that provides enough for `FuncContainer`.
+    """
     if ax is None:
         return Graph([])
     desc: Desc = Desc(("N",), coordinates="data")
@@ -52,5 +38,6 @@ def _get_graph(ax):
 
 
 def check_container(artist, container_cls, operation="This operation"):
+    """Validation helper for backwards compatibility checks"""
     if not isinstance(artist._container, container_cls):
         raise TypeError(f"{operation} is not available with a custom container class")

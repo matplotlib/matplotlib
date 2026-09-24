@@ -14,6 +14,25 @@ from matplotlib.transforms import Transform
 
 @dataclass
 class Edge:
+    """An Edge is any operation that takes a set of inputs to produce an output.
+
+    The default edge is a no-op
+
+    Attributes
+    ----------
+    name: str
+        The name for the operation, used primarily for introspection
+    input: dict[str, Desc]
+        The required inputs for the Edge
+    output: dict[str, Desc]
+        The resulting output of the Edge
+    weight: float
+        The weight for the execution Graph, lower is better
+        This allows for optimized paths to be computed
+    invertable: bool
+        If an operation is invertable, then the ``inverse`` property must provide the
+        appropriate inverse operation.
+    """
     name: str
     input: dict[str, Desc]
     output: dict[str, Desc]
@@ -30,6 +49,26 @@ class Edge:
 
 @dataclass
 class SequenceEdge(Edge):
+    """A sequence of Edges, chained together to provide a single operation.
+
+    Attributes
+    ----------
+    name: str
+        The name for the operation, used primarily for introspection
+    input: dict[str, Desc]
+        The required inputs for the Edge
+    output: dict[str, Desc]
+        The resulting output of the Edge
+    weight: float, optional
+        The weight for the execution Graph, lower is better
+        This allows for optimized paths to be computed
+    invertable: bool, optional
+        If an operation is invertable, then the ``inverse`` property must provide the
+        appropriate inverse operation.
+    edges: Sequence[Edge], optional
+        The constituent edges, applied in order on the input results in the output
+    """
+
     edges: Sequence[Edge] = ()
 
     @classmethod
@@ -40,6 +79,23 @@ class SequenceEdge(Edge):
         output: dict[str, Desc],
         weight: float | None = None,
     ):
+        """Constructor helper method for sequence edges.
+
+        Automatically determines the inputs needed, invertability and,
+        if not provided, the weight.
+
+        Parameters
+        ----------
+        name: str
+            The name of the Edge
+        edges: Sequence[Edge]
+            The constituent edges
+        output: dict[str, Desc]
+            The subset of the outputs of all constituent edges that is to be returned
+        weight: float, optional
+            A new weight to assign, if not provided, uses the sum of the constituent
+            edges
+        """
         input: dict[str, Desc] = {}
         intermediates: dict[str, Desc] = {}
         invertable = True
@@ -79,6 +135,20 @@ class CoordinateEdge(Edge):
     def from_coords(
         cls, name: str, input: dict[str, Desc | str], output: str, weight: float = 1
     ):
+        """Constructor helper method for coordinate edges.
+
+        Parameters
+        ----------
+        name: str
+            The name of the Edge
+        input: dict[str, Desc|str]
+            The set of the input descriptions that are modified by the Edge.
+            If the value is a string, that key is treated as a ("N",) shape vector.
+        output: str
+            The new coordinate system for outputs
+        weight: float, optional
+            The weight of the edge for the execution graph
+        """
         # dtype/shape is reductive here, but I like the idea of being able to just
         # supply only the input/output coordinates for many things
         # could also see lowering default weight for this edge, but just defaulting
@@ -97,8 +167,25 @@ class CoordinateEdge(Edge):
 
 @dataclass
 class DefaultEdge(Edge):
-    """Provide default values with a high weight"""
+    """Provide default values with a high weight
 
+    Attributes
+    ----------
+    name: str
+        The name for the operation, used primarily for introspection
+    input: dict[str, Desc]
+        The required inputs for the Edge
+    output: dict[str, Desc]
+        The resulting output of the Edge
+    weight: float, optional
+        The weight for the execution Graph, lower is better
+        This allows for optimized paths to be computed
+    invertable: bool, optional
+        If an operation is invertable, then the ``inverse`` property must provide the
+        appropriate inverse operation.
+    value: Any, optional
+        The default value
+    """
     weight = 1e6
     value: Any = None
 
@@ -109,14 +196,43 @@ class DefaultEdge(Edge):
         key: str,
         output: Desc,
         value: Any,
-        weight=1e6,
+        weight: float = 1e6,
     ) -> "DefaultEdge":
+        """Constructor helper method for defaults a given value
+
+        Parameters
+        ----------
+        name: str
+            The name of the Edge
+        key: str, optional
+            The key to for the output Desc.
+        output: Desc
+            The description of the the output
+        value: Any
+            The default value
+        weight: float, optional
+            The weight for the edge.
+            Defaults to a high value, as defaults should not be used if the value is
+            computable in another way.
+        """
         return cls(name, {}, {key: output}, weight, invertable=False, value=value)
 
     @classmethod
     def from_rc(
         cls, rc_name: str, key: str | None = None, coordinates: str = "display"
     ):
+        """Constructor helper method for defaults from rcParams
+
+        Parameters
+        ----------
+        rc_name: str
+            The name of the rcParam
+        key: str, optional
+            The key to for the output Desc.
+            Defaults to the last segment of the rc_name, split on '.'.
+        coordinates: str, optional
+            The coordinate system for the output Desc
+        """
         from matplotlib import rcParams
 
         if key is None:
@@ -130,7 +246,27 @@ class DefaultEdge(Edge):
 
 @dataclass
 class FuncEdge(Edge):
-    # TODO: more explicit callable boundaries?
+    """An edge representing a python function
+
+    Attributes
+    ----------
+    name: str
+        The name for the operation, used primarily for introspection
+    input: dict[str, Desc]
+        The required inputs for the Edge
+    output: dict[str, Desc]
+        The resulting output of the Edge
+    weight: float, optional
+        The weight for the execution Graph, lower is better
+        This allows for optimized paths to be computed
+    invertable: bool, optional
+        If an operation is invertable, then the ``inverse`` property must provide the
+        appropriate inverse operation.
+    func: Callable, optional
+        The python function which takes the input and produces the output
+    invers_func: Callable, optional
+        If the function is invertable, an explicit inverse function must be provided
+    """
     func: Callable = lambda: {}
     inverse_func: Callable | None = None
 
@@ -144,6 +280,29 @@ class FuncEdge(Edge):
         weight: float = 1,
         inverse: Callable | None = None,
     ):
+        """Constructor helper method for FuncEdge
+
+        Parameters
+        ----------
+        name: str
+            The name of the Edge
+        func: Callable
+            The function that is being wrapped, should take all inputs as keyword
+            arguments and produce all outputs as a dictionary, tuple (matching order),
+            or simple return (if there is only one output)
+        input: str | dict[str, Desc]
+            The input description.
+            If given as a str, then the inputs are interpreted as shape ("N",) vectors
+            in the ``input`` coordinate space
+        output: str | dict[str, Desc]
+            The output description.
+            If given as a str, then the outputs are interpreted as shape ("N",) vectors
+            in the ``output`` coordinate space, with all keys from the input appearing.
+        weight: float, optional
+            The weight of the edge for the execution graph
+        inverse: Callable, optional
+            If the function is invertable, the inverse must be given
+        """
         # dtype/shape is reductive here, but I like the idea of being able to just
         # supply a function and the input/output coordinates for many things
         if isinstance(input, str):
@@ -193,6 +352,25 @@ class FuncEdge(Edge):
 
 @dataclass
 class TransformEdge(Edge):
+    """An edge representing a Matplotlib Transform
+
+    Attributes
+    ----------
+    name: str
+        The name for the operation, used primarily for introspection
+    input: dict[str, Desc]
+        The required inputs for the Edge
+    output: dict[str, Desc]
+        The resulting output of the Edge
+    weight: float, optional
+        The weight for the execution Graph, lower is better
+        This allows for optimized paths to be computed
+    invertable: bool, optional
+        If an operation is invertable, then the ``inverse`` property must provide the
+        appropriate inverse operation.
+    transform: Transform | Callable[[], Transform], optional
+        The :class:`Transform` or a Callable with no inputs that returns the Transform
+    """
     transform: Transform | Callable[[], Transform] | None = None
 
     # TODO: helper for common cases/validation?
@@ -240,6 +418,16 @@ class Graph:
     def __init__(
         self, edges: Sequence[Edge], aliases: tuple[tuple[str, str], ...] = ()
     ):
+        """An execution graph represented by a set of Edges.
+
+        Parameters
+        ----------
+        edges: Sequence[Edge]
+            The set of edges in the graph
+        aliases: tuple[tuple[str, str], ...]
+            Aliases allow multiple names to refer to the same coordinate system
+            Most commonly used to allow "parent" to be aliased to "axes" or "figure"
+        """
         self._edges = tuple(edges)
         self._aliases = aliases
 
@@ -279,6 +467,25 @@ class Graph:
         return coord
 
     def evaluator(self, input: dict[str, Desc], output: dict[str, Desc]) -> Edge:
+        """Comput an edge which, given the input, will provide the desired output.
+
+        This is an implementation of Djikstra's algorithm which finds the lowest weight
+        sequence of Edges within the graph which produces all desired outputs
+
+        Parameters
+        ----------
+        input: dict[str, Desc]
+            The description of the inputs
+            Most commonly, the `describe` from a DataContainer
+        output: dict[str, Desc]
+            The desired output descriptions
+
+        Returns
+        -------
+        Edge, the Edge which will get from your desired input to your desired output
+            If a single edge suffices, it will be returned, otherwise a SequenceEdge
+            is constructed
+        """
         out_edges = []
 
         for sub_keys, sub_edges in self._subgraphs:
@@ -364,6 +571,7 @@ class Graph:
         return SequenceEdge.from_edges("eval", out_edges, output)
 
     def __add__(self, other: Graph) -> Graph:
+        """Return a graph which combines two subgraphs"""
         aself = {k: v for k, v in self._aliases}
         aother = {k: v for k, v in other._aliases}
         aliases = tuple((aself | aother).items())
@@ -386,6 +594,21 @@ def coord_and_default(
     default_value: Any = None,
     default_rc: str | None = None,
 ):
+    """Helper function to provide both a CoordinateEdge and a DefaultEdge
+
+    Parameters
+    ----------
+    key: str
+        The key for the input/output dictionaries
+    shape: ShapeSpec
+        The shape of the value
+    coordinates: str
+        The coordinate system for the output of the edges
+    default_value: Any, optional
+        The default value, mutually exclusive with default_rc
+    default_rc: str, optional
+        The rcParam name to pull the default value from
+    """
     if default_rc is not None:
         if default_value is not None:
             raise ValueError(
