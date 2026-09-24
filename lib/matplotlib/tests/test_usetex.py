@@ -269,3 +269,41 @@ def test_unicode_sizing():
     scale1 = tp.get_glyphs_tex(mpl.font_manager.FontProperties(), "W")[0][0][3]
     scale2 = tp.get_glyphs_tex(mpl.font_manager.FontProperties(), r"\textwon")[0][0][3]
     assert scale1 == scale2
+
+
+def test_usetex_path_optical_sizing():
+    with mpl.rc_context({
+        "font.family": "sans-serif",
+        "font.serif": ["Computer Modern Roman"],
+        "font.sans-serif": ["Computer Modern Sans Serif"],
+        "font.monospace": ["Computer Modern Typewriter"],
+    }):
+        tp = mpl.textpath.TextToPath()
+        # 6 pt text should use small optical design (CMSS8), not CMSS17.
+        prop_small = mpl.font_manager.FontProperties(size=6)
+        glyphs_small, _, _ = tp.get_glyphs_tex(prop_small, "Hamburgefonstiv")
+        fonts_small = {glyph_repr.split("-")[0] for glyph_repr, *_ in glyphs_small}
+        assert fonts_small == {"CMSS8"}
+
+        # 17 pt text uses the 17 pt design.
+        prop_large = mpl.font_manager.FontProperties(size=17)
+        glyphs_large, _, _ = tp.get_glyphs_tex(prop_large, "Hamburgefonstiv")
+        fonts_large = {glyph_repr.split("-")[0] for glyph_repr, *_ in glyphs_large}
+        assert fonts_large == {"CMSS17"}
+
+
+def test_usetex_textpath_size(monkeypatch):
+    """An explicit TextPath size is passed to the TeX path generator."""
+    seen = {}
+
+    def get_text_path(prop, s, ismath=False, **kwargs):
+        seen["size"] = prop.get_size_in_points()
+        return np.empty((0, 2)), None
+
+    monkeypatch.setattr(mpl.textpath.text_to_path,
+                        "get_text_path", get_text_path)
+    prop = mpl.font_manager.FontProperties(size=17)
+    mpl.textpath.TextPath((0, 0), "Hamburgefonstiv", size=6, prop=prop,
+                          usetex=True)
+    assert seen["size"] == 6
+    assert prop.get_size_in_points() == 17
