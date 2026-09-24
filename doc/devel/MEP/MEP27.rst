@@ -148,7 +148,7 @@ The description of this MEP gives us most of the solution:
 Future compatibility
 ====================
 
-As eluded to above when discussing MEP 22, this refactor makes it easy
+As alluded to above when discussing MEP 22, this refactor makes it easy
 to add in new generic features.  At the moment, MEP 22 has to make
 ugly hacks to each class extending from ``FigureManagerBase``.  With
 this code, this only needs to get made in the single ``FigureManager``

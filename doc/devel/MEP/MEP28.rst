@@ -47,7 +47,7 @@ Detailed description
 Currently, the ``Axes.boxplot`` method accepts parameters that allow the
 users to specify medians and confidence intervals for each box that
 will be drawn in the plot. These were provided so that advanced users
-could provide statistics computed in a different fashion that the simple
+could provide statistics computed in a different fashion than the simple
 method provided by matplotlib. However, handling this input requires
 complex logic to make sure that the forms of the data structure match what
 needs to be drawn. At the moment, that logic contains 9 separate if/else
@@ -101,7 +101,7 @@ boxplots will allow users to opt-out of that assumption if the
 data are known to not fit a normal distribution.
 
 Below is an example of how ``Axes.boxplot`` classifies outliers of lognormal
-data differently depending one these types of transforms.
+data differently depending on these types of transforms.
 
 .. plot::
    :include-source: true
@@ -252,7 +252,7 @@ This MEP can be divided into a few loosely coupled components:
 #. Removing redundant statistical options in ``Axes.boxplot``
 #. Shifting all styling parameter processing from ``Axes.boxplot`` to ``Axes.bxp``.
 
-With this approach, #2 depends and #1, and #4 depends on #3.
+With this approach, #2 depends on #1, and #4 depends on #3.
 
 There are two possible approaches to #2. The first and most direct would
 be to mirror the new ``transform_in`` and ``transform_out`` parameters of
