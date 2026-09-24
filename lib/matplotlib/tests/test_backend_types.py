@@ -1,7 +1,9 @@
+from __future__ import annotations
+
 import datetime
 import io
 from pathlib import Path
-from typing import Any, assert_type
+from typing import TYPE_CHECKING, Any, assert_type
 
 import matplotlib.backend_bases as backend_bases
 from matplotlib.artist import Artist
@@ -50,6 +52,27 @@ from matplotlib.text import Annotation, OffsetFrom
 from matplotlib.widgets import AxesWidget
 from matplotlib.backends.backend_pdf import FigureManagerPdf, Name, PdfPages
 
+if TYPE_CHECKING:
+    from matplotlib.backends.backend_nbagg import (
+        FigureCanvasNbAgg,
+        FigureManagerNbAgg,
+        NavigationIPy,
+    )
+    from matplotlib.backends.backend_template import (
+        FigureCanvasTemplate,
+        FigureManagerTemplate,
+    )
+    from matplotlib.backends.backend_webagg import (
+        FigureCanvasWebAgg,
+        FigureManagerWebAgg as FigureManagerWebAggApplication,
+    )
+    from matplotlib.backends.backend_webagg_core import (
+        FigureCanvasWebAggCore,
+        FigureManagerWebAgg as FigureManagerWebAggCore,
+        NavigationToolbar2WebAgg,
+        TimerAsyncio,
+    )
+
 
 class SpecializedTimer(TimerBase):
     pass
@@ -65,7 +88,54 @@ class SpecializedTool(ToolBase):
     pass
 
 
-def _check_renderer_base_boundaries(
+class SpecializedFigureManager(FigureManagerBase[Any]):
+    pass
+
+
+# These helpers are analyzed by mypy but intentionally never called by pytest.
+# Exclude their bodies from runtime coverage calculations.
+def _check_manager_type_propagation(  # pragma: no cover
+    canvas_type: type[
+        FigureCanvasBase[
+            NavigationToolbar2[Any], SpecializedFigureManager, SpecializedTimer
+        ]
+    ],
+    figure: Figure,
+) -> None:
+    assert_type(canvas_type.manager_class, type[SpecializedFigureManager])
+    assert_type(canvas_type.new_manager(figure, 1), SpecializedFigureManager)
+
+
+def _check_web_and_template_manager_types(  # pragma: no cover
+    core_canvas: FigureCanvasWebAggCore,
+    web_canvas: FigureCanvasWebAgg,
+    nbagg_canvas: FigureCanvasNbAgg,
+    template_canvas: FigureCanvasTemplate,
+    figure: Figure,
+) -> None:
+    assert_type(core_canvas.manager, FigureManagerWebAggCore | None)
+    assert_type(core_canvas.toolbar, NavigationToolbar2WebAgg | None)
+    assert_type(core_canvas.new_timer(), TimerAsyncio)
+
+    assert_type(web_canvas.manager, FigureManagerWebAggApplication | None)
+    assert_type(web_canvas.toolbar, NavigationToolbar2WebAgg | None)
+    assert_type(FigureCanvasWebAgg.manager_class, type[FigureManagerWebAggApplication])
+    assert_type(
+        FigureCanvasWebAgg.new_manager(figure, 1), FigureManagerWebAggApplication
+    )
+
+    assert_type(nbagg_canvas.manager, FigureManagerNbAgg | None)
+    assert_type(nbagg_canvas.toolbar, NavigationIPy | None)
+    assert_type(nbagg_canvas.new_timer(), TimerAsyncio)
+    assert_type(FigureCanvasNbAgg.manager_class, type[FigureManagerNbAgg])
+    assert_type(FigureCanvasNbAgg.new_manager(figure, 1), FigureManagerNbAgg)
+
+    assert_type(template_canvas.manager, FigureManagerTemplate | None)
+    assert_type(FigureCanvasTemplate.manager_class, type[FigureManagerTemplate])
+    assert_type(FigureCanvasTemplate.new_manager(figure, 1), FigureManagerTemplate)
+
+
+def _check_renderer_base_boundaries(  # pragma: no cover
     renderer: RendererPdf,
     colorbar: Colorbar,
     figure: Figure,
@@ -77,7 +147,6 @@ def _check_renderer_base_boundaries(
     annotation: Annotation,
     offset_from: OffsetFrom,
 ) -> None:
-    # This helper is checked by mypy but not executed by pytest.
     axes = colorbar.ax
 
     cell.get_window_extent(renderer)
@@ -116,7 +185,7 @@ def _check_renderer_base_boundaries(
     )
 
 
-def _check_canvas_base_boundaries(
+def _check_canvas_base_boundaries(  # pragma: no cover
     canvas: SpecializedFigureCanvasAgg,
     renderer: RendererBase[Any],
     figure: Figure,
@@ -128,7 +197,6 @@ def _check_canvas_base_boundaries(
     widget: AxesWidget,
     artist: Artist,
 ) -> None:
-    # This helper is checked by mypy but not executed by pytest.
     assert_type(
         register_backend("backend_types_mypy", SpecializedFigureCanvasAgg), None
     )

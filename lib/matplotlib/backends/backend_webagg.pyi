@@ -18,7 +18,9 @@ class FigureManagerWebAgg(_FigureManagerWebAggCore):
     @classmethod
     def pyplot_show(cls, *, block: bool | None = ...) -> None: ...
 
-class FigureCanvasWebAgg(FigureCanvasWebAggCore): ...
+class FigureCanvasWebAgg(
+    FigureCanvasWebAggCore[NavigationToolbar2WebAgg, FigureManagerWebAgg]
+): ...
 
 class WebAggApplication:
     # tornado.web.Application subclass; tornado has no stubs → Any.

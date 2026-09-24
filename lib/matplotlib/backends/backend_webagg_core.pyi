@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, TypeVar
 
 from matplotlib import _api
 from matplotlib.backend_bases import (
@@ -13,6 +13,17 @@ from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 # tornado has no type stubs; objects from it are Any.
 
+_WebToolbarT = TypeVar(
+    "_WebToolbarT",
+    bound="NavigationToolbar2WebAgg",
+    default="NavigationToolbar2WebAgg",
+)
+_WebManagerT = TypeVar(
+    "_WebManagerT",
+    bound="FigureManagerWebAgg",
+    default="FigureManagerWebAgg",
+)
+
 class TimerTornado(TimerBase):
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
@@ -20,7 +31,7 @@ class TimerAsyncio(TimerBase):
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
 class FigureCanvasWebAggCore(
-    FigureCanvasAgg[NavigationToolbar2WebAgg, FigureManagerWebAgg, TimerAsyncio]
+    FigureCanvasAgg[_WebToolbarT, _WebManagerT, TimerAsyncio]
 ):
     _timer_cls: type[TimerAsyncio]
     @_api.classproperty

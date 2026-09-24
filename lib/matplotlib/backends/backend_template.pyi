@@ -15,7 +15,9 @@ class RendererTemplate(RendererBase[GraphicsContextBase]):
 class GraphicsContextTemplate(GraphicsContextBase): ...
 class FigureManagerTemplate(FigureManagerBase[FigureCanvasTemplate]): ...
 
-class FigureCanvasTemplate(FigureCanvasBase[NavigationToolbar2, FigureManagerBase]):
+class FigureCanvasTemplate(
+    FigureCanvasBase[NavigationToolbar2, FigureManagerTemplate]
+):
     filetypes: dict[str, str]
     @classmethod
     def get_default_filetype(cls) -> str: ...

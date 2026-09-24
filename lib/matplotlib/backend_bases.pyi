@@ -40,9 +40,10 @@ from .typing import (
 )
 
 # Type parameters for narrowing cross-references between backend classes.
-# Each has a default equal to its bound so that bare (un-parameterised) names
-# resolve to the base type rather than Any.  None is in the annotation, not
-# the TypeVar.
+# CanvasT intentionally has no default: its recursive invariant bound would
+# overconstrain concrete toolbar and manager subclasses.  The remaining type
+# variables default to their bounds.  None is in the annotation, not the
+# TypeVar.
 CanvasT = TypeVar("CanvasT", bound="FigureCanvasBase[Any, Any, Any]")
 ToolbarT = TypeVar("ToolbarT", bound="NavigationToolbar2", default="NavigationToolbar2")
 ManagerT = TypeVar("ManagerT", bound="FigureManagerBase", default="FigureManagerBase")
@@ -356,7 +357,7 @@ class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
     required_interactive_framework: str | None
 
     @_api.classproperty
-    def manager_class(cls) -> type[FigureManagerBase]: ...
+    def manager_class(cls) -> type[ManagerT]: ...
     events: list[str]
     fixed_dpi: None | float
     filetypes: dict[str, str]
@@ -377,7 +378,7 @@ class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
     @property
     def scroll_pick_id(self) -> int: ...
     @classmethod
-    def new_manager(cls, figure: Figure, num: int | str) -> FigureManagerBase: ...
+    def new_manager(cls, figure: Figure, num: int | str) -> ManagerT: ...
     def is_saving(self) -> bool: ...
     def blit(self, bbox: BboxBase | None = ...) -> None: ...
     def inaxes(self, xy: tuple[float, float]) -> Axes | None: ...
