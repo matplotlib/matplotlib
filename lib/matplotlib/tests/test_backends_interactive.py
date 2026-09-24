@@ -467,7 +467,9 @@ def test_cross_Qt_imports(host, mpl):
         stderr = ex.stderr
     else:
         stderr = proc.stderr
-    assert "Mixing Qt major versions may not work as expected." in stderr
+    did_qt_warn = "Mixing Qt major versions may not work as expected." in stderr
+    did_macos_warn = "spurious casting failures and mysterious crashes" in stderr
+    assert did_qt_warn or did_macos_warn
 
 
 @pytest.mark.skipif('TF_BUILD' in os.environ,
