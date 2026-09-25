@@ -15,8 +15,10 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      contents: read
     steps:
-      - uses: plbstl/first-contribution@2c36bdb58684587f60549a69aaa3ec00b9d5f4fe  # v4.3.3
+      - id: first-contribution
+        uses: plbstl/first-contribution@2c36bdb58684587f60549a69aaa3ec00b9d5f4fe  # v4.3.3
         with:
           labels: first-contribution
           skip-internal-contributors: false
@@ -50,3 +52,16 @@ jobs:
             [Code of
             Conduct](https://github.com/matplotlib/matplotlib/blob/main/CODE_OF_CONDUCT.md).
           issue-opened-msg: ""
+      - name: Run agentscan if first-contribution left a comment
+        if: "${{ steps.first-contribution.outputs.comment-url != '' }}"
+        uses: MatteoGabriele/agentscan-action@8112fb79b33fafb8506159df20129a34209ac410  # v2.5.0
+        with:
+          mode: labels
+          scan-pull-requests: true
+          scan-issues: true
+          allowed-users: "meeseeksmachine"
+          label-mixed: "automation: mixed"
+          label-automated: "automation: automated"
+          label-community-flagged: "automation: flagged"
+          auto-close: false
+          honeypot: false
