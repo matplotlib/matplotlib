@@ -5,10 +5,10 @@ Cursor Layered Architecture
 
 This example demonstrates the Figure-level arbitrary-layer architecture.
 
-When `useblit=True` is provided to a `Cursor` and the backend supports layers
-(such as `QtAgg`), the cursor artists are automatically drawn in a dedicated
-`'widgets'` layer. When the mouse moves, the heavy scatter plot is fully
-cached in memory, and only the lightweight `'widgets'` layer is redrawn.
+When ``useblit=True`` is provided to a ``Cursor`` and the backend supports layers
+(such as ``'QtAgg'``), the cursor artists are automatically drawn in a dedicated
+``'widgets'`` layer. When the mouse moves, the heavy scatter plot is fully
+cached in memory, and only the lightweight ``'widgets'`` layer is redrawn.
 This provides a completely smooth interactive experience even with a
 large amount of data.
 """
