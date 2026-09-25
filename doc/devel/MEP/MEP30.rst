@@ -1,7 +1,7 @@
 .. _MEP30:
 
 ===============================================================
-MEP30: Figure-level Overlay Architecture with Layered Rendering
+MEP30: Figure-level layer Architecture with Layered Rendering
 ===============================================================
 
 .. contents::
@@ -27,52 +27,37 @@ that even a tiny mouse movement triggers a full redraw of the entire figure,
 including all artists, data, labels, and ticks. As a result, simple interactive
 tools like crosshairs feel noticeably laggy over heavy data plots.
 
-This MEP introduces a Figure-level layered architecture that allows interactive
-overlay artists to be isolated into a separate layer, allowing them to be
-redrawn independently from the heavy base content.
+This MEP proposes an architecture that supports arbitrary Figure-level rendering
+layers. This allows interactive artists to be isolated into separate
+layers, enabling them to be redrawn independently from the heavy base content.
 
 Detailed description
 ====================
 
-When a user moves their mouse over a scatter plot with 1,000,000 data points,
-the ``Cursor`` widget updates its crosshair lines. This triggers a stale callback
-that marks the entire figure as needing a redraw. Matplotlib then redraws
-everything: the million scatter points, the axes, the labels, the ticks, and
-finally the two thin crosshair lines.
+Currently, when a user moves their mouse over a scatter plot with 1,000,000
+data points, the ``Cursor`` widget updates its crosshair lines. This triggers
+a stale callback that marks the entire figure as needing a redraw, forcing
+Matplotlib to slowly redraw everything from scratch.
+
+This architecture solves this by grouping artists into completely arbitrary,
+string-named layers (e.g., ``"patch"``, ``"base"``, ``"widgets"`` or any other
+user-defined name).
+
+**Why Arbitrary Layers?**
+Instead of limiting Matplotlib to a strict "base" and "overlay" layer, this
+architecture lets users create any number of custom layers simply by naming them.
+
+By adding different interactive widgets to different layers, developers
+can completely isolate their redraw cycles. When a user interacts with one widget,
+only that widget's layer is redrawn. The other widgets and the heavy background plot
+all remain perfectly cached, improving the application's framerate
+and responsiveness.
 
 Usage Example
 -------------
 
-The following example moves a ``Cursor`` widget's crosshair lines into the
-overlay layer. With 1,000,000 scatter points sitting in the base layer, moving
-the mouse is smooth because only the two cursor lines are redrawn on each
-mouse event.
-
-.. code-block:: python
-
-    import matplotlib
-    matplotlib.use('QtAgg')
-    import matplotlib.pyplot as plt
-    import numpy as np
-    from matplotlib.widgets import Cursor
-
-    x = np.random.normal(5, 2, 1000000)
-    y = np.random.normal(5, 2, 1000000)
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(x, y, alpha=0.1, color='blue')
-
-    cursor = Cursor(ax, color='red', linewidth=1)
-
-    # Remove the cursor lines from the axes (default base layer)
-    cursor.lineh.remove()
-    cursor.linev.remove()
-
-    # Re-add them into the overlay layer
-    fig.add_artist(cursor.lineh, layer="overlay")
-    fig.add_artist(cursor.linev, layer="overlay")
-
-    plt.show()
+For a complete demonstration of this architecture in action, see the
+``galleries/examples/widgets/cursor_layers.py`` gallery example.
 
 Implementation
 ==============
@@ -108,10 +93,10 @@ leaving the complex base plot cached and completely untouched in memory.
 Backward compatibility
 ======================
 
-* **Public API:** The new ``layer`` argument in ``add_artist()`` defaults to ``None``,
-  ensuring all unassigned artists are safely routed to the "base" layer. Similarly,
-  calling ``get_children()`` without arguments continues to return every artist in
-  the figure across all layers.
+* **Public API:** The new ``layer`` argument in ``Figure.add_artist()`` defaults to ``None``,
+  ensuring all unassigned artists are safely routed to the ``"base"`` layer.
+  Additionally, calling ``get_children()`` without arguments continues to return
+  every artist in the figure across all layers.
 * **Backend Compatibility:** Fully backward compatible. For backends that do not
   support multi-pass layer caching (like standard PDF, SVG, PNG, or non-Qt
   backends), ``Figure.draw()`` simply renders each layer sequentially one after
@@ -129,6 +114,49 @@ Performance Trade-offs
   When the window is resized, every layer has to be fully redrawn and each layer
   requires its own ``RendererAgg`` buffer. Where the old code had one buffer, the new
   code has one per layer.
+
+Future Work
+===========
+
+Coexistence of Layers and Blitting
+----------------------------------
+In the current architecture, if a backend supports layers (``supports_layers = True``)
+and a widget is initialized with ``useblit=True``, the widget automatically drops
+blitting and opts to use the layer system instead.
+
+This is because the two approaches use completely different rendering buffers.
+The layer system draws each layer into its own dedicated ``RendererAgg`` buffer
+(stored in ``_layer_renderers``). Blitting, on the other hand, draws
+dynamic artists into the single ``self.renderer`` buffer.
+
+The approach used in the QtAgg backend first loops over ``_layer_renderers``
+and paints each layer to the screen, and then checks if ``self.renderer`` is present.
+If yes then alpha-blends it on top as a final step. This means blitting is done on an
+transparent renderer buffer which get added to the top of the drawn layers.
+
+To avoid this, blitting is currently disabled when the backend supports layers.
+
+In the future, a clean way must be found for the layer system and
+blitting to work together.
+
+Updating Other Built-in Widgets to Support Layers
+-------------------------------------------------
+In the current architecture, only the ``Cursor`` widget has been updated to
+support being drawn in a separate layer.
+
+In the future, all other built-in interactive widgets
+(like ``SpanSelector``, ``RectangleSelector``, and ``LassoSelector``) should
+be updated to support layers, allowing them to draw in a separate layer
+when the backend supports layers.
+
+Expanding Layer Caching to All Interactive Backends
+-----------------------------------------------------
+Currently, the performance boost from rendering isolated layer buffers is only
+implemented in the QtAgg backend. While the layered drawing sequence works across
+all backends, the other interactive backends (like ``TkAgg``, ``GTKAgg``,
+``MacOSX``, and ``WebAgg``) still fall back to redrawing everything.
+A key next step will be porting this per-layer buffering system to the other
+interactive backends so all users get the same interactive speedup.
 
 Alternatives
 ============

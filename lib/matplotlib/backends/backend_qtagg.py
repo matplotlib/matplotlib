@@ -14,6 +14,7 @@ from .backend_qt import (  # noqa: F401 # pylint: disable=W0611
 
 
 class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
+    supports_layers = True
 
     def __init__(self, figure=None):
         super().__init__(figure=figure)

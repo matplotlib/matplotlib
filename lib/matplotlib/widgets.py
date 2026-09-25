@@ -2082,19 +2082,10 @@ class Cursor(AxesWidget):
 
         cursor = Cursor(ax, color='red')
 
-    Figure-layer usage — lines rendered on the figure, hitting on the axes::
-
-        cursor = Cursor(ax, color='red', layer='overlay')
-
     See also :doc:`/gallery/widgets/cursor`.
     """
     def __init__(self, ax, *, horizOn=True, vertOn=True, useblit=False,
-                 layer=None, **lineprops):
-        canvas_cls = ax.get_figure(root=True).canvas.__class__.__name__
-        _fig_mode = layer is not None and canvas_cls == 'FigureCanvasQTAgg'
-
-        if _fig_mode:
-            fig = ax.get_figure(root=True)
+                 **lineprops):
 
         super().__init__(ax)
 
@@ -2105,12 +2096,14 @@ class Cursor(AxesWidget):
         self.horizOn = horizOn
         self.vertOn = vertOn
         self.needclear = False
+
+        _fig_mode = useblit and getattr(self.canvas, 'supports_layers', False)
         self._fig_mode = _fig_mode
-        self.useblit = useblit and self.canvas.supports_blit
-        if self.useblit:
-            lineprops['animated'] = True
+
+        self.useblit = useblit and self.canvas.supports_blit and not _fig_mode
 
         if _fig_mode:
+            fig = ax.get_figure(root=True)
             self.lineh = ax.axhline(ax.get_ybound()[0], visible=False,
                                     **lineprops)
             self.linev = ax.axvline(ax.get_xbound()[0], visible=False,
@@ -2118,8 +2111,8 @@ class Cursor(AxesWidget):
             # Move lines out of the axes and into the figure layer.
             self.lineh.remove()
             self.linev.remove()
-            fig.add_artist(self.lineh, layer=layer)
-            fig.add_artist(self.linev, layer=layer)
+            fig.add_artist(self.lineh, layer='widgets')
+            fig.add_artist(self.linev, layer='widgets')
         else:
             # Axes mode: original behaviour, fully preserved.
 
