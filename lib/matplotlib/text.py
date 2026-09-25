@@ -773,6 +773,16 @@ class Text(Artist):
         Return the distance from the given points to the boundaries of a
         rotated box, in pixels.
         """
+        rotation %= 360
+        if rotation == 0:
+            return figure_box.x1 - x0
+        if rotation == 90:
+            return figure_box.y1 - y0
+        if rotation == 180:
+            return x0 - figure_box.x0
+        if rotation == 270:
+            return y0 - figure_box.y0
+
         if rotation > 270:
             quad = rotation - 270
             h1 = (y0 - figure_box.y0) / math.cos(math.radians(quad))
