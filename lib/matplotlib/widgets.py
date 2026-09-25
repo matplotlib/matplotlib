@@ -4403,7 +4403,7 @@ class Lasso(AxesWidget):
         Whether to use blitting for faster drawing (if supported by the
         backend). See the tutorial :ref:`blitting`
         for details.
-    props: dict, optional
+    props : dict, optional
         Lasso line properties. See `.Line2D` for valid properties.
         Default *props* are::
 

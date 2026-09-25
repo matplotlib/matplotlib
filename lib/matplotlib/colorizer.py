@@ -44,10 +44,10 @@ class Colorizer:
 
     Parameters
     ----------
-    cmap: colorbar.Colorbar or str or None, default: None
+    cmap : colorbar.Colorbar or str or None, default: None
         The colormap used to color data.
 
-    norm: colors.Normalize or str or None, default: None
+    norm : colors.Normalize or str or None, default: None
         The normalization used to normalize the data
     """
     def __init__(self, cmap=None, norm=None):
