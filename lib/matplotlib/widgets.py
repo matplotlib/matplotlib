@@ -2053,6 +2053,9 @@ class Cursor(AxesWidget):
     ----------
     ax : `~matplotlib.axes.Axes`
         The `~.axes.Axes` to attach the cursor to.
+
+        When *layer* is also provided, the cursor lines are placed on the
+        figure level instead of inside this axes (in QtAgg backend).
     horizOn : bool, default: True
         Whether to draw the horizontal line.
     vertOn : bool, default: True
@@ -2060,6 +2063,11 @@ class Cursor(AxesWidget):
     useblit : bool, default: False
         Use blitting for faster drawing if supported by the backend.
         See the tutorial :ref:`blitting` for details.
+    layer : str, default: None
+        When given, the cursor lines are placed directly on the figure in
+        the named layer (e.g. ``"overlay"``) instead of inside the axes.
+        If *None* (the default), lines are added to the axes and the
+        original blitting behaviour applies.
 
     Other Parameters
     ----------------
@@ -2069,10 +2077,15 @@ class Cursor(AxesWidget):
 
     Examples
     --------
-    See :doc:`/gallery/widgets/cursor`.
+    Axes-based usage (original behaviour, fully preserved)::
+
+        cursor = Cursor(ax, color='red')
+
+    See also :doc:`/gallery/widgets/cursor`.
     """
     def __init__(self, ax, *, horizOn=True, vertOn=True, useblit=False,
                  **lineprops):
+
         super().__init__(ax)
 
         self.connect_event('motion_notify_event', self.onmove)
@@ -2081,24 +2094,43 @@ class Cursor(AxesWidget):
         self.visible = True
         self.horizOn = horizOn
         self.vertOn = vertOn
-        self.useblit = useblit and self.canvas.supports_blit  # TODO: make dynamic
-
-        if self.useblit:
-            for ax_ in ax.get_figure(root=True).get_axes():
-                if ax_ is not ax and ax.bbox.overlaps(ax_.bbox):
-                    _api.warn_external(
-                        "Cursor blitting is currently not supported on "
-                        "overlapping axes; falling back to useblit=False."
-                    )
-                    self.useblit = False
-                    break
-
-        if self.useblit:
-            lineprops['animated'] = True
-        self.lineh = ax.axhline(ax.get_ybound()[0], visible=False, **lineprops)
-        self.linev = ax.axvline(ax.get_xbound()[0], visible=False, **lineprops)
-
         self.needclear = False
+
+        _fig_mode = useblit and getattr(self.canvas, 'supports_layers', False)
+        self._fig_mode = _fig_mode
+
+        self.useblit = useblit and self.canvas.supports_blit and not _fig_mode
+
+        if _fig_mode:
+            fig = ax.get_figure(root=True)
+            self.lineh = ax.axhline(ax.get_ybound()[0], visible=False,
+                                    **lineprops)
+            self.linev = ax.axvline(ax.get_xbound()[0], visible=False,
+                                    **lineprops)
+            # Move lines out of the axes and into the figure layer.
+            self.lineh.remove()
+            self.linev.remove()
+            fig.add_artist(self.lineh, layer='widgets')
+            fig.add_artist(self.linev, layer='widgets')
+        else:
+            # Axes mode: original behaviour, fully preserved.
+
+            if self.useblit:
+                for ax_ in ax.get_figure(root=True).get_axes():
+                    if ax_ is not ax and ax.bbox.overlaps(ax_.bbox):
+                        _api.warn_external(
+                            "Cursor blitting is currently not supported on "
+                            "overlapping axes; falling back to useblit=False."
+                        )
+                        self.useblit = False
+                        break
+
+            if self.useblit:
+                lineprops['animated'] = True
+            self.lineh = ax.axhline(ax.get_ybound()[0], visible=False,
+                                    **lineprops)
+            self.linev = ax.axvline(ax.get_xbound()[0], visible=False,
+                                    **lineprops)
 
     def clear(self, event):
         """Internal event handler to clear the cursor."""

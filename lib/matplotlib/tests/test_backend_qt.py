@@ -185,8 +185,11 @@ def test_device_pixel_ratio_change():
 
             # The DPI and the renderer width/height change
             assert fig.dpi == dpi
-            assert qt_canvas.renderer.width == width
-            assert qt_canvas.renderer.height == height
+
+            renderer = qt_canvas._layer_renderers["patch"]
+
+            assert renderer.width == width
+            assert renderer.height == height
 
             # The actual widget size and figure logical size don't change.
             assert size.width() == 600
@@ -386,3 +389,40 @@ def test_fig_sigint_override():
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qtagg_layer_caching():
+    from matplotlib.text import Text
+
+    fig, ax = plt.subplots()
+
+    fig.add_artist(Text(0.5, 0.5, "patch"), layer="patch")
+    fig.add_artist(Text(0.5, 0.5, "base"), layer="base")
+    fig.add_artist(Text(0.5, 0.5, "overlay"), layer="overlay")
+
+    with mock.patch.object(
+        fig, '_draw_layer', wraps=fig._draw_layer
+    ) as mock_draw_layer:
+        # 1. Initial draw: Everything is stale, so all layers must be rendered
+        fig.canvas.draw()
+
+        drawn_layers = [call.args[1] for call in mock_draw_layer.call_args_list]
+        assert "patch" in drawn_layers
+        assert "base" in drawn_layers
+        assert "overlay" in drawn_layers
+
+        # Reset the mock tracker for the next draw
+        mock_draw_layer.reset_mock()
+
+        # 2. Second draw: ONLY make the overlay stale
+        fig._stale_layers["overlay"] = True
+
+        fig.canvas.draw()
+
+        # The caching logic should completely skip rendering 'patch' and 'base'
+        drawn_layers2 = [call.args[1] for call in mock_draw_layer.call_args_list]
+        assert "patch" not in drawn_layers2
+        assert "base" not in drawn_layers2
+        assert "overlay" in drawn_layers2
+        assert drawn_layers2 == ["overlay"]
