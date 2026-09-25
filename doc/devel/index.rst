@@ -41,6 +41,7 @@ context that may be necessary for resolving the issue:
 
    .. grid-item-card::
       :class-header: sd-fs-5
+      :class-body: sd-d-flex-column
 
       :octicon:`bug;1em;sd-text-info` **Submit a bug report**
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -48,13 +49,14 @@ context that may be necessary for resolving the issue:
       Thank you for your help in keeping bug reports targeted and descriptive.
 
       .. button-link:: https://github.com/matplotlib/matplotlib/issues/new/choose
-            :expand:
-            :color: primary
+         :expand:
+         :color: primary
 
-            Report a bug
+         Report a bug
 
    .. grid-item-card::
       :class-header: sd-fs-5
+      :class-body: sd-d-flex-column
 
       :octicon:`light-bulb;1em;sd-text-info` **Request a new feature**
       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -158,9 +160,9 @@ and managing a development environment and workflow:
    .. grid-item-card::
       :shadow: none
 
-      **Install**
+      **Build and install from source**
       ^^^
-      .. rst-class:: section-toc
+      .. rst-class:: section-toc no-caption-toc
       .. toctree::
          :maxdepth: 4
 
@@ -170,7 +172,7 @@ and managing a development environment and workflow:
    .. grid-item-card::
       :shadow: none
 
-      **Workflow**
+      **Development workflow**
       ^^^^
 
       .. toctree::
@@ -209,8 +211,10 @@ manage, or release manage, these guidelines describe how our current process wor
       **Code**
       ^^^
 
+      .. rst-class:: no-caption-toc
       .. toctree::
          :maxdepth: 1
+         :caption: Code
 
          coding_guide
          api_changes
@@ -222,8 +226,10 @@ manage, or release manage, these guidelines describe how our current process wor
       **Documentation**
       ^^^
 
+      .. rst-class:: no-caption-toc
       .. toctree::
          :maxdepth: 1
+         :caption: Documentation
 
          document
          style_guide
@@ -235,8 +241,10 @@ manage, or release manage, these guidelines describe how our current process wor
       **Triage And Review**
       ^^^
 
+      .. rst-class:: no-caption-toc
       .. toctree::
          :maxdepth: 1
+         :caption: Triage and Review
 
          triage
          pr_guide
@@ -247,8 +255,10 @@ manage, or release manage, these guidelines describe how our current process wor
       **Maintenance**
       ^^^
 
+      .. rst-class:: no-caption-toc
       .. toctree::
          :maxdepth: 1
+         :caption: Maintenance
 
          release_guide
          communication_guide
