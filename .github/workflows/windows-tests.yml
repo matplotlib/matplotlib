@@ -127,7 +127,7 @@ jobs:
       - name: Run pytest
         shell: pwsh
         run: |
-          python -m pytest -rfEsXR -n 2 `
+          python -m pytest -rfEsXR -n auto `
             --maxfail=50 --timeout=300 --durations=25 --log-level=DEBUG `
             --junitxml=junit/test-results.xml `
             --cov-report=xml:coverage.xml --cov=lib
