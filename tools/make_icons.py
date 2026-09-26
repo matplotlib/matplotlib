@@ -62,6 +62,7 @@ Generates PDF and PNG variants of the Matplotlib app icon and toolbar icons.
 import argparse
 import subprocess
 import shutil
+from fnmatch import fnmatch
 from pathlib import Path
 import xml.etree.ElementTree as ElementTree
 from xml.etree.ElementTree import Element
@@ -216,6 +217,20 @@ def process_toolbar_icon(
     converter.export_png(png_large_path, width=48, mode="GrayAlpha_8")
 
 
+def process_macos_icon(icon: Path, dest_dir: Path, converter: ImageConverter) -> None:
+    if (fnmatch(icon.stem, "macos_appicon_mask*")):
+        mode = "Gray_8"
+    elif (fnmatch(icon.stem, "macos_appicon_shadow*")):
+        mode = "GrayAlpha_8"
+    elif (fnmatch(icon.stem, "macos_appicon_light")):
+        mode = "RGB_8"
+    else:
+        mode = "RGBA_8"
+
+    converter.open_svg(icon)
+    converter.export_png(dest_dir / f"{icon.stem}.png", mode=mode)
+
+
 def make_icons() -> None:
     parser = argparse.ArgumentParser(
         description="Validate and convert SVG icons to PNG/PDF.")
@@ -230,6 +245,11 @@ def make_icons() -> None:
         type=Path,
         default=Path(__file__).parent / DEFAULT_IMAGES_PATH,
         help="Directory where to write the PNG/PDF files.")
+    parser.add_argument(
+        "--macos",
+        action="store_true",
+        help="Process SVG files from make_macos_svgs.py tool")
+
     args = parser.parse_args()
 
     source_dir = args.source_dir
@@ -247,13 +267,17 @@ def make_icons() -> None:
 
     converter = ImageConverter()
 
-    for name in TOOLBAR_ICON_NAMES:
-        process_toolbar_icon(name, source_dir, dest_dir, converter)
+    if args.macos:
+        for icon in source_dir.glob("macos_*.svg"):
+            process_macos_icon(icon, dest_dir, converter)
+    else:
+        for name in TOOLBAR_ICON_NAMES:
+            process_toolbar_icon(name, source_dir, dest_dir, converter)
 
-    for name in ("matplotlib", "matplotlib_small"):
-        converter.open_svg(source_dir / f"{name}.svg")
-        converter.export_pdf(dest_dir / f"{name}.pdf")
-        converter.export_png(dest_dir / f"{name}.png")
+        for name in ("matplotlib", "matplotlib_small"):
+            converter.open_svg(source_dir / f"{name}.svg")
+            converter.export_pdf(dest_dir / f"{name}.pdf")
+            converter.export_png(dest_dir / f"{name}.png")
 
     converter.run()
 
