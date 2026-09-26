@@ -173,6 +173,7 @@ class CommSocket:
     """
     def __init__(self, manager):
         self.supports_binary = None
+        self.supports_zoom_whiskers = False
         self.manager = manager
         self.uuid = str(uuid.uuid4())
         # Publish an output area with a unique ID. The javascript can then
@@ -223,9 +224,8 @@ class CommSocket:
             self.comm.send({'data': data_uri})
 
     def on_message(self, message):
-        # The 'supports_binary' message is relevant to the
-        # websocket itself.  The other messages get passed along
-        # to matplotlib as-is.
+        # Capability messages are relevant to the websocket itself.  The
+        # other messages get passed along to matplotlib as-is.
 
         # Every message has a "type" and a "figure_id".
         message = json.loads(message['content']['data'])
@@ -234,6 +234,8 @@ class CommSocket:
             self.manager.clearup_closed()
         elif message['type'] == 'supports_binary':
             self.supports_binary = message['value']
+        elif message['type'] == 'supports_zoom_whiskers':
+            self.supports_zoom_whiskers = message['value']
         else:
             self.manager.handle_json(message)
 
