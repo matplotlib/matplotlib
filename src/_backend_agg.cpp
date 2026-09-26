@@ -11,6 +11,7 @@ RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)
       dpi(dpi),
       NUMBYTES((size_t)width * (size_t)height * 4),
       pixBuffer(nullptr),
+      otherPixBuffer(nullptr),
       renderingBuffer(),
       alphaBuffer(nullptr),
       alphaMaskRenderingBuffer(),
@@ -58,6 +59,7 @@ RendererAgg::~RendererAgg()
     delete[] hatchBuffer;
     delete[] alphaBuffer;
     delete[] pixBuffer;
+    delete[] otherPixBuffer;
 }
 
 void RendererAgg::create_alpha_buffers()
