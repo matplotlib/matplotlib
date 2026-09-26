@@ -596,27 +596,17 @@ void FT2Font::load_char(long charcode, FT_Int32 flags, FT2Font *&ft_object, bool
 }
 
 
-bool FT2Font::get_char_fallback_index(FT_ULong charcode, int& index) const
+FT2Font *FT2Font::get_font_for_char(FT_ULong charcode)
 {
-    FT_UInt glyph_index = FT_Get_Char_Index(face, charcode);
-    if (glyph_index) {
-        // -1 means the host has the char and we do not need to fallback
-        index = -1;
-        return true;
-    } else {
-        int inner_index = 0;
-        bool was_found;
-
-        for (size_t i = 0; i < fallbacks.size(); ++i) {
-            // TODO handle recursion somehow!
-            was_found = fallbacks[i]->get_char_fallback_index(charcode, inner_index);
-            if (was_found) {
-                index = i;
-                return true;
-            }
+    if (FT_Get_Char_Index(face, charcode)) {
+        return this;
+    }
+    for (auto & fallback : fallbacks) {
+        if (FT2Font *font = fallback->get_font_for_char(charcode)) {
+            return font;
         }
     }
-    return false;
+    return nullptr;
 }
 
 
