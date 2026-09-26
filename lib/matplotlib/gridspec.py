@@ -187,6 +187,11 @@ class GridSpecBase:
 
         fig_tops, fig_bottoms = (top - cell_hs).reshape((-1, 2)).T
         fig_lefts, fig_rights = (left + cell_ws).reshape((-1, 2)).T
+
+        # avoid floating-point precision where A + (B - A) does not equal B
+        fig_bottoms[-1] = bottom
+        fig_rights[-1] = right
+
         return fig_bottoms, fig_tops, fig_lefts, fig_rights
 
     @staticmethod
