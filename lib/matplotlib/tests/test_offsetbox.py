@@ -507,3 +507,26 @@ def test_anchored_offsetbox_tuple_and_float_borderpad():
     # in the y-direction.
     assert pos_tuple_asym.x0 > pos_float.x0
     assert pos_tuple_asym.y0 < pos_float.y0
+
+
+def test_figure_anchored_offsetbox():
+    fig = plt.figure()
+    sfig1, _ = fig.subfigures(ncols=2)
+
+    box1 = AnchoredText("wibble", loc="upper left", borderpad=0)
+    fig.add_artist(box1)
+
+    box2 = AnchoredText("meep", loc="lower right", borderpad=0)
+    sfig1.add_artist(box2)
+
+    fig.draw_without_rendering()
+
+    # Upper left of figure
+    tight_bb1 = box1.get_tightbbox()
+    assert tight_bb1.x0 == pytest.approx(0)
+    assert tight_bb1.y1 == pytest.approx(480)
+
+    # lower right of lefthand subfigure
+    tight_bb2 = box2.get_tightbbox()
+    assert tight_bb2.x1 == pytest.approx(320)
+    assert tight_bb2.y0 == pytest.approx(0)
