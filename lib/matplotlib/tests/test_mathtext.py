@@ -292,6 +292,23 @@ def test_short_long_accents(fig_test, fig_ref):
         0, .5, "$" + "".join(fr"\{l} a" for l in corresponding_long_accs) + "$")
 
 
+@check_figures_equal()
+def test_limits(fig_test, fig_ref):
+    # \limits forces over/under placement, matching the default for \sum;
+    # \nolimits forces side placement, matching the default for \int.
+    fig_test.text(0.5, 0.5, r"$\sum\limits_a^b x \quad \int\nolimits_a^b x$")
+    fig_ref.text(0.5, 0.5, r"$\sum_a^b x \quad \int_a^b x$")
+
+
+def test_limits_parse():
+    # \limits and \nolimits should parse without error, including with no
+    # following sub/superscript (gh-28051).
+    parser = mathtext.MathTextParser("agg")
+    for expr in [r"$\int\limits_a^b$", r"$\sum\nolimits_i x$",
+                 r"$\lim\limits_{x\to 0} f$", r"$\int\limits$"]:
+        parser.parse(expr)
+
+
 def test_fontinfo():
     fontpath = mpl.font_manager.findfont("DejaVu Sans")
     font = mpl.ft2font.FT2Font(fontpath)

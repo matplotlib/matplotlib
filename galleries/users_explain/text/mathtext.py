@@ -101,6 +101,15 @@ fig.text(.1, .1, r'even: $ \delta $ = $ \$4 $')
 #
 #     \sum_{i=0}^\infty x_i
 #
+# You can override the default placement with ``\limits`` (force under/over) and
+# ``\nolimits`` (force to the side) directly after the operator::
+#
+#     r'$\int\limits_0^\infty x_i \quad \sum\nolimits_{i=0}^\infty x_i$'
+#
+# .. math::
+#
+#     \int\limits_0^\infty x_i \quad \sum\nolimits_{i=0}^\infty x_i
+#
 # Fractions, binomials, and stacked numbers
 # -----------------------------------------
 # Fractions, binomials, and stacked numbers can be created with the
