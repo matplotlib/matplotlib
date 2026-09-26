@@ -29,7 +29,22 @@ selector.verts = [(0.1, 0.4), (0.5, 0.9), (0.3, 0.2)]
 fig2, ax2 = plt.subplots()
 fig2.show()
 
-selector2 = PolygonSelector(ax2, lambda *args: None)
+
+def onselect(verts):
+    """Primary callback when polygon is completed."""
+    print(f"Polygon completed with {len(verts)} vertices")
+
+
+selector2 = PolygonSelector(ax2, onselect)
+
+
+def additional_callback(verts):
+    """Additional callback registered via on_select."""
+    print(f"Vertices: {verts}")
+
+
+# Register an additional callback
+selector2.on_select(additional_callback)
 
 print("Click on the figure to create a polygon.")
 print("Press the 'esc' key to start a new polygon.")
@@ -54,3 +69,4 @@ print("Try holding the 'ctrl' key to move a single vertex.")
 #    in this example:
 #
 #    - `matplotlib.widgets.PolygonSelector`
+#    - `matplotlib.widgets.PolygonSelector.on_select`
