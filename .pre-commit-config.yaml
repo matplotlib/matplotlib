@@ -96,16 +96,10 @@ repos:
   - repo: https://github.com/python-jsonschema/check-jsonschema
     rev: 5030dca3047414c338091455ac41803200ec1f0f  # frozen: 0.37.3
     hooks:
-      # TODO: Re-enable this when https://github.com/microsoft/azure-pipelines-vscode/issues/567 is fixed.
-      # - id: check-azure-pipelines
       - id: check-dependabot
       - id: check-github-workflows
       # NOTE: If any of the below schema files need to be changed, be sure to
       # update the `ci/vendor_schemas.py` script.
-      - id: check-jsonschema
-        name: "Validate AppVeyor config"
-        files: ^\.appveyor\.yml$
-        args: ["--verbose", "--schemafile", "ci/schemas/appveyor.json"]
       - id: check-jsonschema
         name: "Validate CircleCI config"
         files: ^\.circleci/config\.yml$
