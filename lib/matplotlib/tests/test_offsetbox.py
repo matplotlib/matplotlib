@@ -12,8 +12,9 @@ import matplotlib.lines as mlines
 from matplotlib.backend_bases import MouseButton, MouseEvent
 
 from matplotlib.offsetbox import (
-    AnchoredOffsetbox, AnnotationBbox, AnchoredText, DrawingArea, HPacker,
-    OffsetBox, OffsetImage, PaddedBox, TextArea, VPacker, _get_packed_offsets)
+    AnchoredOffsetbox, AnnotationBbox, AnchoredText, AuxTransformBox,
+    DrawingArea, HPacker, OffsetBox, OffsetImage, PaddedBox, TextArea, VPacker,
+    _get_packed_offsets)
 
 
 @image_comparison(['offsetbox_clipping'], remove_text=True, style='_classic_test')
@@ -507,3 +508,49 @@ def test_anchored_offsetbox_tuple_and_float_borderpad():
     # in the y-direction.
     assert pos_tuple_asym.x0 > pos_float.x0
     assert pos_tuple_asym.y0 < pos_float.y0
+
+
+@check_figures_equal(extensions=["pdf", "svg", "png"], tol=5)
+def test_rasterized_artist_in_drawing_area(fig_test, fig_ref):
+    """Rasterized artists in DrawingArea must be correctly positioned in
+    vector backends. Regression test for
+    https://github.com/matplotlib/matplotlib/issues/28549
+    """
+    from matplotlib.collections import PatchCollection
+    from matplotlib.patches import Rectangle
+
+    def make_plot(fig, rasterized):
+        ax = fig.subplots()
+        box = DrawingArea(10, 10)
+        rects = PatchCollection(
+            [Rectangle((0, i), width=10, height=1) for i in range(10)]
+        )
+        rects.set_rasterized(rasterized)
+        box.add_artist(rects)
+        ax.add_artist(AnchoredOffsetbox(child=box, loc="center", pad=0))
+
+    make_plot(fig_test, rasterized=True)
+    make_plot(fig_ref, rasterized=False)
+
+
+@check_figures_equal(extensions=["pdf", "svg", "png"], tol=8)
+def test_rasterized_artist_in_aux_transform_box(fig_test, fig_ref):
+    """Rasterized artists in AuxTransformBox must be correctly positioned in
+    vector backends. Regression test for
+    https://github.com/matplotlib/matplotlib/issues/28549
+    """
+    from matplotlib.patches import Ellipse
+
+    def make_plot(fig, rasterized):
+        ax = fig.subplots()
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 10)
+        # Use ax.transData as the typical real-world use of AuxTransformBox
+        box = AuxTransformBox(ax.transData)
+        el = Ellipse((5, 5), width=4, height=2)
+        el.set_rasterized(rasterized)
+        box.add_artist(el)
+        ax.add_artist(AnchoredOffsetbox(child=box, loc="center", pad=0))
+
+    make_plot(fig_test, rasterized=True)
+    make_plot(fig_ref, rasterized=False)
