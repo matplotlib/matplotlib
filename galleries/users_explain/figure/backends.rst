@@ -101,34 +101,12 @@ Here is a detailed description of the configuration methods:
    use a different backend.  Therefore, you should avoid explicitly calling
    `~matplotlib.use` unless absolutely necessary.
 
-.. _wsl-backends:
-
-Using Matplotlib with WSL
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-WSL2 distributions can display Linux GUI applications through WSLg.  When
-WSLg is available, it provides the display environment variables that GUI
-toolkits use, so Matplotlib can select an interactive backend in the same way
-as it does on other Linux systems.  You do not need to install or configure
-an X server separately.
-
-Make sure that a GUI toolkit supported by Matplotlib (for example, Qt or
-Tk) is installed in the WSL environment.  If Matplotlib cannot find a usable
-interactive backend, check that WSLg is running and that ``DISPLAY`` or
-``WAYLAND_DISPLAY`` is set in the shell where Python is started.  You can
-inspect the selected backend with:
-
-.. code-block:: python3
-
-   import matplotlib
-
-   print(matplotlib.get_backend())
-
-If no display is available (for example, when running a script in a headless
-WSL environment), select the non-interactive ``Agg`` backend and save figures
-to files instead.  See :ref:`the-builtin-backends` for the available
-interactive backends and :ref:`selecting-a-backend` for ways to configure a
-backend explicitly.
+.. note::
+   On WSL2, WSLg should make interactive backends work without a separate
+   X server when a supported GUI toolkit is installed.  If it does not,
+   check that WSLg is running and that ``DISPLAY`` or ``WAYLAND_DISPLAY`` is
+   defined.  For headless WSL sessions, use the non-interactive ``Agg``
+   backend.  See :ref:`the-builtin-backends` and :ref:`selecting-a-backend`.
 
 .. _the-builtin-backends:
 
