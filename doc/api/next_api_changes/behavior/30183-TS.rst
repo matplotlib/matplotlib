@@ -1,0 +1,3 @@
+savefig() pad_inches per-border specification
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+pad_inches will now accept a 4-tuple specifying the padding per border, in the order [left, right, bottom, top].
