@@ -420,7 +420,7 @@ def switch_backend(newbackend: str) -> None:
         else:
             candidates = []
         candidates += [
-            "macosx", "qtagg", "gtk4agg", "gtk3agg", "tkagg", "wxagg"]
+            "legacymac", "qtagg", "gtk4agg", "gtk3agg", "tkagg", "wxagg"]
 
         # Don't try to fallback on the cairo-based backends as they each have
         # an additional dependency (pycairo) over the agg-based backend, and
