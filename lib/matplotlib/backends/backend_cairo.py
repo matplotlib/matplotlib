@@ -92,6 +92,8 @@ _GroupState = namedtuple(
 
 
 class RendererCairo(RendererBase):
+    _supports_isolated_group_and_plus_blend_mode = True
+
     def __init__(self, dpi):
         self.dpi = dpi
         self.gc = GraphicsContextCairo(renderer=self)
@@ -375,13 +377,31 @@ class RendererCairo(RendererBase):
         if group_state.blend_mode is not None:
             ctx = self.gc.ctx
             group = ctx.pop_group()
+
             ctx.save()
             self.gc.set_blend_mode(group_state.blend_mode)
-            ctx.set_source(group)
-            if group_state.alpha != 1:
-                ctx.paint_with_alpha(group_state.alpha)
+
+            if group_state.blend_mode in {'knockout', 'clear'}:
+                mask_surface = ctx.get_target().create_similar_image(
+                    cairo.FORMAT_A1, self.width, self.height)
+                mask_ctx = cairo.Context(mask_surface)
+                mask_ctx.set_source(group)
+                mask_ctx.paint()
+                mask_pattern = cairo.SurfacePattern(mask_surface)
+
+                group_surface = ctx.get_target().create_similar_image(
+                    cairo.FORMAT_ARGB32, self.width, self.height)
+                group_ctx = cairo.Context(group_surface)
+                group_ctx.set_source(group)
+                group_ctx.paint_with_alpha(group_state.alpha)
+
+                ctx.set_source_surface(group_surface)
+                ctx.mask(mask_pattern)
+
             else:
-                ctx.paint()
+                ctx.set_source(group)
+                ctx.paint_with_alpha(group_state.alpha)
+
             ctx.restore()
 
 
