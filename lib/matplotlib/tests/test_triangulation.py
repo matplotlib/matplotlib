@@ -1323,6 +1323,34 @@ def test_tricontourset_reuse():
     assert tcs3._contour_generator == tcs1._contour_generator
 
 
+@pytest.mark.parametrize("plotter", ["tricontour", "tricontourf"])
+@check_figures_equal()
+def test_tricontour_triangles_kwarg(fig_test, fig_ref, plotter):
+    # Passing triangles by keyword used to fall through to Collection.set().
+    x = [0.0, 1.0, 2.0, 0.0, 1.0, 0.0]
+    y = [0.0, 0.0, 0.0, 1.0, 1.0, 2.0]
+    z = [0.0, 1.0, 2.0, 1.0, 2.0, 3.0]
+    triangles = [[0, 1, 3], [1, 4, 3], [1, 2, 4], [3, 4, 5]]
+    levels = [0.5, 1.5, 2.5]
+    getattr(fig_test.subplots(), plotter)(x, y, z, triangles=triangles,
+                                          levels=levels)
+    getattr(fig_ref.subplots(), plotter)(x, y, triangles, z, levels=levels)
+
+
+@check_figures_equal()
+def test_tricontour_set_data(fig_test, fig_ref):
+    x = [0.0, 0.5, 1.0, 0.0, 0.5, 0.0]
+    y = [0.0, 0.0, 0.0, 0.5, 0.5, 1.0]
+    z1 = [0.0, 1.0, 2.0, 1.0, 2.0, 3.0]
+    z2 = [3.0, 2.0, 1.0, 2.0, 1.0, 0.0]
+    levels = [0.5, 1.5, 2.5]
+    triangles = [[0, 1, 3], [1, 4, 3], [1, 2, 4], [3, 4, 5]]
+    cs = fig_test.subplots().tricontour(x, y, z1, triangles=triangles,
+                                        levels=levels)
+    cs.set_data(x, y, z2, triangles=triangles)
+    fig_ref.subplots().tricontour(x, y, z2, triangles=triangles, levels=levels)
+
+
 @check_figures_equal()
 def test_triplot_with_ls(fig_test, fig_ref):
     x = [0, 2, 1]
