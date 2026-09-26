@@ -82,6 +82,9 @@ def figure_edit(axes, parent=None):
             continue
         labeled_lines.append((label, line))
     curves = []
+    # What each combobox starts on, so an unchanged selection can be told from
+    # one the user picked. See the note where these are applied.
+    orig_linestyles = []
 
     def prepare_data(d, init):
         """
@@ -120,11 +123,12 @@ def figure_edit(axes, parent=None):
         fc = mcolors.to_hex(
             mcolors.to_rgba(line.get_markerfacecolor(), line.get_alpha()),
             keep_alpha=True)
+        linestyle_data = prepare_data(LINESTYLES, line.get_linestyle())
         curvedata = [
             ('Label', label),
             sep,
             (None, '<b>Line</b>'),
-            ('Line style', prepare_data(LINESTYLES, line.get_linestyle())),
+            ('Line style', linestyle_data),
             ('Draw style', prepare_data(DRAWSTYLES, line.get_drawstyle())),
             ('Width', line.get_linewidth()),
             ('Color (RGBA)', color),
@@ -135,6 +139,9 @@ def figure_edit(axes, parent=None):
             ('Face color (RGBA)', fc),
             ('Edge color (RGBA)', ec)]
         curves.append([curvedata, label, ""])
+        # The combobox starts on the canonical shorthand, which is not always
+        # what `get_linestyle` returned, so compare against that.
+        orig_linestyles.append(linestyle_data[0])
     # Is there a curve displayed?
     has_curve = bool(curves)
 
@@ -218,7 +225,12 @@ def figure_edit(axes, parent=None):
             (label, linestyle, drawstyle, linewidth, color, marker, markersize,
              markerfacecolor, markeredgecolor) = curve
             line.set_label(label)
-            line.set_linestyle(linestyle)
+            # `get_linestyle` reports a dash tuple as its nearest named style,
+            # so the combobox cannot represent one. Writing the name back would
+            # replace the custom pattern with that style's default. Only apply
+            # the selection when the user actually changed it.
+            if linestyle != orig_linestyles[index]:
+                line.set_linestyle(linestyle)
             line.set_drawstyle(drawstyle)
             line.set_linewidth(linewidth)
             rgba = mcolors.to_rgba(color)
