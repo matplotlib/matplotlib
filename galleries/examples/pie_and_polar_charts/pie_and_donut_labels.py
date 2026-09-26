@@ -16,14 +16,15 @@ as well as with the `pie_label method <matplotlib.axes.Axes.pie>` and
 # Now it's time for the pie. Starting with a pie recipe, we create the data
 # and a list of labels from it.
 #
-# We then create the pie and store the returned `~matplotlib.container.PieContainer`
+# We then create the pie and store the returned `~matplotlib.pie.Pie`
 # object for later.
 #
-# We can provide the `~matplotlib.container.PieContainer` and a format string to
+# We can provide the `~matplotlib.pie.Pie` and a format string to
 # the `~matplotlib.axes.Axes.pie_label` method to automatically label each
 # ingredient's wedge with its weight in grams and percentages.
 #
-# The `~.PieContainer` has a list of patches as one of its attributes.  Those are
+# The `~matplotlib.pie.Pie` has a list of ``wedges`` as one of its attributes.
+# Those are
 # `matplotlib.patches.Wedge` patches, which can directly be used as the handles
 # for a legend. We can use the legend's ``bbox_to_anchor`` argument to position
 # the legend outside of the pie. Here we use the axes coordinates ``(1, 0, 0.5,

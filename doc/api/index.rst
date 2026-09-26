@@ -117,6 +117,7 @@ Alphabetical list of modules:
    patches_api.rst
    path_api.rst
    patheffects_api.rst
+   pie_api.rst
    pyplot_summary.rst
    projections_api.rst
    quiver_api.rst

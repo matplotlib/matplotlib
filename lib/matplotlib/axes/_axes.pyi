@@ -20,7 +20,7 @@ from matplotlib.colors import (
     Normalize,
 )
 from matplotlib.container import (
-    BarContainer, PieContainer, ErrorbarContainer, StemContainer)
+    BarContainer, ErrorbarContainer, StemContainer)
 from matplotlib.contour import ContourSet, QuadContourSet
 from matplotlib.image import AxesImage, PcolorImage
 from matplotlib.inset import InsetIndicator
@@ -29,6 +29,7 @@ from matplotlib.legend_handler import HandlerBase
 from matplotlib.lines import Line2D, AxLine
 from matplotlib.mlab import GaussianKDE
 from matplotlib.patches import Rectangle, FancyArrow, Polygon, StepPatch
+from matplotlib.pie import Pie
 from matplotlib.quiver import Quiver, QuiverKey, Barbs
 from matplotlib.text import Annotation, Text
 from matplotlib.transforms import Transform
@@ -334,10 +335,10 @@ class Axes(_AxesBase):
         normalize: bool = ...,
         hatch: str | Sequence[str] | None = ...,
         data: DataParamType = ...,
-    ) -> PieContainer: ...
+    ) -> Pie: ...
     def pie_label(
         self,
-        container: PieContainer,
+        pie: Pie,
         /,
         labels: str | Sequence[str],
         *,
