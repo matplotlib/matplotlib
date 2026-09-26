@@ -6,8 +6,15 @@ import pytest
 from unittest import mock
 
 import matplotlib as mpl
+from matplotlib import _c_internal_utils
 import matplotlib.pyplot as plt
 from matplotlib.testing import subprocess_run_helper
+
+
+pytestmark = [
+    pytest.mark.skipif(not _c_internal_utils.display_is_valid(),
+                       reason="Display is unavailable")
+]
 
 
 _test_timeout = 60
