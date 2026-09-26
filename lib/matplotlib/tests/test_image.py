@@ -84,6 +84,19 @@ def test_figimage(suppressComposite):
     fig.figimage(img[::-1, ::-1], xo=100, yo=100, origin='lower')
 
 
+@check_figures_equal()
+def test_figimage_remove_and_add_artist(fig_test, fig_ref):
+    # A FigureImage that is removed and re-added via add_artist should draw
+    # the same as the original.
+    img = np.arange(100).reshape((10, 10))
+    fig_ref.add_subplot()
+    fig_ref.figimage(img, xo=20, yo=20)
+    fig_test.add_subplot()
+    im = fig_test.figimage(img, xo=20, yo=20)
+    im.remove()
+    fig_test.add_artist(im)
+
+
 def test_image_python_io():
     fig, ax = plt.subplots()
     ax.plot([1, 2, 3])
