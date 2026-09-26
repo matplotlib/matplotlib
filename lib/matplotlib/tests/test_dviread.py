@@ -3,9 +3,172 @@ from pathlib import Path
 import shutil
 import sys
 
-from matplotlib import cbook, dviread as dr
+from matplotlib import cbook, texmanager, pyplot as plt, dviread as dr
 from matplotlib.testing import subprocess_run_for_testing, _has_tex_package
 import pytest
+
+
+def test_ops():
+    filename = str(Path(__file__).parent / 'baseline_images/dviread/color.dvi')
+    Op = dr.Ops.Op
+    def set_chars(s: str):
+        return [Op(ord(c), 'set_char', {'c': ord(c)}) for c in s]
+    assert list(dr.Ops.read_file(filename)) == [
+        Op(247, 'pre', {
+            'i': 2, 'num': 25400000, 'den': 473628672, 'mag': 1000, 'k': 27,
+            'cmnt': b' TeX output 2026.03.10:0955'}),
+        Op(139, 'bop', {
+            'c0': 1, 'c1': 0, 'c2': 0, 'c3': 0, 'c4': 0, 'c5': 0,
+            'c6': 0, 'c7': 0, 'c8': 0, 'c9': 0, 'p': -1}),
+        Op(141, 'push', {}),
+        Op(239, 'special', {'k': 26, 'text': b'header=l3backend-dvips.pro'}),
+        Op(239, 'special', {'k': 35, 'text': b'papersize=5203.43999pt,5203.43999pt'}),
+        Op(239, 'special', {'k': 35, 'text': b'papersize=5203.43999pt,5203.43999pt'}),
+        Op(142, 'pop', {}),
+        Op(160, 'down', {'amount': 333506151}),
+        Op(141, 'push', {}),
+        Op(160, 'down', {'amount': -335144551}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(239, 'special', {'k': 17, 'text': b'color push  Black'}),
+        Op(146, 'right', {'amount': 331540071}),
+        Op(239, 'special', {'k': 9, 'text': b'color pop'}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(160, 'down', {'amount': 333178471}),
+        Op(141, 'push', {}),
+        Op(160, 'down', {'amount': -330098279}),
+        Op(141, 'push', {}),
+        Op(145, 'right', {'amount': 983040}),
+        Op(243, 'fnt_def', {
+            'k': 28, 'c': 2194559542, 's': 786432, 'd': 786432, 'a': 0, 'l': 6,
+            'area': b'', 'name': b'cmss12'}),
+        Op(199, 'fnt_num', {'n': 28}),
+    ] + set_chars("Default,") + [
+        Op(145, 'right', {'amount': 475130}),
+        Op(239, 'special', {'k': 28, 'text': b'color push rgb 1.0  0.0  0.0'}),
+    ] + set_chars("red") + [
+        Op(144, 'right', {'amount': 20984}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(159, 'down', {'amount': -174762}),
+        Op(132, 'set_rule', {'height': 65536, 'width': 65536}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(150, 'w', args={'new_w': 65536}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(159, 'down', {'amount': -174762}),
+        Op(132, 'set_rule', {'height': 65536, 'width': 65536}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+    ] + ([
+        # The red line is apparently a bunch of little red lines.
+        Op(147, 'w0', {}),
+        Op(141, 'push', {}),
+        Op(141, 'push', {}),
+        Op(159, 'down', {'amount': -174762}),
+        Op(132, 'set_rule', {'height': 65536, 'width': 65536}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+    ] * 83) + [
+        Op(145, 'right', {'amount': 68031}),
+        Op(239, 'special', {'k': 9, 'text': b'color pop'}),
+    ] + set_chars(",and") + [
+        Op(150, 'w', args={'new_w': 256680}),
+    ] + set_chars("back") + [
+        Op(147, 'w0', args={}),
+    ] + set_chars("again.") + [
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(159, 'down', {'amount': 1966080}),
+        Op(141, 'push', {}),
+        Op(239, 'special', {'k': 17, 'text': b'color push  Black'}),
+        Op(146, 'right', {'amount': 331540071}),
+        Op(239, 'special', {'k': 9, 'text': b'color pop'}),
+        Op(142, 'pop', {}),
+        Op(142, 'pop', {}),
+        Op(140, 'eop', {}),
+        Op(248, 'post', {
+            'p': 42, 'num': 25400000, 'den': 473628672, 'mag': 1000,
+            'l': 333506151, 'u': 331540071, 's': 5, 't': 1}),
+        Op(243, 'fnt_def', {
+            'k': 28, 'c': 2194559542, 's': 786432, 'd': 786432, 'a': 0, 'l': 6,
+            'area': b'', 'name': b'cmss12'}),
+        Op(249, 'post_post', {'q': 1939, 'i': 2, 'padding': 3755991007}),
+    ]
+
+
+@pytest.mark.parametrize("table", ['tbl_dvi', 'tbl_vf_inner', 'tbl_vf_outer'])
+def test_ops_completeness(table):
+    table = getattr(dr.Ops, table)
+    assert len(table.entries) == 256
+    for i, entry in enumerate(table.entries):
+        opname = entry[0]
+        assert opname != "unknown", f"Entry {i} has not been supplied"
+
+
+def test_vm_completeness():
+    # Correctness is a harder problem ;)
+    for entry in dr.Ops.tbl_dvi.entries:
+        opname = entry[0]
+        assert hasattr(dr.VM, f"_op_{opname}"), f"VM cannot handle op {opname}"
+
+
+@pytest.mark.skipif(shutil.which("kpsewhich") is None,
+                    reason="kpsewhich is not available")
+@pytest.mark.parametrize('dpi', [None, 72])
+def test_dvi_color(dpi):
+    # Apparently, per TexManager tests, we can just play around with rcParams
+    # willy-nilly in order to get color support in our preamble.
+    plt.rcParams.update({
+        'text.usetex': True,
+        'text.latex.preamble':  r'\usepackage{color}\usepackage{dashrule}',
+    })
+    filename = texmanager.TexManager().make_dvi(r"""
+        Default,
+        $\;$ \textcolor[rgb]{1.0, 0.0, 0.0}{red\hdashrule[0.5ex]{3cm}{1pt}{1pt 0pt}},
+        and back again.
+    """, 12)
+
+    with dr.Dvi(filename, dpi) as dvi:
+        parsed = [*dvi]
+    assert len(parsed) == 1
+    page = parsed[0]
+    print(page.text)
+
+    assert [(chr(t.glyph), t.color) for t in page.text] == [
+        ('D', None),
+        ('e', None),
+        ('f', None),
+        ('a', None),
+        ('u', None),
+        ('l', None),
+        ('t', None),
+        (',', None),
+        ('r', 'rgb 1.0  0.0  0.0'),
+        ('e', 'rgb 1.0  0.0  0.0'),
+        ('d', 'rgb 1.0  0.0  0.0'),
+        (',', None),
+        ('a', None),
+        ('n', None),
+        ('d', None),
+        ('b', None),
+        ('a', None),
+        ('c', None),
+        ('k', None),
+        ('a', None),
+        ('g', None),
+        ('a', None),
+        ('i', None),
+        ('n', None),
+        ('.', None),
+    ]
+
+    # Red line is many little boxes
+    assert len(page.boxes) > 10
+    for b in page.boxes:
+        assert b.color == "rgb 1.0  0.0  0.0"
 
 
 def test_PsfontsMap(monkeypatch):
