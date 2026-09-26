@@ -1,5 +1,6 @@
 from enum import Enum
 import importlib
+import sys
 
 
 class BackendFilter(Enum):
@@ -91,6 +92,9 @@ class BackendRegistry:
         self._name_to_module = {
             "notebook": "nbagg",
         }
+
+        if sys.platform == 'emscripten':
+            self._BUILTIN_BACKEND_TO_GUI_FRAMEWORK["pyodide"] = "pyodide"
 
     def _backend_module_name(self, backend):
         if backend.startswith("module://"):

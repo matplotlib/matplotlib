@@ -419,6 +419,8 @@ def switch_backend(newbackend: str) -> None:
             candidates = [backend]
         else:
             candidates = []
+        if sys.platform == 'emscripten':
+            candidates.append("pyodide")
         candidates += [
             "macosx", "qtagg", "gtk4agg", "gtk3agg", "tkagg", "wxagg"]
 
