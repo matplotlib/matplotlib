@@ -693,11 +693,12 @@ def test_span_selector_onselect(ax, interactive):
 def test_selector_callback_exception_resets_state(ax, selector_factory):
     # An exception from onselect must not leave the selector in a dragging
     # state.
-    calls = []
+    calls = 0
 
     def onselect(*args):
-        calls.append(args)
-        if len(calls) == 1:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
             raise RuntimeError("callback failure")
 
     tool = selector_factory(ax, onselect)
@@ -708,12 +709,7 @@ def test_selector_callback_exception_resets_state(ax, selector_factory):
     # Drag with the 'move' modifier held so that the 'move' state really is
     # set when the callback raises.
     with pytest.raises(RuntimeError, match="callback failure"):
-        MouseEvent._from_ax_coords(
-            "button_press_event", ax, (100, 100), 1, key=' ')._process()
-        MouseEvent._from_ax_coords(
-            "motion_notify_event", ax, (150, 150), 1, key=' ')._process()
-        MouseEvent._from_ax_coords(
-            "button_release_event", ax, (150, 150), 1, key=' ')._process()
+        click_and_drag(tool, start=(100, 100), end=(150, 150), key=' ')
 
     assert tool._eventpress is None
     assert tool._eventrelease is None
@@ -723,18 +719,19 @@ def test_selector_callback_exception_resets_state(ax, selector_factory):
     # from the previous shape so an interactive selector creates a new one
     # rather than moving the existing one.
     click_and_drag(tool, start=(20, 20), end=(70, 70))
-    assert len(calls) == 2
+    assert calls == 2
     assert tool._selection_completed
 
 
 def test_lasso_selector_callback_exception_resets_state(ax):
     # LassoSelector uses the shared release handler but has a different
     # callback signature.
-    calls = []
+    calls = 0
 
     def onselect(verts):
-        calls.append(verts)
-        if len(calls) == 1:
+        nonlocal calls
+        calls += 1
+        if calls == 1:
             raise RuntimeError("callback failure")
 
     tool = widgets.LassoSelector(ax, onselect)
@@ -747,7 +744,7 @@ def test_lasso_selector_callback_exception_resets_state(ax):
     assert tool._eventrelease is None
 
     click_and_drag(tool, start=(100, 100), end=(150, 150))
-    assert len(calls) == 2
+    assert calls == 2
 
 
 def test_span_selector_callback_exception_does_not_leak_to_other_selector():
@@ -759,10 +756,11 @@ def test_span_selector_callback_exception_does_not_leak_to_other_selector():
     # when a GUI framework is running; force propagation for this test.
     fig.canvas.callbacks.exception_handler = None
 
-    top_calls = []
+    top_calls = 0
 
     def failing_onselect(vmin, vmax):
-        top_calls.append((vmin, vmax))
+        nonlocal top_calls
+        top_calls += 1
         raise RuntimeError("callback failure")
 
     selections = []
@@ -779,7 +777,7 @@ def test_span_selector_callback_exception_does_not_leak_to_other_selector():
     click_and_drag(bottom, start=(0.2, 0.2), end=(0.6, 0.2))
 
     # The failed selector must not react to the events on the other Axes.
-    assert len(top_calls) == 1
+    assert top_calls == 1
     assert top.extents == top_extents
     assert selections == [(0.2, 0.6)]
     assert bottom._selection_completed
