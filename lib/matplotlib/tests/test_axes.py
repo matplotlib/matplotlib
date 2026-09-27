@@ -1678,6 +1678,16 @@ def test_pcolorargs():
         # bad grid warnings.
         ax.pcolormesh(X+10*noise_X, Y+10*noise_Y, Z, shading='auto')
         assert len(record) == 2
+    # Grid cannot contain a single row or single column for nearest shading.
+    x = [1, 2, 3]
+    y = [4]
+    Z = np.arange(3).reshape(1, 3)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x, y, Z)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(y, x, Z.T)
+    with pytest.raises(TypeError):
+        ax.pcolormesh(y, y, Z[:, [0]])
 
 
 def test_pcolormesh_underflow_error():
