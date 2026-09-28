@@ -94,7 +94,7 @@ dev = [
     {include-group = "doc"},
     {include-group = "test"},
     {include-group = "test-extra"},
-    "pre-commit",
+    "prek",
 ]
 # Requirements for building docs
 #
