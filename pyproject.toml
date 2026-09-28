@@ -435,7 +435,6 @@ addopts = [
 ]
 
 [tool.cibuildwheel]
-skip = "*-musllinux_aarch64"
 manylinux-x86_64-image = "manylinux2014"
 
 before-build = "rm -rf {package}/build"
