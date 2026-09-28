@@ -321,20 +321,23 @@ you are aware of the existing issues beforehand.
 
 .. _pre-commit-hooks:
 
-Install pre-commit hooks
-========================
+Install git pre-commit hooks
+============================
+
 `prek <https://prek.j178.dev/>`_ hooks save time in the review process by
 identifying issues with the code before a pull request is formally opened. Most
 hooks can also aide in fixing the errors, and the checks should have
 corresponding :ref:`development workflow <development-workflow>` and
 :ref:`pull request <pr-guidelines>` guidelines. Hooks are configured in
 `.pre-commit-config.yaml <https://github.com/matplotlib/matplotlib/blob/main/.pre-commit-config.yaml?>`_
-and include checks for spelling and formatting, flake 8 conformity, accidentally
+and include checks for spelling and formatting, style conformity, accidentally
 committed files, import order, and incorrect branching.
 
 Install pre-commit hooks ::
 
-    python -m pip install prek
+    # e.g.
+    # pixi global install prek
+    # uv tool install prek
     prek install
 
 Hooks are run automatically after the ``git commit`` stage of the
