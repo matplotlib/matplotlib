@@ -27,7 +27,7 @@ except ImportError:
             "cairo backend requires that pycairo>=1.14.0 or cairocffi "
             "is installed") from err
     except OSError as err:
-        raise ImportError(f"cairocffi could not load cairo:\n{err}")
+        raise ImportError("cairocffi could not load cairo") from err
 
 from .. import _api, cbook, font_manager
 from matplotlib.artist import BlendMode
