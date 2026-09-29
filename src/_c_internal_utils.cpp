@@ -211,7 +211,7 @@ mpl_SetForegroundWindow(nb::capsule UNUSED_ON_NON_WINDOWS(handle_p))
     if (strcmp(handle_p.name(), "HWND") != 0) {
         throw std::runtime_error("Handle must be a value returned from Win32_GetForegroundWindow");
     }
-    HWND handle = static_cast<HWND>(handle_p.get_pointer());
+    HWND handle = static_cast<HWND>(handle_p.data());
     if (!SetForegroundWindow(handle)) {
         throw std::runtime_error("Error setting window");
     }
