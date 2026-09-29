@@ -112,7 +112,7 @@ extension_data = {
       'tri/_tri.cpp',
       'tri/_tri_wrapper.cpp',
     ),
-    'dependencies': [pybind11_dep],
+    'dependencies': [nanobind_dep],
   },
 }
 
