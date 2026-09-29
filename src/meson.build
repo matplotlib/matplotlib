@@ -50,7 +50,7 @@ extension_data = {
     'sources': files(
       '_c_internal_utils.cpp',
     ),
-    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, coretext],
+    'dependencies': [nanobind_dep, dl, ole32, shell32, user32, coretext],
   },
   'ft2font': {
     'subdir': 'matplotlib',
