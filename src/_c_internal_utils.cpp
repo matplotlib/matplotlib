@@ -168,7 +168,7 @@ mpl_GetCurrentProcessExplicitAppUserModelID(void)
     HRESULT hr = GetCurrentProcessExplicitAppUserModelID(&appid);
     if (FAILED(hr)) {
         PyErr_SetFromWindowsErr(hr);
-        throw nb::error_already_set();
+        throw nb::python_error();
     }
     auto py_appid = nb::cast(appid);
     CoTaskMemFree(appid);
@@ -185,7 +185,7 @@ mpl_SetCurrentProcessExplicitAppUserModelID(const wchar_t* UNUSED_ON_NON_WINDOWS
     HRESULT hr = SetCurrentProcessExplicitAppUserModelID(appid);
     if (FAILED(hr)) {
         PyErr_SetFromWindowsErr(hr);
-        throw nb::error_already_set();
+        throw nb::python_error();
     }
 #endif
 }
