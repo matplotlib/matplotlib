@@ -1,24 +1,16 @@
 #include "_tri.h"
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-#include <pybind11/subinterpreter.h>
-#endif
 
-using namespace pybind11::literals;
+using namespace nanobind::literals;
 
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-PYBIND11_MODULE(_tri, m,
-                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
-#else
-PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
-#endif
+NB_MODULE(_tri, m)
 {
-    py::classh<Triangulation>(m, "Triangulation", py::is_final())
-        .def(py::init<const Triangulation::CoordinateArray&,
+    nb::class_<Triangulation>(m, "Triangulation", nb::is_final())
+        .def(nb::init<const Triangulation::CoordinateArray&,
                       const Triangulation::CoordinateArray&,
                       const Triangulation::TriangleArray&,
-                      const Triangulation::MaskArray&,
-                      const Triangulation::EdgeArray&,
-                      const Triangulation::NeighborArray&,
+                      std::optional<const Triangulation::MaskArray>,
+                      std::optional<const Triangulation::EdgeArray>,
+                      std::optional<const Triangulation::NeighborArray>,
                       bool>(),
             "x"_a,
             "y"_a,
@@ -37,10 +29,11 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("get_neighbors", &Triangulation::get_neighbors,
             "Return neighbors array.")
         .def("set_mask", &Triangulation::set_mask,
-            "Set or clear the mask array.");
+            "Set or clear the mask array.",
+            "mask"_a.none());
 
-    py::classh<TriContourGenerator>(m, "TriContourGenerator", py::is_final())
-        .def(py::init<Triangulation&,
+    nb::class_<TriContourGenerator>(m, "TriContourGenerator", nb::is_final())
+        .def(nb::init<Triangulation&,
                       const TriContourGenerator::CoordinateArray&>(),
             "triangulation"_a,
             "z"_a,
@@ -52,8 +45,8 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("create_filled_contour", &TriContourGenerator::create_filled_contour,
             "Create and return a filled contour.");
 
-    py::classh<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", py::is_final())
-        .def(py::init<Triangulation&>(),
+    nb::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", nb::is_final())
+        .def(nb::init<Triangulation&>(),
             "triangulation"_a,
             "Create a new C++ TrapezoidMapTriFinder object.\n"
             "This should not be called directly, use the python class\n"

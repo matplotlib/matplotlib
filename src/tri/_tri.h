@@ -63,8 +63,9 @@
 #ifndef MPL_TRI_H
 #define MPL_TRI_H
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/optional.h>
 
 #include <iostream>
 #include <list>
@@ -72,7 +73,7 @@
 #include <set>
 #include <vector>
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 
 /* An edge of a triangle consisting of a triangle index in the range 0 to
@@ -147,7 +148,7 @@ public:
 };
 
 // A Contour is a collection of zero or more ContourLines.
-typedef std::vector<ContourLine> Contour;
+using Contour = std::vector<ContourLine>;
 
 // Debug contour writing function.
 void write_contour(const Contour& contour);
@@ -160,17 +161,17 @@ void write_contour(const Contour& contour);
 class Triangulation final
 {
 public:
-    typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordinateArray;
-    typedef py::array_t<double, py::array::c_style | py::array::forcecast> TwoCoordinateArray;
-    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> TriangleArray;
-    typedef py::array_t<bool,   py::array::c_style | py::array::forcecast> MaskArray;
-    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> EdgeArray;
-    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> NeighborArray;
+    using CoordinateArray = nb::ndarray<double, nb::ndim<1>, nb::numpy, nb::c_contig>;
+    using CoefficientsArray = nb::ndarray<double, nb::shape<-1, 3>, nb::numpy, nb::c_contig>;
+    using TriangleArray = nb::ndarray<int, nb::shape<-1, 3>, nb::numpy, nb::c_contig>;
+    using MaskArray = nb::ndarray<bool, nb::ndim<1>, nb::numpy, nb::c_contig>;
+    using EdgeArray = nb::ndarray<int, nb::shape<-1, 2>, nb::numpy, nb::c_contig>;
+    using NeighborArray = nb::ndarray<int, nb::shape<-1, 3>, nb::numpy, nb::c_contig>;
 
     /* A single boundary is a vector of the TriEdges that make up that boundary
      * following it around with unmasked triangles on the left. */
-    typedef std::vector<TriEdge> Boundary;
-    typedef std::vector<Boundary> Boundaries;
+    using Boundary = std::vector<TriEdge>;
+    using Boundaries = std::vector<Boundary>;
 
     /* Constructor with optional mask, edges and neighbors.  The latter two
      * are calculated when first needed.
@@ -192,9 +193,9 @@ public:
     Triangulation(const CoordinateArray& x,
                   const CoordinateArray& y,
                   const TriangleArray& triangles,
-                  const MaskArray& mask,
-                  const EdgeArray& edges,
-                  const NeighborArray& neighbors,
+                  std::optional<const MaskArray>,
+                  std::optional<const EdgeArray>,
+                  std::optional<const NeighborArray>,
                   bool correct_triangle_orientations);
 
     /* Calculate plane equation coefficients for all unmasked triangles from
@@ -202,7 +203,7 @@ public:
      * in via the args.  Returned array has shape (npoints,3) and allows
      * z-value at (x,y) coordinates in triangle tri to be calculated using
      *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2]. */
-    TwoCoordinateArray calculate_plane_coefficients(const CoordinateArray& z);
+    CoefficientsArray calculate_plane_coefficients(const CoordinateArray& z);
 
     // Return the boundaries collection, creating it if necessary.
     const Boundaries& get_boundaries() const;
@@ -227,10 +228,10 @@ public:
     NeighborArray& get_neighbors();
 
     // Return the number of points in this triangulation.
-    int get_npoints() const;
+    size_t get_npoints() const;
 
     // Return the number of triangles in this triangulation.
-    int get_ntri() const;
+    size_t get_ntri() const;
 
     /* Return the index of the point that is at the start of the specified
      * triangle edge. */
@@ -247,7 +248,7 @@ public:
      * recalculated when next needed.
      *   mask: bool array of shape (ntri) indicating which triangles are
      *         masked, or an empty array to clear mask. */
-    void set_mask(const MaskArray& mask);
+    void set_mask(std::optional<const MaskArray> mask);
 
     // Debug function to write boundaries.
     void write_boundaries() const;
@@ -321,7 +322,7 @@ private:
 
     // Map used to look up BoundaryEdges from TriEdges.  Normally accessed via
     // get_boundary_edge().
-    typedef std::map<TriEdge, BoundaryEdge> TriEdgeToBoundaryMap;
+    using TriEdgeToBoundaryMap = std::map<TriEdge, BoundaryEdge>;
     TriEdgeToBoundaryMap _tri_edge_to_boundary_map;
 };
 
@@ -331,9 +332,9 @@ private:
 class TriContourGenerator final
 {
 public:
-    typedef Triangulation::CoordinateArray CoordinateArray;
-    typedef Triangulation::TwoCoordinateArray TwoCoordinateArray;
-    typedef py::array_t<unsigned char> CodeArray;
+    using CoordinateArray = Triangulation::CoordinateArray;
+    using PointArray = nb::ndarray<double, nb::shape<-1, 2>, nb::numpy, nb::c_contig>;
+    using CodeArray = nb::ndarray<unsigned char, nb::ndim<1>, nb::numpy, nb::c_contig>;
 
     /* Constructor.
      *   triangulation: Triangulation to generate contours for.
@@ -347,7 +348,7 @@ public:
      * Returns new python list [segs0, segs1, ...] where
      *   segs0: double array of shape (?,2) of point coordinates of first
      *   contour line, etc. */
-    py::tuple create_contour(const double& level);
+    nb::tuple create_contour(const double& level);
 
     /* Create and return a filled contour.
      *   lower_level: Lower contour level.
@@ -355,12 +356,12 @@ public:
      * Returns new python tuple (segs, kinds) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
-    py::tuple create_filled_contour(const double& lower_level,
+    nb::tuple create_filled_contour(const double& lower_level,
                                     const double& upper_level);
 
 private:
-    typedef Triangulation::Boundary Boundary;
-    typedef Triangulation::Boundaries Boundaries;
+    using Boundary = Triangulation::Boundary;
+    using Boundaries = Triangulation::Boundaries;
 
     /* Clear visited flags.
      *   include_boundaries: Whether to clear boundary flags or not, which are
@@ -374,13 +375,13 @@ private:
      *   contour line, etc.
      *   kinds0: ubyte array of shape (n_points) of kinds codes of first contour
      *   line, etc. */
-    py::tuple contour_line_to_segs_and_kinds(const Contour& contour);
+    nb::tuple contour_line_to_segs_and_kinds(const Contour& contour);
 
     /* Convert a filled Contour from C++ to Python.
      * Returns new python tuple ([segs], [kinds]) where
      *   segs: double array of shape (n_points,2) of all point coordinates,
      *   kinds: ubyte array of shape (n_points) of all point code types. */
-    py::tuple contour_to_segs_and_kinds(const Contour& contour);
+    nb::tuple contour_to_segs_and_kinds(const Contour& contour);
 
     /* Return the point on the specified TriEdge that intersects the specified
      * level. */
@@ -467,10 +468,10 @@ private:
     CoordinateArray _z;        // double array (npoints).
 
     // Variables internal to C++ only.
-    typedef std::vector<bool> InteriorVisited;    // Size 2*ntri
-    typedef std::vector<bool> BoundaryVisited;
-    typedef std::vector<BoundaryVisited> BoundariesVisited;
-    typedef std::vector<bool> BoundariesUsed;
+    using InteriorVisited = std::vector<bool>;    // Size 2*ntri
+    using BoundaryVisited = std::vector<bool>;
+    using BoundariesVisited = std::vector<BoundaryVisited>;
+    using BoundariesUsed = std::vector<bool>;
 
     InteriorVisited _interior_visited;
     BoundariesVisited _boundaries_visited;  // Only used for filled contours.
@@ -509,8 +510,8 @@ private:
 class TrapezoidMapTriFinder final
 {
 public:
-    typedef Triangulation::CoordinateArray CoordinateArray;
-    typedef py::array_t<int, py::array::c_style | py::array::forcecast> TriIndexArray;
+    using CoordinateArray = Triangulation::CoordinateArray;
+    using TriIndexArray = nb::ndarray<int, nb::ndim<1>, nb::numpy, nb::c_contig>;
 
     /* Constructor.  A separate call to initialize() is required to initialize
      * the object before use.
@@ -536,7 +537,7 @@ public:
      *          comparisons needed to search through the tree)
      *   6: mean of all trapezoid depths (one more than the average number of
      *          comparisons needed to search through the tree) */
-    py::list get_tree_stats();
+    nb::list get_tree_stats();
 
     /* Initialize this object before use.  May be called multiple times, if,
      * for example, the triangulation is changed by setting the mask. */
@@ -613,7 +614,7 @@ private:
               max_depth(0), sum_trapezoid_depth(0.0)
         {}
 
-        long node_count, trapezoid_count, max_parent_count, max_depth;
+        size_t node_count, trapezoid_count, max_parent_count, max_depth;
         double sum_trapezoid_depth;
         std::set<const Node*> unique_nodes, unique_trapezoid_nodes;
     };
@@ -683,11 +684,11 @@ private:
         Node& operator=(const Node& other);
 
     private:
-        typedef enum {
+        using Type = enum {
             Type_XNode,
             Type_YNode,
             Type_TrapezoidNode
-        } Type;
+        };
         Type _type;
 
         union {
@@ -704,7 +705,7 @@ private:
             Trapezoid* trapezoid;    // Owned.
         } _union;
 
-        typedef std::list<Node*> Parents;
+        using Parents = std::list<Node*>;
         Parents _parents;            // Not owned.
     };
 
@@ -787,7 +788,7 @@ private:
     Point* _points;    // Array of all points in triangulation plus corners of
                        // enclosing rectangle.  Owned.
 
-    typedef std::vector<Edge> Edges;
+    using Edges = std::vector<Edge>;
     Edges _edges;   // All Edges in triangulation plus bottom and top Edges of
                     // enclosing rectangle.
 
