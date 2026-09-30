@@ -1356,12 +1356,13 @@ default: %(va)s
 
         """
         if isinstance(mappable.cmap, mcolors.BivarColormap):
-            raise ValueError("`Figure.colorbar` can only be together with a "
-                             "scalar colormap, please use `Figure.colorbar_bivar` "
+            raise ValueError("`Figure.colorbar` can only be together with a scalar "
+                             "colormap, please use `Figure.colorbar_bivar` "
                              "when working with a bivariate colormap")
         if isinstance(mappable.cmap, mcolors.MultivarColormap):
-            raise ValueError("colorbar can only be together with a"
-                             "scalar colormap")
+            raise ValueError("colorbar can only be together with a scalar "
+                             "colormap, please use `Figure.colorbar_multivar` "
+                             "when working with a bivariate colormap")
 
         if ax is None:
             ax = getattr(mappable, "axes", None)
@@ -1527,6 +1528,10 @@ default: %(va)s
 
             Defaults to the Axes that contains the mappable used to create the
             colorbar.
+
+        n_major : int
+            Number of colorbars along the long axis of the colorbars.
+            If -1, all colorbars are places sequentially along the long axis.
 
         Returns
         -------

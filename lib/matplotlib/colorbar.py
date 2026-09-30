@@ -186,7 +186,7 @@ panchor : (float, float), or *False*, optional
 major_pad : float
     Spacing between colorbars along the long axis
 
-major_pad : float
+minor_pad : float
     Spacing between colorbars along the short axis
 """)
 
@@ -1792,7 +1792,7 @@ class MultivarColorbar(Sequence):
         except AttributeError:
             return
         try:
-            subplotspec = self.ax.get_subplotspec().get_gridspec()._subplot_spec
+            subplotspec = ax.get_subplotspec().get_gridspec()._subplot_spec
         except AttributeError:  # use_gridspec was False
             pos = ax.get_position(original=True)
             ax._set_position(pos)
@@ -1926,7 +1926,7 @@ class MultivarColorbar(Sequence):
         else:
             raise ValueError("_set_tight_packing cannot be called "
                              "unless the MultivarColorbar was created "
-                             "by fig.multicolorbar(mappable).")
+                             "by fig.colorbar_multivar(mappable).")
 
     def _get_original_position(self):
         # comparable to axes.get_position(original=True)
@@ -2233,6 +2233,7 @@ def make_multivar_axes(parents, n_variates, n_major, location=None, orientation=
 
     n_major : int
         Number of colorbars along the long axis of the colorbars
+        If -1, all colorbars are places sequentially along the long axis.
     %(_make_multivar_axes_kw_doc)s
 
     Returns
