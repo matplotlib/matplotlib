@@ -1583,8 +1583,8 @@ def test_bivar_cbar_ticklocations():
     with pytest.raises(ValueError, match='ticklocations must be a tuple of'):
         cbar = fig.colorbar_bivar(ca, cax=ax, ticklocations=['left'])
     cbar = fig.colorbar_bivar(ca, cax=ax, ticklocations=['left', 'top'])
-    cbar.ax.yaxis.get_label_position() == 'left'
-    cbar.ax.xaxis.get_label_position() == 'top'
+    assert cbar.ax.yaxis.get_label_position() == 'left'
+    assert cbar.ax.xaxis.get_label_position() == 'top'
 
 
 def test_wrong_kind_colorbar():
@@ -1757,7 +1757,11 @@ def test_multivar_cbar_set_label_limits():
     fig, ax = plt.subplots(1, 1)
     mim = ax.imshow(data, cmap='3VarAddA')
     cbs = fig.colorbar_multivar(mim)
-    cbs[0].set_label('A')
     assert len(cbs) == 3
+    cbs[0].set_label('A')
+    assert cbs[0].ax.get_ylabel() == 'A'
+
     mim.norm.vmin = (-1, -1, -1)
     mim.norm.vmax = (1, 2, 3)
+    np.testing.assert_allclose(cbs[0].ax.get_ylim(), (-1, 1))
+    np.testing.assert_allclose(cbs[2].ax.get_ylim(), (-1, 3))
