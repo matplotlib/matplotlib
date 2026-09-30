@@ -18,6 +18,7 @@
 #endif
 #endif
 #include <nanobind/nanobind.h>
+#include <nanobind/stl/wstring.h>
 #ifdef __linux__
 #include <dlfcn.h>
 #endif
@@ -170,7 +171,7 @@ mpl_GetCurrentProcessExplicitAppUserModelID(void)
         PyErr_SetFromWindowsErr(hr);
         throw nb::python_error();
     }
-    auto py_appid = nb::cast(appid);
+    auto py_appid = nb::cast(std::wstring(appid));
     CoTaskMemFree(appid);
     return py_appid;
 #else
@@ -179,10 +180,10 @@ mpl_GetCurrentProcessExplicitAppUserModelID(void)
 }
 
 static void
-mpl_SetCurrentProcessExplicitAppUserModelID(const wchar_t* UNUSED_ON_NON_WINDOWS(appid))
+mpl_SetCurrentProcessExplicitAppUserModelID(const std::wstring& UNUSED_ON_NON_WINDOWS(appid))
 {
 #ifdef _WIN32
-    HRESULT hr = SetCurrentProcessExplicitAppUserModelID(appid);
+    HRESULT hr = SetCurrentProcessExplicitAppUserModelID(appid.c_str());
     if (FAILED(hr)) {
         PyErr_SetFromWindowsErr(hr);
         throw nb::python_error();
