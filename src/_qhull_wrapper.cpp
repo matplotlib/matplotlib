@@ -24,6 +24,7 @@ extern const char qh_version[];
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
 #include <vector>
+#include <string>
 
 #ifndef MPL_DEVNULL
 #error "MPL_DEVNULL must be defined as the OS-equivalent of /dev/null"
