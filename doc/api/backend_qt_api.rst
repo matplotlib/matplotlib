@@ -29,7 +29,7 @@ supported Python bindings per version -- `PyQt5
 <https://www.riverbankcomputing.com/static/Docs/PyQt6/>`_ and `PySide6
 <https://doc.qt.io/qtforpython/contents.html>`_ for Qt6 [#]_.  Matplotlib's
 qtagg and qtcairo backends (``matplotlib.backends.backend_qtagg`` and
-``matplotlib.backend.backend_qtcairo``) support all these bindings, with common
+``matplotlib.backends.backend_qtcairo``) support all these bindings, with common
 parts factored out in the ``matplotlib.backends.backend_qt`` module.
 
 At runtime, these backends select the actual binding used as follows:
