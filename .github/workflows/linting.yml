@@ -124,7 +124,7 @@ jobs:
           persist-credentials: false
 
       - name: eslint
-        uses: reviewdog/action-eslint@556a3fdaf8b4201d4d74d406013386aa4f7dab96  # v1.34.0
+        uses: reviewdog/action-eslint@b6303df522851d0e9abaea654da0222037d97e75  # v1.36.0
         with:
           filter_mode: nofilter
           github_token: ${{ secrets.GITHUB_TOKEN }}
