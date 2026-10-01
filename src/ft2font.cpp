@@ -27,9 +27,9 @@ FT2Image::~FT2Image()
 }
 
 void draw_bitmap(
-    py::array_t<uint8_t, py::array::c_style> im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
+    FT2Font::ImageBufferArray im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
 {
-    auto buf = im.mutable_data(0);
+    auto buf = im.data();
 
     FT_Int image_width = (FT_Int)im.shape(1);
     FT_Int image_height = (FT_Int)im.shape(0);
@@ -181,7 +181,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 }
 
 FT2Font::FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used)
-    : warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
+    : warn_if_used(warn_if_used), image(ImageBufferArray()), face(nullptr),
       char_size(0), char_dpi(0), glyph_matrix{0x10000, 0, 0, 0x10000}, glyph_delta{0, 0},
       charmap_generation(0),
       fallbacks(fallback_list),
@@ -359,17 +359,18 @@ std::vector<raqm_glyph_t> FT2Font::layout(
     if (features) {
         for (auto const& feature : *features) {
             if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
-                throw std::runtime_error("failed to set font feature {}"_s.format(feature));
+                throw std::runtime_error(
+                    nb::str("failed to set font feature {}").format(feature).c_str());
             }
         }
     }
     if (languages) {
         for (auto & [lang_str, start, end] : *languages) {
             if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
-                throw std::runtime_error(
-                    "failed to set language between {} and {} characters "_s
-                    "to {!r} for layout"_s.format(
-                        start, end, lang_str));
+                throw std::runtime_error(nb::str(
+                    "failed to set language between {} and {} characters "
+                    "to {!r} for layout").format(
+                        start, end, lang_str).c_str());
             }
         }
     }
@@ -439,18 +440,18 @@ std::vector<raqm_glyph_t> FT2Font::layout(
         if (features) {
             for (auto const& feature : *features) {
                 if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
-                    throw std::runtime_error(
-                        "failed to set font feature {}"_s.format(feature));
+                    throw std::runtime_error(nb::str(
+                        "failed to set font feature {}").format(feature).c_str());
                 }
             }
         }
         if (languages) {
             for (auto & [lang_str, start, end] : *languages) {
                 if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
-                    throw std::runtime_error(
-                        "failed to set language between {} and {} characters "_s
-                        "to {!r} for layout"_s.format(
-                            start, end, lang_str));
+                    throw std::runtime_error(nb::str(
+                        "failed to set language between {} and {} characters "
+                        "to {!r} for layout").format(
+                            start, end, lang_str).c_str());
                 }
             }
         }
@@ -811,8 +812,13 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
     long width = (bbox.xMax - bbox.xMin) / 64 + 2;
     long height = (bbox.yMax - bbox.yMin) / 64 + 2;
 
-    image = py::array_t<uint8_t>{{height, width}};
-    std::memset(image.mutable_data(0), 0, image.nbytes());
+    if (width < 0 || height < 0) {
+        throw std::runtime_error("computed negative dimension from bbox");
+    }
+
+    image = mpl_make_numpy_array<ImageBufferArray>({static_cast<size_t>(height),
+                                                    static_cast<size_t>(width)});
+    std::memset(image.data(), 0, image.nbytes());
 
     for (auto & glyph: glyphs) {
         FT_CHECK(
@@ -830,7 +836,7 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 }
 
 void FT2Font::draw_glyph_to_bitmap(
-    py::array_t<uint8_t, py::array::c_style> im,
+    FT2Font::ImageBufferArray im,
     int x, int y, size_t glyphInd, bool antialiased)
 {
     FT_Vector sub_offset;
@@ -877,7 +883,7 @@ std::string FT2Font::get_glyph_name(unsigned int glyph_number)
     return buffer;
 }
 
-long FT2Font::get_name_index(char *name)
+long FT2Font::get_name_index(const char *name)
 {
     return FT_Get_Name_Index(face, (FT_String *)name);
 }

@@ -59,13 +59,14 @@ extension_data = {
       'ft2font_wrapper.cpp',
     ),
     'dependencies': [
-      freetype_dep, libraqm_dep, pybind11_dep, agg_dep.partial_dependency(includes: true),
+      freetype_dep, libraqm_dep, nanobind_dep, agg_dep.partial_dependency(includes: true),
     ],
     'cpp_args': [
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(
         freetype_dep.type_name() == 'internal' ? 'local' : 'system',
       ),
     ],
+    'link_args': host_machine.system() == 'darwin' ? ['-Wl,-ld_classic'] : [],
   },
   '_image': {
     'subdir': 'matplotlib',

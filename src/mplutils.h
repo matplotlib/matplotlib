@@ -51,8 +51,8 @@ enum {
 
 #ifdef NB_VERSION_MAJOR
 
-void mpl_nb_capsule_alloc(void *&data, std::initializer_list<size_t> &shape,
-                          nb::capsule &owner, size_t scalar_size)
+static void mpl_nb_capsule_alloc(void *&data, std::initializer_list<size_t> &shape,
+                                 nb::capsule &owner, size_t scalar_size)
 {
     size_t total_size = scalar_size;
     for (size_t n : shape) {
@@ -67,7 +67,7 @@ void mpl_nb_capsule_alloc(void *&data, std::initializer_list<size_t> &shape,
 
 // See "Returning arrays..." on https://nanobind.readthedocs.io/en/latest/ndarray.html
 template <typename Array>
-Array mpl_make_numpy_array(std::initializer_list<size_t> shape)
+static inline Array mpl_make_numpy_array(std::initializer_list<size_t> shape)
 {
     static_assert(
         std::is_same_v<typename Array::Config::Framework, nb::numpy>,
@@ -85,7 +85,9 @@ Array mpl_make_numpy_array(std::initializer_list<size_t> shape)
 
 #endif
 
-
+// Helper for std::visit.
+template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 #ifdef PYBIND11_VERSION_MAJOR
 
@@ -96,10 +98,6 @@ Array mpl_make_numpy_array(std::initializer_list<size_t> shape)
 
 namespace py = pybind11;
 using namespace pybind11::literals;
-
-// Helper for std::visit.
-template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 // Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
 // so that we don't need to access the NPY_INTP_FMT macro here.
