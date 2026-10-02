@@ -9120,9 +9120,9 @@ such objects
             from matplotlib.cbook import violin_stats
 
             stats = violin_stats()
-            ax.violin(statsI)
+            ax.violin(stats)
 
-        `.violin_stats` gives you more control on the statistics calculation compared
+        `.violin_stats` gives you more control of the statistical calculations than
         to `violinplot()`.
         """
         vpstats = cbook.violin_stats(dataset, ("GaussianKDE", bw_method),
