@@ -6,7 +6,7 @@ from pathlib import Path
 import shutil
 import sys
 
-from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing import subprocess_run_for_testing, is_ci_environment
 import pytest
 
 
@@ -22,11 +22,14 @@ def build_sphinx_html(
     extra_args = [] if extra_args is None else extra_args
     cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
+    timeout = 60
+    if is_ci_environment():
+        timeout *= 6
     # On CI, gcov emits warnings (due to agg headers being included with the
     # same name in multiple extension modules -- but we don't care about their
     # coverage anyways); hide them using GCOV_ERROR_FILE.
     proc = subprocess_run_for_testing(
-        cmd, capture_output=True, text=True,
+        cmd, capture_output=True, text=True, timeout=timeout,
         env={**os.environ, "MPLBACKEND": "", "GCOV_ERROR_FILE": os.devnull}
     )
     out = proc.stdout
