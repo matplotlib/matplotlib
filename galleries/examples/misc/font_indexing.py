@@ -5,11 +5,13 @@ Font indexing
 
 This example shows how the font tables relate to one another.
 """
+# sphinx_gallery_thumbnail_path = '_static/font_indexing_thumbnail.svg'
 
 import os
 
 import matplotlib
 from matplotlib.ft2font import FT2Font, Kerning
+
 
 font = FT2Font(
     os.path.join(matplotlib.get_data_path(), 'fonts/ttf/DejaVuSans.ttf'))
