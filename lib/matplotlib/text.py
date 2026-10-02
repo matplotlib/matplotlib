@@ -485,6 +485,22 @@ class Text(Artist):
             min_ascent = h - min_descent
             line_gap = 0
 
+        if (getattr(self, "_is_ticklabel", False)
+                and self._verticalalignment == "top"
+                and self.get_rotation() == 0
+                and len(lines) == 1):
+            # Top-aligned single-line text should use a common line box.  In
+            # particular, this keeps the baselines of tick labels with
+            # different ascenders aligned (e.g. ``"pol."`` and ``"1"``).
+            # The font tables alone do not necessarily include the full
+            # ascent of the glyphs used by the renderer.
+            _, lp_h, lp_d = _get_text_metrics_with_cache(
+                renderer, "lp", self._fontproperties,
+                ismath="TeX" if self.get_usetex() else False,
+                dpi=dpi)
+            min_ascent = max(min_ascent, lp_h - lp_d)
+            min_descent = max(min_descent, lp_d)
+
         # Don't increase text height too much if it's not multiple lines.
         if len(lines) == 1:
             line_gap = 0
