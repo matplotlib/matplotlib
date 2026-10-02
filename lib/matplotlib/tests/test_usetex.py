@@ -338,5 +338,9 @@ def test_usetex_textpath_size_regenerates(monkeypatch):
             (0, 0), "Hamburgefonstiv", size=17, usetex=True)
 
         np.testing.assert_allclose(resized_vertices, expected.vertices)
+        assert isinstance(resized._vertices, np.ndarray)
+        assert isinstance(resized._codes, np.ndarray)
+        assert not resized._vertices.flags.writeable
+        assert not resized._codes.flags.writeable
         assert seen == [(6.0, {"CMSS8"}), (17.0, {"CMSS17"}),
                         (17.0, {"CMSS17"})]

@@ -386,8 +386,9 @@ class TextPath(Path):
             if self._tex_prop is not None and self._tex_size != self._size:
                 prop = self._tex_prop.copy()
                 prop.set_size(self._size)
-                self._vertices, self._codes = text_to_path.get_text_path(
-                    prop, self._tex_s, ismath="TeX")
+                path = Path(*text_to_path.get_text_path(
+                    prop, self._tex_s, ismath="TeX"), readonly=True)
+                self._vertices, self._codes = path.vertices, path.codes
                 self._tex_size = self._size
             tr = (Affine2D()
                   .scale(self._size / text_to_path.FONT_SCALE)
