@@ -1841,6 +1841,8 @@ class FigureCanvasBase:
         return (hasattr(cls, "copy_from_bbox")
                 and hasattr(cls, "restore_region"))
 
+    supports_layers = False
+
     def __init__(self, figure=None):
         from matplotlib.figure import Figure
         self._fix_ipython_backend2gui()
