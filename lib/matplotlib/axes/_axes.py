@@ -2453,6 +2453,15 @@ class Axes(_AxesBase):
         linewidth = kwargs.pop('linewidth', None)
         hatch = kwargs.pop('hatch', None)
 
+        # store style for an empty data scenario that would otherwise be lost.
+        legend_fallback_kwargs = {
+            'facecolor': facecolor[0] if len(facecolor) else 'none',
+            'edgecolor': edgecolor,
+            'linewidth': linewidth,
+            'label': '_nolegend_',
+            'hatch': hatch,
+        }
+
         # Because xerr and yerr will be passed to errorbar, most dimension
         # checking and processing will be left to the errorbar method.
         xerr = kwargs.pop('xerr', None)
@@ -2618,6 +2627,14 @@ class Axes(_AxesBase):
             self.add_patch(r)
             patches.append(r)
 
+        if not patches:
+            legend_fallback = mpatches.Rectangle(
+                xy=(0, 0), width=0, height=0,
+                **legend_fallback_kwargs)
+            legend_fallback._internal_update(kwargs)
+        else:
+            legend_fallback = None
+
         if xerr is not None or yerr is not None:
             if orientation == 'vertical':
                 # using list comps rather than arrays to preserve unit info
@@ -2646,6 +2663,7 @@ class Axes(_AxesBase):
         bar_container = BarContainer(patches, errorbar, datavalues=datavalues,
                                      orientation=orientation,
                                      label=bar_container_label)
+        bar_container._legend_fallback = legend_fallback
         self.add_container(bar_container)
 
         if tick_labels is not None:
