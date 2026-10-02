@@ -227,7 +227,7 @@ def _get_version():
             return setuptools_scm.get_version(
                 root=root,
                 dist_name="matplotlib",
-                version_scheme="release-branch-semver",
+                version_scheme="semver-pep440-release-branch",
                 local_scheme="node-and-date",
                 fallback_version=_version.version,
             )
