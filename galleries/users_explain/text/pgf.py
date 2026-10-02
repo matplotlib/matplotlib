@@ -28,9 +28,9 @@ or by registering it for handling pdf output ::
     from matplotlib.backends.backend_pgf import FigureCanvasPgf
     matplotlib.backend_bases.register_backend('pdf', FigureCanvasPgf)
 
-The last method allows you to keep using regular interactive backends and to
+The latest methods allows you to keep using regular interactive backends and to
 save xelatex, lualatex or pdflatex compiled PDF files from the graphical user
-interface.  Note that, in that case, the interactive display will still use the
+interface. Note that, in that case, the interactive display will still use the
 standard interactive backends (e.g., QtAgg), and in particular use latex to
 compile relevant text snippets.
 
