@@ -180,47 +180,6 @@ const char *PyFT2Image_draw_rect_filled__doc__ = R"""(
 )""";
 
 /**********************************************************************
- * Positioned Bitmap; owns the FT_Bitmap!
- * */
-
-struct PyPositionedBitmap {
-    FT_Library _ft2Library;
-    FT_Int left, top;
-    bool owning;
-    FT_Bitmap bitmap;
-
-    PyPositionedBitmap(FT_Library ft2Library, FT_GlyphSlot slot) :
-        _ft2Library{ft2Library}, left{slot->bitmap_left}, top{slot->bitmap_top}, owning{true}
-    {
-        FT_Bitmap_Init(&bitmap);
-        FT_CHECK(FT_Bitmap_Convert, _ft2Library, &slot->bitmap, &bitmap, 1);
-    }
-
-    PyPositionedBitmap(FT_Library ft2Library, FT_BitmapGlyph bg) :
-        _ft2Library{ft2Library}, left{bg->left}, top{bg->top}, owning{true}
-    {
-        FT_Bitmap_Init(&bitmap);
-        FT_CHECK(FT_Bitmap_Convert, _ft2Library, &bg->bitmap, &bitmap, 1);
-    }
-
-    PyPositionedBitmap(PyPositionedBitmap& other) = delete;  // Non-copyable.
-
-    PyPositionedBitmap(PyPositionedBitmap&& other) :
-        _ft2Library{other._ft2Library}, left{other.left}, top{other.top}, owning{true},
-        bitmap{other.bitmap}
-    {
-        other.owning = false;  // Prevent double deletion.
-    }
-
-    ~PyPositionedBitmap()
-    {
-        if (owning) {
-            FT_Bitmap_Done(_ft2Library, &bitmap);
-        }
-    }
-};
-
-/**********************************************************************
  * Glyph
  * */
 
@@ -1658,17 +1617,6 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
             return py::buffer_info(self.get_buffer(), shape, strides);
         });
 
-    py::classh<PyPositionedBitmap>(m, "_PositionedBitmap", py::is_final())
-        .def_readonly("left", &PyPositionedBitmap::left)
-        .def_readonly("top", &PyPositionedBitmap::top)
-        .def_property_readonly(
-          "buffer", [](PyPositionedBitmap &self) -> py::array {
-            return {{self.bitmap.rows, self.bitmap.width},
-                    {self.bitmap.pitch, 1},
-                    self.bitmap.buffer};
-        })
-        ;
-
     py::classh<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
             // Glyph is not useful from Python, so mark it as not constructible.
@@ -1897,18 +1845,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
             return self.get_image().request();
-        })
-
-        .def("_render_glyph",
-            [ft2Library](PyFT2Font *self, FT_UInt idx, LoadFlags flags,
-                         FT_Render_Mode render_mode)
-            {
-                auto glyph = self->render_glyph(
-                    idx, static_cast<FT_Int32>(flags), render_mode);
-                return PyPositionedBitmap{
-                    ft2Library, reinterpret_cast<FT_BitmapGlyph>(glyph.get())};
-            })
-        ;
+        });
 
     m.def("_render_glyph_run",
           [ft2Library](py::sequence glyphs, double dpi, double x, double y, double angle,
