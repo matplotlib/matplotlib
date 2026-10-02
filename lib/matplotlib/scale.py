@@ -503,21 +503,26 @@ class SymmetricalLogTransform(Transform):
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale
+        self._base_log = np.log(base)
+
+    def _log_b(self, x):
+        # Use specialized logs if possible, as they can be more accurate; e.g.
+        # log(.001) / log(10) = -2.999... (whether math.log or np.log) due to
+        # floating point error.
+        return (np.log10(x) if self.base == 10 else
+                np.log2(x) if self.base == 2 else
+                np.log(x) / self._base_log)
 
     def transform_non_affine(self, values):
-        linscale_adj = self.linscale / (1.0 - 1.0 / self.base)
-        log_base = np.log(self.base)
-
-        abs_a = np.abs(values)
-        inside = abs_a <= self.linthresh
+        scaled = values / self.linthresh
+        abs_scaled = np.abs(scaled)
+        inside = abs_scaled <= 1
         if np.all(inside):  # Fast path: all values in linear region
-            return values * linscale_adj
+            return scaled * self.linscale
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self.linthresh * (
-                linscale_adj - np.log(self.linthresh) / log_base +
-                np.log(abs_a) / log_base)
-        out[inside] = values[inside] * linscale_adj
-        return out
+            out = self._log_b(abs_scaled) + self.linscale
+        out[inside] = abs_scaled[inside] * self.linscale
+        return np.sign(scaled) * out
 
     def inverted(self):
         return InvertedSymmetricalLogTransform(self.base, self.linthresh,
@@ -538,6 +543,7 @@ class InvertedSymmetricalLogTransform(Transform):
         self.base = base
         self.linthresh = linthresh
         self.linscale = linscale
+        self._base_log = np.log(base)
 
     @_api.deprecated("3.11", name="invlinthresh", obj_type="attribute",
                      alternative=".inverted().transform(linthresh)")
@@ -547,18 +553,14 @@ class InvertedSymmetricalLogTransform(Transform):
         return invlinthresh
 
     def transform_non_affine(self, values):
-        linscale_adj = self.linscale / (1.0 - 1.0 / self.base)
-        invlinthresh = self.inverted().transform(self.linthresh)
-
-        abs_a = np.abs(values)
-        inside = abs_a <= invlinthresh
+        abs_values = np.abs(values)
+        inside = abs_values <= self.linscale
         if np.all(inside):  # Fast path: all values in linear region
-            return values / linscale_adj
+            return values / self.linscale * self.linthresh
         with np.errstate(divide="ignore", invalid="ignore"):
-            out = np.sign(values) * self.linthresh * np.exp(
-                (abs_a / self.linthresh - linscale_adj) * np.log(self.base))
-        out[inside] = values[inside] / linscale_adj
-        return out
+            out = np.exp(self._base_log * (abs_values - self.linscale))
+        out[inside] = abs_values[inside] / self.linscale
+        return np.sign(values) * self.linthresh * out
 
     def inverted(self):
         return SymmetricalLogTransform(self.base,
@@ -585,7 +587,7 @@ class SymmetricalLogScale(ScaleBase):
         .. note::
             This parameter is unused and about to be removed in the future.
             It can already now be left out because of special preprocessing,
-            so that ``SymmetricalLocSacle(base=2)`` is valid.
+            so that ``SymmetricalLogScale(base=2)`` is valid.
 
     base : float, default: 10
         The base of the logarithm.
@@ -594,10 +596,17 @@ class SymmetricalLogScale(ScaleBase):
         Defines the range ``(-x, x)``, within which the plot is linear.
         This avoids having the plot go to infinity around zero.
 
-    subs : sequence of int
+    subs : None, 'auto', 'all' or sequence of int, default: 'auto'
         Where to place the subticks between each major tick.
         For example, in a log10 scale: ``[2, 3, 4, 5, 6, 7, 8, 9]`` will place
-        8 logarithmically spaced minor ticks between each major tick.
+        8 logarithmically spaced minor ticks between each major tick. Both ``'auto'``
+        and ``'all'`` use an algorithm based on the axis view limits to determine
+        whether and how to put ticks between integer powers of the base. With
+        ``'auto'``, minor ticks are placed only between integer powers; with ``'all'``,
+        the integer powers are included. With ``None``, minor ticks are suppressed.
+
+        .. versionchanged:: 3.12
+            The default value is now ``'auto'``.
 
     linscale : float, optional
         This allows the linear range ``(-linthresh, linthresh)`` to be
@@ -610,7 +619,7 @@ class SymmetricalLogScale(ScaleBase):
     name = 'symlog'
 
     @_make_axis_parameter_optional
-    def __init__(self, axis=None, *, base=10, linthresh=2, subs=None, linscale=1):
+    def __init__(self, axis=None, *, base=10, linthresh=2, subs='auto', linscale=1):
         self._transform = SymmetricalLogTransform(base, linthresh, linscale)
         self.subs = subs
 
@@ -620,11 +629,21 @@ class SymmetricalLogScale(ScaleBase):
 
     def set_default_locators_and_formatters(self, axis):
         # docstring inherited
-        axis.set_major_locator(SymmetricalLogLocator(self.get_transform()))
-        axis.set_major_formatter(LogFormatterSciNotation(self.base))
-        axis.set_minor_locator(SymmetricalLogLocator(self.get_transform(),
-                                                     self.subs))
-        axis.set_minor_formatter(NullFormatter())
+        axis.set_major_locator(SymmetricalLogLocator(base=self.base,
+                                                     linthresh=self.linthresh,
+                                                     linscale=self.linscale))
+        axis.set_major_formatter(LogFormatterSciNotation(base=self.base,
+                                                         linthresh=self.linthresh,
+                                                         linscale=self.linscale))
+        axis.set_minor_locator(SymmetricalLogLocator(base=self.base,
+                                                     linthresh=self.linthresh,
+                                                     linscale=self.linscale,
+                                                     subs=self.subs))
+        axis.set_minor_formatter(
+            LogFormatterSciNotation(base=self.base,
+                                    linthresh=self.linthresh,
+                                    linscale=self.linscale,
+                                    labelOnlyBase=(self.subs != 'auto')))
 
     def get_transform(self):
         """Return the `.SymmetricalLogTransform` associated with this scale."""
