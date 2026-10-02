@@ -390,6 +390,30 @@ class ThetaAxis(maxis.XAxis):
     axis_name = 'theta'  #: Read-only name identifying the axis.
     _tick_class = ThetaTick
 
+    def _update_label_position(self, renderer):
+        """
+        Update the label position based on the bounding box enclosing
+        all the ticklabels and axis spine
+        """
+        if not self._autolabelpos:
+            return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        xbboxes, xbboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+        ybboxes, ybboxes2 = self.axes.yaxis._get_tick_boxes_siblings(renderer=renderer)
+        # Union with extents of the bottom spine if present, of the axes otherwise.
+        bbox = mtransforms.Bbox.union([
+            *xbboxes, *xbboxes2, *ybboxes, *ybboxes2,
+            self.axes.spines.get(self.label_position, self.axes).get_window_extent()])
+
+        x, y = self.label.get_position()
+        if self.label_position == 'bottom':
+            y = bbox.y0 - self.labelpad * self.get_figure(root=True).dpi / 72
+        else:
+            y = bbox.y1 + self.labelpad * self.get_figure(root=True).dpi / 72
+        self.label.set_position((x, y))
+
     def _wrap_locator_formatter(self):
         self.set_major_locator(ThetaLocator(self.get_major_locator()))
         self.set_major_formatter(ThetaFormatter())
@@ -689,6 +713,30 @@ class RadialAxis(maxis.YAxis):
             locator = RadialLocator(locator)
         super().set_major_locator(locator)
 
+    def _update_label_position(self, renderer):
+        """
+        Update the label position based on the bounding box enclosing
+        all the ticklabels and axis spine
+        """
+        if not self._autolabelpos:
+            return
+
+        # get bounding boxes for this axis and any siblings
+        # that have been set by `fig.align_xlabels()`
+        xbboxes, xbboxes2 = self.axes.xaxis._get_tick_boxes_siblings(renderer=renderer)
+        ybboxes, ybboxes2 = self._get_tick_boxes_siblings(renderer=renderer)
+        # Union with extents of the linked spine if present, of the axes otherwise.
+        bbox = mtransforms.Bbox.union([
+            *xbboxes, *xbboxes2, *ybboxes, *ybboxes2,
+            self.axes.spines.get(self.label_position, self.axes).get_window_extent()])
+
+        x, y = self.label.get_position()
+        if self.label_position == 'left':
+            x = bbox.x0 - self.labelpad * self.get_figure(root=True).dpi / 72
+        else:
+            x = bbox.x1 + self.labelpad * self.get_figure(root=True).dpi / 72
+        self.label.set_position((x, y))
+
     def clear(self):
         # docstring inherited
         super().clear()
@@ -717,35 +765,42 @@ class _WedgeBbox(mtransforms.Bbox):
     """
     Transform (theta, r) wedge Bbox into Axes bounding box.
 
+    Additionally, this class will update the Axes patch, if set by `_set_wedge`.
+
     Parameters
     ----------
     center : (float, float)
-        Center of the wedge
+        Center of the wedge.
+    transScale : `~matplotlib.transforms.Transform`
+        Transforms for the θ and r axis separately by a scale factor, generally for log
+        (or other types of) scaling the radius.
     viewLim : `~matplotlib.transforms.Bbox`
-        Bbox determining the boundaries of the wedge
+        Bbox determining the boundaries of the wedge.
     originLim : `~matplotlib.transforms.Bbox`
-        Bbox determining the origin for the wedge, if different from *viewLim*
+        Bbox determining the origin for the wedge, if different from *viewLim*.
     """
-    def __init__(self, center, viewLim, originLim, **kwargs):
+    def __init__(self, center, transScale, viewLim, originLim, **kwargs):
         super().__init__([[0, 0], [1, 1]], **kwargs)
         self._center = center
+        self._transScale = transScale
         self._viewLim = viewLim
         self._originLim = originLim
-        self.set_children(viewLim, originLim)
+        self._wedge = None
+        self.set_children(transScale, viewLim, originLim)
 
     __str__ = mtransforms._make_str_method("_center", "_viewLim", "_originLim")
 
     def get_points(self):
         # docstring inherited
         if self._invalid:
-            points = self._viewLim.get_points().copy()
+            points = self._viewLim.transformed(self._transScale).get_points().copy()
             # Scale angular limits to work with Wedge.
             points[:, 0] *= 180 / np.pi
             if points[0, 0] > points[1, 0]:
                 points[:, 0] = points[::-1, 0]
 
             # Scale radial limits based on origin radius.
-            points[:, 1] -= self._originLim.y0
+            points[:, 1] -= self._originLim.transformed(self._transScale).y0
 
             # Scale radial limits to match axes limits.
             rscale = 0.5 / points[1, 1]
@@ -753,20 +808,31 @@ class _WedgeBbox(mtransforms.Bbox):
             width = min(points[1, 1] - points[0, 1], 0.5)
 
             # Generate bounding box for wedge.
-            wedge = mpatches.Wedge(self._center, points[1, 1],
-                                   points[0, 0], points[1, 0],
-                                   width=width)
-            self.update_from_path(wedge.get_path())
-
-            # Ensure equal aspect ratio.
-            w, h = self._points[1] - self._points[0]
-            deltah = max(w - h, 0) / 2
-            deltaw = max(h - w, 0) / 2
-            self._points += np.array([[-deltaw, -deltah], [deltaw, deltah]])
+            if self._wedge is None:
+                # A PolarAxes subclass may not generate a Wedge as Axes patch and then
+                # not call _WedgeBbox._set_wedge, so use a temporary instance to
+                # calculate the bounds instead.
+                wedge = mpatches.Wedge(self._center, points[1, 1],
+                                       points[0, 0], points[1, 0],
+                                       width=width)
+            else:
+                # Update the owning Axes' patch.
+                wedge = self._wedge
+                wedge.set_center(self._center)
+                wedge.set_theta1(points[0, 0])
+                wedge.set_theta2(points[1, 0])
+                wedge.set_radius(points[1, 1])
+                wedge.set_width(width)
+            self.update_from_path(wedge.get_path(), ignore=True)
 
             self._invalid = 0
 
         return self._points
+
+    def _set_wedge(self, wedge):
+        """Set the wedge patch to update when the transform changes."""
+        _api.check_isinstance(mpatches.Wedge, wedge=wedge)
+        self._wedge = wedge
 
 
 class PolarAxes(Axes):
@@ -823,8 +889,11 @@ class PolarAxes(Axes):
             inner_spine.register_axis(self.yaxis)
 
     def _set_lim_and_transforms(self):
-        # A view limit where the minimum radius can be locked if the user
-        # specifies an alternate origin.
+        # self.viewLim is set by the superclass and contains (θ, r) as its (x, y)
+        # components.
+
+        # This is a view limit (still in (θ, r) space) where the minimum radius can be
+        # locked if the user specifies an alternate origin.
         self._originViewLim = mtransforms.LockableBbox(self.viewLim)
 
         # Handle angular offset and direction.
@@ -833,30 +902,27 @@ class PolarAxes(Axes):
         self._theta_offset = mtransforms.Affine2D() \
             .translate(self._default_theta_offset, 0.0)
         self.transShift = self._direction + self._theta_offset
-        # A view limit shifted to the correct location after accounting for
-        # orientation and offset.
-        self._realViewLim = mtransforms.TransformedBbox(self.viewLim,
-                                                        self.transShift)
+        # This is a view limit in (θ, r) shifted to the correct location after
+        # accounting for θ orientation and offset.
+        self._realViewLim = mtransforms.TransformedBbox(self.viewLim, self.transShift)
 
-        # Transforms the x and y axis separately by a scale factor
-        # It is assumed that this part will have non-linear components
-        self.transScale = mtransforms.TransformWrapper(
-            mtransforms.IdentityTransform())
+        # Transforms the θ and r axis separately by a scale factor. It is assumed that
+        # this part will have the non-linear components.
+        self.transScale = mtransforms.TransformWrapper(mtransforms.IdentityTransform())
 
-        # Scale view limit into a bbox around the selected wedge. This may be
-        # smaller than the usual unit axes rectangle if not plotting the full
-        # circle.
-        self.axesLim = _WedgeBbox((0.5, 0.5),
-                                  self._realViewLim, self._originViewLim)
+        # Scale view limit into a bbox around the selected wedge. This may be smaller
+        # than the usual unit axes rectangle if not plotting the full circle.
+        self.axesLim = _WedgeBbox((0.5, 0.5), self.transScale, self._realViewLim,
+                                  self._originViewLim)
 
-        # Scale the wedge to fill the axes.
+        # Scale the wedge to fill the Axes unit space.
         self.transWedge = mtransforms.BboxTransformFrom(self.axesLim)
 
-        # Scale the axes to fill the figure.
+        # Scale the Axes unit space to fill the Axes actual position.
         self.transAxes = mtransforms.BboxTransformTo(self.bbox)
 
-        # A (possibly non-linear) projection on the (already scaled)
-        # data.  This one is aware of rmin
+        # A (possibly non-linear) projection on the (already scaled) data. This one is
+        # aware of rmin.
         self.transProjection = self.PolarTransform(
             self,
             scale_transform=self.transScale
@@ -864,52 +930,48 @@ class PolarAxes(Axes):
         # Add dependency on rorigin.
         self.transProjection.set_children(self._originViewLim)
 
-        # An affine transformation on the data, generally to limit the
-        # range of the axes
+        # An affine transformation on the data, generally to limit the range of the axes
         self.transProjectionAffine = self.PolarAffine(self.transScale,
                                                       self._originViewLim)
 
-        # The complete data transformation stack -- from data all the
-        # way to display coordinates
-        #
-        # 1. Remove any radial axis scaling (e.g. log scaling)
-        # 2. Shift data in the theta direction
-        # 3. Project the data from polar to cartesian values
-        #    (with the origin in the same place)
-        # 4. Scale and translate the cartesian values to Axes coordinates
-        #    (here the origin is moved to the lower left of the Axes)
-        # 5. Move and scale to fill the Axes
-        # 6. Convert from Axes coordinates to Figure coordinates
+        # The complete data transformation stack -- from data all the way to display
+        # coordinates.
         self.transData = (
+            # 1. Remove any radial axis scaling (e.g. log scaling).
             self.transScale +
+            # 2. Shift data in the θ direction.
             self.transShift +
+            # 3. Project the data from polar to cartesian values (with the origin in the
+            #    same place).
             self.transProjection +
             (
+                # 4. Scale and translate the cartesian values to Axes coordinates (here
+                #    the origin is moved to the lower left of the Axes).
                 self.transProjectionAffine +
+                # 5. Move and scale to fill the Axes.
                 self.transWedge +
+                # 6. Convert from Axes coordinates to Figure coordinates.
                 self.transAxes
             )
         )
 
-        # This is the transform for theta-axis ticks.  It is
-        # equivalent to transData, except it always puts r == 0.0 and r == 1.0
-        # at the edge of the axis circles.
+        # This is the transform for θ-axis ticks. It is equivalent to transData, except
+        # it always puts r == 0.0 and r == 1.0 at the edge of the axis circles.
         self._xaxis_transform = (
             mtransforms.blended_transform_factory(
                 mtransforms.IdentityTransform(),
                 mtransforms.BboxTransformTo(self.viewLim)) +
             self.transData)
-        # The theta labels are flipped along the radius, so that text 1 is on
-        # the outside by default. This should work the same as before.
+        # The θ labels are flipped along the radius, so that text 1 is on the outside by
+        # default. This should work the same as before.
         flipr_transform = mtransforms.Affine2D() \
             .translate(0.0, -0.5) \
             .scale(1.0, -1.0) \
             .translate(0.0, 0.5)
         self._xaxis_text_transform = flipr_transform + self._xaxis_transform
 
-        # This is the transform for r-axis ticks.  It scales the theta
-        # axis so the gridlines from 0.0 to 1.0, now go from thetamin to
-        # thetamax.
+        # This is the transform for r-axis ticks.  It scales the θ-axis so the gridlines
+        # from 0.0 to 1.0, now go from thetamin to thetamax.
         self._yaxis_transform = (
             mtransforms.blended_transform_factory(
                 mtransforms.BboxTransformTo(self.viewLim),
@@ -962,33 +1024,16 @@ class PolarAxes(Axes):
 
     def draw(self, renderer):
         self._unstale_viewLim()
-        thetamin, thetamax = np.rad2deg(self._realViewLim.intervalx)
-        if thetamin > thetamax:
-            thetamin, thetamax = thetamax, thetamin
-        rscale_tr = self.yaxis.get_transform()
-        rmin, rmax = ((rscale_tr.transform(self._realViewLim.intervaly) -
-                       rscale_tr.transform(self.get_rorigin())) *
-                      self.get_rsign())
+        self.axesLim.get_points()  # Unstale bbox and Axes patch.
+        self.set_aspect(self.axesLim.height / self.axesLim.width)
         if isinstance(self.patch, mpatches.Wedge):
             # Backwards-compatibility: Any subclassed Axes might override the
             # patch to not be the Wedge that PolarAxes uses.
-            center = self.transWedge.transform((0.5, 0.5))
-            self.patch.set_center(center)
-            self.patch.set_theta1(thetamin)
-            self.patch.set_theta2(thetamax)
-
-            edge, _ = self.transWedge.transform((1, 0))
-            radius = edge - center[0]
-            width = min(radius * (rmax - rmin) / rmax, radius)
-            self.patch.set_radius(radius)
-            self.patch.set_width(width)
-
-            inner_width = radius - width
             inner = self.spines.get('inner', None)
             if inner:
-                inner.set_visible(inner_width != 0.0)
+                inner.set_visible(self.patch.r != self.patch.width)
 
-        visible = not _is_full_circle_deg(thetamin, thetamax)
+        visible = not _is_full_circle_rad(*self._realViewLim.intervalx)
         # For backwards compatibility, any subclassed Axes might override the
         # spines to not include start/end that PolarAxes uses.
         start = self.spines.get('start', None)
@@ -1008,8 +1053,20 @@ class PolarAxes(Axes):
 
         super().draw(renderer)
 
+    def _wedge_get_patch_transform(self):
+        # See _gen_axes_patch for the use of this function. It's not a lambda or nested
+        # function to not break pickling.
+        return self.transWedge
+
     def _gen_axes_patch(self):
-        return mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
+        wedge = mpatches.Wedge((0.5, 0.5), 0.5, 0.0, 360.0)
+        self.axesLim._set_wedge(wedge)
+        # The caller of this function will set the wedge's transform directly to
+        # `self.transAxes`, but `self.axesLim` will update to a pre-`self.transWedge`
+        # coordinate space, so override the patch transform (which is otherwise always
+        # an identity transform) to get the wedge in the right coordinate space.
+        wedge.get_patch_transform = self._wedge_get_patch_transform
+        return wedge
 
     def _gen_axes_spines(self):
         spines = {
