@@ -141,6 +141,7 @@ setup.
 
 .. _venv: https://docs.python.org/3/library/venv.html
 .. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+.. _pixi: https://pixi.prefix.dev/
 
 .. tab-set::
 
@@ -198,6 +199,37 @@ setup.
         conda activate mpl-dev
 
       Remember to activate the environment whenever you start working on Matplotlib!
+
+   .. tab-item:: pixi environment
+
+      A `pixi`_ configuration is included in ``pyproject.toml`` that will
+      install the development dependencies::
+
+        pixi install
+
+      and then to install an editable version of Matplotlib::
+
+         pixi run python -m pip install \
+            --no-build-isolation \
+            --config-settings=setup-args="-Db_lto=false" \
+            --editable .
+
+      (the ``-Db_lto=false`` is not needed on all platforms).  You can test the installation with::
+
+         pixi run python -c "import matplotlib; print(matplotlib.__file__)"
+
+
+      .. tip::
+         We provide some pixi tasks as shortcuts for common development tasks,
+         listed via::
+
+            pixi task list
+
+         If you do not want to use ``pixi run`` in front of every command, run::
+
+            pixi shell
+
+         and continue to use pixi as a python environment.
 
 
 Install external dependencies
