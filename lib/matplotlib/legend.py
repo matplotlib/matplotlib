@@ -1284,19 +1284,23 @@ class Legend(Artist):
 # `axes.legend`:
 def _get_legend_handles(axs, legend_handler_map=None):
     """Yield artists that can be used as handles in a legend."""
+    def _extract_handles(ax):
+        handles = []
+        for a in ax._children:
+            if isinstance(a, (Line2D, Patch, Collection, Text)):
+                handles.append(a)
+            elif hasattr(a, 'get_legend_handles'):
+                handles.extend(a.get_legend_handles())
+        handles += ax.containers
+        return handles
+
     handles_original = []
     for ax in axs:
-        handles_original += [
-            *(a for a in ax._children
-              if isinstance(a, (Line2D, Patch, Collection, Text))),
-            *ax.containers]
+        handles_original += _extract_handles(ax)
         # support parasite Axes:
         if hasattr(ax, 'parasites'):
             for axx in ax.parasites:
-                handles_original += [
-                    *(a for a in axx._children
-                      if isinstance(a, (Line2D, Patch, Collection, Text))),
-                    *axx.containers]
+                handles_original += _extract_handles(axx)
 
     handler_map = {**Legend.get_default_handler_map(),
                    **(legend_handler_map or {})}
