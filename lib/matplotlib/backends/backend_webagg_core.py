@@ -91,23 +91,28 @@ class TimerTornado(backend_bases.TimerBase):
             ioloop = tornado.ioloop.IOLoop.instance()
             self._timer = ioloop.add_timeout(
                 datetime.timedelta(milliseconds=self.interval),
-                self._on_timer)
+                self._on_timer_once)
         else:
             self._timer = tornado.ioloop.PeriodicCallback(
                 self._on_timer,
                 max(self.interval, 1e-6))
             self._timer.start()
 
+    def _on_timer_once(self):
+        # A completed single-shot timer is no longer running.  Clear the
+        # handle before the callback, which may start the timer again.
+        self._timer = None
+        self._on_timer()
+
     def _timer_stop(self):
         import tornado
 
         if self._timer is None:
             return
-        elif self._single:
-            ioloop = tornado.ioloop.IOLoop.instance()
-            ioloop.remove_timeout(self._timer)
-        else:
+        elif isinstance(self._timer, tornado.ioloop.PeriodicCallback):
             self._timer.stop()
+        else:
+            tornado.ioloop.IOLoop.instance().remove_timeout(self._timer)
         self._timer = None
 
     def _timer_set_interval(self):
@@ -116,6 +121,8 @@ class TimerTornado(backend_bases.TimerBase):
             self._timer_stop()
             self._timer_start()
 
+    _timer_set_single_shot = _timer_set_interval
+
 
 class TimerAsyncio(backend_bases.TimerBase):
     def __init__(self, *args, **kwargs):
@@ -123,15 +130,23 @@ class TimerAsyncio(backend_bases.TimerBase):
         super().__init__(*args, **kwargs)
 
     async def _timer_task(self, interval):
-        while True:
-            try:
-                await asyncio.sleep(interval)
+        loop = asyncio.get_running_loop()
+        next_fire = loop.time() + interval
+        task = asyncio.current_task()
+        try:
+            while True:
+                await asyncio.sleep(next_fire - loop.time())
                 self._on_timer()
 
                 if self._single:
                     break
-            except asyncio.CancelledError:
-                break
+                next_fire, _ = self._next_delay(next_fire, interval, loop.time())
+        except asyncio.CancelledError:
+            pass
+        finally:
+            # Do not clear a replacement task started from inside a callback.
+            if self._task is task:
+                self._task = None
 
     def _timer_start(self):
         self._timer_stop()
@@ -150,6 +165,8 @@ class TimerAsyncio(backend_bases.TimerBase):
         if self._task is not None:
             self._timer_stop()
             self._timer_start()
+
+    _timer_set_single_shot = _timer_set_interval
 
 
 class FigureCanvasWebAggCore(backend_agg.FigureCanvasAgg):
