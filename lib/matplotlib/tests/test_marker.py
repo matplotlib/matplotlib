@@ -4,14 +4,45 @@ from matplotlib import markers
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal
 from matplotlib.transforms import Affine2D
-
+from matplotlib.markers import MarkerStyle
 import pytest
 
 
 def test_marker_fillstyle():
-    marker_style = markers.MarkerStyle(marker='o', fillstyle='none')
+    marker_style = MarkerStyle(marker='o', fillstyle='none')
     assert marker_style.get_fillstyle() == 'none'
     assert not marker_style.is_filled()
+
+
+def test_marker_with_attrs_fillstyle():
+
+    marker = MarkerStyle("*")
+    new_marker = marker._with_attrs(fillstyle="left")
+
+    assert new_marker.get_fillstyle() == "left"
+    assert new_marker is not marker
+
+
+def test_marker_with_attrs_preserves_transform():
+
+    transform = Affine2D().rotate_deg(45)
+    marker = MarkerStyle("*", transform=transform)
+
+    new_marker = marker._with_attrs(fillstyle="left")
+    assert new_marker._user_transform is marker._user_transform
+
+
+def test_marker_with_attrs_preserves_other_props():
+
+    transform = Affine2D().rotate_deg(30)
+    marker = MarkerStyle("*", fillstyle="full", transform=transform)
+
+    new_marker = marker._with_attrs()
+
+    assert new_marker.get_fillstyle() == marker.get_fillstyle()
+    assert new_marker._user_transform is marker._user_transform
+    assert new_marker.get_marker() == marker.get_marker()
+    assert new_marker is not marker
 
 
 @pytest.mark.parametrize('marker', [
@@ -33,11 +64,11 @@ def test_marker_fillstyle():
     (5, 0, 10),  # a pentagon, rotated by 10 degrees
     (7, 1, 10),  # a 7-pointed star, rotated by 10 degrees
     (5, 2, 10),  # asterisk, rotated by 10 degrees
-    markers.MarkerStyle('o'),
+    MarkerStyle('o'),
 ])
 def test_markers_valid(marker):
     # Checking this doesn't fail.
-    markers.MarkerStyle(marker)
+    MarkerStyle(marker)
 
 
 @pytest.mark.parametrize('marker', [
@@ -49,10 +80,10 @@ def test_markers_valid(marker):
 ])
 def test_markers_invalid(marker):
     with pytest.raises(ValueError):
-        markers.MarkerStyle(marker)
+        MarkerStyle(marker)
 
 
-class UnsnappedMarkerStyle(markers.MarkerStyle):
+class UnsnappedMarkerStyle(MarkerStyle):
     """
     A MarkerStyle where the snap threshold is force-disabled.
 
@@ -174,7 +205,7 @@ def test_marker_clipping(fig_ref, fig_test):
     # Plotting multiple markers can trigger different optimized paths in
     # backends, so compare single markers vs multiple to ensure they are
     # clipped correctly.
-    marker_count = len(markers.MarkerStyle.markers)
+    marker_count = len(MarkerStyle.markers)
     marker_size = 50
     ncol = 7
     nrow = marker_count // ncol + 1
@@ -186,7 +217,7 @@ def test_marker_clipping(fig_ref, fig_test):
     fig_test.set_size_inches((width / fig_test.dpi, height / fig_ref.dpi))
     ax_test = fig_test.add_axes((0, 0, 1, 1))
 
-    for i, marker in enumerate(markers.MarkerStyle.markers):
+    for i, marker in enumerate(MarkerStyle.markers):
         x = i % ncol
         y = i // ncol * 2
 
@@ -212,34 +243,34 @@ def test_marker_clipping(fig_ref, fig_test):
 
 def test_marker_init_transforms():
     """Test that initializing marker with transform is a simple addition."""
-    marker = markers.MarkerStyle("o")
+    marker = MarkerStyle("o")
     t = Affine2D().translate(1, 1)
-    t_marker = markers.MarkerStyle("o", transform=t)
+    t_marker = MarkerStyle("o", transform=t)
     assert marker.get_transform() + t == t_marker.get_transform()
 
 
 def test_marker_init_joinstyle():
-    marker = markers.MarkerStyle("*")
-    styled_marker = markers.MarkerStyle("*", joinstyle="round")
+    marker = MarkerStyle("*")
+    styled_marker = MarkerStyle("*", joinstyle="round")
     assert styled_marker.get_joinstyle() == "round"
     assert marker.get_joinstyle() != "round"
 
 
 def test_marker_init_captyle():
-    marker = markers.MarkerStyle("*")
-    styled_marker = markers.MarkerStyle("*", capstyle="round")
+    marker = MarkerStyle("*")
+    styled_marker = MarkerStyle("*", capstyle="round")
     assert styled_marker.get_capstyle() == "round"
     assert marker.get_capstyle() != "round"
 
 
 @pytest.mark.parametrize("marker,transform,expected", [
-    (markers.MarkerStyle("o"), Affine2D().translate(1, 1),
+    (MarkerStyle("o"), Affine2D().translate(1, 1),
         Affine2D().translate(1, 1)),
-    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+    (MarkerStyle("o", transform=Affine2D().translate(1, 1)),
         Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
-    (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+    (MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
      Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
-    (markers.MarkerStyle(
+    (MarkerStyle(
         markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
         Affine2D().translate(1, 1), Affine2D().translate(2, 2)),
 ])
@@ -251,7 +282,7 @@ def test_marker_transformed(marker, transform, expected):
 
 
 def test_marker_rotated_invalid():
-    marker = markers.MarkerStyle("o")
+    marker = MarkerStyle("o")
     with pytest.raises(ValueError):
         new_marker = marker.rotated()
     with pytest.raises(ValueError):
@@ -259,15 +290,15 @@ def test_marker_rotated_invalid():
 
 
 @pytest.mark.parametrize("marker,deg,rad,expected", [
-    (markers.MarkerStyle("o"), 10, None, Affine2D().rotate_deg(10)),
-    (markers.MarkerStyle("o"), None, 0.01, Affine2D().rotate(0.01)),
-    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+    (MarkerStyle("o"), 10, None, Affine2D().rotate_deg(10)),
+    (MarkerStyle("o"), None, 0.01, Affine2D().rotate(0.01)),
+    (MarkerStyle("o", transform=Affine2D().translate(1, 1)),
         10, None, Affine2D().translate(1, 1).rotate_deg(10)),
-    (markers.MarkerStyle("o", transform=Affine2D().translate(1, 1)),
+    (MarkerStyle("o", transform=Affine2D().translate(1, 1)),
         None, 0.01, Affine2D().translate(1, 1).rotate(0.01)),
-    (markers.MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
+    (MarkerStyle("$|||$", transform=Affine2D().translate(1, 1)),
       10, None, Affine2D().translate(1, 1).rotate_deg(10)),
-    (markers.MarkerStyle(
+    (MarkerStyle(
         markers.TICKLEFT, transform=Affine2D().translate(1, 1)),
         10, None, Affine2D().translate(1, 1).rotate_deg(10)),
 ])
@@ -279,7 +310,7 @@ def test_marker_rotated(marker, deg, rad, expected):
 
 
 def test_marker_scaled():
-    marker = markers.MarkerStyle("1")
+    marker = MarkerStyle("1")
     new_marker = marker.scaled(2)
     assert new_marker is not marker
     assert new_marker.get_user_transform() == Affine2D().scale(2)
@@ -290,7 +321,7 @@ def test_marker_scaled():
     assert new_marker.get_user_transform() == Affine2D().scale(2, 3)
     assert marker._user_transform is not new_marker._user_transform
 
-    marker = markers.MarkerStyle("1", transform=Affine2D().translate(1, 1))
+    marker = MarkerStyle("1", transform=Affine2D().translate(1, 1))
     new_marker = marker.scaled(2)
     assert new_marker is not marker
     expected = Affine2D().translate(1, 1).scale(2)
@@ -299,6 +330,6 @@ def test_marker_scaled():
 
 
 def test_alt_transform():
-    m1 = markers.MarkerStyle("o", "left")
-    m2 = markers.MarkerStyle("o", "left", Affine2D().rotate_deg(90))
+    m1 = MarkerStyle("o", "left")
+    m2 = MarkerStyle("o", "left", Affine2D().rotate_deg(90))
     assert m1.get_alt_transform().rotate_deg(90) == m2.get_alt_transform()
