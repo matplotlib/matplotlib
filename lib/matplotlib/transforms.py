@@ -2454,7 +2454,18 @@ class CompositeGenericTransform(Transform):
                              'transforms with 2 output dimensions')
         if self == other_transform:
             return (True, True)
-        return self._b.contains_branch_separately(other_transform)
+        # The second (suffix) child may report per-dimension results when it
+        # is a blended transform, so query it separately first.
+        x, y = self._b.contains_branch_separately(other_transform)
+        if not (x and y):
+            # Otherwise the branch may lie in the first child or span the
+            # boundary between the two children.  Such a branch is a suffix of
+            # the whole composite and therefore matches in both dimensions, so
+            # fall back to the (non-per-dimension) whole-transform check.
+            in_branch = self.contains_branch(other_transform)
+            x = x or in_branch
+            y = y or in_branch
+        return (x, y)
 
     depth = property(lambda self: self._a.depth + self._b.depth)
     is_affine = property(lambda self: self._a.is_affine and self._b.is_affine)
