@@ -1,15 +1,127 @@
+import copy
+import gc
+import weakref
+
 import numpy as np
+import pytest
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from matplotlib.projections import PolarAxes
-from matplotlib.testing.decorators import image_comparison
+from matplotlib.font_manager import FontManager, FontProperties
+from matplotlib.testing.decorators import check_figures_equal, image_comparison
+from matplotlib.text import Text
 from matplotlib.transforms import Affine2D
 
 from mpl_toolkits.axisartist import (AxisArtistHelperRectlinear, GridHelperCurveLinear,
                                      HostAxes)
 from mpl_toolkits.axisartist.axis_artist import (AxisArtist, AxisLabel,
                                                  LabelBase, Ticks, TickLabels)
+
+
+@pytest.mark.parametrize("coordinate, side", [("x", "bottom"), ("y", "left")])
+@pytest.mark.parametrize(
+    "property_name", ["fontsize", "size", "fontdict", "fontproperties"])
+@check_figures_equal(extensions=["png", "pdf", "svg"])
+def test_label_fontsize_from_axes(fig_test, fig_ref, coordinate, side, property_name):
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot(axes_class=HostAxes)
+        ax.plot([0, 1], [0, 1])
+        for size in [20, 14]:
+            value = ({"fontsize": size} if property_name == "fontdict" else
+                     FontProperties(size=size) if property_name == "fontproperties" else
+                     size)
+            getattr(ax, f"set_{coordinate}label")(
+                "Axis label", **{property_name: value})
+            if fig is fig_ref:
+                ax.axis[side].label.set_fontsize(size)
+            fig.canvas.draw()
+
+
+@pytest.mark.parametrize("method, value, expected", [
+    ("set_fontsize", 20, 20),
+    ("set_fontsize", 30, 30), ("set_size", 30, 30),
+    ("set_fontproperties", FontProperties(size=30), 30),
+    ("set_font", ":size=30", 30),
+])
+def test_label_fontsize_override(method, value, expected):
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_ylabel("Axis label", fontsize=20)
+    label = ax.axis["left"].label
+    getattr(label, method)(value)
+    ax.set_ylabel("New label", fontsize=14)
+    fig.canvas.draw()
+    assert label.get_fontsize() == expected
+    assert label.get_fontproperties().get_size_in_points() == expected
+    assert ax.yaxis.label.get_fontsize() == 14
+
+
+def test_label_fontproperties_mutable():
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_ylabel("Axis label", fontsize=20)
+    label = ax.axis["left"].label
+    properties = label.get_fontproperties()
+    properties.set_weight("bold")
+    properties.set_size(30)
+    ax.set_ylabel("New label", fontsize=14)
+    fig.canvas.draw()
+    assert label.get_fontproperties() is properties
+    assert label.get_fontweight() == "bold"
+    assert label.get_fontsize() == 30
+
+
+def test_label_fontproperties_update_from():
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_ylabel("Axis label", fontsize=20)
+    label = ax.axis["left"].label
+    text = Text()
+    text.update_from(label)
+    assert text.get_fontsize() == 20
+    label.update_from(Text(fontsize=30))
+    ax.set_ylabel("New label", fontsize=14)
+    assert label.get_fontsize() == 30
+
+
+def test_label_fontproperties_copy():
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_ylabel("Axis label", fontsize=20)
+    properties = ax.axis["left"].label.get_fontproperties()
+    snapshot = copy.copy(properties)
+    assert hash(properties) == hash(snapshot)
+    ax.set_ylabel("New label", fontsize=14)
+    assert properties.get_size_in_points() == 14
+    assert snapshot.get_size_in_points() == 20
+    assert properties != snapshot
+
+
+def test_label_font_lookup_does_not_keep_figure_alive():
+    manager = FontManager()
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_xlabel("Axis label", fontsize=20)
+    manager.findfont(ax.axis["bottom"].label.get_fontproperties())
+    reference = weakref.ref(fig)
+    plt.close(fig)
+    del fig, ax
+    gc.collect()
+    assert reference() is None
+
+
+def test_label_fontsize_bbox():
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_xlabel("Axis label", fontsize=20)
+    label = ax.axis["bottom"].label
+    label.set_bbox({"facecolor": "white"})
+    fig.canvas.draw()
+    patch = label.get_bbox_patch()
+    size = patch.get_width(), patch.get_height()
+    label.update_bbox_position_size(fig.canvas.get_renderer())
+    assert (patch.get_width(), patch.get_height()) == size
 
 
 @image_comparison(['axis_artist_ticks.png'], style='default')
