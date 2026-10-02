@@ -307,3 +307,36 @@ def test_usetex_textpath_size(monkeypatch):
                           usetex=True)
     assert seen["size"] == 6
     assert prop.get_size_in_points() == 17
+
+
+def test_usetex_textpath_size_regenerates(monkeypatch):
+    """Resizing a TeX TextPath regenerates the path at the new font size."""
+    with mpl.rc_context({
+        "font.family": "sans-serif",
+        "font.serif": ["Computer Modern Roman"],
+        "font.sans-serif": ["Computer Modern Sans Serif"],
+        "font.monospace": ["Computer Modern Typewriter"],
+    }):
+        original_get_glyphs_tex = mpl.textpath.text_to_path.get_glyphs_tex
+        seen = []
+
+        def get_glyphs_tex(prop, s, *args, **kwargs):
+            glyphs, *rest = original_get_glyphs_tex(prop, s, *args, **kwargs)
+            seen.append((
+                prop.get_size_in_points(),
+                {glyph_repr.split("-")[0] for glyph_repr, *_ in glyphs},
+            ))
+            return glyphs, *rest
+
+        monkeypatch.setattr(mpl.textpath.text_to_path,
+                            "get_glyphs_tex", get_glyphs_tex)
+        resized = mpl.textpath.TextPath(
+            (0, 0), "Hamburgefonstiv", size=6, usetex=True)
+        resized.set_size(17)
+        resized_vertices = resized.vertices
+        expected = mpl.textpath.TextPath(
+            (0, 0), "Hamburgefonstiv", size=17, usetex=True)
+
+        np.testing.assert_allclose(resized_vertices, expected.vertices)
+        assert seen == [(6.0, {"CMSS8"}), (17.0, {"CMSS17"}),
+                        (17.0, {"CMSS17"})]
