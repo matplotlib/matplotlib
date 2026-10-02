@@ -199,6 +199,7 @@ GTK4Cairo Cairo rendering to a GTK_ 4.x canvas (requires PyGObject_ and
           pycairo_).
 wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
           This backend can be activated in IPython with ``%matplotlib wx``.
+pyodide   Variant of WebAgg backend that is the default on Pyodide_.
 ========= ================================================================
 
 .. note::
@@ -223,6 +224,7 @@ wxAgg     Agg rendering to a wxWidgets_ canvas (requires wxPython_ 4).
 .. _Tk: https://www.tcl.tk/
 .. _wxWidgets: https://www.wxwidgets.org/
 .. _ipympl: https://www.matplotlib.org/ipympl
+.. _Pyodide: https://pyodide.org/
 
 .. _ipympl_install:
 
