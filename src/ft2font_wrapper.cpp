@@ -12,6 +12,7 @@
 #include "mplutils.h"
 
 #include <cmath>
+#include <iterator>
 #include <set>
 #include <sstream>
 #include <unordered_map>
