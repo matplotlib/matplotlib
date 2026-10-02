@@ -42,7 +42,7 @@ class TriContourSet(ContourSet):
             self._maxs = args[0]._maxs
         else:
             from matplotlib import _tri
-            tri, z = self._contour_args(args, kwargs)
+            tri, z, kwargs = self._contour_args(args, kwargs)
             C = _tri.TriContourGenerator(tri.get_cpp_triangulation(), z)
             self._mins = [tri.x.min(), tri.y.min()]
             self._maxs = [tri.x.max(), tri.y.max()]
@@ -76,7 +76,9 @@ class TriContourSet(ContourSet):
             func = 'contourf' if self.filled else 'contour'
             raise ValueError(f'Cannot {func} log of negative values.')
         self._process_contour_level_args(args, z.dtype)
-        return (tri, z)
+        # Return kwargs with the triangulation parameters removed; the caller must
+        # not see e.g. *triangles* again, or it ends up in Collection.set().
+        return (tri, z, kwargs)
 
 
 _docstring.interpd.register(_tricontour_doc="""
