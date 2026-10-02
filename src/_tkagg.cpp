@@ -152,6 +152,22 @@ mpl_tk_blit(py::object interp_obj, const char *photo_name,
 }
 
 #ifdef WIN32_DLL
+void update_tk_window_dpi(HWND hwnd, Tcl_Interp *interp, std::string dpi) {
+    // This variable naming must match the name used in
+    // lib/matplotlib/backends/_backend_tk.py:FigureManagerTk.
+    std::string var_name("window_dpi");
+    var_name += std::to_string((unsigned long long)hwnd);
+    if (TCL_SETVAR) {
+        TCL_SETVAR(interp, var_name.c_str(), dpi.c_str(), 0);
+    } else if (TCL_SETVAR2) {
+        TCL_SETVAR2(interp, var_name.c_str(), NULL, dpi.c_str(), 0);
+    } else {
+        // This should be prevented at import time, and therefore unreachable.
+        // But defensively throw just in case.
+        throw std::runtime_error("Unable to call Tcl_SetVar or Tcl_SetVar2");
+    }
+}
+
 LRESULT CALLBACK
 DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
                 UINT_PTR uIdSubclass, DWORD_PTR dwRefData)
@@ -165,24 +181,10 @@ DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
         // call Python code, we must not also call *any* Tk code from Python.
         // So stay with Tcl calls in C only.
         {
-            // This variable naming must match the name used in
-            // lib/matplotlib/backends/_backend_tk.py:FigureManagerTk.
-            std::string var_name("window_dpi");
-            var_name += std::to_string((unsigned long long)hwnd);
-
             // X is high word, Y is low word, but they are always equal.
             std::string dpi = std::to_string(LOWORD(wParam));
-
             Tcl_Interp* interp = (Tcl_Interp*)dwRefData;
-            if (TCL_SETVAR) {
-                TCL_SETVAR(interp, var_name.c_str(), dpi.c_str(), 0);
-            } else if (TCL_SETVAR2) {
-                TCL_SETVAR2(interp, var_name.c_str(), NULL, dpi.c_str(), 0);
-            } else {
-                // This should be prevented at import time, and therefore unreachable.
-                // But defensively throw just in case.
-                throw std::runtime_error("Unable to call Tcl_SetVar or Tcl_SetVar2");
-            }
+            update_tk_window_dpi(hwnd, interp, dpi);
         }
         return 0;
     case WM_NCDESTROY:
@@ -235,6 +237,15 @@ mpl_tk_enable_dpi_awareness(py::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
         // Per monitor aware means we need to handle WM_DPICHANGED by wrapping
         // the Window Procedure, and the Python side needs to trace the Tk
         // window_dpi variable stored on interp.
+        typedef UINT (WINAPI *GetDpiForWindow_t)(HWND);
+        GetDpiForWindow_t GetDpiForWindowPtr =
+            (GetDpiForWindow_t)GetProcAddress(user32, "GetDpiForWindow");
+        if (GetDpiForWindowPtr == NULL) {
+            FreeLibrary(user32);
+            return py::cast(false);
+        }
+        UINT dpi = GetDpiForWindowPtr(frame_handle);
+        update_tk_window_dpi(frame_handle, interp, std::to_string(dpi));
         SetWindowSubclass(frame_handle, DpiSubclassProc, 0, (DWORD_PTR)interp);
     }
     FreeLibrary(user32);
