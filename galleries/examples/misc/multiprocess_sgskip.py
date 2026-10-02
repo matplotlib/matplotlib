@@ -8,6 +8,9 @@ plotting in another.
 
 Written by Robert Cimrman
 """
+# sphinx_gallery_thumbnail_path = "_static/multiprocess.png"
+# Recreate the thumbnail with:
+# python doc/generate_gallery_thumbnails.py multiprocess
 
 import multiprocessing as mp
 import time
