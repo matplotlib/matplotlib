@@ -12,6 +12,8 @@ import pytest
 import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
+from matplotlib.figure import Figure
+from matplotlib.transforms import Bbox
 from matplotlib import _c_internal_utils
 
 try:
@@ -197,6 +199,25 @@ def test_device_pixel_ratio_change():
         # check that closing the figure restores the original dpi
         plt.close(fig)
         assert fig.dpi == 120
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_blit_repaint_covers_bbox():
+    # The repainted region must cover every physical pixel the bbox touches;
+    # rounding its edges inwards leaves an edge row that blitting never updates.
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+
+    canvas = FigureCanvasQTAgg(Figure(figsize=(4, 2), dpi=100))
+    rects = []
+    canvas.repaint = lambda *args: rects.append(args)
+    bbox = Bbox.from_extents(10.5, 20.5, 30.5, 40.5)
+    canvas.blit(bbox)
+
+    (x, y, w, h), = rects
+    dpr = canvas.device_pixel_ratio
+    height = canvas.rect().height()
+    assert x * dpr <= bbox.x0 and (x + w) * dpr >= bbox.x1
+    assert (height - (y + h)) * dpr <= bbox.y0 and (height - y) * dpr >= bbox.y1
 
 
 @pytest.mark.backend('QtAgg', skip_on_importerror=True)

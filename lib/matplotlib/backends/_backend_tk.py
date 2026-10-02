@@ -2,7 +2,6 @@ import uuid
 import weakref
 from contextlib import contextmanager
 import logging
-import math
 import os.path
 import pathlib
 import sys
@@ -114,11 +113,7 @@ def blit(photoimage, aggimage, offsets, bbox=None):
     data = np.asarray(aggimage)
     height, width = data.shape[:2]
     if bbox is not None:
-        (x1, y1), (x2, y2) = bbox.__array__()
-        x1 = max(math.floor(x1), 0)
-        x2 = min(math.ceil(x2), width)
-        y1 = max(math.floor(y1), 0)
-        y2 = min(math.ceil(y2), height)
+        x1, y1, x2, y2 = bbox._pixel_bounds(clip=(width, height))
         if (x1 > x2) or (y1 > y2):
             return
         bboxptr = (x1, x2, y1, y2)
