@@ -1077,6 +1077,30 @@ def test__layout():
                 assert Path(item.ft_object.fname).name == 'cmr10.ttf'
 
 
+def test__get_font_for_char():
+    fonts, _ = _gen_multi_font_text()
+    ft = fm.get_font(
+        fm.fontManager._find_fonts_by_props(fm.FontProperties(family=fonts)))
+    # The font itself, then its fallbacks, then the Last Resort font at the end.
+    assert ft._get_font_for_char(ord('a')) is ft
+    assert Path(ft._get_font_for_char(ord('é')).fname).name == 'DejaVuSans.ttf'
+    assert (Path(ft._get_font_for_char(ord('几')).fname).name
+            == 'LastResortHE-Regular.ttf')
+    # With no fallbacks, a missing glyph yields no font.
+    alone = ft2font.FT2Font(fm.findfont('cmr10'))
+    assert alone._get_font_for_char(ord('a')) is alone
+    assert alone._get_font_for_char(ord('é')) is None
+    # Nested fallback lists are searched all the way down.
+    last_resort = ft2font.FT2Font(
+        Path(mpl.get_data_path(), 'fonts/ttf/LastResortHE-Regular.ttf'))
+    # Select the populated charmap, as font_manager._get_font does.
+    last_resort.set_charmap(0)
+    inner = ft2font.FT2Font(fm.findfont('DejaVu Sans'), _fallback_list=[last_resort])
+    outer = ft2font.FT2Font(fm.findfont('cmr10'), _fallback_list=[inner])
+    assert outer._get_font_for_char(ord('é')) is inner
+    assert outer._get_font_for_char(ord('几')) is last_resort
+
+
 def test_render_glyph_cache():
     # Reusing a cached outline must not change what is rendered.
     ft = fm.get_font(fm.findfont('DejaVu Sans'))
