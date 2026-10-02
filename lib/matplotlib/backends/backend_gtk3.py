@@ -10,7 +10,10 @@ from matplotlib.backend_bases import (
     CloseEvent, KeyEvent, LocationEvent, MouseEvent, ResizeEvent)
 
 try:
-    from gi import require_version as gi_require_version
+    from gi import (
+        require_version as gi_require_version,
+        require_foreign as gi_require_foreign,
+    )
 except ImportError as err:
     raise ImportError("The GTK3 backends require PyGObject") from err
 
@@ -23,6 +26,11 @@ except ValueError as e:
     # in this case we want to re-raise as ImportError so the
     # auto-backend selection logic correctly skips.
     raise ImportError(e) from e
+
+try:
+    gi_require_foreign("cairo")
+except ImportError as e:
+    raise ImportError("GTK3-based backends require cairo") from e
 
 from gi.repository import Gio, GLib, GObject, Gtk, Gdk
 from . import _backend_gtk
