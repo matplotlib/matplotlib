@@ -1433,7 +1433,7 @@ class EngFormatter(ScalarFormatter):
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
-                 useMathText=None, useOffset=False):
+                 useMathText=None, useOffset=False, useLocale=None):
         r"""
         Parameters
         ----------
@@ -1476,6 +1476,12 @@ class EngFormatter(ScalarFormatter):
             3 digits. See also `.set_useOffset`.
 
             .. versionadded:: 3.10
+
+        useLocale : bool, default: :rc:`axes.formatter.use_locale`.
+            Whether to use locale settings for decimal sign and positive sign.
+            See `.set_useLocale`.
+
+            .. versionadded:: 3.12
         """
         self.unit = unit
         self.places = places
@@ -1483,7 +1489,7 @@ class EngFormatter(ScalarFormatter):
         super().__init__(
             useOffset=useOffset,
             useMathText=useMathText,
-            useLocale=False,
+            useLocale=useLocale,
             usetex=usetex,
         )
 
@@ -1598,10 +1604,18 @@ class EngFormatter(ScalarFormatter):
             suffix = f"{self.sep}{unit_prefix}{self.unit}"
         else:
             suffix = ""
-        if self._usetex or self._useMathText:
-            return f"${mant:{fmt}}${suffix}"
+        if self._useLocale:
+            mant_str = locale.format_string(f"%{fmt}", (mant,), True)
+            if self._useMathText:
+                # Escape the separators introduced by locale.format_string, so
+                # that mathtext does not apply punctuation spacing to them.
+                mant_str = mant_str.replace(",", "{,}")
         else:
-            return f"{mant:{fmt}}{suffix}"
+            mant_str = f"{mant:{fmt}}"
+        if self._usetex or self._useMathText:
+            return f"${mant_str}${suffix}"
+        else:
+            return f"{mant_str}{suffix}"
 
 
 class PercentFormatter(Formatter):

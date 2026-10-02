@@ -150,6 +150,7 @@ class EngFormatter(ScalarFormatter):
         usetex: bool | None = ...,
         useMathText: bool | None = ...,
         useOffset: bool | float | None = ...,
+        useLocale: bool | None = ...,
     ) -> None: ...
     def format_eng(self, num: float) -> str: ...
 
