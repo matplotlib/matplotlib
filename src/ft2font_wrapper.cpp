@@ -438,8 +438,8 @@ const char *PyFT2Font_init__doc__ = R"""(
             This API is private: do not use it directly.
 )""";
 
-static PyFT2Font *
-PyFT2Font_init(FT_Library ft2Library, nb::object filename,
+static void
+PyFT2Font_init(PyFT2Font *self, FT_Library ft2Library, nb::object filename,
                std::optional<long> hinting_factor = std::nullopt,
                FT_Long face_index = 0,
                std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
@@ -470,7 +470,8 @@ PyFT2Font_init(FT_Library ft2Library, nb::object filename,
                   std::back_inserter(fallback_fonts));
     }
 
-    auto self = new PyFT2Font(fallback_fonts, warn_if_used);
+    // Initialize PyFT2Font in-place using placement new
+    new (self) PyFT2Font(fallback_fonts, warn_if_used);
     self->set_kerning_factor(*kerning_factor);
 
     if (fallback_list) {
@@ -555,8 +556,6 @@ PyFT2Font_init(FT_Library ft2Library, nb::object filename,
     }
 
     self->open(ft2Library, open_args, face_index);
-
-    return self;
 }
 
 static nb::object
@@ -1712,24 +1711,24 @@ NB_MODULE(ft2font, m)
 
     nb::class_<FT2Image>(m, "FT2Image", nb::is_final(), nb::type_slots(FT2Image_slots),
                          PyFT2Image__doc__)
-        .def(nb::new_(
-                [](long width, long height) {
-                    auto warn =
-                        nb::module_::import_("matplotlib._api").attr("warn_deprecated");
-                    warn("since"_a="3.11", "name"_a="FT2Image", "obj_type"_a="class",
-                         "alternative"_a="a 2D uint8 ndarray");
-                    return new FT2Image(width, height);
-                }),
-             "width"_a, "height"_a, PyFT2Image_init__doc__)
+        .def("__init__",
+            [](FT2Image *self, long width, long height) {
+                auto warn = nb::module_::import_("matplotlib._api").attr("warn_deprecated");
+                warn("since"_a="3.11", "name"_a="FT2Image", "obj_type"_a="class",
+                     "alternative"_a="a 2D uint8 ndarray");
+                new (self) FT2Image(width, height);
+            },
+            "width"_a, "height"_a, PyFT2Image_init__doc__)
         .def("draw_rect_filled", &FT2Image::draw_rect_filled,
              "x0"_a, "y0"_a, "x1"_a, "y1"_a,
              PyFT2Image_draw_rect_filled__doc__);
 
     nb::class_<PyGlyph>(m, "Glyph", nb::is_final(), PyGlyph__doc__)
-        .def(nb::new_([]() -> PyGlyph * {
-            // Glyph is not useful from Python, so mark it as not constructible.
-            throw std::runtime_error("Glyph is not constructible");
-        }))
+        .def("__init__",
+            [](PyGlyph *) -> PyGlyph * {
+                // Glyph is not useful from Python, so mark it as not constructible.
+                throw std::runtime_error("Glyph is not constructible");
+            })
         .def_ro("width", &PyGlyph::width, "The glyph's width.")
         .def_ro("height", &PyGlyph::height, "The glyph's height.")
         .def_ro("horiBearingX", &PyGlyph::horiBearingX,
@@ -1750,10 +1749,11 @@ NB_MODULE(ft2font, m)
                      "The control box of the glyph.");
 
     nb::class_<LayoutItem>(m, "LayoutItem", nb::is_final())
-        .def(nb::new_([]() -> LayoutItem * {
-            // LayoutItem is not useful from Python, so mark it as not constructible.
-            throw std::runtime_error("LayoutItem is not constructible");
-        }))
+        .def("__init__",
+            [](LayoutItem *) -> LayoutItem * {
+                // LayoutItem is not useful from Python, so mark it as not constructible.
+                throw std::runtime_error("LayoutItem is not constructible");
+            })
         .def_ro("ft_object", &LayoutItem::ft_object,
                 "The FT_Face of the item.")
         .def_ro("glyph_index", &LayoutItem::glyph_index,
@@ -1785,18 +1785,19 @@ NB_MODULE(ft2font, m)
 
     nb::class_<PyFT2Font>(m, "FT2Font", nb::is_final(), nb::is_weak_referenceable(),
                           nb::type_slots(PyFT2Font_slots), PyFT2Font__doc__)
-        .def(nb::new_(
+        .def("__init__",
             [ft2Library](
+                PyFT2Font *self,
                 nb::object filename,
                 std::optional<long> hinting_factor = std::nullopt,
                 FT_Long face_index = 0,
                 std::optional<std::vector<PyFT2Font *>> fallback_list = std::nullopt,
                 std::optional<int> kerning_factor = std::nullopt,
-                bool warn_if_used = false) -> PyFT2Font *
+                bool warn_if_used = false)
             {
-                return PyFT2Font_init(ft2Library, filename, hinting_factor, face_index,
-                                      fallback_list, kerning_factor, warn_if_used);
-            }),
+                PyFT2Font_init(self, ft2Library, filename, hinting_factor, face_index,
+                               fallback_list, kerning_factor, warn_if_used);
+            },
              "filename"_a.none().sig("str | bytes | PathLike | BinaryIO"),
              "hinting_factor"_a=nb::none(), nb::kw_only(),
              "face_index"_a=0, "_fallback_list"_a=nb::none(),

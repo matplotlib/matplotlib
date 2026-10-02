@@ -32,6 +32,9 @@ matplotlib\.backend_bases\._Mode\.__new__
 # pybind11 internals
 matplotlib\..*\.__pybind11_native_enum__
 
+# nanobind internals
+matplotlib\..*\.__nb_enum__
+
 # 3.6 Pending deprecations
 matplotlib\.figure\.Figure\.set_constrained_layout
 matplotlib\.figure\.Figure\.set_constrained_layout_pads
