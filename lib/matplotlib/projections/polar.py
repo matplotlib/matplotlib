@@ -402,6 +402,12 @@ class ThetaAxis(maxis.XAxis):
         self.set_ticks_position('none')
         self._wrap_locator_formatter()
 
+    def _get_tick_label_rotation(self):
+        rotation = self._major_tick_kw.get('labelrotation', 0)
+        if rotation == 'auto':
+            return 0.0
+        return float(rotation)
+
     def _set_scale(self, value, **kwargs):
         if value != 'linear':
             raise NotImplementedError(
@@ -693,6 +699,12 @@ class RadialAxis(maxis.YAxis):
         # docstring inherited
         super().clear()
         self.set_ticks_position('none')
+
+    def _get_tick_label_rotation(self):
+        rotation = self._major_tick_kw.get('labelrotation', 0)
+        if rotation == 'auto':
+            return 0.0
+        return float(rotation)
 
 
 def _is_full_circle_deg(thetamin, thetamax):
