@@ -104,6 +104,15 @@ class GridSpecBase:
 
         *width_ratios* must be of length *ncols*. Each column gets a relative
         width of ``width_ratios[i] / sum(width_ratios)``.
+
+        Notes
+        -----
+        If Axes have already been created from this GridSpec, this method only
+        updates the ratios stored by the GridSpec.  Existing Axes are not
+        repositioned automatically.  To apply the new ratios to existing
+        Axes, use a layout engine (for example, ``Figure(layout="constrained")``)
+        or re-evaluate each Axes' SubplotSpec with
+        ``ax.set_subplotspec(ax.get_subplotspec())``.
         """
         if width_ratios is None:
             width_ratios = [1] * self._ncols
@@ -126,6 +135,15 @@ class GridSpecBase:
 
         *height_ratios* must be of length *nrows*. Each row gets a relative
         height of ``height_ratios[i] / sum(height_ratios)``.
+
+        Notes
+        -----
+        If Axes have already been created from this GridSpec, this method only
+        updates the ratios stored by the GridSpec.  Existing Axes are not
+        repositioned automatically.  To apply the new ratios to existing
+        Axes, use a layout engine (for example, ``Figure(layout="constrained")``)
+        or re-evaluate each Axes' SubplotSpec with
+        ``ax.set_subplotspec(ax.get_subplotspec())``.
         """
         if height_ratios is None:
             height_ratios = [1] * self._nrows
