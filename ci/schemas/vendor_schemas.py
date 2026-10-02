@@ -13,7 +13,6 @@ import urllib.request
 
 HERE = pathlib.Path(__file__).parent
 SCHEMAS = [
-    'https://json.schemastore.org/appveyor.json',
     'https://json.schemastore.org/circleciconfig.json',
     'https://json.schemastore.org/github-funding.json',
     'https://json.schemastore.org/github-issue-config.json',
