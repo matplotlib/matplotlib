@@ -1,4 +1,6 @@
 """
+.. _boxplot_vs_violin:
+
 ===================================
 Box plot vs. violin plot comparison
 ===================================

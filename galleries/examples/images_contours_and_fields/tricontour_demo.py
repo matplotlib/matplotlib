@@ -1,4 +1,6 @@
 """
+.. _tricontour_demo:
+
 ===============
 Tricontour Demo
 ===============
