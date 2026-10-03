@@ -5,12 +5,12 @@ using namespace nanobind::literals;
 NB_MODULE(_tri, m)
 {
     nb::class_<Triangulation>(m, "Triangulation", nb::is_final())
-        .def(nb::init<const Triangulation::CoordinateArray&,
-                      const Triangulation::CoordinateArray&,
-                      const Triangulation::TriangleArray&,
-                      std::optional<const Triangulation::MaskArray>,
-                      std::optional<const Triangulation::EdgeArray>,
-                      std::optional<const Triangulation::NeighborArray>,
+        .def(nb::init<const Triangulation::DoubleArray&,
+                      const Triangulation::DoubleArray&,
+                      const Triangulation::IntArray&,
+                      std::optional<const Triangulation::BoolArray>,
+                      std::optional<const Triangulation::IntArray>,
+                      std::optional<const Triangulation::IntArray>,
                       bool>(),
             "x"_a,
             "y"_a,
@@ -34,7 +34,7 @@ NB_MODULE(_tri, m)
 
     nb::class_<TriContourGenerator>(m, "TriContourGenerator", nb::is_final())
         .def(nb::init<Triangulation&,
-                      const TriContourGenerator::CoordinateArray&>(),
+                      const TriContourGenerator::DoubleArray&>(),
             "triangulation"_a,
             "z"_a,
             "Create a new C++ TriContourGenerator object.\n"

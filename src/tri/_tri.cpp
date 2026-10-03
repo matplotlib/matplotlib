@@ -201,44 +201,67 @@ void write_contour(const Contour& contour)
 
 
 
-Triangulation::Triangulation(const CoordinateArray& x,
-                             const CoordinateArray& y,
-                             const TriangleArray& triangles,
-                             std::optional<const MaskArray> mask,
-                             std::optional<const EdgeArray> edges,
-                             std::optional<const NeighborArray> neighbors,
+Triangulation::Triangulation(const DoubleArray& x,
+                             const DoubleArray& y,
+                             const IntArray& triangles,
+                             std::optional<const BoolArray> mask_or_none,
+                             std::optional<const IntArray> edges_or_none,
+                             std::optional<const IntArray> neighbors_or_none,
                              bool correct_triangle_orientations)
-    : _x(x),
-      _y(y),
-      _triangles(triangles),
-      _mask(mask.value_or(MaskArray())),
-      _edges(edges.value_or(EdgeArray())),
-      _neighbors(neighbors.value_or(NeighborArray()))
 {
-    if (_x.ndim() != 1 || _y.ndim() != 1 || _x.shape(0) != _y.shape(0))
+    if (x.ndim() != 1 || y.ndim() != 1 || x.shape(0) != y.shape(0))
         throw std::invalid_argument("x and y must be 1D arrays of the same length");
 
-    if (_triangles.ndim() != 2 || _triangles.shape(1) != 3)
+    if (triangles.ndim() != 2 || triangles.shape(1) != 3)
         throw std::invalid_argument("triangles must be a 2D array of shape (?,3)");
 
+    _x = CoordinateArray(x);
+    _y = CoordinateArray(y);
+    _triangles = TriangleArray(triangles);
+
     // Optional mask.
-    if (_mask.size() > 0 &&
-        (_mask.ndim() != 1 || _mask.shape(0) != _triangles.shape(0)))
-        throw std::invalid_argument(
-            "mask must be a 1D array with the same length as the triangles array");
+    if (mask_or_none && mask_or_none->size() > 0) {
+        auto& mask = *mask_or_none;
+
+        if (mask.ndim() != 1 || mask.shape(0) != triangles.shape(0)) {
+            throw std::invalid_argument(
+                "mask must be a 1D array with the same length as the triangles array");
+        }
+
+        _mask = MaskArray(mask);
+    } else {
+        _mask = MaskArray();
+    }
 
     // Optional edges.
-    if (_edges.size() > 0 &&
-        (_edges.ndim() != 2 || _edges.shape(1) != 2))
-        throw std::invalid_argument("edges must be a 2D array with shape (?,2)");
+    if (edges_or_none && edges_or_none->size() > 0) {
+        auto& edges = *edges_or_none;
+
+        if (edges.ndim() != 2 || edges.shape(1) != 2) {
+            throw std::invalid_argument("edges must be a 2D array with shape (?,2)");
+        }
+
+        _edges = EdgeArray(edges);
+    } else {
+        _edges = EdgeArray();
+    }
 
     // Optional neighbors.
-    if (_neighbors.size() > 0 &&
-        (_neighbors.ndim() != 2 ||
-            _neighbors.shape(0) != _triangles.shape(0) ||
-            _neighbors.shape(1) != _triangles.shape(1)))
-        throw std::invalid_argument(
-            "neighbors must be a 2D array with the same shape as the triangles array");
+    if (neighbors_or_none && neighbors_or_none->size() > 0) {
+        auto& neighbors = *neighbors_or_none;
+
+        if (neighbors.ndim() != 2 ||
+            neighbors.shape(0) != triangles.shape(0) ||
+            neighbors.shape(1) != triangles.shape(1)
+        ) {
+            throw std::invalid_argument(
+                "neighbors must be a 2D array with the same shape as the triangles array");
+        }
+
+        _neighbors = NeighborArray(neighbors);
+    } else {
+        _neighbors = NeighborArray();
+    }
 
     if (correct_triangle_orientations)
         correct_triangles();
@@ -373,19 +396,21 @@ void Triangulation::calculate_neighbors()
 }
 
 Triangulation::CoefficientsArray Triangulation::calculate_plane_coefficients(
-    const Triangulation::CoordinateArray& z)
+    const Triangulation::DoubleArray& in_z)
 {
-    if (z.ndim() != 1 || z.shape(0) != _x.shape(0))
+    if (in_z.ndim() != 1 || in_z.shape(0) != _x.shape(0))
         throw std::invalid_argument(
             "z must be a 1D array with the same length as the triangulation x and y arrays");
+
+    auto z = CoordinateArray(in_z);
 
     auto ntri = get_ntri();
     auto planes_array = mpl_make_numpy_array<Triangulation::CoefficientsArray>({ntri, 3});
     auto planes = planes_array.view();
     auto triangles = _triangles.view();
-    auto x = _x.view<const double, nb::ndim<1>>();
-    auto y = _y.view<const double, nb::ndim<1>>();
-    auto z_ptr = z.view<const double, nb::ndim<1>>();
+    auto x = _x.view();
+    auto y = _y.view();
+    auto z_ptr = z.view();
 
     int point;
     for (int tri = 0; tri < ntri; ++tri) {
@@ -601,16 +626,16 @@ void Triangulation::write_boundaries() const
 
 
 TriContourGenerator::TriContourGenerator(Triangulation& triangulation,
-                                         const CoordinateArray& z)
+                                         const DoubleArray& z)
     : _triangulation(triangulation),
-      _z(z),
       _interior_visited(2*_triangulation.get_ntri()),
       _boundaries_visited(0),
       _boundaries_used(0)
 {
-    if (_z.ndim() != 1 || _z.shape(0) != _triangulation.get_npoints())
+    if (z.ndim() != 1 || z.shape(0) != _triangulation.get_npoints())
         throw std::invalid_argument(
             "z must be a 1D array with the same length as the x and y arrays");
+    _z = CoordinateArray(z);
 }
 
 void TriContourGenerator::clear_visited_flags(bool include_boundaries)

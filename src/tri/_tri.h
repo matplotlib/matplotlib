@@ -161,6 +161,11 @@ void write_contour(const Contour& contour);
 class Triangulation final
 {
 public:
+    // Shapeless arrays for arguments. We do our own validation for better error messages.
+    using BoolArray = nb::ndarray<bool, nb::numpy, nb::c_contig>;
+    using DoubleArray = nb::ndarray<double, nb::numpy, nb::c_contig>;
+    using IntArray = nb::ndarray<int, nb::numpy, nb::c_contig>;
+
     using CoordinateArray = nb::ndarray<double, nb::ndim<1>, nb::numpy, nb::c_contig>;
     using CoefficientsArray = nb::ndarray<double, nb::shape<-1, 3>, nb::numpy, nb::c_contig>;
     using TriangleArray = nb::ndarray<int, nb::shape<-1, 3>, nb::numpy, nb::c_contig>;
@@ -190,12 +195,12 @@ public:
      *   correct_triangle_orientations: Whether or not should correct triangle
      *                                  orientations so that vertices are
      *                                  ordered anticlockwise. */
-    Triangulation(const CoordinateArray& x,
-                  const CoordinateArray& y,
-                  const TriangleArray& triangles,
-                  std::optional<const MaskArray>,
-                  std::optional<const EdgeArray>,
-                  std::optional<const NeighborArray>,
+    Triangulation(const DoubleArray& x,
+                  const DoubleArray& y,
+                  const IntArray& triangles,
+                  std::optional<const BoolArray> mask,
+                  std::optional<const IntArray> edges,
+                  std::optional<const IntArray> neighbors,
                   bool correct_triangle_orientations);
 
     /* Calculate plane equation coefficients for all unmasked triangles from
@@ -203,7 +208,7 @@ public:
      * in via the args.  Returned array has shape (npoints,3) and allows
      * z-value at (x,y) coordinates in triangle tri to be calculated using
      *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2]. */
-    CoefficientsArray calculate_plane_coefficients(const CoordinateArray& z);
+    CoefficientsArray calculate_plane_coefficients(const DoubleArray& z);
 
     // Return the boundaries collection, creating it if necessary.
     const Boundaries& get_boundaries() const;
@@ -332,6 +337,7 @@ private:
 class TriContourGenerator final
 {
 public:
+    using DoubleArray = Triangulation::DoubleArray;
     using CoordinateArray = Triangulation::CoordinateArray;
     using PointArray = nb::ndarray<double, nb::shape<-1, 2>, nb::numpy, nb::c_contig>;
     using CodeArray = nb::ndarray<unsigned char, nb::ndim<1>, nb::numpy, nb::c_contig>;
@@ -341,7 +347,7 @@ public:
      *   z: Double array of shape (npoints) of z-values at triangulation
      *      points. */
     TriContourGenerator(Triangulation& triangulation,
-                        const CoordinateArray& z);
+                        const DoubleArray& z);
 
     /* Create and return a non-filled contour.
      *   level: Contour level.
