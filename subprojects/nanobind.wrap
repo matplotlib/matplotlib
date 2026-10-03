@@ -1,0 +1,14 @@
+[wrap-file]
+directory = nanobind-2.15.0
+source_url = https://github.com/wjakob/nanobind/archive/refs/tags/v2.15.0.tar.gz
+source_filename = nanobind-2.15.0.tar.gz
+source_hash = 36c8760b3acb25643cd89d549782d8c67bd82ce54c6238608787c22a34fd490f
+source_fallback_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.15.0-1/get_source/nanobind-2.15.0.tar.gz
+patch_filename = nanobind_2.15.0-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/nanobind_2.15.0-1/get_patch
+patch_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/nanobind_2.15.0-1/nanobind_2.15.0-1_patch.zip
+patch_hash = 4a3956c67792830e0c85dff3cf88b30a5547bd087c33842fa5f1596ca86ccabf
+wrapdb_version = 2.15.0-1
+
+[provide]
+dependency_names = nanobind

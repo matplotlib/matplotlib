@@ -50,7 +50,7 @@ extension_data = {
     'sources': files(
       '_c_internal_utils.cpp',
     ),
-    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, coretext],
+    'dependencies': [nanobind_dep, dl, ole32, shell32, user32, coretext],
   },
   'ft2font': {
     'subdir': 'matplotlib',
@@ -59,13 +59,15 @@ extension_data = {
       'ft2font_wrapper.cpp',
     ),
     'dependencies': [
-      freetype_dep, libraqm_dep, pybind11_dep, agg_dep.partial_dependency(includes: true),
+      freetype_dep, libraqm_dep, nanobind_dep, agg_dep.partial_dependency(includes: true),
     ],
     'cpp_args': [
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(
         freetype_dep.type_name() == 'internal' ? 'local' : 'system',
       ),
+      '-DNB_DOMAIN=matplotlib_ft2font'
     ],
+    'link_args': host_machine.system() == 'darwin' ? ['-Wl,-ld_classic'] : [],
   },
   '_image': {
     'subdir': 'matplotlib',
@@ -91,7 +93,7 @@ extension_data = {
     'sources': files(
       '_qhull_wrapper.cpp',
     ),
-    'dependencies': [pybind11_dep, qhull_dep],
+    'dependencies': [nanobind_dep, qhull_dep],
     'c_args': [f'-DMPL_DEVNULL=@devnull@'],
     'cpp_args': [f'-DMPL_DEVNULL=@devnull@'],
   },
@@ -103,7 +105,7 @@ extension_data = {
     'include_directories': include_directories('.'),
     # The dl/psapi libraries are needed for finding Tcl/Tk at run time.
     'dependencies': [
-      pybind11_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
+      nanobind_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
     ],
   },
   '_tri': {
@@ -112,7 +114,7 @@ extension_data = {
       'tri/_tri.cpp',
       'tri/_tri_wrapper.cpp',
     ),
-    'dependencies': [pybind11_dep],
+    'dependencies': [nanobind_dep],
   },
 }
 

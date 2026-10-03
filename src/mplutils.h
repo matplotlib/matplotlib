@@ -48,7 +48,49 @@ enum {
     CLOSEPOLY = 0x4f
 };
 
-#ifdef __cplusplus  // not for macosx.m
+
+#ifdef NB_VERSION_MAJOR
+
+static void mpl_nb_capsule_alloc(void *&data, std::initializer_list<size_t> &shape,
+                                 nb::capsule &owner, size_t scalar_size)
+{
+    size_t total_size = scalar_size;
+    for (size_t n : shape) {
+        total_size *= n;
+    }
+
+    data = total_size ? new unsigned char[total_size] : nullptr;
+    owner = nb::capsule(data, [](void *p) noexcept {
+        delete[] static_cast<unsigned char *>(p);
+    });
+}
+
+// See "Returning arrays..." on https://nanobind.readthedocs.io/en/latest/ndarray.html
+template <typename Array>
+static inline Array mpl_make_numpy_array(std::initializer_list<size_t> shape)
+{
+    static_assert(
+        std::is_same_v<typename Array::Config::Framework, nb::numpy>,
+        "Array must be an nb::ndarray with the nb::numpy framework parameter"
+    );
+
+    using Scalar = typename Array::Scalar;
+
+    void *data;
+    nb::capsule owner;
+    mpl_nb_capsule_alloc(data, shape, owner, sizeof(Scalar));
+
+    return Array(static_cast<Scalar *>(data), shape, owner);
+}
+
+#endif
+
+// Helper for std::visit.
+template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
+template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
+#ifdef PYBIND11_VERSION_MAJOR
+
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include <array>
@@ -56,10 +98,6 @@ enum {
 
 namespace py = pybind11;
 using namespace pybind11::literals;
-
-// Helper for std::visit.
-template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 // Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
 // so that we don't need to access the NPY_INTP_FMT macro here.
