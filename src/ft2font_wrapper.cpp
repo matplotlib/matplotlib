@@ -1630,7 +1630,7 @@ NB_MODULE(ft2font, m)
 
     // FT2Font objects are frequently cached via functools.lru_cache.
     // nanobind's atexit handler can run before these caches are cleared.
-    // This results in leak warnings that are false-positives.
+    // This results in leak warnings that are false positives.
     nb::set_leak_warnings(false);
 
     if (FT_Init_FreeType(&ft2Library)) {  // initialize library
