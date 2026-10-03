@@ -65,6 +65,7 @@ extension_data = {
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(
         freetype_dep.type_name() == 'internal' ? 'local' : 'system',
       ),
+      '-DNB_DOMAIN=matplotlib_ft2font'
     ],
     'link_args': host_machine.system() == 'darwin' ? ['-Wl,-ld_classic'] : [],
   },
