@@ -51,8 +51,9 @@ enum {
 
 #ifdef NB_VERSION_MAJOR
 
-static void mpl_nb_capsule_alloc(void *&data, std::initializer_list<size_t> &shape,
-                                 nb::capsule &owner, size_t scalar_size)
+[[maybe_unused]] static void
+mpl_nb_capsule_alloc(void *&data, std::initializer_list<size_t> &shape,
+                     nb::capsule &owner, size_t scalar_size)
 {
     size_t total_size = scalar_size;
     for (size_t n : shape) {
@@ -82,6 +83,49 @@ static inline Array mpl_make_numpy_array(std::initializer_list<size_t> shape)
 
     return Array(static_cast<Scalar *>(data), shape, owner);
 }
+
+
+
+// Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
+// so that we don't need to access the NPY_INTP_FMT macro here.
+template<typename T>
+inline void check_trailing_shape(T array, char const* name, long d1)
+{
+    if (array.ndim() != 2) {
+        throw nb::value_error(nb::str(
+            "Expected 2-dimensional array, got {}").format(array.ndim()).c_str());
+    }
+    if (array.size() == 0) {
+        // Sometimes things come through as atleast_2d, etc., but they're empty, so
+        // don't bother enforcing the trailing shape.
+        return;
+    }
+    if (array.shape(1) != d1) {
+        throw nb::value_error(nb::str(
+            "{} must have shape (N, {}), got ({}, {})").format(
+                name, d1, array.shape(0), array.shape(1)).c_str());
+    }
+}
+
+template<typename T>
+inline void check_trailing_shape(T array, char const* name, long d1, long d2)
+{
+    if (array.ndim() != 3) {
+        throw nb::value_error(nb::str(
+            "Expected 3-dimensional array, got {}").format(array.ndim()).c_str());
+    }
+    if (array.size() == 0) {
+        // Sometimes things come through as atleast_3d, etc., but they're empty, so
+        // don't bother enforcing the trailing shape.
+        return;
+    }
+    if (array.shape(1) != d1 || array.shape(2) != d2) {
+        throw nb::value_error(nb::str(
+            "{} must have shape (N, {}, {}), got ({}, {}, {})").format(
+                name, d1, d2, array.shape(0), array.shape(1), array.shape(2)).c_str());
+    }
+}
+
 
 #endif
 
