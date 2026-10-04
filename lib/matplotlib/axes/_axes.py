@@ -2520,27 +2520,31 @@ class Axes(_AxesBase):
             height = self._convert_dx(height, y0, y, self.convert_yunits)
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
+        # Make args iterable and validate broadcastability with named errors.
+        # Do not parse NumPy's ValueError text: nightlies dropped the "arg N"
+        # wording (see #32430), which broke the old string-replace remapping.
+        x = np.atleast_1d(x)
+        args = (x, height, width, y, linewidth, hatch)
+        arg_names = ('x', 'height', 'width', 'y', 'linewidth', 'hatch')
+        shapes = [np.shape(a) for a in args]
         try:
-            x, height, width, y, linewidth, hatch = np.broadcast_arrays(
-                # Make args iterable too.
-                np.atleast_1d(x), height, width, y, linewidth, hatch
-            )
-        except ValueError as e:
-            arg_map = {
-                "arg 0": "'x'",
-                "arg 1": "'height'",
-                "arg 2": "'width'",
-                "arg 3": "'y'",
-                "arg 4": "'linewidth'",
-                "arg 5": "'hatch'"
-            }
-            error_message = str(e)
-            for arg, name in arg_map.items():
-                error_message = error_message.replace(arg, name)
-            if error_message != str(e):
-                raise ValueError(error_message) from e
-            else:
-                raise
+            np.broadcast_shapes(*shapes)
+        except ValueError:
+            # Report the first pair (in argument order) that cannot broadcast,
+            # matching the historical named message users and tests expect.
+            for i in range(len(shapes)):
+                for j in range(i + 1, len(shapes)):
+                    try:
+                        np.broadcast_shapes(shapes[i], shapes[j])
+                    except ValueError:
+                        raise ValueError(
+                            "shape mismatch: objects cannot be broadcast to a "
+                            "single shape.  Mismatch is between "
+                            f"'{arg_names[i]}' with shape {shapes[i]} and "
+                            f"'{arg_names[j]}' with shape {shapes[j]}."
+                        ) from None
+            raise
+        x, height, width, y, linewidth, hatch = np.broadcast_arrays(*args)
 
         # Now that units have been converted, set the tick locations.
         if orientation == 'vertical':

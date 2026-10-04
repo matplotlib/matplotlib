@@ -10408,6 +10408,8 @@ def test_axes_set_position_external_bbox_unchanged(fig_test, fig_ref):
 
 
 def test_bar_shape_mismatch():
+    # Named shape-mismatch errors must not depend on NumPy's ValueError wording
+    # (nightlies dropped "arg N"; see #32430).
     x = ["foo", "bar"]
     height = [1, 2, 3]
     error_message = (
@@ -10415,6 +10417,12 @@ def test_bar_shape_mismatch():
     )
     with pytest.raises(ValueError, match=error_message):
         plt.bar(x, height)
+
+    with pytest.raises(
+        ValueError,
+        match=r"Mismatch is between 'x' with shape \(2,\) and 'width' with shape \(3,\)",
+    ):
+        plt.bar(["a", "b"], [1, 2], width=[0.1, 0.2, 0.3])
 
 
 def test_caps_color():
