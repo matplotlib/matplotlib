@@ -248,7 +248,7 @@ veteran contributors, who are keen to support onboarding of new folks and
 share their experience. You can find our community calendar link at the
 `Scientific Python website <https://scientific-python.org/calendars/>`_, and
 you can browse previous meeting notes on `GitHub
-<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
+<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributors_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
 questions you might have, and to get to know a few of the people behind the
 GitHub handles 😉. You can reach out to us on `incubator chat`_ for any
