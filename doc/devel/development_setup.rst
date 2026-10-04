@@ -326,7 +326,7 @@ Install git pre-commit hooks
 
 `prek <https://prek.j178.dev/>`_ hooks save time in the review process by
 identifying issues with the code before a pull request is formally opened. Most
-hooks can also aide in fixing the errors, and the checks should have
+hooks can also aid in fixing the errors, and the checks should have
 corresponding :ref:`development workflow <development-workflow>` and
 :ref:`pull request <pr-guidelines>` guidelines. Hooks are configured in
 `.pre-commit-config.yaml <https://github.com/matplotlib/matplotlib/blob/main/.pre-commit-config.yaml?>`_

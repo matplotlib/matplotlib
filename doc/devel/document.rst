@@ -318,7 +318,7 @@ before the section
    Summary for pull request authors
    ================================
 
-and then link to with ``:ref:`label-name```
+and then link to it with ``:ref:`label-name```
 
 .. code-block:: rst
 
@@ -396,7 +396,7 @@ commands::
 Include figures and files
 -------------------------
 
-Image files can directly included in pages with the ``image::`` directive.
+Image files can directly be included in pages with the ``image::`` directive.
 e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
 a couple of static images::
 

@@ -360,7 +360,7 @@ Automated backports
 -------------------
 
 We use MeeseeksDev bot to automatically backport merges to the correct
-maintenance branch base on the milestone.  To work properly the
+maintenance branch based on the milestone.  To work properly the
 milestone must be set before merging.  If you have commit rights, the
 bot can also be manually triggered after a merge by leaving a message
 ``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts
