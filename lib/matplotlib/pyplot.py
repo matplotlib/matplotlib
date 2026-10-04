@@ -54,7 +54,7 @@ import logging
 import sys
 import threading
 import time
-from typing import IO, TYPE_CHECKING, cast, overload
+from typing import IO, TYPE_CHECKING, cast, overload, Literal
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -1896,8 +1896,8 @@ def subplots(
 def subplot_mosaic(
     mosaic: str,
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["all", "row", "col"] = ...,
+    sharey: bool | Literal["all", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: str = ...,
@@ -1912,8 +1912,8 @@ def subplot_mosaic(
 def subplot_mosaic[T](
     mosaic: list[HashableList[T]],
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["all", "row", "col"] = ...,
+    sharey: bool | Literal["all", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: T = ...,
@@ -1928,8 +1928,8 @@ def subplot_mosaic[T](
 def subplot_mosaic(
     mosaic: list[HashableList[Hashable]],
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["all", "row", "col"] = ...,
+    sharey: bool | Literal["all", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: Any = ...,
@@ -1943,8 +1943,8 @@ def subplot_mosaic(
 def subplot_mosaic[T](
     mosaic: str | list[HashableList[T]] | list[HashableList[Hashable]],
     *,
-    sharex: bool = False,
-    sharey: bool = False,
+    sharex: bool | Literal["all", "row", "col"] = False,
+    sharey: bool | Literal["all", "row", "col"] = False,
     width_ratios: ArrayLike | None = None,
     height_ratios: ArrayLike | None = None,
     empty_sentinel: Any = '.',

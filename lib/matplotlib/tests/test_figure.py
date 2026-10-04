@@ -1320,7 +1320,8 @@ class TestSubplotMosaic:
         assert list(ax_dict) == list("ABCDEFGHI")
         assert list(fig.axes) == list(ax_dict.values())
 
-    def test_share_all(self):
+    @pytest.mark.parametrize("share_val", [True, "all"])
+    def test_share_all(self, share_val):
         layout = [
             ["A", [["B", "C"],
                    ["D", "E"]]],
@@ -1329,10 +1330,64 @@ class TestSubplotMosaic:
                           ["."]]]]]
         ]
         fig = plt.figure()
-        ax_dict = fig.subplot_mosaic(layout, sharex=True, sharey=True)
+        ax_dict = fig.subplot_mosaic(layout, sharex=share_val, sharey=share_val)
         ax_dict["A"].set(xscale="log", yscale="logit")
         assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
                    for ax in ax_dict.values())
+
+    def test_share_row_col(self):
+        layout = [
+            ["A", "B", "C", "D"],
+            ["E", "F", "C", "D"]
+        ]
+        fig = plt.figure()
+        axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
+        
+        # Testing row sharing for y-axis
+        axd["A"].set_ylim(0, 50)
+        axd["C"].set_ylim(-10, 10)
+        
+        assert axd["B"].get_ylim() == (0, 50)
+        assert axd["D"].get_ylim() == (-10, 10)
+        assert axd["E"].get_ylim() != (0, 50)
+        
+        axd["A"].set_xlim(-5, 5)
+        axd["C"].set_xlim(100, 200)
+        
+        assert axd["E"].get_xlim() == (-5, 5)
+        assert axd["D"].get_xlim() != (100, 200)
+
+    def test_share_invalid(self):
+        layout = [
+            ["A", "B"],
+            ["C", "D"]
+        ]
+        fig = plt.figure()
+        
+        with pytest.raises(ValueError, match="must be True, False, 'all', 'row', or 'col'"):
+            fig.subplot_mosaic(layout, sharex="invalid_string")
+            
+        with pytest.raises(ValueError, match="must be True, False, 'all', 'row', or 'col'"):
+            fig.subplot_mosaic(layout, sharey={"A": "B"})
+
+    def test_share_row_col_nested(self):
+        layout = [
+            ["A", [["B", "C"], 
+                   ["D", "E"]]]
+        ]
+        fig = plt.figure()
+        axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
+        
+        axd["B"].set_ylim(0, 50)
+        assert axd["C"].get_ylim() == (0, 50)
+        assert axd["D"].get_ylim() != (0, 50)
+        
+        axd["B"].set_xlim(0, 50)
+        assert axd["D"].get_xlim() == (0, 50)
+        assert axd["C"].get_xlim() != (0, 50)
+        
+        axd["A"].set_ylim(-10, 10)
+        assert axd["B"].get_ylim() != (-10, 10)
 
 
 def test_reused_gridspec():

@@ -2117,8 +2117,16 @@ default: %(va)s
 
         per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
-        # Only accept strict bools to allow a possible future API expansion.
-        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+        # Custom Validation Function to check for booleans and strings.
+        def _validate_share_param(param_name, value):
+            if type(value) is bool:
+                return value
+            if value in ["all", "row", "col"]:
+                return value
+            raise ValueError(f"{param_name} must be True, False, 'all', 'row', or 'col'")
+
+        sharex = _validate_share_param("sharex", sharex)
+        sharey = _validate_share_param("sharey", sharey)
 
         def _make_array(inp):
             """
@@ -2277,14 +2285,61 @@ default: %(va)s
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        ax0 = next(iter(ret.values()))
-        for ax in ret.values():
-            if sharex:
-                ax.sharex(ax0)
-                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
-            if sharey:
-                ax.sharey(ax0)
-                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
+        # Asymmetrical/Directional Implementation that needs to be changed
+        # ax0 = next(iter(ret.values()))
+        # for ax in ret.values():
+        #     if sharex:
+        #         ax.sharex(ax0)
+        #         ax._label_outer_xaxis(skip_non_rectangular_axes=True)
+        #     if sharey:
+        #         ax.sharey(ax0)
+        #         ax._label_outer_yaxis(skip_non_rectangular_axes=True)
+
+        # Symmetric Sharing
+        def _apply_sharing(ret_dict, share_val, axis_name):
+            if share_val is False:
+                return
+            
+            # Group the axes based on their spans
+            groups = {}
+            for ax in ret_dict.values():
+                span = ax.get_subplotspec()
+                grid = span.get_gridspec()
+                
+                if share_val is True or share_val == "all":
+                    groups.setdefault("all", []).append(ax)
+                elif share_val == "row":
+                    groups.setdefault((grid, span.rowspan.start, span.rowspan.stop), []).append(ax)
+                elif share_val == "col":
+                    groups.setdefault((grid, span.colspan.start, span.colspan.stop), []).append(ax)
+            
+            # Bind the groups together
+            for group in groups.values():
+                if len(group) > 1:
+                    parent = group[0]
+                    for child_ax in group[1:]:
+                        if axis_name == 'x':
+                            child_ax.sharex(parent)
+                        else:
+                            child_ax.sharey(parent)
+                
+                # Handle tick label visibility per isolated group
+                if axis_name == 'x':
+                    # Find the bottom-most edge within a specific group
+                    bottom_edge = max(ax.get_subplotspec().rowspan.stop for ax in group)
+                    for ax in group:
+                        if ax.get_subplotspec().rowspan.stop < bottom_edge:
+                            ax.tick_params(labelbottom=False)
+                else:
+                    # Find the left-most edge within a specific group
+                    left_edge = min(ax.get_subplotspec().colspan.start for ax in group)
+                    for ax in group:
+                        if ax.get_subplotspec().colspan.start > left_edge:
+                            ax.tick_params(labelleft=False)
+
+        _apply_sharing(ret, sharex, 'x')
+        _apply_sharing(ret, sharey, 'y')
+
         if extra := set(per_subplot_kw) - set(ret):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "
