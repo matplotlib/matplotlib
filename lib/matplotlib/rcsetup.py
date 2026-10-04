@@ -3224,35 +3224,42 @@ _DEFINITION = [
                     "single composite image before saving a figure as a vector "
                     "graphics file, such as a PDF."
     ),
-    _Section("Contour plots"),
+    _Section(
+        "Contour plots",
+        description="Default settings for `~.Axes.contour` / `~.Axes.contourf`. "
+                    "See the description of its parameters for details."
+    ),
+
     _Param(
         "contour.negative_linestyle",
         default="dashed",
         type=_LineStyleType,
         validator=_validate_linestyle,
-        description="string or on-off ink sequence"
+        description="The line style for negative contours, if *linestyle* is None "
+                    "and no color is specified."
     ),
     _Param(
         "contour.corner_mask",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="{True, False}"
+        description="Enable/disable corner masking. See the *corner_mask* parameter "
+                    "of `~.Axes.contour` for details."
     ),
     _Param(
         "contour.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="{float, None} Size of the contour line widths. If set to None, it "
-                    'falls back to "line.linewidth".'
+        description="Size of the contour line widths. If None, falls back to "
+                    '"lines.linewidth".'
     ),
     _Param(
         "contour.algorithm",
         default="mpl2014",
         type=Literal["mpl2005", "mpl2014", "serial", "threaded"],
         validator=["mpl2005", "mpl2014", "serial", "threaded"],
-        description="{mpl2005, mpl2014, serial, threaded}"
+        description="The contouring algorithm used to calculate the contour lines."
     ),
     _Section("Errorbar plots"),
     _Param(
