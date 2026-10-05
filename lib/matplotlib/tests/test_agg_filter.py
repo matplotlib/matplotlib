@@ -14,7 +14,6 @@ def test_agg_filter_alpha():
 
     def manual_alpha(im, dpi):
         im[:, :, 3] *= 0.6
-        print('CALLED')
         return im, 0, 0
 
     # Note: Doing alpha like this is not the same as setting alpha on
