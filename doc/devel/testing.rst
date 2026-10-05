@@ -289,7 +289,7 @@ CI with GitHub Actions
 "in the cloud".
 
 GitHub Actions is configured to receive notifications of new commits to GitHub
-repos and to run builds or tests when it sees these new commits. It looks for a
+repos and to run builds or tests when it sees these new commits. It looks for
 YAML files in ``.github/workflows`` to see how to test the project.
 
 GitHub Actions is already enabled for the `main Matplotlib GitHub repository
@@ -384,7 +384,7 @@ To do so, either download the matching source distribution
 ``matplotlib-X.Y.Z.tar.gz`` from `PyPI <https://pypi.org/project/matplotlib/>`_
 or alternatively, clone the git repository and ``git checkout vX.Y.Z``. Copy
 the folder :file:`lib/matplotlib/tests/baseline_images` to the folder
-:file:`matplotlib/tests` of your the matplotlib installation to test.
+:file:`matplotlib/tests` of the matplotlib installation to test.
 The correct target folder can be found using::
 
     python -c "import matplotlib.tests; print(matplotlib.tests.__file__.rsplit('/', 1)[0])"
