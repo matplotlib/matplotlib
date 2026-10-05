@@ -289,7 +289,7 @@ CI with GitHub Actions
 "in the cloud".
 
 GitHub Actions is configured to receive notifications of new commits to GitHub
-repos and to run builds or tests when it sees these new commits. It looks for 
+repos and to run builds or tests when it sees these new commits. It looks for
 YAML files in ``.github/workflows`` to see how to test the project.
 
 GitHub Actions is already enabled for the `main Matplotlib GitHub repository
