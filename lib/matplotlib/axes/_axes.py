@@ -2520,27 +2520,23 @@ class Axes(_AxesBase):
             height = self._convert_dx(height, y0, y, self.convert_yunits)
             if yerr is not None:
                 yerr = self._convert_dx(yerr, y0, y, self.convert_yunits)
+
+        # broadcast all args to make them iterable
+        x = np.atleast_1d(x)
+        args = (x, height, width, y, linewidth, hatch)
+        arg_names = ('x', 'height', 'width', 'y', 'linewidth', 'hatch')
         try:
-            x, height, width, y, linewidth, hatch = np.broadcast_arrays(
-                # Make args iterable too.
-                np.atleast_1d(x), height, width, y, linewidth, hatch
-            )
+            x, height, width, y, linewidth, hatch = np.broadcast_arrays(*args)
         except ValueError as e:
-            arg_map = {
-                "arg 0": "'x'",
-                "arg 1": "'height'",
-                "arg 2": "'width'",
-                "arg 3": "'y'",
-                "arg 4": "'linewidth'",
-                "arg 5": "'hatch'"
-            }
-            error_message = str(e)
-            for arg, name in arg_map.items():
-                error_message = error_message.replace(arg, name)
-            if error_message != str(e):
-                raise ValueError(error_message) from e
-            else:
-                raise
+            non_trivial_inputs = ", ".join(
+                f"{name} {np.shape(arg)}" for arg, name in zip(args, arg_names)
+                # only collect args that could contribute to a broadcast error
+                if any(dim != 1 for dim in np.shape(arg))
+            )
+            raise ValueError(
+                f"bar() failed on broadcasting inputs with the following shapes: "
+                f"{non_trivial_inputs}"
+            ) from e
 
         # Now that units have been converted, set the tick locations.
         if orientation == 'vertical':
