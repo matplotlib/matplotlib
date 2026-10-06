@@ -1,6 +1,8 @@
-from typing import Any, TypeVar
+from typing import Any, overload
 
-from matplotlib import _api
+from _typeshed import SupportsWrite
+from typing_extensions import TypeVar
+
 from matplotlib.backend_bases import (
     _Backend,
     FigureManagerBase,
@@ -20,8 +22,8 @@ _WebToolbarT = TypeVar(
 )
 _WebManagerT = TypeVar(
     "_WebManagerT",
-    bound="FigureManagerWebAgg",
-    default="FigureManagerWebAgg",
+    bound="FigureManagerWebAgg[Any]",
+    default="FigureManagerWebAgg[Any]",
 )
 
 class TimerTornado(TimerBase):
@@ -30,17 +32,17 @@ class TimerTornado(TimerBase):
 class TimerAsyncio(TimerBase):
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
 
+# Generic over its toolbar and manager so that ``backend_webagg`` and
+# ``backend_nbagg`` can each declare their own concrete pair.
 class FigureCanvasWebAggCore(
     FigureCanvasAgg[_WebToolbarT, _WebManagerT, TimerAsyncio]
 ):
-    _timer_cls: type[TimerAsyncio]
-    @_api.classproperty
-    def supports_blit(cls) -> bool: ...
     def show(self) -> None: ...
     def set_image_mode(self, mode: str) -> None: ...
     def set_capture_scroll(self, capture: bool) -> None: ...
     def get_capture_scroll(self) -> bool: ...
-    def get_diff_image(self) -> bytes: ...
+    # Returns None when no new image is pending.
+    def get_diff_image(self) -> bytes | None: ...
     def handle_event(self, event: dict[str, Any]) -> None: ...
     # handle_* methods — each takes a single event dict:
     def handle_unknown_event(self, event: dict[str, Any]) -> None: ...
@@ -63,24 +65,35 @@ class FigureCanvasWebAggCore(
     def handle_set_dpi_ratio(self, event: dict[str, Any]) -> None: ...
     def send_event(self, event_type: str, **kwargs: Any) -> None: ...
 
-class NavigationToolbar2WebAgg(NavigationToolbar2[FigureCanvasWebAggCore]):
+class NavigationToolbar2WebAgg(NavigationToolbar2[FigureCanvasWebAggCore[Any, Any]]):
+    # Runtime names the parameter ``message`` while the base uses ``s``.
+    def set_message(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, message: str
+    ) -> None: ...
+    def pan(self) -> None: ...  # pyright: ignore[reportIncompatibleMethodOverride]
+    def zoom(self) -> None: ...  # pyright: ignore[reportIncompatibleMethodOverride]
     def set_history_buttons(self) -> None: ...
 
-class FigureManagerWebAgg(FigureManagerBase[FigureCanvasWebAggCore]):
-    _toolbar2_class: type[NavigationToolbar2WebAgg] | None
-    ToolbarCls: type[NavigationToolbar2WebAgg]
+class FigureManagerWebAgg(FigureManagerBase[FigureCanvasWebAggCore[Any, Any], _WebToolbarT]):
+    ToolbarCls: type[_WebToolbarT]
     # resize adds a forward param not on the base.
     def resize(self, w: int, h: int, forward: bool = ...) -> None: ...
     def add_web_socket(self, web_socket: Any) -> None: ...
     def remove_web_socket(self, web_socket: Any) -> None: ...
     def handle_json(self, content: dict[str, Any]) -> None: ...
     def refresh_all(self) -> None: ...
+    # Returns the JavaScript source when no stream is given, otherwise writes
+    # it to *stream* and returns None.
+    @overload
     @classmethod
-    def get_javascript(cls, stream: Any = ...) -> str: ...
+    def get_javascript(cls, stream: None = ...) -> str: ...
+    @overload
+    @classmethod
+    def get_javascript(cls, stream: SupportsWrite[str]) -> None: ...
     @classmethod
     def get_static_file_path(cls) -> str: ...
 
-class _BackendWebAggCoreAgg(_Backend[type[FigureCanvasWebAggCore]]): ...
+class _BackendWebAggCoreAgg(_Backend[type[FigureCanvasWebAggCore[Any, Any]]]): ...
 
 # Names injected into the module namespace by ``@_Backend.export``.
 backend_version: str

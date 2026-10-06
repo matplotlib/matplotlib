@@ -10,11 +10,14 @@ from .backend_wx import (
     _FigureCanvasWxBase,
     FigureManagerWx,
     NavigationToolbar2Wx,
+    TimerWx,
 )
 
 NavigationToolbar2WxAgg = NavigationToolbar2Wx
 
-class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
+class FigureCanvasWxAgg(
+    FigureCanvasAgg[NavigationToolbar2Wx, FigureManagerWx, TimerWx], _FigureCanvasWxBase
+):
     def draw(self, drawDC: object = ...) -> None: ...
     def blit(self, bbox: BboxBase | None = ...) -> None: ...
 

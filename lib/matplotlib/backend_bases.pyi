@@ -40,13 +40,63 @@ from .typing import (
 )
 
 # Type parameters for narrowing cross-references between backend classes.
+#
+# A backend is a cooperating set of classes that reference each other:
+#
+#   FigureCanvasBase[ToolbarT, ManagerT, TimerT]
+#       .toolbar -> ToolbarT | None
+#       .manager -> ManagerT | None
+#       .new_timer() -> TimerT
+#   NavigationToolbar2[CanvasT]
+#       .canvas -> CanvasT
+#   FigureManagerBase[CanvasT, ToolbarT]
+#       .canvas -> CanvasT
+#       .toolbar -> ToolbarT | ToolContainerBase | None
+#
+# A backend declares its concrete set once, e.g.::
+#
+#   class FigureCanvasFoo(FigureCanvasBase["NavigationToolbar2Foo",
+#                                          "FigureManagerFoo", TimerFoo]): ...
+#   class NavigationToolbar2Foo(NavigationToolbar2[FigureCanvasFoo]): ...
+#   class FigureManagerFoo(FigureManagerBase[FigureCanvasFoo,
+#                                            NavigationToolbar2Foo]): ...
+#
+# and every cross-reference then resolves to the concrete type without
+# redeclaring the (invariant, mutable) attributes in the subclass.
+#
 # CanvasT intentionally has no default: its recursive invariant bound would
 # overconstrain concrete toolbar and manager subclasses.  The remaining type
-# variables default to their bounds.  None is in the annotation, not the
-# TypeVar.
+# variables default to ``Any`` specializations of their bounds so that bare
+# ``FigureCanvasBase`` / ``FigureManagerBase`` remain usable and accept any
+# concrete backend.  General-purpose consumers (``Figure.canvas``, events,
+# handlers) should spell this out as ``FigureCanvasBase[Any, Any, Any]``.
+# ``None`` is in the annotation, not the TypeVar.
 CanvasT = TypeVar("CanvasT", bound="FigureCanvasBase[Any, Any, Any]")
-ToolbarT = TypeVar("ToolbarT", bound="NavigationToolbar2", default="NavigationToolbar2")
-ManagerT = TypeVar("ManagerT", bound="FigureManagerBase", default="FigureManagerBase")
+
+class _UntypedToolkitWidget:
+    """
+    Stand-in for an untyped native GUI base class (Qt, GTK, wx).
+
+    GUI backend classes inherit their toolkit widget at runtime
+    (``QtWidgets.QWidget``, ``Gtk.DrawingArea``, ``wx.Panel``, ...).  Those
+    toolkits ship no type information, so the backend stubs list this class
+    in place of the native base.  Any attribute not declared by Matplotlib
+    resolves to ``Any``, exactly as it would when type checking against the
+    runtime module, while Matplotlib-owned members stay precisely typed.
+
+    This is a typing-only construct and does not exist at runtime.
+    """
+
+    def __getattr__(self, name: str) -> Any: ...
+    def __setattr__(self, name: str, value: Any) -> None: ...
+ToolbarT = TypeVar(
+    "ToolbarT", bound="NavigationToolbar2[Any]", default="NavigationToolbar2[Any]"
+)
+ManagerT = TypeVar(
+    "ManagerT",
+    bound="FigureManagerBase[Any, Any]",
+    default="FigureManagerBase[Any, Any]",
+)
 # CanvasClassT is the concrete FigureCanvas *class* (not instance) stored on
 # a _Backend subclass.  default lets bare _Backend remain valid.
 CanvasClassT = TypeVar(
@@ -123,8 +173,8 @@ class RendererBase(Generic[GCT]):
         self,
         gc: GCT,
         master_transform: Transform,
-        meshWidth,
-        meshHeight,
+        meshWidth: int,
+        meshHeight: int,
         coordinates: ArrayLike,
         offsets: ArrayLike | Sequence[ArrayLike],
         offsetTrans: Transform,
@@ -183,7 +233,10 @@ class RendererBase(Generic[GCT]):
     def start_rasterizing(self) -> None: ...
     def stop_rasterizing(self) -> None: ...
     def start_filter(self) -> None: ...
-    def stop_filter(self, filter_func) -> None: ...
+    def stop_filter(
+        self,
+        filter_func: Callable[[ArrayLike, float], tuple[ArrayLike, float, float]],
+    ) -> None: ...
 
 class GraphicsContextBase:
     def __init__(self) -> None: ...
@@ -253,8 +306,12 @@ class TimerBase:
     def single_shot(self) -> bool: ...
     @single_shot.setter
     def single_shot(self, ss: bool) -> None: ...
-    def add_callback(self, func: Callable, *args, **kwargs) -> Callable: ...
-    def remove_callback(self, func: Callable, *args, **kwargs) -> None: ...
+    def add_callback(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Callable[..., Any]: ...
+    def remove_callback(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> None: ...
 
 class Event:
     name: str
@@ -263,6 +320,8 @@ class Event:
     def __init__(
         self, name: str, canvas: FigureCanvasBase[Any, Any, Any], guiEvent: Any | None = ...
     ) -> None: ...
+    # Backend-authoring API: dispatch this event on ``self.canvas``.
+    def _process(self) -> None: ...
 
 class DrawEvent(Event):
     renderer: RendererBase[Any]
@@ -338,7 +397,7 @@ class PickEvent(Event):
         mouseevent: MouseEvent,
         artist: Artist,
         guiEvent: Any | None = ...,
-        **kwargs,
+        **kwargs: Any,
     ) -> None: ...
 
 class KeyEvent(LocationEvent):
@@ -367,6 +426,8 @@ class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
 
     figure: Figure
     manager: ManagerT | None
+    # Backend-authoring API: the timer class instantiated by ``new_timer``.
+    _timer_cls: type[TimerT]
     widgetlock: widgets.LockDraw
     mouse_grabber: None | Axes
     toolbar: ToolbarT | None
@@ -385,10 +446,14 @@ class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
     def grab_mouse(self, ax: Axes) -> None: ...
     def release_mouse(self, ax: Axes) -> None: ...
     def set_cursor(self, cursor: Cursors) -> None: ...
-    def draw(self, *args: Any, **kwargs: Any) -> None: ...
-    def draw_idle(self, *args: Any, **kwargs: Any) -> None: ...
+    # Runtime accepts and ignores ``*args, **kwargs``; every backend implements
+    # ``(self)``, which is the form declared here so that subclasses match.
+    def draw(self) -> None: ...
+    def draw_idle(self) -> None: ...
     @property
     def device_pixel_ratio(self) -> float: ...
+    # Backend-authoring API: record the physical/logical pixel ratio.
+    def _set_device_pixel_ratio(self, ratio: float) -> bool: ...
     def get_width_height(self, *, physical: bool = ...) -> tuple[int, int]: ...
     @classmethod
     def get_supported_filetypes(cls) -> dict[str, str]: ...
@@ -407,7 +472,7 @@ class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
         pad_inches: float | None = ...,
         bbox_extra_artists: list[Artist] | None = ...,
         backend: str | None = ...,
-        **kwargs,
+        **kwargs: Any,
     ) -> Any: ...
     @classmethod
     def get_default_filetype(cls) -> str: ...
@@ -453,30 +518,30 @@ class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
 def key_press_handler(
     event: KeyEvent,
     canvas: FigureCanvasBase[Any, Any, Any] | None = ...,
-    toolbar: NavigationToolbar2 | None = ...,
+    toolbar: NavigationToolbar2[Any] | None = ...,
 ) -> None: ...
 def button_press_handler(
     event: MouseEvent,
     canvas: FigureCanvasBase[Any, Any, Any] | None = ...,
-    toolbar: NavigationToolbar2 | None = ...,
+    toolbar: NavigationToolbar2[Any] | None = ...,
 ) -> None: ...
 def scroll_handler(
     event: MouseEvent,
     canvas: FigureCanvasBase[Any, Any, Any] | None = ...,
-    toolbar: NavigationToolbar2 | None = ...,
+    toolbar: NavigationToolbar2[Any] | None = ...,
 ) -> None: ...
 
 class NonGuiException(Exception): ...
 
-class FigureManagerBase(Generic[CanvasT]):
+class FigureManagerBase(Generic[CanvasT, ToolbarT]):
     canvas: CanvasT
     num: int | str
     key_press_handler_id: int | None
     button_press_handler_id: int | None
     scroll_handler_id: int | None
     toolmanager: ToolManager | None
-    toolbar: NavigationToolbar2 | ToolContainerBase | None
-    _toolbar2_class: type[NavigationToolbar2] | None
+    toolbar: ToolbarT | ToolContainerBase | None
+    _toolbar2_class: type[ToolbarT] | None
     _toolmanager_toolbar_class: type[ToolContainerBase] | None
     def __init__(self, canvas: CanvasT, num: int | str) -> None: ...
     @classmethod
@@ -512,9 +577,9 @@ class NavigationToolbar2(Generic[CanvasT]):
         self, event: Event, x0: float, y0: float, x1: float, y1: float
     ) -> None: ...
     def remove_rubberband(self) -> None: ...
-    def home(self, *args) -> None: ...
-    def back(self, *args) -> None: ...
-    def forward(self, *args) -> None: ...
+    def home(self, *args: Any) -> None: ...
+    def back(self, *args: Any) -> None: ...
+    def forward(self, *args: Any) -> None: ...
     def mouse_move(self, event: MouseEvent) -> None: ...
     def pan(self, *args: Any) -> None: ...
 
@@ -566,22 +631,24 @@ class ToolContainerBase:
 class _Backend(Generic[CanvasClassT]):
     backend_version: str | float
     FigureCanvas: CanvasClassT | None
-    FigureManager: type[FigureManagerBase]
+    FigureManager: type[FigureManagerBase[Any, Any]]
     mainloop: None | Callable[[], Any]
     @classmethod
     def new_figure_manager(
-        cls, num: int | str, *args, **kwargs
-    ) -> FigureManagerBase: ...
+        cls, num: int | str, *args: Any, **kwargs: Any
+    ) -> FigureManagerBase[Any, Any]: ...
     @classmethod
     def new_figure_manager_given_figure(
         cls, num: int | str, figure: Figure
-    ) -> FigureManagerBase: ...
+    ) -> FigureManagerBase[Any, Any]: ...
     @classmethod
     def draw_if_interactive(cls) -> None: ...
     @classmethod
     def show(cls, *, block: bool | None = ...) -> None: ...
+    # ``export`` is a ``staticmethod`` used as a class decorator; its single
+    # parameter is the class being decorated.
     @staticmethod
-    def export(cls) -> type[_Backend[Any]]: ...
+    def export(cls: type[_Backend[Any]]) -> type[_Backend[Any]]: ...
 
 class ShowBase(_Backend[type[FigureCanvasBase[Any, Any, Any]]]):
     def __call__(self, block: bool | None = ...) -> None: ...

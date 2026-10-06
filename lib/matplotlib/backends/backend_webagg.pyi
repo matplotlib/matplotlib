@@ -10,11 +10,7 @@ from matplotlib.backends.backend_webagg_core import (
     TimerTornado as TimerTornado,
 )
 
-# Re-export timer classes from core.
-# TimerAsyncio and TimerTornado re-exported from core.
-
-class FigureManagerWebAgg(_FigureManagerWebAggCore):
-    _toolbar2_class: type[NavigationToolbar2WebAgg]
+class FigureManagerWebAgg(_FigureManagerWebAggCore[NavigationToolbar2WebAgg]):
     @classmethod
     def pyplot_show(cls, *, block: bool | None = ...) -> None: ...
 

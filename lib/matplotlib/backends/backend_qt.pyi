@@ -11,6 +11,7 @@ from matplotlib.backend_bases import (
     ShowBase as ShowBase,
     TimerBase as TimerBase,
     ToolContainerBase as ToolContainerBase,
+    _UntypedToolkitWidget,
 )
 from matplotlib.backends.qt_editor import figureoptions as figureoptions
 from matplotlib.figure import Figure
@@ -21,10 +22,18 @@ cursord: dict[Any, Any]
 
 def _create_qApp() -> Any: ...
 
+# The Qt classes below also inherit their native Qt widget class at runtime
+# (``QtWidgets.QWidget``, ``QToolBar``, ...).  The Qt binding is chosen at
+# runtime and has no type stubs, so ``_UntypedToolkitWidget`` stands in for
+# the native base: downstream subclasses see the widget API (as ``Any``)
+# exactly as they would from the runtime module, while the Matplotlib-owned
+# members stay precisely typed.
+
 class TimerQT(TimerBase): ...
 
-class FigureCanvasQT(FigureCanvasBase[NavigationToolbar2QT, FigureManagerQT, TimerQT]):
-    required_interactive_framework: str
+class FigureCanvasQT(  # QtWidgets.QWidget
+    FigureCanvasBase[NavigationToolbar2QT, FigureManagerQT, TimerQT], _UntypedToolkitWidget
+):
     buttond: dict[Any, MouseButton]
     def set_cursor(self, cursor: Any) -> None: ...
     def mouseEventCoords(self, pos: Any = ...) -> tuple[float, float]: ...
@@ -43,18 +52,24 @@ class FigureCanvasQT(FigureCanvasBase[NavigationToolbar2QT, FigureManagerQT, Tim
     def stop_event_loop(self, event: Any = ...) -> None: ...
     def drawRectangle(self, rect: Any) -> None: ...
 
-class MainWindow: ...
+class MainWindow(_UntypedToolkitWidget): ...  # QtWidgets.QMainWindow
 
-class FigureManagerQT(FigureManagerBase[FigureCanvasQT]):
+class FigureManagerQT(FigureManagerBase[FigureCanvasQT, NavigationToolbar2QT]):
     window: Any
-    toolbar: NavigationToolbar2 | ToolContainerBase | None
     def __init__(self, canvas: FigureCanvasQT, num: int | str) -> None: ...
-    def resize(self, width: int, height: int) -> None: ...
-    def destroy(self, *args) -> None: ...
+    # Runtime names the parameters ``width, height`` while the base uses
+    # ``w, h``; the base only ever calls this positionally.
+    def resize(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, width: int, height: int
+    ) -> None: ...
+    def destroy(self, *args: Any) -> None: ...
 
-class NavigationToolbar2QT(NavigationToolbar2[FigureCanvasQT]):
+class NavigationToolbar2QT(NavigationToolbar2[FigureCanvasQT], _UntypedToolkitWidget):  # QtWidgets.QToolBar
     coordinates: bool
     locLabel: Any
+    # Backend-authoring API: toolitem method name -> QAction, used by
+    # subclasses to enable/disable or restyle the standard buttons.
+    _actions: dict[str, Any]
     def __init__(
         self,
         canvas: FigureCanvasQT,
@@ -62,22 +77,23 @@ class NavigationToolbar2QT(NavigationToolbar2[FigureCanvasQT]):
         coordinates: bool = ...,
     ) -> None: ...
     def edit_parameters(self) -> None: ...
-    def configure_subplots(self) -> Any: ...
+    # Returns the Qt dialog rather than a ``SubplotTool``.
+    def configure_subplots(self) -> Any: ...  # pyright: ignore[reportIncompatibleMethodOverride]
 
-class SubplotToolQt:
+class SubplotToolQt(_UntypedToolkitWidget):  # QtWidgets.QDialog
     def __init__(self, targetfig: Figure, parent: Any) -> None: ...
     def update_from_current_subplotpars(self) -> None: ...
 
-class ToolbarQt(ToolContainerBase):
+class ToolbarQt(ToolContainerBase, _UntypedToolkitWidget):  # QtWidgets.QToolBar
     def __init__(self, toolmanager: Any, parent: Any = ...) -> None: ...
-    # add_toolitem uses image_file as the positional image argument name.
-    def add_toolitem(
+    # Runtime names the fourth parameter ``image_file`` while the base uses
+    # ``image``; the base only ever calls this positionally.
+    def add_toolitem(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         name: str,
         group: str,
         position: int,
         image_file: str,
-        /,
         description: str,
         toggle: bool,
     ) -> None: ...

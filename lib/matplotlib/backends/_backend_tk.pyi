@@ -1,3 +1,4 @@
+import tkinter as tk
 from typing import Any
 
 from matplotlib import backend_tools
@@ -25,10 +26,13 @@ def blit(
 ) -> None: ...
 
 class TimerTk(TimerBase):
-    def __init__(self, parent: Any, *args, **kwargs) -> None: ...
+    def __init__(self, parent: tk.Misc, *args: Any, **kwargs: Any) -> None: ...
 
 class FigureCanvasTk(FigureCanvasBase[NavigationToolbar2Tk, FigureManagerTk, TimerTk]):
-    required_interactive_framework: str
+    # Backend-authoring API: the ``tk.Canvas`` hosting the figure image and the
+    # ``tk.PhotoImage`` it displays.  Subclasses bind events and draw on these.
+    _tkcanvas: tk.Canvas
+    _tkphoto: tk.PhotoImage
     def __init__(self, figure: Figure | None = ..., master: Any = ...) -> None: ...
     def resize(self, event: Any) -> None: ...
     def get_tk_widget(self) -> Any: ...
@@ -42,15 +46,22 @@ class FigureCanvasTk(FigureCanvasBase[NavigationToolbar2Tk, FigureManagerTk, Tim
     def scroll_event_windows(self, event: Any) -> None: ...
     def key_press(self, event: Any) -> None: ...
     def key_release(self, event: Any) -> None: ...
+    def new_timer(self, *args: Any, **kwargs: Any) -> TimerTk: ...
+    def start_event_loop(self, timeout: float = ...) -> None: ...
 
-class FigureManagerTk(FigureManagerBase[FigureCanvasTk]):
+class FigureManagerTk(FigureManagerBase[FigureCanvasTk, NavigationToolbar2Tk]):
     window: Any
-    toolbar: NavigationToolbar2Tk | ToolbarTk | None
     def __init__(self, canvas: FigureCanvasTk, num: int | str, window: Any) -> None: ...
+    # Runtime names the parameters ``width, height`` while the base uses
+    # ``w, h``; the base only ever calls this positionally.
+    def resize(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, width: int, height: int
+    ) -> None: ...
+    def destroy(self, *args: Any) -> None: ...
 
 def add_tooltip(widget: Any, text: str) -> None: ...
 
-class NavigationToolbar2Tk(NavigationToolbar2[FigureCanvasTk]):
+class NavigationToolbar2Tk(NavigationToolbar2[FigureCanvasTk], tk.Frame):
     window: Any
     # ``message`` is a ``tk.StringVar`` at runtime (unlike the ``str`` on the
     # base class), so it is typed as ``Any`` to avoid a spurious conflict.
@@ -63,21 +74,46 @@ class NavigationToolbar2Tk(NavigationToolbar2[FigureCanvasTk]):
         pack_toolbar: bool = ...,
     ) -> None: ...
 
-class RubberbandTk(backend_tools.RubberbandBase): ...
+class RubberbandTk(backend_tools.RubberbandBase):
+    def draw_rubberband(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, x0: float, y0: float, x1: float, y1: float
+    ) -> None: ...
 
-class ToolbarTk(ToolContainerBase):
+class ToolbarTk(ToolContainerBase, tk.Frame):
     def __init__(self, toolmanager: Any, window: Any = ...) -> None: ...
+    # Runtime names the fourth parameter ``image_file`` while the base uses
+    # ``image``; the base only ever calls this positionally.
+    def add_toolitem(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self,
+        name: str,
+        group: str,
+        position: int,
+        image_file: str,
+        description: str,
+        toggle: bool,
+    ) -> None: ...
 
-class SaveFigureTk(backend_tools.SaveFigureBase): ...
-class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase): ...
-class HelpTk(backend_tools.ToolHelpBase): ...
+class SaveFigureTk(backend_tools.SaveFigureBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class ConfigureSubplotsTk(backend_tools.ConfigureSubplotsBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class HelpTk(backend_tools.ToolHelpBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
 
 Toolbar = ToolbarTk
 
 class _BackendTk(_Backend[type[FigureCanvasTk]]): ...
 
 # Names injected into the module namespace by ``@_Backend.export``.
-backend_version: str
+backend_version: float  # ``tk.TkVersion``
 FigureCanvas = FigureCanvasTk
 FigureManager = FigureManagerTk
 

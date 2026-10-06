@@ -748,7 +748,7 @@ class PdfFile:
     multi_byte_charprocs = _api.deprecated("3.11")(property(lambda _: {}))
     type1Descriptors = _api.deprecated("3.11")(property(lambda _: {}))
 
-    @_api.deprecated("3.11")  # type: ignore[misc]
+    @_api.deprecated("3.11")
     @property
     def dviFontInfo(self):
         d = {}

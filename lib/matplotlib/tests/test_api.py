@@ -161,10 +161,9 @@ def test_deprecation_alternative() -> None:
     @_api.deprecated("1", alternative=alternative)
     def f() -> None:
         pass
-    doc = f.__doc__
-    if doc is None:
+    if f.__doc__ is None:
         pytest.skip('Documentation is disabled')
-    assert alternative in doc
+    assert alternative in f.__doc__
 
 
 def test_empty_check_in_list() -> None:

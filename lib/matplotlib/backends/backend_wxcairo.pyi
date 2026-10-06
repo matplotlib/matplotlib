@@ -9,11 +9,14 @@ from .backend_wx import (
     _FigureCanvasWxBase,
     FigureManagerWx,
     NavigationToolbar2Wx,
+    TimerWx,
 )
 
 NavigationToolbar2WxCairo = NavigationToolbar2Wx
 
-class FigureCanvasWxCairo(FigureCanvasCairo, _FigureCanvasWxBase):
+class FigureCanvasWxCairo(
+    FigureCanvasCairo[NavigationToolbar2Wx, FigureManagerWx, TimerWx], _FigureCanvasWxBase
+):
     def draw(self, drawDC: object = ...) -> None: ...
 
 class _BackendWxCairo(_BackendWx): ...

@@ -5,13 +5,15 @@ from matplotlib.backend_bases import (
     FigureCanvasBase,
     FigureManagerBase,
     GraphicsContextBase,
-    NavigationToolbar2,
+    ManagerT,
     RendererBase,
     ShowBase,
+    TimerT,
+    ToolbarT,
 )
 from matplotlib.figure import Figure
 from matplotlib.path import Path
-from matplotlib.transforms import Bbox, Transform
+from matplotlib.transforms import BboxBase, Transform
 
 from matplotlib.typing import ColorType
 
@@ -26,8 +28,9 @@ class RendererCairo(RendererBase[GraphicsContextCairo]):
     mathtext_parser: Any
     def __init__(self, dpi: float) -> None: ...
     def set_context(self, ctx: Any) -> None: ...
-    # draw_markers renames the 5th param from the base's `trans` to `transform`.
-    def draw_markers(
+    # Runtime names the fifth parameter ``transform`` while the base uses
+    # ``trans``; the base only ever calls this positionally.
+    def draw_markers(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         gc: GraphicsContextCairo,
         marker_path: Path,
@@ -47,11 +50,13 @@ class GraphicsContextCairo(GraphicsContextBase):
 class _CairoRegion:
     def __init__(self, slices: Any, data: Any) -> None: ...
 
-class FigureCanvasCairo(FigureCanvasBase[NavigationToolbar2, FigureManagerBase]):
+# Generic so GUI combinations (``FigureCanvasQTCairo`` etc.) can carry their
+# concrete toolbar, manager, and timer types.
+class FigureCanvasCairo(FigureCanvasBase[ToolbarT, ManagerT, TimerT]):
     @property
     def _renderer(self) -> RendererCairo: ...
     def get_renderer(self) -> RendererCairo: ...
-    def copy_from_bbox(self, bbox: Bbox) -> _CairoRegion: ...
+    def copy_from_bbox(self, bbox: BboxBase) -> _CairoRegion: ...
     def restore_region(self, region: _CairoRegion) -> None: ...
     def print_png(self, fobj: str | BinaryIO) -> None: ...
     def print_rgba(self, fobj: str | BinaryIO) -> None: ...
@@ -70,10 +75,10 @@ FigureManager = FigureManagerBase
 
 def new_figure_manager(
     num: int | str, *args: Any, **kwargs: Any
-) -> FigureManagerBase: ...
+) -> FigureManagerBase[Any, Any]: ...
 def new_figure_manager_given_figure(
     num: int | str, figure: Figure
-) -> FigureManagerBase: ...
+) -> FigureManagerBase[Any, Any]: ...
 def draw_if_interactive() -> None: ...
 def show(*, block: bool | None = ...) -> None: ...
 

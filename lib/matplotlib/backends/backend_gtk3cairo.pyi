@@ -4,9 +4,18 @@ from matplotlib.backend_bases import ShowBase
 from matplotlib.figure import Figure
 
 from .backend_cairo import FigureCanvasCairo
-from .backend_gtk3 import FigureCanvasGTK3, FigureManagerGTK3, _BackendGTK3
+from ._backend_gtk import TimerGTK
+from .backend_gtk3 import (
+    FigureCanvasGTK3,
+    FigureManagerGTK3,
+    NavigationToolbar2GTK3,
+    _BackendGTK3,
+)
 
-class FigureCanvasGTK3Cairo(FigureCanvasCairo, FigureCanvasGTK3):
+class FigureCanvasGTK3Cairo(
+    FigureCanvasCairo[NavigationToolbar2GTK3, FigureManagerGTK3, TimerGTK],
+    FigureCanvasGTK3,
+):
     def on_draw_event(self, widget: Any, ctx: Any) -> bool: ...
 
 class _BackendGTK3Cairo(_BackendGTK3): ...

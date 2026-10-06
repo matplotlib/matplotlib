@@ -5,9 +5,18 @@ from matplotlib.figure import Figure
 from matplotlib.transforms import BboxBase
 
 from .backend_agg import FigureCanvasAgg
-from .backend_gtk3 import FigureCanvasGTK3, FigureManagerGTK3, _BackendGTK3
+from ._backend_gtk import TimerGTK
+from .backend_gtk3 import (
+    FigureCanvasGTK3,
+    FigureManagerGTK3,
+    NavigationToolbar2GTK3,
+    _BackendGTK3,
+)
 
-class FigureCanvasGTK3Agg(FigureCanvasAgg, FigureCanvasGTK3):
+class FigureCanvasGTK3Agg(
+    FigureCanvasAgg[NavigationToolbar2GTK3, FigureManagerGTK3, TimerGTK],
+    FigureCanvasGTK3,
+):
     def on_draw_event(self, widget: Any, ctx: Any) -> bool: ...
     def blit(self, bbox: BboxBase | None = ...) -> None: ...
 

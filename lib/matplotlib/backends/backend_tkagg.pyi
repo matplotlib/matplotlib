@@ -8,16 +8,19 @@ from matplotlib.backends._backend_tk import (
     FigureCanvasTk,
     FigureManagerTk as FigureManagerTk,
     NavigationToolbar2Tk as NavigationToolbar2Tk,
+    TimerTk,
     _BackendTk,
 )
 
-class FigureCanvasTkAgg(FigureCanvasAgg, FigureCanvasTk):
+class FigureCanvasTkAgg(
+    FigureCanvasAgg[NavigationToolbar2Tk, FigureManagerTk, TimerTk], FigureCanvasTk
+):
     def blit(self, bbox: BboxBase | None = ...) -> None: ...
 
 class _BackendTkAgg(_BackendTk): ...
 
 # Names injected into the module namespace by ``@_Backend.export``.
-backend_version: str
+backend_version: float  # ``tk.TkVersion``
 FigureCanvas = FigureCanvasTkAgg
 FigureManager = FigureManagerTk
 

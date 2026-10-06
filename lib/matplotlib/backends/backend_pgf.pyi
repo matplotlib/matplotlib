@@ -29,13 +29,18 @@ class LatexManager:
         self, text: str, prop: FontProperties
     ) -> tuple[float, float, float]: ...
 
+latex_pt_to_in: float
+latex_in_to_pt: float
+mpl_pt_to_in: float
+mpl_in_to_pt: float
+
 class RendererPgf(RendererBase[GraphicsContextBase]):
     dpi: float
     figure: Figure
     image_counter: int
     def __init__(self, figure: Figure, fh: IO[Any]) -> None: ...
 
-class FigureCanvasPgf(FigureCanvasBase[NavigationToolbar2, FigureManagerBase]):
+class FigureCanvasPgf(FigureCanvasBase[NavigationToolbar2[Any], FigureManagerBase[Any, Any]]):
     filetypes: dict[str, str]
     @classmethod
     def get_default_filetype(cls) -> str: ...
@@ -83,10 +88,10 @@ FigureManager = FigureManagerBase
 
 def new_figure_manager(
     num: int | str, *args: Any, **kwargs: Any
-) -> FigureManagerBase: ...
+) -> FigureManagerBase[Any, Any]: ...
 def new_figure_manager_given_figure(
     num: int | str, figure: Figure
-) -> FigureManagerBase: ...
+) -> FigureManagerBase[Any, Any]: ...
 def draw_if_interactive() -> None: ...
 def show(*, block: bool | None = ...) -> None: ...
 

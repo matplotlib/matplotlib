@@ -11,6 +11,7 @@ from matplotlib.backend_bases import (
     ShowBase,
     TimerBase,
     ToolContainerBase,
+    _UntypedToolkitWidget,
 )
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontProperties
@@ -18,6 +19,11 @@ from matplotlib.font_manager import FontProperties
 # wx/wxPython objects have no type stubs → Any.
 
 PIXELS_PER_INCH: int
+
+# The wx classes below also inherit their native ``wx`` base at runtime.
+# wxPython has no type stubs, so ``_UntypedToolkitWidget`` stands in for the
+# native base: downstream subclasses see the widget API (as ``Any``) exactly
+# as they would from the runtime module.
 
 class TimerWx(TimerBase):
     def __init__(self, *args: Any, **kwargs: Any) -> None: ...
@@ -40,11 +46,9 @@ class GraphicsContextWx(GraphicsContextBase):
         renderer: RendererWx,  # bitmap: wx.Bitmap
     ) -> None: ...
 
-class _FigureCanvasWxBase(
-    FigureCanvasBase["NavigationToolbar2Wx", "FigureManagerWx", TimerWx]
-):  # also inherits wx.Panel which has no stubs
-    required_interactive_framework: str
-    _timer_cls: type[TimerWx]
+class _FigureCanvasWxBase(  # wx.Panel
+    FigureCanvasBase["NavigationToolbar2Wx", "FigureManagerWx", TimerWx], _UntypedToolkitWidget
+):
     keyvald: dict[Any, str]
     def __init__(
         self,
@@ -69,7 +73,7 @@ class FigureCanvasWx(_FigureCanvasWxBase):
     def print_tif(self, filename: str, **kwargs: Any) -> None: ...
     def print_xpm(self, filename: str, **kwargs: Any) -> None: ...
 
-class FigureFrameWx:  # inherits wx.Frame → Any; no mpl base
+class FigureFrameWx(_UntypedToolkitWidget):  # wx.Frame
     def __init__(
         self,
         num: int | str,
@@ -78,10 +82,7 @@ class FigureFrameWx:  # inherits wx.Frame → Any; no mpl base
         canvas_class: type[FigureCanvasWx],
     ) -> None: ...
 
-class FigureManagerWx(FigureManagerBase[_FigureCanvasWxBase]):
-    _toolbar2_class: type[NavigationToolbar2Wx]
-    _toolmanager_toolbar_class: type[ToolbarWx]
-
+class FigureManagerWx(FigureManagerBase[_FigureCanvasWxBase, NavigationToolbar2Wx]):
     frame: Any  # wx.Frame
     window: Any  # wx.Frame (alias of frame)
 
@@ -102,9 +103,7 @@ class FigureManagerWx(FigureManagerBase[_FigureCanvasWxBase]):
         num: int | str,
     ) -> FigureManagerWx: ...
 
-class NavigationToolbar2Wx(
-    NavigationToolbar2[_FigureCanvasWxBase]
-):  # also inherits wx.ToolBar which has no stubs
+class NavigationToolbar2Wx(NavigationToolbar2[_FigureCanvasWxBase], _UntypedToolkitWidget):  # wx.ToolBar
     def __init__(
         self,
         canvas: _FigureCanvasWxBase,
@@ -113,30 +112,49 @@ class NavigationToolbar2Wx(
         style: Any = ...,  # wx.TB_* flag
     ) -> None: ...
 
-class ToolbarWx(ToolContainerBase):  # also inherits wx.ToolBar → Any
+class ToolbarWx(ToolContainerBase, _UntypedToolkitWidget):  # wx.ToolBar
     def __init__(
         self,
         toolmanager: Any,  # ToolManager; wx mix-in makes base __init__ incompatible
         parent: Any = ...,  # wx.Window
         style: Any = ...,  # wx.TB_* flag
     ) -> None: ...
-    # add_toolitem uses image_file as the positional image argument name.
-    def add_toolitem(
+    # Runtime names the fourth parameter ``image_file`` while the base uses
+    # ``image``; the base only ever calls this positionally.
+    def add_toolitem(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         name: str,
         group: str,
         position: int,
         image_file: str,
-        /,
         description: str,
         toggle: bool,
     ) -> None: ...
 
-class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase): ...
-class SaveFigureWx(backend_tools.SaveFigureBase): ...
-class RubberbandWx(backend_tools.RubberbandBase): ...
-class HelpWx(backend_tools.ToolHelpBase): ...
-class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase): ...
+class ConfigureSubplotsWx(backend_tools.ConfigureSubplotsBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class SaveFigureWx(backend_tools.SaveFigureBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class RubberbandWx(backend_tools.RubberbandBase):
+    def draw_rubberband(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, x0: float, y0: float, x1: float, y1: float
+    ) -> None: ...
+
+class HelpWx(backend_tools.ToolHelpBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class ToolCopyToClipboardWx(backend_tools.ToolCopyToClipboardBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any, **kwargs: Any
+    ) -> None: ...
 class _BackendWx(_Backend[type[_FigureCanvasWxBase]]): ...
 
 # Names injected into the module namespace by ``@_Backend.export``.

@@ -1,7 +1,7 @@
 from typing import Any
 
 from matplotlib import backend_tools
-from matplotlib.backend_bases import ShowBase, ToolContainerBase
+from matplotlib.backend_bases import ShowBase, ToolContainerBase, _UntypedToolkitWidget
 from matplotlib.figure import Figure
 
 from ._backend_gtk import (
@@ -20,8 +20,14 @@ Gtk: Any
 # GTK3 uses the same TimerGTK implementation.
 TimerGTK3 = TimerGTK
 
-class FigureCanvasGTK3(_FigureCanvasGTK["NavigationToolbar2GTK3", "FigureManagerGTK3"]):
-    required_interactive_framework: str
+# The GTK widget classes below also inherit their native ``Gtk`` base at
+# runtime.  ``gi`` has no type stubs, so ``_UntypedToolkitWidget`` stands in
+# for the native base: downstream subclasses see the widget API (as ``Any``)
+# exactly as they would from the runtime module.
+
+class FigureCanvasGTK3(  # Gtk.DrawingArea
+    _FigureCanvasGTK["NavigationToolbar2GTK3", "FigureManagerGTK3"], _UntypedToolkitWidget
+):
     # GTK signal-handler methods (new; not base overrides):
     def scroll_event(self, widget: Any, event: Any) -> bool: ...
     def button_press_event(self, widget: Any, event: Any) -> bool: ...
@@ -35,28 +41,40 @@ class FigureCanvasGTK3(_FigureCanvasGTK["NavigationToolbar2GTK3", "FigureManager
     def configure_event(self, widget: Any, event: Any) -> bool: ...
     def on_draw_event(self, widget: Any, ctx: Any) -> bool: ...
 
-class NavigationToolbar2GTK3(_NavigationToolbar2GTK[FigureCanvasGTK3]): ...
+class NavigationToolbar2GTK3(  # Gtk.Toolbar
+    _NavigationToolbar2GTK[FigureCanvasGTK3], _UntypedToolkitWidget
+): ...
 
-class ToolbarGTK3(ToolContainerBase):
-    # add_toolitem uses image_file as the positional image argument name.
-    def add_toolitem(
+class ToolbarGTK3(ToolContainerBase, _UntypedToolkitWidget):  # Gtk.Box
+    # Runtime names the fourth parameter ``image_file`` while the base uses
+    # ``image``; the base only ever calls this positionally.
+    def add_toolitem(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         name: str,
         group: str,
         position: int,
         image_file: str,
-        /,
         description: str,
         toggle: bool,
     ) -> None: ...
 
-class SaveFigureGTK3(backend_tools.SaveFigureBase): ...
-class HelpGTK3(backend_tools.ToolHelpBase): ...
-class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase): ...
+class SaveFigureGTK3(backend_tools.SaveFigureBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any, **kwargs: Any
+    ) -> None: ...
 
-class FigureManagerGTK3(_FigureManagerGTK[FigureCanvasGTK3]):
-    _toolbar2_class: type[NavigationToolbar2GTK3]
-    _toolmanager_toolbar_class: type[ToolbarGTK3]
+class HelpGTK3(backend_tools.ToolHelpBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class ToolCopyToClipboardGTK3(backend_tools.ToolCopyToClipboardBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any, **kwargs: Any
+    ) -> None: ...
+
+class FigureManagerGTK3(_FigureManagerGTK[FigureCanvasGTK3, NavigationToolbar2GTK3]):
+    ...
 
 class _BackendGTK3(_BackendGTK): ...
 

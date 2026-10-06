@@ -1,4 +1,6 @@
-from typing import Any
+from typing import Any, overload
+
+from _typeshed import SupportsWrite
 
 from matplotlib.backend_bases import _Backend, ShowBase
 from matplotlib.figure import Figure
@@ -12,15 +14,17 @@ from matplotlib.backends.backend_webagg_core import (
 
 class NavigationIPy(NavigationToolbar2WebAgg): ...
 
-class FigureManagerNbAgg(_FigureManagerWebAggCore):
-    _toolbar2_class: type[NavigationIPy]
-    ToolbarCls: type[NavigationIPy]
+class FigureManagerNbAgg(_FigureManagerWebAggCore[NavigationIPy]):
     def display_js(self) -> None: ...
     def reshow(self) -> None: ...
     @property
     def connected(self) -> bool: ...
+    @overload
     @classmethod
-    def get_javascript(cls, stream: Any = ...) -> str: ...
+    def get_javascript(cls, stream: None = ...) -> str: ...
+    @overload
+    @classmethod
+    def get_javascript(cls, stream: SupportsWrite[str]) -> None: ...
     def clearup_closed(self) -> None: ...
     def remove_comm(self, comm_id: str) -> None: ...
 

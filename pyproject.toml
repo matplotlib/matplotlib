@@ -376,6 +376,13 @@ files = [
 follow_imports = "silent"
 warn_unreachable = true
 
+[[tool.mypy.overrides]]
+# The negative type checks in this module are written as ``# type: ignore``
+# comments; an unused ignore means a declaration stopped rejecting invalid
+# usage, so treat it as an error.
+module = "matplotlib.tests.test_backend_types"
+warn_unused_ignores = true
+
 [tool.rstcheck]
 ignore_directives = [
     # matplotlib.sphinxext.mathmpl

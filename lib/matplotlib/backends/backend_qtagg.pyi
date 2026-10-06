@@ -7,10 +7,13 @@ from matplotlib.backends.backend_qt import (
     FigureCanvasQT,
     FigureManagerQT as FigureManagerQT,
     NavigationToolbar2QT as NavigationToolbar2QT,
+    TimerQT,
     _BackendQT,
 )
 
-class FigureCanvasQTAgg(FigureCanvasAgg, FigureCanvasQT):
+class FigureCanvasQTAgg(
+    FigureCanvasAgg[NavigationToolbar2QT, FigureManagerQT, TimerQT], FigureCanvasQT
+):
     def paintEvent(self, event: Any) -> None: ...
 
 class _BackendQTAgg(_BackendQT): ...

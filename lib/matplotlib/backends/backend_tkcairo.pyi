@@ -6,14 +6,18 @@ from matplotlib.backends.backend_cairo import FigureCanvasCairo
 from matplotlib.backends._backend_tk import (
     FigureCanvasTk,
     FigureManagerTk,
+    NavigationToolbar2Tk,
+    TimerTk,
     _BackendTk,
 )
 
-class FigureCanvasTkCairo(FigureCanvasCairo, FigureCanvasTk): ...
+class FigureCanvasTkCairo(
+    FigureCanvasCairo[NavigationToolbar2Tk, FigureManagerTk, TimerTk], FigureCanvasTk
+): ...
 class _BackendTkCairo(_BackendTk): ...
 
 # Names injected into the module namespace by ``@_Backend.export``.
-backend_version: str
+backend_version: float  # ``tk.TkVersion``
 FigureCanvas = FigureCanvasTkCairo
 FigureManager = FigureManagerTk
 

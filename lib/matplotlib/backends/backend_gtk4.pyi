@@ -1,7 +1,7 @@
 from typing import Any
 
-from matplotlib import _api, backend_tools
-from matplotlib.backend_bases import ShowBase, ToolContainerBase
+from matplotlib import backend_tools
+from matplotlib.backend_bases import ShowBase, ToolContainerBase, _UntypedToolkitWidget
 from matplotlib.figure import Figure
 
 from ._backend_gtk import (
@@ -20,10 +20,14 @@ Gtk: Any
 # GTK4 uses the same TimerGTK implementation.
 TimerGTK4 = TimerGTK
 
-class FigureCanvasGTK4(_FigureCanvasGTK["NavigationToolbar2GTK4", "FigureManagerGTK4"]):
-    required_interactive_framework: str
-    @_api.classproperty
-    def supports_blit(cls) -> bool: ...
+# The GTK widget classes below also inherit their native ``Gtk`` base at
+# runtime.  ``gi`` has no type stubs, so ``_UntypedToolkitWidget`` stands in
+# for the native base: downstream subclasses see the widget API (as ``Any``)
+# exactly as they would from the runtime module.
+
+class FigureCanvasGTK4(  # Gtk.DrawingArea
+    _FigureCanvasGTK["NavigationToolbar2GTK4", "FigureManagerGTK4"], _UntypedToolkitWidget
+):
     # GTK4 event-controller signal-handler methods (new; not base overrides):
     def scroll_event(self, controller: Any, dx: float, dy: float) -> bool: ...
     def button_press_event(
@@ -44,28 +48,40 @@ class FigureCanvasGTK4(_FigureCanvasGTK["NavigationToolbar2GTK4", "FigureManager
     def resize_event(self, area: Any, width: int, height: int) -> None: ...
     def on_draw_event(self, widget: Any, ctx: Any) -> bool: ...
 
-class NavigationToolbar2GTK4(_NavigationToolbar2GTK[FigureCanvasGTK4]): ...
+class NavigationToolbar2GTK4(  # Gtk.Box
+    _NavigationToolbar2GTK[FigureCanvasGTK4], _UntypedToolkitWidget
+): ...
 
-class ToolbarGTK4(ToolContainerBase):
-    # add_toolitem uses image_file as the positional image argument name.
-    def add_toolitem(
+class ToolbarGTK4(ToolContainerBase, _UntypedToolkitWidget):  # Gtk.Box
+    # Runtime names the fourth parameter ``image_file`` while the base uses
+    # ``image``; the base only ever calls this positionally.
+    def add_toolitem(  # pyright: ignore[reportIncompatibleMethodOverride]
         self,
         name: str,
         group: str,
         position: int,
         image_file: str,
-        /,
         description: str,
         toggle: bool,
     ) -> None: ...
 
-class SaveFigureGTK4(backend_tools.SaveFigureBase): ...
-class HelpGTK4(backend_tools.ToolHelpBase): ...
-class ToolCopyToClipboardGTK4(backend_tools.ToolCopyToClipboardBase): ...
+class SaveFigureGTK4(backend_tools.SaveFigureBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any, **kwargs: Any
+    ) -> None: ...
 
-class FigureManagerGTK4(_FigureManagerGTK[FigureCanvasGTK4]):
-    _toolbar2_class: type[NavigationToolbar2GTK4]
-    _toolmanager_toolbar_class: type[ToolbarGTK4]
+class HelpGTK4(backend_tools.ToolHelpBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any
+    ) -> None: ...
+
+class ToolCopyToClipboardGTK4(backend_tools.ToolCopyToClipboardBase):
+    def trigger(  # pyright: ignore[reportIncompatibleMethodOverride]
+        self, *args: Any, **kwargs: Any
+    ) -> None: ...
+
+class FigureManagerGTK4(_FigureManagerGTK[FigureCanvasGTK4, NavigationToolbar2GTK4]):
+    ...
 
 class _BackendGTK4(_BackendGTK): ...
 
