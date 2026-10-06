@@ -57,6 +57,59 @@ def test_label_fontsize_override(method, value, expected):
     assert ax.yaxis.label.get_fontsize() == 14
 
 
+@pytest.mark.parametrize("method", ["set_fontsize", "set_size"])
+def test_label_fontsize_auto(method):
+    fig = plt.figure()
+    ax = fig.add_subplot(axes_class=HostAxes)
+    ax.set_ylabel("Axis label", fontsize=20)
+    label = ax.axis["left"].label
+    ax.axis["right"].label.set_fontsize(20)
+    label.set_fontsize(fontsize=30)
+    label.set_fontweight("bold")
+    getattr(label, method)("auto")
+    ax.yaxis.label.get_fontproperties().set_size(14)
+    assert label.get_fontsize() == 14
+    assert label.get_fontproperties().get_size_in_points() == 14
+    assert label.get_fontweight() == "bold"
+    assert ax.axis["right"].label.get_fontsize() == 20
+
+    label.get_fontproperties().set_size(18)
+    ax.yaxis.label.set_fontsize(22)
+    assert label.get_fontsize() == 18
+    getattr(label, method)("auto")
+    assert label.get_fontsize() == 22
+
+
+def test_axislabel_fontsize_auto():
+    fig, ax = plt.subplots()
+    label = AxisLabel(axis=ax.yaxis, fontsize="auto")
+    ax.yaxis.label.set_fontsize(20)
+    assert label.get_fontsize() == 20
+    label.set_fontsize(fontsize=14)
+    ax.yaxis.label.set_fontsize(22)
+    assert label.get_fontsize() == 14
+
+
+def test_axislabel_fontsize_auto_without_axis():
+    label = AxisLabel(fontsize=12)
+    with pytest.raises(ValueError, match="requires a reference axis"):
+        label.set_fontsize("auto")
+    assert label.get_fontsize() == 12
+
+
+@pytest.mark.parametrize("method", ["set_fontsize", "set_size"])
+@pytest.mark.parametrize("empty_ticks", [False, True])
+def test_ticklabel_fontsize_no_auto(method, empty_ticks):
+    fig, ax = plt.subplots()
+    if empty_ticks:
+        ax.yaxis.set_ticks([])
+    label = TickLabels(axis=ax.yaxis, fontsize=12)
+    with pytest.raises(ValueError, match="Size is invalid"):
+        getattr(label, method)("auto")
+    ax.yaxis.label.set_fontsize(20)
+    assert label.get_fontsize() == 12
+
+
 def test_label_fontproperties_mutable():
     fig = plt.figure()
     ax = fig.add_subplot(axes_class=HostAxes)

@@ -336,6 +336,10 @@ class AxisLabel(AttributeCopier, LabelBase):
     properties can be changed as a normal `.Text`.
 
     To change the pad between tick labels and axis label, use `set_pad`.
+
+    Labels created by `AxisArtist` follow the underlying axis label's font
+    size by default. Setting a size directly or replacing the font properties
+    makes the size independent; ``set_fontsize("auto")`` restores inheritance.
     """
 
     def __init__(self, *args, axis_direction="bottom", axis=None, **kwargs):
@@ -370,6 +374,28 @@ class AxisLabel(AttributeCopier, LabelBase):
     def get_ref_artist(self):
         # docstring inherited
         return self._axis.label
+
+    def set_fontsize(self, fontsize: float | str) -> None:
+        """
+        Set the font size, or follow the reference axis label's font size.
+
+        Parameters
+        ----------
+        fontsize : float or str
+            A size accepted by `.Text.set_fontsize`, or "auto" to follow the
+            reference label. "auto" requires an *axis* and leaves other font
+            properties unchanged. Setting a size directly, including through
+            `get_fontproperties`, or replacing the font properties ends this
+            inheritance. Each axisartist label can be overridden independently.
+        """
+        if cbook._str_equal(fontsize, "auto"):
+            if self._axis is None:
+                raise ValueError("Automatic font size requires a reference axis")
+            self._fontproperties = _AxisLabelFontProperties(
+                self._fontproperties, self.get_ref_artist())
+            self.stale = True
+        else:
+            super().set_fontsize(fontsize)
 
     def get_text(self):
         # docstring inherited
@@ -471,6 +497,9 @@ class TickLabels(AxisLabel):  # mtext.Text
 
     To change the pad between ticks and ticklabels, use `~.AxisLabel.set_pad`.
     """
+
+    # Tick labels retain Text's font sizing, without axis-label inheritance.
+    set_fontsize = mtext.Text.set_fontsize
 
     def __init__(self, *, axis_direction="bottom", **kwargs):
         super().__init__(**kwargs)
@@ -1050,15 +1079,12 @@ class AxisArtist(martist.Artist):
         self.label = AxisLabel(
             0, 0, "__from_axes__",
             color="auto",
-            fontsize=kwargs.get("labelsize", mpl.rcParams['axes.labelsize']),
+            fontsize=kwargs.get("labelsize", "auto"),
             fontweight=mpl.rcParams['axes.labelweight'],
             axis=self.axis,
             transform=tr,
             axis_direction=self._axis_direction,
         )
-        if "labelsize" not in kwargs:
-            self.label._fontproperties = _AxisLabelFontProperties(
-                self.label.get_fontproperties(), self.axis.label)
         self.label.set_figure(self.axes.get_figure(root=False))
         labelpad = kwargs.get("labelpad", 5)
         self.label.set_pad(labelpad)

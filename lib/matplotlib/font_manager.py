@@ -1474,7 +1474,8 @@ class FontManager:
         if directory is None and os.getenv('MPL_IGNORE_SYSTEM_FONTS'):
             directory = cbook._get_data_path('fonts')
         if isinstance(prop, FontProperties):
-            # Cache a snapshot, which cannot change or retain a reference artist.
+            # Snapshot before the cache creates its key, so it cannot change
+            # or retain a reference artist.
             prop = prop.copy()
         ret = self._findfont_cached(
             prop, fontext, directory, fallback_to_default, rebuild_if_missing,
