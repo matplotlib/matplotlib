@@ -385,8 +385,9 @@ class AxisLabel(AttributeCopier, LabelBase):
             A size accepted by `.Text.set_fontsize`, or "auto" to follow the
             reference label. "auto" requires an *axis* and leaves other font
             properties unchanged. Setting a size directly, including through
-            `get_fontproperties`, or replacing the font properties ends this
-            inheritance. Each axisartist label can be overridden independently.
+            `~matplotlib.text.Text.get_fontproperties`, or replacing the font
+            properties ends this inheritance. Each axisartist label can be
+            overridden independently.
         """
         if cbook._str_equal(fontsize, "auto"):
             if self._axis is None:
