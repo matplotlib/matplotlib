@@ -2123,7 +2123,9 @@ default: %(va)s
                 return value
             if value in ["all", "row", "col"]:
                 return value
-            raise ValueError(f"{param_name} must be True, False, 'all', 'row', or 'col'")
+            raise ValueError(
+                f"{param_name} must be True, False, 'all', 'row', or 'col'"
+            )
 
         sharex = _validate_share_param("sharex", sharex)
         sharey = _validate_share_param("sharey", sharey)
@@ -2299,20 +2301,26 @@ default: %(va)s
         def _apply_sharing(ret_dict, share_val, axis_name):
             if share_val is False:
                 return
-            
+
             # Group the axes based on their spans
             groups = {}
             for ax in ret_dict.values():
                 span = ax.get_subplotspec()
                 grid = span.get_gridspec()
-                
+
                 if share_val is True or share_val == "all":
                     groups.setdefault("all", []).append(ax)
                 elif share_val == "row":
-                    groups.setdefault((grid, span.rowspan.start, span.rowspan.stop), []).append(ax)
+                    groups.setdefault(
+                        (grid, span.rowspan.start, span.rowspan.stop),
+                        []
+                    ).append(ax)
                 elif share_val == "col":
-                    groups.setdefault((grid, span.colspan.start, span.colspan.stop), []).append(ax)
-            
+                    groups.setdefault(
+                        (grid, span.colspan.start, span.colspan.stop),
+                        []
+                    ).append(ax)
+
             # Bind the groups together
             for group in groups.values():
                 if len(group) > 1:
@@ -2322,7 +2330,7 @@ default: %(va)s
                             child_ax.sharex(parent)
                         else:
                             child_ax.sharey(parent)
-                
+
                 # Handle tick label visibility per isolated group
                 if axis_name == 'x':
                     # Find the bottom-most edge within a specific group
