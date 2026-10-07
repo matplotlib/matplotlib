@@ -9101,8 +9101,26 @@ such objects
 
         See Also
         --------
+        .cbook.violin_stats : calculate statistical properties of a dataset for violin
+            plotting.
         .Axes.violin : Draw a violin from pre-computed statistics.
         boxplot : Draw a box and whisker plot.
+
+        Notes
+        -----
+        The following calls are identical ::
+
+            ax.violinplot()
+
+        and ::
+
+            from matplotlib.cbook import violin_stats
+
+            stats = violin_stats()
+            ax.violin(stats)
+
+        `.violin_stats` gives you more control of the statistical calculations than
+        `.violinplot`.
         """
         vpstats = cbook.violin_stats(dataset, ("GaussianKDE", bw_method),
                                      points=points, quantiles=quantiles)
@@ -9242,6 +9260,22 @@ such objects
             Draw a violin plot from data instead of pre-computed statistics.
         .cbook.violin_stats:
             Calculate a *vpstats* dictionary from data, suitable for passing to violin.
+
+        Notes
+        -----
+        The following calls are identical ::
+
+            ax.violinplot()
+
+        and ::
+
+            from matplotlib.cbook import violin_stats
+
+            stats = violin_stats()
+            ax.violin(stats)
+
+        `.violin_stats` gives you more control of the statistical calculations than
+        `.violinplot`.
         """
 
         # Statistical quantities to be plotted on the violins
