@@ -1629,8 +1629,9 @@ _DEFINITION = [
     ),
     _Section(
         "Lines",
-        description="Default properties for line objects, such as those returned by "
-                    "plot()."
+        description="Default properties for line objects. Some plotting functions such "
+                    "as `~.Axes.plot` may override them with information from the "
+                    "property cycle; see :ref:`color_cycle`."
     ),
     _Param(
         "lines.linewidth",
@@ -1763,7 +1764,8 @@ _DEFINITION = [
         default="auto",
         type=Literal["auto", "flat", "nearest", "gouraud"],
         validator=["auto", "flat", "nearest", "gouraud"],
-        description="The default shading mode for `.pcolor` and `.pcolormesh`."
+        description="The default shading mode for `~.Axes.pcolor` and "
+                    "`~.Axes.pcolormesh`."
     ),
     _Param(
         "pcolormesh.snap",
@@ -1817,7 +1819,7 @@ _DEFINITION = [
     ),
     _Section("Hatches"),
     _Param("hatch.color", "edge", ':mpltype:`color` or "edge"',
-           _validate_color_or_edge, description="The color used for hatch strokes."),
+           _validate_color_or_edge, description="The color of hatch strokes."),
     _Param("hatch.linewidth", 1.0, float, validate_float,
            description="The width of hatch strokes, in points."),
     _Section("Boxplot"),
@@ -1826,11 +1828,14 @@ _DEFINITION = [
     _Param("boxplot.vertical", True, bool, validate_bool,
            description="Whether to draw vertical boxplots."),
     _Param("boxplot.whiskers", 1.5, float | tuple[float, float], validate_whiskers,
-           description="The whisker length as a multiple of the interquartile range, or a (lower, upper) pair."),
+           description="The whisker length as a multiple of the interquartile range, "
+                       "or a (lower, upper) pair."),
     _Param("boxplot.bootstrap", None, int | None, validate_int_or_None,
-           description="The number of bootstrap resamples used to estimate boxplot notches; None disables bootstrapping."),
+           description="The number of bootstrap resamples used to estimate boxplot "
+                       "notches; None disables bootstrapping."),
     _Param("boxplot.patchartist", False, bool, validate_bool,
-           description="Whether boxplots should be drawn as patches instead of line artists."),
+           description="Whether boxplots should be drawn as patches instead of line "
+                       "artists."),
     _Param("boxplot.showmeans", False, bool, validate_bool,
            description="Whether to draw the mean on boxplots."),
     _Param("boxplot.showcaps", True, bool, validate_bool,
@@ -1844,7 +1849,7 @@ _DEFINITION = [
     _Param("boxplot.flierprops.color", "black", ":mpltype:`color`", validate_color,
            description="The color of the flier markers."),
     _Param("boxplot.flierprops.marker", "o", _MarkerType, _validate_marker,
-           description="The marker style used for flier points."),
+           description="The marker style used for flier markers."),
     _Param("boxplot.flierprops.markerfacecolor", "none",
            ':mpltype:`color` or "auto"', validate_color_or_auto,
            description="The face color of flier markers."),
@@ -1906,8 +1911,7 @@ _DEFINITION = [
     _Param("font.family", ["sans-serif"], list[str], validate_stringlist,
            description="A prioritized list of font families to try."),
     _Param("font.style", "normal", Literal["normal", "italic", "oblique"],
-           validate_string,
-           description="The default font style."),
+           validate_string, description="The default font style."),
     _Param("font.variant", "normal", Literal["normal", "small-caps"], validate_string,
            description="The default font variant."),
     _Param("font.weight", "normal", _FontWeightType, validator=validate_fontweight,
@@ -1926,7 +1930,8 @@ _DEFINITION = [
         ],
         type=list[str],
         validator=validate_stringlist,
-        description="Preferred serif font families."
+        description='Fonts to be used for the generic "serif" font family '
+                    'specifier, in descending priority.'
     ),
     _Param(
         "font.sans-serif",
@@ -1937,7 +1942,8 @@ _DEFINITION = [
         ],
         type=list[str],
         validator=validate_stringlist,
-        description="Preferred sans-serif font families."
+        description='Fonts to be used for the generic "sans-serif" font family '
+                    'specifier, in descending priority.'
     ),
     _Param(
         "font.cursive",
@@ -1947,14 +1953,16 @@ _DEFINITION = [
         ],
         type=list[str],
         validator=validate_stringlist,
-        description="Preferred cursive font families."
+        description='Fonts to be used for the generic "cursive" font family '
+                    'specifier, in descending priority.'
     ),
     _Param(
         "font.fantasy",
         default=["Chicago", "Charcoal", "Impact", "Western", "xkcd script", "fantasy"],
         type=list[str],
         validator=validate_stringlist,
-        description="Preferred fantasy font families."
+        description='Fonts to be used for the generic "fantasy" font family '
+                    'specifier, in descending priority.'
     ),
     _Param(
         "font.monospace",
@@ -1965,7 +1973,8 @@ _DEFINITION = [
         ],
         type=list[str],
         validator=validate_stringlist,
-        description="Preferred monospace font families."
+        description='Fonts to be used for the generic "monospace" font family '
+                    'specifier, in descending priority.'
     ),
     _Param(
         "font.enable_last_resort",
@@ -2218,8 +2227,9 @@ _DEFINITION = [
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="The title position in Axes-relative units; None enables"
-                    "automatic placement."
+        description="The vertical title position in "
+                    ":ref:`axes coordinates <coordinate-systems>`; "
+                    "None enables automatic placement."
     ),
     _Param(
         "axes.titlepad",
@@ -2353,7 +2363,8 @@ _DEFINITION = [
              (0.09019607843137255, 0.7450980392156863, 0.8117647058823529)],
         ),
         validator=validate_cycler,
-        description="The cycler used to cycle through line colors and other artist properties."
+        description="The property cycle used by plotting functions to vary artist "
+                    "properties on subsequent calls."
     ),
     _Param(
         "axes.xmargin",
@@ -3019,9 +3030,10 @@ _DEFINITION = [
         default="None",
         type=':mpltype:`color` or {"linecolor", "markerfacecolor", "markeredgecolor"}',
         validator=_validate_color_or_linecolor,
-        description='The color of legend text; use "linecolor", "markerfacecolor", '
-                    'or "markeredgecolor" line- or marker-based colors to '
-                    'follow the respective color of the legend handle.'
+        description="The color of the labels in legend entries. The special values "
+                    "'linecolor', 'markerfacecolor', and 'markeredgecolor' "
+                    "infer the color from the associated legend handle; i.e. using "
+                    "'linecolor' will render the label of a red line also in red."
     ),
     _Param(
         "legend.title_fontsize",
@@ -3266,7 +3278,7 @@ _DEFINITION = [
         default="auto",
         type=str,
         validator=validate_string,
-        description="The default interpolation method for images; see `.Axes. imshow` "
+        description="The default interpolation method for images; see `~.Axes.imshow` "
                     "for details.",
     ),
     _Param(
@@ -3275,7 +3287,7 @@ _DEFINITION = [
         type=Literal["auto", "data", "rgba"],
         validator=["auto", "data", "rgba"],
         description="The stage at which image interpolation is applied; "
-                    "see `.Axes. imshow` for details.",
+                    "see `~.Axes.imshow` for details.",
     ),
     _Param(
         "image.cmap",
@@ -3381,8 +3393,10 @@ _DEFINITION = [
             "auto", "sturges", "fd", "doane", "scott", "rice", "sqrt"
         ],
         validator=validate_hist_bins,
-        description="The default histogram bin count, explicit list of bin edges, or "
-                    "automatic binning mode."
+        description="The default histogram bins. An integer specifies a fixed number "
+                    "of bins; a list of floats specifies the bin edges; the strings "
+                    "define binning strategies. See also the *bins* parameter in "
+                    "`~.Axes.hist`."
     ),
     _Section("Scatter plots"),
     _Param(
@@ -3483,7 +3497,10 @@ _DEFINITION = [
         default="png",
         type=str,
         validator=validate_string,
-        description="The default file format for `savefig`, such as {png, ps, pdf, svg}."
+        description="Fallback file format for`~.Figure.savefig` if no format is "
+                    "set explicitly and it also couldn't be inferred from the file "
+                    "extension. Valid values are the values that the "
+                    "*format* parameter of ``savefig`` accepts."
     ),
     _Param(
         "savefig.bbox",
@@ -3498,7 +3515,7 @@ _DEFINITION = [
         default=0.1,
         type=float,
         validator=validate_float,
-        description="The padding to use when `savefig.bbox` is set to 'tight'."
+        description="The padding to use when 'savefig.bbox' is set to 'tight'."
     ),
     _Param(
         "savefig.directory",
@@ -3523,7 +3540,8 @@ _DEFINITION = [
         default="portrait",
         type=Literal["landscape", "portrait"],
         validator=["landscape", "portrait"],
-        description="The page orientation for saved figures, for PostScript output only."
+        description="The page orientation for saved figures, for PostScript output "
+                    "only."
     ),
     _Subsection("Mac OSX backend parameters"),
     _Param(
@@ -3556,7 +3574,7 @@ _DEFINITION = [
              *[f"{ab}{i}" for ab in "ab" for i in range(11)],
              ],
         ),
-        description="The default PostScript paper size: {figure, letter, legal, ledger, A0-A10, B0-B10}."
+        description="The default PostScript paper size."
     ),
     _Param(
         "ps.useafm",
@@ -3595,7 +3613,8 @@ _DEFINITION = [
         default=6,
         type=int,
         validator=validate_int,
-        description="An integer from 0 to 9; 0 disables compression."
+        description="The PDF compression level between 0 (compression disabled) and "
+                    "9 (maximal compression)."
     ),
     _Param(
         "pdf.fonttype",
@@ -3610,7 +3629,8 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="Whether to use the 14 standard PDF fonts instead of embedding fonts."
+        description="Whether to only use the Base 14 fonts defined by the PDF "
+                    "specification. If False, fonts are embedded into the PDF."
     ),
     _Param(
         "pdf.inheritcolor",
@@ -3665,7 +3685,7 @@ _DEFINITION = [
         default="",
         type=str,
         validator=validate_string,
-        description="See `text.latex.preamble` for documentation."
+        description="See 'text.latex.preamble' for documentation."
     ),
     _Param(
         "pgf.texsystem",
@@ -3680,7 +3700,7 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="Set this when you want to generate hardcopy docstrings."
+        description="Whether to generate hardcopy docstrings."
     ),
     _Section(
         "Interactive keymaps",
@@ -3692,105 +3712,109 @@ _DEFINITION = [
         default=["f", "ctrl+f"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for toggling fullscreen mode."
+        description="The keyboard shortcuts for toggling fullscreen mode."
     ),
     _Param(
         "keymap.home",
         default=["h", "r", "home"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for resetting the view."
+        description="The keyboard shortcuts for resetting the view."
     ),
     _Param(
         "keymap.back",
         default=["left", "c", "backspace", "MouseButton.BACK"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for moving backward in the view history."
+        description="The keyboard shortcuts for moving backward in the view history."
     ),
     _Param(
         "keymap.forward",
         default=["right", "v", "MouseButton.FORWARD"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for moving forward in the view history."
+        description="The keyboard shortcuts for moving forward in the view history."
     ),
     _Param(
         "keymap.pan",
         default=["p"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for panning the view."
+        description="The keyboard shortcuts for panning the view."
     ),
     _Param(
         "keymap.zoom",
         default=["o"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for zooming the view."
+        description="The keyboard shortcuts for zooming the view."
     ),
     _Param(
         "keymap.save",
         default=["s", "ctrl+s"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for saving the current figure."
+        description="The keyboard shortcuts for saving the current figure."
     ),
     _Param(
         "keymap.help",
         default=["f1"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for showing help about active tools."
+        description="The keyboard shortcuts for showing help about active tools."
     ),
     _Param(
         "keymap.quit",
         default=["ctrl+w", "cmd+w", "q"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for closing the current figure."
+        description="The keyboard shortcuts for closing the current figure."
     ),
     _Param(
         "keymap.quit_all",
         default=[],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for closing all figures."
+        description="The keyboard shortcuts for closing all figures."
     ),
     _Param(
         "keymap.grid",
         default=["g"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for toggling the major grid in the current axes."
+        description="The keyboard shortcuts for toggling the major grid in the "
+                    "current axes."
     ),
     _Param(
         "keymap.grid_minor",
         default=["G"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for toggling the minor grid in the current axes."
+        description="The keyboard shortcuts for toggling the minor grid in the "
+                    "current axes."
     ),
     _Param(
         "keymap.yscale",
         default=["l"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for toggling the y-axis scale between log and linear."
+        description="The keyboard shortcuts for toggling the y-axis scale between "
+                    "log and linear."
     ),
     _Param(
         "keymap.xscale",
         default=["k", "L"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for toggling the x-axis scale between log and linear."
+        description="The keyboard shortcuts for toggling the x-axis scale between "
+                    "log and linear."
     ),
     _Param(
         "keymap.copy",
         default=["ctrl+c", "cmd+c"],
         type=list[str],
         validator=validate_stringlist,
-        description="Keyboard shortcuts for copying the figure to the clipboard."
+        description="The keyboard shortcuts for copying the figure to the clipboard."
     ),
     _Section("Animation"),
     _Param(
@@ -3871,7 +3895,7 @@ _DEFINITION = [
         default=20.0,
         type=float,
         validator=validate_float,
-        description="The maximum base64-encoded animation size, in MB, for HTML "
+        description="The maximum Base64-encoded animation size, in MB, for HTML "
                     "output such as IPython notebooks."
     ),
     _Param(
