@@ -1567,14 +1567,14 @@ _DEFINITION = [
         default=8988,
         type=int,
         validator=validate_int,
-        description="The port to use for the web server in the WebAgg backend."
+        description="The server port in the WebAgg backend."
     ),
     _Param(
         "webagg.address",
         default="127.0.0.1",
         type=str,
         validator=validate_string,
-        description="The address on which the WebAgg web server should be reachable."
+        description="The server address in the WebAgg backend."
     ),
     _Param(
         "webagg.port_retries",
@@ -1589,7 +1589,7 @@ _DEFINITION = [
         default=True,
         type=bool,
         validator=validate_bool,
-        description="When True, open the web browser to the plot that is shown"
+        description="When True, open the web browser to the plot that is shown."
     ),
     _Param(
         "backend_fallback",
@@ -1629,7 +1629,7 @@ _DEFINITION = [
     ),
     _Section(
         "Lines",
-        description="Default properties for line objects. Some plotting functions such "
+        description="Default line properties. Some plotting functions such "
                     "as `~.Axes.plot` may override them with information from the "
                     "property cycle; see :ref:`color_cycle`."
     ),
@@ -1849,7 +1849,7 @@ _DEFINITION = [
     _Param("boxplot.flierprops.color", "black", ":mpltype:`color`", validate_color,
            description="The color of the flier markers."),
     _Param("boxplot.flierprops.marker", "o", _MarkerType, _validate_marker,
-           description="The marker style used for flier markers."),
+           description="The marker style of flier markers."),
     _Param("boxplot.flierprops.markerfacecolor", "none",
            ':mpltype:`color` or "auto"', validate_color_or_auto,
            description="The face color of flier markers."),
@@ -1860,9 +1860,9 @@ _DEFINITION = [
     _Param("boxplot.flierprops.markersize", 6.0, float, validate_float,
            description="The flier marker size, in points."),
     _Param("boxplot.flierprops.linestyle", "none", _LineStyleType, _validate_linestyle,
-           description="The line style used for flier markers."),
+           description="The line style of flier markers."),
     _Param("boxplot.flierprops.linewidth", 1.0, float, validate_float,
-           description="The line width used for flier markers, in points."),
+           description="The line width of flier markers, in points."),
     _Param("boxplot.boxprops.color", "black", ':mpltype:`color`', validate_color,
            description="The box outline color."),
     _Param("boxplot.boxprops.linewidth", 1.0, float, validate_float,
@@ -1890,7 +1890,7 @@ _DEFINITION = [
     _Param("boxplot.meanprops.color", "C2", ':mpltype:`color`', validate_color,
            description="The mean marker or line color."),
     _Param("boxplot.meanprops.marker", "^", _MarkerType, _validate_marker,
-           description="The marker style used for the mean."),
+           description="The marker style of the mean marker."),
     _Param("boxplot.meanprops.markerfacecolor", "C2", ':mpltype:`color`',
            validate_color, description="The face color of the mean marker."),
     _Param("boxplot.meanprops.markeredgecolor", "C2", ':mpltype:`color`',
@@ -1898,9 +1898,9 @@ _DEFINITION = [
     _Param("boxplot.meanprops.markersize", 6.0, float, validate_float,
            description="The mean marker size, in points."),
     _Param("boxplot.meanprops.linestyle", "--", _LineStyleType, _validate_linestyle,
-           description="The line style used for the mean marker or line."),
+           description="The line style of the mean marker or line."),
     _Param("boxplot.meanprops.linewidth", 1.0, float, validate_float,
-           description="The line width used for the mean marker or line, in points."),
+           description="The line width of the mean marker or line, in points."),
     _Section(
         "Font",
         description="The font properties used by `.Text` "
@@ -2114,19 +2114,19 @@ _DEFINITION = [
                     "'cm' (Computer Modern), 'stix', 'stixsans' or 'custom'"
     ),
     _Param("mathtext.bf", "sans:bold", str, validate_font_properties,
-           description="The font config pattern used for bold math text."),
+           description="The font config pattern for bold math text."),
     _Param("mathtext.bfit", "sans:italic:bold", str, validate_font_properties,
-           description="The font config pattern used for bold italic math text."),
+           description="The font config pattern for bold italic math text."),
     _Param("mathtext.cal", "cursive", str, validate_font_properties,
-           description="The font config pattern used for calligraphic math text."),
+           description="The font config pattern for calligraphic math text."),
     _Param("mathtext.it", "sans:italic", str, validate_font_properties,
-           description="The font config pattern used for italic math text."),
+           description="The font config pattern for italic math text."),
     _Param("mathtext.rm", "sans", str, validate_font_properties,
-           description="The font config pattern used for roman math text."),
+           description="The font config pattern for roman math text."),
     _Param("mathtext.sf", "sans", str, validate_font_properties,
-           description="The font config pattern used for sans-serif math text."),
+           description="The font config pattern for sans-serif math text."),
     _Param("mathtext.tt", "monospace", str, validate_font_properties,
-           description="The font config pattern used for monospace math text."),
+           description="The font config pattern for monospace math text."),
     _Param(
         "mathtext.fallback",
         default="cm",
@@ -2147,9 +2147,9 @@ _DEFINITION = [
         validator=["rm", "cal", "bfit", "it", "tt", "sf", "bf", "default", "bb", "frak",
                    "scr", "regular", "normal"],
         description=(
-           'The default font to use for math. Can be any of the LaTeX font names, '
-           'including the special name "regular" for the same font used in regular '
-           'text.'),
+           'The default font for math-formatted text. Can be any of the LaTeX font '
+           'names, including the special name "regular" for the same font used in '
+           'regular text.'),
     ),
     _Section("Axes"),
     _Param(
@@ -2508,31 +2508,31 @@ _DEFINITION = [
     ),
     _Param(
         "date.autoformatter.year", "%Y", str, validate_string,
-        description="The strftime format used for year ticks."
+        description="The strftime format for year ticks."
     ),
     _Param(
         "date.autoformatter.month", "%Y-%m", str, validate_string,
-        description="The strftime format used for month ticks."
+        description="The strftime format for month ticks."
     ),
     _Param(
         "date.autoformatter.day", "%Y-%m-%d", str, validate_string,
-        description="The strftime format used for day ticks."
+        description="The strftime format for day ticks."
     ),
     _Param(
         "date.autoformatter.hour", "%m-%d %H", str, validate_string,
-        description="The strftime format used for hour ticks."
+        description="The strftime format for hour ticks."
     ),
     _Param(
         "date.autoformatter.minute", "%d %H:%M", str, validate_string,
-        description="The strftime format used for minute ticks."
+        description="The strftime format for minute ticks."
     ),
     _Param(
         "date.autoformatter.second", "%H:%M:%S", str, validate_string,
-        description="The strftime format used for second ticks."
+        description="The strftime format for second ticks."
     ),
     _Param(
         "date.autoformatter.microsecond", "%M:%S.%f", str, validate_string,
-        description="The strftime format used for microsecond ticks."
+        description="The strftime format for microsecond ticks."
     ),
     _Param(
         "date.epoch",
@@ -3669,8 +3669,8 @@ _DEFINITION = [
         default=None,
         type=str | None,
         validator=validate_string_or_None,
-        description="If not None, use this string as the value for the `id` attribute "
-                    "in the top <svg> tag."
+        description="If not None, use this string as the value for the ``id`` "
+                    "attribute in the top ``<svg>`` tag."
     ),
     _Subsection("PGF parameters"),
     _Param(
@@ -3832,22 +3832,21 @@ _DEFINITION = [
         default="ffmpeg",
         type=str,
         validator=validate_string,
-        description="The MovieWriter backend to use."
+        description="The MovieWriter backend."
     ),
     _Param(
         "animation.codec",
         default="h264",
         type=str,
         validator=validate_string,
-        description="The codec to use when writing movies."
+        description="The codec for writing movies."
     ),
     _Param(
         "animation.bitrate",
         default=-1,
         type=int,
         validator=validate_int,
-        description="The bitrate used for movies; -1 lets the utility choose "
-                    "automatically."
+        description="The animation bitrate; -1 lets the utility choose automatically."
     ),
     _Param("animation.frame_format", "png",
            type=Literal[
@@ -3856,7 +3855,8 @@ _DEFINITION = [
            validator=[
                "png", "jpeg", "tiff", "raw", "rgba", "ppm", "sgi", "bmp", "pbm", "svg",
            ],
-           description="The frame format used for temporary files."
+           description="The file format of temporary files for rendering animation "
+                       "frames."
            ),
     _Param(
         "animation.ffmpeg_path",
@@ -3878,7 +3878,7 @@ _DEFINITION = [
         default="convert",
         type=str,
         validator=_validate_pathlike,
-        description="Path to ImageMagick's convert binary.  Unqualified paths are "
+        description="Path to ImageMagick's ``convert`` binary.  Unqualified paths are "
                     "resolved by subprocess.Popen, except that on Windows, we look up "
                     "an install of ImageMagick in the registry (as convert is also the "
                     "name of a system tool)."
@@ -3903,7 +3903,8 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="Whether classic Matplotlib defaults are enabled."
+        description="Whether classic Matplotlib defaults are enabled. This is mainly "
+                    "for backward compatibility in testing contexts."
     ),
     _Param("backend", None, None, validate_backend),
 ]
