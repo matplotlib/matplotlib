@@ -196,7 +196,11 @@ def _test_interactive_impl():
     mpl.use(backend, force=True)
 
     fig, ax = plt.subplots()
-    assert type(fig.canvas).__module__ == f"matplotlib.backends.backend_{backend}"
+    if backend == "macosx":
+        # Temporarily needed while macosx points to _legacymac
+        assert type(fig.canvas).__module__ == "matplotlib.backends._backend_legacymac"
+    else:
+        assert type(fig.canvas).__module__ == f"matplotlib.backends.backend_{backend}"
 
     assert fig.canvas.manager.get_window_title() == "Figure 1"
 
