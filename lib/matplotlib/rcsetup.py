@@ -3689,13 +3689,6 @@ _DEFINITION = [
         description="When True, open the web browser to the plot that is shown."
     ),
     _Subsection("Docstring parameters"),
-    _Param(
-        "docstring.hardcopy",
-        default=False,
-        type=bool,
-        validator=validate_bool,
-        description="Whether to generate hardcopy docstrings."
-    ),
     _Section(
         "Interactive keymaps",
         description="Default key mappings for interactive navigation. See "
@@ -3902,6 +3895,13 @@ _DEFINITION = [
     ),
     _Param("backend", None, None, validate_backend),
     _Section("Other"),
+    _Param(
+        "docstring.hardcopy",
+        default=False,
+        type=bool,
+        validator=validate_bool,
+        description="Whether to generate hardcopy docstrings."
+    ),
     _Param(
         "timezone",
         default="UTC",
