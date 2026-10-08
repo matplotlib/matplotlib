@@ -178,6 +178,11 @@ jobs:
               brew unlink ${python_package}
               brew link --overwrite ${python_package}
             done
+            # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
+            openssl_link="$(brew --prefix)/bin/openssl"
+            case "$(readlink "$openssl_link" 2>/dev/null)" in
+                */openssl@1.1/*) rm -f "$openssl_link" ;;
+            esac
             # Workaround for https://github.com/actions/runner-images/issues/10984
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
             brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
