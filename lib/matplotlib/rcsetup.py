@@ -2501,10 +2501,8 @@ _DEFINITION = [
     _Section(
         "Dates",
         description="Default properties for date tick labels. These are used by the "
-                    "`.AutoDateFormatter` when the appropriate time unit is detected."
-                    "See "
-                    "https://matplotlib.org/stable/api/dates_api.html#date-formatters "
-                    "for more information."
+                    "`.AutoDateFormatter` when the appropriate time unit is detected. "
+                    "See :ref:`date-format` for more information."
     ),
     _Param(
         "date.autoformatter.year", "%Y", str, validate_string,
