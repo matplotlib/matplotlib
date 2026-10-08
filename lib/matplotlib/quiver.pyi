@@ -100,7 +100,7 @@ class Quiver(mcollections.PolyCollection):
         width: float | None = ...,
         color: ColorType | Sequence[ColorType] = ...,
         pivot: Literal["tail", "mid", "middle", "tip"] = ...,
-        head_pos: Literal["tail", "mid", "middle", "tip"] | float = ...,
+        head_pos: Literal["tail", "middle", "tip"] | float = ...,
         **kwargs
     ) -> None: ...
     @overload
@@ -126,7 +126,7 @@ class Quiver(mcollections.PolyCollection):
         width: float | None = ...,
         color: ColorType | Sequence[ColorType] = ...,
         pivot: Literal["tail", "mid", "middle", "tip"] = ...,
-        head_pos: Literal["tail", "mid", "middle", "tip"] | float = ...,
+        head_pos: Literal["tail", "middle", "tip"] | float = ...,
         **kwargs,
     ) -> None: ...
     def get_datalim(self, transData: Transform) -> Bbox: ...

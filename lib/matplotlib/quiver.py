@@ -15,6 +15,7 @@ the Quiver code.
 """
 
 import math
+from numbers import Real
 
 import numpy as np
 from numpy import ma
@@ -46,14 +47,8 @@ To change this behavior see the *scale* and *scale_units* parameters.
 **Arrow shape**
 
 The arrow shape is determined by *width*, *headwidth*, *headlength* and
-*headaxislength*. See the notes below.
-
-The defaults give a slightly swept-back arrow; to make the head a
-triangle, make *headaxislength* the same as *headlength*. To make the
-arrow more pointed, reduce *headwidth* or increase *headlength* and
-*headaxislength*. To make the head smaller relative to the shaft,
-scale down all the head parameters. You will probably do best to leave
-minshaft alone. To set the position of the arrowhead use *head_pos*.
+*headaxislength*. See the notes below. The position of the head along the
+shaft is set by *head_pos*.
 
 **Arrow styling**
 
@@ -94,7 +89,7 @@ C : 1D or 2D array-like, optional
 angles : {'uv', 'xy'} or array-like, default: 'uv'
     Method for determining the angle of the arrows.
 
-    - 'uv': Arrow directions are based on
+    - 'uv':  Arrow directions are based on
       :ref:`display coordinates <coordinate-systems>`; i.e. a 45° angle will
       always show up as diagonal on the screen, irrespective of figure or Axes
       aspect ratio or Axes data ranges. This is useful when the arrows represent
@@ -228,17 +223,12 @@ minlength : float, default: 1
     Minimum length as a multiple of shaft width; if an arrow length
     is less than this, plot a dot (hexagon) of this diameter instead.
 
-pivot : {'tail', 'mid', 'middle', 'tip'}, default: 'tail'
-    The part of the arrow that is anchored to the *X*, *Y* grid. The arrow
-    rotates about this point.
+head_pos : {'tip', 'middle', 'tail'} or float, default: 'tip'
+    The position of the head along the shaft, as a fraction between 0 (the
+    head starts at the tail) and 1 (the head ends at the tip). 'tail',
+    'middle' and 'tip' are equivalent to 0, 0.5 and 1, respectively.
 
-    'mid' is a synonym for 'middle'.
-
-head_pos : {'tip', 'mid', 'middle', 'tail'}, or float, default: 'tip'
-    The position of the arrowhead along the shaft.
-    'tail' gives value 0.0, 'tip' gives value 1.0,
-    'mid' synonymous to 'middle' gives value 0.5.
-    If a float is specified, it must be between 0.0 and 1.0.
+    .. versionadded:: 3.12
 
 color : :mpltype:`color` or list :mpltype:`color`, optional
     Explicit color(s) for the arrows. If *C* has been set, *color* has no
@@ -561,19 +551,14 @@ class Quiver(mcollections.PolyCollection):
         self.angles = angles
         self.width = width
 
-        # Checks the boundaries of head_pos if outside range default of 0.5
-        if (head_pos == "tail"):
-            self.head_pos = 0.0
-        elif (head_pos == "tip"):
-            self.head_pos = 1.0
-        elif (head_pos == "mid") or (head_pos == "middle"):
-            self.head_pos = 0.5
-        elif isinstance(head_pos, float) and (0.0 < head_pos < 1.0):
-            self.head_pos = head_pos
-        else:
-            raise ValueError("'head_pos' must be "
-                             "a value in the bounds 0<head_pos<1,"
-                             "or a string in {'tail', 'middle', 'tip'}")
+        if isinstance(head_pos, str):
+            head_pos = _api.getitem_checked(
+                {'tail': 0.0, 'middle': 0.5, 'tip': 1.0}, head_pos=head_pos)
+        elif not (isinstance(head_pos, Real) and 0 <= head_pos <= 1):
+            raise ValueError(
+                "head_pos must be one of 'tail', 'middle', 'tip' or a number "
+                f"between 0 and 1, not {head_pos!r}")
+        self.head_pos = float(head_pos)
 
         if pivot.lower() == 'mid':
             pivot = 'middle'
@@ -752,6 +737,50 @@ class Quiver(mcollections.PolyCollection):
 
         return XY
 
+    def _h_arrow_outline(self, length):
+        """
+        Return the closed outline of horizontal arrows pointing right.
+
+        *length* is an (N, 1) array of arrow lengths in arrow width units.
+        The tail is at the origin. Returns the (N, M) arrays of vertex x and y
+        coordinates, and the index of the vertex at the end of the shaft.
+        """
+        hw = 0.5 * self.headwidth
+        hl = self.headlength
+        hal = self.headaxislength
+        if self.head_pos == 1:
+            # The head tip is the end of the shaft.
+            x = (np.array([0, -hal, -hl, 0], np.float64)
+                 + np.array([0, 1, 1, 1]) * length)
+            y = np.array([0.5, 0.5, hw, 0], np.float64)
+            ii = [0, 1, 2, 3, 2, 1, 0, 0]
+            X = x[:, ii]
+            Y = np.repeat(y[np.newaxis, ii], len(length), axis=0)
+            Y[:, 3:-1] *= -1
+            return X, Y, 3
+        # The head tip moves from one head length from the tail
+        # (head_pos=0) to the end of the shaft (head_pos=1).
+        tip = hl + self.head_pos * (length - hl)
+        # Where the front edges of the head meet the edges of the shaft.
+        yj = min(0.5, hw)
+        xj = tip - (hl * yj / hw if hw else 0)
+        # Length over which the head's front edge narrows by half a shaft width.
+        k = 0.5 * hl / hw if hw else 0
+        # As the head approaches the end of the shaft, cut the shaft's end at
+        # the same angle as the head, so that the outline changes continuously
+        # into the head_pos=1 arrow.
+        apex = length + np.minimum(k, length - tip)
+        xc = np.clip(apex - k, xj, length)
+        ye = np.clip(0.5 * (apex - length) / k, 0, 0.5) if k else 0.5
+        # Upper half of the outline, from the tail to the end of the shaft.
+        x = np.hstack([np.broadcast_to(v, length.shape)
+                       for v in (0, tip - hal, tip - hl, xj, xc, length)])
+        y = np.hstack([np.broadcast_to(v, length.shape)
+                       for v in (0.5, 0.5, hw, yj, 0.5, ye)])
+        X = np.hstack([x, x[:, ::-1], x[:, :1]])
+        Y = np.hstack([y, -y[:, ::-1], y[:, :1]])
+        return X, Y, 5
+
     def _h_arrows(self, length):
         """Length is in arrow width units."""
         # It might be possible to streamline the code
@@ -764,74 +793,35 @@ class Quiver(mcollections.PolyCollection):
         # causing rendering errors
         # length = np.minimum(length, 2 ** 16)
         np.clip(length, 0, 2 ** 16, out=length)
-        # x, y: normal horizontal arrow
-        x = np.array([0, -self.headaxislength,
-                      -self.headlength, 0, 0],
-                     np.float64)
-        x = x + np.array([0, 1, 1, 1, 1]) * length
-        y = 0.5 * np.array([1, 1, self.headwidth, 0, 1], np.float64)
-        y = np.repeat(y[np.newaxis, :], N, axis=0)
-        # x0, y0: arrow without shaft, for short vectors
-        x0 = np.array([0, minsh - self.headaxislength,
-                       minsh - self.headlength, minsh], np.float64)
-        y0 = 0.5 * np.array([1, 1, self.headwidth, 0], np.float64)
-        if self.head_pos == 1.0:
-            ii = [0, 1, 2, 3, 2, 1, 0, 0]
-            ii_min = [0, 1, 2, 3, 2, 1, 0, 0]
-            X = x[:, ii]
-            Y = y[:, ii]
-            Y[:, 3:-1] *= -1
-        elif self.head_pos == 0.0:
-            ii = [0, 2, 3, 4, 4, 3, 2, 0, 0]
-            ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0]
-            X = x[:, ii]
-            Y = y[:, ii]
-            X[:, 1:3] -= (length-self.headlength)
-            X[:, 5:-2] -= (length-self.headlength)
-            Y[:, 2] = np.ones(np.shape(Y[:, 2])) * 0.5
-            Y[:, 5] = np.ones(np.shape(Y[:, 5])) * 0.5
-            Y[:, 4:-1] *= -1
-        elif 0.0 < self.head_pos < 1.0:
-            ii = [0, 1, 2, 3, 4, 4, 3, 2, 1, 0, 0]
-            ii_min = [0, 1, 2, 3, 2, 1, 0, 0, 0, 0, 0]
-            X = x[:, ii]
-            Y = y[:, ii]
-            X[:, 1:4] *= self.head_pos
-            X[:, 6:-2] *= self.head_pos
-            X[:, 1:4] += self.headlength / 4
-            X[:, 6:-2] += self.headlength / 4
-            Y[:, 3] = np.ones(np.shape(Y[:, 3])) * 0.5
-            Y[:, 6] = np.ones(np.shape(Y[:, 6])) * 0.5
-            Y[:, 5:-1] *= -1
-
-        X0 = x0[ii_min]
-        Y0 = y0[ii_min]
-        Y0[3:-1] *= -1
+        # X, Y: normal horizontal arrow
+        X, Y, end = self._h_arrow_outline(length)
+        # X0, Y0: arrow without shaft, for short vectors
+        X0, Y0, _ = self._h_arrow_outline(np.array([[minsh]], np.float64))
         shrink = length / minsh if minsh != 0. else 0.
-        X0 = shrink * X0[np.newaxis, :]
-        Y0 = shrink * Y0[np.newaxis, :]
-        short = np.repeat(length < minsh, len(ii_min), axis=1)
+        X0 = shrink * X0
+        Y0 = shrink * Y0
+        short = np.repeat(length < minsh, X.shape[1], axis=1)
         # Now select X0, Y0 if short, otherwise X, Y
         np.copyto(X, X0, where=short)
         np.copyto(Y, Y0, where=short)
         if self.pivot == 'middle':
-            X -= 0.5 * X[:, 3, np.newaxis]
+            X -= 0.5 * X[:, end, np.newaxis]
         elif self.pivot == 'tip':
             # numpy bug? using -= does not work here unless we multiply by a
             # float first, as with 'mid'.
-            X = X - X[:, 3, np.newaxis]
+            X = X - X[:, end, np.newaxis]
         elif self.pivot != 'tail':
             _api.check_in_list(["middle", "tip", "tail"], pivot=self.pivot)
 
         tooshort = length < self.minlength
         if tooshort.any():
             # Use a heptagonal dot:
-            th = np.arange(0, len(ii_min), 1, np.float64) * (np.pi / 3.0)
+            th = np.arange(0, X.shape[1], 1, np.float64) * (np.pi / 3.0)
             x1 = np.cos(th) * self.minlength * 0.5
             y1 = np.sin(th) * self.minlength * 0.5
             X1 = np.repeat(x1[np.newaxis, :], N, axis=0)
             Y1 = np.repeat(y1[np.newaxis, :], N, axis=0)
-            tooshort = np.repeat(tooshort, len(ii_min), 1)
+            tooshort = np.repeat(tooshort, X.shape[1], 1)
             np.copyto(X, X1, where=tooshort)
             np.copyto(Y, Y1, where=tooshort)
         # Mask handling is deferred to the caller, _make_verts.
