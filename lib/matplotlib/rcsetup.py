@@ -1620,13 +1620,6 @@ _DEFINITION = [
         validator=_validate_toolbar,
         description="{None, toolbar2, toolmanager}"
     ),
-    _Param(
-        "timezone",
-        default="UTC",
-        type=str,
-        validator=validate_string,
-        description="a pytz timezone string, e.g., US/Central or Europe/Paris"
-    ),
     _Section(
         "Lines",
         description="Default line properties. Some plotting functions such "
@@ -3907,6 +3900,14 @@ _DEFINITION = [
                     "for backward compatibility in testing contexts."
     ),
     _Param("backend", None, None, validate_backend),
+    _Section("Other"),
+    _Param(
+        "timezone",
+        default="UTC",
+        type=str,
+        validator=validate_string,
+        description="a pytz timezone string, e.g., US/Central or Europe/Paris"
+    ),
 ]
 
 
