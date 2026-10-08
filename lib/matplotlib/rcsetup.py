@@ -3886,6 +3886,7 @@ _DEFINITION = [
         description="The maximum Base64-encoded animation size, in MB, for HTML "
                     "output such as IPython notebooks."
     ),
+    _Section("Other"),
     _Param(
         "_internal.classic_mode",
         default=False,
@@ -3894,7 +3895,6 @@ _DEFINITION = [
         description="Whether classic Matplotlib defaults are enabled. This is mainly "
                     "for backward compatibility in testing contexts."
     ),
-    _Section("Other"),
     _Param(
         "docstring.hardcopy",
         default=False,
