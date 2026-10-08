@@ -3473,6 +3473,7 @@ _DEFINITION = [
                     "only."
     ),
     _Section("Backends"),
+    _Param("backend", None, None, validate_backend),
     _Param(
         "backend_fallback",
         default=True,
@@ -3893,7 +3894,6 @@ _DEFINITION = [
         description="Whether classic Matplotlib defaults are enabled. This is mainly "
                     "for backward compatibility in testing contexts."
     ),
-    _Param("backend", None, None, validate_backend),
     _Section("Other"),
     _Param(
         "docstring.hardcopy",
