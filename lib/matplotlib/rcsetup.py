@@ -3508,7 +3508,7 @@ _DEFINITION = [
                     "cause minor artifacts, though. A value of 20000 is probably a "
                     "good starting point."
     ),
-    _Subsection("Mac OSX backend parameters"),
+    _Subsection("Mac OSX backend"),
     _Param(
         "macosx.window_mode",
         default="system",
@@ -3517,7 +3517,7 @@ _DEFINITION = [
         description="How to open new figures: 'system', 'tab', or 'window'; "
                     "'system' uses the macOS system preferences."
     ),
-    _Subsection("Tk backend parameters"),
+    _Subsection("Tk backend"),
     _Param(
         "tk.window_focus",
         default=False,
@@ -3525,7 +3525,7 @@ _DEFINITION = [
         validator=validate_bool,
         description="Whether TkAgg should keep shell focus after opening a figure."
     ),
-    _Subsection("PS backend parameters"),
+    _Subsection("PS backend"),
     _Param(
         "ps.papersize",
         default="letter",
@@ -3572,7 +3572,7 @@ _DEFINITION = [
         validator=validate_fonttype,
         description="Output Type 3 (Type3) or Type 42 (TrueType)"
     ),
-    _Subsection("PDF backend parameters"),
+    _Subsection("PDF backend"),
     _Param(
         "pdf.compression",
         default=6,
@@ -3603,7 +3603,7 @@ _DEFINITION = [
         type=bool,
         validator=validate_bool,
     ),
-    _Subsection("SVG backend parameters"),
+    _Subsection("SVG backend"),
     _Param(
         "svg.image_inline",
         default=True,
@@ -3637,7 +3637,7 @@ _DEFINITION = [
         description="If not None, use this string as the value for the ``id`` "
                     "attribute in the top ``<svg>`` tag."
     ),
-    _Subsection("PGF parameters"),
+    _Subsection("PGF backend"),
     _Param(
         "pgf.rcfonts",
         default=True,
@@ -3659,7 +3659,7 @@ _DEFINITION = [
         validator=["xelatex", "lualatex", "pdflatex"],
         description="The TeX engine to use for PGF output."
     ),
-    _Subsection("Webagg backend parameters"),
+    _Subsection("Webagg backend"),
     _Param(
         "webagg.port",
         default=8988,
