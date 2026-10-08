@@ -1563,35 +1563,6 @@ class _Subsection:
 _DEFINITION = [
     _Section("Backends"),
     _Param(
-        "webagg.port",
-        default=8988,
-        type=int,
-        validator=validate_int,
-        description="The server port in the WebAgg backend."
-    ),
-    _Param(
-        "webagg.address",
-        default="127.0.0.1",
-        type=str,
-        validator=validate_string,
-        description="The server address in the WebAgg backend."
-    ),
-    _Param(
-        "webagg.port_retries",
-        default=50,
-        type=int,
-        validator=validate_int,
-        description="If webagg.port is unavailable, a number of other random ports "
-                    "will be tried until one that is available is found."
-    ),
-    _Param(
-        "webagg.open_in_browser",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description="When True, open the web browser to the plot that is shown."
-    ),
-    _Param(
         "backend_fallback",
         default=True,
         type=bool,
@@ -3686,6 +3657,36 @@ _DEFINITION = [
         type=Literal["xelatex", "lualatex", "pdflatex"],
         validator=["xelatex", "lualatex", "pdflatex"],
         description="The TeX engine to use for PGF output."
+    ),
+    _Subsection("Webagg backend parameters"),
+    _Param(
+        "webagg.port",
+        default=8988,
+        type=int,
+        validator=validate_int,
+        description="The server port in the WebAgg backend."
+    ),
+    _Param(
+        "webagg.address",
+        default="127.0.0.1",
+        type=str,
+        validator=validate_string,
+        description="The server address in the WebAgg backend."
+    ),
+    _Param(
+        "webagg.port_retries",
+        default=50,
+        type=int,
+        validator=validate_int,
+        description="If webagg.port is unavailable, a number of other random ports "
+                    "will be tried until one that is available is found."
+    ),
+    _Param(
+        "webagg.open_in_browser",
+        default=True,
+        type=bool,
+        validator=validate_bool,
+        description="When True, open the web browser to the plot that is shown."
     ),
     _Subsection("Docstring parameters"),
     _Param(
