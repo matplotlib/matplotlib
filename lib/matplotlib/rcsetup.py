@@ -1607,13 +1607,6 @@ _DEFINITION = [
         validator=validate_bool,
     ),
     _Param(
-        "figure.hooks",
-        default=[],
-        type=list[str],
-        validator=validate_stringlist,
-        description="list of dotted.module.name:dotted.callable.name"
-    ),
-    _Param(
         "toolbar",
         default="toolbar2",
         type=Literal["None", "toolbar2", "toolmanager"],
@@ -3257,6 +3250,13 @@ _DEFINITION = [
                     "smaller than for tight_layout (figure.subplot.hspace, "
                     "figure.subplot.wspace) as constrained_layout already takes "
                     "surrounding texts (titles, labels, # ticklabels) into account."
+    ),
+    _Param(
+        "figure.hooks",
+        default=[],
+        type=list[str],
+        validator=validate_stringlist,
+        description="list of dotted.module.name:dotted.callable.name"
     ),
     _Section("Images"),
     _Param(
