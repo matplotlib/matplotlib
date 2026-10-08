@@ -2814,23 +2814,6 @@ _DEFINITION = [
         validator=validate_fillstyle,
         description="The marker fill style."
     ),
-    _Param(
-        "pcolor.shading",
-        default="auto",
-        type=Literal["auto", "flat", "nearest", "gouraud"],
-        validator=["auto", "flat", "nearest", "gouraud"],
-        description="The default shading mode for `~.Axes.pcolor` and "
-                    "`~.Axes.pcolormesh`."
-    ),
-    _Param(
-        "pcolormesh.snap",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description="Whether to snap the mesh to pixel boundaries. This is provided "
-                    "solely to allow old test images to remain unchanged. Set to False "
-                    "to obtain the previous behavior."
-    ),
     _Section("Patches"),
     _Param(
         "patch.linewidth",
@@ -3233,6 +3216,23 @@ _DEFINITION = [
         description="When True, all the images on a set of axes are combined into a "
                     "single composite image before saving a figure as a vector "
                     "graphics file, such as a PDF."
+    ),
+    _Param(
+        "pcolor.shading",
+        default="auto",
+        type=Literal["auto", "flat", "nearest", "gouraud"],
+        validator=["auto", "flat", "nearest", "gouraud"],
+        description="The default shading mode for `~.Axes.pcolor` and "
+                    "`~.Axes.pcolormesh`."
+    ),
+    _Param(
+        "pcolormesh.snap",
+        default=True,
+        type=bool,
+        validator=validate_bool,
+        description="Whether to snap the mesh to pixel boundaries. This is provided "
+                    "solely to allow old test images to remain unchanged. Set to False "
+                    "to obtain the previous behavior."
     ),
     _Section(
         "Contour plots",
