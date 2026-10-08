@@ -2037,6 +2037,7 @@ _DEFINITION = [
         description="If True (default), the text will be antialiased. This only "
                     "affects raster outputs."
     ),
+    _Section("Mathtext and LaTeX"),
     _Param(
         "text.parse_math",
         default=True,
@@ -2045,7 +2046,6 @@ _DEFINITION = [
         description="Use mathtext if there is an even number of unescaped dollar signs."
 
     ),
-    _Section("Mathtext and LaTeX"),
     _Param(
         "text.usetex",
         default=False,
