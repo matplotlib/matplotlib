@@ -2462,7 +2462,6 @@ _DEFINITION = [
         description="trackball border width, in units of the Axes bbox (only for "
                     "'sphere' and 'arcball' style)"
     ),
-    _Section("Axis"),
     _Param(
         "axes3d.snap_rotation",
         default=5.0,
@@ -2470,6 +2469,7 @@ _DEFINITION = [
         validator=validate_float,
         description="Snap angle (in degrees) for 3D rotation when holding Control."
     ),
+    _Section("Axis"),
     _Param(
         "xaxis.labellocation",
         default="center",
