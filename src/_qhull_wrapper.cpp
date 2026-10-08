@@ -5,11 +5,11 @@
  * triangulation, construct an instance of the matplotlib.tri.Triangulation
  * class without specifying a triangles array.
  */
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-#include <pybind11/subinterpreter.h>
-#endif
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+
+namespace nb = nanobind;
+using namespace nanobind::literals;
 
 #ifdef _MSC_VER
 /* The Qhull header does not declare this as extern "C", but only MSVC seems to
@@ -20,9 +20,11 @@ extern const char qh_version[];
 }
 #endif
 
+#include "mplutils.h"
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
 #include <vector>
+#include <string>
 
 #ifndef MPL_DEVNULL
 #error "MPL_DEVNULL must be defined as the OS-equivalent of /dev/null"
@@ -31,16 +33,11 @@ extern const char qh_version[];
 #define STRINGIFY(x) STR(x)
 #define STR(x) #x
 
-namespace py = pybind11;
-using namespace pybind11::literals;
-
 // Input numpy array class.
-typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordArray;
+using CoordArray = nb::ndarray<double, nb::ndim<1>, nb::c_contig>;
 
 // Output numpy array class.
-typedef py::array_t<int> IndexArray;
-
-
+using IndexArray = nb::ndarray<int, nb::shape<-1, 3>, nb::numpy, nb::c_contig>;
 
 static const char* qhull_error_msg[6] = {
     "",                     /* 0 = qh_ERRnone */
@@ -81,16 +78,16 @@ get_facet_neighbours(const facetT* facet, std::vector<int>& tri_indices,
 /* Return true if the specified points arrays contain at least 3 unique points,
  * or false otherwise. */
 static bool
-at_least_3_unique_points(py::ssize_t npoints, const double* x, const double* y)
+at_least_3_unique_points(nb::ssize_t npoints, const double* x, const double* y)
 {
-    const py::ssize_t unique1 = 0;  /* First unique point has index 0. */
-    py::ssize_t unique2 = 0;        /* Second unique point index is 0 until set. */
+    const nb::ssize_t unique1 = 0;  /* First unique point has index 0. */
+    nb::ssize_t unique2 = 0;        /* Second unique point index is 0 until set. */
 
     if (npoints < 3) {
         return false;
     }
 
-    for (py::ssize_t i = 1; i < npoints; ++i) {
+    for (nb::ssize_t i = 1; i < npoints; ++i) {
         if (unique2 == 0) {
             /* Looking for second unique point. */
             if (x[i] != x[unique1] || y[i] != y[unique1]) {
@@ -141,14 +138,15 @@ private:
 /* Delaunay implementation method.
  * If hide_qhull_errors is true then qhull error messages are discarded;
  * if it is false then they are written to stderr. */
-static py::tuple
-delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
+static nb::tuple
+delaunay_impl(nb::ssize_t npoints, const double* x, const double* y,
               bool hide_qhull_errors)
 {
     qhT qh_qh;                  /* qh variable type and name must be like */
     qhT* qh = &qh_qh;           /* this for Qhull macros to work correctly. */
     facetT* facet;
-    int i, ntri, max_facet_id;
+    size_t i, ntri;
+    int max_facet_id;
     int exitcode;               /* Value returned from qh_new_qhull(). */
     const int ndim = 2;
     double x_mean = 0.0;
@@ -195,9 +193,9 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
                             (char*)"qhull d Qt Qbb Qc Qz", nullptr, error_file);
     if (exitcode != qh_ERRnone) {
-        std::string msg =
-            py::str("Error in qhull Delaunay triangulation calculation: {} (exitcode={})")
-            .format(qhull_error_msg[exitcode], exitcode).cast<std::string>();
+        std::string msg = nb::cast<std::string>(
+            nb::str("Error in qhull Delaunay triangulation calculation: {} (exitcode={})")
+            .format(qhull_error_msg[exitcode], exitcode));
         if (hide_qhull_errors) {
             msg += "; use python verbose option (-v) to see original qhull error.";
         }
@@ -222,12 +220,11 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     std::vector<int> tri_indices(max_facet_id+1);
 
     /* Allocate Python arrays to return. */
-    int dims[2] = {ntri, 3};
-    IndexArray triangles(dims);
-    int* triangles_ptr = triangles.mutable_data();
+    auto triangles = mpl_make_numpy_array<IndexArray>({ntri, 3});
+    int* triangles_ptr = triangles.data();
 
-    IndexArray neighbors(dims);
-    int* neighbors_ptr = neighbors.mutable_data();
+    auto neighbors = mpl_make_numpy_array<IndexArray>({ntri, 3});
+    int* neighbors_ptr = neighbors.data();
 
     /* Determine triangles array and set tri_indices array. */
     i = 0;
@@ -260,11 +257,11 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
         }
     }
 
-    return py::make_tuple(triangles, neighbors);
+    return nb::make_tuple(triangles, neighbors);
 }
 
 /* Process Python arguments and call Delaunay implementation method. */
-static py::tuple
+static nb::tuple
 delaunay(const CoordArray& x, const CoordArray& y, int verbose)
 {
     if (x.ndim() != 1 || y.ndim() != 1) {
@@ -287,12 +284,7 @@ delaunay(const CoordArray& x, const CoordArray& y, int verbose)
     return delaunay_impl(npoints, x.data(), y.data(), verbose == 0);
 }
 
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-PYBIND11_MODULE(_qhull, m,
-                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
-#else
-PYBIND11_MODULE(_qhull, m, py::mod_gil_not_used())
-#endif
+NB_MODULE(_qhull, m)
 {
     m.doc() = "Computing Delaunay triangulations.\n";
 

@@ -283,6 +283,10 @@ Py_is_sorted_and_has_non_nan(py::object obj)
 {
     bool result;
 
+    if (!py::isinstance<py::array>(obj)) {
+        throw std::invalid_argument("array is not a np array");
+    }
+
     py::array array = py::array::ensure(obj);
     if (!array || array.ndim() != 1) {
         throw std::invalid_argument("array must be 1D");

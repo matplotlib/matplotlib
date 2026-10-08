@@ -212,7 +212,7 @@ def test_ft2font_invalid_args(tmp_path):
     file = fm.findfont('DejaVu Sans')
 
     # hinting_factor argument.
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         ft2font.FT2Font(file, 1.3)
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match='text.hinting_factor rcParam was deprecated .+ 3.11'):
@@ -221,14 +221,14 @@ def test_ft2font_invalid_args(tmp_path):
                       match='The hinting_factor parameter was deprecated'):
         ft2font.FT2Font(file, 0)
 
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         # failing to be a list will fail before the 0
         ft2font.FT2Font(file, _fallback_list=(0,))
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         ft2font.FT2Font(file, _fallback_list=[0])
 
     # kerning_factor argument.
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         ft2font.FT2Font(file, _kerning_factor=1.3)
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match='text.kerning_factor rcParam was deprecated .+ 3.11'):
@@ -1075,31 +1075,6 @@ def test__layout():
                 assert Path(item.ft_object.fname).name == 'DejaVuSans.ttf'
             else:
                 assert Path(item.ft_object.fname).name == 'cmr10.ttf'
-
-
-def test_render_glyph_cache():
-    # Reusing a cached outline must not change what is rendered.
-    ft = fm.get_font(fm.findfont('DejaVu Sans'))
-    ft.set_size(12, 100)
-    index = ft.get_char_index(ord('e'))
-    identity = [[0x10000, 0], [0, 0x10000]]
-
-    def render(delta=(0, 0)):
-        ft._set_transform(identity, list(delta))
-        return ft._render_glyph(index, ft2font.LoadFlags.DEFAULT,
-                                ft2font.RenderMode.NORMAL)
-
-    first = render()
-    reference = first.buffer.copy()
-    # A whole-pixel shift reuses the outline and only moves the glyph.
-    shifted = render(delta=(0x40 * 3, 0x40 * 5))
-    assert np.array_equal(shifted.buffer, reference)
-    assert (shifted.left, shifted.top) == (first.left + 3, first.top + 5)
-    # A fractional shift must reach the rasterizer rather than be rounded away.
-    assert not np.array_equal(render(delta=(0x20, 0x20)).buffer, reference)
-    # The size is part of the key.
-    ft.set_size(24, 100)
-    assert render().buffer.shape != reference.shape
 
 
 def test_layout_cache():

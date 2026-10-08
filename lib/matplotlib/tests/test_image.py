@@ -1671,12 +1671,12 @@ def test__resample_valid_output():
         resample(np.zeros((9, 9, 4)), np.zeros((9, 9, 3)))
     with pytest.raises(ValueError, match="mismatched types"):
         resample(np.zeros((9, 9), np.uint8), np.zeros((9, 9)))
-    with pytest.raises(ValueError, match="must be C-contiguous"):
+    with pytest.raises(TypeError, match="incompatible function arguments"):
         resample(np.zeros((9, 9)), np.zeros((9, 9)).T)
 
     out = np.zeros((9, 9))
     out.flags.writeable = False
-    with pytest.raises(ValueError, match="Output array must be writeable"):
+    with pytest.raises(TypeError, match="incompatible function arguments"):
         resample(np.zeros((9, 9)), out)
 
 
