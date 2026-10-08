@@ -3354,18 +3354,6 @@ _DEFINITION = [
         validator=validate_string,
         description="The default edge color behavior for scatter plots."
     ),
-    _Section("AGG rendering"),
-    _Param(
-        "agg.path.chunksize",
-        default=0,
-        type=int,
-        validator=validate_int,
-        description="0 to disable; values in the range 10000 to 100000 can improve "
-                    "speed slightly and prevent an Agg rendering failure when plotting "
-                    "very large data sets, especially if they are very gappy. It may "
-                    "cause minor artifacts, though. A value of 20000 is probably a "
-                    "good starting point."
-    ),
     _Section("Paths"),
     _Param(
         "path.simplify",
@@ -3506,6 +3494,18 @@ _DEFINITION = [
         type=Literal["None", "toolbar2", "toolmanager"],
         validator=_validate_toolbar,
         description="{None, toolbar2, toolmanager}"
+    ),
+    _Subsection("AGG rendering"),
+    _Param(
+        "agg.path.chunksize",
+        default=0,
+        type=int,
+        validator=validate_int,
+        description="0 to disable; values in the range 10000 to 100000 can improve "
+                    "speed slightly and prevent an Agg rendering failure when plotting "
+                    "very large data sets, especially if they are very gappy. It may "
+                    "cause minor artifacts, though. A value of 20000 is probably a "
+                    "good starting point."
     ),
     _Subsection("Mac OSX backend parameters"),
     _Param(
