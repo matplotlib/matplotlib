@@ -1561,29 +1561,6 @@ class _Subsection:
 #
 # In the transition phase, consistency is ensured via tests.
 _DEFINITION = [
-    _Section("Backends"),
-    _Param(
-        "backend_fallback",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description="If you are running pyplot inside a GUI and your backend choice "
-                    "conflicts, we will automatically try to find a compatible one for "
-                    "you if backend_fallback is True"
-    ),
-    _Param(
-        "interactive",
-        default=False,
-        type=bool,
-        validator=validate_bool,
-    ),
-    _Param(
-        "toolbar",
-        default="toolbar2",
-        type=Literal["None", "toolbar2", "toolmanager"],
-        validator=_validate_toolbar,
-        description="{None, toolbar2, toolmanager}"
-    ),
     _Section(
         "Lines",
         description="Default line properties. Some plotting functions such "
@@ -3506,6 +3483,29 @@ _DEFINITION = [
         validator=["landscape", "portrait"],
         description="The page orientation for saved figures, for PostScript output "
                     "only."
+    ),
+    _Section("Backends"),
+    _Param(
+        "backend_fallback",
+        default=True,
+        type=bool,
+        validator=validate_bool,
+        description="If you are running pyplot inside a GUI and your backend choice "
+                    "conflicts, we will automatically try to find a compatible one for "
+                    "you if backend_fallback is True"
+    ),
+    _Param(
+        "interactive",
+        default=False,
+        type=bool,
+        validator=validate_bool,
+    ),
+    _Param(
+        "toolbar",
+        default="toolbar2",
+        type=Literal["None", "toolbar2", "toolmanager"],
+        validator=_validate_toolbar,
+        description="{None, toolbar2, toolmanager}"
     ),
     _Subsection("Mac OSX backend parameters"),
     _Param(
