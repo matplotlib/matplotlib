@@ -3689,7 +3689,6 @@ _DEFINITION = [
         validator=validate_bool,
         description="When True, open the web browser to the plot that is shown."
     ),
-    _Subsection("Docstring parameters"),
     _Section(
         "Interactive keymaps",
         description="Default key mappings for interactive navigation. See "
