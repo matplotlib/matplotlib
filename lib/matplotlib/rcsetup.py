@@ -2872,6 +2872,51 @@ _DEFINITION = [
         validator=validate_bool,
         description="Whether to render patches with antialiasing."
     ),
+    _Section("Paths"),
+    _Param(
+        "path.simplify",
+        default=True,
+        type=bool,
+        validator=validate_bool,
+        description='When True, simplify paths by removing "invisible" points to '
+                    'reduce file size and increase rendering speed',
+    ),
+    _Param(
+        "path.simplify_threshold",
+        default=0.111111111111,
+        type=float,
+        validator=_validate_greaterequal0_lessequal1,
+        description="The threshold of similarity below which vertices will be removed "
+                    "in the simplification process."
+    ),
+    _Param(
+        "path.snap",
+        default=True,
+        type=bool,
+        validator=validate_bool,
+        description="When True, rectilinear axis-aligned paths will be snapped to the "
+                    "nearest pixel when certain criteria are met. When False, paths "
+                    "will never be snapped."
+    ),
+    _Param(
+        "path.sketch",
+        default=None,
+        type=tuple[float, float, float] | None,
+        validator=validate_sketch,
+        description="May be None, or a tuple of the form:"
+                    "path.sketch: (scale, length, randomness)"
+                    "- *scale* is the amplitude of the wiggle perpendicular to the line"
+                    "  (in pixels)."
+                    "- *length* is the length of the wiggle along the line (in pixels)."
+                    "- *randomness* is the factor by which the length is  randomly "
+                    "  scaled."
+    ),
+    _Param(
+        "path.effects",
+        default=[],
+        type=list,
+        validator=validate_anylist
+    ),
     _Section("Hatches"),
     _Param("hatch.color", "edge", ':mpltype:`color` or "edge"',
            _validate_color_or_edge, description="The color of hatch strokes."),
@@ -3353,51 +3398,6 @@ _DEFINITION = [
         type=str,
         validator=validate_string,
         description="The default edge color behavior for scatter plots."
-    ),
-    _Section("Paths"),
-    _Param(
-        "path.simplify",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description='When True, simplify paths by removing "invisible" points to '
-                    'reduce file size and increase rendering speed',
-    ),
-    _Param(
-        "path.simplify_threshold",
-        default=0.111111111111,
-        type=float,
-        validator=_validate_greaterequal0_lessequal1,
-        description="The threshold of similarity below which vertices will be removed "
-                    "in the simplification process."
-    ),
-    _Param(
-        "path.snap",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description="When True, rectilinear axis-aligned paths will be snapped to the "
-                    "nearest pixel when certain criteria are met. When False, paths "
-                    "will never be snapped."
-    ),
-    _Param(
-        "path.sketch",
-        default=None,
-        type=tuple[float, float, float] | None,
-        validator=validate_sketch,
-        description="May be None, or a tuple of the form:"
-                    "path.sketch: (scale, length, randomness)"
-                    "- *scale* is the amplitude of the wiggle perpendicular to the line"
-                    "  (in pixels)."
-                    "- *length* is the length of the wiggle along the line (in pixels)."
-                    "- *randomness* is the factor by which the length is  randomly "
-                    "  scaled."
-    ),
-    _Param(
-        "path.effects",
-        default=[],
-        type=list,
-        validator=validate_anylist
     ),
     _Section("Saving figures"),
     _Param(
