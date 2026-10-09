@@ -103,6 +103,15 @@ def test_rcparam_stubs():
         if not name.startswith('_')
     }
 
+    # backend is not a regular dict key anymore, but we have special logic to ensure
+    # read and write access to it.
+    # The _get('backend') is just a smoke test that 'backend' is still supported, and
+    # it is thus justified to add 'backend' to the keys. This will fail in the future
+    # when we remove 'backend' as accepted key and will remind us that we have to
+    # remove it from the stubs.
+    plt.rcParamsDefault._get('backend')  # smoke test
+    runtime_rc_keys.add('backend')
+
     assert isinstance(RcKeyType, typing.TypeAliasType)
     assert {*typing.get_args(RcKeyType.__value__)} == runtime_rc_keys
 
