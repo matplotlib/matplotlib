@@ -5830,6 +5830,7 @@ or pandas.DataFrame
             offsets=offsets,
             offset_transform=mtransforms.AffineDeltaTransform(self.transData)
         )
+        collection._treat_patches_as_contiguous = True
 
         # Set normalizer if bins is 'log'
         if cbook._str_equal(bins, 'log'):
@@ -5911,6 +5912,7 @@ or pandas.DataFrame
             trans = getattr(self, f"get_{zname}axis_transform")(which="grid")
             bar = mcoll.PolyCollection(
                 verts, transform=trans, edgecolors="face")
+            bar._treat_patches_as_contiguous = True
             bar.set_array(values)
             bar.set_cmap(cmap)
             bar.set_norm(norm)

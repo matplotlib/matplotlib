@@ -679,6 +679,7 @@ class ContourSet(ContourLabeler, mcoll.Collection):
             transform=transform,
             colorizer=colorizer,
         )
+        self._treat_patches_as_contiguous = True
         self.axes = ax
         self.levels = levels
         self.filled = filled
