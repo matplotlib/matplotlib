@@ -1976,7 +1976,10 @@ static struct PyModuleDef moduledef = {
          (PyCFunction)event_loop_is_running,
          METH_NOARGS,
          PyDoc_STR(
-            "Return whether the macosx backend has set up the NSApp main event loop.")},
+           "Return whether the macosx backend has been initialized.\n"
+           "\n"
+           "Note: this function name is currently imprecise and does not "
+           "reflect if the main event loop is running or not.")},
         {"wake_on_fd_write",
          (PyCFunction)wake_on_fd_write,
          METH_VARARGS,
