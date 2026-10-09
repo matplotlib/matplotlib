@@ -10,6 +10,7 @@ import numpy as np
 from .description import Desc, desc_like, ShapeSpec
 
 from matplotlib.transforms import Transform
+from matplotlib.typing import RcKeyType
 
 
 @dataclass
@@ -219,7 +220,7 @@ class DefaultEdge(Edge):
 
     @classmethod
     def from_rc(
-        cls, rc_name: str, key: str | None = None, coordinates: str = "display"
+        cls, rc_name: RcKeyType, key: str | None = None, coordinates: str = "display"
     ):
         """Constructor helper method for defaults from rcParams
 
@@ -592,7 +593,7 @@ def coord_and_default(
     shape: ShapeSpec = (),
     coordinates: str = "display",
     default_value: Any = None,
-    default_rc: str | None = None,
+    default_rc: RcKeyType | None = None,
 ):
     """Helper function to provide both a CoordinateEdge and a DefaultEdge
 
