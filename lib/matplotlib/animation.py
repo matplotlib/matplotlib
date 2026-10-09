@@ -1664,7 +1664,10 @@ class FuncAnimation(TimedAnimation):
         Whether blitting is used to optimize drawing.  Note: when using
         blitting, any animated artists will be drawn according to their zorder;
         however, they will be drawn on top of any previous artists, regardless
-        of their zorder.
+        of their zorder.  In particular, an animated artist that reaches the
+        edge of the Axes is drawn over the spines, whereas a full redraw would
+        draw the spines (which have a *zorder* of 2.5) on top of it.  Giving
+        the animated artist a *zorder* above the spines avoids the difference.
 
     cache_frame_data : bool, default: True
         Whether frame data is cached.  Disabling cache might be helpful when
