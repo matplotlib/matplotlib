@@ -16,7 +16,7 @@ function for the animation is a no-op.
 
 from functools import partial
 import time
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Union
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -43,7 +43,7 @@ class SinOfTime:
         self,
         graph: Graph,
         parent_coordinates: str = "axes",
-    ) -> Tuple[Dict[str, Any], Union[str, int]]:
+    ) -> tuple[dict[str, Any], Union[str, int]]:
         th = np.linspace(0, 2 * np.pi, self.N)
 
         cur_time = time.time()
