@@ -426,13 +426,7 @@ class Colorbar:
                 isinstance(self.mappable, contour.ContourSet)):
             self.ax.set_navigate(False)
 
-        # These are the functions that set up interactivity on this colorbar
-        self._interactive_funcs = ["_get_view", "_set_view",
-                                   "_set_view_from_bbox", "drag_pan"]
-        for x in self._interactive_funcs:
-            setattr(self.ax, x, getattr(self, x))
-        # Set the cla function to the cbar's method to override it
-        self.ax.cla = self._cbar_cla
+        self._patch_ax_methods()
         # Callbacks for the extend calculations to handle inverting the axis
         self._extend_cid1 = self.ax.callbacks.connect(
             "xlim_changed", self._do_extends)
@@ -446,6 +440,24 @@ class Colorbar:
         # call to clean up the Axes itself.
         self._ax_remove = self.ax._remove_method
         self.ax._remove_method = functools.partial(_remove_cbar_axes, cbar=self)
+
+    def _patch_ax_methods(self):
+        """Override Axes methods because colorbars behave slightly different."""
+        # These are the functions that set up interactivity on this colorbar
+        self._interactive_funcs = ["_get_view", "_set_view",
+                                   "_set_view_from_bbox", "drag_pan"]
+        for x in self._interactive_funcs:
+            setattr(self.ax, x, getattr(self, x))
+        # Override cla Set the cla function to the cbar's method to override it
+        self.ax.cla = self._cbar_cla
+
+    def _cbar_cla(self):
+        """Function to clear the interactive colorbar state."""
+        for x in self._interactive_funcs:
+            delattr(self.ax, x)
+        # We now restore the old cla() back and can call it directly
+        del self.ax.cla
+        self.ax.cla()
 
     @property
     def long_axis(self):
@@ -493,14 +505,6 @@ class Colorbar:
     def minorformatter(self, fmt):
         self.long_axis.set_minor_formatter(fmt)
         self._minorformatter = fmt
-
-    def _cbar_cla(self):
-        """Function to clear the interactive colorbar state."""
-        for x in self._interactive_funcs:
-            delattr(self.ax, x)
-        # We now restore the old cla() back and can call it directly
-        del self.ax.cla
-        self.ax.cla()
 
     def update_normal(self, mappable=None):
         """
