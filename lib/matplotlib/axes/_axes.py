@@ -6531,6 +6531,14 @@ or pandas.DataFrame
                                 ' X (%d) and/or Y (%d); see help(%s)' % (
                                     C.shape, Nx, Ny, funcname))
             if shading == 'nearest':
+                if Nx == 1 or Ny == 1:
+                    # If a coordinate array has a single cell center,
+                    # its corresponding cell size cannot be determined
+                    # from neighboring centers.
+                    raise TypeError(f"Dimensions of X ({Nx}) and Y ({Ny}) "
+                                    "must be greater than one when using "
+                                    "shading='nearest'. Please supply "
+                                    f"explicit cell edges to {funcname}.")
                 # grid is specified at the center, so define corners
                 # at the midpoints between the grid centers and then use the
                 # flat algorithm.
@@ -6539,26 +6547,21 @@ or pandas.DataFrame
                     # correctly, when expanding columns, the monotonicity of
                     # X coords needs to be checked. When expanding rows, the
                     # monotonicity of Y coords needs to be checked.
-                    if np.shape(X)[1] > 1:
-                        dX = np.diff(X, axis=1) * 0.5
-                        if (require_monotonicity and
-                                not (np.all(dX >= 0) or np.all(dX <= 0))):
-                            _api.warn_external(
-                                f"The input coordinates to {funcname} are "
-                                "interpreted as cell centers, but are not "
-                                "monotonically increasing or decreasing. "
-                                "This may lead to incorrectly calculated cell "
-                                "edges, in which case, please supply "
-                                f"explicit cell edges to {funcname}.")
+                    dX = np.diff(X, axis=1) * 0.5
+                    if (require_monotonicity and
+                            not (np.all(dX >= 0) or np.all(dX <= 0))):
+                        _api.warn_external(
+                            f"The input coordinates to {funcname} are "
+                            "interpreted as cell centers, but are not "
+                            "monotonically increasing or decreasing. "
+                            "This may lead to incorrectly calculated cell "
+                            "edges, in which case, please supply "
+                            f"explicit cell edges to {funcname}.")
 
-                        hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
-                        X = hstack((X[:, [0]] - dX[:, [0]],
-                                    X[:, :-1] + dX,
-                                    X[:, [-1]] + dX[:, [-1]]))
-                    else:
-                        # This is just degenerate, but we can't reliably guess
-                        # a dX if there is just one value.
-                        X = np.hstack((X, X))
+                    hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
+                    X = hstack((X[:, [0]] - dX[:, [0]],
+                                X[:, :-1] + dX,
+                                X[:, [-1]] + dX[:, [-1]]))
                     return X
 
                 if ncols == Nx:
