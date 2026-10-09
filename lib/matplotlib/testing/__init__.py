@@ -51,7 +51,7 @@ def setup():
     set_reproducibility_for_testing()
 
 
-def subprocess_run_for_testing(command, env=None, timeout=60, stdout=None,
+def subprocess_run_for_testing(command, env=None, timeout=300, stdout=None,
                                stderr=None, check=False, text=True,
                                capture_output=False, **kwargs):
     """

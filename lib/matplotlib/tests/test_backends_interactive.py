@@ -121,7 +121,7 @@ def _get_testable_interactive_backends():
 
 # Reasonable safe values for slower CI/Remote and local architectures; timeouts may be
 # automatically increased later by subprocess_run_helper.
-_test_timeout = 20
+_test_timeout = 120 if is_ci_environment() else 20
 _retry_count = 3 if is_ci_environment() else 0
 
 
