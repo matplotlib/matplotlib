@@ -753,6 +753,49 @@ def test_wrap_no_wrap():
     assert text._get_wrapped_text() == 'non wrapped text'
 
 
+@pytest.mark.parametrize(
+    "x, y, rotation",
+    [(0.0, 1.0, 0),
+     (1.0, 0.5, 90),
+     (0.5, 1.0, 180),
+     (0.0, 0.5, 270)])
+def test_wrap_on_figure_edge(x, y, rotation):
+    # Regression test for #31537 - wrap collapsed to zero on figure edges.
+    s = 'This is a very long text that should be wrapped multiple times.'
+    fig = plt.figure(figsize=(6, 4))
+    t = fig.text(x, y, s, wrap=True, rotation=rotation)
+    fig.canvas.draw()
+
+    # Compare to a nudged-off-the-edge reference that should wrap the same.
+    nudge = 1e-4
+    x_ref = x - nudge if x == 1.0 else x + nudge if x == 0.0 else x
+    y_ref = y - nudge if y == 1.0 else y + nudge if y == 0.0 else y
+    fig_ref = plt.figure(figsize=(6, 4))
+    t_ref = fig_ref.text(x_ref, y_ref, s, wrap=True, rotation=rotation)
+    fig_ref.canvas.draw()
+
+    assert t._get_wrapped_text() == t_ref._get_wrapped_text()
+
+
+def test_wrap_on_figure_edge_transform_rotates_text():
+    # transform_rotates_text with an axis-aligned transform can make
+    # get_rotation() float-round to 360.0, breaking the wrap logic.
+    s = 'This is a very long text that should be wrapped multiple times.'
+
+    fig = plt.figure(figsize=(6, 4))
+    transform = mtransforms.Affine2D().rotate_deg(270) + fig.transFigure
+    t = fig.text(0.0, 0.0, s, transform=transform, wrap=True,
+                 rotation=90, transform_rotates_text=True)
+    fig.canvas.draw()
+
+    fig_ref = plt.figure(figsize=(6, 4))
+    t_ref = fig_ref.text(0.0, 0.0, s, wrap=True, rotation=0)
+    fig_ref.canvas.draw()
+
+    assert 0 <= t.get_rotation() < 360
+    assert t._get_wrapped_text() == t_ref._get_wrapped_text()
+
+
 @check_figures_equal()
 def test_buffer_size(fig_test, fig_ref):
     # On old versions of the Agg renderer, large non-ascii single-character
