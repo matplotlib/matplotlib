@@ -161,6 +161,7 @@ endif
 subdir('_api')
 subdir('axes')
 subdir('backends')
+subdir('data_containers')
 subdir('mpl-data')
 subdir('projections')
 subdir('sphinxext')
