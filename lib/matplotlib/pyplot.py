@@ -3597,7 +3597,7 @@ def hexbin(
     vmax: float | None = None,
     alpha: float | None = None,
     linewidths: float | None = None,
-    edgecolors: Literal["face", "none"] | ColorType = "face",
+    edgecolors: Literal["face", "none"] | ColorType = "none",
     reduce_C_function: Callable[[np.ndarray | list[float]], float] = np.mean,
     mincnt: int | None = None,
     marginals: bool = False,
@@ -3917,7 +3917,6 @@ def pcolormesh(
     vmax: float | tuple[float, ...] | None = None,
     colorizer: Colorizer | None = None,
     shading: Literal["flat", "nearest", "gouraud", "auto"] | None = None,
-    antialiased: bool = False,
     data: DataParamType = None,
     **kwargs,
 ) -> QuadMesh:
@@ -3930,7 +3929,6 @@ def pcolormesh(
         vmax=vmax,
         colorizer=colorizer,
         shading=shading,
-        antialiased=antialiased,
         **({"data": data} if data is not None else {}),
         **kwargs,
     )

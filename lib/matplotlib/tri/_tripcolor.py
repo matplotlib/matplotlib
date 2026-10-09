@@ -124,11 +124,6 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
         kwargs['edgecolors'] = kwargs.pop('edgecolor')
     ec = kwargs.setdefault('edgecolors', edgecolors)
 
-    if 'antialiased' in kwargs:
-        kwargs['antialiaseds'] = kwargs.pop('antialiased')
-    if 'antialiaseds' not in kwargs and ec.lower() == "none":
-        kwargs['antialiaseds'] = False
-
     if shading == 'gouraud':
         if facecolors is not None:
             raise ValueError(
@@ -152,6 +147,7 @@ def tripcolor(ax, *args, alpha=1.0, norm=None, cmap=None, vmin=None,
             colors = facecolors
         collection = PolyCollection(verts, alpha=alpha, array=colors,
                                     cmap=cmap, norm=norm, **kwargs)
+        collection._treat_patches_as_contiguous = True
 
     collection._scale_norm(norm, vmin, vmax)
     ax.grid(False)
