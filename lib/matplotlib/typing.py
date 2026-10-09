@@ -12,15 +12,16 @@ downstream libraries.
 """
 from collections.abc import Hashable, Sequence
 import pathlib
-from typing import Any, Literal
+from typing import Any, Literal, TYPE_CHECKING
 from collections.abc import Callable, Mapping
 
-from . import path
-from ._enums import JoinStyle, CapStyle
-from .artist import Artist, BlendMode
-from .backend_bases import RendererBase
-from .markers import MarkerStyle
-from .transforms import Bbox, Transform
+if TYPE_CHECKING:
+    from . import path
+    from ._enums import JoinStyle, CapStyle
+    from .artist import Artist, BlendMode
+    from .backend_bases import RendererBase
+    from .markers import MarkerStyle
+    from .transforms import Bbox, Transform
 
 type DataParamType = Mapping[str, Any] | None
 """The type of the *data* parameter in plotting functions."""
