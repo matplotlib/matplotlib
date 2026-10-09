@@ -13,6 +13,7 @@ import matplotlib
 from matplotlib import pyplot as plt
 from matplotlib._pylab_helpers import Gcf
 from matplotlib import _c_internal_utils
+from matplotlib.testing.decorators import image_comparison
 
 try:
     from matplotlib.backends.qt_compat import QtCore  # type: ignore[attr-defined]
@@ -386,3 +387,238 @@ def test_fig_sigint_override():
 def test_ipython():
     from matplotlib.testing import ipython_in_subprocess
     ipython_in_subprocess("qt", {(8, 24): "qtagg", (8, 15): "QtAgg", (7, 0): "Qt5Agg"})
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_canvas_supports_overlay():
+    fig, ax = plt.subplots()
+    assert fig.canvas.supports_overlay is True
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_draw_overlay_draws_only_overlay_artists():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    normal_line = Line2D([0, 1], [0, 1], color='blue')
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(normal_line)
+    ax.add_line(overlay_line)
+    assert normal_line.stale is True
+    assert overlay_line.stale is True
+    fig.canvas.draw()
+    assert normal_line.stale is False
+    assert overlay_line.stale is False
+
+    with patch.object(normal_line, 'draw') as mock_normal, \
+         patch.object(overlay_line, 'draw') as mock_overlay:
+        fig.canvas.draw_overlay()
+        mock_overlay.assert_called_once()
+        mock_normal.assert_not_called()
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_draw_overlay_clears_stale():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    fig, ax = plt.subplots()
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+    assert overlay_line.stale is True
+    fig.canvas.draw()
+
+    # Mock draw_overlay to prevent it from clearing stale
+    with patch.object(fig.canvas, 'draw_overlay') as mock_draw:
+        assert overlay_line.stale is False
+        overlay_line.set_color('blue')
+        assert overlay_line.stale is True
+        mock_draw.assert_called_once()
+
+    # Now manually call draw_overlay and ensure it clears stale
+    fig.canvas.draw_overlay()
+    assert overlay_line.stale is False
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_draw_overlay_clears_on_removal():
+    from matplotlib.lines import Line2D
+
+    fig, ax = plt.subplots()
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    # Trigger the overlay creation
+    fig.canvas.draw()
+    assert hasattr(fig.canvas, '_overlay_qimage')
+
+    overlay_line.set_in_overlay(False)
+    fig.canvas.draw()
+
+    # Verify the overlay image is deleted!
+    assert not hasattr(fig.canvas, '_overlay_qimage')
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_included_in_save():
+    """Overlay artists should be included when saving figure."""
+    import io
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    fig.canvas.draw()
+
+    # Overlay should be drawn in savefig
+    with patch.object(overlay_line, 'draw') as mock_draw:
+        fig.savefig(io.BytesIO())
+        mock_draw.assert_called()
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_animated_precedence():
+    """Verify animated takes precedence over overlay."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    # Case 1: Only overlay (animated=False)
+    line.set_animated(False)
+    line.set_in_overlay(True)
+    fig.canvas.draw()
+
+    with patch.object(canvas, 'draw_overlay') as mock:
+        line.set_color('red')
+        mock.assert_called()  # draw_overlay called
+
+    # Case 2: Both flags (animated takes precedence)
+    line.set_animated(True)
+    fig.canvas.draw()
+
+    with patch.object(canvas, 'draw_overlay') as mock:
+        line.set_color('blue')
+        mock.assert_not_called()  # animated blocks overlay path
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+def test_qt_overlay_multiple_updates():
+    """Verify that multiple updates trigger draw_overlay synchronously."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+
+    overlay_line = Line2D([0, 1], [0, 1])
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    fig.canvas.draw()
+
+    with patch.object(canvas, 'draw_overlay') as mock:
+        overlay_line.set_color('red')
+        overlay_line.set_linewidth(2.0)
+        overlay_line.set_alpha(0.5)
+
+        assert mock.call_count == 3
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+@image_comparison(
+    baseline_images=['qt_overlay_layer_isolation'],
+    extensions=['png'],
+    style='mpl20',
+)
+def test_qt_overlay_layer_isolation_image_comparison():
+    """
+    Layer isolation test using @image_comparison and mocking.
+
+    Verifies visually that when draw_overlay is mocked out and is_saving is False,
+    rendering a figure with an in_overlay line matches the baseline PNG image.
+    """
+    from matplotlib.lines import Line2D
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots(figsize=(2, 2), layout='constrained')
+    FigureCanvasQTAgg(fig)
+
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
+    ax.add_line(overlay_line)
+
+    patcher_saving = patch.object(fig.canvas, 'is_saving', return_value=False)
+    patcher_overlay = patch.object(fig.canvas, 'draw_overlay')
+    patcher_saving.start()
+    patcher_overlay.start()
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+@image_comparison(
+    baseline_images=['qt_overlay_full_render'],
+    extensions=['png'],
+    style='mpl20',
+)
+def test_qt_overlay_full_render_image_comparison():
+    """
+    Full render test using standard savefig (zero mocks):
+    Verifies visually that standard savefig renders both base and overlay artists.
+    """
+    from matplotlib.lines import Line2D
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+
+    fig, ax = plt.subplots(figsize=(2, 2), layout='constrained')
+    FigureCanvasQTAgg(fig)
+
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
+    ax.add_line(overlay_line)
+
+
+@pytest.mark.backend('QtAgg', skip_on_importerror=True)
+@image_comparison(
+    baseline_images=['qt_overlay_buffer_isolation'],
+    extensions=['png'],
+    style='mpl20',
+)
+def test_qt_overlay_buffer_image_comparison():
+    """
+    Overlay layer isolation image test using @image_comparison and mocking.
+
+    Verifies visually that when main_line draw is mocked out,
+    rendering the figure produces an image with ONLY the red overlay line.
+    """
+    from matplotlib.lines import Line2D
+    from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots(figsize=(2, 2), layout='constrained')
+    FigureCanvasQTAgg(fig)
+
+    main_line = Line2D([0, 1], [0, 1], color='blue', linewidth=10)
+    overlay_line = Line2D([0, 1], [1, 0], color='red', linewidth=10)
+    overlay_line.set_in_overlay(True)
+    ax.add_line(main_line)
+    ax.add_line(overlay_line)
+
+    # Mock out all base layer children (where get_in_overlay() is False)
+    for child in ax.get_children():
+        if not (hasattr(child, 'get_in_overlay') and child.get_in_overlay()):
+            patch.object(child, 'draw').start()

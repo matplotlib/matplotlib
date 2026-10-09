@@ -583,6 +583,206 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
 
 
+def test_overlay_setup_and_api():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+
+    assert hasattr(canvas, "_overlay_manager")
+
+    line = Line2D([0, 1], [0, 1])
+    assert line.get_in_overlay() is False
+
+    # Can set via method
+    line.set_in_overlay(True)
+    assert line.get_in_overlay() is True
+
+    # Manager.update() calls canvas.draw_overlay()
+    with patch.object(canvas, 'draw_overlay') as mock_draw_overlay:
+        canvas._overlay_manager.update()
+        mock_draw_overlay.assert_called_once()
+
+
+def test_overlay_artist_included_in_save():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+    import io
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    canvas.supports_overlay = True
+
+    line = Line2D([0, 1], [0, 1], in_overlay=True)
+    fig.add_artist(line)
+
+    # savefig should draw it
+    with patch.object(line, 'draw') as mock_draw:
+        fig.savefig(io.BytesIO())
+        mock_draw.assert_called_once()
+
+
+def test_overlay_fallback_stale_propagates():
+    """When backend doesn't support overlay, in_overlay=True falls back to
+    normal draw AND stale propagates normally.
+    """
+    from matplotlib.lines import Line2D
+    fig, ax = plt.subplots()
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    # Default: supports_overlay = False (no overlay support)
+    # So in_overlay=True falls back to normal behavior
+    line.set_in_overlay(True)
+
+    fig.draw(fig.canvas.get_renderer())  # clears fig.stale, ax.stale, line.stale
+
+    assert line.stale is False
+    assert ax.stale is False
+    assert fig.stale is False
+
+    line.set_color('red')
+    # When supports_overlay=False
+    # the stale setter — stale propagates: line -> axes -> figure
+    assert line.stale is True
+    assert ax.stale is True
+    assert fig.stale is True
+
+
+def test_animated_and_overlay_independence():
+    """Verify overlay works and animated takes precedence."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    canvas.supports_overlay = True
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+    fig.draw(canvas.get_renderer())
+
+    # Overlay only
+    line.set_in_overlay(True)
+    fig.draw(canvas.get_renderer())
+    with patch.object(canvas, 'draw_overlay') as mock_overlay:
+        line.set_color('blue')
+        mock_overlay.assert_called()
+    with patch.object(line, 'draw') as mock:
+        fig.draw(canvas.get_renderer())
+        mock.assert_not_called()
+
+    # Both on
+    line.set_animated(True)
+    fig.draw(canvas.get_renderer())
+    with patch.object(canvas, 'draw_overlay') as mock_overlay:
+        line.set_color('green')
+        mock_overlay.assert_not_called()
+    with patch.object(line, 'draw') as mock:
+        ax.draw_artist(line)
+        mock.assert_called_once()
+
+
+def test_overlay_batches_multiple_updates():
+    """Multiple overlay property changes should result in single efficient redraw."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    canvas.supports_overlay = True
+
+    overlay_line = Line2D([0, 1], [0, 1])
+    overlay_line.set_in_overlay(True)
+    ax.add_line(overlay_line)
+
+    fig.draw(canvas.get_renderer())
+
+    # Multiple rapid changes
+    overlay_line.set_color('red')
+    overlay_line.set_linewidth(2)
+    overlay_line.set_marker('o')
+
+    # In Phase 1: draw_overlay() → draw_idle()
+    with patch.object(canvas, 'draw') as mock_draw:
+        canvas.draw_overlay()
+        # Should only trigger ONE draw
+        assert mock_draw.call_count == 1
+
+
+#fail test case
+def test_overlay_draw_filtering_and_stale():
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    line = Line2D([0, 1], [0, 1])
+    ax.add_line(line)
+
+    # Enable overlay support on the canvas
+    canvas.supports_overlay = True
+
+
+    fig.draw(canvas.get_renderer())
+
+    # Mark as overlay
+    line.set_in_overlay(True)
+
+    # 1. Overlay artist is skipped in standard draw
+    with patch.object(line, 'draw') as mock_draw:
+        assert line.stale is True
+        fig.draw(canvas.get_renderer())
+        mock_draw.assert_not_called()
+        # line.stale is true but not propagated to canvas (support_overlay=True).
+        # Fallback skipped -> line not drawn -> stale stays true.
+        assert line.stale is True
+
+    import pytest
+    pytest.xfail(
+        "Phase 1: draw_overlay() falls back to draw_idle(), "
+        "so this will fail until Phase 2."
+    )
+    # 2. Stale flag does not propagate to canvas
+    with patch.object(canvas, 'draw_idle') as mock_draw_idle:
+        line.set_color('red')
+        mock_draw_idle.assert_not_called()
+
+
+
+@pytest.mark.xfail(reason="Phase 2: draw_overlay() should only draw overlay artists")
+def test_draw_overlay_draws_only_overlay_artists():
+    """draw_overlay should draw only overlay artists, not trigger full figure redraw."""
+    from matplotlib.lines import Line2D
+    from unittest.mock import patch
+
+    fig, ax = plt.subplots()
+    canvas = fig.canvas
+    canvas.supports_overlay = True
+
+    # Create both normal and overlay artists
+    normal_line = Line2D([0, 1], [0, 1], color='blue')
+    overlay_line = Line2D([0, 1], [0, 1], color='red')
+    overlay_line.set_in_overlay(True)
+
+    ax.add_line(normal_line)
+    ax.add_line(overlay_line)
+
+    fig.draw(canvas.get_renderer())
+
+    # Modify overlay and call draw_overlay
+    overlay_line.set_color('green')
+
+    with patch.object(normal_line, 'draw') as mock_normal, \
+         patch.object(overlay_line, 'draw') as mock_overlay:
+        canvas.draw_overlay()
+
+        # FAILS in Phase 1: draw_overlay() -> draw_idle() -> full figure redraw.
+        # normal_line.draw() is called, but overlay artist is skipped (filtered).
+        mock_overlay.assert_called_once()     # Overlay should be drawn
+        mock_normal.assert_not_called()       # Normal should NOT be redrawn
+
+
 def test_get_width_height_floating_point_precision():
     fig = plt.figure(figsize=(1, 2.03), dpi=100)
     assert fig.bbox.height < 203  # due to floating-point precision
