@@ -222,7 +222,10 @@ class TextToPath:
         """Convert the string *s* to vertices and codes using usetex mode."""
         # Mostly borrowed from pdf backend.
 
-        dvifile = TexManager().make_dvi(s, self.FONT_SCALE)
+        prop = FontProperties._from_any(prop)
+        fontsize = prop.get_size_in_points()
+        scale = self.FONT_SCALE / fontsize
+        dvifile = TexManager().make_dvi(s, fontsize)
         with dviread.Dvi(dvifile, self.DPI) as dvi:
             page, = dvi
 
@@ -250,13 +253,14 @@ class TextToPath:
                 glyph_map_new[glyph_repr] = font.get_path()
 
             glyph_reprs.append(glyph_repr)
-            xpositions.append(text.x)
-            ypositions.append(text.y)
-            sizes.append(text.font_size / self.FONT_SCALE)
+            xpositions.append(text.x * scale)
+            ypositions.append(text.y * scale)
+            sizes.append(text.font_size / fontsize)
 
         myrects = []
 
         for ox, oy, h, w in page.boxes:
+            ox, oy, h, w = ox * scale, oy * scale, h * scale, w * scale
             vert1 = [(ox, oy), (ox + w, oy), (ox + w, oy + h),
                      (ox, oy + h), (ox, oy), (0, 0)]
             code1 = [Path.MOVETO,
@@ -326,6 +330,9 @@ class TextPath(Path):
         prop = FontProperties._from_any(prop)
         if size is None:
             size = prop.get_size_in_points()
+        else:
+            prop = prop.copy()
+            prop.set_size(size)
 
         self._xy = xy
         self.set_size(size)
@@ -336,6 +343,12 @@ class TextPath(Path):
             *text_to_path.get_text_path(prop, s, ismath=ismath),
             _interpolation_steps=_interpolation_steps,
             readonly=True)
+        if ismath == "TeX":
+            self._tex_prop = prop.copy()
+            self._tex_s = s
+            self._tex_size = size
+        else:
+            self._tex_prop = None
         self._should_simplify = False
 
     def set_size(self, size):
@@ -366,10 +379,17 @@ class TextPath(Path):
         """
         Update the path if necessary.
 
-        The path for the text is initially create with the font size of
+        The path for the text is initially created with the font size of
         `.FONT_SCALE`, and this path is rescaled to other size when necessary.
         """
         if self._invalid or self._cached_vertices is None:
+            if self._tex_prop is not None and self._tex_size != self._size:
+                prop = self._tex_prop.copy()
+                prop.set_size(self._size)
+                path = Path(*text_to_path.get_text_path(
+                    prop, self._tex_s, ismath="TeX"), readonly=True)
+                self._vertices, self._codes = path.vertices, path.codes
+                self._tex_size = self._size
             tr = (Affine2D()
                   .scale(self._size / text_to_path.FONT_SCALE)
                   .translate(*self._xy))
