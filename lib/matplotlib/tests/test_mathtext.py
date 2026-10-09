@@ -114,7 +114,7 @@ math_tests = [
     r'$\mathring{A}  \AA$',
     r'$M \, M \thinspace M \/ M \> M \: M \; M \ M \enspace M \quad M \qquad M \! M$',
     r'$\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$',
-    r'$\hspace{-0.2}\dotplus\hspace{-0.2}$ $\hspace{-0.2}\doteq\hspace{-0.2}$ $\hspace{-0.2}\doteqdot\hspace{-0.2}$ $\ddots$',
+    r'$\dotplus$ $\doteq$ $\doteqdot$ $\ddots$',  # github issue #23315
     r'$xyz^kx_kx^py^{p-2} d_i^jb_jc_kd x^j_i E^0 E^0_u$',  # github issue #4873
     r'${xyz}^k{x}_{k}{x}^{p}{y}^{p-2} {d}_{i}^{j}{b}_{j}{c}_{k}{d} {x}^{j}_{i}{E}^{0}{E}^0_u$',
     r'${\int}_x^x x\oint_x^x x\int_{X}^{X}x\int_x x \int^x x \int_{x} x\int^{x}{\int}_{x} x{\int}^{x}_{x}x$',
@@ -594,6 +594,24 @@ def test_text_escaped_braces(fig_test, fig_ref):
     # Escaped braces are still rendered as literal braces (gh-32105).
     fig_test.text(0.1, 0.2, r"$\text{{\{example\}}}$")
     fig_ref.text(0.1, 0.2, r"$\text{\{example\}}$")
+
+
+@check_figures_equal()
+def test_spaced_operator_at_boundary(fig_test, fig_ref):
+    # A spaced operator (relation, binary, or arrow) at the start or end of a
+    # math expression is not spaced on the boundary side, matching TeX, which
+    # discards glue at the boundaries of a math list (gh-23315).  The reference
+    # cancels the would-be boundary space with a matching negative \hspace.
+    fig_test.text(0.5, 0.1, r"$=b$")             # relation at start
+    fig_test.text(0.5, 0.3, r"$b=$")             # relation at end
+    fig_test.text(0.5, 0.5, r"$\doteq$")         # named relation, both ends
+    fig_test.text(0.5, 0.7, r"$b\doteq$")        # named relation at end
+    fig_test.text(0.5, 0.9, r"$\leftharpoonup$")  # arrow, both ends
+    fig_ref.text(0.5, 0.1, r"$\hspace{-0.2}=b$")
+    fig_ref.text(0.5, 0.3, r"$b=\hspace{-0.2}$")
+    fig_ref.text(0.5, 0.5, r"$\hspace{-0.2}\doteq\hspace{-0.2}$")
+    fig_ref.text(0.5, 0.7, r"$b\doteq\hspace{-0.2}$")
+    fig_ref.text(0.5, 0.9, r"$\hspace{-0.2}\leftharpoonup\hspace{-0.2}$")
 
 
 @check_figures_equal()
