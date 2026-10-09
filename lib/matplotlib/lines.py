@@ -19,8 +19,8 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
-from ._data_containers._helpers import _get_graph, check_container
-from ._data_containers.description import Desc
+from .data_containers._helpers import _get_graph, check_container
+from .data_containers.description import Desc
 
 # Imported here for backward compatibility, even though they don't
 # really belong.

@@ -18,8 +18,8 @@ class Desc:
 
     @staticmethod
     def validate_shapes(
-        specification: dict[str, ShapeSpec | "Desc"],
-        actual: dict[str, ShapeSpec | "Desc"],
+        specification: dict[str, Union[ShapeSpec, "Desc"]],
+        actual: dict[str, Union[ShapeSpec, "Desc"]],
         *,
         broadcast: bool = False,
     ) -> None:
@@ -56,7 +56,7 @@ class Desc:
         ValueError:
             If shapes are incompatible in any other way
         """
-        specvars: dict[str, int | tuple[str, int]] = {}
+        specvars: dict[str, Union[int, tuple[str, int]]] = {}
         for fieldname in specification:
             spec = specification[fieldname]
             if fieldname not in actual:
@@ -84,7 +84,7 @@ class Desc:
                     continue
                 if isinstance(speccomp, str):
                     specv, specoff = speccomp[0], int(speccomp[1:] or 0)
-                    entry: tuple[str, int] | int
+                    entry: Union[tuple[str, int], int]
 
                     if isinstance(desccomp, str):
                         descv, descoff = desccomp[0], int(desccomp[1:] or 0)

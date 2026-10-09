@@ -39,7 +39,7 @@ class DataContainer(Protocol):
 
         Parameters
         ----------
-        graph : matplotlib._data_containers.Graph
+        graph : matplotlib.data_containers.Graph
             This is a graph that represents the available operations.
             Most commonly, this is used to get information on the pan/zoom of
             an Axes, which allows a Container to reactively produce data
