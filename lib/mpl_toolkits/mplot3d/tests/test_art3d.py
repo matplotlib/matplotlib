@@ -13,6 +13,18 @@ from mpl_toolkits.mplot3d.art3d import (
 )
 
 
+def test_line3d_set_data_3d_list_with_nan():
+    # Regression test for #32127: set_data_3d stores array-like as given, and
+    # draw must not require ndarray .shape when a coordinate is non-finite.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection="3d")
+    line, = ax.plot([0.0], [0.0], [0.0])
+    xs, ys, zs = [float("nan")], [float("nan")], [float("nan")]
+    line.set_data_3d(xs, ys, zs)
+    assert line.get_data_3d() == (xs, ys, zs)
+    fig.canvas.draw()
+
+
 @pytest.mark.parametrize("zdir, expected", [
     ("x", (1, 0, 0)),
     ("y", (0, 1, 0)),
