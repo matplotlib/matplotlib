@@ -1422,12 +1422,21 @@ class Axis(martist.Artist):
         if (self._tick_group_visible(self._major_tick_kw)
                 and not isinstance(self.get_major_locator(), NullLocator)):
             major_locs = self.get_majorticklocs()
-            major_labels = self.major.formatter.format_ticks(major_locs)
+            major_formatter = self.major.formatter
+            major_labels = major_formatter.format_ticks(major_locs)
+            major_is_custom = (
+                isinstance(major_formatter, mticker.FuncFormatter)
+                and getattr(major_formatter,
+                            "_is_custom_ticklabel_formatter", True))
             major_ticks = self.get_major_ticks(len(major_locs))
             for tick, loc, label in zip(major_ticks, major_locs, major_labels):
                 tick.update_position(loc)
                 tick.label1.set_text(label)
                 tick.label2.set_text(label)
+                # Custom formatters can produce labels with different
+                # ascenders, so let Text use a common line box for them.
+                tick.label1._is_ticklabel = major_is_custom
+                tick.label2._is_ticklabel = major_is_custom
         else:
             major_ticks = []
 
@@ -1435,12 +1444,19 @@ class Axis(martist.Artist):
         if (self._tick_group_visible(self._minor_tick_kw)
                 and not isinstance(self.get_minor_locator(), NullLocator)):
             minor_locs = self.get_minorticklocs()
-            minor_labels = self.minor.formatter.format_ticks(minor_locs)
+            minor_formatter = self.minor.formatter
+            minor_labels = minor_formatter.format_ticks(minor_locs)
+            minor_is_custom = (
+                isinstance(minor_formatter, mticker.FuncFormatter)
+                and getattr(minor_formatter,
+                            "_is_custom_ticklabel_formatter", True))
             minor_ticks = self.get_minor_ticks(len(minor_locs))
             for tick, loc, label in zip(minor_ticks, minor_locs, minor_labels):
                 tick.update_position(loc)
                 tick.label1.set_text(label)
                 tick.label2.set_text(label)
+                tick.label1._is_ticklabel = minor_is_custom
+                tick.label2._is_ticklabel = minor_is_custom
         else:
             minor_ticks = []
 
@@ -2345,6 +2361,10 @@ class Axis(martist.Artist):
             tickd = {loc: lab for loc, lab in zip(fixed_locator.locs, labels)}
             func = functools.partial(self._format_with_dict, tickd)
             formatter = mticker.FuncFormatter(func)
+            # ``set_ticklabels`` uses a ``FuncFormatter`` internally, but
+            # these are fixed labels rather than user-defined formatting.
+            # Keep them on the existing text-layout path.
+            formatter._is_custom_ticklabel_formatter = False
         else:
             _api.warn_external(
                  "set_ticklabels() should only be used with a fixed number of "
