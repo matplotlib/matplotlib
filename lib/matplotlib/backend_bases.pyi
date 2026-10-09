@@ -328,6 +328,7 @@ class FigureCanvasBase:
 
     @_api.classproperty
     def supports_blit(cls) -> bool: ...
+    supports_layers: bool
 
     figure: Figure
     manager: None | FigureManagerBase
