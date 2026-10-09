@@ -89,6 +89,7 @@ class TimerGTK(TimerBase):
         # Need to stop it, otherwise we potentially leak a timer id that will
         # never be stopped.
         self._timer_stop()
+        self._next_fire = GLib.get_monotonic_time() / 1e6 + self._interval / 1000
         self._timer = GLib.timeout_add(self._interval, self._on_timer)
 
     def _timer_stop(self):
@@ -99,23 +100,50 @@ class TimerGTK(TimerBase):
     def _timer_set_interval(self):
         # Only stop and restart it if the timer has already been started.
         if self._timer is not None:
-            self._timer_stop()
             self._timer_start()
 
     def _on_timer(self):
+        timer = self._timer
         super()._on_timer()
-
-        # Gtk timeout_add() requires that the callback returns True if it
-        # is to be called again.
-        if self.callbacks and not self._single:
-            return True
-        else:
+        if self._timer is not timer:
+            # A callback stopped or restarted us; leave its timer alone.
+            return GLib.SOURCE_REMOVE
+        if not self.callbacks or self._single:
             self._timer = None
-            return False
+            return GLib.SOURCE_REMOVE
+        # Reschedule ourselves instead of using SOURCE_CONTINUE, so a slow
+        # callback skips to the next interval instead of drifting.
+        self._next_fire, delay = self._next_delay(
+            self._next_fire, self._interval / 1000, GLib.get_monotonic_time() / 1e6)
+        self._timer = GLib.timeout_add(max(1, round(delay * 1000)), self._on_timer)
+        return GLib.SOURCE_REMOVE
 
 
 class _FigureCanvasGTK(FigureCanvasBase):
     _timer_cls = TimerGTK
+    _event_loop = None
+
+    def start_event_loop(self, timeout=0):
+        # docstring inherited
+        if self._event_loop is not None and self._event_loop.is_running():
+            raise RuntimeError("Event loop already running")
+        self._event_loop = loop = GLib.MainLoop()
+        source = None
+        if timeout > 0:
+            source = GLib.timeout_source_new(int(timeout * 1000))
+            source.set_callback(lambda *args: (loop.quit(), GLib.SOURCE_REMOVE)[1])
+            source.attach(loop.get_context())
+        try:
+            loop.run()
+        finally:
+            if source is not None:
+                source.destroy()
+            self._event_loop = None
+
+    def stop_event_loop(self):
+        # docstring inherited
+        if self._event_loop is not None:
+            self._event_loop.quit()
 
 
 class _FigureManagerGTK(FigureManagerBase):

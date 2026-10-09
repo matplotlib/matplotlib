@@ -1152,7 +1152,9 @@ class TimerBase:
             and `~.TimerBase.remove_callback` can be used.
         """
         self.callbacks = [] if callbacks is None else callbacks.copy()
-        # Set .interval and not ._interval to go through the property setter.
+        # Sentinels so the setters below see the first assignment as a change.
+        self._interval = None
+        self._single = None
         self.interval = 1000 if interval is None else interval
         self.single_shot = False
 
@@ -1185,8 +1187,9 @@ class TimerBase:
         # milliseconds, and some error or give warnings.
         # Some backends also fail when interval == 0, so ensure >= 1 msec
         interval = max(int(interval), 1)
-        self._interval = interval
-        self._timer_set_interval()
+        if interval != self._interval:
+            self._interval = interval
+            self._timer_set_interval()
 
     @property
     def single_shot(self):
@@ -1195,8 +1198,9 @@ class TimerBase:
 
     @single_shot.setter
     def single_shot(self, ss):
-        self._single = ss
-        self._timer_set_single_shot()
+        if ss != self._single:
+            self._single = ss
+            self._timer_set_single_shot()
 
     def add_callback(self, func, *args, **kwargs):
         """
@@ -1237,6 +1241,20 @@ class TimerBase:
 
     def _timer_set_single_shot(self):
         """Used to set single shot on underlying timer object."""
+
+    @staticmethod
+    def _next_delay(next_fire, interval, now):
+        """
+        Compute the next absolute fire time and delay for a repeating timer
+        that reschedules itself, skipping any intervals a slow callback
+        caused it to miss instead of drifting by the callback's duration.
+
+        *next_fire*, *interval*, and *now* must be in the same units.
+        """
+        next_fire += interval
+        if next_fire <= now:
+            next_fire += interval * ((now - next_fire) // interval + 1)
+        return next_fire, next_fire - now
 
     def _on_timer(self):
         """
@@ -2545,13 +2563,11 @@ class FigureCanvasBase:
         """
         if timeout <= 0:
             timeout = np.inf
-        timestep = 0.01
-        counter = 0
+        t_end = time.perf_counter() + timeout
         self._looping = True
-        while self._looping and counter * timestep < timeout:
+        while self._looping and time.perf_counter() < t_end:
             self.flush_events()
-            time.sleep(timestep)
-            counter += 1
+            time.sleep(0.01)
 
     def stop_event_loop(self):
         """
