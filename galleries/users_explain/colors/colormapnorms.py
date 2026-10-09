@@ -7,8 +7,13 @@
 Colormap normalization
 ======================
 
-Objects that use colormaps by default linearly map the colors in the
-colormap from data values *vmin* to *vmax*.  For example::
+Normalization objects map data values into the colormap indexing range, and this
+indexing range is determined by the choice of normalization function. Normalization
+classes are defined in the :func:`matplotlib.colors` module and linear normalization
+:func:`matplotlib.colors.Normalize` is the default.
+
+Objects that use colormaps by default linearly map the data value range [*vmin*, *vmax*]
+to the colormap indexing range [0, 1]. For example::
 
     pcm = ax.pcolormesh(x, y, Z, vmin=-1., vmax=1., cmap='RdBu_r')
 
@@ -16,14 +21,9 @@ will map the data in *Z* linearly from -1 to +1, so *Z=0* will
 give a color at the center of the colormap *RdBu_r* (white in this
 case).
 
-Matplotlib does this mapping in two steps, with a normalization from
-the input data to [0, 1] occurring first, and then mapping onto the
-indices in the colormap.  Normalizations are classes defined in the
-:func:`matplotlib.colors` module.  The default, linear normalization
-is :func:`matplotlib.colors.Normalize`.
-
-Artists that map data to color pass the arguments *vmin* and *vmax* to
-construct a :func:`matplotlib.colors.Normalize` instance, then call it:
+Artists that map data to color pass the arguments *vmin* and *vmax* to a
+:func:`.Normalize` object instantiated inside the artist. Here is an
+example of explicitly creating a norm and then mapping a data value to a colormap index:
 
 .. code-block:: pycon
 
