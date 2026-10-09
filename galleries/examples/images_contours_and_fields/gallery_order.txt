@@ -47,6 +47,7 @@ contours_in_optimization_demo
 # quiver
 quiver_simple_demo
 quiver_demo
+quiver_head_pos_demo
 
 # barbs and streamlines
 barb_demo
