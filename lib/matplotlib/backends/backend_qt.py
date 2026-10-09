@@ -94,6 +94,16 @@ def _create_WindowIcon():
     return icon
 
 
+# AA_UseHighDpiPixmaps on Qt6 is deprecated and will always return True.
+# PySide6 will log or throw a DeprecationWarning when we try to access it.
+def _test_app_attribute_UseHighDpiPixmaps():
+    if QT_API == "PyQt5":
+        app = QtWidgets.QApplication.instance()
+        return app.testAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+    else:
+        return True
+
+
 # lru_cache keeps a reference to the QApplication instance, keeping it from
 # being GC'd.
 @functools.lru_cache(1)
@@ -726,12 +736,8 @@ class _IconEngine(QtGui.QIconEngine):
 
     def _devicePixelRatio(self):
         """Return the current device pixel ratio for the toolbar, defaulting to 1."""
-        use_high_dpi_pixmaps = True
-        if hasattr(QtCore.Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-            app = QtWidgets.QApplication.instance()
-            use_high_dpi_pixmaps = app.testAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
         toolbar_dpr = (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
-        return toolbar_dpr if use_high_dpi_pixmaps else 1
+        return toolbar_dpr if _test_app_attribute_UseHighDpiPixmaps() else 1
 
     def _create_pixmap_from_svg(self, svg_path, size):
         """Create a pixmap from SVG with proper scaling and dark mode support."""
