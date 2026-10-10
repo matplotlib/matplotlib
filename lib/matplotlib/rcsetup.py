@@ -1567,59 +1567,62 @@ _DEFINITION = [
         default="large",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="size of the figure title (``Figure.suptitle()``)"
+        description="The size of the figure title (see `.Figure.suptitle`)."
     ),
     _Param(
         "figure.titleweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="weight of the figure title"
+        description="The weight of the figure title (see `.Figure.suptitle`)."
     ),
     _Param(
         "figure.labelsize",
         default="large",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="size of the figure label (``Figure.sup[x|y]label()``)"
+        description="The size of the figure label (see `.Figure.supxlabel` / "
+                    "`.Figure.supylabel`)."
     ),
     _Param(
         "figure.labelweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="weight of the figure label"
+        description="The weight of the figure label (see `.Figure.supxlabel` / "
+                    "`.Figure.supylabel`)."
     ),
     _Param(
         "figure.figsize",
         default=[6.4, 4.8],
         type=tuple[float, float],
         validator=_listify_validator(validate_float, n=2),
-        description="figure size in inches"
+        description="The figure size as (width, height) in inches."
     ),
     _Param(
         "figure.dpi",
         default=100.0,
         type=float,
-        validator=validate_float, description="figure dots per inch"
+        validator=validate_float, description="The figure resolution as dots per inch."
     ),
     _Param(
         "figure.facecolor",
         default="white",
         type=":mpltype:`color`",
-        validator=validate_color, description="figure face color"
+        validator=validate_color, description="The color of the figure background."
     ),
     _Param(
         "figure.edgecolor",
         default="white",
         type=":mpltype:`color`",
-        validator=validate_color, description="figure edge color"
+        validator=validate_color, description="The edge color of the figure background."
     ),
     _Param(
         "figure.frameon",
         default=True,
         type=bool,
-        validator=validate_bool, description="enable figure frame"
+        validator=validate_bool,
+        description="Whether to draw the figure background patch."
     ),
     _Param(
         "figure.max_open_warning",
@@ -1645,60 +1648,72 @@ _DEFINITION = [
         default=0.125,
         type=float,
         validator=validate_float,
-        description="the left side of the subplots of the figure"
+        description="The position of the left edge of the subplots, as a fraction of"
+                    "the figure width. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.right",
         default=0.9,
         type=float,
         validator=validate_float,
-        description="the right side of the subplots of the figure"
+        description="The position of the right edge of the subplots, as a fraction of "
+                    "the figure width. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.bottom",
         default=0.11,
         type=float,
         validator=validate_float,
-        description="the bottom of the subplots of the figure"
+        description="The position of the bottom edge of the subplots, as a fraction of "
+                    "the figure height. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.top",
         default=0.88,
         type=float,
         validator=validate_float,
-        description="the top of the subplots of the figure"
+        description="The position of the top edge of the subplots, as a fraction of "
+                    "the figure height. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.wspace",
         default=0.2,
         type=float,
         validator=validate_float,
-        description="the amount of width reserved for space between subplots, "
-                    "expressed as a fraction of the average axis width"
+        description="The width of the padding between subplots, as a fraction of the "
+                    "average Axes width. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.hspace",
         default=0.2,
         type=float,
         validator=validate_float,
-        description="the amount of height reserved for space between subplots, "
-                    "expressed as a fraction of the average axis height"
+        description="The height of the padding between subplots, as a fraction of the "
+                    "average Axes height. See `.SubplotParams`."
     ),
     _Param(
         "figure.autolayout",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, automatically adjust subplot parameters to make the "
-                    "plot fit the figure using `~.Figure.tight_layout`"
+        description="Whether to use the tight layout mechanism to adapt subplot "
+                    "parameters. See the parameter *tight_layout* of `.Figure` for "
+                    "more information."
+                    "\n\n"
+                    "Note: Only one of the parameters 'figure.autolayout' and "
+                    "'figure.constrained_layout.use' can be True at a time."
     ),
     _Param(
         "figure.constrained_layout.use",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, automatically make plot elements fit on the figure. "
-                    '(Not compatible with "figure.autolayout", above).'
+        description="Whether to use the constrained layout mechanism to optimize "
+                    "figure layout. See the parameter *constrained_layout* of "
+                    "`.Figure` for more information."
+                    "\n\n"
+                    "Note: Only one of the parameters 'figure.autolayout' and "
+                    "'figure.constrained_layout.use' can be True at a time."
     ),
     _Param(
         "figure.constrained_layout.h_pad",
@@ -1706,7 +1721,7 @@ _DEFINITION = [
         type=float,
         validator=validate_float,
         description="Padding (in inches) around axes; defaults to 3/72 inches, "
-                    "i.e. 3 points"
+                    "i.e. 3 points."
     ),
     _Param(
         "figure.constrained_layout.w_pad",
@@ -1714,7 +1729,7 @@ _DEFINITION = [
         type=float,
         validator=validate_float,
         description="Padding (in inches) around axes; defaults to 3/72 inches, "
-                    "i.e. 3 points"
+                    "i.e. 3 points."
     ),
     _Param(
         "figure.constrained_layout.hspace",
@@ -1741,7 +1756,16 @@ _DEFINITION = [
         default=[],
         type=list[str],
         validator=validate_stringlist,
-        description="list of dotted.module.name:dotted.callable.name"
+        description="List of functions that are called after figure creation. "
+                    "These can be used to customize the created figure. The "
+                    "functions are declared as fully qualified names, e.g. "
+                    "'dotted.module.name:function_name'. Each function must have the "
+                    "signature ``function(fig: Figure) -> None``."
+                    "\n\n"
+                    "This is a `.pyplot` feature and is only executed on figures that "
+                    "are created via pyplot functions. See also the note in "
+                    "`.pyplot.figure`. Figure hooks do not apply to bare figures "
+                    "created through ``Figure()``."
     ),
     _Section("Axes"),
     _Param(
