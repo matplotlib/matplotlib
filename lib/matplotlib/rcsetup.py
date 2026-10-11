@@ -23,7 +23,7 @@ import operator
 import os
 import re
 from typing import Any, Literal
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 
 import numpy as np
 
@@ -1509,13 +1509,6 @@ type _FontStretchType = int | Literal[
 ]
 
 
-type _LineStyleType = (
-    Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
-            "", "none", " ", "None"] |
-    tuple[float, Sequence[float]]
-)
-
-
 type _MarkerType = int | str
 
 
@@ -2459,7 +2452,7 @@ _DEFINITION = [
     _Param(
         "grid.linestyle",
         default="-",
-        type=_LineStyleType,
+        type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
         description="The default grid line style."
     ),
@@ -2488,7 +2481,7 @@ _DEFINITION = [
     _Param(
         "grid.major.linestyle",
         default=None,
-        type=_LineStyleType | None,
+        type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
         description="If None defaults to grid.linestyle"
     ),
@@ -2516,7 +2509,7 @@ _DEFINITION = [
     _Param(
         "grid.minor.linestyle",
         default=None,
-        type=_LineStyleType | None,
+        type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
         description="If None defaults to grid.linestyle"
     ),
@@ -2702,7 +2695,7 @@ _DEFINITION = [
     _Param(
         "lines.linestyle",
         default="-",
-        type=_LineStyleType,
+        type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
         description="The default line style."
     ),
@@ -3247,7 +3240,7 @@ _DEFINITION = [
     _Param(
         "contour.negative_linestyle",
         default="dashed",
-        type=_LineStyleType,
+        type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
         description="The line style for negative contours, if *linestyle* is None "
                     "and no color is specified."
@@ -3346,34 +3339,34 @@ _DEFINITION = [
            description="The width of the flier marker edge, in points."),
     _Param("boxplot.flierprops.markersize", 6.0, float, validate_float,
            description="The flier marker size, in points."),
-    _Param("boxplot.flierprops.linestyle", "none", _LineStyleType, _validate_linestyle,
-           description="The line style of flier markers."),
+    _Param("boxplot.flierprops.linestyle", "none", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The line style of flier markers."),
     _Param("boxplot.flierprops.linewidth", 1.0, float, validate_float,
            description="The line width of flier markers, in points."),
     _Param("boxplot.boxprops.color", "black", ':mpltype:`color`', validate_color,
            description="The box outline color."),
     _Param("boxplot.boxprops.linewidth", 1.0, float, validate_float,
            description="The box outline width, in points."),
-    _Param("boxplot.boxprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The box outline style."),
+    _Param("boxplot.boxprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The box outline style."),
     _Param("boxplot.whiskerprops.color", "black", ':mpltype:`color`', validate_color,
            description="The whisker line color."),
     _Param("boxplot.whiskerprops.linewidth", 1.0, float, validate_float,
            description="The whisker line width, in points."),
-    _Param("boxplot.whiskerprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The whisker line style."),
+    _Param("boxplot.whiskerprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The whisker line style."),
     _Param("boxplot.capprops.color", "black", ':mpltype:`color`', validate_color,
            description="The cap line color."),
     _Param("boxplot.capprops.linewidth", 1.0, float, validate_float,
            description="The cap line width, in points."),
-    _Param("boxplot.capprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The cap line style."),
+    _Param("boxplot.capprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The cap line style."),
     _Param("boxplot.medianprops.color", "C1", ':mpltype:`color`', validate_color,
            description="The median line color."),
     _Param("boxplot.medianprops.linewidth", 1.0, float, validate_float,
            description="The median line width, in points."),
-    _Param("boxplot.medianprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The median line style."),
+    _Param("boxplot.medianprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The median line style."),
     _Param("boxplot.meanprops.color", "C2", ':mpltype:`color`', validate_color,
            description="The mean marker or line color."),
     _Param("boxplot.meanprops.marker", "^", _MarkerType, _validate_marker,
@@ -3384,7 +3377,8 @@ _DEFINITION = [
            validate_color, description="The edge color of the mean marker."),
     _Param("boxplot.meanprops.markersize", 6.0, float, validate_float,
            description="The mean marker size, in points."),
-    _Param("boxplot.meanprops.linestyle", "--", _LineStyleType, _validate_linestyle,
+    _Param("boxplot.meanprops.linestyle", "--", ":mpltype:`linestyle`",
+           _validate_linestyle,
            description="The line style of the mean marker or line."),
     _Param("boxplot.meanprops.linewidth", 1.0, float, validate_float,
            description="The line width of the mean marker or line, in points."),
