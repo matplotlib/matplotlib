@@ -1255,6 +1255,70 @@ namespace agg
     };
 #endif
 
+#ifdef MPL_ADD_AGG_CUSTOM_BLEND_MODES
+    // These two blend modes ...
+
+    //=====================================================comp_op_rgba_max_cover
+    template<class ColorT, class Order>
+    struct comp_op_rgba_max_cover : blender_base<ColorT, Order>
+    {
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        using blender_base<ColorT, Order>::get;
+        using blender_base<ColorT, Order>::set;
+
+        static AGG_INLINE void blend_pix(value_type* p,
+            value_type r, value_type g, value_type b, value_type a, cover_type cover)
+        {
+            rgba s = get(r, g, b, a, cover);
+            if (s.a > 0)
+            {
+                rgba d = get(p);
+                if (s.a == 1 || d.a == 0) {
+                    set(p, s);
+                }
+                else
+                {
+                    d.demultiply();
+                    d.a = sd_min(1 - s.a, d.a);
+                    d.premultiply();
+                    set(p, d + s);
+                }
+            }
+        }
+    };
+
+    //=====================================================comp_op_rgba_min_cover
+    template<class ColorT, class Order>
+    struct comp_op_rgba_min_cover : blender_base<ColorT, Order>
+    {
+        typedef ColorT color_type;
+        typedef typename color_type::value_type value_type;
+        using blender_base<ColorT, Order>::get;
+        using blender_base<ColorT, Order>::set;
+
+        static AGG_INLINE void blend_pix(value_type* p,
+            value_type r, value_type g, value_type b, value_type a, cover_type cover)
+        {
+            rgba s = get(r, g, b, a, cover);
+            if (s.a > 0)
+            {
+                rgba d = get(p);
+                if (s.a == 1 || d.a == 0) {
+                    set(p, s);
+                }
+                else
+                {
+                    d.demultiply();
+                    d.a = sd_max(d.a - s.a, 0.);
+                    d.premultiply();
+                    set(p, d + s);
+                }
+            }
+        }
+    };
+#endif
+
 
     //======================================================comp_op_table_rgba
     template<class ColorT, class Order> struct comp_op_table_rgba
@@ -1311,6 +1375,11 @@ namespace agg
         comp_op_rgba_hsl_luminosity <ColorT,Order>::blend_pix,
 #endif
 
+#ifdef MPL_ADD_AGG_CUSTOM_BLEND_MODES
+        comp_op_rgba_max_cover      <ColorT,Order>::blend_pix,
+        comp_op_rgba_min_cover      <ColorT,Order>::blend_pix,
+#endif
+
         0
     };
 
@@ -1352,6 +1421,11 @@ namespace agg
         comp_op_hsl_saturation,
         comp_op_hsl_color,
         comp_op_hsl_luminosity,
+#endif
+
+#ifdef MPL_ADD_AGG_CUSTOM_BLEND_MODES
+        comp_op_max_cover,
+        comp_op_min_cover,
 #endif
 
         end_of_comp_op_e
