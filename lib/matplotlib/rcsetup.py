@@ -2081,14 +2081,14 @@ _DEFINITION = [
         default="center",
         type=Literal["left", "center", "right"],
         validator=["left", "center", "right"],
-        description="alignment of the xaxis label: {left, right, center}"
+        description="Horizontal location of the x-axis label."
     ),
     _Param(
         "yaxis.labellocation",
         default="center",
         type=Literal["bottom", "center", "top"],
         validator=["bottom", "center", "top"],
-        description="alignment of the yaxis label: {bottom, top, center}"
+        description="Vertical location of the y-axis label."
     ),
     _Section(
         "Dates",
@@ -2148,299 +2148,305 @@ _DEFINITION = [
                     "interval_multiples."
     ),
     _Section("Ticks"),
+    _Subsection("X-Ticks"),
     _Param(
         "xtick.top",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="draw ticks on the top side"
+        description="Whether to draw tick lines at the top of the Axes."
     ),
     _Param(
         "xtick.bottom",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw ticks on the bottom side"
+        description="Whether to draw tick lines at the bottom of the Axes."
     ),
     _Param(
         "xtick.labeltop",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="draw label on the top"
+        description="Whether to draw tick labels at the top of the Axes."
     ),
     _Param(
         "xtick.labelbottom",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw label on the bottom"
+        description="Whether to draw tick labels at the bottom of the Axes."
     ),
     _Param(
         "xtick.major.size",
         default=3.5,
         type=float,
         validator=validate_float,
-        description="major tick size in points"
+        description="Length of the major tick lines in points."
     ),
     _Param(
         "xtick.minor.size",
         default=2.0,
         type=float,
         validator=validate_float,
-        description="minor tick size in points"
+        description="Length of the minor tick lines in points."
     ),
     _Param(
         "xtick.major.width",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="major tick width in points"
+        description="Width of the major tick lines in points."
     ),
     _Param(
         "xtick.minor.width",
         default=0.6,
         type=float,
         validator=validate_float,
-        description="minor tick width in points"
+        description="Width of the minor tick lines in points."
     ),
     _Param(
         "xtick.major.pad",
         default=3.5,
         type=float,
         validator=validate_float,
-        description="distance to major tick label in points"
+        description="Spacing between tick line and tick label of major ticks in points."
     ),
     _Param(
         "xtick.minor.pad",
         default=3.4,
         type=float,
         validator=validate_float,
-        description="distance to the minor tick label in points"
+        description="Spacing between tick line and tick label of minor ticks in points."
     ),
     _Param(
         "xtick.color",
         default="black",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="color of the ticks"
+        description="Color of the ticks lines."
     ),
     _Param(
         "xtick.labelcolor",
         default="inherit",
         type=':mpltype:`color` or "inherit"',
         validator=validate_color_or_inherit,
-        description="color of the tick labels or inherit from xtick.color"
+        description="Color of the tick labels. 'inherit' uses the line color of the "
+                    "tick lines, see 'xtick.color'."
     ),
     _Param(
         "xtick.labelsize",
         default="medium",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="font size of the tick labels"
+        description="Font size of the tick labels."
     ),
     _Param(
         "xtick.direction",
         default="out",
         type=Literal["in", "out", "inout"],
         validator=["out", "in", "inout"],
-        description="direction: {in, out, inout}"
+        description="Direction of the tick lines."
     ),
     _Param(
         "xtick.minor.visible",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="visibility of minor ticks on x-axis"
+        description="Whether to draw minor ticks on the x-axis."
     ),
     _Param(
         "xtick.major.top",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw x axis top major ticks"
+        description="Whether to draw major ticks at the top of the Axes."
     ),
     _Param(
         "xtick.major.bottom",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw x axis bottom major ticks"
+        description="Whether to draw major ticks at the bottom of the Axes."
     ),
     _Param(
         "xtick.minor.top",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw x axis top minor ticks"
+        description="Whether to draw minor ticks at the top of the Axes."
     ),
     _Param(
         "xtick.minor.bottom",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw x axis bottom minor ticks"
+        description="Whether to draw minor ticks at the bottom of the Axes."
     ),
     _Param(
         "xtick.minor.ndivs",
         default="auto",
         type=int | Literal["auto"],
         validator=_validate_minor_tick_ndivs,
-        description="number of minor ticks between the major ticks on x-axis"
+        description="Default number of minor ticks in between major ticks, used by "
+                    "the `.AutoMinorLocator`."
     ),
     _Param(
         "xtick.alignment",
         default="center",
         type=Literal["center", "right", "left"],
         validator=["center", "right", "left"],
-        description="alignment of xticks"
+        description="Horizontal alignment of tick labels relative to the tick lines."
     ),
+    _Subsection("Y-Ticks"),
     _Param(
         "ytick.left",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw ticks on the left side"
+        description="Whether to draw tick lines at the left of the Axes."
     ),
     _Param(
         "ytick.right",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="draw ticks on the right side"
+        description="Whether to draw tick lines at the right of the Axes."
     ),
     _Param(
         "ytick.labelleft",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw tick labels on the left side"
+        description="Whether to draw tick labels at the left of the Axes."
     ),
     _Param(
         "ytick.labelright",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="draw tick labels on the right side"
+        description="Whether to draw tick labels at the right of the Axes."
     ),
     _Param(
         "ytick.major.size",
         default=3.5,
         type=float,
         validator=validate_float,
-        description="major tick size in points"
+        description="Length of the major tick lines in points."
     ),
     _Param(
         "ytick.minor.size",
         default=2.0,
         type=float,
         validator=validate_float,
-        description="minor tick size in points"
+        description="Length of the minor tick lines in points."
     ),
     _Param(
         "ytick.major.width",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="major tick width in points"
+        description="Width of the major tick lines in points."
     ),
     _Param(
         "ytick.minor.width",
         default=0.6,
         type=float,
         validator=validate_float,
-        description="minor tick width in points"
+        description="Width of the minor tick lines in points."
     ),
     _Param(
         "ytick.major.pad",
         default=3.5,
         type=float,
         validator=validate_float,
-        description="distance to major tick label in points"
+        description="Spacing between tick line and tick label of major ticks in points."
     ),
     _Param(
         "ytick.minor.pad",
         default=3.4,
         type=float,
         validator=validate_float,
-        description="distance to the minor tick label in points"
+        description="Spacing between tick line and tick label of minor ticks in points."
     ),
     _Param(
         "ytick.color",
         default="black",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="color of the ticks"
+        description="Color of the tick lines."
     ),
     _Param(
         "ytick.labelcolor",
         default="inherit",
         type=':mpltype:`color` or "inherit"',
         validator=validate_color_or_inherit,
-        description="color of the tick labels or inherit from ytick.color"
+        description="Color of the tick labels. 'inherit' uses the line color of the "
+                    "tick lines, see 'ytick.color'."
     ),
     _Param(
         "ytick.labelsize",
         default="medium",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="font size of the tick labels"
+        description="Font size of the tick labels."
     ),
     _Param(
         "ytick.direction",
         default="out",
         type=Literal["in", "out", "inout"],
         validator=["out", "in", "inout"],
-        description="direction: {in, out, inout}"
+        description="Direction of the tick lines."
     ),
     _Param(
         "ytick.minor.visible",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="visibility of minor ticks on y-axis"
+        description="Whether to draw minor ticks on the y-axis."
     ),
     _Param(
         "ytick.major.left",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw y axis left major ticks"
+        description="Whether to draw major ticks at the left of the Axes."
     ),
     _Param(
         "ytick.major.right",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw y axis right major ticks"
+        description="Whether to draw major ticks at the right of the Axes."
     ),
     _Param(
         "ytick.minor.left",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw y axis left minor ticks"
+        description="Whether to draw minor ticks at the left of the Axes."
     ),
     _Param(
         "ytick.minor.right",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="draw y axis right minor ticks"
+        description=" Whether to draw minor ticks at the right of the Axes."
     ),
     _Param(
         "ytick.minor.ndivs",
         default="auto",
         type=int | Literal["auto"],
         validator=_validate_minor_tick_ndivs,
-        description="number of minor ticks between the major ticks on y-axis"
+        description="Default number of minor ticks in between major ticks, used by "
+                    "the `.AutoMinorLocator`."
     ),
     _Param(
         "ytick.alignment",
         default="center_baseline",
         type=Literal["center", "top", "bottom", "baseline", "center_baseline"],
         validator=["center", "top", "bottom", "baseline", "center_baseline"],
-        description="alignment of yticks"
+        description="Vertical alignment of tick labels relative to the tick lines."
     ),
     _Section("Grid"),
     _Param(
