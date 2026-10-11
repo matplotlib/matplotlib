@@ -312,7 +312,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
         if (!otherPixBuffer) {
             otherPixBuffer = std::make_unique<agg::int8u>(NUMBYTES);
         }
-        memset(otherPixBuffer, 0, NUMBYTES);
+        memset(otherPixBuffer.get(), 0, NUMBYTES);
         renderingBuffer.attach(otherPixBuffer.get(), width, height, width * 4);
     } else {
         pixFmt.comp_op(gc.comp_op);
