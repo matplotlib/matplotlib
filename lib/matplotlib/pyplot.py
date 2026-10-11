@@ -591,7 +591,7 @@ def draw_if_interactive(*args, **kwargs):
 
 
 @overload
-def show(*, block: bool, **kwargs) -> None: ...
+def show(*, block: bool, **kwargs: Any) -> None: ...
 
 
 @overload
