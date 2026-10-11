@@ -31,7 +31,7 @@ See :ref:`writing-examples-and-tutorials`.
 Third, Matplotlib has informative documentation written in ReST in subdirectories of
 :file:`doc`. General and historical information about the project is in :file:`doc/project`,
 the installation guide is in :file:`doc/install`, and release notes are managed in
-:file:`doc/release`. Maintenance documentation is in :file:`doc\devel` and the website
+:file:`doc/release`. Maintenance documentation is in :file:`doc/devel` and the website
 always redirects to the latest version of these documents. We also maintain a list of
 external resources in :file:`doc/users/resources/index.rst`. To improve these documents
 or add resources, see :ref:`writing-rest-pages`.
@@ -318,7 +318,7 @@ before the section
    Summary for pull request authors
    ================================
 
-and then link to with ``:ref:`label-name```
+and then link to it with ``:ref:`label-name```
 
 .. code-block:: rst
 
@@ -396,7 +396,7 @@ commands::
 Include figures and files
 -------------------------
 
-Image files can directly included in pages with the ``image::`` directive.
+Image files can directly be included in pages with the ``image::`` directive.
 e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
 a couple of static images::
 

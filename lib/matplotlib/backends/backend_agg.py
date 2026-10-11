@@ -36,7 +36,7 @@ from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
 from matplotlib.dviread import Dvi
 from matplotlib.font_manager import fontManager as _fontManager, get_font
-from matplotlib.ft2font import LoadFlags, RenderMode
+from matplotlib.ft2font import LoadFlags, RenderMode, _render_glyph_run
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -190,29 +190,11 @@ class RendererAgg(RendererBase):
 
     def _draw_text_glyphs_and_boxes(self, gc, x, y, angle, glyphs, boxes):
         # y is downwards.
-        cos = math.cos(math.radians(angle))
-        sin = math.sin(math.radians(angle))
-        load_flags = get_hinting_flag()
-        for font, size, glyph_index, slant, extend, dx, dy in glyphs:  # dy is upwards.
-            font.set_size(size, self.dpi)
-            font._set_transform(
-                (0x10000 * np.array([[cos, -sin], [sin, cos]])
-                 @ [[extend, extend * slant], [0, 1]]).round().astype(int),
-                [round(0x40 * (x + dx * cos - dy * sin)),
-                 # FreeType's y is upwards.
-                 round(0x40 * (self.height - y + dx * sin + dy * cos))]
-            )
-            bitmap = font._render_glyph(
-                glyph_index, load_flags,
-                RenderMode.NORMAL if gc.get_antialiased() else RenderMode.MONO)
-            buffer = bitmap.buffer
-            if not gc.get_antialiased():
-                buffer *= 0xff
-            # draw_text_image's y is downwards & the bitmap bottom side.
-            self._renderer.draw_text_image(
-                buffer,
-                bitmap.left, int(self.height) - bitmap.top + buffer.shape[0],
-                0, gc)
+        antialiased = gc.get_antialiased()
+        buffer, positions = _render_glyph_run(
+            list(glyphs), self.dpi, x, y, angle, self.height, get_hinting_flag(),
+            RenderMode.NORMAL if antialiased else RenderMode.MONO)
+        self._renderer.draw_text_images(buffer, positions, gc)
 
         rgba = gc.get_rgb()
         if len(rgba) == 3 or gc.get_forced_alpha():

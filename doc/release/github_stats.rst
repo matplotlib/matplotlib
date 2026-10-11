@@ -2,139 +2,177 @@
 
 .. _github-stats:
 
-GitHub statistics for 3.11.1 (Jul 17, 2026)
+GitHub statistics for 3.11.2 (Sep 10, 2026)
 ===========================================
 
-GitHub statistics for 2026/06/11 (tag: v3.11.0) - 2026/07/17
+GitHub statistics for 2026/07/17 (tag: v3.11.1) - 2026/09/10
 
 These lists are automatically generated, and may be incomplete or contain duplicates.
 
-We closed 16 issues and merged 70 pull requests.
-The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/108?closed=1>`__
+We closed 18 issues and merged 101 pull requests.
+The full list can be seen `on GitHub <https://github.com/matplotlib/matplotlib/milestone/110?closed=1>`__
 
-The following 27 authors contributed 70 commits.
+The following 32 authors contributed 101 commits.
 
+* adarshsm
+* Ahmed Mohamed
 * Albert Y. Shih
-* cyphercodes
-* David Stansby
+* Alice
+* Alice Alfonsi
+* Andrzej Novak
+* carlosgmartin
+* Cayenne Matt
+* Danial Ludwig
 * dependabot[bot]
-* eeshsaxena
+* dkl
 * Elliott Sales de Andrade
-* Erik Vo
-* goutamadwant
+* Gleb Popov
 * hannah
-* Håkon Steinkopf Søhoel
-* jaya prajapati
+* Ian Thomas
+* jameslin9968
 * Jody Klymak
+* John Duggan
 * Kyle Sunden
 * Lumberbot (aka Jack)
-* Mervin Yap
-* Mustafa Senoglu
-* Rayan Salhab
 * Ricci Adams
+* rokokol
 * Ruth Comer
-* Scolliq
-* Scott Shambaugh
+* Sahil Mathur
+* Simon Altrogge
+* Simon Høxbro Hansen
+* Sreekant Baheti
 * Thomas A Caswell
 * Tim Hoffmann
-* Uwez Khan
-* uwezkhan
-* Vincent Gao
-* Zhou Qiankang
+* Vladimir Saraikin
+* yuzie007
+* Zeke Barger
 
 GitHub issues and pull requests:
 
-Pull Requests (70):
+Pull Requests (101):
 
-* :ghpull:`32052`: Backport PR #32038 on branch v3.11.x (Fix occasional misalignment in reported mouse position (also fixes a bug with canvas height))
-* :ghpull:`32050`: Backport PR #31304 on branch v3.11.x (Fix restoring 'auto' aspect in 3D axes after switching from 'equal')
-* :ghpull:`32051`: Backport PR #32037 on branch v3.11.x (Bump the actions group with 3 updates)
-* :ghpull:`32038`: Fix occasional misalignment in reported mouse position (also fixes a bug with canvas height)
-* :ghpull:`32037`: Bump the actions group with 3 updates
-* :ghpull:`31304`: Fix restoring 'auto' aspect in 3D axes after switching from 'equal'
-* :ghpull:`32047`: Backport PR #32025 on branch v3.11.x (DOC: remove rcparams listing from user guide )
-* :ghpull:`32025`: DOC: remove rcparams listing from user guide
-* :ghpull:`32046`: Backport PR #32045 on branch v3.11.x (DOC: added ffmpeg to optional doc dependencies)
-* :ghpull:`32034`: Backport PR #31975 on branch v3.11.x (pdf/ps: Stop retaining glyph indices in font subsets)
-* :ghpull:`32045`: DOC: added ffmpeg to optional doc dependencies
-* :ghpull:`32043`: Backport PR #32042 on branch v3.11.x (DOC: Remove warning about macosx backend)
-* :ghpull:`32042`: DOC: Remove warning about macosx backend
-* :ghpull:`32036`: Backport PR #31894 on branch v3.11.x (check transform mesh shape in _get_transform_mesh)
-* :ghpull:`31894`: check transform mesh shape in _get_transform_mesh
-* :ghpull:`31975`: pdf/ps: Stop retaining glyph indices in font subsets
-* :ghpull:`32033`: Backport PR #32032 on branch v3.11.x (MNT: remove redundant imports)
-* :ghpull:`32031`: Backport PR #31967 on branch v3.11.x (Fix NoNorm cursor formatting for uint8 images)
-* :ghpull:`32032`: MNT: remove redundant imports
-* :ghpull:`32030`: Backport PR #31990 on branch v3.11.x (DOC fix parameter name in CharacterMapping.add docstring)
-* :ghpull:`31967`: Fix NoNorm cursor formatting for uint8 images
-* :ghpull:`32027`: Backport PR #32022 on branch v3.11.x (Remove deprecated freethreading option from cibuildwheel)
-* :ghpull:`32021`: Backport PR #31992 on branch v3.11.x (Fix: Axis and grid panes out of sync when inverting an axis)
-* :ghpull:`32024`: Backport PR #32013 on branch v3.11.x (DOC: Document ax.transData and ax.transAxes)
-* :ghpull:`32022`: Remove deprecated freethreading option from cibuildwheel
-* :ghpull:`32013`: DOC: Document ax.transData and ax.transAxes
-* :ghpull:`31992`: Fix: Axis and grid panes out of sync when inverting an axis
-* :ghpull:`32010`: Backport PR #32009 on branch v3.11.x (DOC: Fix outdated text in image_resampling example)
-* :ghpull:`32009`: DOC: Fix outdated text in image_resampling example
-* :ghpull:`32007`: Backport PR #31994 on branch v3.11.x (Bump the actions group across 1 directory with 9 updates)
-* :ghpull:`31994`: Bump the actions group across 1 directory with 9 updates
-* :ghpull:`31990`: DOC fix parameter name in CharacterMapping.add docstring
-* :ghpull:`31988`: Backport PR #31985 on branch v3.11.x (DOC: Fix broken configobj link in 0.99.x API changes)
-* :ghpull:`31985`: DOC: Fix broken configobj link in 0.99.x API changes
-* :ghpull:`31972`: Backport PR #31932 on branch v3.11.x (FIX: include axis labels in get_tightbbox when not for_layout_only)
-* :ghpull:`31932`: FIX: include axis labels in get_tightbbox when not for_layout_only
-* :ghpull:`31970`: Backport PR #31969 on branch v3.11.x (Stop passing symlinks to ImageMagick)
-* :ghpull:`31969`: Stop passing symlinks to ImageMagick
-* :ghpull:`31950`: Backport PR #31857 on branch v3.11.x (bound ft2font stream read to the requested count)
-* :ghpull:`31951`: Backport PR #30252 on branch v3.11.x (Move cibuildwheel configuration to pyproject.toml)
-* :ghpull:`31952`: Backport PR #31928 on branch v3.11.x (Fix notdef handling when subsetting Type 1 fonts)
-* :ghpull:`31958`: Backport PR #31940 on branch v3.11.x (Add loongarch64 image comparison tolerances)
-* :ghpull:`31959`: Backport PR #31910 on branch v3.11.x (FIX: Add mtext into RendererBase._draw_as_path() arguments)
-* :ghpull:`31910`: FIX: Add mtext into RendererBase._draw_as_path() arguments
-* :ghpull:`31948`: Backport PR #31946 on branch v3.11.x (TST: Increase some tolerances for non-x86_64 architectures)
-* :ghpull:`31940`: Add loongarch64 image comparison tolerances
-* :ghpull:`31928`: Fix notdef handling when subsetting Type 1 fonts
-* :ghpull:`30252`: Move cibuildwheel configuration to pyproject.toml
-* :ghpull:`31857`: bound ft2font stream read to the requested count
-* :ghpull:`31946`: TST: Increase some tolerances for non-x86_64 architectures
-* :ghpull:`31945`: Backport PR #31920 on branch v3.11.x (Fix various small type hint issues)
-* :ghpull:`31944`: Backport PR #31943 on branch v3.11.x (FIX: allow non-strict monotonicity in LinearSegmented.from_list values)
-* :ghpull:`31920`: Fix various small type hint issues
-* :ghpull:`31941`: Backport PR #31931 on branch v3.11.x (TST: address pikepdf deprecation)
-* :ghpull:`31943`: FIX: allow non-strict monotonicity in LinearSegmented.from_list values
-* :ghpull:`31931`: TST: address pikepdf deprecation
-* :ghpull:`31921`: Backport PR #31906 on branch v3.11.x (TST: unpin pytest)
-* :ghpull:`31906`: TST: unpin pytest
-* :ghpull:`31915`: Backport PR #31898 on branch v3.11.x (fix: allow array-like fill_between where masks)
-* :ghpull:`31908`: Backport of PRs #31678 and #31782
-* :ghpull:`31882`: Bump the actions group with 3 updates
-* :ghpull:`31898`: fix: allow array-like fill_between where masks
-* :ghpull:`31911`: Backport PR #31904 on branch v3.11.x (DOC: clarify valid inputs and return type of ``same_color``)
-* :ghpull:`31904`: DOC: clarify valid inputs and return type of ``same_color``
-* :ghpull:`31893`: Backport PR #31885 on branch v3.11.x (Skip hidden y-axis offset text when positioning titles (fix #31881))
-* :ghpull:`31900`: Backport PR #31896 on branch v3.11.x (TST: temporarily pin pytest)
-* :ghpull:`31896`: TST: temporarily pin pytest
-* :ghpull:`31885`: Skip hidden y-axis offset text when positioning titles (fix #31881)
-* :ghpull:`31782`: Bump the actions group across 1 directory with 4 updates
-* :ghpull:`31678`: Bump the actions group with 2 updates
+* :ghpull:`32330`: Backport PR #32324 on branch v3.11.x (Don't force any diagnostics to be errors in bundled Harfbuzz)
+* :ghpull:`32324`: Don't force any diagnostics to be errors in bundled Harfbuzz
+* :ghpull:`32322`: Backport PR #32321 on branch v3.11.x (DOC: correct note about PyOS_InputHook)
+* :ghpull:`32319`: Backport PR #32305 on branch v3.11.x (Improve error message for boxplot_stats function, by printing dimensions.)
+* :ghpull:`32318`: Backport PR #32315 on branch v3.11.x (Fix TkCairo bug when displaying images with partially transparent pixels)
+* :ghpull:`32301`: Backport PR #32198 on branch v3.11.x (TST: Set subprocess timeouts consistently on CI)
+* :ghpull:`32315`: Fix TkCairo bug when displaying images with partially transparent pixels
+* :ghpull:`32305`: Improve error message for boxplot_stats function, by printing dimensions.
+* :ghpull:`32307`: Backport PR #32303 on branch v3.11.x (DOC: correct scipy intersphinx mapping to link to docs site)
+* :ghpull:`32295`: Backport PR #32104 on branch v3.11.x (Add font family to mismatched font weight warning)
+* :ghpull:`32294`: Bump the actions group with 2 updates
+* :ghpull:`32300`: Backport PR #32000 on branch v3.11.x (Fix PDF path collection culling for ``hexbin`` offsets)
+* :ghpull:`32198`: TST: Set subprocess timeouts consistently on CI
+* :ghpull:`32290`: Backport PR #32267 on branch v3.11.x (Add checks after using pybind ensure())
+* :ghpull:`32298`: Backport PR #32263 on branch v3.11.x (Doc: tell 3.11 upgraders to remove the pre-shaping workaround)
+* :ghpull:`32000`: Fix PDF path collection culling for ``hexbin`` offsets
+* :ghpull:`32289`: Backport PR #32226 on branch v3.11.x (ft2font: Make glyph loading failures more robust)
+* :ghpull:`32286`: Backport PR #32193 on branch v3.11.x (Raise a clear error on incomplete Type1 font sections)
+* :ghpull:`32292`: Backport PR #32288 on branch v3.11.x (DOC: switch to more stable location for intersphinx registry)
+* :ghpull:`32104`: Add font family to mismatched font weight warning
+* :ghpull:`32267`: Add checks after using pybind ensure()
+* :ghpull:`32226`: ft2font: Make glyph loading failures more robust
+* :ghpull:`32193`: Raise a clear error on incomplete Type1 font sections
+* :ghpull:`32283`: Backport PR #32275 on branch v3.11.x (Speed up RGBA-stage image resampling)
+* :ghpull:`32284`: Backport PR #32254 on branch v3.11.x (Fix bug with PGF hatch linewidth and color)
+* :ghpull:`32254`: Fix bug with PGF hatch linewidth and color
+* :ghpull:`32275`: Speed up RGBA-stage image resampling
+* :ghpull:`32277`: Backport PR #32268 on branch v3.11.x (Use "{}" for format strings)
+* :ghpull:`32268`: Use "{}" for format strings
+* :ghpull:`32274`: Backport PR #32252 on branch v3.11.x (FIX: interpolate the path and name MPLCONFIGDIR in the temp cache dir warning)
+* :ghpull:`32252`: FIX: interpolate the path and name MPLCONFIGDIR in the temp cache dir warning
+* :ghpull:`32266`: Backport PR #32265 on branch v3.11.x (DOC: minor fix in pie_label docstring)
+* :ghpull:`32270`: Backport PR #32225 on branch v3.11.x (Fix ResizeEvent handling for TextBox)
+* :ghpull:`32225`: Fix ResizeEvent handling for TextBox
+* :ghpull:`32265`: DOC: minor fix in pie_label docstring
+* :ghpull:`32259`: Backport PR #32250 on branch v3.11.x (DOC: Convert math symbol table to sphinx-design cards)
+* :ghpull:`32255`: Bump the actions group with 2 updates
+* :ghpull:`32248`: Backport PR #32194 on branch v3.11.x (Fix the rounding of animation frame size to match the eventual canvas size)
+* :ghpull:`32249`: Backport PR #32228 on branch v3.11.x (Fixed a bug with drawing an empty Collection)
+* :ghpull:`32247`: Backport PR #32242 on branch v3.11.x (ci: Force-enable long path support on AppVeyor)
+* :ghpull:`32228`: Fixed a bug with drawing an empty Collection
+* :ghpull:`32194`: Fix the rounding of animation frame size to match the eventual canvas size
+* :ghpull:`32242`: ci: Force-enable long path support on AppVeyor
+* :ghpull:`32236`: Backport PR #32147 on branch v3.11.x (Fix nested braces in mathtext \text arguments)
+* :ghpull:`32210`: Bump the actions group across 1 directory with 6 updates
+* :ghpull:`32147`: Fix nested braces in mathtext \text arguments
+* :ghpull:`32235`: Backport PR #32209 on branch v3.11.x (BLD: Force all internal extension symbols to be hidden)
+* :ghpull:`32209`: BLD: Force all internal extension symbols to be hidden
+* :ghpull:`32230`: Backport PR #32223 on branch v3.11.x (TST: Use a nonzero tolerance for ``test_anchored_direction_arrows_many_args`` unconditionally)
+* :ghpull:`32229`: Backport PR #32221 on branch v3.11.x (Qt IconEngine: Use a device pixel ratio of 1 when high-DPI pixmaps are disabled)
+* :ghpull:`32223`: TST: Use a nonzero tolerance for ``test_anchored_direction_arrows_many_args`` unconditionally
+* :ghpull:`32221`: Qt IconEngine: Use a device pixel ratio of 1 when high-DPI pixmaps are disabled
+* :ghpull:`32216`: Backport PR #32212 on branch v3.11.x (TST: Convert all non-RGB(A) images to RGBA)
+* :ghpull:`32212`: TST: Convert all non-RGB(A) images to RGBA
+* :ghpull:`32182`: Bump the actions group with 4 updates
+* :ghpull:`32197`: Backport PR #32196 on branch v3.11.x (Clarify interval semantics in BoundaryNorm documentation)
+* :ghpull:`32196`: Clarify interval semantics in BoundaryNorm documentation
+* :ghpull:`32190`: Backport PR #32183 on branch v3.11.x (ci: Make eslint check fail on errors)
+* :ghpull:`32183`: ci: Make eslint check fail on errors
+* :ghpull:`32184`: Backport PR #32181 on branch v3.11.x (ci: Add environment variable to detect Azure Pipelines)
+* :ghpull:`32181`: ci: Add environment variable to detect Azure Pipelines
+* :ghpull:`32180`: Backport PR #32179 on branch v3.11.x (Document and fix ``AngleAnnotation`` constructor default case of using the current Axes)
+* :ghpull:`32179`: Document and fix ``AngleAnnotation`` constructor default case of using the current Axes
+* :ghpull:`32177`: Backport PR #32150 on branch v3.11.x (FIX: Avoid unbounded allocations for float markevery)
+* :ghpull:`32150`: FIX: Avoid unbounded allocations for float markevery
+* :ghpull:`32173`: Backport PR #32172 on branch v3.11.x (PERF: Avoid ``difflib`` lookup in ``ColormapRegistry.register``)
+* :ghpull:`32172`: PERF: Avoid ``difflib`` lookup in ``ColormapRegistry.register``
+* :ghpull:`32171`: Backport PR #32158 on branch v3.11.x (Fix tiny wx plot window on wxPython 4.3)
+* :ghpull:`32158`: Fix tiny wx plot window on wxPython 4.3
+* :ghpull:`32170`: Backport PR #32168 on branch v3.11.x (DOC: Use raw strings instead of doubling \\ for hatches where possible)
+* :ghpull:`32167`: Backport PR #32155 on branch v3.11.x (Bump the actions group with 6 updates)
+* :ghpull:`32169`: ci: Drop some extraneous setup-python invocations
+* :ghpull:`32168`: DOC: Use raw strings instead of doubling \\ for hatches where possible
+* :ghpull:`32155`: Bump the actions group with 6 updates
+* :ghpull:`32153`: Backport PR #32149 on branch v3.11.x (Always set device pixel ratio on WebSocket open in WebAgg)
+* :ghpull:`32152`: Backport PR #32078 on branch v3.11.x (DOC: Clarify backslash escaping for hatch patterns)
+* :ghpull:`32151`: Backport PR #32062 on branch v3.11.x (Don't pre-allocate the Type1 /Subrs array from the declared count)
+* :ghpull:`32149`: Always set device pixel ratio on WebSocket open in WebAgg
+* :ghpull:`32062`: Don't pre-allocate the Type1 /Subrs array from the declared count
+* :ghpull:`32078`: DOC: Clarify backslash escaping for hatch patterns
+* :ghpull:`32134`: Backport PR #32132 on branch v3.11.x (Add source directory config to rstcheck and bump requirement)
+* :ghpull:`32132`: Add source directory config to rstcheck and bump requirement
+* :ghpull:`32131`: Backport PR #32049 on branch v3.11.x (DOC: clarify source of Cn colors)
+* :ghpull:`32049`: DOC: clarify source of Cn colors
+* :ghpull:`32123`: Backport PR #32048 on branch v3.11.x (FIX: update Axis3d artist positions before calculating tight_bbox)
+* :ghpull:`32048`: FIX: update Axis3d artist positions before calculating tight_bbox
+* :ghpull:`32118`: Backport PR #32115 on branch v3.11.x (Bump the actions group across 1 directory with 6 updates)
+* :ghpull:`32115`: Bump the actions group across 1 directory with 6 updates
+* :ghpull:`32112`: Backport PR #31978 on branch v3.11.x (Bump the pre-commit group across 1 directory with 3 updates)
+* :ghpull:`32057`: Bump the actions group with 4 updates
+* :ghpull:`31978`: Bump the pre-commit group across 1 directory with 3 updates
+* :ghpull:`32102`: Backport PR #32101 on branch v3.11.x (Cairo: Switch back to character codes for mathtext)
+* :ghpull:`32101`: Cairo: Switch back to character codes for mathtext
+* :ghpull:`32090`: Backport PR #32069 on branch v3.11.x (FIX: remove warning when clearing axes with shared axis)
+* :ghpull:`32088`: Backport PR #32087 on branch v3.11.x (DOC: Fixing typo in units documentation for pyplot figuresize units)
+* :ghpull:`32069`: FIX: remove warning when clearing axes with shared axis
+* :ghpull:`32087`: DOC: Fixing typo in units documentation for pyplot figuresize units
+* :ghpull:`32083`: Backport PR #32058 on branch v3.11.x (MNT: Fix handling of ints in hsv_to_rgb())
+* :ghpull:`32058`: MNT: Fix handling of ints in hsv_to_rgb()
+* :ghpull:`32070`: Backport PR #32066 on branch v3.11.x (Fix crash on prime after single-character superscript)
+* :ghpull:`32066`: Fix crash on prime after single-character superscript
 
-Issues (16):
+Issues (18):
 
-* :ghissue:`15363`: Reliably set the output image size
-* :ghissue:`27570`: [Bug]: QuadMesh.get_cursor_data() returns incorrect value
-* :ghissue:`31276`: [Bug]: Setting aspect back to auto cannot recover the original 3D plot
-* :ghissue:`31955`: [Bug]: PDF Type 42 output regression in 3.11: excessive font embedding and fl rendered as a ligature
-* :ghissue:`31960`: [Bug]: imshow uint8 image with colors.NoNorm() causes OverflowError when mousing over figure
-* :ghissue:`25220`: [Doc]: Better document Axes.transData and other transXYZ attributes
-* :ghissue:`31989`: [Bug]: Axis and grid panes out of sync, regression in 3.11
-* :ghissue:`29541`: [Doc]: A few problems on Image resampling page
-* :ghissue:`31568`: [Bug]: savefig(bbox_inches='tight') clips axis labels on 3D axes
-* :ghissue:`28117`: [Bug]: The zlabel on 3D axes will be cut when using '%matplotlib inline' in Jupyter
-* :ghissue:`31927`: [Bug]: ``path_effects`` on text gives an error in matplotlib 3.11
-* :ghissue:`31925`: [Bug]: minus signs not rendered in PDF export with TeX
-* :ghissue:`31939`: [Bug]: Regression in 3.11.0 with LinearSegmentedColormap
-* :ghissue:`31897`: [MNT]: unpin pytest
-* :ghissue:`31890`: [Bug]: Type hints for where argument in ax.fill_between does not allow np.ndarrays
-* :ghissue:`31881`: [Bug]: ValueError ("cannot convert float NaN to integer") when trying to show horizontally-stacked subplots
+* :ghissue:`31999`: [Bug]: PDF backend culls visible ``hexbin`` cells after path collection optimization
+* :ghissue:`32261`: [Bug]: ``count_bboxes_overlapping_bbox()`` segfaults on a malformed ragged bbox
+* :ghissue:`32224`: [Bug]: ``FT2Font.load_char()`` segfaults (null-pointer dereference)
+* :ghissue:`15491`: Hatch line width ignored with pgf backend
+* :ghissue:`32240`: [Bug]: AxesImage redraws ~2x slower in 3.11 than in 3.10
+* :ghissue:`32222`: [Bug]: TextBox widget raises AttributeError on ResizeEvent
+* :ghissue:`32219`: [Bug]: ax.scatter([], [], clip_on=False, label=...) renders a ghost marker at the origin/corner when combined with specific styles/limits
+* :ghissue:`32186`: [Bug]: GIF frames become skewed when using PillowWriter in matplotlib 3.11.1
+* :ghissue:`32105`: [Bug]: Cryptic Mathtext ParseException on \text with double curly braces
+* :ghissue:`32208`: [Bug]: Wheel's freetype binding can conflict with system library
+* :ghissue:`32217`: [Bug]: Oversized Qt5 toolbar icons on macOS Retina display since Matplotlib 3.11
+* :ghissue:`32133`: [Bug]: MemoryError in _mark_every_path (with float markevery) when extreme zooming in
+* :ghissue:`32143`: [Bug]: tiny plot window opens with wxPython 4.3
+* :ghissue:`32144`: [Bug]: WebAgg figures can become permanently broken on displays with device pixel ratio of 1
+* :ghissue:`31962`: [Bug]: Type1Font allocates /Subrs array from declared count before validating the body
+* :ghissue:`32004`: [Bug]: set_prop_cycle does not affect Cn colors
+* :ghissue:`31277`: [Bug]: 3D ax1's tick labels and ax2's title overlap in a constrained layout
+* :ghissue:`32084`: [Bug]: Exponential numbers on axis look like 10Σ² instead of 10⁻² with backend_gtk3cairo
 
 
 Previous GitHub statistics

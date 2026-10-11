@@ -210,3 +210,19 @@ def test_Subrs_bad_indices(tmp_path, indices):
     # past the end nor a duplicate may reach the returned array.
     with pytest.raises(RuntimeError, match='indices do not cover'):
         t1f.Type1Font(_write_subrs_pfa(tmp_path / 'x.pfa', indices))
+
+
+@pytest.mark.parametrize('private, section', [
+    (b'/CharStrings 1 begin\n/.notdef 5 RD \x00\x01\x02\x03\x04 ND\n',
+     'CharStrings'),
+    (b'/CharStrings 1\n', 'CharStrings'),
+    (b'/CharStrings 1 begin\n', 'CharStrings'),
+    (b'/Encoding 1 array\ndup 0 /.notdef put\n', 'Encoding'),
+    (b'/OtherSubrs [ {} {} \n', 'OtherSubrs'),
+])
+def test_incomplete_sections(tmp_path, private, section):
+    # A font that ends in the middle of a section used to raise a bare
+    # StopIteration out of the parser, which says nothing about the file.
+    path = _write_pfa(tmp_path / 'x.pfa', private)
+    with pytest.raises(RuntimeError, match=f'Incomplete /{section}'):
+        t1f.Type1Font(path)

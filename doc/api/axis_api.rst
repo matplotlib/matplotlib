@@ -230,7 +230,7 @@ Discouraged
 These methods should be used together with care, calling ``set_ticks``
 to specify the desired tick locations **before** calling ``set_ticklabels`` to
 specify a matching series of labels.  Calling ``set_ticks`` makes a
-`~matplotlib.ticker.FixedLocator`; it's list of locations is then used by
+`~matplotlib.ticker.FixedLocator`; its list of locations is then used by
 ``set_ticklabels`` to make an appropriate
 `~matplotlib.ticker.FuncFormatter`.
 

@@ -131,6 +131,9 @@ image_resample(py::array input_array,
 
     // Ensure input array is contiguous, regardless of dtype
     input_array = py::array::ensure(input_array, py::array::c_style);
+    if (!input_array) {
+        throw std::invalid_argument("Input array could not be made C-contiguous");
+    }
 
     // Validate output array
     auto out_ndim = output_array.ndim();

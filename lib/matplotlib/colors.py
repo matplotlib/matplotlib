@@ -1438,9 +1438,9 @@ class MultivarColormap:
         """
         Parameters
         ----------
-        colormaps: list or tuple of `~matplotlib.colors.Colormap` objects
+        colormaps : list or tuple of `~matplotlib.colors.Colormap` objects
             The individual colormaps that are combined
-        combination_mode: str, 'sRGB_add' or 'sRGB_sub'
+        combination_mode : str, 'sRGB_add' or 'sRGB_sub'
             Describe how colormaps are combined in sRGB space
 
             - If 'sRGB_add' -> Mixing produces brighter colors
@@ -2051,7 +2051,7 @@ class BivarColormap:
 
         Parameters
         ----------
-        X: np.array
+        X : np.array
             array of floats or ints to be clipped
         shape : {'square', 'circle', 'ignore', 'circleignore'}
 
@@ -2266,7 +2266,7 @@ class BivarColormapFromImage(BivarColormap):
     ----------
     lut : nparray of shape (N, M, 3) or (N, M, 4)
         The look-up-table
-    shape: {'square', 'circle', 'ignore', 'circleignore'}
+    shape : {'square', 'circle', 'ignore', 'circleignore'}
 
         - If 'square' each variate is clipped to [0,1] independently
         - If 'circle' the variates are clipped radially to the center
@@ -2276,7 +2276,7 @@ class BivarColormapFromImage(BivarColormap):
           'outside' color
         - If 'circleignore' a circular mask is applied, but the data is not clipped
 
-    origin: (float, float)
+    origin : (float, float)
         The relative origin of the colormap. Typically (0, 0), for colormaps
         that are linear on both axis, and (.5, .5) for circular colormaps.
         Used when getting 1D colormaps from 2D colormaps.

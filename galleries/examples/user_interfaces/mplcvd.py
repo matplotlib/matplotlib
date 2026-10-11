@@ -10,8 +10,8 @@ the ``colour-science`` third-party module.
 import functools
 from pathlib import Path
 
-from PIL import Image
 import colour
+from PIL import Image
 
 import numpy as np
 

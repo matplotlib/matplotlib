@@ -774,6 +774,36 @@ Text support has been extended to include complex text layout. This support incl
 Note, all advanced features require corresponding font support, and may require
 additional fonts over the builtin DejaVu Sans.
 
+.. admonition:: Remove any pre-shaping workaround
+    :class: important
+
+    Because Matplotlib did not previously reorder text, the usual workaround for
+    Arabic, Persian, Urdu and Hebrew was to reorder the string before passing it in,
+    typically with ``arabic_reshaper`` and ``python-bidi``::
+
+        preprocessed = get_display(arabic_reshaper.reshape(text))
+        ax.set_title(preprocessed)
+
+    Matplotlib now reorders the string itself, so a string that arrives already in
+    visual order is reordered a second time and is drawn backwards. Nothing is
+    raised, and to a reader who does not read the script the result still looks
+    like correct text, so this is easy to ship without noticing.
+
+    - If you can require Matplotlib 3.11, pass the logical string and delete the
+      pre-processing.
+    - If you support older versions as well, branch on the Matplotlib version and
+      pre-process only on the older one.
+    - If you cannot change the call at all, because the text is handed to a
+      third-party library that calls Matplotlib for you, wrap the pre-processed
+      string in ``LEFT-TO-RIGHT OVERRIDE`` and ``POP DIRECTIONAL FORMATTING``::
+
+          text = ('\N{LEFT-TO-RIGHT OVERRIDE}' + preprocessed +
+                  '\N{POP DIRECTIONAL FORMATTING}')
+
+      That reads correctly on every version. It does not always render
+      identically, because it draws the font's presentation-form glyphs rather
+      than the font's own shaping, and some fonts space those differently.
+
 Specifying font feature tags
 ----------------------------
 

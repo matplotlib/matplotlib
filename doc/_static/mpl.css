@@ -152,7 +152,6 @@ div.wide-table table th.stub {
 .checklist {
     list-style: none;
     padding: 0;
-    margin: 0;
 }
 .checklist li {
     margin-left: 24px;
@@ -161,7 +160,7 @@ div.wide-table table th.stub {
 }
 .checklist li:before {
     content: "\2610\2001";
-    margin-left: -24px;
+    margin-left: -30px;
 }
 .checklist li p {
     display: inline;
@@ -202,11 +201,27 @@ div.wide-table table th.stub {
  * .. toctree::
  *
  */
- .section-toc.toctree-wrapper .toctree-l1>a{
+.section-toc.toctree-wrapper .toctree-l1>a{
     display: none;
 }
 .section-toc.toctree-wrapper .toctree-l1>ul{
     padding-left: 0;
+}
+
+/* no-caption-toc is a custom class that removes the caption from a
+ * toctree listing inside a grid-item-card.
+ */
+.no-caption-toc>p.caption{
+    display: none;
+}
+
+/* Align the button at the bottom of a grid-item-card, so that buttons line up
+ * across cards whose body text wraps to different heights.
+ * (used in devel/index)
+ */
+.sd-card-body.sd-d-flex-column > p:last-child {
+    margin-top: auto;
+    margin-bottom: 0;
 }
 
 .sidebar-cheatsheets {

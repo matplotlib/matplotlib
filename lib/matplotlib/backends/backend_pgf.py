@@ -437,15 +437,27 @@ class RendererPgf(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
-        _writeln(self.fh, r"\begin{pgfscope}")
-        # draw the path
-        self._print_pgf_blend(gc)
-        self._print_pgf_clip(gc)
-        self._print_pgf_path_styles(gc, rgbFace)
-        self._print_pgf_path(gc, path, transform, rgbFace)
-        self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0,
-                            fill=rgbFace is not None)
-        _writeln(self.fh, r"\end{pgfscope}")
+
+        # Use an isolated blend group if the path blend mode is other than "normal" and
+        # if more than one of fill/hatch/stroke is active to avoid internal blending
+        isolate = ((blend_mode := gc.get_blend_mode()) != "normal" and
+                   sum([rgbFace is not None,
+                        gc.get_hatch() is not None,
+                        gc.get_linewidth() > 0]) > 1)
+        if isolate:
+            self.open_blend_group(blend_mode)
+            gc.set_blend_mode("normal")
+
+        # draw any fill, and/or draw any stroke if no hatches
+        if rgbFace is not None or (gc.get_linewidth() != 0.0 and not gc.get_hatch()):
+            _writeln(self.fh, r"\begin{pgfscope}")
+            self._print_pgf_blend(gc)
+            self._print_pgf_clip(gc)
+            self._print_pgf_path_styles(gc, rgbFace)
+            self._print_pgf_path(gc, path, transform, rgbFace)
+            self._pgf_path_draw(stroke=gc.get_linewidth() != 0.0 and not gc.get_hatch(),
+                                fill=rgbFace is not None)
+            _writeln(self.fh, r"\end{pgfscope}")
 
         # if present, draw pattern on top
         if gc.get_hatch():
@@ -463,13 +475,27 @@ class RendererPgf(RendererBase):
                      r"\pgfsys@defobject{currentpattern}"
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}{")
             _writeln(self.fh, r"\begin{pgfscope}")
+
+            # hatch linewidth and color
+            lw = gc.get_hatch_linewidth() * mpl_pt_to_in * latex_in_to_pt
+            hatch_rgba = gc.get_hatch_color()
+            _writeln(self.fh, r"\pgfsetlinewidth{%fpt}" % lw)
+            _writeln(self.fh,
+                     r"\definecolor{currenthatch}{rgb}{%f,%f,%f}"
+                     % hatch_rgba[:3])
+            _writeln(self.fh, r"\pgfsetstrokecolor{currenthatch}")
+            _writeln(self.fh, r"\pgfsetstrokeopacity{%f}" % hatch_rgba[3])
+            _writeln(self.fh, r"\pgfsetdash{}{0pt}")
+            _writeln(self.fh, r"\pgfsetfillcolor{currenthatch}")
+            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % hatch_rgba[3])
+
             _writeln(self.fh,
                      r"\pgfpathrectangle"
                      r"{\pgfqpoint{0in}{0in}}{\pgfqpoint{1in}{1in}}")
             _writeln(self.fh, r"\pgfusepath{clip}")
             scale = mpl.transforms.Affine2D().scale(self.dpi)
             self._print_pgf_path(None, gc.get_hatch_path(), scale)
-            self._pgf_path_draw(stroke=True)
+            self._pgf_path_draw(stroke=True, fill=True)
             _writeln(self.fh, r"\end{pgfscope}")
             _writeln(self.fh, r"}")
             # repeat pattern, filling the bounding rect of the path
@@ -489,6 +515,19 @@ class RendererPgf(RendererBase):
                 _writeln(self.fh, r"\pgfsys@transformshift{0in}{1in}")
 
             _writeln(self.fh, r"\end{pgfscope}")
+
+            # draw any stroke on top of hatches
+            if (gc.get_linewidth() != 0.0):
+                _writeln(self.fh, r"\begin{pgfscope}")
+                self._print_pgf_blend(gc)
+                self._print_pgf_clip(gc)
+                self._print_pgf_path_styles(gc, rgbFace)
+                self._print_pgf_path(gc, path, transform, rgbFace)
+                self._pgf_path_draw(stroke=True, fill=False)
+                _writeln(self.fh, r"\end{pgfscope}")
+
+        if isolate:
+            self.close_blend_group()
 
     def _print_pgf_blend(self, gc):
         if (blend_mode := gc.get_blend_mode()) not in _BlendModePDFSpec:
@@ -545,8 +584,10 @@ class RendererPgf(RendererBase):
                      r"\definecolor{currentfill}{rgb}{%f,%f,%f}"
                      % tuple(rgbFace[:3]))
             _writeln(self.fh, r"\pgfsetfillcolor{currentfill}")
-        if has_fill and fillopacity != 1.0:
-            _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            if fillopacity != 1.0:
+                _writeln(self.fh, r"\pgfsetfillopacity{%f}" % fillopacity)
+            if gc.get_fill_rule() == "evenodd":
+                _writeln(self.fh, r"\pgfseteorule")
 
         # linewidth and color
         lw = gc.get_linewidth() * mpl_pt_to_in * latex_in_to_pt
@@ -635,7 +676,7 @@ class RendererPgf(RendererBase):
                 _writeln(self.fh, f"\\pgfmathsetseed{{{int(randomness)}}}")
                 _writeln(self.fh, r"\pgfdecoratecurrentpath{random steps}")
 
-    def _pgf_path_draw(self, stroke=True, fill=False):
+    def _pgf_path_draw(self, *, stroke, fill):
         actions = []
         if stroke:
             actions.append("stroke")

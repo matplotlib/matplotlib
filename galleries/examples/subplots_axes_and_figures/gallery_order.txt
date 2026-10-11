@@ -20,7 +20,6 @@ axes_box_aspect
 axis_equal_demo
 
 # figure
-multiple_figs_demo
 figure_size_units
 subfigures
 custom_figure_class

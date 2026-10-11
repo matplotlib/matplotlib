@@ -277,7 +277,7 @@ intersphinx_mapping = {
     'pandas': ('https://pandas.pydata.org/docs/', None),
     'pytest': ('https://pytest.org/en/stable/', None),
     'python': ('https://docs.python.org/3/', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/', None),
+    'scipy': ('https://docs.scipy.org/doc/scipy/', 'https://static.scipy.org/doc/scipy/objects.inv'),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'wx': ('https://docs.wxpython.org/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
@@ -305,7 +305,9 @@ sphinx_gallery_conf = {
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': gallery_dirs,
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
-    'image_srcset': ["2x"],
+    # Keep high-DPI images in deployed documentation, but avoid generating the
+    # additional renders for pull-request builds.
+    'image_srcset': ["2x"] if is_release_build else [],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
     'matplotlib_animations': sg_matplotlib_animations,
     'min_reported_time': 1,

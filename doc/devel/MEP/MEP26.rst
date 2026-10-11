@@ -67,7 +67,7 @@ Implementation
 
 It will be easiest to allow a '3rd party' to modify/set the style of an artist
 if the 'style' is created as a separate class and store against the artist as a
-property.  The `.GraphicsContextBase` class already provides a the basis of a
+property.  The `.GraphicsContextBase` class already provides the basis of a
 ``Style`` class and an artist's `~.Artist.draw` method can be refactored to use
 the ``Style`` class rather than setting up its own `.GraphicsContextBase` and
 transferring its style-related properties to it.  A minimal example of how this
@@ -137,7 +137,7 @@ initial development:
 Artist Type Selector
 
 
-Select an `.Artist` by it's type. E.g `.Line2D` or `.Text`::
+Select an `.Artist` by its type. E.g `.Line2D` or `.Text`::
 
     Line2D {attribute: value}
 

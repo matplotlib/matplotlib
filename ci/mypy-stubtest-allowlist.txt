@@ -54,5 +54,8 @@ matplotlib\.animation\.EventSourceProtocol
 # https://github.com/python/mypy/issues/19877
 matplotlib\.ft2font\.GlyphIndexType\.__init__
 
+# getitem method only exists for 3.11 deprecation backcompatability
+matplotlib.container.PieContainer.__getitem__
+
 # 3.12 deprecation
 matplotlib\.axes\._base\._AxesBase\.ArtistList

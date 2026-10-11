@@ -2,7 +2,9 @@
 Test output reproducibility.
 """
 
+import io
 import os
+import pickle
 import sys
 
 import pytest
@@ -22,7 +24,7 @@ from matplotlib.text import TextPath
 from matplotlib.transforms import IdentityTransform
 
 
-def _save_figure(objects='mhip', fmt="pdf", usetex=False):
+def _save_figure(objects='mhip', fmt="pdf", usetex=False, outfile=None):
     mpl.use(fmt)
     mpl.rcParams.update({'svg.hashsalt': 'asdf', 'text.usetex': usetex})
 
@@ -150,52 +152,62 @@ def _save_figure(objects='mhip', fmt="pdf", usetex=False):
     ax.set_xlabel('A string $1+2+\\sigma$')
     ax.set_ylabel('A string $1+2+\\sigma$')
 
-    stdout = getattr(sys.stdout, 'buffer', sys.stdout)
-    fig.savefig(stdout, format=fmt)
+    if outfile is None:
+        outfile = getattr(sys.stdout, 'buffer', sys.stdout)
+    fig.savefig(outfile, format=fmt)
+    plt.close(fig)
+
+
+def _save_figures(object_sets, fmt, usetex=False):
+    """Render multiple figures and serialize their outputs to stdout."""
+    outputs = []
+    for objects in object_sets:
+        output = io.BytesIO()
+        _save_figure(objects, fmt, usetex, output)
+        outputs.append(output.getvalue())
+    pickle.dump(outputs, getattr(sys.stdout, 'buffer', sys.stdout))
 
 
 @pytest.mark.parametrize(
-    "objects, fmt, usetex", [
-        ("", "pdf", False),
-        ("m", "pdf", False),
-        ("h", "pdf", False),
-        ("i", "pdf", False),
-        ("mhip", "pdf", False),
-        ("mhip", "ps", False),
-        pytest.param("mhip", "ps", True, marks=[needs_usetex, needs_ghostscript]),
-        ("p", "svg", False),
-        ("mhip", "svg", False),
-        pytest.param("mhip", "svg", True, marks=needs_usetex),
-    ]
+    "object_sets, fmt, usetex", [
+        (("", "m", "h", "i", "mhip"), "pdf", False),
+        (("mhip",), "ps", False),
+        pytest.param(("mhip",), "ps", True,
+                     marks=[needs_usetex, needs_ghostscript]),
+        (("p", "mhip"), "svg", False),
+        pytest.param(("mhip",), "svg", True, marks=needs_usetex),
+    ], ids=["pdf", "ps", "ps-usetex", "svg", "svg-usetex"]
 )
-def test_determinism_check(objects, fmt, usetex):
+def test_determinism_check(object_sets, fmt, usetex):
     """
     Output the same graph three times and check that the outputs are exactly the same.
 
     Parameters
     ----------
-    objects : str
-        Objects to be included in the test document: 'm' for markers, 'h' for
-        hatch patterns, 'i' for images, and 'p' for paths.
+    object_sets : tuple of str
+        Objects to be included in each test document: 'm' for markers, 'h' for
+        hatch patterns, 'i' for images, and 'p' for paths.  Cases using the
+        same format share a subprocess to avoid repeated interpreter startup.
     fmt : {"pdf", "ps", "svg"}
         Output format.
     """
-    plots = [
+    runs = [
         subprocess_run_for_testing(
             [sys.executable, "-R", "-c",
-             f"from matplotlib.tests.test_determinism import _save_figure;"
-             f"_save_figure({objects!r}, {fmt!r}, {usetex})"],
+             f"from matplotlib.tests.test_determinism import _save_figures;"
+             f"_save_figures({object_sets!r}, {fmt!r}, {usetex})"],
             env={**os.environ, "SOURCE_DATE_EPOCH": "946684800",
                  "MPLBACKEND": "Agg"},
             text=False, capture_output=True, check=True).stdout
         for _ in range(3)
     ]
-    for p in plots[1:]:
+    plots_by_run = [pickle.loads(run) for run in runs]
+    for objects, plots in zip(object_sets, zip(*plots_by_run)):
         if fmt == "ps" and usetex:
-            if p != plots[0]:
+            if any(plot != plots[0] for plot in plots[1:]):
                 pytest.skip("failed, maybe due to ghostscript timestamps")
         else:
-            assert p == plots[0]
+            assert all(plot == plots[0] for plot in plots[1:]), objects
 
 
 @pytest.mark.parametrize(

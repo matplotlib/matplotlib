@@ -71,6 +71,36 @@ PyRendererAgg_draw_text_image(RendererAgg *self,
 }
 
 static void
+PyRendererAgg_draw_text_images(
+    RendererAgg *self,
+    py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> buffer_obj,
+    py::array_t<py::ssize_t, py::array::c_style | py::array::forcecast> positions_obj,
+    GCAgg &gc)
+{
+    if (positions_obj.ndim() != 2 || positions_obj.shape(1) != 5) {
+        throw py::value_error("positions must be of shape (N, 5)");
+    }
+    auto buffer = buffer_obj.unchecked<1>();
+    auto positions = positions_obj.unchecked<2>();
+
+    // The renderer indexes into the buffer with these.
+    auto const& size = buffer.shape(0);
+    for (auto i = 0; i < positions.shape(0); i++) {
+        auto const& offset = positions(i, 0);
+        auto const& rows = positions(i, 1);
+        auto const& cols = positions(i, 2);
+        if (offset < 0 || rows < 0 || cols < 0 || offset > size ||
+                (rows > 0 && cols > (size - offset) / rows)) {
+            throw py::value_error(
+                "positions describes a bitmap outside of buffer at row " +
+                std::to_string(i));
+        }
+    }
+
+    self->draw_text_images(gc, buffer, positions);
+}
+
+static void
 PyRendererAgg_draw_markers(RendererAgg *self,
                            GCAgg &gc,
                            mpl::PathIterator marker_path,
@@ -206,6 +236,8 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "face"_a = nullptr)
         .def("draw_text_image", &PyRendererAgg_draw_text_image,
              "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
+        .def("draw_text_images", &PyRendererAgg_draw_text_images,
+             "buffer"_a, "positions"_a, "gc"_a)
         .def("draw_image", &PyRendererAgg_draw_image,
              "gc"_a, "x"_a, "y"_a, "image"_a)
         .def("draw_path_collection", &PyRendererAgg_draw_path_collection,

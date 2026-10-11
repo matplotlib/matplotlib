@@ -27,8 +27,9 @@ import wx.xrc as xrc
 import numpy as np
 
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
-from matplotlib.backends.backend_wxagg import \
-    NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.backends.backend_wxagg import (
+    NavigationToolbar2WxAgg as NavigationToolbar,
+)
 import matplotlib.cbook as cbook
 from matplotlib.figure import Figure
 

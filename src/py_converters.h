@@ -60,8 +60,9 @@ namespace PYBIND11_NAMESPACE { namespace detail {
             }
 
             auto rect_arr = py::array_t<double>::ensure(src);
+            auto ndim = rect_arr ? rect_arr.ndim() : 0;
 
-            if (rect_arr.ndim() == 2) {
+            if (ndim == 2) {
                 if (rect_arr.shape(0) != 2 || rect_arr.shape(1) != 2) {
                     throw py::value_error("Invalid bounding box");
                 }
@@ -71,7 +72,7 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 value.x2 = *rect_arr.data(1, 0);
                 value.y2 = *rect_arr.data(1, 1);
 
-            } else if (rect_arr.ndim() == 1) {
+            } else if (ndim == 1) {
                 if (rect_arr.shape(0) != 4) {
                     throw py::value_error("Invalid bounding box");
                 }

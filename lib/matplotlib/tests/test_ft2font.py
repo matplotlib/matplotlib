@@ -933,6 +933,12 @@ def test_ft2font_loading():
     file = fm.findfont('DejaVu Sans')
     font = ft2font.FT2Font(file)
     font.set_size(12, 72)
+    with pytest.warns(UserWarning,
+                      match=r'Glyph 6504 \(\\N{TAI LE LETTER OO}\) missing from '
+                            r'font\(s\) DejaVu Sans\.'):
+        with pytest.raises(RuntimeError, match='failed to find glyph to load'):
+            # Character doesn't exist in DejaVu Sans, and no fallback defined.
+            font.load_char(0x1968)
     for glyph in [font.load_char(ord('M')),
                   font.load_glyph(font.get_char_index(ord('M')))]:
         assert glyph is not None
@@ -946,7 +952,7 @@ def test_ft2font_loading():
         assert glyph.vertBearingY == 64
         assert glyph.vertAdvance == 832
         assert glyph.bbox == (54, 0, 574, 576)
-    assert font.get_num_glyphs() == 2  # Both count as loaded.
+    assert font.get_num_glyphs() == 2  # Both valid glyphs count as loaded.
     # But neither has been placed anywhere.
     assert font.get_width_height() == (0, 0)
     assert font.get_descent() == 0
@@ -1069,3 +1075,50 @@ def test__layout():
                 assert Path(item.ft_object.fname).name == 'DejaVuSans.ttf'
             else:
                 assert Path(item.ft_object.fname).name == 'cmr10.ttf'
+
+
+def test_layout_cache():
+    # A cached layout must match a fresh one, and the size is part of the key.
+    ft = fm.get_font(fm.findfont('DejaVu Sans'))
+    ft.set_size(12, 100)
+
+    def xs():
+        return [item.x for item in ft._layout('hello world',
+                                              ft2font.LoadFlags.DEFAULT)]
+
+    first = xs()
+    assert xs() == first
+    ft.set_size(24, 100)
+    assert xs() != first
+
+
+def test_layout_cache_transform():
+    # The transform is part of the key, as it changes the shaped positions.
+    ft = fm.get_font(fm.findfont('DejaVu Sans'))
+    ft.set_size(12, 100)
+
+    def xs():
+        return [item.x for item in ft._layout('hello world',
+                                              ft2font.LoadFlags.DEFAULT)]
+
+    first = xs()
+    ft._set_transform([[0x20000, 0], [0, 0x10000]], [0, 0])
+    assert xs() != first
+
+
+def test_layout_cache_fallback_size():
+    # Shaping reads the fallback faces, so resizing one must invalidate the cache.
+    ft = fm.get_font(fm.fontManager._find_fonts_by_props(
+        fm.FontProperties(family=['cmr10', 'DejaVu Sans'])))
+    ft.set_size(12, 100)
+
+    def items():
+        return ft._layout('AV \N{CIRCLED LATIN CAPITAL LETTER A} ffi',
+                          ft2font.LoadFlags.DEFAULT)
+
+    first = [item.x for item in items()]
+    for item in items():
+        if item.ft_object is not ft:
+            item.ft_object.set_size(40, 100)
+            break
+    assert [item.x for item in items()] != first
