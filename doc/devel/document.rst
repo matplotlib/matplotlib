@@ -13,14 +13,14 @@ some of these files are generated from inline docstrings or sphinx gallery files
 
   Don't directly edit the ``.rst`` files in :file:`doc/plot_types`,
   :file:`doc/gallery`,  :file:`doc/tutorials`, :file:`doc/users/explain` and
-  :file:`doc/api` (except :file:`doc/api/api_changes/`).  Sphinx_ regenerates
+  :file:`doc/api` (except :file:`doc/api/next_api_changes/`).  Sphinx_ regenerates
   files in these directories when building documentation.
 
 Overview
 ========
 Documentation is created in three ways. First, API documentation (:file:`doc/api`) is
 created by Sphinx_ from the docstrings of the classes in the Matplotlib library.  Except
-for :file:`doc/api/api_changes/`,  ``.rst`` files in :file:`doc/api` are created
+for :file:`doc/api/next_api_changes/`,  ``.rst`` files in :file:`doc/api` are created
 when the documentation is built.  See :ref:`writing-docstrings`.
 
 Second, our example pages, tutorials, and some of the user guide are created by
@@ -397,7 +397,7 @@ Include figures and files
 -------------------------
 
 Image files can directly be included in pages with the ``image::`` directive.
-e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
+e.g., :file:`galleries/users_explain/axes/constrainedlayout_guide.py` displays
 a couple of static images::
 
   # .. image:: /_static/constrained_layout_1b.png

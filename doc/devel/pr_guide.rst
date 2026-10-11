@@ -249,7 +249,7 @@ Some explicit rules following from this:
 
   Ensure that all API changes are documented in a file in one of the
   subdirectories of :file:`doc/api/next_api_changes`, and significant new
-  features have an entry in :file:`doc/user/whats_new`.
+  features have an entry in :file:`doc/release/next_whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first
     reviewer, but not necessarily) may champion that PR for merging.  In order

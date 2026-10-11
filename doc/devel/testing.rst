@@ -213,7 +213,7 @@ tests it::
 
 The first time this test is run, there will be no baseline image to compare
 against, so the test will fail.  Copy the output images (in this case
-:file:`result_images/test_lines/test_line_dashes.png`) to the correct
+:file:`result_images/test_lines/line_dashes.png`) to the correct
 subdirectory of :file:`baseline_images` tree in the source directory (in this
 case :file:`lib/matplotlib/tests/baseline_images/test_lines`).  Put this new
 file under source code revision control (with ``git add``).  When rerunning
