@@ -310,10 +310,10 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
                    ((bool(face) + gc.has_hatchpath() + (gc.linewidth != 0)) > 1);
     if (isolate) {
         if (!otherPixBuffer) {
-            otherPixBuffer = new agg::int8u[NUMBYTES];
+            otherPixBuffer = std::make_unique<agg::int8u>(NUMBYTES);
         }
         memset(otherPixBuffer, 0, NUMBYTES);
-        renderingBuffer.attach(otherPixBuffer, width, height, width * 4);
+        renderingBuffer.attach(otherPixBuffer.get(), width, height, width * 4);
     } else {
         pixFmt.comp_op(gc.comp_op);
     }
@@ -459,10 +459,10 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
     // If rendered in an isolated buffer, blend back into the primary buffer
     if (isolate) {
         agg::rendering_buffer otherRenderingBuffer;
-        otherRenderingBuffer.attach(otherPixBuffer, width, height, width * 4);
+        otherRenderingBuffer.attach(otherPixBuffer.get(), width, height, width * 4);
         pixfmt otherPixFmt(otherRenderingBuffer);
 
-        renderingBuffer.attach(pixBuffer, width, height, width * 4);
+        renderingBuffer.attach(pixBuffer.get(), width, height, width * 4);
         pixFmt.comp_op(gc.comp_op);
         rendererBase.blend_from(otherPixFmt);
     }
