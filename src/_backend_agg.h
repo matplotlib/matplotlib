@@ -310,7 +310,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
                    ((bool(face) + gc.has_hatchpath() + (gc.linewidth != 0)) > 1);
     if (isolate) {
         if (!otherPixBuffer) {
-            otherPixBuffer = std::make_unique<agg::int8u>(NUMBYTES);
+            otherPixBuffer = std::make_unique<agg::int8u[]>(NUMBYTES);
         }
         memset(otherPixBuffer.get(), 0, NUMBYTES);
         renderingBuffer.attach(otherPixBuffer.get(), width, height, width * 4);
