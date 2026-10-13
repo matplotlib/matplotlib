@@ -140,6 +140,10 @@ def test_usetex_preamble_cache_invalidation():
     if not _has_tex_package('helvet'):
         pytest.skip('the helvet package is required')
     mpl.rcParams['text.usetex'] = True
+    # \usepackage{helvet} only redefines the sans-serif default (\sfdefault), so
+    # the measured text must be typeset with \sffamily -- which requires a
+    # sans-serif font family -- for the preamble to actually change its font.
+    mpl.rcParams['font.family'] = 'sans-serif'
     s = "Some text 0123456789"
 
     fig, ax = plt.subplots()
