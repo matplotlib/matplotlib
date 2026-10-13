@@ -133,6 +133,41 @@ def test_usetex_packages(pkg):
                                   text.get_window_extent())
 
 
+def test_usetex_preamble_cache_invalidation():
+    # Changing the LaTeX preamble must invalidate the cached usetex metrics, so
+    # that a Text object does not reuse metrics computed under a different
+    # preamble (see GH #32413).
+    if not _has_tex_package('helvet'):
+        pytest.skip('the helvet package is required')
+    mpl.rcParams['text.usetex'] = True
+    s = "Some text 0123456789"
+
+    fig, ax = plt.subplots()
+    existing_text = ax.text(0.5, 0.5, s)
+    fig.canvas.draw()
+    cm_width = existing_text.get_window_extent().width
+
+    with mpl.rc_context({'text.latex.preamble': r'\usepackage{helvet}'}):
+        # The already-existing Text object, redrawn under the new preamble.
+        fig.canvas.draw()
+        widths = [existing_text.get_window_extent().width]
+        # A newly created Text object in the same figure.
+        new_text = ax.text(0.5, 0.5, s)
+        fig.canvas.draw()
+        widths.append(new_text.get_window_extent().width)
+        # A Text object in a brand-new figure.
+        fig2, ax2 = plt.subplots()
+        new_fig_text = ax2.text(0.5, 0.5, s)
+        fig2.canvas.draw()
+        widths.append(new_fig_text.get_window_extent().width)
+
+    # The Helvetica metrics differ from the previously cached Computer Modern
+    # ones, i.e. the stale metrics are not reused ...
+    assert all(width != cm_width for width in widths)
+    # ... and all three consistently reflect the new preamble.
+    assert len(set(widths)) == 1
+
+
 @pytest.mark.parametrize(
     "preamble",
     [r"\usepackage[full]{textcomp}", r"\usepackage{underscore}"],
