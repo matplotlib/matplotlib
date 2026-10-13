@@ -71,7 +71,7 @@ A different variety of trackball rotates along the shortest arc on the virtual
 sphere (``mouserotationstyle: sphere``). Rotating around the viewing direction
 is straightforward with it: grab the ball near its edge instead of near the center.
 
-Ken Shoemake's ARCBALL [Shoemake1992]_ is also available (``mouserotationstyle: Shoemake``);
+Ken Shoemake's ARCBALL [Shoemake1992]_ is also available (``mouserotationstyle: arcball``);
 it resembles the ``sphere`` style, but is free of hysteresis,
 i.e., returning mouse to the original position
 returns the figure to its original orientation; the rotation is independent
