@@ -91,7 +91,7 @@ Animations
 ^^^^^^^^^^
 
 * ffmpeg_: for saving movies.
-* `ImageMagick <https://www.imagemagick.org/script/index.php>`_: for saving
+* `ImageMagick <https://imagemagick.org/>`_: for saving
   animated gifs.
 
 Font handling and rendering
@@ -238,12 +238,12 @@ means that the dependencies must be explicitly installed, either by :ref:`creati
 (recommended) or by manually installing the following packages:
 
 - `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
-- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 2.13.2). Used to connect C/C++ code
+- `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 3.0.0). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to
   update the reported ``mpl.__version__`` based on the current git commit.
   Also a runtime dependency for editable installs.
-- NumPy_ (>= 1.22).  Also a runtime dependency.
+- NumPy_ (>= 2.0).  Also a runtime dependency.
 
 
 .. _compile-build-dependencies:
