@@ -1023,8 +1023,8 @@ default: None
     form ``def hook(fig: Figure) -> None`` and allow to modify the created
     figure (e.g. attaching callbacks) or of associated elements (e.g., modifying the
     toolbar). The figure hooks are declared in :rc:`figure.hooks`. The hooks are
-    called in the order. See :doc:`/gallery/user_interfaces/mplcvd` for an example of
-    toolbar customization.
+    called in the given order. See :doc:`/gallery/user_interfaces/mplcvd` for an
+    example of toolbar customization.
 
     If you are creating many figures, make sure you explicitly call
     `.pyplot.close` on the figures you are not using, because this will
