@@ -137,13 +137,13 @@ def test_usetex_preamble_cache_invalidation():
     # Changing the LaTeX preamble must invalidate the cached usetex metrics, so
     # that a Text object does not reuse metrics computed under a different
     # preamble (see GH #32413).
-    if not _has_tex_package('helvet'):
-        pytest.skip('the helvet package is required')
+    if not _has_tex_package('times'):
+        pytest.skip('the times package (mathptmx) is required')
     mpl.rcParams['text.usetex'] = True
-    # \usepackage{helvet} only redefines the sans-serif default (\sfdefault), so
-    # the measured text must be typeset with \sffamily -- which requires a
-    # sans-serif font family -- for the preamble to actually change its font.
-    mpl.rcParams['font.family'] = 'sans-serif'
+    # Use default serif family (Computer Modern Roman). The times package
+    # (mathptmx) replaces the serif font with Times, producing a large,
+    # deterministic metrics change in all LaTeX environments.
+    mpl.rcParams['font.family'] = 'serif'
     s = "Some text 0123456789"
 
     fig, ax = plt.subplots()
@@ -151,25 +151,30 @@ def test_usetex_preamble_cache_invalidation():
     fig.canvas.draw()
     cm_width = existing_text.get_window_extent().width
 
-    with mpl.rc_context({'text.latex.preamble': r'\usepackage{helvet}'}):
+    with mpl.rc_context({'text.latex.preamble': r'\usepackage{times}'}):
         # The already-existing Text object, redrawn under the new preamble.
         fig.canvas.draw()
-        widths = [existing_text.get_window_extent().width]
+        existing_width = existing_text.get_window_extent().width
         # A newly created Text object in the same figure.
         new_text = ax.text(0.5, 0.5, s)
         fig.canvas.draw()
-        widths.append(new_text.get_window_extent().width)
+        same_fig_width = new_text.get_window_extent().width
         # A Text object in a brand-new figure.
         fig2, ax2 = plt.subplots()
         new_fig_text = ax2.text(0.5, 0.5, s)
         fig2.canvas.draw()
-        widths.append(new_fig_text.get_window_extent().width)
+        new_fig_width = new_fig_text.get_window_extent().width
 
-    # The Helvetica metrics differ from the previously cached Computer Modern
-    # ones, i.e. the stale metrics are not reused ...
-    assert all(width != cm_width for width in widths)
-    # ... and all three consistently reflect the new preamble.
-    assert len(set(widths)) == 1
+    # Verify the preamble change actually altered the rendering.
+    assert existing_width != cm_width, (
+        f"Existing text width {existing_width} equals original {cm_width}; "
+        "preamble change did not affect rendering")
+    # Verify cache invalidation: all three post-change measurements agree.
+    # If stale cache were reused, existing_width would equal cm_width while
+    # the two new measurements would equal each other (but differ from cm_width).
+    assert existing_width == same_fig_width == new_fig_width, (
+        f"Widths diverge: existing={existing_width}, same_fig={same_fig_width}, "
+        f"new_fig={new_fig_width}. Expected all three equal after cache invalidation.")
 
 
 @pytest.mark.parametrize(
