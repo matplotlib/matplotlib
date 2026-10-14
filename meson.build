@@ -48,10 +48,7 @@ py3 = py_mod.find_installation(pure: false)
 py3_dep = py3.dependency()
 
 pybind11_dep = dependency('pybind11', version: '>=3')
-nanobind_dep = declare_dependency(
-  dependencies: dependency('nanobind'),
-  compile_args: ['-DNB_BACKEND_MODULE=nanobind_backend', '-DNB_BACKEND_PYPI=nanobind-backend', '-DNOMINMAX'],
-)
+nanobind_dep = dependency('nanobind', version: '>=3')
 
 subdir('extern')
 subdir('src')

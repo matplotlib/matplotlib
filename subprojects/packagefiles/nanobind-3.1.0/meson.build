@@ -26,12 +26,19 @@ robin_map_dep = dependency(
 incdir = include_directories('include')
 
 # Arguments are derived from nanobind_build_library() in CMake configuration.
-dep_compile_args = []
+dep_compile_args = [
+  '-DNB_BACKEND_MODULE=nanobind_backend',
+  '-DNB_BACKEND_PYPI=nanobind-backend',
+]
 dep_link_args = []
 
 compiler = meson.get_compiler('cpp')
 if compiler.get_argument_syntax() == 'msvc'
   dep_compile_args += ['/D_CRT_SECURE_NO_WARNINGS']
+endif
+
+if host_machine.system() == 'windows'
+  dep_compile_args += ['-DNOMINMAX']
 endif
 
 # Discussion in WrapDB PR #1556 as to whether or not the following is necessary:
@@ -88,10 +95,7 @@ else
   )
 endif
 
-nanobind_sources = files('src/nb_combined.cpp')
-
 nanobind_dep = declare_dependency(
-  sources: nanobind_sources,
   include_directories: [incdir],
   dependencies: [py_dep, robin_map_dep],
   compile_args: dep_compile_args,
