@@ -1833,7 +1833,7 @@ _DEFINITION = [
         type=float,
         validator=validate_float,
         description="Additional space between the Axes and title in points. This "
-                    "shifts the title position determined by 'axes.titley'. "
+                    "shifts the title position determined by 'axes.titley'."
     ),
     _Param(
         "axes.labelsize",
@@ -1904,7 +1904,7 @@ _DEFINITION = [
         validator=validate_int,
         description="The smallest absolute exponent value that log formatters will "
                     "format as scientific notation; e.g. if set to 3, formatting will "
-                    "1e-3, 0.01, 0.1, 0, 10, 100, 1e3."
+                    "be 1e-3, 0.01, 0.1, 0, 10, 100, 1e3."
     ),
     _Param(
         "axes.formatter.useoffset",
@@ -1989,7 +1989,7 @@ _DEFINITION = [
         type=Literal["data", "round_numbers"],
         validator=["data", "round_numbers"],
         description='Whether autoscaling should try to adjust the view limits so that '
-                    'there are ticks at the the axis edges. See '
+                    'there are ticks at the axis edges. See '
                     ':ref:`autoscaling-limit-rounding`.'
     ),
     _Subsection("Polar Axes"),
