@@ -487,7 +487,6 @@ close_file_callback(FT_Stream stream)
     } catch (py::error_already_set &eas) {
         eas.discard_as_unraisable(__func__);
     }
-    self->py_file = py::object();
     PyErr_Restore(type, value, traceback);
 }
 
