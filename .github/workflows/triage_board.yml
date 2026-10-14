@@ -11,7 +11,7 @@ permissions: {}
 jobs:
   pr-triage:
     if: github.repository == 'matplotlib/matplotlib'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - name: Update PR Triage Board
         uses: jupyter/pr-triage-board-bot@dae1209c73e70224b2f2955590d0698832a5a076  # main @ Oct 26, 2025

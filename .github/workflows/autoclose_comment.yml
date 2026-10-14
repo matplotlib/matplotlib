@@ -22,7 +22,7 @@ jobs:
   post_comment:
     name: post_comment
     if: "${{ contains(github.event.label.name, 'status: autoclose candidate') }}"
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
 
