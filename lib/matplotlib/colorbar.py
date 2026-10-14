@@ -448,7 +448,7 @@ class Colorbar:
                                    "_set_view_from_bbox", "drag_pan"]
         for x in self._interactive_funcs:
             setattr(self.ax, x, getattr(self, x))
-        # Override cla Set the cla function to the cbar's method to override it
+        # Override the cla method with a cbar-specific implementation
         self.ax.cla = self._cbar_cla
 
     def _cbar_cla(self):
