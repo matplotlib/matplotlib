@@ -39,6 +39,7 @@ dependencies = [
     "pillow >= 9",
     "pyparsing >= 3",
     "python-dateutil >= 2.7",
+    "nanobind-backend>=1.0"
 ]
 # Also keep in sync with find_program of meson.build.
 requires-python = ">=3.12"

@@ -51,6 +51,7 @@ extension_data = {
       '_c_internal_utils.cpp',
     ),
     'dependencies': [nanobind_dep, dl, ole32, shell32, user32, coretext],
+    'limited_api': '3.12',
   },
   'ft2font': {
     'subdir': 'matplotlib',
@@ -68,6 +69,7 @@ extension_data = {
       '-DNB_DOMAIN=matplotlib_ft2font'
     ],
     'link_args': host_machine.system() == 'darwin' ? ['-Wl,-ld_classic'] : [],
+    'limited_api': '3.12',
   },
   '_image': {
     'subdir': 'matplotlib',
@@ -79,6 +81,7 @@ extension_data = {
       # Only need source code files agg_image_filters.cpp and agg_trans_affine.cpp
       agg_dep,
     ],
+    'limited_api': '3.12',
   },
   '_path': {
     'subdir': 'matplotlib',
@@ -95,6 +98,7 @@ extension_data = {
     'dependencies': [nanobind_dep, qhull_dep],
     'c_args': [f'-DMPL_DEVNULL=@devnull@'],
     'cpp_args': [f'-DMPL_DEVNULL=@devnull@'],
+    'limited_api': '3.12',
   },
   '_tkagg': {
     'subdir': 'matplotlib/backends',
@@ -106,6 +110,7 @@ extension_data = {
     'dependencies': [
       nanobind_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
     ],
+    'limited_api': '3.12',
   },
   '_tri': {
     'subdir': 'matplotlib',
@@ -114,6 +119,7 @@ extension_data = {
       'tri/_tri_wrapper.cpp',
     ),
     'dependencies': [nanobind_dep],
+    'limited_api': '3.12',
   },
 }
 
