@@ -364,10 +364,18 @@ make_u32string_from_py_str(const nb::str py_str)
 static nb::str
 make_py_str_from_u32string(const std::u32string &str)
 {
-    auto size = static_cast<Py_ssize_t>(str.size());
-    return nb::steal<nb::str>(
-        PyUnicode_FromKindAndData(PyUnicode_4BYTE_KIND, str.data(), size)
+    PyObject *result = PyUnicode_DecodeUTF32(
+        reinterpret_cast<const char *>(str.data()),
+        static_cast<Py_ssize_t>(str.size() * sizeof(char32_t)),
+        "surrogatepass",
+        nullptr
     );
+
+    if (!result) {
+        nb::raise_python_error();
+    }
+
+    return nb::steal<nb::str>(result);
 }
 
 static unsigned long
