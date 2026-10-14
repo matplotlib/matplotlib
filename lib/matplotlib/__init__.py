@@ -253,8 +253,8 @@ def _check_versions():
             ("cycler", "0.12.0"),
             ("dateutil", "2.7"),
             ("kiwisolver", "1.3.1"),
-            ("numpy", "1.25"),
-            ("pyparsing", "2.3.1"),
+            ("numpy", "2.0"),
+            ("pyparsing", "3.0"),
     ]:
         module = importlib.import_module(modname)
         if parse_version(module.__version__) < parse_version(minver):

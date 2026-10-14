@@ -1,3 +1,4 @@
+import textwrap
 import typing
 
 from docutils.parsers.rst import Directive
@@ -52,7 +53,8 @@ class RcParamsDirective(Directive):
                     f'.. _rcparam_{elem.name.replace(".", "_")}:',
                     '',
                     f'{elem.name} : {typestr} = ``{elem.default!r}``',
-                    f'   {elem.description if elem.description else "*no description*"}'
+                    *textwrap.indent(
+                        elem.description or '*no description*', '   ').splitlines(),
                     '',
                 ]
         self.state_machine.insert_input(lines, 'rcParams table')

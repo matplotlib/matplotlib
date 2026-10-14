@@ -170,11 +170,22 @@ class ErrorbarContainer(Container):
 
 class PieContainer:
     """
-    Container for the artists of pie charts (e.g. created by `.Axes.pie`).
+    Preliminary aggregating class for the artists of pie charts (e.g. created by
+    `.Axes.pie`).
 
     .. versionadded:: 3.11
 
     .. warning::
+        Limited guaranteed public API:
+
+        - the below given attributes
+        - the methods ``remove()`` and ``add_texts()``
+        - tuple unpacking of the container into ``(wedges, texts)`` for backward
+          compatibility
+
+        This is currently not a `.Container`, it's still to be decided whether this
+        is promoted to a proper `.Container` or developed in a different direction.
+
         The class name ``PieContainer`` name is provisional and may change in future
         to reflect development of its functionality.
 

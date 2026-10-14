@@ -104,7 +104,7 @@ you can:
 - Write or update an :ref:`example plot <gallery>`
 - Write or update a comprehensive :ref:`tutorial <tutorials>`
 
-Our code is documented inline in the source code files in :file:`matplotlib/lib`.
+Our code is documented inline in the source code files in :file:`lib/matplotlib`.
 Our website structure mirrors our folder structure, meaning that a narrative
 document's URL roughly corresponds to its location in our folder structure:
 
@@ -113,8 +113,8 @@ document's URL roughly corresponds to its location in our folder structure:
   .. grid-item:: using the library
 
       * :file:`galleries/plot_types/`
-      * :file:`users/getting_started/`
-      * :file:`galleries/user_explain/`
+      * :file:`doc/users/getting_started/`
+      * :file:`galleries/users_explain/`
       * :file:`galleries/tutorials/`
       * :file:`galleries/examples/`
       * :file:`doc/api/`
@@ -248,7 +248,7 @@ veteran contributors, who are keen to support onboarding of new folks and
 share their experience. You can find our community calendar link at the
 `Scientific Python website <https://scientific-python.org/calendars/>`_, and
 you can browse previous meeting notes on `GitHub
-<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributor_meeting>`_.
+<https://github.com/matplotlib/ProjectManagement/tree/master/new_contributors_meeting>`_.
 We recommend joining the meeting to clarify any doubts, or lingering
 questions you might have, and to get to know a few of the people behind the
 GitHub handles 😉. You can reach out to us on `incubator chat`_ for any
