@@ -68,11 +68,16 @@ jobs:
             extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
             # https://github.com/matplotlib/matplotlib/issues/29844
             pygobject-ver: '<3.52.0'
-          - name-suffix: "Free-threaded"
-            os: ubuntu-22.04
-            python-version: '3.14t'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
+          #
+          # Disable Free-threaded for now (split mode needs 3.15t)
+          #
+          # - name-suffix: "Free-threaded"
+          # os: ubuntu-22.04
+          # python-version: '3.14t'
+          # https://github.com/matplotlib/matplotlib/issues/29844
+          # pygobject-ver: '<3.52.0'
+          #
+          #
           - os: ubuntu-24.04
             python-version: '3.14'
           - os: ubuntu-24.04-arm

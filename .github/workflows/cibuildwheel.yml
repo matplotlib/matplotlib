@@ -79,8 +79,10 @@ jobs:
           path: dist/*.tar.gz
           if-no-files-found: error
 
+  # Disable for now as I think we will need 3.15t instead of 3.14t for split mode
   build_wheels:
     if: >-
+      false &&
       github.repository == 'matplotlib/matplotlib' && (
         github.event_name == 'push' ||
         github.event_name == 'pull_request' && (
