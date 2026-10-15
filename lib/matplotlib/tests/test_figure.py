@@ -1320,7 +1320,7 @@ class TestSubplotMosaic:
         assert list(ax_dict) == list("ABCDEFGHI")
         assert list(fig.axes) == list(ax_dict.values())
 
-    @pytest.mark.parametrize("share_val", [True, "all"])
+    @pytest.mark.parametrize("share_val", [True, "all", False, "none"])
     def test_share_all(self, share_val):
         layout = [
             ["A", [["B", "C"],
@@ -1332,8 +1332,15 @@ class TestSubplotMosaic:
         fig = plt.figure()
         ax_dict = fig.subplot_mosaic(layout, sharex=share_val, sharey=share_val)
         ax_dict["A"].set(xscale="log", yscale="logit")
-        assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
-                   for ax in ax_dict.values())
+
+        # If sharing is True or "all", all axes should match "A"
+        if share_val in [True, "all"]:
+            assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
+                       for ax in ax_dict.values())
+        # If sharing is False or "none", only "A" should be changed
+        else:
+            assert ax_dict["A"].get_xscale() == "log"
+            assert ax_dict["B"].get_xscale() != "log"
 
     def test_share_row_col(self):
         layout = [
@@ -1364,7 +1371,7 @@ class TestSubplotMosaic:
         ]
         fig = plt.figure()
 
-        msg = "must be True, False, 'all', 'row', or 'col'"
+        msg = "must be True, False, 'all', 'none', 'row', or 'col'"
         with pytest.raises(ValueError, match=msg):
             fig.subplot_mosaic(layout, sharex="invalid_string")
 
