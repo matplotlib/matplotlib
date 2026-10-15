@@ -305,7 +305,9 @@ sphinx_gallery_conf = {
     'filename_pattern': '^((?!sgskip).)*$',
     'gallery_dirs': gallery_dirs,
     'image_scrapers': (matplotlib_reduced_latex_scraper, ),
-    'image_srcset': ["2x"],
+    # Keep high-DPI images in deployed documentation, but avoid generating the
+    # additional renders for pull-request builds.
+    'image_srcset': ["2x"] if is_release_build else [],
     'junit': '../test-results/sphinx-gallery/junit.xml' if CIRCLECI else '',
     'matplotlib_animations': sg_matplotlib_animations,
     'min_reported_time': 1,

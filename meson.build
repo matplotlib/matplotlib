@@ -3,7 +3,7 @@ project(
   'c', 'cpp',
   version: run_command(
     # Also keep version in sync with pyproject.toml.
-    find_program('python3', 'python', version: '>= 3.11'),
+    find_program('python3', 'python', version: '>= 3.12'),
     '-m', 'setuptools_scm', check: true).stdout().strip(),
   # qt_editor backend is MIT
   # STIX, Computer Modern, and Last Resort are OFL

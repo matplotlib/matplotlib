@@ -11,7 +11,8 @@ from matplotlib.backends.backend_pdf import RendererPdf
 from matplotlib.backends.backend_pgf import RendererPgf
 from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.figure import Figure
-from matplotlib.patches import Circle, Rectangle
+from matplotlib.patches import Circle, PathPatch, Polygon, Rectangle
+from matplotlib.path import Path
 from matplotlib.testing._markers import needs_pgf_pdflatex
 from matplotlib.testing.decorators import image_comparison
 
@@ -92,7 +93,7 @@ class ArtistGroup(Artist):
         renderer.close_blend_group()
 
 
-def plot_blend_group_types(rasterize=False):
+def plot_blend_group_types(rasterize=False, porterduff=False):
     # Rows: top row is non-isolated, bottom row is isolated
     # Columns: left column is non-knockout, right column is knockout
     fig, axs = plt.subplots(2, 2, figsize=(3, 3), dpi=80, layout='constrained')
@@ -127,6 +128,18 @@ def plot_blend_group_types(rasterize=False):
             both.set_zorder(0)
             gray = Circle((0, 0), 0.1, fc='gray', zorder=0)
             axs[i, j].add_artist(gray)
+
+    # For backends that support the Porter-Duff compositing operators, additionally
+    # test 'knockout' and 'clear' as the blend mode for an isolated group
+    if porterduff:
+        for x, group_blend_mode, group_alpha in [(-0.6, 'knockout', 1),
+                                                 (-0.2, 'knockout', 0.6),
+                                                 (0.2, 'clear', 0.6),
+                                                 (0.6, 'clear', 1)]:
+            circle = Circle((x, -0.8), 0.15, fc='k', alpha=0.75)
+            group = ArtistGroup([circle], group_blend_mode=group_blend_mode,
+                                group_alpha=group_alpha)
+            axs[1, 0].add_artist(group)
 
 
 @image_comparison(['blend_modes_agg.png'], style='mpl20')
@@ -183,7 +196,7 @@ def test_blend_groups_agg():
     # The top-right panel (knockout but not isolated) is not supported, so will be
     # rendered like the top-left panel (neither knockout nor isolated)
 
-    plot_blend_group_types()
+    plot_blend_group_types(porterduff=True)
 
 
 @pytest.mark.backend('cairo')
@@ -192,7 +205,7 @@ def test_blend_groups_cairo():
     # The top-right panel (knockout but not isolated) is not supported, so will be
     # rendered like the top-left panel (neither knockout nor isolated)
 
-    plot_blend_group_types()
+    plot_blend_group_types(porterduff=True)
 
 
 @image_comparison(['blend_groups_svg.svg'], style='mpl20')
@@ -277,3 +290,99 @@ def test_group_invalid_blend_mode(renderer):
 
     with pytest.raises(ValueError, match="not a valid value for blend_mode"):
         renderer_instance.open_blend_group("invalid_blend_mode")
+
+
+def plot_fill_rule_comparison():
+    deg = np.arange(6) * 144
+    x = np.sin(deg * np.pi / 180)
+    y = np.cos(deg * np.pi / 180)
+    star = np.stack([x, y], axis=1)
+
+    square_vertices = np.array([[-1, -1], [-1, 1], [1, 1], [1, -1], [-1, -1]])
+    square_codes = [Path.MOVETO, Path.LINETO, Path.LINETO, Path.LINETO, Path.LINETO]
+
+    fig, axs = plt.subplots(1, 2, figsize=(4, 5))
+
+    for ax, fill_rule in zip(axs, ['nonzero', 'evenodd']):
+        stroked_star = Polygon(star + [0, 4], closed=False,
+                               ec='b', lw=5, ls=(0, (5, 1)),
+                               fc='r', hatch='xx', fill_rule=fill_rule)
+        ax.add_patch(stroked_star)
+
+        nonstroked_star = Polygon(star + [0, 2], closed=False, ec='none',
+                                  fc='r', hatch='xx', fill_rule=fill_rule)
+        ax.add_patch(nonstroked_star)
+
+        squares = Path(np.vstack([square_vertices * 0.9,
+                                  square_vertices / 3 + [0, 0.5],
+                                  square_vertices / 3 + [0.3, 0],
+                                  (square_vertices / 3)[::-1, :] + [0, -0.5]]),
+                       square_codes * 4)
+
+        ax.add_patch(PathPatch(squares, fc='g', ec='m', fill_rule=fill_rule))
+
+        ax.set_xlim(-1, 1)
+        ax.set_ylim(-1, 5.1)
+        ax.set_aspect('equal')
+        ax.set_axis_off()
+
+
+@image_comparison(['fill_rules'], extensions=['png', 'svg', 'pdf'], style='mpl20')
+def test_fill_rules():
+    plot_fill_rule_comparison()
+
+
+@pytest.mark.backend('cairo')
+@image_comparison(['fill_rules_cairo.png'], style='mpl20')
+def test_fill_rules_cairo():
+    plot_fill_rule_comparison()
+
+
+@needs_pgf_pdflatex
+@pytest.mark.backend('pgf')
+@image_comparison(['fill_rules_pgf.pdf'], style='mpl20')
+def test_fill_rules_pgf():
+    plot_fill_rule_comparison()
+
+
+def plot_patch_blending():
+    data = np.arange(35).reshape((7, 5)) % 7
+
+    fc_list = ['none', 'none', 'none', 'none', 'm', 'm', 'm', 'm']
+    ec_list = ['none', 'c', 'none', 'c', 'none', 'c', 'none', 'c']
+    lw_list = [0, 5, 0, 5, 0, 5, 0, 5]
+    hatch_list = [None, None, 'x', 'xx', None, None, 'O', '*']
+    hatchcolor_list = [None, None, 'y', 'y', None, None, 'y', 'y']
+
+    fig, axs = plt.subplots(2, 8, figsize=(8, 2), layout='constrained')
+
+    for i, blend_mode in enumerate(['normal', 'multiply']):
+        for ax, fc, ec, lw, hatch, hatchcolor in zip(axs[i, :], fc_list,
+                                                     ec_list, lw_list,
+                                                     hatch_list, hatchcolor_list):
+            ax.imshow(data, cmap='jet')
+
+            circle = Circle((3, 3), 3, fc=fc, ec=ec, lw=lw,
+                            hatch=hatch, hatchcolor=hatchcolor, blend_mode=blend_mode)
+            ax.add_patch(circle)
+
+            ax.autoscale_view()
+            ax.set_axis_off()
+
+
+@image_comparison(['patch_blending'], extensions=['png', 'svg', 'pdf'], style='mpl20')
+def test_patch_blending():
+    plot_patch_blending()
+
+
+@pytest.mark.backend('cairo')
+@image_comparison(['patch_blending_cairo.png'], style='mpl20')
+def test_patch_blending_cairo():
+    plot_patch_blending()
+
+
+@needs_pgf_pdflatex
+@pytest.mark.backend('pgf')
+@image_comparison(['patch_blending_pgf.pdf'], style='mpl20')
+def test_patch_blending_pgf():
+    plot_patch_blending()

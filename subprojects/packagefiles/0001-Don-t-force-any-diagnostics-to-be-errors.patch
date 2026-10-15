@@ -1,0 +1,51 @@
+From 7d0428070322d13d6bb187cf549e8e21d4bb1d4b Mon Sep 17 00:00:00 2001
+From: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+Date: Wed, 9 Sep 2026 00:47:33 -0400
+Subject: [PATCH] Don't force any diagnostics to be errors
+
+We can't be certain that compilers won't add or change which diagnostics
+work for a flag. So disable Harfbuzz's pragmas that turn diagnostics
+into errors, as this is really something that only upstream should worry
+about.
+
+Also, backport the ignoring of `-Wunused-template`, or it spams a lot of
+the build log.
+
+Signed-off-by: Elliott Sales de Andrade <quantum.analyst@gmail.com>
+---
+ meson.build | 6 ++++++
+ src/hb.hh   | 1 +
+ 2 files changed, 7 insertions(+)
+
+diff --git a/meson.build b/meson.build
+index 78d1d41e6..08c078fbb 100644
+--- a/meson.build
++++ b/meson.build
+@@ -31,6 +31,12 @@ pkgmod = import('pkgconfig')
+ cpp = meson.get_compiler('cpp')
+ null_dep = dependency('', required: false)
+ 
++# Matplotlib patch: Don't force any diagnostics to be errors. We can't be
++# certain that compilers won't add or change which diagnostics work for a flag.
++# So disable Harfbuzz's pragmas that turn diagnostics into errors, as this is
++# really something that only upstream should worry about.
++add_project_arguments('-DHB_NO_PRAGMA_GCC_DIAGNOSTIC_ERROR', language: 'cpp')
++
+ # Includes Microsoft Clang compiler with GNU arguments, see
+ # https://github.com/harfbuzz/harfbuzz/pull/4394
+ cpp_is_microsoft_compiler = host_machine.system() == 'windows' and cpp.get_define('_MSC_FULL_VER') != ''
+diff --git a/src/hb.hh b/src/hb.hh
+index 4a21ca90b..3e5c35aa4 100644
+--- a/src/hb.hh
++++ b/src/hb.hh
+@@ -151,6 +151,7 @@
+ #pragma GCC diagnostic ignored "-Wrange-loop-analysis" // https://github.com/harfbuzz/harfbuzz/issues/2834
+ #pragma GCC diagnostic ignored "-Wstrict-aliasing"
+ #pragma GCC diagnostic ignored "-Wtype-limits"
++#pragma GCC diagnostic ignored "-Wunused-template"
+ #pragma GCC diagnostic ignored "-Wc++11-compat" // only gcc raises it
+ #endif
+ 
+-- 
+2.55.0
+

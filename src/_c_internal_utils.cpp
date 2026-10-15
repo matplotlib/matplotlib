@@ -29,6 +29,7 @@
 #define UNUSED_ON_NON_WINDOWS Py_UNUSED
 #endif
 #ifdef __APPLE__
+#include <dlfcn.h>
 #include <CoreFoundation/CoreFoundation.h>
 #include <CoreText/CoreText.h>
 #endif
@@ -104,6 +105,10 @@ mpl_get_available_fonts(void)
 {
 #if defined(__APPLE__)
     py::set fonts;
+
+    // Using CoreText before AppKit is loaded exposes a bug in NSFont<->CTFont
+    // toll-free bridging. Load AppKit now to avoid a future exception.
+    dlopen("/System/Library/Frameworks/AppKit.framework/AppKit", RTLD_NOW);
 
     auto cfStringToPyStr = [](CFStringRef str) -> py::str {
         auto cstr = CFStringGetCStringPtr(str, kCFStringEncodingUTF8);

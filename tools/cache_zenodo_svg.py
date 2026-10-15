@@ -31,7 +31,7 @@ def download_or_cache(url, version):
             return BytesIO(data)
 
     with urllib.request.urlopen(
-        urllib.request.Request(url, headers={"User-Agent": ""})
+        urllib.request.Request(url, headers={"User-Agent": "Python"})
     ) as req:
         data = req.read()
 
@@ -63,6 +63,8 @@ def _get_xdg_cache_dir():
 
 if __name__ == "__main__":
     data = {
+        "v3.11.2": "22700776",
+        "v3.11.1": "21422872",
         "v3.11.0": "20654446",
         "v3.10.9": "19716234",
         "v3.10.8": "17595503",

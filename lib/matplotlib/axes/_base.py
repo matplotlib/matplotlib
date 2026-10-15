@@ -2871,6 +2871,13 @@ class _AxesBase(martist.Artist):
 
         .. plot:: _embedded_plots/axes_margins.py
 
+        The margin is a fraction of the data interval: *margin* times the
+        data interval is added to each end of that interval before it is
+        used in autoscaling. If the margin is negative, the data range is
+        clipped instead of expanded. For example, if your data is in the
+        range [0, 2], a margin of 0.1 will result in a range [-0.2, 2.2];
+        a margin of -0.1 will result in a range of [0.2, 1.8].
+
         All input parameters must be floats greater than -0.5. Passing both
         positional and keyword arguments is invalid and will raise a TypeError.
         If no arguments (positional or otherwise) are provided, the current
@@ -2917,6 +2924,7 @@ class _AxesBase(martist.Artist):
         --------
         :ref:`autoscale_margins`
         .Axes.set_xmargin, .Axes.set_ymargin
+        .Axes.set_xlim, .Axes.set_ylim
         """
 
         if margins and (x is not None or y is not None):

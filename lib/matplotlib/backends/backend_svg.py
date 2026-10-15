@@ -620,6 +620,8 @@ class RendererSVG(RendererBase):
             attrib['opacity'] = _short_float_fmt(gc.get_alpha())
         if (blend_mode := _svg_blend_mode(gc.get_blend_mode())) != "normal":
             attrib["mix-blend-mode"] = blend_mode
+        if (fill_rule := gc.get_fill_rule()) != "nonzero":
+            attrib["fill-rule"] = fill_rule
 
         offset, seq = gc.get_dashes()
         if seq is not None:

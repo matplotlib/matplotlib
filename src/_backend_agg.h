@@ -152,6 +152,9 @@ class RendererAgg
     template <class ImageArray>
     void draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle);
 
+    template <class BufferArray, class PositionArray>
+    void draw_text_images(GCAgg &gc, BufferArray &buffer, PositionArray &positions);
+
     template <class ImageArray>
     void draw_image(GCAgg &gc,
                     double x,
@@ -206,7 +209,7 @@ class RendererAgg
     double dpi;
     size_t NUMBYTES; // the number of bytes in buffer
 
-    agg::int8u *pixBuffer;
+    agg::int8u *pixBuffer, *otherPixBuffer;
     agg::rendering_buffer renderingBuffer;
 
     agg::int8u *alphaBuffer;
@@ -242,6 +245,11 @@ class RendererAgg
 
     template <class R>
     void set_clipbox(const agg::rect_d &cliprect, R &rasterizer);
+
+    std::optional<agg::rect_i> text_clip_rect(const agg::rect_d &cliprect);
+
+    void blend_text_bitmap(GCAgg &gc, const agg::int8u *covers, int rows, int cols,
+                           int x, int y, const std::optional<agg::rect_i> &clip);
 
     bool render_clippath(mpl::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
 
@@ -295,6 +303,22 @@ template <class path_t>
 inline void
 RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc)
 {
+    // Render first in an isolated buffer if the path blend mode is other than "normal"
+    // and if more than one of fill/hatch/stroke is active to avoid internal blending
+    bool isolate = (gc.comp_op != agg::comp_op_src_over) &&
+                   ((bool(face) + gc.has_hatchpath() + (gc.linewidth != 0)) > 1);
+    if (isolate) {
+        if (!otherPixBuffer) {
+            otherPixBuffer = new agg::int8u[NUMBYTES];
+        }
+        memset(otherPixBuffer, 0, NUMBYTES);
+        renderingBuffer.attach(otherPixBuffer, width, height, width * 4);
+    } else {
+        pixFmt.comp_op(gc.comp_op);
+    }
+
+    theRasterizer.filling_rule(gc.filling_rule);
+
     // Render face
     if (face) {
         theRasterizer.add_path(path);
@@ -380,6 +404,8 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
         }
     }
 
+    theRasterizer.filling_rule(agg::fill_non_zero);
+
     // Render stroke
     if (gc.linewidth != 0.0) {
         double linewidth = points_to_pixels(gc.linewidth);
@@ -428,6 +454,19 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
             }
         }
     }
+
+    // If rendered in an isolated buffer, blend back into the primary buffer
+    if (isolate) {
+        agg::rendering_buffer otherRenderingBuffer;
+        otherRenderingBuffer.attach(otherPixBuffer, width, height, width * 4);
+        pixfmt otherPixFmt(otherRenderingBuffer);
+
+        renderingBuffer.attach(pixBuffer, width, height, width * 4);
+        pixFmt.comp_op(gc.comp_op);
+        rendererBase.blend_from(otherPixFmt);
+    }
+
+    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PathIterator>
@@ -438,8 +477,6 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     if (color.a != 0.0) {
         face = color;
     }
-
-    pixFmt.comp_op(gc.comp_op);
 
     theRasterizer.reset_clipping();
     rendererBase.reset_clipping(true);
@@ -466,8 +503,6 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
         curve, gc.sketch.scale, gc.sketch.length, gc.sketch.randomness};
 
     _draw_path(sketch, has_clippath, face, gc);
-
-    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PathIterator>
@@ -684,6 +719,42 @@ class font_to_rgba
     }
 };
 
+// An unset cliprect is all zeros, and clips nothing.
+inline std::optional<agg::rect_i> RendererAgg::text_clip_rect(const agg::rect_d &cliprect)
+{
+    if (cliprect.x1 == 0.0 && cliprect.y1 == 0.0 &&
+            cliprect.x2 == 0.0 && cliprect.y2 == 0.0) {
+        return std::nullopt;
+    }
+    agg::rect_i clip;
+    clip.init(mpl_round_to_int(cliprect.x1), mpl_round_to_int(height - cliprect.y2),
+              mpl_round_to_int(cliprect.x2), mpl_round_to_int(height - cliprect.y1));
+    return clip;
+}
+
+// Blit one coverage bitmap, laid out row-major, with *y* its bottom edge.
+inline void RendererAgg::blend_text_bitmap(
+    GCAgg &gc, const agg::int8u *covers, int rows, int cols, int x, int y,
+    const std::optional<agg::rect_i> &clip)
+{
+    agg::rect_i fig, text;
+    auto deltay = y - rows;
+    fig.init(0, 0, width, height);
+    text.init(x, deltay, x + cols, y);
+    text.clip(fig);
+    if (clip) {
+        text.clip(*clip);
+    }
+    if (text.x2 > text.x1) {
+        auto deltax = text.x2 - text.x1;
+        auto deltax2 = text.x1 - x;
+        for (auto yi = text.y1; yi < text.y2; ++yi) {
+            pixFmt.blend_solid_hspan(text.x1, yi, deltax, gc.color,
+                                     covers + (yi - deltay) * cols + deltax2);
+        }
+    }
+}
+
 template <class ImageArray>
 inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, int y, double angle)
 {
@@ -730,32 +801,38 @@ inline void RendererAgg::draw_text_image(GCAgg &gc, ImageArray &image, int x, in
         theRasterizer.add_path(rect2);
         agg::render_scanlines(theRasterizer, slineP8, ri);
     } else {
-        agg::rect_i fig, text;
+        blend_text_bitmap(gc, &image(0, 0), static_cast<int>(image.shape(0)),
+                          static_cast<int>(image.shape(1)), x, y,
+                          text_clip_rect(gc.cliprect));
+    }
 
-        int deltay = y - image.shape(0);
+    pixFmt.comp_op(agg::comp_op_src_over);
+}
 
-        fig.init(0, 0, width, height);
-        text.init(x, deltay, x + image.shape(1), y);
-        text.clip(fig);
+// Blit the glyph bitmaps packed by `ft2font._render_glyph_run`.
+template <class BufferArray, class PositionArray>
+inline void RendererAgg::draw_text_images(
+    GCAgg &gc, BufferArray &buffer, PositionArray &positions)
+{
+    if (positions.shape(0) == 0) {
+        return;
+    }
 
-        if (gc.cliprect.x1 != 0.0 || gc.cliprect.y1 != 0.0 || gc.cliprect.x2 != 0.0 || gc.cliprect.y2 != 0.0) {
-            agg::rect_i clip;
+    pixFmt.comp_op(gc.comp_op);
 
-            clip.init(mpl_round_to_int(gc.cliprect.x1),
-                      mpl_round_to_int(height - gc.cliprect.y2),
-                      mpl_round_to_int(gc.cliprect.x2),
-                      mpl_round_to_int(height - gc.cliprect.y1));
-            text.clip(clip);
-        }
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
 
-        if (text.x2 > text.x1) {
-            int deltax = text.x2 - text.x1;
-            int deltax2 = text.x1 - x;
-            for (int yi = text.y1; yi < text.y2; ++yi) {
-                pixFmt.blend_solid_hspan(text.x1, yi, deltax, gc.color,
-                                         &image(yi - deltay, deltax2));
-            }
-        }
+    auto const& clip = text_clip_rect(gc.cliprect);
+    auto data = buffer.data(0);
+    for (py::ssize_t i = 0; i < positions.shape(0); i++) {
+        auto offset = positions(i, 0);
+        auto rows = static_cast<int>(positions(i, 1));
+        auto cols = static_cast<int>(positions(i, 2));
+        // Positions this far out are clipped away, so narrowing is safe.
+        auto x = static_cast<int>(positions(i, 3));
+        auto y = static_cast<int>(positions(i, 4));
+        blend_text_bitmap(gc, data + offset, rows, cols, x, y, clip);
     }
 
     pixFmt.comp_op(agg::comp_op_src_over);
@@ -1003,7 +1080,6 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               AntialiasedArray &antialiaseds,
                                               ColorArray &hatchcolors)
 {
-    pixFmt.comp_op(gc.comp_op);
     _draw_path_collection_generic(gc,
                                   master_transform,
                                   gc.cliprect,
@@ -1021,7 +1097,6 @@ inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                   true,
                                   true,
                                   hatchcolors);
-    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class CoordinateArray>
@@ -1117,7 +1192,6 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     DashesVector linestyles;
     ColorArray hatchcolors = py::array_t<double>().reshape({0, 4}).unchecked<double, 2>();
 
-    pixFmt.comp_op(gc.comp_op);
     _draw_path_collection_generic(gc,
                                   master_transform,
                                   gc.cliprect,
@@ -1135,7 +1209,6 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   true, // check_snap
                                   false,
                                   hatchcolors);
-    pixFmt.comp_op(agg::comp_op_src_over);
 }
 
 template <class PointArray, class ColorArray>

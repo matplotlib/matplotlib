@@ -249,7 +249,7 @@ Some explicit rules following from this:
 
   Ensure that all API changes are documented in a file in one of the
   subdirectories of :file:`doc/api/next_api_changes`, and significant new
-  features have an entry in :file:`doc/user/whats_new`.
+  features have an entry in :file:`doc/release/next_whats_new`.
 
   - If a PR already has a positive review, a core developer (e.g. the first
     reviewer, but not necessarily) may champion that PR for merging.  In order
@@ -360,7 +360,7 @@ Automated backports
 -------------------
 
 We use MeeseeksDev bot to automatically backport merges to the correct
-maintenance branch base on the milestone.  To work properly the
+maintenance branch based on the milestone.  To work properly the
 milestone must be set before merging.  If you have commit rights, the
 bot can also be manually triggered after a merge by leaving a message
 ``@meeseeksdev backport to BRANCH`` on the PR.  If there are conflicts

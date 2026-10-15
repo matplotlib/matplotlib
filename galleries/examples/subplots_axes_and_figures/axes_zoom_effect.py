@@ -8,8 +8,11 @@ Axes zoom effect
 import matplotlib.pyplot as plt
 
 from matplotlib.transforms import Bbox, TransformedBbox, blended_transform_factory
-from mpl_toolkits.axes_grid1.inset_locator import (BboxConnector, BboxConnectorPatch,
-                                                   BboxPatch)
+from mpl_toolkits.axes_grid1.inset_locator import (
+    BboxConnector,
+    BboxConnectorPatch,
+    BboxPatch,
+)
 
 
 def connect_bbox(bbox1, bbox2,

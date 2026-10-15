@@ -924,6 +924,7 @@ grestore
         if self._is_transparent(rgbFace):
             fill = False
         hatch = gc.get_hatch()
+        fill_op = "eofill" if gc.get_fill_rule() == "evenodd" else "fill"
 
         if mightstroke:
             self.set_linewidth(gc.get_linewidth())
@@ -943,7 +944,7 @@ grestore
             if stroke or hatch:
                 write("gsave\n")
             self.set_color(*rgbFace[:3], store=False)
-            write("fill\n")
+            write(f"{fill_op}\n")
             if stroke or hatch:
                 write("grestore\n")
 
@@ -951,7 +952,7 @@ grestore
             hatch_name = self.create_hatch(hatch, gc.get_hatch_linewidth())
             write("gsave\n")
             write(_nums_to_str(*gc.get_hatch_color()[:3]))
-            write(f" {hatch_name} setpattern fill grestore\n")
+            write(f" {hatch_name} setpattern {fill_op} grestore\n")
 
         if stroke:
             write("stroke\n")

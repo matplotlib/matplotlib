@@ -155,6 +155,8 @@ class TextToPath:
             xpositions.append(item.x)
             ypositions.append(item.y)
             if glyph_repr not in glyph_map:
+                item.ft_object.load_glyph(item.glyph_index,
+                                          flags=LoadFlags.NO_HINTING)
                 glyph_map_new[glyph_repr] = item.ft_object.get_path()
 
         sizes = [1.] * len(xpositions)

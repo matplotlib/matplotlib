@@ -13,14 +13,14 @@ some of these files are generated from inline docstrings or sphinx gallery files
 
   Don't directly edit the ``.rst`` files in :file:`doc/plot_types`,
   :file:`doc/gallery`,  :file:`doc/tutorials`, :file:`doc/users/explain` and
-  :file:`doc/api` (except :file:`doc/api/api_changes/`).  Sphinx_ regenerates
+  :file:`doc/api` (except :file:`doc/api/next_api_changes/`).  Sphinx_ regenerates
   files in these directories when building documentation.
 
 Overview
 ========
 Documentation is created in three ways. First, API documentation (:file:`doc/api`) is
 created by Sphinx_ from the docstrings of the classes in the Matplotlib library.  Except
-for :file:`doc/api/api_changes/`,  ``.rst`` files in :file:`doc/api` are created
+for :file:`doc/api/next_api_changes/`,  ``.rst`` files in :file:`doc/api` are created
 when the documentation is built.  See :ref:`writing-docstrings`.
 
 Second, our example pages, tutorials, and some of the user guide are created by
@@ -31,7 +31,7 @@ See :ref:`writing-examples-and-tutorials`.
 Third, Matplotlib has informative documentation written in ReST in subdirectories of
 :file:`doc`. General and historical information about the project is in :file:`doc/project`,
 the installation guide is in :file:`doc/install`, and release notes are managed in
-:file:`doc/release`. Maintenance documentation is in :file:`doc\devel` and the website
+:file:`doc/release`. Maintenance documentation is in :file:`doc/devel` and the website
 always redirects to the latest version of these documents. We also maintain a list of
 external resources in :file:`doc/users/resources/index.rst`. To improve these documents
 or add resources, see :ref:`writing-rest-pages`.
@@ -318,7 +318,7 @@ before the section
    Summary for pull request authors
    ================================
 
-and then link to with ``:ref:`label-name```
+and then link to it with ``:ref:`label-name```
 
 .. code-block:: rst
 
@@ -396,8 +396,8 @@ commands::
 Include figures and files
 -------------------------
 
-Image files can directly included in pages with the ``image::`` directive.
-e.g., :file:`tutorials/intermediate/constrainedlayout_guide.py` displays
+Image files can directly be included in pages with the ``image::`` directive.
+e.g., :file:`galleries/users_explain/axes/constrainedlayout_guide.py` displays
 a couple of static images::
 
   # .. image:: /_static/constrained_layout_1b.png

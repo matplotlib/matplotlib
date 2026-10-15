@@ -24,8 +24,8 @@ def layout(string: str, font: FT2Font, *,
     """
     Render *string* with *font*.
 
-    For each character in *string*, yield a LayoutItem instance. When such an instance
-    is yielded, the font's glyph is set to the corresponding character.
+    For each character in *string*, yield a LayoutItem instance.  Callers that
+    need the outline must load the glyph themselves.
 
     Parameters
     ----------
@@ -43,8 +43,5 @@ def layout(string: str, font: FT2Font, *,
     ------
     LayoutItem
     """
-    for raqm_item in font._layout(string, LoadFlags.NO_HINTING,
-                                  features=features, language=language):
-        raqm_item.ft_object.load_glyph(raqm_item.glyph_index,
-                                       flags=LoadFlags.NO_HINTING)
-        yield raqm_item
+    yield from font._layout(string, LoadFlags.NO_HINTING,
+                            features=features, language=language)

@@ -113,7 +113,7 @@ The editing workflow
 
    .. code-block:: none
 
-     # On branch ny-new-feature
+     # On branch my-new-feature
      # Changed but not updated:
      #   (use "git add <file>..." to update what will be committed)
      #   (use "git checkout -- <file>..." to discard changes in working directory)

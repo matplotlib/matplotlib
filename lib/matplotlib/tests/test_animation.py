@@ -13,7 +13,7 @@ import pytest
 import matplotlib as mpl
 from matplotlib import pyplot as plt
 from matplotlib import animation
-from matplotlib.animation import PillowWriter
+from matplotlib.animation import PillowWriter, FuncAnimation
 from matplotlib.testing.decorators import check_figures_equal
 
 
@@ -571,3 +571,35 @@ def test_animation_with_transparency():
     # Check that the alpha channel is not 255, so frame has transparency
     assert frame.getextrema()[3][0] < 255
     plt.close(fig)
+
+
+def test_event_source_stops_leaves_event():
+    """
+    Added for issue #30622
+
+    Tests that animations now stop the event source
+    on animation completion.
+    """
+    fig, ax = plt.subplots()
+    anim = FuncAnimation(fig, lambda f: [], frames=3, repeat=False)
+    anim._start()
+    while anim._step():
+        pass  # goes through all 3 steps
+    assert anim.event_source is not None
+
+
+def test_event_source_stops_early_leaves_event():
+    """
+    Added for issue #30622
+
+    Tests that animations now stop the event source instead
+    of destroying it on animation early stop.
+    """
+    fig, ax = plt.subplots()
+    anim = FuncAnimation(fig, lambda f: [], frames=3)
+    anim._start()
+    # plt.close(fig) is needed here because, without it, stop
+    # is not called. So, event_source would still be not None
+    # and that is not the behaviour we are exercising.
+    plt.close(fig)
+    assert anim.event_source is not None

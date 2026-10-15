@@ -3,6 +3,11 @@
 Ticklabel alignment
 ===================
 
+Because axisartist groups all ticks into a single object, the global alignment
+of the ticks can be set directly.
+
+See also :doc:`/gallery/ticks/align_ticklabels` for some workarounds that can
+be used when working with standard axes.
 """
 
 

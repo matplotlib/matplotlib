@@ -26,6 +26,8 @@ except ImportError:
         raise ImportError(
             "cairo backend requires that pycairo>=1.14.0 or cairocffi "
             "is installed") from err
+    except OSError as err:
+        raise ImportError("cairocffi could not load cairo") from err
 
 from .. import _api, cbook, font_manager
 from matplotlib.artist import BlendMode
@@ -133,6 +135,18 @@ class RendererCairo(RendererBase):
 
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
+
+        # Use an isolated blend group if the path blend mode is other than "normal" and
+        # if more than one of fill/hatch/stroke is active to avoid internal blending
+        hatch_path = gc.get_hatch_path()
+        isolate = ((blend_mode := gc.get_blend_mode()) != "normal" and
+                   sum([rgbFace is not None,
+                        hatch_path is not None,
+                        gc.get_linewidth() > 0]) > 1)
+        if isolate:
+            self.open_blend_group(blend_mode)
+            gc.set_blend_mode("normal")
+
         ctx = gc.ctx
         # Clip the path to the actual rendering extents if it isn't filled.
         clip = (ctx.clip_extents()
@@ -147,7 +161,6 @@ class RendererCairo(RendererBase):
             _set_rgba(ctx, rgbFace, gc.get_alpha(), gc.get_forced_alpha())
             ctx.fill_preserve()
             ctx.restore()
-        hatch_path = gc.get_hatch_path()
         if hatch_path:
             dpi = int(self.dpi)
             hatch_surface = ctx.get_target().create_similar(
@@ -167,6 +180,9 @@ class RendererCairo(RendererBase):
             ctx.fill_preserve()
             ctx.restore()
         ctx.stroke()
+
+        if isolate:
+            self.close_blend_group()
 
     def draw_markers(self, gc, marker_path, marker_trans, path, transform,
                      rgbFace=None):
@@ -378,10 +394,25 @@ class RendererCairo(RendererBase):
             ctx.save()
             self.gc.set_blend_mode(group_state.blend_mode)
             ctx.set_source(group)
-            if group_state.alpha != 1:
-                ctx.paint_with_alpha(group_state.alpha)
+
+            # For these two Porter-Duff compositing operators, we need to mask out fully
+            # transparent pixels, otherwise those pixels will override the backdrop
+            if group_state.blend_mode in {'knockout', 'clear'}:
+                # Extract the 8-bit alpha channel
+                mask_surface = ctx.get_target().create_similar_image(
+                    cairo.FORMAT_A8, self.width, self.height)
+                mask_ctx = cairo.Context(mask_surface)
+                mask_ctx.set_source(group)
+                mask_ctx.paint()
+                mask_surface.flush()
+
+                # Pixels that are not fully transparent are painted with the group alpha
+                mask_buf = np.asarray(mask_surface.get_data())
+                mask_buf[mask_buf > 0] = 255 * group_state.alpha + 0.5  # round to int
+                ctx.mask_surface(mask_surface)
             else:
-                ctx.paint()
+                ctx.paint_with_alpha(group_state.alpha)
+
             ctx.restore()
 
 
@@ -421,6 +452,11 @@ class GraphicsContextCairo(GraphicsContextBase):
         'saturation':  cairo.OPERATOR_HSL_SATURATION,
         'color':       cairo.OPERATOR_HSL_COLOR,
         'luminosity':  cairo.OPERATOR_HSL_LUMINOSITY,
+    }
+
+    _filld = {
+        'nonzero': cairo.FILL_RULE_WINDING,
+        'evenodd': cairo.FILL_RULE_EVEN_ODD,
     }
 
     def __init__(self, renderer):
@@ -500,6 +536,11 @@ class GraphicsContextCairo(GraphicsContextBase):
         else:
             self.ctx.set_operator(_api.getitem_checked(self._operatord,
                                                        blend_mode=self._blend_mode))
+
+    def set_fill_rule(self, fill_rule):
+        super().set_fill_rule(fill_rule)
+        self.ctx.set_fill_rule(_api.getitem_checked(self._filld,
+                                                    fill_rule=self._fill_rule))
 
 
 class _CairoRegion:

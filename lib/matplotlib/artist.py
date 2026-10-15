@@ -245,6 +245,7 @@ Supported properties are
         self._animated = False
         self._alpha = None
         self._blend_mode = "normal"
+        self._fill_rule = "nonzero"
         self.clipbox = None
         self._clippath = None
         self._clipon = True
@@ -1278,6 +1279,7 @@ Supported properties are
         self._visible = other._visible
         self._alpha = other._alpha
         self._blend_mode = other._blend_mode
+        self._fill_rule = other._fill_rule
         self.clipbox = other.clipbox
         self._clipon = other._clipon
         self._clippath = other._clippath

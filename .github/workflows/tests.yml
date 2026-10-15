@@ -77,15 +77,15 @@ jobs:
             python-version: '3.14'
           - os: ubuntu-24.04-arm
             python-version: '3.12'
-          - os: macos-14  # This runner is on M1 (arm64) chips.
+          - os: macos-15  # This runner is on M1 (arm64) chips.
             python-version: '3.12'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-          - os: macos-15  # This runner is on M1 (arm64) chips.
+          - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.13'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-          - os: macos-15  # This runner is on M1 (arm64) chips.
+          - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.14'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
@@ -172,6 +172,11 @@ jobs:
               brew unlink ${python_package}
               brew link --overwrite ${python_package}
             done
+            # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
+            openssl_link="$(brew --prefix)/bin/openssl"
+            case "$(readlink "$openssl_link" 2>/dev/null)" in
+                */openssl@1.1/*) rm -f "$openssl_link" ;;
+            esac
             # Workaround for https://github.com/actions/runner-images/issues/10984
             brew uninstall --ignore-dependencies --force pkg-config@0.29.2
             brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
@@ -378,9 +383,17 @@ jobs:
             xcrun llvm-cov export -format="lcov" build/*/src/*.so \
               -instr-profile default.profdata > info.lcov
           fi
+
+      - name: Upload macOS crash logs
+        if: failure() && runner.os == 'macOS'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: macos-crash-logs
+          path: ~/Library/Logs/DiagnosticReports/*
+
       - name: Upload code coverage
         if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}

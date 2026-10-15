@@ -49,6 +49,11 @@ repos:
       # Run the linter.
       - id: ruff-check
         args: [--fix, --show-fixes]
+      # Sort imports in the galleries, mirroring the previous isort scope.
+      - id: ruff-check
+        name: ruff isort (galleries)
+        args: [--fix, --show-fixes, --select=I001]
+        files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/
   - repo: https://github.com/codespell-project/codespell
     rev: 2ccb47ff45ad361a21071a7eedda4c37e6ae8c5a  # frozen: v2.4.2
     hooks:
@@ -59,12 +64,6 @@ repos:
           - "ci/codespell-ignore-words.txt"
           - "--skip"
           - "doc/project/credits.rst"
-  - repo: https://github.com/pycqa/isort
-    rev: a333737ed43df02b18e6c95477ea1b285b3de15a  # frozen: 8.0.1
-    hooks:
-      - id: isort
-        name: isort (python)
-        files: ^galleries/tutorials/|^galleries/examples/|^galleries/plot_types/
   - repo: https://github.com/rstcheck/rstcheck
     rev: d8774e96810795967ed9603f445b4e751e7b313f  # frozen: v6.3.0
     hooks:

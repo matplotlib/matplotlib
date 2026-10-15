@@ -356,8 +356,6 @@ class FigureCanvasTk(FigureCanvasBase):
         self._tkcanvas.focus_set()
 
         num = getattr(event, 'num', None)
-        if sys.platform == 'darwin':  # 2 and 3 are reversed.
-            num = {2: 3, 3: 2}.get(num, num)
         MouseEvent("button_press_event", self,
                    *self._event_mpl_coords(event), num, dblclick=dblclick,
                    modifiers=self._mpl_modifiers(event),
@@ -368,8 +366,6 @@ class FigureCanvasTk(FigureCanvasBase):
 
     def button_release_event(self, event):
         num = getattr(event, 'num', None)
-        if sys.platform == 'darwin':  # 2 and 3 are reversed.
-            num = {2: 3, 3: 2}.get(num, num)
         MouseEvent("button_release_event", self,
                    *self._event_mpl_coords(event), num,
                    modifiers=self._mpl_modifiers(event),
@@ -402,14 +398,6 @@ class FigureCanvasTk(FigureCanvasBase):
         # NOTE: This fails to report multiclicks on macOS; only one button is
         # reported (multiclicks work correctly on Linux & Windows).
         modifiers = [
-            # macOS appears to swap right and middle (look for "Swap buttons
-            # 2/3" in tk/macosx/tkMacOSXMouseEvent.c).
-            (MouseButton.LEFT, 1 << 8),
-            (MouseButton.RIGHT, 1 << 9),
-            (MouseButton.MIDDLE, 1 << 10),
-            (MouseButton.BACK, 1 << 11),
-            (MouseButton.FORWARD, 1 << 12),
-        ] if sys.platform == "darwin" else [
             (MouseButton.LEFT, 1 << 8),
             (MouseButton.MIDDLE, 1 << 9),
             (MouseButton.RIGHT, 1 << 10),
@@ -546,23 +534,6 @@ class FigureManagerTk(FigureManagerBase):
             window = tk.Tk(className="matplotlib")
             window.withdraw()
 
-            # Put a Matplotlib icon on the window rather than the default tk
-            # icon. See https://www.tcl.tk/man/tcl/TkCmd/wm.html#M50
-            #
-            # `ImageTk` can be replaced with `tk` whenever the minimum
-            # supported Tk version is increased to 8.6, as Tk 8.6+ natively
-            # supports PNG images.
-            icon_fname = str(cbook._get_data_path(
-                'images/matplotlib_small.png'))
-            icon_img = ImageTk.PhotoImage(file=icon_fname, master=window)
-
-            icon_fname_large = str(cbook._get_data_path(
-                'images/matplotlib.png'))
-            icon_img_large = ImageTk.PhotoImage(
-                file=icon_fname_large, master=window)
-
-            window.iconphoto(False, icon_img_large, icon_img)
-
             canvas = canvas_class(figure, master=window)
             manager = cls(canvas, num, window)
             if mpl.is_interactive():
@@ -612,6 +583,27 @@ class FigureManagerTk(FigureManagerBase):
                     Gcf.destroy(self)
                 self.window.protocol("WM_DELETE_WINDOW", destroy)
                 self.window.deiconify()
+
+                # Put a Matplotlib icon on the window rather than the default tk
+                # icon. See https://www.tcl.tk/man/tcl/TkCmd/wm.html#M50
+                #
+                # The icon is set after calling deiconify() to avoid a bug when
+                # running IPython on Windows.
+                #
+                # `ImageTk` can be replaced with `tk` whenever the minimum
+                # supported Tk version is increased to 8.6, as Tk 8.6+ natively
+                # supports PNG images.
+                icon_fname = str(cbook._get_data_path(
+                    'images/matplotlib_small.png'))
+                icon_img = ImageTk.PhotoImage(file=icon_fname, master=self.window)
+
+                icon_fname_large = str(cbook._get_data_path(
+                    'images/matplotlib.png'))
+                icon_img_large = ImageTk.PhotoImage(
+                    file=icon_fname_large, master=self.window)
+
+                self.window.iconphoto(False, icon_img_large, icon_img)
+
                 self.canvas._tkcanvas.focus_set()
             else:
                 self.canvas.draw_idle()

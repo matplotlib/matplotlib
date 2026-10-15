@@ -205,6 +205,7 @@ plt.show()
 #       animated = False
 #       antialiased or aa = False
 #       bbox = Bbox(x0=0.0, y0=0.0, x1=1.0, y1=1.0)
+#       blend_mode = normal
 #       capstyle = butt
 #       children = []
 #       clip_box = None
@@ -217,6 +218,7 @@ plt.show()
 #       facecolor or fc = (1.0, 1.0, 1.0, 1.0)
 #       figure = Figure(640x480)
 #       fill = True
+#       fill_rule = nonzero
 #       gid = None
 #       hatch = None
 #       height = 1
