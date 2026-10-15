@@ -59,3 +59,7 @@ matplotlib.container.PieContainer.__getitem__
 
 # 3.12 deprecation
 matplotlib\.axes\._base\._AxesBase\.ArtistList
+
+# matplotlib.image re-exports resample from matplotlib._image
+# nanobind does not produce signatures recognizable by inspect.signature()
+matplotlib\.image\.resample
