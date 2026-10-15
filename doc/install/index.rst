@@ -71,8 +71,6 @@ Python distributions
 Matplotlib is part of major Python distributions:
 
 - Anaconda_
-- `ActiveState ActivePython
-  <https://www.activestate.com/products/python/downloads/>`_
 - `WinPython <https://winpython.github.io/>`_
 
 Linux package manager
@@ -248,7 +246,7 @@ the form of wheels.
 pip is installed by default with python.org and Homebrew Python, but needs to
 be manually installed on Macports with ::
 
-   sudo port install py38-pip
+   sudo port install py314-pip
 
 Once pip is installed, you can install Matplotlib and all its dependencies with
 from the Terminal.app command line::
