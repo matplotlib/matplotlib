@@ -3,8 +3,8 @@
  * enable the asserts, you need to undefine the NDEBUG macro, which is achieved by
  * passing ``b_ndebug=false`` to the Meson configuration.
  */
-#include "../mplutils.h"
 #include "_tri.h"
+#include "../mplutils.h"
 
 #include <algorithm>
 #include <random>
@@ -201,42 +201,67 @@ void write_contour(const Contour& contour)
 
 
 
-Triangulation::Triangulation(const CoordinateArray& x,
-                             const CoordinateArray& y,
-                             const TriangleArray& triangles,
-                             const MaskArray& mask,
-                             const EdgeArray& edges,
-                             const NeighborArray& neighbors,
+Triangulation::Triangulation(const DoubleArray& x,
+                             const DoubleArray& y,
+                             const IntArray& triangles,
+                             std::optional<const BoolArray> mask_or_none,
+                             std::optional<const IntArray> edges_or_none,
+                             std::optional<const IntArray> neighbors_or_none,
                              bool correct_triangle_orientations)
-    : _x(x),
-      _y(y),
-      _triangles(triangles),
-      _mask(mask),
-      _edges(edges),
-      _neighbors(neighbors)
 {
-    if (_x.ndim() != 1 || _y.ndim() != 1 || _x.shape(0) != _y.shape(0))
+    if (x.ndim() != 1 || y.ndim() != 1 || x.shape(0) != y.shape(0))
         throw std::invalid_argument("x and y must be 1D arrays of the same length");
 
-    if (_triangles.ndim() != 2 || _triangles.shape(1) != 3)
+    if (triangles.ndim() != 2 || triangles.shape(1) != 3)
         throw std::invalid_argument("triangles must be a 2D array of shape (?,3)");
 
+    _x = CoordinateArray(x);
+    _y = CoordinateArray(y);
+    _triangles = TriangleArray(triangles);
+
     // Optional mask.
-    if (_mask.size() > 0 &&
-        (_mask.ndim() != 1 || _mask.shape(0) != _triangles.shape(0)))
-        throw std::invalid_argument(
-            "mask must be a 1D array with the same length as the triangles array");
+    if (mask_or_none && mask_or_none->size() > 0) {
+        auto& mask = *mask_or_none;
+
+        if (mask.ndim() != 1 || mask.shape(0) != triangles.shape(0)) {
+            throw std::invalid_argument(
+                "mask must be a 1D array with the same length as the triangles array");
+        }
+
+        _mask = MaskArray(mask);
+    } else {
+        _mask = MaskArray();
+    }
 
     // Optional edges.
-    if (_edges.size() > 0 &&
-        (_edges.ndim() != 2 || _edges.shape(1) != 2))
-        throw std::invalid_argument("edges must be a 2D array with shape (?,2)");
+    if (edges_or_none && edges_or_none->size() > 0) {
+        auto& edges = *edges_or_none;
+
+        if (edges.ndim() != 2 || edges.shape(1) != 2) {
+            throw std::invalid_argument("edges must be a 2D array with shape (?,2)");
+        }
+
+        _edges = EdgeArray(edges);
+    } else {
+        _edges = EdgeArray();
+    }
 
     // Optional neighbors.
-    if (_neighbors.size() > 0 &&
-        (_neighbors.ndim() != 2 || _neighbors.shape() != _triangles.shape()))
-        throw std::invalid_argument(
-            "neighbors must be a 2D array with the same shape as the triangles array");
+    if (neighbors_or_none && neighbors_or_none->size() > 0) {
+        auto& neighbors = *neighbors_or_none;
+
+        if (neighbors.ndim() != 2 ||
+            neighbors.shape(0) != triangles.shape(0) ||
+            neighbors.shape(1) != triangles.shape(1)
+        ) {
+            throw std::invalid_argument(
+                "neighbors must be a 2D array with the same shape as the triangles array");
+        }
+
+        _neighbors = NeighborArray(neighbors);
+    } else {
+        _neighbors = NeighborArray();
+    }
 
     if (correct_triangle_orientations)
         correct_triangles();
@@ -248,9 +273,9 @@ void Triangulation::calculate_boundaries()
 
     // Create set of all boundary TriEdges, which are those which do not
     // have a neighbor triangle.
-    typedef std::set<TriEdge> BoundaryEdges;
+    using BoundaryEdges = std::set<TriEdge>;
     BoundaryEdges boundary_edges;
-    for (int tri = 0; tri < get_ntri(); ++tri) {
+    for (size_t tri = 0; tri < get_ntri(); ++tri) {
         if (!is_masked(tri)) {
             for (int edge = 0; edge < 3; ++edge) {
                 if (get_neighbor(tri, edge) == -1) {
@@ -303,9 +328,9 @@ void Triangulation::calculate_edges()
 
     // Create set of all edges, storing them with start point index less than
     // end point index.
-    typedef std::set<Edge> EdgeSet;
+    using EdgeSet = std::set<Edge>;
     EdgeSet edge_set;
-    for (int tri = 0; tri < get_ntri(); ++tri) {
+    for (size_t tri = 0; tri < get_ntri(); ++tri) {
         if (!is_masked(tri)) {
             for (int edge = 0; edge < 3; edge++) {
                 int start = get_triangle_point(tri, edge);
@@ -316,9 +341,8 @@ void Triangulation::calculate_edges()
     }
 
     // Convert to python _edges array.
-    py::ssize_t dims[2] = {static_cast<py::ssize_t>(edge_set.size()), 2};
-    _edges = EdgeArray(dims);
-    auto edges = _edges.mutable_data();
+    _edges = mpl_make_numpy_array<EdgeArray>({edge_set.size(), 2});
+    auto edges = _edges.data();
 
     int i = 0;
     for (const auto & it : edge_set) {
@@ -332,21 +356,21 @@ void Triangulation::calculate_neighbors()
     assert(!has_neighbors() && "Expected empty neighbors array");
 
     // Create _neighbors array with shape (ntri,3) and initialise all to -1.
-    py::ssize_t dims[2] = {get_ntri(), 3};
-    _neighbors = NeighborArray(dims);
-    auto* neighbors = _neighbors.mutable_data();
+    auto ntri = get_ntri();
+    _neighbors = mpl_make_numpy_array<NeighborArray>({ntri, 3});
+    auto neighbors = _neighbors.data();
 
     int tri, edge;
-    std::fill(neighbors, neighbors+3*get_ntri(), -1);
+    std::fill(neighbors, neighbors+3*ntri, -1);
 
     // For each triangle edge (start to end point), find corresponding neighbor
     // edge from end to start point.  Do this by traversing all edges and
     // storing them in a map from edge to TriEdge.  If corresponding neighbor
     // edge is already in the map, don't need to store new edge as neighbor
     // already found.
-    typedef std::map<Edge, TriEdge> EdgeToTriEdgeMap;
+    using EdgeToTriEdgeMap = std::map<Edge, TriEdge>;
     EdgeToTriEdgeMap edge_to_tri_edge_map;
-    for (tri = 0; tri < get_ntri(); ++tri) {
+    for (tri = 0; tri < ntri; ++tri) {
         if (!is_masked(tri)) {
             for (edge = 0; edge < 3; ++edge) {
                 int start = get_triangle_point(tri, edge);
@@ -371,23 +395,25 @@ void Triangulation::calculate_neighbors()
     // boundary edges, but the boundaries are calculated separately elsewhere.
 }
 
-Triangulation::TwoCoordinateArray Triangulation::calculate_plane_coefficients(
-    const CoordinateArray& z)
+Triangulation::CoefficientsArray Triangulation::calculate_plane_coefficients(
+    const Triangulation::DoubleArray& in_z)
 {
-    if (z.ndim() != 1 || z.shape(0) != _x.shape(0))
+    if (in_z.ndim() != 1 || in_z.shape(0) != _x.shape(0))
         throw std::invalid_argument(
             "z must be a 1D array with the same length as the triangulation x and y arrays");
 
-    int dims[2] = {get_ntri(), 3};
-    Triangulation::TwoCoordinateArray planes_array(dims);
-    auto planes = planes_array.mutable_unchecked<2>();
-    auto triangles = _triangles.unchecked<2>();
-    auto x = _x.unchecked<1>();
-    auto y = _y.unchecked<1>();
-    auto z_ptr = z.unchecked<1>();
+    auto z = CoordinateArray(in_z);
+
+    auto ntri = get_ntri();
+    auto planes_array = mpl_make_numpy_array<Triangulation::CoefficientsArray>({ntri, 3});
+    auto planes = planes_array.view();
+    auto triangles = _triangles.view();
+    auto x = _x.view();
+    auto y = _y.view();
+    auto z_ptr = z.view();
 
     int point;
-    for (int tri = 0; tri < get_ntri(); ++tri) {
+    for (int tri = 0; tri < ntri; ++tri) {
         if (is_masked(tri)) {
             planes(tri, 0) = 0.0;
             planes(tri, 1) = 0.0;
@@ -435,10 +461,10 @@ Triangulation::TwoCoordinateArray Triangulation::calculate_plane_coefficients(
 
 void Triangulation::correct_triangles()
 {
-    auto triangles = _triangles.mutable_data();
-    auto neighbors = _neighbors.mutable_data();
+    auto triangles = _triangles.data();
+    auto neighbors = _neighbors.data();
 
-    for (int tri = 0; tri < get_ntri(); ++tri) {
+    for (size_t tri = 0; tri < get_ntri(); ++tri) {
         XY point0 = get_point_coords(triangles[3*tri]);
         XY point1 = get_point_coords(triangles[3*tri+1]);
         XY point2 = get_point_coords(triangles[3*tri+2]);
@@ -518,12 +544,12 @@ Triangulation::NeighborArray& Triangulation::get_neighbors()
     return _neighbors;
 }
 
-int Triangulation::get_npoints() const
+size_t Triangulation::get_npoints() const
 {
     return _x.shape(0);
 }
 
-int Triangulation::get_ntri() const
+size_t Triangulation::get_ntri() const
 {
     return _triangles.shape(0);
 }
@@ -567,8 +593,10 @@ bool Triangulation::is_masked(int tri) const
     return has_mask() && _mask.data()[tri];
 }
 
-void Triangulation::set_mask(const MaskArray& mask)
+void Triangulation::set_mask(std::optional<const MaskArray> maskOrNone)
 {
+    auto mask = maskOrNone.value_or(MaskArray());
+
     if (mask.size() > 0 &&
         (mask.ndim() != 1 || mask.shape(0) != _triangles.shape(0)))
         throw std::invalid_argument(
@@ -598,16 +626,16 @@ void Triangulation::write_boundaries() const
 
 
 TriContourGenerator::TriContourGenerator(Triangulation& triangulation,
-                                         const CoordinateArray& z)
+                                         const DoubleArray& z)
     : _triangulation(triangulation),
-      _z(z),
       _interior_visited(2*_triangulation.get_ntri()),
       _boundaries_visited(0),
       _boundaries_used(0)
 {
-    if (_z.ndim() != 1 || _z.shape(0) != _triangulation.get_npoints())
+    if (z.ndim() != 1 || z.shape(0) != _triangulation.get_npoints())
         throw std::invalid_argument(
             "z must be a 1D array with the same length as the x and y arrays");
+    _z = CoordinateArray(z);
 }
 
 void TriContourGenerator::clear_visited_flags(bool include_boundaries)
@@ -639,7 +667,7 @@ void TriContourGenerator::clear_visited_flags(bool include_boundaries)
     }
 }
 
-py::tuple TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& contour)
+nb::tuple TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& contour)
 {
     // Convert all of the lines generated by a call to create_contour() into
     // their Python equivalents for return to the calling function.
@@ -653,20 +681,18 @@ py::tuple TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
     // and they are appended to the Python lists vertices_list and codes_list
     // respectively for return to the Python calling function.
 
-    py::list vertices_list(contour.size());
-    py::list codes_list(contour.size());
+    nb::list vertices_list;
+    nb::list codes_list;
 
     for (Contour::size_type i = 0; i < contour.size(); ++i) {
         const ContourLine& contour_line = contour[i];
-        py::ssize_t npoints = static_cast<py::ssize_t>(contour_line.size());
+        auto npoints = contour_line.size();
 
-        py::ssize_t segs_dims[2] = {npoints, 2};
-        CoordinateArray segs(segs_dims);
-        double* segs_ptr = segs.mutable_data();
+        auto segs = mpl_make_numpy_array<PointArray>({npoints, 2});
+        auto segs_ptr = segs.data();
 
-        py::ssize_t codes_dims[1] = {npoints};
-        CodeArray codes(codes_dims);
-        unsigned char* codes_ptr = codes.mutable_data();
+        auto codes = mpl_make_numpy_array<CodeArray>({npoints});
+        auto codes_ptr = codes.data();
 
         for (const auto & point : contour_line) {
             *segs_ptr++ = point.x;
@@ -674,7 +700,7 @@ py::tuple TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
             *codes_ptr++ = LINETO;
         }
         if (npoints > 0) {
-            *codes.mutable_data(0) = MOVETO;
+            *codes.data() = MOVETO;
         }
 
         // Closed line loop has identical first and last (x, y) points.
@@ -682,14 +708,14 @@ py::tuple TriContourGenerator::contour_line_to_segs_and_kinds(const Contour& con
             contour_line.front() == contour_line.back())
             *(codes_ptr-1) = CLOSEPOLY;
 
-        vertices_list[i] = segs;
-        codes_list[i] = codes;
+        vertices_list.append(segs);
+        codes_list.append(codes);
     }
 
-    return py::make_tuple(vertices_list, codes_list);
+    return nb::make_tuple(vertices_list, codes_list);
 }
 
-py::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
+nb::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
 {
     // Convert all of the polygons generated by a call to
     // create_filled_contour() into their Python equivalents for return to the
@@ -706,20 +732,18 @@ py::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
     // respectively.
 
     // Find total number of points in all contour lines.
-    py::ssize_t n_points = 0;
+    size_t n_points = 0;
     for (const auto & line : contour) {
-        n_points += static_cast<py::ssize_t>(line.size());
+        n_points += line.size();
     }
 
     // Create segs array for point coordinates.
-    py::ssize_t segs_dims[2] = {n_points, 2};
-    TwoCoordinateArray segs(segs_dims);
-    double* segs_ptr = segs.mutable_data();
+    auto segs = mpl_make_numpy_array<PointArray>({n_points, 2});
+    auto segs_ptr = segs.data();
 
     // Create kinds array for code types.
-    py::ssize_t codes_dims[1] = {n_points};
-    CodeArray codes(codes_dims);
-    unsigned char* codes_ptr = codes.mutable_data();
+    auto codes = mpl_make_numpy_array<CodeArray>({n_points});
+    auto codes_ptr = codes.data();
 
     for (const auto & line : contour) {
         for (auto point = line.cbegin(); point != line.cend(); point++) {
@@ -733,16 +757,16 @@ py::tuple TriContourGenerator::contour_to_segs_and_kinds(const Contour& contour)
         }
     }
 
-    py::list vertices_list(1);
-    vertices_list[0] = segs;
+    nb::list vertices_list;
+    vertices_list.append(segs);
 
-    py::list codes_list(1);
-    codes_list[0] = codes;
+    nb::list codes_list;
+    codes_list.append(codes);
 
-    return py::make_tuple(vertices_list, codes_list);
+    return nb::make_tuple(vertices_list, codes_list);
 }
 
-py::tuple TriContourGenerator::create_contour(const double& level)
+nb::tuple TriContourGenerator::create_contour(const double& level)
 {
     clear_visited_flags(false);
     Contour contour;
@@ -753,7 +777,7 @@ py::tuple TriContourGenerator::create_contour(const double& level)
     return contour_line_to_segs_and_kinds(contour);
 }
 
-py::tuple TriContourGenerator::create_filled_contour(const double& lower_level,
+nb::tuple TriContourGenerator::create_filled_contour(const double& lower_level,
                                                      const double& upper_level)
 {
     if (lower_level >= upper_level)
@@ -875,8 +899,8 @@ void TriContourGenerator::find_interior_lines(Contour& contour,
                                               bool on_upper)
 {
     const Triangulation& triang = _triangulation;
-    int ntri = triang.get_ntri();
-    for (int tri = 0; tri < ntri; ++tri) {
+    auto ntri = triang.get_ntri();
+    for (size_t tri = 0; tri < ntri; ++tri) {
         int visited_index = (on_upper ? tri+ntri : tri);
 
         if (_interior_visited[visited_index] || triang.is_masked(tri))
@@ -1310,13 +1334,13 @@ TrapezoidMapTriFinder::find_many(const CoordinateArray& x,
 
     // Create integer array to return.
     auto n = x.shape(0);
-    TriIndexArray tri_indices_array(n);
-    auto tri_indices = tri_indices_array.mutable_unchecked<1>();
+    auto tri_indices_array = mpl_make_numpy_array<TriIndexArray>({n});
+    auto tri_indices = tri_indices_array.view();
     auto x_data = x.data();
     auto y_data = y.data();
 
     // Fill returned array.
-    for (py::ssize_t i = 0; i < n; ++i)
+    for (nb::ssize_t i = 0; i < n; ++i)
         tri_indices(i) = find_one(XY(x_data[i], y_data[i]));
 
     return tri_indices_array;
@@ -1373,20 +1397,20 @@ TrapezoidMapTriFinder::find_trapezoids_intersecting_edge(
     return true;
 }
 
-py::list
+nb::list
 TrapezoidMapTriFinder::get_tree_stats()
 {
     NodeStats stats;
     _tree->get_stats(0, stats);
 
-    py::list ret(7);
-    ret[0] = stats.node_count;
-    ret[1] = stats.unique_nodes.size(),
-    ret[2] = stats.trapezoid_count,
-    ret[3] = stats.unique_trapezoid_nodes.size(),
-    ret[4] = stats.max_parent_count,
-    ret[5] = stats.max_depth,
-    ret[6] = stats.sum_trapezoid_depth / stats.trapezoid_count;
+    nb::list ret;
+    ret.append(stats.node_count);
+    ret.append(stats.unique_nodes.size());
+    ret.append(stats.trapezoid_count);
+    ret.append(stats.unique_trapezoid_nodes.size());
+    ret.append(stats.max_parent_count);
+    ret.append(stats.max_depth);
+    ret.append(stats.sum_trapezoid_depth / stats.trapezoid_count);
     return ret;
 }
 
@@ -1398,10 +1422,10 @@ TrapezoidMapTriFinder::initialize()
 
     // Set up points array, which contains all of the points in the
     // triangulation plus the 4 corners of the enclosing rectangle.
-    int npoints = triang.get_npoints();
+    auto npoints = triang.get_npoints();
     _points = new Point[npoints + 4];
     BoundingBox bbox;
-    for (int i = 0; i < npoints; ++i) {
+    for (size_t i = 0; i < npoints; ++i) {
         XY xy = triang.get_point_coords(i);
         // Avoid problems with -0.0 values different from 0.0
         if (xy.x == -0.0)
@@ -1438,8 +1462,8 @@ TrapezoidMapTriFinder::initialize()
     // Add all edges in the triangulation that point to the right.  Do not
     // explicitly include edges that point to the left as the neighboring
     // triangle will supply that, unless there is no such neighbor.
-    int ntri = triang.get_ntri();
-    for (int tri = 0; tri < ntri; ++tri) {
+    auto ntri = triang.get_ntri();
+    for (size_t tri = 0; tri < ntri; ++tri) {
         if (!triang.is_masked(tri)) {
             for (int edge = 0; edge < 3; ++edge) {
                 Point* start = _points + triang.get_triangle_point(tri,edge);
@@ -1674,8 +1698,7 @@ TrapezoidMapTriFinder::Node::get_stats(int depth,
         stats.max_depth = depth;
     bool new_node = stats.unique_nodes.insert(this).second;
     if (new_node)
-        stats.max_parent_count = std::max(stats.max_parent_count,
-                                          static_cast<long>(_parents.size()));
+        stats.max_parent_count = std::max(stats.max_parent_count, _parents.size());
 
     switch (_type) {
         case Type_XNode:

@@ -22,8 +22,11 @@ permissions:
   contents: read
 
 jobs:
+  # Disable this for now in the nanobind experiment as split mode
+  # "needs libstdc++ on ELF platforms"
   build_wasm:
     if: >-
+      false &&
       (
         github.event_name == 'push' ||
         github.event_name == 'pull_request' && (

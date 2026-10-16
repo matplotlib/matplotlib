@@ -29,8 +29,8 @@ matplotlib\.ticker\.LogitLocator\.nonsingular
 # Stdlib/Enum considered inconsistent (no fault of ours, I don't think)
 matplotlib\.backend_bases\._Mode\.__new__
 
-# pybind11 internals
-matplotlib\..*\.__pybind11_native_enum__
+# nanobind internals
+matplotlib\..*\.__nb_enum__
 
 # 3.6 Pending deprecations
 matplotlib\.figure\.Figure\.set_constrained_layout
@@ -59,3 +59,7 @@ matplotlib.container.PieContainer.__getitem__
 
 # 3.12 deprecation
 matplotlib\.axes\._base\._AxesBase\.ArtistList
+
+# matplotlib.image re-exports resample from matplotlib._image
+# nanobind does not produce signatures recognizable by inspect.signature()
+matplotlib\.image\.resample

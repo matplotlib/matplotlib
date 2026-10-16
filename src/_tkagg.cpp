@@ -29,10 +29,11 @@
 #endif
 #endif
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-namespace py = pybind11;
-using namespace pybind11::literals;
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
+#include <nanobind/stl/tuple.h>
+namespace nb = nanobind;
+using namespace nanobind::literals;
 
 #ifdef _WIN32
 #define WIN32_DLL
@@ -74,13 +75,15 @@ static_assert(__MINGW64_VERSION_MAJOR >= 6,
 // Include our own excerpts from the Tcl / Tk headers
 #include "_tkmini.h"
 
+using DataArray = nb::ndarray<unsigned char, nb::shape<-1, -1, 4>, nb::numpy, nb::c_contig>;
+
 template <class T>
 static T
-convert_voidptr(const py::object &obj)
+convert_voidptr(const nb::object &obj)
 {
     auto result = static_cast<T>(PyLong_AsVoidPtr(obj.ptr()));
     if (PyErr_Occurred()) {
-        throw py::error_already_set();
+        throw nb::python_error();
     }
     return result;
 }
@@ -95,54 +98,50 @@ static Tcl_SetVar_t TCL_SETVAR;
 static Tcl_SetVar2_t TCL_SETVAR2;
 
 static void
-mpl_tk_blit(py::object interp_obj, const char *photo_name,
-            py::array_t<unsigned char> data, int comp_rule,
+mpl_tk_blit(nb::object interp_obj, const char *photo_name,
+            DataArray &data, int comp_rule,
             std::tuple<int, int, int, int> offset, std::tuple<int, int, int, int> bbox)
 {
     auto interp = convert_voidptr<Tcl_Interp *>(interp_obj);
 
     Tk_PhotoHandle photo;
     if (!(photo = TK_FIND_PHOTO(interp, photo_name))) {
-        throw py::value_error("Failed to extract Tk_PhotoHandle");
+        throw nb::value_error("Failed to extract Tk_PhotoHandle");
     }
 
-    auto data_ptr = data.mutable_unchecked<3>();  // Checks ndim and writeable flag.
-    if (data.shape(2) != 4) {
-        throw py::value_error(
-            "Data pointer must be RGBA; last dimension is {}, not 4"_s.format(
-                data.shape(2)));
-    }
     if (data.shape(0) > INT_MAX) {  // Limited by Tk_PhotoPutBlock argument type.
         throw std::range_error(
-            "Height ({}) exceeds maximum allowable size ({})"_s.format(
-                data.shape(0), INT_MAX));
+            nb::str("Height ({}) exceeds maximum allowable size ({})")
+                .format(data.shape(0), INT_MAX).c_str());
     }
     if (data.shape(1) > INT_MAX / 4) {  // Limited by Tk_PhotoImageBlock.pitch field.
         throw std::range_error(
-            "Width ({}) exceeds maximum allowable size ({})"_s.format(
-                data.shape(1), INT_MAX / 4));
+            nb::str("Width ({}) exceeds maximum allowable size ({})")
+                .format(data.shape(1), INT_MAX / 4).c_str());
     }
     const auto height = static_cast<int>(data.shape(0));
     const auto width = static_cast<int>(data.shape(1));
     int x1, x2, y1, y2;
     std::tie(x1, x2, y1, y2) = bbox;
     if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
-        throw py::value_error("Attempting to draw out of bounds");
+        throw nb::value_error("Attempting to draw out of bounds");
     }
     if (comp_rule != TK_PHOTO_COMPOSITE_OVERLAY && comp_rule != TK_PHOTO_COMPOSITE_SET) {
-        throw py::value_error("Invalid comp_rule argument");
+        throw nb::value_error("Invalid comp_rule argument");
     }
+
+    auto data_view = data.view();
 
     int put_retval;
     Tk_PhotoImageBlock block;
-    block.pixelPtr = data_ptr.mutable_data(height - y2, x1, 0);
+    block.pixelPtr = &data_view(height - y2, x1, 0);
     block.width = x2 - x1;
     block.height = y2 - y1;
     block.pitch = 4 * width;
     block.pixelSize = 4;
     std::tie(block.offset[0], block.offset[1], block.offset[2], block.offset[3]) = offset;
     {
-        py::gil_scoped_release release;
+        nb::gil_scoped_release release;
         put_retval = TK_PHOTO_PUT_BLOCK(
             interp, photo, &block, x1, height - y2, x2 - x1, y2 - y1, comp_rule);
     }
@@ -194,9 +193,9 @@ DpiSubclassProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
 }
 #endif
 
-static py::object
-mpl_tk_enable_dpi_awareness(py::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
-                            py::object UNUSED_ON_NON_WINDOWS(interp_obj))
+static nb::object
+mpl_tk_enable_dpi_awareness(nb::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
+                            nb::object UNUSED_ON_NON_WINDOWS(interp_obj))
 {
 #ifdef WIN32_DLL
     auto frame_handle = convert_voidptr<HWND>(frame_handle_obj);
@@ -211,7 +210,7 @@ mpl_tk_enable_dpi_awareness(py::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
             user32, "GetWindowDpiAwarenessContext");
     if (GetWindowDpiAwarenessContextPtr == NULL) {
         FreeLibrary(user32);
-        return py::cast(false);
+        return nb::cast(false);
     }
 
     typedef BOOL (WINAPI *AreDpiAwarenessContextsEqual_t)(DPI_AWARENESS_CONTEXT,
@@ -221,7 +220,7 @@ mpl_tk_enable_dpi_awareness(py::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
             user32, "AreDpiAwarenessContextsEqual");
     if (AreDpiAwarenessContextsEqualPtr == NULL) {
         FreeLibrary(user32);
-        return py::cast(false);
+        return nb::cast(false);
     }
 
     DPI_AWARENESS_CONTEXT ctx = GetWindowDpiAwarenessContextPtr(frame_handle);
@@ -238,11 +237,11 @@ mpl_tk_enable_dpi_awareness(py::object UNUSED_ON_NON_WINDOWS(frame_handle_obj),
         SetWindowSubclass(frame_handle, DpiSubclassProc, 0, (DWORD_PTR)interp);
     }
     FreeLibrary(user32);
-    return py::cast(per_monitor);
+    return nb::cast(per_monitor);
 #endif
 #endif
 
-    return py::none();
+    return nb::none();
 }
 
 // Functions to fill global Tcl/Tk function pointers by dynamic loading.
@@ -283,13 +282,13 @@ load_tkinter_funcs()
     DWORD size;
     if (!EnumProcessModules(process, NULL, 0, &size)) {
         PyErr_SetFromWindowsErr(0);
-        throw py::error_already_set();
+        throw nb::python_error();
     }
     auto count = size / sizeof(HMODULE);
     auto modules = std::vector<HMODULE>(count);
     if (!EnumProcessModules(process, modules.data(), size, &size)) {
         PyErr_SetFromWindowsErr(0);
-        throw py::error_already_set();
+        throw nb::python_error();
     }
     for (auto mod: modules) {
         if (load_tcl_tk(mod)) {
@@ -322,17 +321,17 @@ load_tkinter_funcs()
         return;
     }
 
-    py::object module;
+    nb::object module;
     // Handle PyPy first, as that import will correctly fail on CPython.
     try {
-        module = py::module_::import("_tkinter.tklib_cffi");  // PyPy
-    } catch (py::error_already_set &e) {
-        module = py::module_::import("_tkinter");  // CPython
+        module = nb::module_::import_("_tkinter.tklib_cffi");  // PyPy
+    } catch (nb::python_error &e) {
+        module = nb::module_::import_("_tkinter");  // CPython
     }
     auto py_path = module.attr("__file__");
-    auto py_path_b = py::reinterpret_steal<py::bytes>(
+    auto py_path_b = nb::steal<nb::bytes>(
         PyUnicode_EncodeFSDefault(py_path.ptr()));
-    std::string path = py_path_b;
+    std::string path(py_path_b.c_str(), py_path_b.size());
     auto tkinter_lib = dlopen(path.c_str(), RTLD_LAZY);
     if (!tkinter_lib) {
         throw std::runtime_error(dlerror());
@@ -345,22 +344,22 @@ load_tkinter_funcs()
 }
 #endif // end not Windows
 
-PYBIND11_MODULE(_tkagg, m, py::mod_gil_not_used())
+NB_MODULE(_tkagg, m)
 {
     try {
         load_tkinter_funcs();
-    } catch (py::error_already_set& e) {
+    } catch (nb::python_error& e) {
         // Always raise ImportError to interact properly with backend auto-fallback.
-        py::raise_from(e, PyExc_ImportError, "failed to load tkinter functions");
-        throw py::error_already_set();
+        nb::raise_from(e, PyExc_ImportError, "failed to load tkinter functions");
+        throw nb::python_error();
     }
 
     if (!(TCL_SETVAR || TCL_SETVAR2)) {
-        throw py::import_error("Failed to load Tcl_SetVar or Tcl_SetVar2");
+        throw nb::import_error("Failed to load Tcl_SetVar or Tcl_SetVar2");
     } else if (!TK_FIND_PHOTO) {
-        throw py::import_error("Failed to load Tk_FindPhoto");
+        throw nb::import_error("Failed to load Tk_FindPhoto");
     } else if (!TK_PHOTO_PUT_BLOCK) {
-        throw py::import_error("Failed to load Tk_PhotoPutBlock");
+        throw nb::import_error("Failed to load Tk_PhotoPutBlock");
     }
 
     m.def("blit", &mpl_tk_blit,

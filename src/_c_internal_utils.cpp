@@ -2,6 +2,7 @@
 /* Python.h must be included before any system headers,
     to ensure visibility macros are properly set. */
 #include <stdexcept>
+#include <memory>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -16,7 +17,8 @@
 #define _WIN32_WINNT WINVER
 #endif
 #endif
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/wstring.h>
 #ifdef __linux__
 #include <dlfcn.h>
 #endif
@@ -34,8 +36,8 @@
 #include <CoreText/CoreText.h>
 #endif
 
-namespace py = pybind11;
-using namespace pybind11::literals;
+namespace nb = nanobind;
+using namespace nanobind::literals;
 
 static bool
 mpl_xdisplay_is_valid(void)
@@ -100,27 +102,27 @@ mpl_display_is_valid(void)
 #endif
 }
 
-static py::object
+static nb::object
 mpl_get_available_fonts(void)
 {
 #if defined(__APPLE__)
-    py::set fonts;
+    nb::set fonts;
 
     // Using CoreText before AppKit is loaded exposes a bug in NSFont<->CTFont
     // toll-free bridging. Load AppKit now to avoid a future exception.
     dlopen("/System/Library/Frameworks/AppKit.framework/AppKit", RTLD_NOW);
 
-    auto cfStringToPyStr = [](CFStringRef str) -> py::str {
+    auto cfStringToPyStr = [](CFStringRef str) -> nb::str {
         auto cstr = CFStringGetCStringPtr(str, kCFStringEncodingUTF8);
         if (cstr) {
-            return py::str(cstr);
+            return nb::str(cstr);
         }
         auto length = CFStringGetLength(str);
         auto maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8) + 1;
         auto buffer = std::make_unique<char[]>(maxSize);
-        py::str result;
+        nb::str result;
         if (CFStringGetCString(str, buffer.get(), maxSize, kCFStringEncodingUTF8)) {
-            result = py::str(buffer.get());
+            result = nb::str(buffer.get());
         }
         return result;
     };
@@ -155,11 +157,11 @@ mpl_get_available_fonts(void)
     }
     return fonts;
 #else
-    return py::none();
+    return nb::none();
 #endif
 }
 
-static py::object
+static nb::object
 mpl_GetCurrentProcessExplicitAppUserModelID(void)
 {
 #ifdef _WIN32
@@ -167,50 +169,50 @@ mpl_GetCurrentProcessExplicitAppUserModelID(void)
     HRESULT hr = GetCurrentProcessExplicitAppUserModelID(&appid);
     if (FAILED(hr)) {
         PyErr_SetFromWindowsErr(hr);
-        throw py::error_already_set();
+        throw nb::python_error();
     }
-    auto py_appid = py::cast(appid);
+    auto py_appid = nb::cast(std::wstring(appid));
     CoTaskMemFree(appid);
     return py_appid;
 #else
-    return py::none();
+    return nb::none();
 #endif
 }
 
 static void
-mpl_SetCurrentProcessExplicitAppUserModelID(const wchar_t* UNUSED_ON_NON_WINDOWS(appid))
+mpl_SetCurrentProcessExplicitAppUserModelID(const std::wstring& UNUSED_ON_NON_WINDOWS(appid))
 {
 #ifdef _WIN32
-    HRESULT hr = SetCurrentProcessExplicitAppUserModelID(appid);
+    HRESULT hr = SetCurrentProcessExplicitAppUserModelID(appid.c_str());
     if (FAILED(hr)) {
         PyErr_SetFromWindowsErr(hr);
-        throw py::error_already_set();
+        throw nb::python_error();
     }
 #endif
 }
 
-static py::object
+static nb::object
 mpl_GetForegroundWindow(void)
 {
 #ifdef _WIN32
   if (HWND hwnd = GetForegroundWindow()) {
-    return py::capsule(hwnd, "HWND");
+    return nb::capsule(hwnd, "HWND");
   } else {
-    return py::none();
+    return nb::none();
   }
 #else
-  return py::none();
+  return nb::none();
 #endif
 }
 
 static void
-mpl_SetForegroundWindow(py::capsule UNUSED_ON_NON_WINDOWS(handle_p))
+mpl_SetForegroundWindow(nb::capsule UNUSED_ON_NON_WINDOWS(handle_p))
 {
 #ifdef _WIN32
     if (strcmp(handle_p.name(), "HWND") != 0) {
         throw std::runtime_error("Handle must be a value returned from Win32_GetForegroundWindow");
     }
-    HWND handle = static_cast<HWND>(handle_p.get_pointer());
+    HWND handle = static_cast<HWND>(handle_p.data());
     if (!SetForegroundWindow(handle)) {
         throw std::runtime_error("Error setting window");
     }
@@ -252,7 +254,7 @@ mpl_SetProcessDpiAwareness_max(void)
 #endif
 }
 
-PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
+NB_MODULE(_c_internal_utils, m)
 {
     m.def(
         "display_is_valid", &mpl_display_is_valid,
@@ -291,7 +293,7 @@ PYBIND11_MODULE(_c_internal_utils, m, py::mod_gil_not_used())
     m.def(
         "Win32_SetCurrentProcessExplicitAppUserModelID",
         &mpl_SetCurrentProcessExplicitAppUserModelID,
-        "appid"_a, py::pos_only(),
+        nb::arg(),
         R"""(        --
         Wrapper for Windows's SetCurrentProcessExplicitAppUserModelID.
 

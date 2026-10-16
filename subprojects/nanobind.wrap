@@ -1,0 +1,10 @@
+[wrap-file]
+directory = nanobind-3.1.0
+source_url = https://github.com/wjakob/nanobind/archive/refs/tags/v3.1.0.tar.gz
+source_filename = nanobind-3.1.0.tar.gz
+source_hash = 39659890a112e84e7263e4a263c71dd2621f866f7a4386ce95ef410e6c0e5c2f
+
+patch_directory = nanobind-3.1.0
+
+[provide]
+dependency_names = nanobind

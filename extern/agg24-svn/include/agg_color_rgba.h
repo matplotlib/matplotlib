@@ -25,6 +25,7 @@
 #define AGG_COLOR_RGBA_INCLUDED
 
 #include <math.h>
+#include <array>
 #include "agg_basics.h"
 #include "agg_gamma_lut.h"
 
