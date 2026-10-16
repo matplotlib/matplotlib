@@ -8,7 +8,7 @@ counterparts (e.g., you may not be able to select all line styles) but
 they are meant to be fast for common use cases (e.g., a large set of solid
 line segments).
 """
-
+import contextlib
 import itertools
 import functools
 import math
@@ -172,6 +172,12 @@ class Collection(mcolorizer.ColorizingArtist):
         # list of unbroadcast/scaled linewidths
         self._us_lw = [0]
         self._linewidths = [0]
+
+        # For drawing, indicates whether the collection elements that share an edge
+        # are to be treated as contiguous (e.g., the output of pcolor) as opposed to
+        # merely happenstance.  This should not be set to True if the collection
+        # elements may overlap.
+        self._treat_patches_as_contiguous = False
 
         self._gapcolor = None  # Currently only used by LineCollection.
 
@@ -357,6 +363,32 @@ class Collection(mcolorizer.ColorizingArtist):
 
         return transform, offset_trf, offsets, paths
 
+    @contextlib.contextmanager
+    def _prep_for_contiguous_drawing(self, renderer, gc):
+        # Context manager to wrap the specific rendering commands within draw()
+
+        # If supported by the renderer, draw contiguous patches (must be antialiased
+        # and not stroked) using the "plus" blend mode in an isolated blend group so
+        # that the fractional alphas at edges are added to make the proper total alpha.
+        # If the alphas were instead blended as if they were unrelated opacities,
+        # the resulting alpha would be smaller (i.e., more transparent), which would
+        # manifest as slightly transparent line artifacts along shared patch edges.
+        isolate = (renderer._supports_isolated_group_and_plus_blend_mode
+                   and self._treat_patches_as_contiguous
+                   and np.all(self._antialiaseds)
+                   and (self._edgecolors.size == 0
+                        or np.all(self._edgecolors[:, 3] == 0)))
+        if isolate:
+            blend_mode = gc.get_blend_mode()
+            gc.set_blend_mode("plus")
+            renderer.open_blend_group(blend_mode)
+        try:
+            yield
+        finally:
+            if isolate:
+                renderer.close_blend_group()
+                gc.set_blend_mode(blend_mode)
+
     @artist.allow_rasterization
     def draw(self, renderer):
         if not self.get_visible():
@@ -426,9 +458,10 @@ class Collection(mcolorizer.ColorizingArtist):
             gc.set_dashes(*self._linestyles[0])
             gc.set_antialiased(self._antialiaseds[0])
             gc.set_url(self._urls[0])
-            renderer.draw_markers(
-                gc, paths[0], combined_transform.frozen(),
-                mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
+            with self._prep_for_contiguous_drawing(renderer, gc):
+                renderer.draw_markers(
+                    gc, paths[0], combined_transform.frozen(),
+                    mpath.Path(offsets), offset_trf, tuple(facecolors[0]))
         else:
             # The current new API of draw_path_collection() is provisional
             # and will be changed in a future PR.
@@ -491,25 +524,27 @@ class Collection(mcolorizer.ColorizingArtist):
                     self._linewidths, self._linestyles, self._antialiaseds, self._urls,
                     "screen"]
 
-            if hatchcolors_arg_supported:
-                renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                              self.get_transforms(), *args,
-                                              hatchcolors=self.get_hatchcolor())
-            else:
-                if hatchcolors_not_needed:
+            with self._prep_for_contiguous_drawing(renderer, gc):
+                if hatchcolors_arg_supported:
                     renderer.draw_path_collection(gc, transform.frozen(), paths,
-                                                  self.get_transforms(), *args)
+                                                  self.get_transforms(), *args,
+                                                  hatchcolors=self.get_hatchcolor())
                 else:
-                    path_ids = renderer._iter_collection_raw_paths(
-                        transform.frozen(), paths, self.get_transforms())
-                    for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
-                        gc, list(path_ids), *args, hatchcolors=self.get_hatchcolor(),
-                    ):
-                        path, transform = path_id
-                        if xo != 0 or yo != 0:
-                            transform = transform.frozen()
-                            transform.translate(xo, yo)
-                        renderer.draw_path(gc0, path, transform, rgbFace)
+                    if hatchcolors_not_needed:
+                        renderer.draw_path_collection(gc, transform.frozen(), paths,
+                                                      self.get_transforms(), *args)
+                    else:
+                        path_ids = renderer._iter_collection_raw_paths(
+                            transform.frozen(), paths, self.get_transforms())
+                        for xo, yo, path_id, gc0, rgbFace in renderer._iter_collection(
+                            gc, list(path_ids), *args,
+                            hatchcolors=self.get_hatchcolor(),
+                        ):
+                            path, transform = path_id
+                            if xo != 0 or yo != 0:
+                                transform = transform.frozen()
+                                transform.translate(xo, yo)
+                            renderer.draw_path(gc0, path, transform, rgbFace)
 
         gc.restore()
         renderer.close_group(self.__class__.__name__)
@@ -2524,10 +2559,12 @@ class QuadMesh(_MeshData, Collection):
         super().__init__(coordinates=coordinates, shading=shading)
         Collection.__init__(self, **kwargs)
 
-        self._antialiased = antialiased
+        self._antialiaseds = antialiased
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
         self.set_mouseover(False)
+
+        self._treat_patches_as_contiguous = True
 
     def get_paths(self):
         if self._paths is None:
@@ -2575,18 +2612,19 @@ class QuadMesh(_MeshData, Collection):
         gc.set_blend_mode(self.get_blend_mode())
         gc.set_linewidth(self.get_linewidth()[0])
 
-        if self._shading == 'gouraud':
-            triangles, colors = self._convert_mesh_to_triangles(coordinates)
-            renderer.draw_gouraud_triangles(
-                gc, triangles, colors, transform.frozen())
-        else:
-            renderer.draw_quad_mesh(
-                gc, transform.frozen(),
-                coordinates.shape[1] - 1, coordinates.shape[0] - 1,
-                coordinates, offsets, offset_trf,
-                # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
-                self.get_facecolor().reshape((-1, 4)),
-                self._antialiased, self.get_edgecolors().reshape((-1, 4)))
+        with self._prep_for_contiguous_drawing(renderer, gc):
+            if self._shading == 'gouraud':
+                triangles, colors = self._convert_mesh_to_triangles(coordinates)
+                renderer.draw_gouraud_triangles(
+                    gc, triangles, colors, transform.frozen())
+            else:
+                renderer.draw_quad_mesh(
+                    gc, transform.frozen(),
+                    coordinates.shape[1] - 1, coordinates.shape[0] - 1,
+                    coordinates, offsets, offset_trf,
+                    # Backends expect flattened rgba arrays (n*m, 4) for fc and ec
+                    self.get_facecolor().reshape((-1, 4)),
+                    self._antialiaseds, self.get_edgecolors().reshape((-1, 4)))
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
@@ -2638,6 +2676,8 @@ class PolyQuadMesh(_MeshData, PolyCollection):
         # This is called after the initializers to make sure the kwargs
         # have all been processed and available for the masking calculations
         self._set_unmasked_verts()
+
+        self._treat_patches_as_contiguous = True
 
     def _get_unmasked_polys(self):
         """Get the unmasked regions using the coordinates and array"""
