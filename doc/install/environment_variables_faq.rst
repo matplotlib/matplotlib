@@ -23,7 +23,9 @@ Environment variables
   This is the directory used to store user customizations to
   Matplotlib, as well as some caches to improve performance. If
   :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
-  and :file:`{HOME}/.cache/matplotlib` are used on Linux, and
+  and :file:`{HOME}/.cache/matplotlib` are used on Linux and FreeBSD,
+  :file:`%LOCALAPPDATA%\\matplotlib` on Windows (or
+  :file:`%USERPROFILE%\\.matplotlib` if that directory already exists), and
   :file:`{HOME}/.matplotlib` on other platforms, if they are
   writable. Otherwise, the Python standard library's `tempfile.gettempdir` is
   used to find a base directory in which the :file:`matplotlib` subdirectory is
