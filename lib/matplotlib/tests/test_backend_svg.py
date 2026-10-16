@@ -223,6 +223,7 @@ def test_rasterized_zorder_axes_hierarchy():
 
     axes_parents = {}
 
+     # Recurses the SVG hierarchy to find any Axes parent for each Axes
     def walk(elem, axes_ancestor=None):
         gid = elem.get('id') if elem.tag == 'g' else None
         next_ancestor = axes_ancestor
