@@ -1749,21 +1749,21 @@ _DEFINITION = [
         default="white",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The axes background color."
+        description="Axes background color."
     ),
     _Param(
         "axes.edgecolor",
         default="black",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The axes edge color."
+        description="Axes edge color."
     ),
     _Param(
         "axes.linewidth",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="The axes edge line width."
+        description="Axes edge line width in points."
     ),
     _Param(
         "axes.grid",
@@ -1777,7 +1777,7 @@ _DEFINITION = [
         default="both",
         type=Literal["x", "y", "both"],
         validator=["x", "y", "both"],
-        description="Which axis the grid should apply to."
+        description="On which axis the grid is displayed."
     ),
     _Param(
         "axes.grid.which",
@@ -1791,82 +1791,86 @@ _DEFINITION = [
         default="center",
         type=Literal["left", "center", "right"],
         validator=["left", "center", "right"],
-        description="The alignment of the axes title."
+        description="Horizontal location of the axes title."
     ),
     _Param(
         "axes.titlesize",
         default="large",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="The font size of the axes title."
+        description="Font size of the axes title."
     ),
     _Param(
         "axes.titleweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="The font weight of the axes title."
+        description="Font weight of the axes title."
     ),
     _Param(
         "axes.titlecolor",
         default="auto",
         type=':mpltype:`color` or "auto"',
         validator=validate_color_or_auto,
-        description="The color of the axes title; auto falls back to 'text.color'."
+        description="Color of the axes title; 'auto' falls back to 'text.color'."
     ),
     _Param(
         "axes.titley",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="The vertical title position in "
-                    ":ref:`axes coordinates <coordinate-systems>`; "
-                    "None enables automatic placement."
+        description="Vertical axes title position.\n\n"
+                    "A number specifies the text baseline in "
+                    ":ref:`axes coordinates <coordinate-systems>`. "
+                    "None enables automatic placement so that the title bottom aligns "
+                    "with the top of the Axes and potentially any top tick "
+                    "labels.\n\n"
+                    "The position will additionally be shifted by 'axes.titlepad'."
     ),
     _Param(
         "axes.titlepad",
         default=6.0,
         type=float,
         validator=validate_float,
-        description="The padding between the axes and title, in points."
+        description="Additional space between the Axes and title in points. This "
+                    "shifts the title position determined by 'axes.titley'."
     ),
     _Param(
         "axes.labelsize",
         default="medium",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="The font size of the x and y labels."
+        description="Font size of the x and y labels."
     ),
     _Param(
         "axes.labelpad",
         default=4.0,
         type=float,
         validator=validate_float,
-        description="The space between the axis label and the axis, in points."
+        description="The space between the axis label and the axis / tick labels, "
+                    "in points."
     ),
     _Param(
         "axes.labelweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="The font weight of the x and y labels."
+        description="Font weight of the x and y labels."
     ),
     _Param(
         "axes.labelcolor",
         default="black",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The color of the axis labels."
+        description="Color of the axis labels."
     ),
     _Param(
         "axes.axisbelow",
         default="line",
         type=bool | Literal["line"],
         validator=validate_axisbelow,
-        description="draw axis gridlines and ticks: "
-                    "- below patches (True) "
-                    "- above patches but below lines ('line') "
-                    "- above all (False)"
+        description="Whether axis ticks and gridlines are above or below most artists. "
+                    "See `~.Axes.set_axisbelow` for details."
     ),
     _Param(
         "axes.formatter.limits",
@@ -1881,7 +1885,7 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, format tick labels according to the user's locale. "
+        description="Whether to format tick labels according to the user's locale. "
                     "For example, use ',' as a decimal separator in the fr_FR locale."
     ),
     _Param(
@@ -1889,14 +1893,18 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, use mathtext for scientific notation."
+        description="Whether `.ScalarFormatter` and `.EngFormatter` use fancy "
+                    r"formatting for scientific notation; i.e. :math:`1.2 \times 10^3` "
+                    "instead of 1.2e3."
     ),
     _Param(
         "axes.formatter.min_exponent",
         default=0,
         type=int,
         validator=validate_int,
-        description="minimum exponent to format in scientific notation"
+        description="The smallest absolute exponent value that log formatters will "
+                    "format as scientific notation; e.g. if set to 3, formatting will "
+                    "be 1e-3, 0.01, 0.1, 0, 10, 100, 1e3."
     ),
     _Param(
         "axes.formatter.useoffset",
@@ -1916,27 +1924,23 @@ _DEFINITION = [
                     "remove at least this number of significant digits from tick "
                     "labels."
     ),
-    _Param(
-        "axes.spines.left",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description="display axis spines"
-    ),
-    _Param("axes.spines.bottom", True, bool, validate_bool,
+    _Param("axes.spines.left", default=True, type=bool, validator=validate_bool,
+            description="Whether to draw the left axis spine."),
+    _Param("axes.spines.bottom", default=True, type=bool, validator=validate_bool,
            description="Whether to draw the bottom axis spine."),
-    _Param("axes.spines.top", True, bool, validate_bool,
+    _Param("axes.spines.top", default=True, type=bool, validator=validate_bool,
            description="Whether to draw the top axis spine."),
-    _Param("axes.spines.right", True, bool, validate_bool,
+    _Param("axes.spines.right", default=True, type=bool, validator=validate_bool,
            description="Whether to draw the right axis spine."),
     _Param(
         "axes.unicode_minus",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="use Unicode for the minus symbol rather than hyphen. See "
-                    "https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes"
-
+        description="Whether formatters will use the Unicode *Minus Sign* symbol "
+                    "U+2212 (\N{MINUS SIGN}) rather than the ASCII hyphen U+002D (-) "
+                    "for negative numbers. See also "
+                    ":doc:`/gallery/text_labels_and_annotations/unicode_minus`."
     ),
     _Param(
         "axes.prop_cycle",
@@ -1963,30 +1967,30 @@ _DEFINITION = [
         default=0.05,
         type=float,
         validator=_validate_greaterthan_minushalf,
-        description="x margin.  See `~.axes.Axes.margins`"
+        description="x margin.  See `~.axes.Axes.margins`."
     ),
     _Param(
         "axes.ymargin",
         default=0.05,
         type=float,
         validator=_validate_greaterthan_minushalf,
-        description="y margin.  See `~.axes.Axes.margins`"
+        description="y margin.  See `~.axes.Axes.margins`."
     ),
     _Param(
         "axes.zmargin",
         default=0.05,
         type=float,
         validator=_validate_greaterthan_minushalf,
-        description="z margin.  See `~.axes.Axes.margins`"
+        description="z margin.  See `~.axes.Axes.margins`."
     ),
     _Param(
         "axes.autolimit_mode",
         default="data",
         type=Literal["data", "round_numbers"],
         validator=["data", "round_numbers"],
-        description='If "data", use axes.xmargin and axes.ymargin as is. If '
-                    '"round_numbers", after application of margins, axis limits are '
-                    'further expanded to the nearest "round" number.',
+        description='Whether autoscaling should try to adjust the view limits so that '
+                    'there are ticks at the axis edges. See '
+                    ':ref:`autoscaling-limit-rounding`.'
     ),
     _Subsection("Polar Axes"),
     _Param(
