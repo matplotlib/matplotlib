@@ -24,31 +24,47 @@ categories = ["Scratches", "Dents", "Misalignment", "Wrong color",
               "Missing parts", "Cracks", "Other"]
 counts = np.array([58, 42, 17, 9, 6, 4, 3])
 
-# Sort in descending order.
-order = np.argsort(counts)[::-1]
-categories = [categories[i] for i in order]
-counts = counts[order]
-total = counts.sum()
 
-x = np.arange(len(categories))
+def pareto_chart(categories, counts):
+    """
+    Parameters
+    ----------
+    categories : list of str
+        The category labels.
+    counts : array-like
+        The number of occurrences of each category.
 
-fig, ax = plt.subplots(layout='constrained')
+    Returns
+    -------
+    fig, ax : `.Figure`, `~matplotlib.axes.Axes`
+    """
+    # Sort in descending order.
+    order = np.argsort(counts)[::-1]
+    categories = [categories[i] for i in order]
+    counts = np.asarray(counts)[order]
+    total = counts.sum()
 
-ax.bar(x, counts, color='tab:blue')
-ax.set_xticks(x, categories, rotation=30, ha='right')
-ax.set_ylabel('Number of defects')
-ax.set_title('Pareto chart of defects')
+    fig, ax = plt.subplots(layout='constrained')
 
-ax.plot(x, np.cumsum(counts), color='tab:red', marker='o')
-ax.axhline(0.8 * total, color='tab:gray', linestyle='--', linewidth=1)
-ax.set_ylim(0, total * 1.05)  # headroom so the 100% marker is not clipped
+    ax.bar(categories, counts)
+    ax.tick_params(axis='x', rotation=30, labelrotation_mode='xtick')
+    ax.set_ylabel('Number of defects')
+    ax.set_title('Pareto chart of defects')
 
-# Secondary axis that maps counts to a percentage of the total (and back).
-secax = ax.secondary_yaxis('right', functions=(lambda c: c / total * 100,
-                                                lambda p: p / 100 * total))
-secax.yaxis.set_major_formatter(PercentFormatter())
-secax.set_ylabel('Cumulative percentage')
+    ax.plot(categories, np.cumsum(counts), color='tab:red', marker='o')
+    ax.axhline(0.8 * total, color='tab:gray', linestyle='--', linewidth=1)
+    ax.set_ylim(0, total * 1.05)  # headroom so the 100% marker is not clipped
 
+    # Secondary axis that maps counts to a percentage of the total (and back).
+    secax = ax.secondary_yaxis('right', functions=(lambda c: c / total * 100,
+                                                    lambda p: p / 100 * total))
+    secax.yaxis.set_major_formatter(PercentFormatter())
+    secax.set_ylabel('Cumulative percentage')
+
+    return fig, ax
+
+
+pareto_chart(categories, counts)
 plt.show()
 
 # %%
@@ -60,7 +76,7 @@ plt.show()
 #
 #    - `matplotlib.axes.Axes.bar` / `matplotlib.pyplot.bar`
 #    - `matplotlib.axes.Axes.secondary_yaxis`
-#    - `matplotlib.axes.Axes.set_xticks` / `matplotlib.pyplot.xticks`
+#    - `matplotlib.axes.Axes.tick_params` / `matplotlib.pyplot.tick_params`
 #    - `matplotlib.ticker.PercentFormatter`
 #
 # .. tags::
