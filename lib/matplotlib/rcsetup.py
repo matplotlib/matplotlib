@@ -1603,7 +1603,8 @@ _DEFINITION = [
         "figure.dpi",
         default=100.0,
         type=float,
-        validator=validate_float, description="Figure resolution in dpi (dots per inch)."
+        validator=validate_float,
+        description="Figure resolution in dpi (dots per inch)."
     ),
     _Param(
         "figure.facecolor",
