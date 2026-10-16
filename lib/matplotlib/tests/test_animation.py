@@ -140,7 +140,10 @@ def test_movie_writer_args_not_implemented():
     # must *raise* NotImplementedError rather than merely returning it, so a
     # subclass that forgets to override it fails loudly instead of passing an
     # exception instance on as if it were the command-line arguments.
-    writer = animation.MovieWriter.__new__(animation.MovieWriter)
+    class IncorrectMovieWriter(animation.MovieWriter):
+        pass
+
+    writer = IncorrectMovieWriter()
     with pytest.raises(NotImplementedError,
                        match="args needs to be implemented by subclass"):
         writer._args()
