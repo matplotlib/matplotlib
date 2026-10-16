@@ -1019,12 +1019,12 @@ default: None
     method or the `new_figure_manager` function provided by the current
     backend, which install a canvas and a manager on the figure.
 
-    Once this is done, figure hooks are called. These are functions of the
-    form ``def hook(fig: Figure) -> None`` and allow to modify the created
-    figure (e.g. attaching callbacks) or of associated elements (e.g., modifying the
-    toolbar). The figure hooks are declared in :rc:`figure.hooks`. The hooks are
-    called in the given order. See :doc:`/gallery/user_interfaces/mplcvd` for an
-    example of toolbar customization.
+    Once this is done, figure hooks are called in the order listed in
+    :rc:`figure.hooks`. Figure hooks are functions of the form
+    ``def hook(fig: Figure) -> None`` and can modify the created figure
+    (e.g. attach callbacks) or  associated figure elements (e.g., update the
+    toolbar). See :doc:`/gallery/user_interfaces/mplcvd` for an example of
+    toolbar customization.
 
     If you are creating many figures, make sure you explicitly call
     `.pyplot.close` on the figures you are not using, because this will

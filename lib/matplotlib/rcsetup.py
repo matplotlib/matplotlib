@@ -1603,7 +1603,7 @@ _DEFINITION = [
         "figure.dpi",
         default=100.0,
         type=float,
-        validator=validate_float, description="Figure resolution as dots per inch."
+        validator=validate_float, description="Figure resolution in dpi (dots per inch)."
     ),
     _Param(
         "figure.facecolor",
@@ -1630,7 +1630,7 @@ _DEFINITION = [
         type=int,
         validator=validate_int,
         description="Maximum number of figures to open through the pyplot interface "
-                    "before emitting a warning. If less than one this feature is "
+                    "before emitting a warning. If less than one, this feature is "
                     "disabled."
     ),
     _Param(
@@ -1764,7 +1764,7 @@ _DEFINITION = [
                     "\n\n"
                     "This is a `.pyplot` feature and is only executed on figures that "
                     "are created via pyplot functions. See also the note in "
-                    "`.pyplot.figure`. Figure hooks do not apply to bare figures "
+                    "`.pyplot.figure`. Figure hooks do not apply to figures "
                     "created through ``Figure()``."
     ),
     _Section("Axes"),
