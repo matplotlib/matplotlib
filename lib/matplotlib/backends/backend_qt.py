@@ -94,6 +94,20 @@ def _create_WindowIcon():
     return icon
 
 
+# Set in _create_qApp()
+_qt_version = None
+
+
+# AA_UseHighDpiPixmaps on Qt6 is deprecated and will always return True.
+# PySide6 will log or throw a DeprecationWarning when we try to access it.
+def _test_app_attribute_UseHighDpiPixmaps():
+    if _qt_version == 5:
+        app = QtWidgets.QApplication.instance()
+        return app.testAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
+    else:
+        return True
+
+
 # lru_cache keeps a reference to the QApplication instance, keeping it from
 # being GC'd.
 @functools.lru_cache(1)
@@ -110,12 +124,14 @@ def _create_qApp():
 
         # Check to make sure a QApplication from a different major version
         # of Qt is not instantiated in the process
+        global _qt_version
+
         if QT_API in {'PyQt6', 'PySide6'}:
             other_bindings = ('PyQt5',)
-            qt_version = 6
+            _qt_version = 6
         elif QT_API == 'PyQt5':
             other_bindings = ('PyQt6', 'PySide6')
-            qt_version = 5
+            _qt_version = 5
         else:
             raise RuntimeError("Should never be here")
 
@@ -131,7 +147,7 @@ def _create_qApp():
                     'versions may not work as expected.'
                 )
                 break
-        if qt_version == 5:
+        if _qt_version == 5:
             try:
                 QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
             except AttributeError:  # Only for Qt>=5.6, <6.
@@ -146,7 +162,7 @@ def _create_qApp():
             app.setWindowIcon(_create_WindowIcon())
         app.setQuitOnLastWindowClosed(True)
         cbook._setup_new_guiapp()
-        if qt_version == 5:
+        if _qt_version == 5:
             app.setAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
 
     return app
@@ -726,12 +742,8 @@ class _IconEngine(QtGui.QIconEngine):
 
     def _devicePixelRatio(self):
         """Return the current device pixel ratio for the toolbar, defaulting to 1."""
-        use_high_dpi_pixmaps = True
-        if hasattr(QtCore.Qt.ApplicationAttribute, "AA_UseHighDpiPixmaps"):
-            app = QtWidgets.QApplication.instance()
-            use_high_dpi_pixmaps = app.testAttribute(QtCore.Qt.AA_UseHighDpiPixmaps)
         toolbar_dpr = (self.toolbar.devicePixelRatioF() or 1) if self.toolbar else 1
-        return toolbar_dpr if use_high_dpi_pixmaps else 1
+        return toolbar_dpr if _test_app_attribute_UseHighDpiPixmaps() else 1
 
     def _create_pixmap_from_svg(self, svg_path, size):
         """Create a pixmap from SVG with proper scaling and dark mode support."""
