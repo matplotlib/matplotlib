@@ -272,6 +272,8 @@ def _get_macos_fonts():
             subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
         return [Path(entry["path"]) for entry in d["_items"]]
     except Exception:
+        _log.warning('Matplotlib received invalid output from '
+            '`system_profiler -xml SPFontsDataType`')
         return []
 
 
