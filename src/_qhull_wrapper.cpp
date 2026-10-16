@@ -20,6 +20,7 @@ extern const char qh_version[];
 }
 #endif
 
+#include "mplutils.h"
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
 #include <vector>
@@ -195,13 +196,10 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     exitcode = qh_new_qhull(qh, ndim, (int)npoints, points.data(), False,
                             (char*)"qhull d Qt Qbb Qc Qz", nullptr, error_file);
     if (exitcode != qh_ERRnone) {
-        std::string msg =
-            py::str("Error in qhull Delaunay triangulation calculation: {} (exitcode={})")
-            .format(qhull_error_msg[exitcode], exitcode).cast<std::string>();
-        if (hide_qhull_errors) {
-            msg += "; use python verbose option (-v) to see original qhull error.";
-        }
-        throw std::runtime_error(msg);
+        throw std::runtime_error(mpl::format(
+            "Error in qhull Delaunay triangulation calculation: {} (exitcode={}){}",
+            qhull_error_msg[exitcode], exitcode, hide_qhull_errors ?
+                "; use python verbose option (-v) to see original qhull error." : ""));
     }
 
     /* Split facets so that they only have 3 points each. */
