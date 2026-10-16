@@ -270,9 +270,11 @@ def _get_macos_fonts():
     try:
         d, = plistlib.loads(
             subprocess.check_output(["system_profiler", "-xml", "SPFontsDataType"]))
-    except (OSError, subprocess.CalledProcessError, plistlib.InvalidFileException):
+        return [Path(entry["path"]) for entry in d["_items"]]
+    except Exception:
+        _log.warning('Matplotlib received invalid output from '
+            '`system_profiler -xml SPFontsDataType`')
         return []
-    return [Path(entry["path"]) for entry in d["_items"]]
 
 
 def findSystemFonts(fontpaths=None, fontext='ttf'):
