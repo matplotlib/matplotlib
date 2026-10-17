@@ -88,6 +88,7 @@ the toolbar pan and zoom buttons are not used.
    :toctree: ../_as_gen
    :template: autosummary.rst
 
+   art3d.Annotation3D
    art3d.Line3D
    art3d.Line3DCollection
    art3d.Patch3D
