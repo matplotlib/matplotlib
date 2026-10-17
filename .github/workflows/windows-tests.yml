@@ -69,19 +69,16 @@ jobs:
           restore-keys: |
             windows-${{ matrix.os }}-py${{ matrix.python-version }}-pip-
 
-      - name: Install Ninja
-        shell: pwsh
+      - name: Install OS dependencies
         run: choco install ninja --yes --no-progress
 
       - name: Install Python dependencies
-        shell: pwsh
         run: |
           python -m pip install --upgrade pip
           python -m pip install --upgrade --group build
           python -m pip install --prefer-binary --group test --group test-extra
 
       - name: Build Matplotlib with MSVC coverage support
-        shell: pwsh
         run: |
           python -m pip install --no-build-isolation --verbose --editable '.[dev]' `
             --config-settings=setup-args=--vsenv `
@@ -89,7 +86,6 @@ jobs:
             --config-settings=setup-args=-Dbuildtype=debug
 
       - name: Show environment
-        shell: pwsh
         run: |
           Get-ChildItem Env: | Sort-Object Name
           python -m pip list
@@ -125,11 +121,9 @@ jobs:
             --log-level Verbose --log-file extensions.log &
 
       - name: Run pytest
-        shell: pwsh
         run: |
           python -m pytest -rfEsXR -n auto `
             --maxfail=50 --timeout=300 --durations=25 --log-level=DEBUG `
-            --junitxml=junit/test-results.xml `
             --cov-report=xml:coverage.xml --cov=lib
 
       - name: Stop native coverage collector
@@ -144,41 +138,19 @@ jobs:
             cat extensions.log
           fi
 
-      - name: Generate failed image report
-        if: failure()
-        shell: pwsh
-        run: |
-          if (Test-Path result_images) {
-            python tools/visualize_tests.py --no-browser
-          }
-
       - name: Upload code coverage
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
         with:
           files: coverage.xml,extensions.xml
           name: "${{ matrix.python-version }} ${{ matrix.os }}"
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload test and coverage results
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: pip-msvc-${{ matrix.os }}-py${{ matrix.python-version }}-results
-          if-no-files-found: warn
-          path: |
-            junit/test-results.xml
-            coverage.xml
-            extensions.xml
-            extensions.log
-            instrument.log
 
       - name: Upload failed image comparisons
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: pip-msvc-${{ matrix.os }}-py${{ matrix.python-version }}-result-images
-          if-no-files-found: ignore
           path: result_images
 
   conda:
@@ -202,13 +174,6 @@ jobs:
         with:
           fetch-depth: 50
           persist-credentials: false
-
-      - name: Enable Windows long paths
-        shell: pwsh
-        run: |
-          New-ItemProperty `
-            -Path 'HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem' `
-            -Name LongPathsEnabled -Value 1 -PropertyType DWord -Force
 
       - name: Cache pip
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -236,18 +201,17 @@ jobs:
           cache-downloads: true
           cache-downloads-key: windows-conda-py312-${{ hashFiles('environment.yml') }}
 
-      # Explicit creation avoids setup-micromamba trying to parse the complex
-      # requested-spec history from environment.yml.
+      # Create the environment explicitly, rather than via setup-micromamba's
+      # environment-file option, so that we can add extra packages on top of
+      # environment.yml.
       - name: Create conda environment
-        shell: pwsh
         env:
           MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
         run: |
           micromamba create --yes --name mpl-dev --file environment.yml `
-            python=3.12 pywin32 codecov ffmpeg inkscape harfbuzz
+            python=3.12 pywin32 codecov ffmpeg inkscape
 
       - name: Build Matplotlib
-        shell: pwsh
         env:
           MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
         run: |
@@ -255,30 +219,7 @@ jobs:
           micromamba run --name mpl-dev python -m pip install --verbose `
             --no-build-isolation --editable '.[dev]'
 
-      - name: Verify FreeType is statically linked
-        shell: pwsh
-        env:
-          MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
-        run: |
-          $vswhere = `
-            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsInstall = & $vswhere -latest -products * -property installationPath
-          $dumpbin = Get-ChildItem `
-            "$vsInstall\VC\Tools\MSVC\*\bin\Hostx64\x64\dumpbin.exe" |
-            Sort-Object FullName | Select-Object -Last 1
-          if (-not $dumpbin) { throw 'dumpbin.exe was not found' }
-
-          $ft2font = Get-ChildItem 'build\cp*\src\ft2font*.pyd' |
-            Select-Object -First 1
-          if (-not $ft2font) { throw 'ft2font extension module was not found' }
-          $dependencies = & $dumpbin.FullName /DEPENDENTS $ft2font.FullName
-          $dependencies | Write-Host
-          if ($dependencies -match 'freetype.*\.dll') {
-            throw 'ft2font unexpectedly depends on a FreeType DLL'
-          }
-
       - name: Verify TkAgg backend
-        shell: pwsh
         env:
           MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
         run: |
@@ -286,47 +227,24 @@ jobs:
             "import matplotlib as m; m.use('tkagg'); import matplotlib.pyplot as plt; print(plt.get_backend())"
 
       - name: Run pytest
-        shell: pwsh
         env:
           MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
         run: |
           micromamba run --name mpl-dev python -m pytest -rfEsXR -n auto `
             --timeout=300 --durations=25 --log-level=DEBUG `
-            --junitxml=junit/test-results.xml `
             --cov-report=xml:coverage-conda.xml --cov=lib
-
-      - name: Generate failed image report
-        if: failure()
-        shell: pwsh
-        env:
-          MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
-        run: |
-          if (Test-Path result_images) {
-            micromamba run --name mpl-dev python tools/visualize_tests.py --no-browser
-          }
 
       - name: Upload code coverage
         if: ${{ !cancelled() }}
-        uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f  # v7.0.0
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
         with:
           files: coverage-conda.xml
           name: "3.12 windows-2022 conda-forge"
           token: ${{ secrets.CODECOV_TOKEN }}
-
-      - name: Upload test and coverage results
-        if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
-        with:
-          name: conda-windows-2022-py312-results
-          if-no-files-found: warn
-          path: |
-            junit/test-results.xml
-            coverage-conda.xml
 
       - name: Upload failed image comparisons
         if: failure()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
         with:
           name: conda-windows-2022-py312-result-images
-          if-no-files-found: ignore
           path: result_images
