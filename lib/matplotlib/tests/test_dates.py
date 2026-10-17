@@ -1300,6 +1300,7 @@ def test_change_interval_multiples():
     assert ax.get_xticklabels()[1].get_text() == 'Feb 01 2020'
 
 
+@pytest.mark.filterwarnings("ignore:I/O error")
 def test_DateLocator():
     locator = mdates.DateLocator()
     # Test nonsingular
