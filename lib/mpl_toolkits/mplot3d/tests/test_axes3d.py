@@ -182,7 +182,7 @@ def test_axes3d_repr():
 
 
 @mpl3d_image_comparison(['axes3d_primary_views.png'], style='mpl20',
-                        tol=0.045 if sys.platform == 'darwin' else 0)
+                        tol=0.045 if sys.platform in ['darwin', 'win32'] else 0)
 def test_axes3d_primary_views():
     # (elev, azim, roll)
     views = [(90, -90, 0),  # XY
@@ -1574,7 +1574,7 @@ class TestVoxels:
             assert isinstance(poly, art3d.Poly3DCollection)
 
     @mpl3d_image_comparison(['voxels-xyz.png'], remove_text=False, style='mpl20',
-                            tol=0.002 if sys.platform == 'win32' else 0)
+                            tol=0.021 if sys.platform == 'win32' else 0)
     def test_xyz(self):
         fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
 

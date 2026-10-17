@@ -1,6 +1,5 @@
 import copy
 import importlib
-import os
 import signal
 import sys
 
@@ -314,8 +313,6 @@ def _get_testable_qt_backends():
             reason = "Display is unavailable"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
-            reason = "macosx backend fails on Azure"
         marks = []
         if reason:
             marks.append(pytest.mark.skip(
