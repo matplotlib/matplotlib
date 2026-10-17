@@ -1,9 +1,10 @@
 import importlib
+from unittest.mock import patch
 
 from matplotlib import path, transforms
 from matplotlib.backend_bases import (
     FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
-    NavigationToolbar2, RendererBase)
+    NavigationToolbar2, RendererBase, TimerBase)
 from matplotlib.backend_tools import RubberbandBase
 from matplotlib.figure import Figure
 from matplotlib.testing._markers import needs_pgf_xelatex
@@ -587,3 +588,33 @@ def test_get_width_height_floating_point_precision():
     fig = plt.figure(figsize=(1, 2.03), dpi=100)
     assert fig.bbox.height < 203  # due to floating-point precision
     assert fig.canvas.get_width_height() == (100, 203)
+
+
+def test_timer_properties():
+    timer = TimerBase(100)
+    with patch.object(timer, '_timer_set_interval') as mock:
+        timer.interval = 200
+        mock.assert_called_once()
+        assert timer.interval == 200
+        # Reassigning the same value would restart a running timer.
+        timer.interval = 200
+        mock.assert_called_once()
+
+    with patch.object(timer, '_timer_set_single_shot') as mock:
+        timer.single_shot = True
+        mock.assert_called_once()
+        assert timer.single_shot
+        timer.single_shot = True
+        mock.assert_called_once()
+
+    # 0ms reads as single shot on some backends, so sub-millisecond is clamped.
+    timer.interval = 0.1
+    assert timer.interval == 1
+
+
+def test_timer_not_started_on_construction():
+    with patch.object(TimerBase, '_timer_start') as mock:
+        timer = TimerBase(100)
+        timer.interval = 200
+        timer.single_shot = True
+    mock.assert_not_called()

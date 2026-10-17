@@ -1,0 +1,14 @@
+Interactive timers keep to their interval
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Repeating timers created with `.FigureCanvasBase.new_timer` now fire on the
+interval they were given rather than drifting by however long each callback
+takes, and they drop the firings they missed when a callback overruns.
+
+Assigning to ``timer.interval`` or ``timer.single_shot`` now updates a running
+timer on every backend, and assigning the value it already holds no longer
+restarts it.
+
+`.FigureCanvasBase.start_event_loop` returns after the requested timeout
+instead of after that many polling iterations.  The GTK backends now run a
+``GLib.MainLoop`` rather than that polling fallback.
