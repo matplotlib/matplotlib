@@ -2117,8 +2117,48 @@ default: %(va)s
 
         per_subplot_kw = self._norm_per_subplot_kw(per_subplot_kw)
 
-        # Only accept strict bools to allow a possible future API expansion.
-        _api.check_isinstance(bool, sharex=sharex, sharey=sharey)
+        def _validate_share_param(param_name, value):
+            """
+            Validate and normalize the sharex or sharey parameter.
+
+            Parameters
+            ----------
+            param_name : str
+                The name of the parameter being validated (e.g., 'sharex').
+            value : bool or {'all', 'none', 'row', 'col'}
+                The sharing mode requested by the user:
+                - 'row': Axes sharing the exact same row span within the
+                  same GridSpec will share this axis.
+                - 'col': Axes sharing the exact same column span within the
+                  same GridSpec will share this axis.
+                - 'all' or True: All generated axes will share this axis.
+                - 'none' or False: No axes will share this axis.
+
+            Returns
+            -------
+            bool or {'row', 'col'}
+                The normalized sharing mode. 'all' is converted to True,
+                and 'none' is converted to False.
+
+            Raises
+            ------
+            ValueError
+                If the provided value is not a valid sharing mode.
+            """
+            if type(value) is bool:
+                return value
+            if value == "all":
+                return True
+            if value == "none":
+                return False
+            if value in ["row", "col"]:
+                return value
+            raise ValueError(
+                f"{param_name} must be True, False, 'all', 'none', 'row', or 'col'"
+            )
+
+        sharex = _validate_share_param("sharex", sharex)
+        sharey = _validate_share_param("sharey", sharey)
 
         def _make_array(inp):
             """
@@ -2276,21 +2316,121 @@ default: %(va)s
         mosaic = _make_array(mosaic)
         rows, cols = mosaic.shape
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
-        ret = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
-        ax0 = next(iter(ret.values()))
-        for ax in ret.values():
-            if sharex:
-                ax.sharex(ax0)
-                ax._label_outer_xaxis(skip_non_rectangular_axes=True)
-            if sharey:
-                ax.sharey(ax0)
-                ax._label_outer_yaxis(skip_non_rectangular_axes=True)
-        if extra := set(per_subplot_kw) - set(ret):
+        ax_dict = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
+
+        # Symmetric Sharing
+        def _apply_sharing(ax_dict, share_val, axis_name):
+            """
+            Apply axis sharing and manage tick label visibility for a generated
+            mosaic of Axes.
+
+            This function groups Axes based on their GridSpec layout spans and the
+            requested sharing mode. It binds the specified axis (`x` or `y`) within
+            each group.
+
+            To prevent overlapping or redundant labels, especially in complex or
+            nested layouts, it evaluates the physical figure coordinates of each
+            shared group. It dynamically disables tick labels for all Axes except
+            those on the outermost physical boundary (e.g., the bottom-most Axes
+            for a shared x-axis, or the left-most Axes for a shared y-axis).
+
+            Parameters
+            ----------
+            ax_dict : dict[label, Axes]
+                A flat dictionary mapping user-defined string labels to all Axes
+                objects created in the layout.
+            share_val : bool or {'all', 'none', 'row', 'col'}
+                The requested sharing mode to apply:
+                - `True` or 'all': Shares the axis across all Axes in the mosaic.
+                - `'row'`: Groups and shares the axis for Axes occupying the
+                  exact same row span within the same GridSpec.
+                - `'col'`: Groups and shares the axis for Axes occupying the
+                  exact same column span within the same GridSpec.
+                - `False` or 'none': No sharing is applied, and the function
+                  exits early.
+            axis_name : {'x', 'y'}
+                The specific axis to apply the sharing and visibility rules to.
+
+            Examples
+            --------
+            >>> _apply_sharing(ax_dict, share_val='col', axis_name='x')
+
+            Share the x-axis for plots sitting in the same column, hiding the
+            x-tick labels for all but the bottom-most plot in that column:
+
+            >>> _apply_sharing(ax_dict, share_val=True, axis_name='y')
+
+            Share the y-axis across every plot in the entire mosaic, hiding all
+            y-tick labels except for the plots sitting on the absolute left-most
+            physical edge of the figure:
+            """
+            # Safely handle both False and "none" as a complete exit
+            if share_val is False or share_val == "none":
+                return
+
+            # Group the axes based on their spans
+            groups = {}
+            for ax in ax_dict.values():
+                span = ax.get_subplotspec()
+                grid = span.get_gridspec()
+
+                # Safely handle both True and "all"
+                if share_val is True or share_val == "all":
+                    groups.setdefault("all", []).append(ax)
+                elif share_val == "row":
+                    groups.setdefault(
+                        (grid, span.rowspan.start, span.rowspan.stop),
+                        []
+                    ).append(ax)
+                elif share_val == "col":
+                    groups.setdefault(
+                        (grid, span.colspan.start, span.colspan.stop),
+                        []
+                    ).append(ax)
+
+            # Bind the groups together
+            for group in groups.values():
+                if len(group) > 1:
+                    parent = group[0]
+                    for child_ax in group[1:]:
+                        if axis_name == 'x':
+                            child_ax.sharex(parent)
+                        else:
+                            child_ax.sharey(parent)
+
+                # Handle tick label visibility per isolated group using physical
+                # coordinates
+                if axis_name == 'x':
+                    # Find the physical bottom-most edge (minimum y-coordinate)
+                    bottom_edge = min(
+                        ax.get_subplotspec().get_position(self).ymin
+                        for ax in group
+                    )
+                    for ax in group:
+                        # Float tolerance of 1e-5 to account for rounding errors
+                        pos = ax.get_subplotspec().get_position(self)
+                        if pos.ymin > bottom_edge + 1e-5:
+                            ax.tick_params(labelbottom=False)
+                else:
+                    # Find the physical left-most edge (minimum x-coordinate)
+                    left_edge = min(
+                        ax.get_subplotspec().get_position(self).xmin
+                        for ax in group
+                    )
+                    for ax in group:
+                        pos = ax.get_subplotspec().get_position(self)
+                        if pos.xmin > left_edge + 1e-5:
+                            ax.tick_params(labelleft=False)
+
+        _apply_sharing(ax_dict, sharex, 'x')
+        _apply_sharing(ax_dict, sharey, 'y')
+
+        if extra := set(per_subplot_kw) - set(ax_dict):
             raise ValueError(
                 f"The keys {extra} are in *per_subplot_kw* "
                 "but not in the mosaic."
             )
-        return ret
+        return ax_dict
 
     def _set_artist_props(self, a):
         if a != self:
