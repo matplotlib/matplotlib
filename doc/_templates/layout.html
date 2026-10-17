@@ -1,0 +1,17 @@
+{% extends "!layout.html" %}
+{% block extrahead %}
+    {{ super() }}
+    <meta property="og:site_name" content="Matplotlib" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="{{ title|striptags|e }}" />
+    <meta property="og:description" content="Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python." />
+    <meta property="og:url" content="https://matplotlib.org/stable/{{ pagename }}.html" />
+    <meta property="og:image" content="https://matplotlib.org/stable/_static/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Matplotlib — Visualization with Python" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="{{ title|striptags|e }}" />
+    <meta name="twitter:description" content="Matplotlib: Visualization with Python — comprehensive documentation." />
+    <meta name="twitter:image" content="https://matplotlib.org/stable/_static/og-image.png" />
+{% endblock %}
