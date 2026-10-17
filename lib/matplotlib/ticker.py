@@ -2890,7 +2890,8 @@ class AsinhLocator(Locator):
 
         # Round the data-space values to be intuitive base-n numbers, keeping track of
         # positive and negative values separately and carefully treating the zero value.
-        with np.errstate(divide="ignore"):  # base ** log(0) = base ** -inf = 0.
+        # base ** log(0) = base ** -inf = 0.
+        with np.errstate(divide="ignore", invalid="ignore"):
             if self.base > 1:
                 pows = (np.sign(xs)
                         * self.base ** np.floor(np.log(abs(xs)) / math.log(self.base)))
