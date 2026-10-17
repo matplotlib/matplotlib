@@ -168,7 +168,7 @@ def _test_interactive_impl():
     })
 
     mpl.rcParams.update(json.loads(sys.argv[1]))
-    backend = plt.rcParams["backend"].lower()
+    backend = plt.rcParams._get_backend_resolved().lower()
 
     if backend.endswith("agg") and not backend.startswith(("gtk", "web")):
         # Force interactive framework setup.
@@ -296,7 +296,7 @@ def _test_thread_impl():
     # the figure
     canvas = fig.canvas
     plt.close()  # backend is responsible for flushing any events here
-    if plt.rcParams["backend"].lower().startswith("wx"):
+    if plt.rcParams._get_backend_resolved().lower().startswith("wx"):
         # TODO: debug why WX needs this only on py >= 3.8
         canvas.flush_events()
 
