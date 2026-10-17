@@ -1810,6 +1810,45 @@ def test_locale_comma():
         pytest.skip(skip_msg)
 
 
+def _impl_engformatter_locale():
+    try:
+        locale.setlocale(locale.LC_ALL, 'de_DE.UTF-8')
+    except locale.Error:
+        print('SKIP: Locale de_DE.UTF-8 is not supported on this machine')
+        return
+    # EngFormatter is a ScalarFormatter subclass, so it must honour the
+    # axes.formatter.use_locale rcParam like its parent does.
+    with mpl.rc_context(rc={'axes.formatter.use_locale': True}):
+        fmt = mticker.EngFormatter(places=2)
+        assert fmt.get_useLocale()
+        assert fmt.format_data(0.5551) == '555,10 m'
+        # An explicit keyword argument overrides the rcParam.
+        fmt = mticker.EngFormatter(places=2, useLocale=False)
+        assert not fmt.get_useLocale()
+        assert fmt.format_data(1234.5) == '1.23 k'
+    fmt = mticker.EngFormatter(places=2, useLocale=True)
+    assert fmt.get_useLocale()
+    assert fmt.format_data(1234.5) == '1,23 k'
+    # The inherited setter also reaches the engineering formatting path.
+    fmt = mticker.EngFormatter(places=2, useLocale=False)
+    fmt.set_useLocale(True)
+    assert fmt.format_data(1234.5) == '1,23 k'
+    # Separators are escaped for mathtext, as ScalarFormatter does.
+    fmt = mticker.EngFormatter(places=2, useLocale=True, useMathText=True)
+    assert fmt.format_data(0.5551) == '$555{,}10$ m'
+
+
+def test_engformatter_locale():
+    proc = mpl.testing.subprocess_run_helper(
+        _impl_engformatter_locale, timeout=60, extra_env={'MPLBACKEND': 'Agg'})
+    skip_msg = next((line[len('SKIP:'):].strip()
+                     for line in proc.stdout.splitlines()
+                     if line.startswith('SKIP:')),
+                    '')
+    if skip_msg:
+        pytest.skip(skip_msg)
+
+
 def test_majformatter_type():
     fig, ax = plt.subplots()
     with pytest.raises(TypeError):
