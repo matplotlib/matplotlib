@@ -73,7 +73,7 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, FigureManagerBase, MouseButton)
 from matplotlib.figure import Figure, FigureBase, figaspect
 from matplotlib.gridspec import GridSpec, SubplotSpec
-from matplotlib import rcsetup, rcParamsDefault, rcParamsOrig
+from matplotlib import rcsetup
 from matplotlib.artist import Artist
 from matplotlib.axes import Axes
 from matplotlib.axes import Subplot  # noqa: F401
@@ -385,14 +385,14 @@ def _get_backend_mod() -> type[matplotlib.backend_bases._Backend]:
     This is currently private, but may be made public in the future.
     """
     if _backend_mod is None:
-        # Use rcParams._get("backend") to avoid going through the fallback
+        # Use rcParams._backend to avoid going through the fallback
         # logic (which will (re)import pyplot and then call switch_backend if
         # we need to resolve the auto sentinel)
-        switch_backend(rcParams._get("backend"))
+        switch_backend(rcParams._backend)
     return cast(type[matplotlib.backend_bases._Backend], _backend_mod)
 
 
-def switch_backend(newbackend: str) -> None:
+def switch_backend(newbackend: str | object) -> None:
     """
     Set the pyplot backend.
 
@@ -405,6 +405,9 @@ def switch_backend(newbackend: str) -> None:
     newbackend : str
         The case-insensitive name of the backend to use.
 
+        As an internal implementation detail, the special value
+        ``rcsetup._auto_backend_sentinel`` can be used to trigger the backend
+        selection.
     """
     global _backend_mod
     # make sure the init is pulled up so we can assign to it later
@@ -432,16 +435,16 @@ def switch_backend(newbackend: str) -> None:
                 _log.debug("Skipping backend candidate %r as loading failed.",
                            candidate, exc_info=True)
                 continue
-            else:
-                rcParamsOrig['backend'] = candidate
-                return
+            return
         else:
             # Switching to Agg should always succeed; if it doesn't, let the
             # exception propagate out.
             switch_backend("agg")
-            rcParamsOrig["backend"] = "agg"
             return
-    old_backend = rcParams._get('backend')  # get without triggering backend resolution
+    # the only object is the sentinel, which is handled above so that newbackend
+    # is always a string here.
+    newbackend = cast(str, newbackend)
+    old_backend = rcParams._backend
 
     module = backend_registry.load_backend_module(newbackend)
     canvas_class = module.FigureCanvas
@@ -530,7 +533,7 @@ def switch_backend(newbackend: str) -> None:
         except im.PackageNotFoundError:
             pass
 
-    rcParams['backend'] = rcParamsDefault['backend'] = newbackend
+    rcParams._backend = newbackend
     _backend_mod = backend_mod
     for func_name in ["new_figure_manager", "draw_if_interactive", "show"]:
         globals()[func_name].__signature__ = inspect.signature(
