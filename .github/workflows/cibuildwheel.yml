@@ -35,7 +35,7 @@ jobs:
         )
       )
     name: Build sdist
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
     outputs:
@@ -100,7 +100,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-26.04
             cibw_archs: "x86_64"
           - os: ubuntu-24.04-arm
             cibw_archs: "aarch64"
