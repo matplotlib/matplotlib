@@ -2374,7 +2374,7 @@ class Axes(_AxesBase):
 
         facecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar faces.
-            If both *color* and *facecolor are given, *facecolor* takes precedence.
+            If both *color* and *facecolor* are given, *facecolor* takes precedence.
 
         edgecolor : :mpltype:`color` or list of :mpltype:`color`, optional
             The colors of the bar edges.
