@@ -75,6 +75,7 @@ class _WedgeBbox(mtransforms.Bbox):
     def __init__(
         self,
         center: tuple[float, float],
+        transScale: mtransforms.Transform,
         viewLim: mtransforms.Bbox,
         originLim: mtransforms.Bbox,
         **kwargs,
