@@ -2470,91 +2470,98 @@ _DEFINITION = [
         validator=["center", "top", "bottom", "baseline", "center_baseline"],
         description="Vertical alignment of tick labels relative to the tick lines."
     ),
-    _Section("Grid"),
+    _Section(
+        "Grid",
+        description="Default properties for grid lines. Grids have the four "
+                    "properties: *color*, *linestyle*, *linewidth*, and "
+                    "*alpha*. The ``grid.[property]`` parameters apply to both "
+                    "major and minor grid lines. They may be overridden by the "
+                    "``grid.major.[property]`` and ``grid.minor.[property]``."
+    ),
     _Param(
         "grid.color",
         default="#b0b0b0",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The default grid line color."
+        description="Grid line color."
     ),
     _Param(
         "grid.linestyle",
         default="-",
         type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
-        description="The default grid line style."
+        description="Grid line style."
     ),
     _Param(
         "grid.linewidth",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="The default grid line width, in points."
+        description="Grid line width, in points."
     ),
     _Param(
         "grid.alpha",
         default=1.0,
         type=float,
         validator=validate_float,
-        description="The default grid line transparency, between 0.0 (fully "
-                    "transparent) and 1.0 (opaque)."
+        description="Grid line transparency, between 0.0 (fully transparent) and 1.0 "
+                    "(opaque)."
     ),
     _Param(
         "grid.major.color",
         default=None,
         type=":mpltype:`color` or None",
         validator=_validate_color_or_None,
-        description="If None defaults to grid.color"
+        description="Major grid line color. None defaults to 'grid.color'."
     ),
     _Param(
         "grid.major.linestyle",
         default=None,
         type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
-        description="If None defaults to grid.linestyle"
+        description="Major grid line style. None defaults to 'grid.linestyle'."
     ),
     _Param(
         "grid.major.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.linewidth"
+        description="Major grid line width. None defaults to 'grid.linewidth'."
     ),
     _Param(
         "grid.major.alpha",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.alpha"
+        description="Major grid line transparency. None defaults to 'grid.alpha'."
     ),
     _Param(
         "grid.minor.color",
         default=None,
         type=":mpltype:`color` or None",
         validator=_validate_color_or_None,
-        description="If None defaults to grid.color"
+        description="Minor grid line color. None defaults to 'grid.color'."
     ),
     _Param(
         "grid.minor.linestyle",
         default=None,
         type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
-        description="If None defaults to grid.linestyle"
+        description="Minor grid line style. None defaults to 'grid.linestyle'."
     ),
     _Param(
         "grid.minor.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.linewidth"
+        description="Minor grid line width. None defaults to 'grid.linewidth'."
     ),
     _Param(
         "grid.minor.alpha",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.alpha"
+        description="Minor grid line transparency. None defaults to 'grid.alpha'."
     ),
     _Section("Legend"),
     _Param(
