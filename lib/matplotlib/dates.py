@@ -535,11 +535,6 @@ def drange(dstart, dend, delta):
     # calculate end of the interval which will be generated
     dinterval_end = dstart + num * delta
 
-    # ensure, that a half open interval will be generated [dstart, dend)
-    # Floating-point error in the date2num/step division above can push a
-    # ratio that should land exactly on an integer just over it, making
-    # `num` (and thus dinterval_end) overshoot by more than one step; loop
-    # instead of correcting once.
     while dinterval_end >= dend:
         dinterval_end -= delta
         num -= 1
