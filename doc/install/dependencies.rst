@@ -112,7 +112,6 @@ C libraries
 Matplotlib brings its own copies of the following libraries:
 
 - ``Agg``: the Anti-Grain Geometry C++ rendering engine
-- ``ttconv``: a TrueType font utility
 
 Additionally, Matplotlib depends on:
 
