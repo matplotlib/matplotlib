@@ -24,14 +24,6 @@ Environment variables
   Matplotlib, as well as some caches to improve performance. If
   :envvar:`MPLCONFIGDIR` is not defined, :file:`{HOME}/.config/matplotlib`
   and :file:`{HOME}/.cache/matplotlib` are used on Linux and FreeBSD,
-  :file:`%LOCALAPPDATA%\\matplotlib` on Windows (or
-  :file:`%USERPROFILE%\\.matplotlib` if that directory already exists), and
-  :file:`{HOME}/.matplotlib` on other platforms, if they are
-  writable. Otherwise, the Python standard library's `tempfile.gettempdir` is
-  used to find a base directory in which the :file:`matplotlib` subdirectory is
-  created.
-
-  and :file:`{HOME}/.cache/matplotlib` are used on Linux and FreeBSD,
   :file:`%LOCALAPPDATA%\\matplotlib` on Windows, and
   :file:`{HOME}/.matplotlib` on other platforms, if they are
   writable. Otherwise, the Python standard library's `tempfile.gettempdir` is
@@ -41,6 +33,8 @@ Environment variables
   Note: Prior to Matplotlib 3.11, the config directory on Windows was
   :file:`%USERPROFILE%\\.matplotlib`. For backward compatibility, newer
   versions will continue to use this directory if it exists.
+
+.. envvar:: MPL_IGNORE_SYSTEM_FONTS
 
   When this variable is set, Matplotlib will update its font cache only with its own
   directories. This can be used to limit subprocess usage for querying system fonts.
