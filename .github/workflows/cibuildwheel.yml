@@ -149,7 +149,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for CPython 3.11
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@adba99c781d3746d38b3a09b1cf797965bcb7fe6  # v4.3.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
@@ -157,7 +157,7 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@8d2b08b68458a16aeb24b64e68a09ab1c8e82084  # v3.4.1
+        uses: pypa/cibuildwheel@adba99c781d3746d38b3a09b1cf797965bcb7fe6  # v4.3.0
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
