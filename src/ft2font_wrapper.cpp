@@ -1660,9 +1660,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                       "The kerning between this item and the previous one.")
         .def("__str__",
             [](const LayoutItem& item) {
-                return
-                    "LayoutItem(ft_object={}, char={!r}, glyph_index={}, "_s
-                    "x={}, y={}, prev_kern={})"_s.format(
+                return py::str(
+                    "LayoutItem(ft_object={}, char={!r}, glyph_index={}, "
+                    "x={}, y={}, prev_kern={})").format(
                         PyFT2Font_fname(item.ft_object), item.character,
                         item.glyph_index, item.x, item.y, item.prev_kern);
                 });
