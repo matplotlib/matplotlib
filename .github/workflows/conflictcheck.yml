@@ -14,7 +14,7 @@ permissions: {}
 jobs:
   main:
     if: github.repository == 'matplotlib/matplotlib'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       pull-requests: write
     steps:
