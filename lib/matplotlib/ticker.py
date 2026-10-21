@@ -1570,7 +1570,10 @@ class EngFormatter(ScalarFormatter):
         '1.0 M'
 
         >>> format_data(-1e-6)  # for self.places = 2
-        '-1.00 \N{MICRO SIGN}'
+        '\N{MINUS SIGN}1.00 \N{MICRO SIGN}'
+
+        .. versionchanged:: 3.12
+           The result now honors :rc:`axes.unicode_minus`.
         """
         sign = 1
         fmt = "g" if self.places is None else f".{self.places:d}f"
@@ -1604,14 +1607,7 @@ class EngFormatter(ScalarFormatter):
             suffix = f"{self.sep}{unit_prefix}{self.unit}"
         else:
             suffix = ""
-        if self._useLocale:
-            mant_str = locale.format_string(f"%{fmt}", (mant,), True)
-            if self._useMathText:
-                # Escape the separators introduced by locale.format_string, so
-                # that mathtext does not apply punctuation spacing to them.
-                mant_str = mant_str.replace(",", "{,}")
-        else:
-            mant_str = f"{mant:{fmt}}"
+        mant_str = self._format_maybe_minus_and_locale(f"%{fmt}", mant)
         if self._usetex or self._useMathText:
             return f"${mant_str}${suffix}"
         else:

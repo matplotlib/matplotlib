@@ -1571,6 +1571,7 @@ class TestEngFormatter:
         )
         for _formatter, _exp_output in zip(formatters, exp_outputs):
             assert _formatter(input) == _exp_output
+            assert _formatter.format_data(input) == _exp_output
 
         # Case 1: unit=UNIT and sep=' ' (default).
         # Append a unit symbol to the reference case.
