@@ -13,20 +13,20 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
 #endif
 {
     py::classh<Triangulation>(m, "Triangulation", py::is_final())
-        .def(py::init<const Triangulation::CoordinateArray&,
-                      const Triangulation::CoordinateArray&,
-                      const Triangulation::TriangleArray&,
-                      const Triangulation::MaskArray&,
-                      const Triangulation::EdgeArray&,
-                      const Triangulation::NeighborArray&,
+        .def(py::init<mpl::defer<Triangulation::CoordinateArray> &,
+                      mpl::defer<Triangulation::CoordinateArray> &,
+                      mpl::defer<Triangulation::TriangleArray> &,
+                      std::optional<mpl::defer<Triangulation::MaskArray>>&,
+                      std::optional<mpl::defer<Triangulation::EdgeArray>>&,
+                      std::optional<mpl::defer<Triangulation::NeighborArray>>&,
                       bool>(),
             "x"_a,
             "y"_a,
             "triangles"_a,
             "mask"_a,
-            "edges"_a,
-            "neighbors"_a,
-            "correct_triangle_orientations"_a,
+            "edges"_a.none(),
+            "neighbors"_a.none(),
+            "correct_triangle_orientations"_a.none(),
             "Create a new C++ Triangulation object.\n"
             "This should not be called directly, use the python class\n"
             "matplotlib.tri.Triangulation instead.\n")
@@ -37,11 +37,12 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("get_neighbors", &Triangulation::get_neighbors,
             "Return neighbors array.")
         .def("set_mask", &Triangulation::set_mask,
+            "mask"_a.none(),
             "Set or clear the mask array.");
 
     py::classh<TriContourGenerator>(m, "TriContourGenerator", py::is_final())
         .def(py::init<Triangulation&,
-                      const TriContourGenerator::CoordinateArray&>(),
+                      mpl::defer<TriContourGenerator::CoordinateArray>&>(),
             "triangulation"_a,
             "z"_a,
             "Create a new C++ TriContourGenerator object.\n"
