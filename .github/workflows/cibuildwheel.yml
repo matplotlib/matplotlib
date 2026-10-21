@@ -157,7 +157,8 @@ jobs:
           CIBW_ARCHS: ${{ matrix.cibw_archs }}
 
       - name: Build wheels for PyPy
-        uses: pypa/cibuildwheel@adba99c781d3746d38b3a09b1cf797965bcb7fe6  # v4.3.0
+        # Keep cibuildwheel at v4.2.0 due to manylinux dependency
+        uses: pypa/cibuildwheel@1828c10ab37f080699c7b81cea34097c684a7074  # v4.2.0, do not update
         with:
           package-dir: dist/${{ needs.build_sdist.outputs.SDIST_NAME }}
         env:
