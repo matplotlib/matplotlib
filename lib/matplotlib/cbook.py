@@ -1282,6 +1282,10 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
         # note tricksiness, append up here and then mutate below
         bxpstats.append(stats)
 
+        # up-convert to an array, just to be safe
+        x = np.ma.asarray(x)
+        x = x.data[~x.mask].ravel()
+
         # if empty, bail
         if len(x) == 0:
             stats['fliers'] = np.array([])
@@ -1296,9 +1300,7 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
             stats['whishi'] = np.nan
             continue
 
-        # up-convert to an array, just to be safe
-        x = np.ma.asarray(x)
-        x = x.data[~x.mask].ravel()
+        
 
         # arithmetic mean
         stats['mean'] = np.mean(x)
