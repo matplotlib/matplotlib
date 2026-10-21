@@ -74,7 +74,8 @@ def test_websocket_rejects_cross_origin(host, origin, allowed):
     pytest.importorskip("tornado")
     from matplotlib.backends.backend_webagg import WebAggApplication
 
-    ws = WebAggApplication.WebSocket.__new__(WebAggApplication.WebSocket)
-    ws.request = MagicMock()
-    ws.request.headers = {"Host": host}
+    app = WebAggApplication()
+    request = MagicMock()
+    request.headers = {"Host": host}
+    ws = WebAggApplication.WebSocket(app, request)
     assert ws.check_origin(origin) is allowed
