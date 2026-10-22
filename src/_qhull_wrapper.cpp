@@ -21,6 +21,7 @@ extern const char qh_version[];
 #endif
 
 #include "mplutils.h"
+#include "py_array.h"
 #include "libqhull_r/qhull_ra.h"
 #include <cstdio>
 #include <vector>
@@ -36,10 +37,10 @@ namespace py = pybind11;
 using namespace pybind11::literals;
 
 // Input numpy array class.
-typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordArray;
+using CoordinateArray = mpl::array<const double, mpl::ndim<1>>;
 
 // Output numpy array class.
-typedef py::array_t<int> IndexArray;
+using IndexArray = mpl::array<int, mpl::shape<-1, 3>>;
 
 
 
@@ -220,12 +221,11 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
     std::vector<int> tri_indices(max_facet_id+1);
 
     /* Allocate Python arrays to return. */
-    int dims[2] = {ntri, 3};
-    IndexArray triangles(dims);
-    int* triangles_ptr = triangles.mutable_data();
+    auto triangles = IndexArray(ntri);
+    int* triangles_ptr = triangles.data();
 
-    IndexArray neighbors(dims);
-    int* neighbors_ptr = neighbors.mutable_data();
+    auto neighbors = IndexArray(ntri);
+    int* neighbors_ptr = neighbors.data();
 
     /* Determine triangles array and set tri_indices array. */
     i = 0;
@@ -263,19 +263,15 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
 
 /* Process Python arguments and call Delaunay implementation method. */
 static py::tuple
-delaunay(const CoordArray& x, const CoordArray& y, int verbose)
+delaunay(mpl::defer<CoordinateArray>& in_x,
+         mpl::defer<CoordinateArray>& in_y, int verbose)
 {
-    if (x.ndim() != 1 || y.ndim() != 1) {
-        throw std::invalid_argument("x and y must be 1D arrays");
-    }
+    auto x = in_x.value("x");
+    auto y = in_y.value("y");
 
     auto npoints = x.shape(0);
     if (npoints != y.shape(0)) {
         throw std::invalid_argument("x and y must be 1D arrays of the same length");
-    }
-
-    if (npoints < 3) {
-        throw std::invalid_argument("x and y arrays must have a length of at least 3");
     }
 
     if (!at_least_3_unique_points(npoints, x.data(), y.data())) {
