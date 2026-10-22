@@ -2328,11 +2328,8 @@ default: %(va)s
             requested sharing mode. It binds the specified axis (`x` or `y`) within
             each group.
 
-            To prevent overlapping or redundant labels, especially in complex or
-            nested layouts, it evaluates the physical figure coordinates of each
-            shared group. It dynamically disables tick labels for all Axes except
-            those on the outermost physical boundary (e.g., the bottom-most Axes
-            for a shared x-axis, or the left-most Axes for a shared y-axis).
+            Within each group all tick labels are deactivated except for the
+            left-most (sharey) / bottom-most (sharex) Axes.
 
             Parameters
             ----------
@@ -2350,19 +2347,6 @@ default: %(va)s
                   exits early.
             axis_name : {'x', 'y'}
                 The specific axis to apply the sharing and visibility rules to.
-
-            Examples
-            --------
-            >>> _apply_sharing(ax_dict, share_val='col', axis_name='x')
-
-            Share the x-axis for plots sitting in the same column, hiding the
-            x-tick labels for all but the bottom-most plot in that column:
-
-            >>> _apply_sharing(ax_dict, share_val=True, axis_name='y')
-
-            Share the y-axis across every plot in the entire mosaic, hiding all
-            y-tick labels except for the plots sitting on the absolute left-most
-            physical edge of the figure:
             """
             # Safely handle both False and "none" as a complete exit
             if share_val is False or share_val == "none":

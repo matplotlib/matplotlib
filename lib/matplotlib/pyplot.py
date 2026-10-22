@@ -1998,10 +1998,12 @@ def subplot_mosaic[T](
 
     sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
         If True or 'all', the x-axis (*sharex*) or y-axis (*sharey*) will be shared
-        among all subplots.  In that case, tick label visibility and axis units
-        behave as for `subplots`. If 'row', each subplot row will share an x-axis
-        (or y-axis). If 'col', each subplot column will share an x-axis (or y-axis).
-        If False or 'none', each subplot's x- or y-axis will be independent.
+        among all subplots. In that case, tick label visibility and axis units
+        behave as for `subplots`. If 'row', Axes that occupy the exact same row span
+        (the same vertical space in the grid) will share an x-axis (or y-axis).
+        If 'col', Axes that occupy the exact same column span (the same horizontal
+        space in the grid) will share an x-axis (or y-axis). If False or 'none',
+        each subplot's x- or y-axis will be independent.
 
     width_ratios : array-like of length *ncols*, optional
         Defines the relative widths of the columns. Each column gets a

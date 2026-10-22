@@ -1343,40 +1343,34 @@ class TestSubplotMosaic:
             assert ax_dict["B"].get_xscale() != "log"
 
     def test_share_row_col(self):
-        layout = [
-            ["A", "B", "C", "D"],
-            ["E", "F", "C", "D"]
-        ]
+        layout = "ABCD;EFCD"
         fig = plt.figure()
         axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
 
-        # Testing row sharing for y-axis
-        axd["A"].set_ylim(0, 50)
-        axd["C"].set_ylim(-10, 10)
+        xgroups = [
+            sorted(ax.get_label() for ax in group)
+            for group in axd["A"]._shared_axes["x"]
+        ]
+        assert ["A", "E"] in xgroups
+        assert ["B", "F"] in xgroups
 
-        assert axd["B"].get_ylim() == (0, 50)
-        assert axd["D"].get_ylim() == (-10, 10)
-        assert axd["E"].get_ylim() != (0, 50)
-
-        axd["A"].set_xlim(-5, 5)
-        axd["C"].set_xlim(100, 200)
-
-        assert axd["E"].get_xlim() == (-5, 5)
-        assert axd["D"].get_xlim() != (100, 200)
+        ygroups = [
+            sorted(ax.get_label() for ax in group)
+            for group in axd["A"]._shared_axes["y"]
+        ]
+        assert ["A", "B"] in ygroups
+        assert ["C", "D"] in ygroups
+        assert ["E", "F"] in ygroups
 
     def test_share_invalid(self):
-        layout = [
-            ["A", "B"],
-            ["C", "D"]
-        ]
         fig = plt.figure()
-
         msg = "must be True, False, 'all', 'none', 'row', or 'col'"
-        with pytest.raises(ValueError, match=msg):
-            fig.subplot_mosaic(layout, sharex="invalid_string")
 
         with pytest.raises(ValueError, match=msg):
-            fig.subplot_mosaic(layout, sharey={"A": "B"})
+            fig.subplot_mosaic("AB;CD", sharex="invalid_string")
+
+        with pytest.raises(ValueError, match=msg):
+            fig.subplot_mosaic("AB;CD", sharey={"A": "B"})
 
     def test_share_row_col_nested(self):
         layout = [
