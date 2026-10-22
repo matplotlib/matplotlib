@@ -201,12 +201,12 @@ void write_contour(const Contour& contour)
 
 
 
-Triangulation::Triangulation(mpl::defer<CoordinateArray>& in_x,
-                             mpl::defer<CoordinateArray>& in_y,
-                             mpl::defer<TriangleArray>& in_triangles,
-                             std::optional<mpl::defer<MaskArray>>& in_mask,
-                             std::optional<mpl::defer<EdgeArray>>& in_edges,
-                             std::optional<mpl::defer<NeighborArray>>& in_neighbors,
+Triangulation::Triangulation(const mpl::defer<CoordinateArray>& in_x,
+                             const mpl::defer<CoordinateArray>& in_y,
+                             const mpl::defer<TriangleArray>& in_triangles,
+                             const std::optional<mpl::defer<MaskArray>>& in_mask,
+                             const std::optional<mpl::defer<EdgeArray>>& in_edges,
+                             const std::optional<mpl::defer<NeighborArray>>& in_neighbors,
                              bool correct_triangle_orientations)
     : _x(in_x.value("x")),
       _y(in_y.value("y")),

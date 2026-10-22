@@ -193,12 +193,12 @@ public:
      *   correct_triangle_orientations: Whether or not should correct triangle
      *                                  orientations so that vertices are
      *                                  ordered anticlockwise. */
-    Triangulation(mpl::defer<CoordinateArray>& x,
-                  mpl::defer<CoordinateArray>& y,
-                  mpl::defer<TriangleArray>& triangles,
-                  std::optional<mpl::defer<MaskArray>>& mask,
-                  std::optional<mpl::defer<EdgeArray>>& edges,
-                  std::optional<mpl::defer<NeighborArray>>& neighbors,
+    Triangulation(const mpl::defer<CoordinateArray>& x,
+                  const mpl::defer<CoordinateArray>& y,
+                  const mpl::defer<TriangleArray>& triangles,
+                  const std::optional<mpl::defer<MaskArray>>& mask,
+                  const std::optional<mpl::defer<EdgeArray>>& edges,
+                  const std::optional<mpl::defer<NeighborArray>>& neighbors,
                   bool correct_triangle_orientations);
 
     /* Calculate plane equation coefficients for all unmasked triangles from

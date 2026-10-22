@@ -75,7 +75,7 @@ class defer : public py::object
     PYBIND11_OBJECT_DEFAULT(defer, py::object, check_any)
 
     template <typename... Args>
-    T value(Args &&...args) { return T(*this, args...); }
+    T value(Args &&...args) const { return T(*this, args...); }
 };
 
 } // namespace mpl

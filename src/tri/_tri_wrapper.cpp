@@ -13,12 +13,12 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
 #endif
 {
     py::classh<Triangulation>(m, "Triangulation", py::is_final())
-        .def(py::init<mpl::defer<Triangulation::CoordinateArray> &,
-                      mpl::defer<Triangulation::CoordinateArray> &,
-                      mpl::defer<Triangulation::TriangleArray> &,
-                      std::optional<mpl::defer<Triangulation::MaskArray>>&,
-                      std::optional<mpl::defer<Triangulation::EdgeArray>>&,
-                      std::optional<mpl::defer<Triangulation::NeighborArray>>&,
+        .def(py::init<const mpl::defer<Triangulation::CoordinateArray> &,
+                      const mpl::defer<Triangulation::CoordinateArray> &,
+                      const mpl::defer<Triangulation::TriangleArray> &,
+                      const std::optional<mpl::defer<Triangulation::MaskArray>>&,
+                      const std::optional<mpl::defer<Triangulation::EdgeArray>>&,
+                      const std::optional<mpl::defer<Triangulation::NeighborArray>>&,
                       bool>(),
             "x"_a,
             "y"_a,

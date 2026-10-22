@@ -259,7 +259,7 @@ public:
         init(&pyarray);
     }
 
-    explicit array(py::object object, const char *arg_name = "Array")
+    explicit array(const py::object object, const char *arg_name = "Array")
     {
         // Create pyarray from object
         auto pyarray = PyArrayType::ensure(object);

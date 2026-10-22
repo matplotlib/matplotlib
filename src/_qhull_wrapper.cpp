@@ -263,8 +263,8 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
 
 /* Process Python arguments and call Delaunay implementation method. */
 static py::tuple
-delaunay(mpl::defer<CoordinateArray>& in_x,
-         mpl::defer<CoordinateArray>& in_y, int verbose)
+delaunay(const mpl::defer<CoordinateArray>& in_x,
+         const mpl::defer<CoordinateArray>& in_y, int verbose)
 {
     auto x = in_x.value("x");
     auto y = in_y.value("y");
