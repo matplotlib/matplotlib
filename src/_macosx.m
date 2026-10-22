@@ -1902,12 +1902,13 @@ Timer__timer_start(Timer* self, PyObject* args)
     timer = [NSTimer timerWithTimeInterval: interval
                                    repeats: !single
                                      block: ^(NSTimer *timer) {
-        gil_call_method((PyObject*)self, "_on_timer");
         if (single) {
-            // A single-shot timer will be automatically invalidated when it fires, so
-            // we shouldn't do it ourselves when the object is deleted.
+            // A single-shot timer invalidates itself when it fires.  Clear this
+            // before the callback, which may start a new timer.
             self->shouldInvalidate = NO;
+            self->timer = nil;
         }
+        gil_call_method((PyObject*)self, "_on_timer");
     }];
 
     // Schedule the timer on the main run loop which is needed
@@ -1932,6 +1933,16 @@ Timer__timer_stop(Timer* self)
     Timer__timer_stop_impl(self);
     END_OBJC_ENTRY
     RETURN_NULL_OR_NONE
+}
+
+static PyObject*
+Timer__timer_update(Timer* self)
+{
+    // _timer_start re-reads the interval and single-shot flag.
+    if (self->timer) {
+        return Timer__timer_start(self, NULL);
+    }
+    Py_RETURN_NONE;
 }
 
 static void
@@ -1961,6 +1972,12 @@ static PyTypeObject TimerType = {
          METH_VARARGS},
         {"_timer_stop",
          (PyCFunction)Timer__timer_stop,
+         METH_NOARGS},
+        {"_timer_set_interval",
+         (PyCFunction)Timer__timer_update,
+         METH_NOARGS},
+        {"_timer_set_single_shot",
+         (PyCFunction)Timer__timer_update,
          METH_NOARGS},
         {}  // sentinel
     },
