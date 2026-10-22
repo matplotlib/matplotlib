@@ -27,7 +27,7 @@ dependencies:
   - pyparsing>=3
   - pyqt
   - python>=3.12
-  - python-dateutil>=2.1
+  - python-dateutil>=2.1,<3
   - setuptools_scm<10
   - wxpython
   # building documentation

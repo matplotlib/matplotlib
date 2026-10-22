@@ -38,7 +38,7 @@ dependencies = [
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
-    "python-dateutil >= 2.7",
+    "python-dateutil >= 2.7, < 3",
 ]
 # Also keep in sync with find_program of meson.build.
 requires-python = ">=3.12"
@@ -76,7 +76,7 @@ build = [
     "packaging >= 20.0",
     "pillow >= 9",
     "pyparsing >= 3",
-    "python-dateutil >= 2.7",
+    "python-dateutil >= 2.7, < 3",
 
     # Should be the same as `[build-system] requires` above.
     "meson-python>=0.13.1,!=0.17.*",
