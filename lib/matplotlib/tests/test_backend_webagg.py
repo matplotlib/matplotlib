@@ -57,14 +57,14 @@ def test_toolbar_button_dispatch_allowlist():
 
 
 @pytest.mark.parametrize("host, origin", [
-    ("localhost:8988", "http://evil.com"),
+    ("localhost:8988", "http://example.com"),
     ("localhost:8988", "http://127.0.0.1:8988"),
     ("localhost:8988", "http://[::1]:8988"),
     ("127.0.0.1:8988", "http://localhost:8988"),
     ("127.0.0.1:8988", "http://[::1]:8988"),
     ("[::1]:8988", "http://[::2]:8988"),
     ("[::1]:8988", "http://localhost:8988"),
-    ("[::1]:8988", "http://evil.com"),
+    ("[::1]:8988", "http://example.com"),
 ])
 def test_websocket_rejects_cross_origin(host, origin):
     """Verify Tornado's default check_origin rejects cross-origin requests."""
