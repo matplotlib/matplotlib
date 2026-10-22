@@ -226,10 +226,10 @@ jobs:
             ~/.cache/matplotlib
             !~/.cache/matplotlib/tex.cache
             !~/.cache/matplotlib/test_cache
-          key: 6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          key: 7-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
           restore-keys: |
-            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
+            7-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            7-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
 
       - name: Install Python dependencies
         run: |
@@ -302,6 +302,9 @@ jobs:
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
+      - name: Install browsers for testing
+        run: playwright install --with-deps
+
       - name: Install Matplotlib
         run: |
           ccache -s
@@ -338,6 +341,7 @@ jobs:
             export PYTEST_ADDOPTS="-k 'not test_backends_interactive'"
           fi
           pytest -rfEsXR -n auto \
+            --browser chromium --browser firefox --browser webkit \
             --maxfail=50 --timeout=300 --durations=25 \
             --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
 

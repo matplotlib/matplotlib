@@ -65,6 +65,7 @@ dependencies:
   - pydocstyle>=5.1.0
   - pytest!=4.6.0,!=5.4.0,!=8.1.0
   - pytest-cov
+  - pytest-playwright
   - pytest-rerunfailures
   - pytest-timeout
   - pytest-xdist
