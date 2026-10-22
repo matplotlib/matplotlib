@@ -2978,6 +2978,12 @@ class Axes(_AxesBase):
         A rectangle is drawn for each element of *xranges*. All rectangles
         have the same vertical position and size defined by *yrange*.
 
+        Note: Rectangles may become invisible if their width is smaller than the
+        resolution of the display. If you expect very narrow rectangles, consider
+        adding an edge with the same color as the facecolor by passing
+        ``edgecolor="face"`. The edge will always be drawn, making narrow rectangles
+        visible.
+
         Parameters
         ----------
         xranges : sequence of tuples (*xmin*, *xwidth*)
