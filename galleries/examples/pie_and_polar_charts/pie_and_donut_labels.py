@@ -81,6 +81,10 @@ plt.show()
 #   arrow point outwards from the donut,
 # * finally, create the annotation with all the previously
 #   determined parameters.
+#
+# The ``angle`` connection style measures ``angleA`` at the connection start
+# (the text box) and ``angleB`` at the connection end (the annotated wedge).
+# Both angles are measured counterclockwise from the positive x-axis.
 
 
 fig, ax = plt.subplots(figsize=(6, 3), subplot_kw=dict(aspect="equal"))
