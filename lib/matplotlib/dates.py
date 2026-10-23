@@ -535,10 +535,7 @@ def drange(dstart, dend, delta):
     # calculate end of the interval which will be generated
     dinterval_end = dstart + num * delta
 
-    # ensure, that a half open interval will be generated [dstart, dend)
-    if dinterval_end >= dend:
-        # if the endpoint is greater than or equal to dend,
-        # just subtract one delta
+    while dinterval_end >= dend:
         dinterval_end -= delta
         num -= 1
 
