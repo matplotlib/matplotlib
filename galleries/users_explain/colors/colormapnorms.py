@@ -1,6 +1,8 @@
 """
 
 .. redirect-from:: /tutorials/colors/colormapnorms
+.. redirect-from:: /gallery/images_contours_and_fields/colormap_normalizations
+.. redirect-from:: /gallery/userdemo/colormap_normalizations
 
 .. _colormapnorms:
 
