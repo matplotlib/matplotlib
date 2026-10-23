@@ -1439,6 +1439,32 @@ def test_slider_reset():
     assert slider.val == 0.5
 
 
+def test_slider_set_val_notifies_before_draw():
+    # Observers must run before set_val requests a draw, so that a callback
+    # updating other artists does not cause a stale extra render.
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax=ax, label='', valmin=0, valmax=1, valinit=0.0)
+    events = []
+    draw_calls = []
+    canvas = slider.ax.get_figure(root=True).canvas
+    orig_draw_idle = canvas.draw_idle
+
+    def counting_draw_idle(*args, **kwargs):
+        # Record how many observer events had fired when a draw was requested.
+        draw_calls.append(len(events))
+        return orig_draw_idle(*args, **kwargs)
+
+    canvas.draw_idle = counting_draw_idle
+    try:
+        slider.on_changed(events.append)
+        slider.set_val(0.7)
+    finally:
+        canvas.draw_idle = orig_draw_idle
+    assert events == [0.7]
+    assert slider.val == 0.7
+    assert draw_calls == [1]
+
+
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
 def test_range_slider(orientation):
     if orientation == "vertical":

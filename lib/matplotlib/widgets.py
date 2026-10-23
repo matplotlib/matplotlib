@@ -625,11 +625,11 @@ class Slider(SliderBase):
             self.poly.set_width(val - self.poly.get_x())
             self._handle.set_xdata([val])
         self.valtext.set_text(self._format(val))
-        if self.drawon:
-            self.ax.get_figure(root=True).canvas.draw_idle()
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
+        if self.drawon:
+            self.ax.get_figure(root=True).canvas.draw_idle()
 
     def on_changed(self, func):
         """
