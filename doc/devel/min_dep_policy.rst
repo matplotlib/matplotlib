@@ -167,7 +167,7 @@ To update the minimum versions of Python we need to update:
 - ``environment.yml``
 - ``doc/install/dependencies.rst``
 - ``doc/devel/min_dep_policy.rst`` (this file)
-- CI configuration files (circle, GHA, azure)
+- CI configuration files (circle, GHA)
 - ``tox.ini``
 
 To update the minimum NumPy we need to update:
