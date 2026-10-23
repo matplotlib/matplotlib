@@ -167,7 +167,7 @@ class CoordinateEdge(Edge):
 
 
 @dataclass
-class DefaultEdge(Edge):
+class DefaultValueEdge(Edge):
     """Provide default values with a high weight
 
     Attributes
@@ -198,7 +198,7 @@ class DefaultEdge(Edge):
         output: Desc,
         value: Any,
         weight: float = 1e6,
-    ) -> "DefaultEdge":
+    ) -> "DefaultValueEdge":
         """Constructor helper method for defaults a given value
 
         Parameters
@@ -595,7 +595,7 @@ def coord_and_default(
     default_value: Any = None,
     default_rc: RcKeyType | None = None,
 ):
-    """Helper function to provide both a CoordinateEdge and a DefaultEdge
+    """Helper function to provide both a CoordinateEdge and a DefaultValueEdge
 
     Parameters
     ----------
@@ -615,10 +615,10 @@ def coord_and_default(
             raise ValueError(
                 "Only one of 'default_value' and 'default_rc' may be specified"
             )
-        def_edge = DefaultEdge.from_rc(default_rc, key, coordinates)
+        def_edge = DefaultValueEdge.from_rc(default_rc, key, coordinates)
     else:
         scalar = Desc((), coordinates)
-        def_edge = DefaultEdge.from_default_value(
+        def_edge = DefaultValueEdge.from_default_value(
             f"{key}_def", key, scalar, default_value
         )
     coord_edge = CoordinateEdge.from_coords(key, {key: Desc(shape)}, coordinates)

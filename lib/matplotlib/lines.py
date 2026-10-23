@@ -19,7 +19,10 @@ from .markers import MarkerStyle
 from .path import Path
 from .transforms import Bbox, BboxTransformTo, TransformedPath
 from ._enums import JoinStyle, CapStyle
-from .data_containers._helpers import _get_graph, check_container
+from .data_containers._helpers import (
+    _get_base_transform_graph,
+    check_is_artist_container
+)
 from .data_containers.description import Desc
 
 # Imported here for backward compatibility, even though they don't
@@ -511,10 +514,11 @@ class Line2D(Artist):
     def _query(self):
         if self.__query is not None:
             return self.__query
-        return self._container.query(_get_graph(self.axes))[0]
+        return self._container.query(_get_base_transform_graph(self.axes))[0]
 
     def _cache_query(self):
-        self.__query, query_hash = self._container.query(_get_graph(self.axes))
+        graph = _get_base_transform_graph(self.axes)
+        self.__query, query_hash = self._container.query(graph)
         self._invalidx = self._invalidy = (query_hash != self.__query_hash)
         self.__query_hash = query_hash
 
@@ -1405,7 +1409,7 @@ class Line2D(Artist):
         set_data
         set_ydata
         """
-        check_container(self, LineContainer, "'set_xdata'")
+        check_is_artist_container(self, LineContainer, "'set_xdata'")
         if not np.iterable(x):
             raise RuntimeError('x must be a sequence')
         self._container.x = copy.copy(x)
@@ -1427,7 +1431,7 @@ class Line2D(Artist):
         set_data
         set_xdata
         """
-        check_container(self, LineContainer, "'set_ydata'")
+        check_is_artist_container(self, LineContainer, "'set_ydata'")
         if not np.iterable(y):
             raise RuntimeError('y must be a sequence')
         self._container.y = copy.copy(y)

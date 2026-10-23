@@ -39,7 +39,7 @@ class DataContainer(Protocol):
 
         Parameters
         ----------
-        graph : matplotlib.data_containers.Graph
+        graph : matplotlib._data_containers.Graph
             This is a graph that represents the available operations.
             Most commonly, this is used to get information on the pan/zoom of
             an Axes, which allows a Container to reactively produce data
@@ -93,6 +93,10 @@ class ArrayContainer:
 
         """
         coordinates = coordinates or {}
+        if extra_keys := (set(coordinates.keys()) - set(data.keys())):
+            raise ValueError(
+                f"Coordinates contains keys not in data: {extra_keys}"
+            )
         self._data = data
         self._cache_key = str(uuid.uuid4())
         self._desc = {
@@ -131,6 +135,13 @@ class ArrayContainer:
                 f"The keys that currently exist are {set(self._data)}.  You "
                 f"tried to add {set(data) - set(self._data)!r}."
             )
+        for k, v in data.items():
+            if self._data[k].shape != v.shape:
+                raise ValueError(
+                    f"{k} has incompatible shape, {v.shape}, "
+                    f"expected {self._data[k].shape}"
+                )
+
         self._data.update(data)
         self._cache_key = str(uuid.uuid4())
 

@@ -2,7 +2,7 @@ from .description import Desc, desc_like
 from .conversion_edge import Graph, TransformEdge
 
 
-def _get_graph(ax):
+def _get_base_transform_graph(ax):
     """Compute the Graph for a given axes.
 
     Produces a minimal graph that provides enough for `FuncContainer`.
@@ -37,7 +37,7 @@ def _get_graph(ax):
     return implicit_graph
 
 
-def check_container(artist, container_cls, operation="This operation"):
+def check_is_artist_container(artist, container_cls, operation="This operation"):
     """Validation helper for backwards compatibility checks"""
     if not isinstance(artist._container, container_cls):
         raise TypeError(f"{operation} is not available with a custom container class")
