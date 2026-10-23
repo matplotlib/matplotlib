@@ -1009,7 +1009,12 @@ class FigureCanvasPS(FigureCanvasBase):
             if source_date_epoch
             else time.ctime())
         dsc_comments = "\n".join(
-            f"%%{k}: {v}" for k, v in dsc_comments.items())
+            # CR/LF terminate a DSC comment, so a newline in a value (e.g. in
+            # user-supplied metadata such as Creator) would otherwise end the
+            # comment early and leave the rest as raw PostScript in the prolog;
+            # keep each comment on a single line.
+            f"%%{k}: {v}".replace("\r", " ").replace("\n", " ")
+            for k, v in dsc_comments.items())
 
         if papertype is None:
             papertype = mpl.rcParams['ps.papersize']
