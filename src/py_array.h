@@ -64,19 +64,6 @@ struct shape_traits<mpl::shape<Is...>> {
 };
 
 
-// Returns false if any dimension is 0, else returns true
-// Returns false if ndim==0, which should never happen
-template <typename ShapeType>
-inline bool has_elements(ShapeType *shape, size_t ndim)
-{
-    if (!ndim) { return false; }
-    for (size_t i = 0; i < ndim; ++i) {
-        if (shape[i] == 0) { return false; }
-    }
-    return true;
-}
-
-
 // Used for static_assert in type_caster::load
 template <typename T>
 inline constexpr bool always_false_v = false;
@@ -103,6 +90,24 @@ bool is_valid_for_shape(T value)
     return static_cast<uint64_t>(value) <= static_cast<uint64_t>(max_value);
 }
 
+// Returns the product of all elements of shape and ensures they are in range
+template <typename ShapeType>
+inline size_t size(ShapeType *shape, size_t ndim)
+{
+    if (!ndim) return 0;
+
+    size_t result = 1;
+    for (size_t i = 0; i < ndim; ++i) {
+        if (!is_valid_for_shape(shape[i])) {
+            throw std::out_of_range(
+                "size(): values in shape must be >= 0 and <= ssize_t max");
+        }
+
+        result *= shape[i];
+    }
+
+    return result;
+}
 
 // Replaces all -1 values in a base shape with the provided arguments.
 // For example, a base shape of mpl::shape<-1, 2, -1, 4, -1> and
@@ -282,18 +287,24 @@ public:
     }
 
     template<typename OtherType>
-    bool is_same_shape(const OtherType& other) const
+    bool is_same_shape(const OtherType &other) const
     {
         static_assert(std::is_same_v<Shape, typename OtherType::ShapeType>,
             "Shape types must be equal");
 
-        if (!has_elements() && !other.has_elements()) { return true; }
+        if (size() == 0 && other.size() == 0) { return true; }
 
         for (size_t i = 0; i < Dim; ++i) {
             if (shape(i) != other.shape(i)) { return false; }
         }
 
         return true;
+    }
+
+    template<typename Container>
+    void assign(const Container &source) const
+    {
+        std::copy(source.begin(), source.end(), m_data);
     }
 
     ViewType view() const
@@ -312,10 +323,14 @@ public:
         return m_pyarray.value();
     }
 
+    size_t size() const { return internal::size(m_shape, Dim); }
     size_t ndim() const { return Dim; }
     size_t shape(size_t i) const { return static_cast<size_t>(m_shape[i]); }
+    size_t itemsize() const { return sizeof(Scalar); }
+    size_t nbytes() const { return sizeof(Scalar) * size(); }
     Scalar *data() const { return m_data; }
-    bool has_elements() const { return internal::has_elements(m_shape, Dim); }
+    bool has_elements() const { return size() != 0; }
+    std::string shape_str() const { return internal::shape_str(m_shape, Dim); }
 
 private:
     struct Unmanaged {};
@@ -342,7 +357,7 @@ private:
                 throw std::invalid_argument(
                     "mpl::array::init(): shape cannot be null if pyarray is null");
             }
-            if (!data && internal::has_elements(shape, Dim)) {
+            if (!data && internal::size(shape, Dim) > 0) {
                 throw std::invalid_argument(mpl::format(
                     "mpl::array::init(): data cannot be null for shape {}",
                     internal::shape_str(shape, Dim)));
@@ -354,7 +369,7 @@ private:
         }
 
         // If empty due to atleast_3d, etc.; use base_shape with all -1's replaced by 0's
-        if (!internal::has_elements(m_shape, Dim)) {
+        if (internal::size(m_shape, Dim) == 0) {
             for (size_t i = 0; i < Dim; ++i) {
                 m_shape[i] = Traits::base_shape[i] == -1 ? 0 : Traits::base_shape[i];
             }
