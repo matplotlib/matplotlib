@@ -608,6 +608,38 @@ class BboxBase(TransformNode):
         return count_bboxes_overlapping_bbox(
             self, np.atleast_3d([np.array(x) for x in bboxes]))
 
+    def _pixel_bounds(self, *, scale=1, clip=None):
+        """
+        Round this bbox outwards to the whole pixels it touches.
+
+        This is the rounding convention for regions that are saved, restored
+        and blitted: a pixel that the bbox covers only partially still has to
+        be included, or it is never repainted.  Must match the rounding in
+        ``RendererAgg::copy_from_bbox`` (``src/_backend_agg.cpp``).
+
+        Parameters
+        ----------
+        scale : float, default: 1
+            Divide the bbox by this first, e.g. a device pixel ratio to
+            convert physical pixels to logical ones.
+        clip : (float, float), optional
+            Clamp the result to ``(0, 0, width, height)``.
+
+        Returns
+        -------
+        tuple of int
+            ``(x0, y0, x1, y1)``, with the upper bounds exclusive: the bbox
+            covers every pixel with ``x0 <= col < x1`` and ``y0 <= row < y1``.
+        """
+        x0, y0, x1, y1 = self.extents
+        x0, y0 = math.floor(x0 / scale), math.floor(y0 / scale)
+        x1, y1 = math.ceil(x1 / scale), math.ceil(y1 / scale)
+        if clip is not None:
+            width, height = clip
+            x0, y0, x1, y1 = (max(x0, 0), max(y0, 0),
+                              min(x1, width), min(y1, height))
+        return x0, y0, x1, y1
+
     def expanded(self, sw, sh):
         """
         Construct a `Bbox` by expanding this one around its center by the
