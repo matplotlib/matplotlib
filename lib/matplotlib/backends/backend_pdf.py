@@ -396,8 +396,11 @@ class Reference:
 class Name:
     """PDF name object."""
     __slots__ = ('name',)
+    # Only regular characters may appear unescaped; delimiters and '#' must
+    # be written as #xx (PDF 32000-1:2008, 7.3.5).
     _hexify = {c: '#%02x' % c
-               for c in {*range(256)} - {*range(ord('!'), ord('~') + 1)}}
+               for c in {*range(256)} - {*range(ord('!'), ord('~') + 1)}
+               | {*b'#%()/<>[]{}'}}
 
     def __init__(self, name):
         if isinstance(name, Name):
