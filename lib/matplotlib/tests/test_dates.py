@@ -1,8 +1,8 @@
 import datetime
-
-import dateutil.tz
-import dateutil.rrule
 import functools
+import zoneinfo
+
+import dateutil.rrule
 import numpy as np
 import pytest
 
@@ -943,7 +943,7 @@ def test_auto_date_locator_intmult_tz():
                 ]
                )
 
-    tz = dateutil.tz.gettz('Canada/Pacific')
+    tz = zoneinfo.ZoneInfo('Canada/Pacific')
     d1 = datetime.datetime(1997, 1, 1, tzinfo=tz)
     for t_delta, expected in results:
         with rc_context({'_internal.classic_mode': False}):
@@ -969,7 +969,7 @@ def test_date_inverted_limit():
 def _test_date2num_dst(date_range, tz_convert):
     # Timezones
 
-    BRUSSELS = dateutil.tz.gettz('Europe/Brussels')
+    BRUSSELS = zoneinfo.ZoneInfo('Europe/Brussels')
     UTC = mdates.UTC
 
     # Create a list of timezone-aware datetime objects in UTC
@@ -1072,8 +1072,8 @@ def _test_rrulewrapper(attach_tz, get_tz):
     rule = mdates.rrulewrapper(freq=dateutil.rrule.DAILY, dtstart=dtstart)
 
     act = rule.between(dtstart, dtend)
-    exp = [datetime.datetime(2017, 4, 1, 13, tzinfo=dateutil.tz.tzutc()),
-           datetime.datetime(2017, 4, 2, 14, tzinfo=dateutil.tz.tzutc())]
+    exp = [datetime.datetime(2017, 4, 1, 13, tzinfo=datetime.timezone.utc),
+           datetime.datetime(2017, 4, 2, 14, tzinfo=datetime.timezone.utc)]
 
     assert act == exp
 
@@ -1082,9 +1082,9 @@ def test_rrulewrapper():
     def attach_tz(dt, zi):
         return dt.replace(tzinfo=zi)
 
-    _test_rrulewrapper(attach_tz, dateutil.tz.gettz)
+    _test_rrulewrapper(attach_tz, zoneinfo.ZoneInfo)
 
-    SYD = dateutil.tz.gettz('Australia/Sydney')
+    SYD = zoneinfo.ZoneInfo('Australia/Sydney')
     dtstart = datetime.datetime(2017, 4, 1, 0)
     dtend = datetime.datetime(2017, 4, 4, 0)
     rule = mdates.rrulewrapper(freq=dateutil.rrule.DAILY, dtstart=dtstart,
@@ -1316,7 +1316,7 @@ def test_DateLocator():
     # Check default is UTC
     assert locator.tz == mdates.UTC
     tz_str = 'Iceland'
-    iceland_tz = dateutil.tz.gettz(tz_str)
+    iceland_tz = zoneinfo.ZoneInfo(tz_str)
     # Check not Iceland
     assert locator.tz != iceland_tz
     # Set it to Iceland
@@ -1339,7 +1339,8 @@ def test_DateLocator():
     assert locator.tz == iceland_tz
 
     # Test invalid tz values
-    with pytest.raises(ValueError, match="Aiceland is not a valid timezone"):
+    with pytest.raises(zoneinfo.ZoneInfoNotFoundError,
+                       match="No time zone found with key Aiceland"):
         mdates.DateLocator(tz="Aiceland")
     with pytest.raises(TypeError,
                        match="tz must be string or tzinfo subclass."):
