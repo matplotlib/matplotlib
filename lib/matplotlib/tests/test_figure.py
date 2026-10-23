@@ -1320,6 +1320,14 @@ class TestSubplotMosaic:
         assert list(ax_dict) == list("ABCDEFGHI")
         assert list(fig.axes) == list(ax_dict.values())
 
+    def _get_shared_groups(self, axd, axis):
+        """Helper to extract shared axis groups as sets for easy testing."""
+        return {
+            frozenset(ax.get_label() for ax in group)
+            for group in axd["A"]._shared_axes[axis]
+            if len(group) > 1
+        }
+
     @pytest.mark.parametrize("share_val", [True, "all", False, "none"])
     def test_share_all(self, share_val):
         layout = [
@@ -1330,37 +1338,28 @@ class TestSubplotMosaic:
                           ["."]]]]]
         ]
         fig = plt.figure()
-        ax_dict = fig.subplot_mosaic(layout, sharex=share_val, sharey=share_val)
-        ax_dict["A"].set(xscale="log", yscale="logit")
+        axd = fig.subplot_mosaic(layout, sharex=share_val, sharey=share_val)
 
-        # If sharing is True or "all", all axes should match "A"
+        all_labels = frozenset(axd.keys())
+
         if share_val in [True, "all"]:
-            assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
-                       for ax in ax_dict.values())
-        # If sharing is False or "none", only "A" should be changed
+            assert self._get_shared_groups(axd, "x") == {all_labels}
+            assert self._get_shared_groups(axd, "y") == {all_labels}
         else:
-            assert ax_dict["A"].get_xscale() == "log"
-            assert ax_dict["B"].get_xscale() != "log"
+            assert self._get_shared_groups(axd, "x") == set()
+            assert self._get_shared_groups(axd, "y") == set()
 
     def test_share_row_col(self):
         layout = "ABCD;EFCD"
         fig = plt.figure()
         axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
 
-        xgroups = [
-            sorted(ax.get_label() for ax in group)
-            for group in axd["A"]._shared_axes["x"]
-        ]
-        assert ["A", "E"] in xgroups
-        assert ["B", "F"] in xgroups
-
-        ygroups = [
-            sorted(ax.get_label() for ax in group)
-            for group in axd["A"]._shared_axes["y"]
-        ]
-        assert ["A", "B"] in ygroups
-        assert ["C", "D"] in ygroups
-        assert ["E", "F"] in ygroups
+        assert self._get_shared_groups(axd, "x") == {
+            frozenset({"A", "E"}), frozenset({"B", "F"})
+        }
+        assert self._get_shared_groups(axd, "y") == {
+            frozenset({"A", "B"}), frozenset({"C", "D"}), frozenset({"E", "F"})
+        }
 
     def test_share_invalid(self):
         fig = plt.figure()
@@ -1372,24 +1371,17 @@ class TestSubplotMosaic:
         with pytest.raises(ValueError, match=msg):
             fig.subplot_mosaic("AB;CD", sharey={"A": "B"})
 
-    def test_share_row_col_nested(self):
-        layout = [
-            ["A", [["B", "C"],
-                   ["D", "E"]]]
-        ]
+    def test_share_row_col_spanning(self):
+        layout = "AAB;CDD;EEF"
         fig = plt.figure()
         axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
 
-        axd["B"].set_ylim(0, 50)
-        assert axd["C"].get_ylim() == (0, 50)
-        assert axd["D"].get_ylim() != (0, 50)
-
-        axd["B"].set_xlim(0, 50)
-        assert axd["D"].get_xlim() == (0, 50)
-        assert axd["C"].get_xlim() != (0, 50)
-
-        axd["A"].set_ylim(-10, 10)
-        assert axd["B"].get_ylim() != (-10, 10)
+        assert self._get_shared_groups(axd, "x") == {
+            frozenset({"A", "E"}), frozenset({"B", "F"})
+        }
+        assert self._get_shared_groups(axd, "y") == {
+            frozenset({"A", "B"}), frozenset({"C", "D"}), frozenset({"E", "F"})
+        }
 
 
 def test_reused_gridspec():

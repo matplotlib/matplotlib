@@ -2318,7 +2318,6 @@ default: %(va)s
         gs = self.add_gridspec(rows, cols, **gridspec_kw)
         ax_dict = _do_layout(gs, mosaic, *_identify_keys_and_nested(mosaic))
 
-        # Symmetric Sharing
         def _apply_sharing(ax_dict, share_val, axis_name):
             """
             Apply axis sharing and manage tick label visibility for a generated
