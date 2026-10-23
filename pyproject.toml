@@ -30,6 +30,7 @@ classifiers=[
 # - doc/install/dependencies.rst
 # - environment.yml
 dependencies = [
+    "cachetools >= 6",
     "contourpy >= 1.2.1",
     "cycler >= 0.12.0",
     "fonttools >= 4.28.2",
