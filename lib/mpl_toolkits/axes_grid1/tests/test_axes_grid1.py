@@ -89,6 +89,26 @@ def test_twin_axes_empty_and_removed():
     plt.subplots_adjust(wspace=0.5, hspace=1)
 
 
+@pytest.mark.parametrize("method, axis_name", [
+    ("twinx", "y"), ("twiny", "x"), ("twin", "x"), ("twin", "y"),
+])
+def test_twin_axes_offset_and_minor_ticks(method, axis_name):
+    host = host_subplot(111)
+    twin = getattr(host, method)()
+    twin.set(xlim=(0, 3e-10), ylim=(0, 3e-10))
+    axis = getattr(twin, f"{axis_name}axis")
+    axis.set_minor_locator(mticker.AutoMinorLocator())
+    host.figure.canvas.draw()
+
+    offset = axis.get_offset_text()
+    assert offset.get_text()
+    if axis_name == "x":
+        assert offset.get_window_extent().y0 > host.bbox.y1
+    else:
+        assert offset.get_window_extent().x1 == pytest.approx(host.bbox.x1)
+    assert axis.get_ticks_position() == {"x": "top", "y": "right"}[axis_name]
+
+
 def test_twin_axes_both_with_units():
     host = host_subplot(111)
     host.yaxis.axis_date()
