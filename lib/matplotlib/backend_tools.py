@@ -2,13 +2,12 @@
 Abstract base classes define the primitives for Tools.
 These tools are used by `matplotlib.backend_managers.ToolManager`
 
-:class:`ToolBase`
-    Simple stateless tool
+`ToolBase`
+    Simple stateless tool.
 
-:class:`ToolToggleBase`
-    Tool that has two states, only one Toggle tool can be
-    active at any given time for the same
-    `matplotlib.backend_managers.ToolManager`
+`ToolToggleBase`
+    Tool that has two states, only one Toggle tool can be active at any given time for
+    the same `matplotlib.backend_managers.ToolManager`.
 """
 
 import enum
@@ -22,7 +21,6 @@ from weakref import WeakKeyDictionary
 import numpy as np
 
 import matplotlib as mpl
-from matplotlib._pylab_helpers import Gcf
 from matplotlib import _api, cbook
 
 
@@ -352,101 +350,66 @@ class RubberbandBase(ToolBase):
         pass
 
 
-class ToolQuit(ToolBase):
+class _ToolForwardingToClassicToolbar(ToolBase):
+    _rc_entry = ''  # Must be set by subclass.
+    default_keymap = property(lambda self: mpl.rcParams[self._rc_entry])
+
+    def trigger(self, sender, event, data=None):
+        sentinel = str(uuid.uuid4())
+        # Trigger classic key press event handling by temporarily setting the keymap to
+        # a unique key and sending an event with that key.
+        with (cbook._setattr_cm(event, key=sentinel),
+              mpl.rc_context({self._rc_entry: sentinel})):
+            mpl.backend_bases.key_press_handler(event, self.figure.canvas)
+
+
+class ToolQuit(_ToolForwardingToClassicToolbar):
     """Tool to call the figure manager destroy method."""
 
     description = 'Quit the figure'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.quit'])
-
-    def trigger(self, sender, event, data=None):
-        Gcf.destroy_fig(self.figure)
+    _rc_entry = 'keymap.quit'
 
 
-class ToolQuitAll(ToolBase):
+class ToolQuitAll(_ToolForwardingToClassicToolbar):
     """Tool to call the figure manager destroy method."""
 
     description = 'Quit all figures'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.quit_all'])
-
-    def trigger(self, sender, event, data=None):
-        Gcf.destroy_all()
+    _rc_entry = 'keymap.quit_all'
 
 
-class ToolGrid(ToolBase):
+class ToolGrid(_ToolForwardingToClassicToolbar):
     """Tool to toggle the major grids of the figure."""
 
     description = 'Toggle major grids'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.grid'])
-
-    def trigger(self, sender, event, data=None):
-        sentinel = str(uuid.uuid4())
-        # Trigger grid switching by temporarily setting :rc:`keymap.grid`
-        # to a unique key and sending an appropriate event.
-        with (cbook._setattr_cm(event, key=sentinel),
-              mpl.rc_context({'keymap.grid': sentinel})):
-            mpl.backend_bases.key_press_handler(event, self.figure.canvas)
+    _rc_entry = 'keymap.grid'
 
 
-class ToolMinorGrid(ToolBase):
+class ToolMinorGrid(_ToolForwardingToClassicToolbar):
     """Tool to toggle the major and minor grids of the figure."""
 
     description = 'Toggle major and minor grids'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.grid_minor'])
-
-    def trigger(self, sender, event, data=None):
-        sentinel = str(uuid.uuid4())
-        # Trigger grid switching by temporarily setting :rc:`keymap.grid_minor`
-        # to a unique key and sending an appropriate event.
-        with (cbook._setattr_cm(event, key=sentinel),
-              mpl.rc_context({'keymap.grid_minor': sentinel})):
-            mpl.backend_bases.key_press_handler(event, self.figure.canvas)
+    _rc_entry = 'keymap.grid_minor'
 
 
-class ToolFullScreen(ToolBase):
+class ToolFullScreen(_ToolForwardingToClassicToolbar):
     """Tool to toggle full screen."""
 
     description = 'Toggle fullscreen mode'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.fullscreen'])
-
-    def trigger(self, sender, event, data=None):
-        self.figure.canvas.manager.full_screen_toggle()
+    _rc_entry = 'keymap.fullscreen'
 
 
-class AxisScaleBase(ToolToggleBase):
-    """Base Tool to toggle between linear and logarithmic."""
-
-    def trigger(self, sender, event, data=None):
-        if event.inaxes is None:
-            return
-        super().trigger(sender, event, data)
-
-    def enable(self, event=None):
-        self.set_scale(event.inaxes, 'log')
-        self.figure.canvas.draw_idle()
-
-    def disable(self, event=None):
-        self.set_scale(event.inaxes, 'linear')
-        self.figure.canvas.draw_idle()
-
-
-class ToolYScale(AxisScaleBase):
-    """Tool to toggle between linear and logarithmic scales on the Y axis."""
-
-    description = 'Toggle scale Y axis'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.yscale'])
-
-    def set_scale(self, ax, scale):
-        ax.set_yscale(scale)
-
-
-class ToolXScale(AxisScaleBase):
+class ToolXScale(_ToolForwardingToClassicToolbar):
     """Tool to toggle between linear and logarithmic scales on the X axis."""
 
     description = 'Toggle scale X axis'
-    default_keymap = property(lambda self: mpl.rcParams['keymap.xscale'])
+    _rc_entry = 'keymap.xscale'
 
-    def set_scale(self, ax, scale):
-        ax.set_xscale(scale)
+
+class ToolYScale(_ToolForwardingToClassicToolbar):
+    """Tool to toggle between linear and logarithmic scales on the Y axis."""
+
+    description = 'Toggle scale Y axis'
+    _rc_entry = 'keymap.yscale'
 
 
 class ToolViewsPositions(ToolBase):
