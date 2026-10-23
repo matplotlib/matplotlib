@@ -52,9 +52,17 @@ class _BlendModePorterDuff(StrEnum):
     PLUS = auto()
 
 
+# Blend modes that are supported natively by only the Agg backend
+class _BlendModeCustom(StrEnum):
+    MAXCOVER = "max cover"
+    MINCOVER = "min cover"
+
+
 # Merge the two enumerations into a single enumeration of all blend modes
 BlendMode = StrEnum(
-    "BlendMode", {**_BlendModePDFSpec.__members__, **_BlendModePorterDuff.__members__}
+    "BlendMode", {**_BlendModePDFSpec.__members__,
+                  **_BlendModePorterDuff.__members__,
+                  **_BlendModeCustom.__members__}
 )
 BlendMode.__doc__ = """\
 An enumeration of the allowed blend modes.
