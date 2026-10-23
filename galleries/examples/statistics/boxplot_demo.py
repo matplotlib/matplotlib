@@ -1,4 +1,6 @@
 """
+.. _boxplot_demo:
+
 ========
 Boxplots
 ========
