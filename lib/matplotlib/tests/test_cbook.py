@@ -195,6 +195,7 @@ class Test_boxplot_stats:
         for key, value in expected[0].items():
             np.testing.assert_equal(result[0][key], value)
 
+
 class Hashable:
     def dummy(self): pass
 

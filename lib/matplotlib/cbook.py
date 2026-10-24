@@ -1300,8 +1300,6 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
             stats['whishi'] = np.nan
             continue
 
-        
-
         # arithmetic mean
         stats['mean'] = np.mean(x)
 
