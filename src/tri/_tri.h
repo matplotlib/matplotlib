@@ -65,12 +65,14 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include <pybind11/stl.h>
 
 #include <iostream>
 #include <list>
 #include <map>
 #include <set>
 #include <vector>
+#include "../py_array.h"
 
 namespace py = pybind11;
 
@@ -160,12 +162,14 @@ void write_contour(const Contour& contour);
 class Triangulation final
 {
 public:
-    typedef py::array_t<double, py::array::c_style | py::array::forcecast> CoordinateArray;
-    typedef py::array_t<double, py::array::c_style | py::array::forcecast> TwoCoordinateArray;
-    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> TriangleArray;
-    typedef py::array_t<bool,   py::array::c_style | py::array::forcecast> MaskArray;
-    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> EdgeArray;
-    typedef py::array_t<int,    py::array::c_style | py::array::forcecast> NeighborArray;
+    using CoordinateArray = mpl::array<const double, mpl::ndim<1>>;
+    using MaskArray = mpl::array<const bool, mpl::ndim<1>>;
+
+    using EdgeArray = mpl::array<int, mpl::shape<-1, 2>>;
+    using TriangleArray = mpl::array<int, mpl::shape<-1, 3>>;
+    using NeighborArray = mpl::array<int, mpl::shape<-1, 3>>;
+    using CoefficientArray = mpl::array<double, mpl::shape<-1, 3>>;
+
 
     /* A single boundary is a vector of the TriEdges that make up that boundary
      * following it around with unmasked triangles on the left. */
@@ -189,12 +193,12 @@ public:
      *   correct_triangle_orientations: Whether or not should correct triangle
      *                                  orientations so that vertices are
      *                                  ordered anticlockwise. */
-    Triangulation(const CoordinateArray& x,
-                  const CoordinateArray& y,
-                  const TriangleArray& triangles,
-                  const MaskArray& mask,
-                  const EdgeArray& edges,
-                  const NeighborArray& neighbors,
+    Triangulation(const mpl::defer<CoordinateArray>& x,
+                  const mpl::defer<CoordinateArray>& y,
+                  const mpl::defer<TriangleArray>& triangles,
+                  const std::optional<mpl::defer<MaskArray>>& mask,
+                  const std::optional<mpl::defer<EdgeArray>>& edges,
+                  const std::optional<mpl::defer<NeighborArray>>& neighbors,
                   bool correct_triangle_orientations);
 
     /* Calculate plane equation coefficients for all unmasked triangles from
@@ -202,7 +206,7 @@ public:
      * in via the args.  Returned array has shape (npoints,3) and allows
      * z-value at (x,y) coordinates in triangle tri to be calculated using
      *      z = array[tri,0]*x + array[tri,1]*y + array[tri,2]. */
-    TwoCoordinateArray calculate_plane_coefficients(const CoordinateArray& z);
+    CoefficientArray calculate_plane_coefficients(mpl::defer<CoordinateArray>& z);
 
     // Return the boundaries collection, creating it if necessary.
     const Boundaries& get_boundaries() const;
@@ -247,7 +251,7 @@ public:
      * recalculated when next needed.
      *   mask: bool array of shape (ntri) indicating which triangles are
      *         masked, or an empty array to clear mask. */
-    void set_mask(const MaskArray& mask);
+    void set_mask(std::optional<mpl::defer<MaskArray>>& mask);
 
     // Debug function to write boundaries.
     void write_boundaries() const;
@@ -303,18 +307,18 @@ private:
 
 
     // Variables shared with python, always set.
-    CoordinateArray _x, _y;    // double array (npoints).
-    TriangleArray _triangles;  // int array (ntri,3) of triangle point indices,
-                               //     ordered anticlockwise.
+    CoordinateArray _x_arr, _y_arr;    // double array (npoints).
+    TriangleArray _triangles_arr;      // int array (ntri,3) of triangle point indices,
+                                       //     ordered anticlockwise.
 
     // Variables shared with python, may be unset (size == 0).
-    MaskArray _mask;           // bool array (ntri).
+    MaskArray _mask_arr;           // bool array (ntri).
 
     // Derived variables shared with python, may be unset (size == 0).
     // If unset, are recalculated when needed.
-    EdgeArray _edges;          // int array (?,2) of start & end point indices.
-    NeighborArray _neighbors;  // int array (ntri,3), neighbor triangle indices
-                               //     or -1 if no neighbor.
+    EdgeArray _edges_arr;          // int array (?,2) of start & end point indices.
+    NeighborArray _neighbors_arr;  // int array (ntri,3), neighbor triangle indices
+                                   //     or -1 if no neighbor.
 
     // Variables internal to C++ only.
     Boundaries _boundaries;
@@ -331,16 +335,16 @@ private:
 class TriContourGenerator final
 {
 public:
-    typedef Triangulation::CoordinateArray CoordinateArray;
-    typedef Triangulation::TwoCoordinateArray TwoCoordinateArray;
-    typedef py::array_t<unsigned char> CodeArray;
+    using CoordinateArray = mpl::array<const double, mpl::ndim<1>>;
+    using OutputTwoCoordinateArray = mpl::array<double, mpl::shape<-1, 2>>;
+    using OutputCodeArray = mpl::array<unsigned char, mpl::ndim<1>>;
 
     /* Constructor.
      *   triangulation: Triangulation to generate contours for.
      *   z: Double array of shape (npoints) of z-values at triangulation
      *      points. */
     TriContourGenerator(Triangulation& triangulation,
-                        const CoordinateArray& z);
+                        mpl::defer<CoordinateArray>& z);
 
     /* Create and return a non-filled contour.
      *   level: Contour level.
@@ -464,7 +468,7 @@ private:
 
     // Variables shared with python, always set.
     Triangulation _triangulation;
-    CoordinateArray _z;        // double array (npoints).
+    CoordinateArray _z_arr;    // double array (npoints).
 
     // Variables internal to C++ only.
     typedef std::vector<bool> InteriorVisited;    // Size 2*ntri
@@ -509,8 +513,8 @@ private:
 class TrapezoidMapTriFinder final
 {
 public:
-    typedef Triangulation::CoordinateArray CoordinateArray;
-    typedef py::array_t<int, py::array::c_style | py::array::forcecast> TriIndexArray;
+    using CoordinateArray = Triangulation::CoordinateArray;
+    using TriIndexArray = mpl::array<int, mpl::ndim<1>>;
 
     /* Constructor.  A separate call to initialize() is required to initialize
      * the object before use.
@@ -522,7 +526,7 @@ public:
     /* Return an array of triangle indices.  Takes 1D arrays x and y of
      * point coordinates, and returns an array of the same size containing the
      * indices of the triangles at those points. */
-    TriIndexArray find_many(const CoordinateArray& x, const CoordinateArray& y);
+    TriIndexArray find_many(mpl::defer<CoordinateArray>& x, mpl::defer<CoordinateArray>& y);
 
     /* Return a reference to a new python list containing the following
      * statistics about the tree:
