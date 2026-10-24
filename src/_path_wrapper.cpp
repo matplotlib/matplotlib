@@ -96,7 +96,7 @@ Py_point_in_path_collection(double x, double y, double radius,
 {
     auto transforms_array = transforms_obj.value("transforms");
     auto offsets_array = offsets_obj.value("offsets");
-    auto indices = std::vector<int>();
+    auto indices = std::vector<size_t>();
 
     point_in_path_collection(x, y, radius, master_transform, paths, transforms_array,
                              offsets_array, offset_trans, filled, indices);

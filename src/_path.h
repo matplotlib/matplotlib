@@ -23,7 +23,7 @@
 using AffineTransformArray = mpl::array<const double, mpl::shape<-1, 3, 3>>;
 using BBoxArray = mpl::array<double, mpl::shape<-1, 2, 2>>;
 using BoolArray = mpl::array<bool, mpl::ndim<1>>;
-using IndexArray = mpl::array<bool, mpl::ndim<1>>;
+using IndexArray = mpl::array<size_t, mpl::ndim<1>>;
 using PointArray = mpl::array<const double, mpl::shape<-1, 2>>;
 
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3 };
@@ -275,7 +275,7 @@ inline bool point_in_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
-    auto points_arr = PointArray::unmanaged(points_data, 2);
+    auto points_arr = PointArray::unmanaged(points_data, 1);
 
     bool result_data[] = {false};
     auto result_arr = BoolArray::unmanaged(result_data, 1);
@@ -290,7 +290,7 @@ inline bool point_on_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
-    auto points_arr = PointArray::unmanaged(points_data, 2);
+    auto points_arr = PointArray::unmanaged(points_data, 1);
 
     bool result_data[] = {false};
     auto result_arr = BoolArray::unmanaged(result_data, 1);
@@ -413,7 +413,7 @@ void point_in_path_collection(double x,
                               PointArray &offsets_array,
                               agg::trans_affine &offset_trans,
                               bool filled,
-                              std::vector<int> &result)
+                              std::vector<size_t> &result)
 {
     auto Npaths = paths.size();
 
@@ -429,7 +429,7 @@ void point_in_path_collection(double x,
     auto transforms = transforms_array.view();
     auto offsets = offsets_array.view();
 
-    for (auto i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path = paths(i % Npaths);
 
         if (Ntransforms) {
