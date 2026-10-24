@@ -23,7 +23,7 @@ import operator
 import os
 import re
 from typing import Any, Literal
-from collections.abc import Callable, Sequence
+from collections.abc import Callable
 
 import numpy as np
 
@@ -1448,7 +1448,7 @@ _validators = {
     "keymap.copy":       validate_stringlist,
 
     # Animation settings
-    "animation.html":         ["html5", "jshtml", "none"],
+    "animation.html":         ["auto", "html5", "jshtml", "none"],
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
     "animation.embed_limit":  validate_float,
@@ -1509,13 +1509,6 @@ type _FontStretchType = int | Literal[
 ]
 
 
-type _LineStyleType = (
-    Literal["-", "solid", "--", "dashed", "-.", "dashdot", ":", "dotted",
-            "", "none", " ", "None"] |
-    tuple[float, Sequence[float]]
-)
-
-
 type _MarkerType = int | str
 
 
@@ -1567,68 +1560,72 @@ _DEFINITION = [
         default="large",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="size of the figure title (``Figure.suptitle()``)"
+        description="Size of the figure title (see `.Figure.suptitle`)."
     ),
     _Param(
         "figure.titleweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="weight of the figure title"
+        description="Weight of the figure title (see `.Figure.suptitle`)."
     ),
     _Param(
         "figure.labelsize",
         default="large",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="size of the figure label (``Figure.sup[x|y]label()``)"
+        description="Size of the figure label (see `.Figure.supxlabel` / "
+                    "`.Figure.supylabel`)."
     ),
     _Param(
         "figure.labelweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="weight of the figure label"
+        description="Weight of the figure label (see `.Figure.supxlabel` / "
+                    "`.Figure.supylabel`)."
     ),
     _Param(
         "figure.figsize",
         default=[6.4, 4.8],
         type=tuple[float, float],
         validator=_listify_validator(validate_float, n=2),
-        description="figure size in inches"
+        description="Figure size as (width, height) in inches."
     ),
     _Param(
         "figure.dpi",
         default=100.0,
         type=float,
-        validator=validate_float, description="figure dots per inch"
+        validator=validate_float,
+        description="Figure resolution in dpi (dots per inch)."
     ),
     _Param(
         "figure.facecolor",
         default="white",
         type=":mpltype:`color`",
-        validator=validate_color, description="figure face color"
+        validator=validate_color, description="Color of the figure background."
     ),
     _Param(
         "figure.edgecolor",
         default="white",
         type=":mpltype:`color`",
-        validator=validate_color, description="figure edge color"
+        validator=validate_color, description="Edge color of the figure background."
     ),
     _Param(
         "figure.frameon",
         default=True,
         type=bool,
-        validator=validate_bool, description="enable figure frame"
+        validator=validate_bool,
+        description="Whether to draw the figure background patch."
     ),
     _Param(
         "figure.max_open_warning",
         default=20,
         type=int,
         validator=validate_int,
-        description="The maximum number of figures to open through the pyplot "
-                    "interface before emitting a warning. If less than one this "
-                    "feature is disabled."
+        description="Maximum number of figures to open through the pyplot interface "
+                    "before emitting a warning. If less than one, this feature is "
+                    "disabled."
     ),
     _Param(
         "figure.raise_window",
@@ -1645,60 +1642,72 @@ _DEFINITION = [
         default=0.125,
         type=float,
         validator=validate_float,
-        description="the left side of the subplots of the figure"
+        description="Position of the left edge of the subplots, as a fraction of "
+                    "the figure width. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.right",
         default=0.9,
         type=float,
         validator=validate_float,
-        description="the right side of the subplots of the figure"
+        description="Position of the right edge of the subplots, as a fraction of "
+                    "the figure width. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.bottom",
         default=0.11,
         type=float,
         validator=validate_float,
-        description="the bottom of the subplots of the figure"
+        description="Position of the bottom edge of the subplots, as a fraction of "
+                    "the figure height. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.top",
         default=0.88,
         type=float,
         validator=validate_float,
-        description="the top of the subplots of the figure"
+        description="Position of the top edge of the subplots, as a fraction of "
+                    "the figure height. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.wspace",
         default=0.2,
         type=float,
         validator=validate_float,
-        description="the amount of width reserved for space between subplots, "
-                    "expressed as a fraction of the average axis width"
+        description="Width of the padding between subplots, as a fraction of the "
+                    "average Axes width. See `.SubplotParams`."
     ),
     _Param(
         "figure.subplot.hspace",
         default=0.2,
         type=float,
         validator=validate_float,
-        description="the amount of height reserved for space between subplots, "
-                    "expressed as a fraction of the average axis height"
+        description="Height of the padding between subplots, as a fraction of the "
+                    "average Axes height. See `.SubplotParams`."
     ),
     _Param(
         "figure.autolayout",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, automatically adjust subplot parameters to make the "
-                    "plot fit the figure using `~.Figure.tight_layout`"
+        description="Whether to use the tight layout mechanism to adapt subplot "
+                    "parameters. See the parameter *tight_layout* of `.Figure` for "
+                    "more information."
+                    "\n\n"
+                    "Note: Only one of the parameters 'figure.autolayout' and "
+                    "'figure.constrained_layout.use' can be True at a time."
     ),
     _Param(
         "figure.constrained_layout.use",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, automatically make plot elements fit on the figure. "
-                    '(Not compatible with "figure.autolayout", above).'
+        description="Whether to use the constrained layout mechanism to optimize "
+                    "figure layout. See the parameter *constrained_layout* of "
+                    "`.Figure` for more information."
+                    "\n\n"
+                    "Note: Only one of the parameters 'figure.autolayout' and "
+                    "'figure.constrained_layout.use' can be True at a time."
     ),
     _Param(
         "figure.constrained_layout.h_pad",
@@ -1706,7 +1715,7 @@ _DEFINITION = [
         type=float,
         validator=validate_float,
         description="Padding (in inches) around axes; defaults to 3/72 inches, "
-                    "i.e. 3 points"
+                    "i.e. 3 points."
     ),
     _Param(
         "figure.constrained_layout.w_pad",
@@ -1714,7 +1723,7 @@ _DEFINITION = [
         type=float,
         validator=validate_float,
         description="Padding (in inches) around axes; defaults to 3/72 inches, "
-                    "i.e. 3 points"
+                    "i.e. 3 points."
     ),
     _Param(
         "figure.constrained_layout.hspace",
@@ -1741,7 +1750,16 @@ _DEFINITION = [
         default=[],
         type=list[str],
         validator=validate_stringlist,
-        description="list of dotted.module.name:dotted.callable.name"
+        description="List of functions that are called after figure creation. "
+                    "These can be used to customize the created figure. The "
+                    "functions are declared as fully qualified names, e.g. "
+                    "'dotted.module.name:function_name'. Each function must have the "
+                    "signature ``function(fig: Figure) -> None``."
+                    "\n\n"
+                    "This is a `.pyplot` feature and is only executed on figures that "
+                    "are created via pyplot functions. See also the note in "
+                    "`.pyplot.figure`. Figure hooks do not apply to figures "
+                    "created through ``Figure()``."
     ),
     _Section("Axes"),
     _Param(
@@ -1749,21 +1767,21 @@ _DEFINITION = [
         default="white",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The axes background color."
+        description="Axes background color."
     ),
     _Param(
         "axes.edgecolor",
         default="black",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The axes edge color."
+        description="Axes edge color."
     ),
     _Param(
         "axes.linewidth",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="The axes edge line width."
+        description="Axes edge line width in points."
     ),
     _Param(
         "axes.grid",
@@ -1777,7 +1795,7 @@ _DEFINITION = [
         default="both",
         type=Literal["x", "y", "both"],
         validator=["x", "y", "both"],
-        description="Which axis the grid should apply to."
+        description="On which axis the grid is displayed."
     ),
     _Param(
         "axes.grid.which",
@@ -1791,82 +1809,86 @@ _DEFINITION = [
         default="center",
         type=Literal["left", "center", "right"],
         validator=["left", "center", "right"],
-        description="The alignment of the axes title."
+        description="Horizontal location of the axes title."
     ),
     _Param(
         "axes.titlesize",
         default="large",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="The font size of the axes title."
+        description="Font size of the axes title."
     ),
     _Param(
         "axes.titleweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="The font weight of the axes title."
+        description="Font weight of the axes title."
     ),
     _Param(
         "axes.titlecolor",
         default="auto",
         type=':mpltype:`color` or "auto"',
         validator=validate_color_or_auto,
-        description="The color of the axes title; auto falls back to 'text.color'."
+        description="Color of the axes title; 'auto' falls back to 'text.color'."
     ),
     _Param(
         "axes.titley",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="The vertical title position in "
-                    ":ref:`axes coordinates <coordinate-systems>`; "
-                    "None enables automatic placement."
+        description="Vertical axes title position.\n\n"
+                    "A number specifies the text baseline in "
+                    ":ref:`axes coordinates <coordinate-systems>`. "
+                    "None enables automatic placement so that the title bottom aligns "
+                    "with the top of the Axes and potentially any top tick "
+                    "labels.\n\n"
+                    "The position will additionally be shifted by 'axes.titlepad'."
     ),
     _Param(
         "axes.titlepad",
         default=6.0,
         type=float,
         validator=validate_float,
-        description="The padding between the axes and title, in points."
+        description="Additional space between the Axes and title in points. This "
+                    "shifts the title position determined by 'axes.titley'."
     ),
     _Param(
         "axes.labelsize",
         default="medium",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="The font size of the x and y labels."
+        description="Font size of the x and y labels."
     ),
     _Param(
         "axes.labelpad",
         default=4.0,
         type=float,
         validator=validate_float,
-        description="The space between the axis label and the axis, in points."
+        description="The space between the axis label and the axis / tick labels, "
+                    "in points."
     ),
     _Param(
         "axes.labelweight",
         default="normal",
         type=_FontWeightType,
         validator=validate_fontweight,
-        description="The font weight of the x and y labels."
+        description="Font weight of the x and y labels."
     ),
     _Param(
         "axes.labelcolor",
         default="black",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The color of the axis labels."
+        description="Color of the axis labels."
     ),
     _Param(
         "axes.axisbelow",
         default="line",
         type=bool | Literal["line"],
         validator=validate_axisbelow,
-        description="draw axis gridlines and ticks: "
-                    "- below patches (True) "
-                    "- above patches but below lines ('line') "
-                    "- above all (False)"
+        description="Whether axis ticks and gridlines are above or below most artists. "
+                    "See `~.Axes.set_axisbelow` for details."
     ),
     _Param(
         "axes.formatter.limits",
@@ -1881,7 +1903,7 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, format tick labels according to the user's locale. "
+        description="Whether to format tick labels according to the user's locale. "
                     "For example, use ',' as a decimal separator in the fr_FR locale."
     ),
     _Param(
@@ -1889,14 +1911,18 @@ _DEFINITION = [
         default=False,
         type=bool,
         validator=validate_bool,
-        description="When True, use mathtext for scientific notation."
+        description="Whether `.ScalarFormatter` and `.EngFormatter` use fancy "
+                    r"formatting for scientific notation; i.e. :math:`1.2 \times 10^3` "
+                    "instead of 1.2e3."
     ),
     _Param(
         "axes.formatter.min_exponent",
         default=0,
         type=int,
         validator=validate_int,
-        description="minimum exponent to format in scientific notation"
+        description="The smallest absolute exponent value that log formatters will "
+                    "format as scientific notation; e.g. if set to 3, formatting will "
+                    "be 1e-3, 0.01, 0.1, 0, 10, 100, 1e3."
     ),
     _Param(
         "axes.formatter.useoffset",
@@ -1916,27 +1942,23 @@ _DEFINITION = [
                     "remove at least this number of significant digits from tick "
                     "labels."
     ),
-    _Param(
-        "axes.spines.left",
-        default=True,
-        type=bool,
-        validator=validate_bool,
-        description="display axis spines"
-    ),
-    _Param("axes.spines.bottom", True, bool, validate_bool,
+    _Param("axes.spines.left", default=True, type=bool, validator=validate_bool,
+            description="Whether to draw the left axis spine."),
+    _Param("axes.spines.bottom", default=True, type=bool, validator=validate_bool,
            description="Whether to draw the bottom axis spine."),
-    _Param("axes.spines.top", True, bool, validate_bool,
+    _Param("axes.spines.top", default=True, type=bool, validator=validate_bool,
            description="Whether to draw the top axis spine."),
-    _Param("axes.spines.right", True, bool, validate_bool,
+    _Param("axes.spines.right", default=True, type=bool, validator=validate_bool,
            description="Whether to draw the right axis spine."),
     _Param(
         "axes.unicode_minus",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="use Unicode for the minus symbol rather than hyphen. See "
-                    "https://en.wikipedia.org/wiki/Plus_and_minus_signs#Character_codes"
-
+        description="Whether formatters will use the Unicode *Minus Sign* symbol "
+                    "U+2212 (\N{MINUS SIGN}) rather than the ASCII hyphen U+002D (-) "
+                    "for negative numbers. See also "
+                    ":doc:`/gallery/text_labels_and_annotations/unicode_minus`."
     ),
     _Param(
         "axes.prop_cycle",
@@ -1963,30 +1985,30 @@ _DEFINITION = [
         default=0.05,
         type=float,
         validator=_validate_greaterthan_minushalf,
-        description="x margin.  See `~.axes.Axes.margins`"
+        description="x margin.  See `~.axes.Axes.margins`."
     ),
     _Param(
         "axes.ymargin",
         default=0.05,
         type=float,
         validator=_validate_greaterthan_minushalf,
-        description="y margin.  See `~.axes.Axes.margins`"
+        description="y margin.  See `~.axes.Axes.margins`."
     ),
     _Param(
         "axes.zmargin",
         default=0.05,
         type=float,
         validator=_validate_greaterthan_minushalf,
-        description="z margin.  See `~.axes.Axes.margins`"
+        description="z margin.  See `~.axes.Axes.margins`."
     ),
     _Param(
         "axes.autolimit_mode",
         default="data",
         type=Literal["data", "round_numbers"],
         validator=["data", "round_numbers"],
-        description='If "data", use axes.xmargin and axes.ymargin as is. If '
-                    '"round_numbers", after application of margins, axis limits are '
-                    'further expanded to the nearest "round" number.',
+        description='Whether autoscaling should try to adjust the view limits so that '
+                    'there are ticks at the axis edges. See '
+                    ':ref:`autoscaling-limit-rounding`.'
     ),
     _Subsection("Polar Axes"),
     _Param(
@@ -2448,185 +2470,197 @@ _DEFINITION = [
         validator=["center", "top", "bottom", "baseline", "center_baseline"],
         description="Vertical alignment of tick labels relative to the tick lines."
     ),
-    _Section("Grid"),
+    _Section(
+        "Grid",
+        description="Default properties for grid lines. Grids have the four "
+                    "properties: *color*, *linestyle*, *linewidth*, and "
+                    "*alpha*. The ``grid.[property]`` parameters apply to both "
+                    "major and minor grid lines. They may be overridden by the "
+                    "``grid.major.[property]`` and ``grid.minor.[property]``."
+    ),
     _Param(
         "grid.color",
         default="#b0b0b0",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The default grid line color."
+        description="Grid line color."
     ),
     _Param(
         "grid.linestyle",
         default="-",
-        type=_LineStyleType,
+        type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
-        description="The default grid line style."
+        description="Grid line style."
     ),
     _Param(
         "grid.linewidth",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="The default grid line width, in points."
+        description="Grid line width, in points."
     ),
     _Param(
         "grid.alpha",
         default=1.0,
         type=float,
         validator=validate_float,
-        description="The default grid line transparency, between 0.0 (fully "
-                    "transparent) and 1.0 (opaque)."
+        description="Grid line transparency, between 0.0 (fully transparent) and 1.0 "
+                    "(opaque)."
     ),
     _Param(
         "grid.major.color",
         default=None,
         type=":mpltype:`color` or None",
         validator=_validate_color_or_None,
-        description="If None defaults to grid.color"
+        description="Major grid line color. None defaults to 'grid.color'."
     ),
     _Param(
         "grid.major.linestyle",
         default=None,
-        type=_LineStyleType | None,
+        type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
-        description="If None defaults to grid.linestyle"
+        description="Major grid line style. None defaults to 'grid.linestyle'."
     ),
     _Param(
         "grid.major.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.linewidth"
+        description="Major grid line width. None defaults to 'grid.linewidth'."
     ),
     _Param(
         "grid.major.alpha",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.alpha"
+        description="Major grid line transparency. None defaults to 'grid.alpha'."
     ),
     _Param(
         "grid.minor.color",
         default=None,
         type=":mpltype:`color` or None",
         validator=_validate_color_or_None,
-        description="If None defaults to grid.color"
+        description="Minor grid line color. None defaults to 'grid.color'."
     ),
     _Param(
         "grid.minor.linestyle",
         default=None,
-        type=_LineStyleType | None,
+        type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
-        description="If None defaults to grid.linestyle"
+        description="Minor grid line style. None defaults to 'grid.linestyle'."
     ),
     _Param(
         "grid.minor.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.linewidth"
+        description="Minor grid line width. None defaults to 'grid.linewidth'."
     ),
     _Param(
         "grid.minor.alpha",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.alpha"
+        description="Minor grid line transparency. None defaults to 'grid.alpha'."
     ),
-    _Section("Legend"),
+    _Section(
+        "Legend",
+        description="Default legend properties. All entries define defaults for "
+                    "parameters of `.Legend` / `.Axes.legend` / `.Figure.legend`."
+    ),
     _Param(
         "legend.loc",
         default="best",
         type=str | int | tuple[float, float],
         validator=_validate_legend_loc,
-        description="The legend location. See the *loc* parameter in `.Axes.legend`."
+        description="Legend location. See the *loc* parameter in `.Axes.legend`."
     ),
     _Param(
         "legend.frameon",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="if True, draw the legend on a background patch"
+        description="Whether to draw the legend on a background patch."
     ),
     _Param(
         "legend.framealpha",
         default=0.8,
         type=float | None,
         validator=validate_float_or_None,
-        description="legend patch transparency"
+        description="Transparency of the legend background patch."
     ),
     _Param(
         "legend.facecolor",
         default="inherit",
         type=':mpltype:`color` or "inherit"',
         validator=validate_color_or_inherit,
-        description="inherit from axes.facecolor; or color spec"
+        description="Color of the legend background. 'inherit' uses 'axes.facecolor'."
     ),
     _Param(
         "legend.edgecolor",
         default="0.8",
         type=':mpltype:`color` or "inherit"',
         validator=validate_color_or_inherit,
-        description="background patch boundary color"
+        description="Color of the legend frame. 'inherit' uses 'axes.facecolor'."
     ),
     _Param(
         "legend.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="line width of the legend frame, None means inherit from "
-                    "patch.linewidth"
+        description="Line width of the legend frame. None uses 'patch.linewidth'."
     ),
     _Param(
         "legend.fancybox",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="if True, use a rounded box for the legend background, else a "
-                    "rectangle"
+        description="If True, use a rounded box for the legend box, otherwise a "
+                    "rectangle. See the *fancybox* parameter of `.Legend`."
     ),
     _Param(
         "legend.shadow",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="if True, give background a shadow effect"
+        description="Whether to draw a shadow behind the legend."
     ),
     _Param(
         "legend.numpoints",
         default=1,
         type=int,
         validator=validate_int,
-        description="the number of marker points in the legend line"
+        description="Number of marker points in the legend when creating a legend "
+                    "entry for a `.Line2D` (line)."
     ),
     _Param(
         "legend.scatterpoints",
         default=1,
         type=int,
         validator=validate_int,
-        description="number of scatter points"
+        description="Number of scatter points in the legend when creating a legend "
+                    "entry for a `.PathCollection` (scatter plot)."
     ),
     _Param(
         "legend.markerscale",
         default=1.0,
         type=float,
         validator=validate_float,
-        description="the relative size of legend markers vs. original"
+        description="Relative size of legend markers compared to the data markers."
     ),
     _Param(
         "legend.fontsize",
         default="medium",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="The font size of legend text."
+        description="Font size of legend text."
     ),
     _Param(
         "legend.labelcolor",
         default="None",
         type=':mpltype:`color` or {"linecolor", "markerfacecolor", "markeredgecolor"}',
         validator=_validate_color_or_linecolor,
-        description="The color of the labels in legend entries. The special values "
+        description="Color of the labels in legend entries. The special values "
                     "'linecolor', 'markerfacecolor', and 'markeredgecolor' "
                     "infer the color from the associated legend handle; i.e. using "
                     "'linecolor' will render the label of a red line also in red."
@@ -2636,55 +2670,57 @@ _DEFINITION = [
         default=None,
         type=_FontSizeType | None,
         validator=validate_fontsize_None,
-        description="None sets to the same as the default axes."
+        description="Font size of the legend title. None uses 'font.size'."
     ),
     _Param(
         "legend.borderpad",
         default=0.4,
         type=float,
         validator=validate_float,
-        description="border whitespace"
+        description="Spacing between legend content and the border of the legend "
+                    "box, in font-size units."
     ),
     _Param(
         "legend.labelspacing",
         default=0.5,
         type=float,
         validator=validate_float,
-        description="the vertical space between the legend entries"
+        description="Vertical spacing between the legend entries, in font-size units."
     ),
     _Param(
         "legend.handlelength",
         default=2.0,
         type=float,
         validator=validate_float,
-        description="the length of the legend lines"
+        description="Length of the legend handles, in font-size units."
     ),
     _Param(
         "legend.handleheight",
         default=0.7,
         type=float,
         validator=validate_float,
-        description="the height of the legend handle"
+        description="Height of the legend handles, in font-size units."
     ),
     _Param(
         "legend.handletextpad",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="the space between the legend line and legend text"
+        description="The pad between the legend handle and text, in font-size units."
     ),
     _Param(
         "legend.borderaxespad",
         default=0.5,
         type=float,
         validator=validate_float,
-        description="the border between the axes and legend edge"
+        description="The pad between the axes and legend border, in font-size units."
     ),
     _Param(
         "legend.columnspacing",
         default=2.0,
         type=float,
-        validator=validate_float, description="column separation"
+        validator=validate_float,
+        description="The spacing between columns, in font-size units."
     ),
     _Section(
         "Lines",
@@ -2702,7 +2738,7 @@ _DEFINITION = [
     _Param(
         "lines.linestyle",
         default="-",
-        type=_LineStyleType,
+        type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
         description="The default line style."
     ),
@@ -3247,7 +3283,7 @@ _DEFINITION = [
     _Param(
         "contour.negative_linestyle",
         default="dashed",
-        type=_LineStyleType,
+        type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
         description="The line style for negative contours, if *linestyle* is None "
                     "and no color is specified."
@@ -3346,34 +3382,34 @@ _DEFINITION = [
            description="The width of the flier marker edge, in points."),
     _Param("boxplot.flierprops.markersize", 6.0, float, validate_float,
            description="The flier marker size, in points."),
-    _Param("boxplot.flierprops.linestyle", "none", _LineStyleType, _validate_linestyle,
-           description="The line style of flier markers."),
+    _Param("boxplot.flierprops.linestyle", "none", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The line style of flier markers."),
     _Param("boxplot.flierprops.linewidth", 1.0, float, validate_float,
            description="The line width of flier markers, in points."),
     _Param("boxplot.boxprops.color", "black", ':mpltype:`color`', validate_color,
            description="The box outline color."),
     _Param("boxplot.boxprops.linewidth", 1.0, float, validate_float,
            description="The box outline width, in points."),
-    _Param("boxplot.boxprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The box outline style."),
+    _Param("boxplot.boxprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The box outline style."),
     _Param("boxplot.whiskerprops.color", "black", ':mpltype:`color`', validate_color,
            description="The whisker line color."),
     _Param("boxplot.whiskerprops.linewidth", 1.0, float, validate_float,
            description="The whisker line width, in points."),
-    _Param("boxplot.whiskerprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The whisker line style."),
+    _Param("boxplot.whiskerprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The whisker line style."),
     _Param("boxplot.capprops.color", "black", ':mpltype:`color`', validate_color,
            description="The cap line color."),
     _Param("boxplot.capprops.linewidth", 1.0, float, validate_float,
            description="The cap line width, in points."),
-    _Param("boxplot.capprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The cap line style."),
+    _Param("boxplot.capprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The cap line style."),
     _Param("boxplot.medianprops.color", "C1", ':mpltype:`color`', validate_color,
            description="The median line color."),
     _Param("boxplot.medianprops.linewidth", 1.0, float, validate_float,
            description="The median line width, in points."),
-    _Param("boxplot.medianprops.linestyle", "-", _LineStyleType, _validate_linestyle,
-           description="The median line style."),
+    _Param("boxplot.medianprops.linestyle", "-", ":mpltype:`linestyle`",
+           _validate_linestyle, description="The median line style."),
     _Param("boxplot.meanprops.color", "C2", ':mpltype:`color`', validate_color,
            description="The mean marker or line color."),
     _Param("boxplot.meanprops.marker", "^", _MarkerType, _validate_marker,
@@ -3384,7 +3420,8 @@ _DEFINITION = [
            validate_color, description="The edge color of the mean marker."),
     _Param("boxplot.meanprops.markersize", 6.0, float, validate_float,
            description="The mean marker size, in points."),
-    _Param("boxplot.meanprops.linestyle", "--", _LineStyleType, _validate_linestyle,
+    _Param("boxplot.meanprops.linestyle", "--", ":mpltype:`linestyle`",
+           _validate_linestyle,
            description="The line style of the mean marker or line."),
     _Param("boxplot.meanprops.linewidth", 1.0, float, validate_float,
            description="The line width of the mean marker or line, in points."),
@@ -3810,13 +3847,14 @@ _DEFINITION = [
     _Section("Animation"),
     _Param(
         "animation.html",
-        default="none",
-        type=Literal["html5", "jshtml", "none"],
-        validator=["html5", "jshtml", "none"],
-        description="How to display animations as HTML in IPython notebooks: "
-                    "'html5' uses the HTML5 video tag, "
-                    "'jshtml' creates a JavaScript animation, and "
-                    "'none' disables HTML output."
+        default="auto",
+        type=Literal["auto", "html5", "jshtml", "none"],
+        validator=["auto", "html5", "jshtml", "none"],
+        description="How to display animations as HTML in IPython notebooks:\n"
+                    "- 'auto' picks the best available option\n"
+                    "- 'html5' uses HTML5 video tag\n"
+                    "- 'jshtml' creates a JavaScript animation\n"
+                    "- 'none' displays nothing"
     ),
     _Param(
         "animation.writer",

@@ -164,7 +164,7 @@ scatteryoffsets : iterable of floats, default: ``[0.375, 0.5, 0.3125]``
     same height, set to ``[0.5]``.
 
 markerscale : float, default: :rc:`legend.markerscale`
-    The relative size of legend markers compared to the originally drawn ones.
+    The relative size of legend markers compared to the data markers.
 
 markerfirst : bool, default: True
     If *True*, legend marker is placed to the left of the legend label.
@@ -237,10 +237,11 @@ alignment : {'center', 'left', 'right'}, default: 'center'
     are aligned as a single block, so that markers always lined up.
 
 borderpad : float, default: :rc:`legend.borderpad`
-    The fractional whitespace inside the legend border, in font-size units.
+    The spacing between legend content and the border of the legend box, in
+    font-size units.
 
 labelspacing : float, default: :rc:`legend.labelspacing`
-    The vertical space between the legend entries, in font-size units.
+    The vertical spacing between the legend entries, in font-size units.
 
 handlelength : float, default: :rc:`legend.handlelength`
     The length of the legend handles, in font-size units.

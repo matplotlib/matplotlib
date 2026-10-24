@@ -102,7 +102,7 @@ inline void check_trailing_shape(T array, char const* name, long d1)
     if (array.shape(1) != d1) {
         throw py::value_error(mpl::format(
             "{} must have shape (N, {}), got ({}, {})",
-                name, d1, array.shape(0), array.shape(1)));
+            name, d1, array.shape(0), array.shape(1)));
     }
 }
 
@@ -121,7 +121,7 @@ inline void check_trailing_shape(T array, char const* name, long d1, long d2)
     if (array.shape(1) != d1 || array.shape(2) != d2) {
         throw py::value_error(mpl::format(
             "{} must have shape (N, {}, {}), got ({}, {}, {})",
-                name, d1, d2, array.shape(0), array.shape(1), array.shape(2)));
+            name, d1, d2, array.shape(0), array.shape(1), array.shape(2)));
     }
 }
 

@@ -1,6 +1,5 @@
 import copy
 import importlib
-import os
 import signal
 import sys
 
@@ -310,13 +309,10 @@ def _get_testable_qt_backends():
     ]:
         reason = None
         missing = [dep for dep in deps if not importlib.util.find_spec(dep)]
-        if (sys.platform == "linux" and
-                not _c_internal_utils.display_is_valid()):
-            reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
+        if not _c_internal_utils.display_is_valid():
+            reason = "Display is unavailable"
         elif missing:
             reason = "{} cannot be imported".format(", ".join(missing))
-        elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
-            reason = "macosx backend fails on Azure"
         marks = []
         if reason:
             marks.append(pytest.mark.skip(

@@ -73,7 +73,7 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
     for (auto y = 0; y < dims[0]; ++y) {
         for (auto x = 0; x < dims[1]; ++x) {
             // The convention for the supplied transform is that pixel centers
-	    // are at 0.5, 1.5, 2.5, etc.
+            // are at 0.5, 1.5, 2.5, etc.
             *p++ = (double)x + 0.5;
             *p++ = (double)y + 0.5;
         }
@@ -87,7 +87,7 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
     if (output_mesh_array.ndim() != 2) {
         throw std::runtime_error(mpl::format(
             "Inverse transformed mesh array should be 2D not {}D",
-                output_mesh_array.ndim()));
+            output_mesh_array.ndim()));
     }
 
     // An undersized mesh would be read out of bounds by the resampler.
@@ -95,8 +95,8 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
             output_mesh_array.shape(1) != mesh_dims[1]) {
         throw std::runtime_error(mpl::format(
             "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})",
-                mesh_dims[0], mesh_dims[1],
-                output_mesh_array.shape(0), output_mesh_array.shape(1)));
+            mesh_dims[0], mesh_dims[1],
+            output_mesh_array.shape(0), output_mesh_array.shape(1)));
     }
 
     return output_mesh_array;
@@ -126,7 +126,7 @@ image_resample(py::array input_array,
     if (ndim == 3 && input_array.shape(2) != 4) {
         throw std::invalid_argument(mpl::format(
             "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of {}",
-                input_array.shape(2)));
+            input_array.shape(2)));
     }
 
     // Ensure input array is contiguous, regardless of dtype
@@ -141,13 +141,13 @@ image_resample(py::array input_array,
     if (out_ndim != ndim) {
         throw std::invalid_argument(mpl::format(
             "Input ({}D) and output ({}D) arrays have different dimensionalities",
-                ndim, out_ndim));
+            ndim, out_ndim));
     }
 
     if (out_ndim == 3 && output_array.shape(2) != 4) {
         throw std::invalid_argument(mpl::format(
             "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of {}",
-                output_array.shape(2)));
+            output_array.shape(2)));
     }
 
     if (!output_array.dtype().is(dtype)) {
@@ -225,7 +225,7 @@ raise_image_comparison_failure(std::string msg)
 {
     auto exceptions = py::module_::import("matplotlib.testing.exceptions");
     auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
-    py::set_error(ImageComparisonFailure.ptr(), msg.c_str());
+    py::set_error(ImageComparisonFailure, msg.c_str());
     throw py::error_already_set();
 }
 
@@ -241,7 +241,7 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
         if (image.ndim() != 3) {
             raise_image_comparison_failure(mpl::format(
                 "{} image must be 3-dimensional, but is {}-dimensional",
-                    name, image.ndim()));
+                name, image.ndim()));
         }
     }
 
@@ -259,7 +259,7 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
         raise_image_comparison_failure(mpl::format(
             "Image sizes do not match expected size: {expected_image.shape} "
             "actual size {actual_image.shape}",
-                "expected_image"_a=expected_image, "actual_image"_a=actual_image));
+            "expected_image"_a=expected_image, "actual_image"_a=actual_image));
     }
     auto expected = expected_image.unchecked<3>();
     auto actual = actual_image.unchecked<3>();

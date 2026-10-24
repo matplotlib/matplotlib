@@ -573,9 +573,7 @@ def test_backend_fallback_headless_auto_backend(tmp_path):
     assert backend.strip().lower() == "agg"
 
 
-@pytest.mark.skipif(
-    sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
-    reason="headless")
+@pytest.mark.skipif(not _c_internal_utils.display_is_valid(), reason="headless")
 def test_backend_fallback_headful(tmp_path):
     if parse_version(pytest.__version__) >= parse_version('8.2.0'):
         pytest_kwargs = dict(exc_type=ImportError)
@@ -681,7 +679,13 @@ def test_rc_aliases(group, option, alias, value):
 
 
 def test_all_params_defined_as_code():
-    assert set(p.name for p in rcsetup._params_list()) == set(mpl.rcParams.keys())
+    params_in_code = {p.name for p in rcsetup._params_list()}
+    # 'backend' is stored in RcParams._backend (a class variable) rather than
+    # in the underlying dict, so it does not appear in rcParams.keys() /
+    # __iter__.  It is still accessible via rcParams['backend'] and
+    # 'backend' in rcParams; it just doesn't show up during iteration.
+    params_in_code.remove("backend")
+    assert params_in_code == set(mpl.rcParams.keys())
 
 
 def test_validators_defined_as_code():
