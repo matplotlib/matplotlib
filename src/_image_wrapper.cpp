@@ -229,8 +229,18 @@ static py::tuple
 calculate_rms_and_diff(const mpl::defer<InputImageArray> &expected_image_obj,
                        const mpl::defer<InputImageArray> &actual_image_obj)
 {
-    auto expected_image_arr = expected_image_obj.value("expected_image");
-    auto actual_image_arr = actual_image_obj.value("actual_image");
+    std::optional<InputImageArray> expected_image_arr_opt;
+    std::optional<InputImageArray> actual_image_arr_opt;
+
+    try {
+        expected_image_arr_opt = expected_image_obj.value("expected_image");
+        actual_image_arr_opt = actual_image_obj.value("actual_image");
+    } catch (const py::value_error &e) {
+        raise_image_comparison_failure(e.what());
+    }
+
+    auto expected_image_arr = expected_image_arr_opt.value();
+    auto actual_image_arr = actual_image_arr_opt.value();
 
     auto height = expected_image_arr.shape(0);
     auto width = expected_image_arr.shape(1);
@@ -243,7 +253,7 @@ calculate_rms_and_diff(const mpl::defer<InputImageArray> &expected_image_obj,
 
     if (!expected_image_arr.is_same_shape(actual_image_arr)) {
         raise_image_comparison_failure(mpl::format(
-            "Image sizes do not match. expected_image {} vs. actual_image {}",
+            "Image shapes do not match. expected_image is {}, actual_image is {}",
             expected_image_arr.shape_str(), actual_image_arr.shape_str()));
     }
 
