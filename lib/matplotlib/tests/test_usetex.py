@@ -154,7 +154,7 @@ def test_usetex_with_underscore():
     plt.draw()
 
 
-@pytest.mark.flaky(reruns=3)  # Tends to hit a TeX cache lock on AppVeyor.
+@pytest.mark.flaky(reruns=3)  # Tends to hit a TeX cache lock on Windows CI.
 @pytest.mark.parametrize("fmt", ["pdf", "svg"])
 def test_missing_psfont(fmt, monkeypatch):
     """An error is raised if a TeX font lacks a Type-1 equivalent"""

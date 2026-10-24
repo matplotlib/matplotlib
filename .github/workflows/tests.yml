@@ -75,6 +75,11 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: ubuntu-24.04
             python-version: '3.14'
+          - name-suffix: "Free-threaded"
+            os: ubuntu-24.04
+            python-version: '3.15t'
+          - os: ubuntu-24.04
+            python-version: '3.15'
           - os: ubuntu-24.04-arm
             python-version: '3.12'
           - os: macos-15  # This runner is on M1 (arm64) chips.
@@ -87,6 +92,10 @@ jobs:
             pygobject-ver: '<3.52.0'
           - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.14'
+            # https://github.com/matplotlib/matplotlib/issues/29732
+            pygobject-ver: '<3.52.0'
+          - os: macos-15  # This runner is on M1 (arm64) chips.
+            python-version: '3.15'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
 
@@ -243,7 +252,7 @@ jobs:
           # Sphinx is needed to run sphinxext tests
           python -m pip install --upgrade sphinx!=6.1.2
 
-          if [[ "${{ matrix.python-version }}" != '3.14t' ]]; then
+          if [[ "${{ matrix.python-version }}" != 3.*t && "${{ matrix.python-version }}" != 3.15 ]]; then
           # GUI toolkits are pip-installable only for some versions of Python
           # so don't fail if we can't install them.  Make it easier to check
           # whether the install was successful by trying to import the toolkit
@@ -282,7 +291,7 @@ jobs:
             echo 'wxPython is available' ||
             echo 'wxPython is not available'
 
-          fi  # Skip backends on Python 3.14t.
+          fi  # Skip backends on Python 3.*t.
 
       - name: Install the nightly dependencies
         # Only install the nightly dependencies during the scheduled event
@@ -304,7 +313,7 @@ jobs:
             export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
             export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
           else
-            export CPPFLAGS='--coverage -fprofile-abs-path'
+            export CPPFLAGS='--coverage -fprofile-abs-path -fprofile-update=prefer-atomic'
           fi
 
           python -m pip install --no-deps --no-build-isolation --verbose \
@@ -322,8 +331,11 @@ jobs:
 
       - name: Run pytest
         run: |
-          if [[ "${{ matrix.python-version }}" == '3.14t' ]]; then
+          if [[ "${{ matrix.python-version }}" == 3.*t ]]; then
             export PYTHON_GIL=0
+          fi
+          if [[ "${{ matrix.python-version }}" == 3.15* ]]; then
+            export PYTEST_ADDOPTS="-k 'not test_backends_interactive'"
           fi
           pytest -rfEsXR -n auto \
             --maxfail=50 --timeout=300 --durations=25 \
@@ -386,7 +398,7 @@ jobs:
 
       - name: Upload macOS crash logs
         if: failure() && runner.os == 'macOS'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         with:
           name: macos-crash-logs
           path: ~/Library/Logs/DiagnosticReports/*
@@ -398,7 +410,7 @@ jobs:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
           token: ${{ secrets.CODECOV_TOKEN }}
 
-      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
         if: failure()
         with:
           name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
