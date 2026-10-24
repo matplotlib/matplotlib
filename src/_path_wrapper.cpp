@@ -14,6 +14,7 @@
 
 #include "_backend_agg_basic_types.h"
 #include "py_adaptors.h"
+#include "py_array.h"
 #include "py_converters.h"
 
 namespace py = pybind11;
@@ -40,66 +41,70 @@ Py_point_in_path(double x, double y, double r, mpl::PathIterator path,
     return point_in_path(x, y, r, path, trans);
 }
 
-static py::array_t<double>
-Py_points_in_path(py::array_t<double> points_obj, double r, mpl::PathIterator path,
+static BoolArray
+Py_points_in_path(const mpl::defer<PointArray> &points_obj,
+                  double r, mpl::PathIterator path,
                   agg::trans_affine trans)
 {
-    auto points = convert_points(points_obj);
+    auto points_arr = points_obj.value("points");
+    auto results_arr = BoolArray(points_arr.shape(0));
+    auto points = points_arr.view();
+    auto results = results_arr.view();
 
-    py::ssize_t dims[] = { points.shape(0) };
-    py::array_t<uint8_t> results(dims);
-    auto results_mutable = results.mutable_unchecked<1>();
+    points_in_path(points, r, path, trans, results);
 
-    points_in_path(points, r, path, trans, results_mutable);
-
-    return results;
+    return results_arr;
 }
 
 static py::tuple
 Py_get_path_collection_extents(agg::trans_affine master_transform,
                                mpl::PathGenerator paths,
-                               py::array_t<double> transforms_obj,
-                               py::array_t<double> offsets_obj,
+                               const mpl::defer<AffineTransformArray> &transforms_obj,
+                               const mpl::defer<PointArray> &offsets_obj,
                                agg::trans_affine offset_trans)
 {
-    auto transforms = convert_transforms(transforms_obj);
-    auto offsets = convert_points(offsets_obj);
+    auto transforms = transforms_obj.value("transforms");
+    auto offsets = offsets_obj.value("offsets");
     extent_limits e;
 
     get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_trans, e);
 
-    py::ssize_t dims[] = { 2, 2 };
-    py::array_t<double> extents(dims);
-    *extents.mutable_data(0, 0) = e.start.x;
-    *extents.mutable_data(0, 1) = e.start.y;
-    *extents.mutable_data(1, 0) = e.end.x;
-    *extents.mutable_data(1, 1) = e.end.y;
+    auto extents_array = mpl::array<double, mpl::shape<2, 2>>();
+    auto extents = extents_array.view();
 
-    py::ssize_t minposdims[] = { 2 };
-    py::array_t<double> minpos(minposdims);
-    *minpos.mutable_data(0) = e.minpos.x;
-    *minpos.mutable_data(1) = e.minpos.y;
+    extents(0, 0) = e.start.x;
+    extents(0, 1) = e.start.y;
+    extents(1, 0) = e.end.x;
+    extents(1, 1) = e.end.y;
 
-    return py::make_tuple(extents, minpos);
+    auto minpos_array = mpl::array<double, mpl::shape<2>>();
+    auto minpos = minpos_array.view();
+
+    minpos(0) = e.minpos.x;
+    minpos(1) = e.minpos.y;
+
+    return py::make_tuple(extents_array, minpos_array);
 }
 
-static py::object
+static IndexArray
 Py_point_in_path_collection(double x, double y, double radius,
                             agg::trans_affine master_transform, mpl::PathGenerator paths,
-                            py::array_t<double> transforms_obj,
-                            py::array_t<double> offsets_obj,
+                            const mpl::defer<AffineTransformArray> &transforms_obj,
+                            const mpl::defer<PointArray> &offsets_obj,
                             agg::trans_affine offset_trans, bool filled)
 {
-    auto transforms = convert_transforms(transforms_obj);
-    auto offsets = convert_points(offsets_obj);
-    std::vector<int> result;
+    auto transforms_array = transforms_obj.value("transforms");
+    auto offsets_array = offsets_obj.value("offsets");
+    auto indices = std::vector<int>();
 
-    point_in_path_collection(x, y, radius, master_transform, paths, transforms, offsets,
-                             offset_trans, filled, result);
+    point_in_path_collection(x, y, radius, master_transform, paths, transforms_array,
+                             offsets_array, offset_trans, filled, indices);
 
-    py::ssize_t dims[] = { static_cast<py::ssize_t>(result.size()) };
-    return py::array(dims, result.data());
+    auto result = IndexArray(indices.size());
+    result.assign(indices);
+
+    return result;
 }
 
 static bool
@@ -148,11 +153,11 @@ Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecas
 }
 
 static int
-Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, py::array_t<double> bboxes_obj)
+Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, const mpl::defer<BBoxArray> &bboxes_obj)
 {
-    auto bboxes = convert_bboxes(bboxes_obj);
+    auto bboxes_arr = bboxes_obj.value("bboxes");
 
-    return count_bboxes_overlapping_bbox(bbox, bboxes);
+    return count_bboxes_overlapping_bbox(bbox, bboxes_arr.view());
 }
 
 static bool

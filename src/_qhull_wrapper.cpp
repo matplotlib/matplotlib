@@ -263,22 +263,22 @@ delaunay_impl(py::ssize_t npoints, const double* x, const double* y,
 
 /* Process Python arguments and call Delaunay implementation method. */
 static py::tuple
-delaunay(const mpl::defer<CoordinateArray>& in_x,
-         const mpl::defer<CoordinateArray>& in_y, int verbose)
+delaunay(const mpl::defer<CoordinateArray>& x_obj,
+         const mpl::defer<CoordinateArray>& y_obj, int verbose)
 {
-    auto x = in_x.value("x");
-    auto y = in_y.value("y");
+    auto x_arr = x_obj.value("x");
+    auto y_arr = y_obj.value("y");
 
-    auto npoints = x.shape(0);
-    if (npoints != y.shape(0)) {
+    auto npoints = x_arr.shape(0);
+    if (npoints != y_arr.shape(0)) {
         throw std::invalid_argument("x and y must be 1D arrays of the same length");
     }
 
-    if (!at_least_3_unique_points(npoints, x.data(), y.data())) {
+    if (!at_least_3_unique_points(npoints, x_arr.data(), y_arr.data())) {
         throw std::invalid_argument("x and y arrays must consist of at least 3 unique points");
     }
 
-    return delaunay_impl(npoints, x.data(), y.data(), verbose == 0);
+    return delaunay_impl(npoints, x_arr.data(), y_arr.data(), verbose == 0);
 }
 
 #ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT

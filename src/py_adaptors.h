@@ -160,7 +160,7 @@ class PathIterator
 class PathGenerator
 {
     py::sequence m_paths;
-    Py_ssize_t m_npaths;
+    size_t m_npaths;
 
   public:
     typedef PathIterator path_iterator;
@@ -173,12 +173,12 @@ class PathGenerator
         m_npaths = m_paths.size();
     }
 
-    Py_ssize_t num_paths() const
+    size_t num_paths() const
     {
         return m_npaths;
     }
 
-    Py_ssize_t size() const
+    size_t size() const
     {
         return m_npaths;
     }

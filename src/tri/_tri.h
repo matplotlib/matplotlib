@@ -307,18 +307,18 @@ private:
 
 
     // Variables shared with python, always set.
-    CoordinateArray _x, _y;    // double array (npoints).
-    TriangleArray _triangles;  // int array (ntri,3) of triangle point indices,
-                               //     ordered anticlockwise.
+    CoordinateArray _x_arr, _y_arr;    // double array (npoints).
+    TriangleArray _triangles_arr;      // int array (ntri,3) of triangle point indices,
+                                       //     ordered anticlockwise.
 
     // Variables shared with python, may be unset (size == 0).
-    MaskArray _mask;           // bool array (ntri).
+    MaskArray _mask_arr;           // bool array (ntri).
 
     // Derived variables shared with python, may be unset (size == 0).
     // If unset, are recalculated when needed.
-    EdgeArray _edges;          // int array (?,2) of start & end point indices.
-    NeighborArray _neighbors;  // int array (ntri,3), neighbor triangle indices
-                               //     or -1 if no neighbor.
+    EdgeArray _edges_arr;          // int array (?,2) of start & end point indices.
+    NeighborArray _neighbors_arr;  // int array (ntri,3), neighbor triangle indices
+                                   //     or -1 if no neighbor.
 
     // Variables internal to C++ only.
     Boundaries _boundaries;
@@ -468,7 +468,7 @@ private:
 
     // Variables shared with python, always set.
     Triangulation _triangulation;
-    CoordinateArray _z;        // double array (npoints).
+    CoordinateArray _z_arr;    // double array (npoints).
 
     // Variables internal to C++ only.
     typedef std::vector<bool> InteriorVisited;    // Size 2*ntri

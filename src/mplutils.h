@@ -78,6 +78,19 @@ class defer : public py::object
     T value(Args &&...args) const { return T(*this, args...); }
 };
 
+
+template <typename T, typename... Args>
+inline auto asarray(const py::object &object)
+{
+    return py::array_t<T, py::array::c_style | py::array::forcecast>::ensure(object);
+}
+
+inline auto asarray(const py::object &object)
+{
+    return py::array::ensure(object, py::array::c_style);
+}
+
+
 } // namespace mpl
 
 

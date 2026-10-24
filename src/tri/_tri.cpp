@@ -201,37 +201,37 @@ void write_contour(const Contour& contour)
 
 
 
-Triangulation::Triangulation(const mpl::defer<CoordinateArray>& in_x,
-                             const mpl::defer<CoordinateArray>& in_y,
-                             const mpl::defer<TriangleArray>& in_triangles,
-                             const std::optional<mpl::defer<MaskArray>>& in_mask,
-                             const std::optional<mpl::defer<EdgeArray>>& in_edges,
-                             const std::optional<mpl::defer<NeighborArray>>& in_neighbors,
+Triangulation::Triangulation(const mpl::defer<CoordinateArray>& x_obj,
+                             const mpl::defer<CoordinateArray>& y_obj,
+                             const mpl::defer<TriangleArray>& triangles_obj,
+                             const std::optional<mpl::defer<MaskArray>>& mask_obj,
+                             const std::optional<mpl::defer<EdgeArray>>& edges_obj,
+                             const std::optional<mpl::defer<NeighborArray>>& neighbors_obj,
                              bool correct_triangle_orientations)
-    : _x(in_x.value("x")),
-      _y(in_y.value("y")),
-      _triangles(in_triangles.value("triangles")),
-      _mask(in_mask ? in_mask.value().value("mask") : MaskArray(0)),
-      _edges(in_edges ? in_edges.value().value("edges") : EdgeArray(0)),
-      _neighbors(in_neighbors ? in_neighbors.value().value("neighbors") : NeighborArray(0))
+    : _x_arr(x_obj.value("x")),
+      _y_arr(y_obj.value("y")),
+      _triangles_arr(triangles_obj.value("triangles")),
+      _mask_arr(mask_obj ? mask_obj.value().value("mask") : MaskArray(0)),
+      _edges_arr(edges_obj ? edges_obj.value().value("edges") : EdgeArray(0)),
+      _neighbors_arr(neighbors_obj ? neighbors_obj.value().value("neighbors") : NeighborArray(0))
 {
-    if (!_x.is_same_shape(_y))
+    if (!_x_arr.is_same_shape(_y_arr))
         throw std::invalid_argument(mpl::format(
-            "x and y must have the same length (x: {}, y: {})", _x.shape(0), _y.shape(0)));
+            "x and y must have the same length (x: {}, y: {})", _x_arr.shape(0), _y_arr.shape(0)));
 
     // Optional mask.
-    if (_mask.has_elements() && (_mask.shape(0) != _triangles.shape(0)))
+    if (_mask_arr.has_elements() && (_mask_arr.shape(0) != _triangles_arr.shape(0)))
         throw std::invalid_argument(mpl::format(
             "mask must have the same length as the triangles array "
             "(mask: {}, triangles: {})",
-            _mask.shape(0), _triangles.shape(0)));
+            _mask_arr.shape(0), _triangles_arr.shape(0)));
 
     // Optional neighbors.
-    if (_neighbors.has_elements() && !_neighbors.is_same_shape(_triangles))
+    if (_neighbors_arr.has_elements() && !_neighbors_arr.is_same_shape(_triangles_arr))
         throw std::invalid_argument(mpl::format(
             "neighbors must have the same length as the triangles array "
             "(neighbors: {}, triangles: {})",
-            _neighbors.shape(0), _triangles.shape(0)));
+            _neighbors_arr.shape(0), _triangles_arr.shape(0)));
 
     if (correct_triangle_orientations)
         correct_triangles();
@@ -311,13 +311,14 @@ void Triangulation::calculate_edges()
     }
 
     // Convert to python _edges array.
-    _edges = EdgeArray(edge_set.size());
-    auto edges = _edges.data();
+    _edges_arr = EdgeArray(edge_set.size());
+    auto edges = _edges_arr.view();
 
     int i = 0;
     for (const auto & it : edge_set) {
-        edges[i++] = it.start;
-        edges[i++] = it.end;
+        edges(i, 0) = it.start;
+        edges(i, 1) = it.end;
+        ++i;
     }
 }
 
@@ -326,11 +327,11 @@ void Triangulation::calculate_neighbors()
     assert(!has_neighbors() && "Expected empty neighbors array");
 
     // Create _neighbors array with shape (ntri,3) and initialise all to -1.
-    _neighbors = NeighborArray(get_ntri());
-    auto* neighbors = _neighbors.data();
+    _neighbors_arr = NeighborArray(get_ntri());
+    auto neighbors = _neighbors_arr.view();
 
     int tri, edge;
-    std::fill(neighbors, neighbors+3*get_ntri(), -1);
+    std::fill(_neighbors_arr.begin(), _neighbors_arr.end(), -1);
 
     // For each triangle edge (start to end point), find corresponding neighbor
     // edge from end to start point.  Do this by traversing all edges and
@@ -352,8 +353,8 @@ void Triangulation::calculate_neighbors()
                 } else {
                     // Neighbor edge found, set the two elements of _neighbors
                     // and remove edge from edge_to_tri_edge_map.
-                    neighbors[3*tri + edge] = it->second.tri;
-                    neighbors[3*it->second.tri + it->second.edge] = tri;
+                    neighbors(tri, edge) = it->second.tri;
+                    neighbors(it->second.tri, it->second.edge) = tri;
                     edge_to_tri_edge_map.erase(it);
                 }
             }
@@ -365,21 +366,21 @@ void Triangulation::calculate_neighbors()
 }
 
 Triangulation::CoefficientArray Triangulation::calculate_plane_coefficients(
-    mpl::defer<CoordinateArray>& in_z)
+    mpl::defer<CoordinateArray>& z_obj)
 {
-    auto z_array = in_z.value("z");
+    auto z_arr = z_obj.value("z");
 
-    if (!z_array.is_same_shape(_x))
+    if (!z_arr.is_same_shape(_x_arr))
         throw std::invalid_argument(mpl::format(
             "z must have the same length as the triangulation x and y arrays "
-            "(z: {}, x: {})", z_array.shape(0), _x.shape(0)));
+            "(z: {}, x: {})", z_arr.shape(0), _x_arr.shape(0)));
 
-    auto planes_array = Triangulation::CoefficientArray(get_ntri());
-    auto planes = planes_array.view();
-    auto triangles = _triangles.view();
-    auto x = _x.view();
-    auto y = _y.view();
-    auto z = z_array.view();
+    auto planes_arr = Triangulation::CoefficientArray(get_ntri());
+    auto planes = planes_arr.view();
+    auto triangles = _triangles_arr.view();
+    auto x = _x_arr.view();
+    auto y = _y_arr.view();
+    auto z = z_arr.view();
 
     int point;
     for (size_t tri = 0; tri < get_ntri(); ++tri) {
@@ -425,23 +426,23 @@ Triangulation::CoefficientArray Triangulation::calculate_plane_coefficients(
         }
     }
 
-    return planes_array;
+    return planes_arr;
 }
 
 void Triangulation::correct_triangles()
 {
-    auto triangles = _triangles.data();
-    auto neighbors = _neighbors.data();
+    auto triangles = _triangles_arr.view();
+    auto neighbors = _neighbors_arr.view();
 
     for (int tri = 0; tri < get_ntri(); ++tri) {
-        XY point0 = get_point_coords(triangles[3*tri]);
-        XY point1 = get_point_coords(triangles[3*tri+1]);
-        XY point2 = get_point_coords(triangles[3*tri+2]);
+        XY point0 = get_point_coords(triangles(tri, 0));
+        XY point1 = get_point_coords(triangles(tri, 1));
+        XY point2 = get_point_coords(triangles(tri, 2));
         if ( (point1 - point0).cross_z(point2 - point0) < 0.0) {
             // Triangle points are clockwise, so change them to anticlockwise.
-            std::swap(triangles[3*tri+1], triangles[3*tri+2]);
+            std::swap(triangles(tri, 1), triangles(tri, 2));
             if (has_neighbors())
-                std::swap(neighbors[3*tri+1], neighbors[3*tri+2]);
+                std::swap(neighbors(tri, 1), neighbors(tri, 2));
         }
     }
 }
@@ -469,10 +470,10 @@ int Triangulation::get_edge_in_triangle(int tri, int point) const
     assert(tri >= 0 && tri < get_ntri() && "Triangle index out of bounds");
     assert(point >= 0 && point < get_npoints() && "Point index out of bounds.");
 
-    auto triangles = _triangles.data();
+    auto triangles = _triangles_arr.view();
 
     for (int edge = 0; edge < 3; ++edge) {
-        if (triangles[3*tri + edge] == point)
+        if (triangles(tri, edge) == point)
             return edge;
     }
     return -1;  // point is not in triangle.
@@ -482,7 +483,7 @@ Triangulation::EdgeArray& Triangulation::get_edges()
 {
     if (!has_edges())
         calculate_edges();
-    return _edges;
+    return _edges_arr;
 }
 
 int Triangulation::get_neighbor(int tri, int edge) const
@@ -491,7 +492,7 @@ int Triangulation::get_neighbor(int tri, int edge) const
     assert(edge >= 0 && edge < 3 && "Edge index out of bounds");
     if (!has_neighbors())
         const_cast<Triangulation&>(*this).calculate_neighbors();
-    return _neighbors.data()[3*tri + edge];
+    return _neighbors_arr(tri, edge);
 }
 
 TriEdge Triangulation::get_neighbor_edge(int tri, int edge) const
@@ -510,30 +511,30 @@ Triangulation::NeighborArray& Triangulation::get_neighbors()
 {
     if (!has_neighbors())
         calculate_neighbors();
-    return _neighbors;
+    return _neighbors_arr;
 }
 
 int Triangulation::get_npoints() const
 {
-    return _x.shape(0);
+    return _x_arr.shape(0);
 }
 
 int Triangulation::get_ntri() const
 {
-    return _triangles.shape(0);
+    return _triangles_arr.shape(0);
 }
 
 XY Triangulation::get_point_coords(int point) const
 {
     assert(point >= 0 && point < get_npoints() && "Point index out of bounds.");
-    return XY(_x.data()[point], _y.data()[point]);
+    return XY(_x_arr.data()[point], _y_arr.data()[point]);
 }
 
 int Triangulation::get_triangle_point(int tri, int edge) const
 {
     assert(tri >= 0 && tri < get_ntri() && "Triangle index out of bounds");
     assert(edge >= 0 && edge < 3 && "Edge index out of bounds");
-    return _triangles.data()[3*tri + edge];
+    return _triangles_arr(tri, edge);
 }
 
 int Triangulation::get_triangle_point(const TriEdge& tri_edge) const
@@ -543,40 +544,40 @@ int Triangulation::get_triangle_point(const TriEdge& tri_edge) const
 
 bool Triangulation::has_edges() const
 {
-    return _edges.has_elements();
+    return _edges_arr.has_elements();
 }
 
 bool Triangulation::has_mask() const
 {
-    return _mask.has_elements();
+    return _mask_arr.has_elements();
 }
 
 bool Triangulation::has_neighbors() const
 {
-    return _neighbors.has_elements();
+    return _neighbors_arr.has_elements();
 }
 
 bool Triangulation::is_masked(int tri) const
 {
     assert(tri >= 0 && tri < get_ntri() && "Triangle index out of bounds.");
-    return has_mask() && _mask.data()[tri];
+    return has_mask() && _mask_arr.data()[tri];
 }
 
-void Triangulation::set_mask(std::optional<mpl::defer<MaskArray>>& in_mask)
+void Triangulation::set_mask(std::optional<mpl::defer<MaskArray>>& mask_obj)
 {
-    auto mask = in_mask ? in_mask.value().value("mask") : MaskArray(0);
+    auto mask_arr = mask_obj ? mask_obj.value().value("mask") : MaskArray(0);
 
-    if (mask.has_elements() && (mask.shape(0) != _triangles.shape(0)))
+    if (mask_arr.has_elements() && (mask_arr.shape(0) != _triangles_arr.shape(0)))
         throw std::invalid_argument(mpl::format(
             "mask must have the same length as the triangles array "
             "(mask: {}, triangles: {})",
-            mask.shape(0), _triangles.shape(0)));
+            mask_arr.shape(0), _triangles_arr.shape(0)));
 
-    _mask = mask;
+    _mask_arr = mask_arr;
 
     // Clear derived fields so they are recalculated when needed.
-    _edges = EdgeArray(0);
-    _neighbors = NeighborArray(0);
+    _edges_arr = EdgeArray(0);
+    _neighbors_arr = NeighborArray(0);
     _boundaries.clear();
 }
 
@@ -596,17 +597,17 @@ void Triangulation::write_boundaries() const
 
 
 TriContourGenerator::TriContourGenerator(Triangulation& triangulation,
-                                         mpl::defer<CoordinateArray>& in_z)
+                                         mpl::defer<CoordinateArray>& z_obj)
     : _triangulation(triangulation),
-      _z(in_z.value("z")),
+      _z_arr(z_obj.value("z")),
       _interior_visited(2*_triangulation.get_ntri()),
       _boundaries_visited(0),
       _boundaries_used(0)
 {
-    if (_z.shape(0) != _triangulation.get_npoints())
+    if (_z_arr.shape(0) != _triangulation.get_npoints())
         throw std::invalid_argument(mpl::format(
             "z must have the same length as the triangulation x and y arrays "
-            "(z: {}, x: {})", _z.shape(0), _triangulation.get_npoints()));
+            "(z: {}, x: {})", _z_arr.shape(0), _triangulation.get_npoints()));
 }
 
 void TriContourGenerator::clear_visited_flags(bool include_boundaries)
@@ -1038,7 +1039,7 @@ const double& TriContourGenerator::get_z(int point) const
 {
     assert(point >= 0 && point < _triangulation.get_npoints() &&
            "Point index out of bounds.");
-    return _z.data()[point];
+    return _z_arr(point);
 }
 
 XY TriContourGenerator::interp(int point1,
@@ -1296,27 +1297,27 @@ TrapezoidMapTriFinder::clear()
 }
 
 TrapezoidMapTriFinder::TriIndexArray
-TrapezoidMapTriFinder::find_many(mpl::defer<CoordinateArray>& in_x,
-                                 mpl::defer<CoordinateArray>& in_y)
+TrapezoidMapTriFinder::find_many(mpl::defer<CoordinateArray>& x_obj,
+                                 mpl::defer<CoordinateArray>& y_obj)
 {
-    auto x = in_x.value("x");
-    auto y = in_y.value("y");
+    auto x_arr = x_obj.value("x");
+    auto y_arr = y_obj.value("y");
 
-    if (!x.is_same_shape(y))
+    if (!x_arr.is_same_shape(y_arr))
         throw std::invalid_argument("x and y must be array-like with same shape");
 
     // Create integer array to return.
-    auto n = x.shape(0);
-    auto tri_indices_array = TriIndexArray(n);
-    auto tri_indices = tri_indices_array.view();
-    auto x_data = x.data();
-    auto y_data = y.data();
+    auto n = x_arr.shape(0);
+    auto tri_indices_arr = TriIndexArray(n);
+    auto tri_indices = tri_indices_arr.view();
+    auto x = x_arr.view();
+    auto y = y_arr.view();
 
     // Fill returned array.
     for (py::ssize_t i = 0; i < n; ++i)
-        tri_indices(i) = find_one(XY(x_data[i], y_data[i]));
+        tri_indices(i) = find_one(XY(x(i), y(i)));
 
-    return tri_indices_array;
+    return tri_indices_arr;
 }
 
 int
