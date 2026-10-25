@@ -128,9 +128,10 @@ jobs:
           macOS)
             # brew uninstall --force --ignore-dependencies $(brew list --formula | \
             #  grep -E "llvm@|gcc@|openjdk|aws-|perl|python@|ruby|kotlin")
-            sudo rm -rf /opt/homebrew/.git
-            sudo rm -rf /opt/homebrew/Cellar/*
-            sudo rm -rf /opt/homebrew/Caskroom/*
+            sudo mkdir -p /tmp/homebrew-aside/Cellar
+            sudo mkdir -p /tmp/homebrew-aside/Caskroom
+            sudo mv /opt/homebrew/Cellar/* /tmp/homebrew-aside/Cellar
+            sudo mv /opt/homebrew/Caskroom/* /tmp/homebrew-aside/Caskroom
             find /opt/homebrew -type l ! -exec test -e {} \; -delete
             # brew uninstall --force --ignore-dependencies $(brew list --formula)
             # brew uninstall --cask --force $(brew list --cask)
