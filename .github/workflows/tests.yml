@@ -114,7 +114,7 @@ jobs:
       #!ci-adventures
       - name: Size of /opt (Alpha) 
         run: |
-          sudo du -d 4 -h /opt 2>&1 || true  # For experimental use, do not merge
+          sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
       - name: Clean Runner Image
         run: |
@@ -133,7 +133,7 @@ jobs:
       #!ci-adventures
       - name: Size of /opt (Beta) 
         run: |
-          sudo du -d 4 -h /opt 2>&1 || true  # For experimental use, do not merge
+          sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
       - name: Install OS dependencies
         run: |
@@ -307,6 +307,16 @@ jobs:
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
+      #!ci-adventures
+      - name: Size of /opt (Gamma)  
+        run: |
+          sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
+
+      #!ci-adventures
+      - name: Eject!
+        run: |
+          exit 1
+
       - name: Install Matplotlib
         run: |
           ccache -s
@@ -333,11 +343,6 @@ jobs:
         run: |
           rm -rf ~/.cache/matplotlib
         if: matrix.delete-font-cache
-
-      #!ci-adventures
-      - name: Size of /opt (Gamma)  
-        run: |
-          sudo du -d 4 -h /opt 2>&1 || true  # For experimental use, do not merge
 
       - name: Run pytest
         run: |
