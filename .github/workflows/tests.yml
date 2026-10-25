@@ -49,55 +49,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-#          - name-suffix: "(Minimum Versions)"
-#            os: ubuntu-22.04
-#            python-version: '3.12'
-#            extra-requirements: '-c ci/minver-requirements.txt'
-#            delete-font-cache: true
-#            # https://github.com/matplotlib/matplotlib/issues/29844
-#            pygobject-ver: '<3.52.0'
-#          - os: ubuntu-22.04
-#            python-version: '3.12'
-#            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-#            extra-requirements: '--group test-extra'
-#            # https://github.com/matplotlib/matplotlib/issues/29844
-#            pygobject-ver: '<3.52.0'
-#          - name-suffix: "(Extra TeX packages)"
-#            os: ubuntu-22.04
-#            python-version: '3.13'
-#            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
-#            # https://github.com/matplotlib/matplotlib/issues/29844
-#            pygobject-ver: '<3.52.0'
-#          - name-suffix: "Free-threaded"
-#            os: ubuntu-22.04
-#            python-version: '3.14t'
-#            # https://github.com/matplotlib/matplotlib/issues/29844
-#            pygobject-ver: '<3.52.0'
-#          - os: ubuntu-24.04
-#            python-version: '3.14'
-#          - name-suffix: "Free-threaded"
-#            os: ubuntu-24.04
-#            python-version: '3.15t'
-#          - os: ubuntu-24.04
-#            python-version: '3.15'
-#          - os: ubuntu-24.04-arm
-#            python-version: '3.12'
-#          - os: macos-15  # This runner is on M1 (arm64) chips.
-#            python-version: '3.12'
-#            # https://github.com/matplotlib/matplotlib/issues/29732
-#            pygobject-ver: '<3.52.0'
-#          - os: macos-26  # This runner is on M1 (arm64) chips.
-#            python-version: '3.13'
-#            # https://github.com/matplotlib/matplotlib/issues/29732
-#            pygobject-ver: '<3.52.0'
           - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.14'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-#          - os: macos-15  # This runner is on M1 (arm64) chips.
-#            python-version: '3.15'
-#            # https://github.com/matplotlib/matplotlib/issues/29732
-#            pygobject-ver: '<3.52.0'
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -111,7 +66,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      #!ci-adventures
+      # !ci-adventures
       - name: Size of /opt (Alpha)
         run: |
           echo "Brew formula"
@@ -131,8 +86,9 @@ jobs:
             sudo mv /opt/homebrew/.git /opt/homebrew-aside
             sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
             sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
-            time find /opt/homebrew -maxdepth 2 -type l -print0 | xargs -0 ls -al
-            time find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
+            # time find /opt/homebrew -maxdepth 2 -type l -print0 | xargs -0 ls -al
+            # time find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
+            time find /opt/homebrew -maxdepth 2 -type l -delete
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
             case "$(readlink "$openssl_link" 2>/dev/null)" in
@@ -141,7 +97,7 @@ jobs:
             ;;
           esac
 
-      #!ci-adventures
+      # !ci-adventures
       - name: Size of /opt (Beta)
         run: |
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
@@ -204,7 +160,7 @@ jobs:
             fi
             ;;
           macOS)
-            brew install --display-times ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+            brew install --display-times ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja
             brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
@@ -318,15 +274,10 @@ jobs:
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
 
-      #!ci-adventures
+      # !ci-adventures
       - name: Size of /opt (Gamma)
         run: |
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
-
-      #!ci-adventures
-      - name: Eject!
-        run: |
-          exit 1
 
       - name: Install Matplotlib
         run: |
