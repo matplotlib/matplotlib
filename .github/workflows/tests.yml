@@ -132,7 +132,7 @@ jobs:
             sudo mkdir -p /tmp/homebrew-aside/Caskroom
             sudo mv /opt/homebrew/Cellar/* /tmp/homebrew-aside/Cellar
             sudo mv /opt/homebrew/Caskroom/* /tmp/homebrew-aside/Caskroom
-            find /opt/homebrew -type l ! -exec test -e {} \; -delete
+            find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
             # brew uninstall --force --ignore-dependencies $(brew list --formula)
             # brew uninstall --cask --force $(brew list --cask)
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
