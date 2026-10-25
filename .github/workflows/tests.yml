@@ -112,7 +112,7 @@ jobs:
           allow-prereleases: true
 
       #!ci-adventures
-      - name: Size of /opt (Alpha) 
+      - name: Size of /opt (Alpha)
         run: |
           echo "Brew formula"
           # brew list --formula
@@ -128,8 +128,10 @@ jobs:
           macOS)
             sudo mkdir -p /opt/homebrew-aside/Cellar
             sudo mkdir -p /opt/homebrew-aside/Caskroom
-            time sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
-            time sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+            sudo mv /opt/homebrew/.git /opt/homebrew-aside
+            sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
+            sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+            time find /opt/homebrew -maxdepth 2 -type l -print0 | xargs -0 ls -al
             time find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
@@ -140,7 +142,7 @@ jobs:
           esac
 
       #!ci-adventures
-      - name: Size of /opt (Beta) 
+      - name: Size of /opt (Beta)
         run: |
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
@@ -317,7 +319,7 @@ jobs:
             --upgrade --only-binary=:all: numpy pandas
 
       #!ci-adventures
-      - name: Size of /opt (Gamma)  
+      - name: Size of /opt (Gamma)
         run: |
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
