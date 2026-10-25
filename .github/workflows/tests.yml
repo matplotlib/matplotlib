@@ -128,8 +128,8 @@ jobs:
           macOS)
             # brew uninstall --force --ignore-dependencies $(brew list --formula | \
             #  grep -E "llvm@|gcc@|openjdk|aws-|perl|python@|ruby|kotlin")
-            rm -rf /opt/homebrew/Cellar/*
-            brew uninstall --force --ignore-dependencies $(brew list --formula)
+            rm -rf /opt/homebrew
+            # brew uninstall --force --ignore-dependencies $(brew list --formula)
             # brew uninstall --cask --force $(brew list --cask)
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
@@ -143,7 +143,6 @@ jobs:
       - name: Size of /opt (Beta) 
         run: |
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
-          exit 1
 
       - name: Install OS dependencies
         run: |
