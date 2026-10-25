@@ -128,7 +128,7 @@ jobs:
           macOS)
             # brew uninstall --force --ignore-dependencies $(brew list --formula | \
             #  grep -E "llvm@|gcc@|openjdk|aws-|perl|python@|ruby|kotlin")
-            brew uninstall --force --ignore-dependencies $(brew list --formula)
+            brew list --formula | xargs -n 1 -P 4 -I {} brew uninstall --force --ignore-dependencies {}
             # brew uninstall --cask --force $(brew list --cask)
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
