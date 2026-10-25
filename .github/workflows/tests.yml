@@ -111,6 +111,11 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
+      #!ci-adventures
+      - name: Size of /opt (Before) 
+        run: |
+          sudo du -d 3 -h /opt 2>&1 || true  # For experimental use, do not merge
+
       - name: Install OS dependencies
         run: |
           case "${{ runner.os }}" in
@@ -169,18 +174,8 @@ jobs:
             fi
             ;;
           macOS)
-            brew update
-            # Periodically, Homebrew updates Python and fails to overwrite the
-            # existing not-managed-by-Homebrew copy without explicitly being told
-            # to do so. GitHub/Azure continues to avoid fixing their runner images:
-            # https://github.com/actions/runner-images/issues/9966
-            # so force an overwrite even if there are no Python updates.
-            # We don't even care about Homebrew's Python because we use the one
-            # from actions/setup-python.
-            for python_package in $(brew list | grep python@); do
-              brew unlink ${python_package}
-              brew link --overwrite ${python_package}
-            done
+            brew remove --force --ignore-dependencies $(brew list --formula)
+            brew remove --cask --force $(brew list --cask)
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
             case "$(readlink "$openssl_link" 2>/dev/null)" in
@@ -330,9 +325,9 @@ jobs:
         if: matrix.delete-font-cache
 
       #!ci-adventures
-      - name: Size of /opt  
+      - name: Size of /opt (After)  
         run: |
-          sudo du -h /opt 2>&1 || true  # For experimental use, do not merge
+          sudo du -d 3 -h /opt 2>&1 || true  # For experimental use, do not merge
 
       - name: Run pytest
         run: |
