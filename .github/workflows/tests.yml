@@ -114,7 +114,14 @@ jobs:
       #!ci-adventures
       - name: Size of /opt (Alpha) 
         run: |
+          echo "Brew formula"
+          brew list --formula
+          echo
+          echo "Brew cask"
+          brew list --cask
+          echo
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
+          exit 1
 
       - name: Clean Runner Image
         run: |
