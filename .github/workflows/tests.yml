@@ -282,7 +282,7 @@ jobs:
       - name: Install Matplotlib
         run: |
           ccache -s
-          git describe
+          # git describe
 
           # Set flag in a delayed manner to avoid issues with installing other
           # packages
