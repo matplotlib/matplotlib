@@ -115,26 +115,22 @@ jobs:
       - name: Size of /opt (Alpha) 
         run: |
           echo "Brew formula"
-          brew list --formula
+          # brew list --formula
           echo
           echo "Brew cask"
-          brew list --cask
+          # brew list --cask
           echo
-          sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
+          # sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
       - name: Clean Runner Image
         run: |
           case "${{ runner.os }}" in
           macOS)
-            # brew uninstall --force --ignore-dependencies $(brew list --formula | \
-            #  grep -E "llvm@|gcc@|openjdk|aws-|perl|python@|ruby|kotlin")
-            sudo mkdir -p /tmp/homebrew-aside/Cellar
-            sudo mkdir -p /tmp/homebrew-aside/Caskroom
-            sudo mv /opt/homebrew/Cellar/* /tmp/homebrew-aside/Cellar
-            sudo mv /opt/homebrew/Caskroom/* /tmp/homebrew-aside/Caskroom
-            find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
-            # brew uninstall --force --ignore-dependencies $(brew list --formula)
-            # brew uninstall --cask --force $(brew list --cask)
+            sudo mkdir -p /opt/homebrew-aside/Cellar
+            sudo mkdir -p /opt/homebrew-aside/Caskroom
+            time sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
+            time sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+            time find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
             case "$(readlink "$openssl_link" 2>/dev/null)" in
