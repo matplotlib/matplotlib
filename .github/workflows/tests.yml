@@ -112,9 +112,28 @@ jobs:
           allow-prereleases: true
 
       #!ci-adventures
-      - name: Size of /opt (Before) 
+      - name: Size of /opt (Alpha) 
         run: |
-          sudo du -d 3 -h /opt 2>&1 || true  # For experimental use, do not merge
+          sudo du -d 4 -h /opt 2>&1 || true  # For experimental use, do not merge
+
+      - name: Clean Runner Image
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew uninstall --force --ignore-dependencies $(brew list --formula)
+            brew uninstall --cask --force $(brew list --cask)
+            # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
+            openssl_link="$(brew --prefix)/bin/openssl"
+            case "$(readlink "$openssl_link" 2>/dev/null)" in
+                */openssl@1.1/*) rm -f "$openssl_link" ;;
+            esac
+            ;;
+          esac
+
+      #!ci-adventures
+      - name: Size of /opt (Beta) 
+        run: |
+          sudo du -d 4 -h /opt 2>&1 || true  # For experimental use, do not merge
 
       - name: Install OS dependencies
         run: |
@@ -174,17 +193,8 @@ jobs:
             fi
             ;;
           macOS)
-            brew remove --force --ignore-dependencies $(brew list --formula)
-            brew remove --cask --force $(brew list --cask)
-            # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
-            openssl_link="$(brew --prefix)/bin/openssl"
-            case "$(readlink "$openssl_link" 2>/dev/null)" in
-                */openssl@1.1/*) rm -f "$openssl_link" ;;
-            esac
-            # Workaround for https://github.com/actions/runner-images/issues/10984
-            brew uninstall --ignore-dependencies --force pkg-config@0.29.2
-            brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
-            brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
+            brew install --display-times ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+            brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
 
@@ -325,9 +335,9 @@ jobs:
         if: matrix.delete-font-cache
 
       #!ci-adventures
-      - name: Size of /opt (After)  
+      - name: Size of /opt (Gamma)  
         run: |
-          sudo du -d 3 -h /opt 2>&1 || true  # For experimental use, do not merge
+          sudo du -d 4 -h /opt 2>&1 || true  # For experimental use, do not merge
 
       - name: Run pytest
         run: |
