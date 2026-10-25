@@ -5,6 +5,7 @@ on:
   push:
     branches: [main, v*.x]
   pull_request:
+    paths-ignore: ['**']  #!ci-adventures - Experimental - Do Not Merge
     # The branches below must be a subset of the branches above
     branches: [main]
   schedule:

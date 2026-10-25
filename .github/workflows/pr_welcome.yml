@@ -3,6 +3,7 @@ name: PR Greetings
 
 on:
   pull_request_target:
+    paths-ignore: ['**']  #!ci-adventures - Experimental - Do Not Merge
     types: opened
   issues:
     types: opened

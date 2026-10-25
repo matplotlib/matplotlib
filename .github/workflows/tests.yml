@@ -49,55 +49,55 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name-suffix: "(Minimum Versions)"
-            os: ubuntu-22.04
-            python-version: '3.12'
-            extra-requirements: '-c ci/minver-requirements.txt'
-            delete-font-cache: true
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - os: ubuntu-22.04
-            python-version: '3.12'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            extra-requirements: '--group test-extra'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - name-suffix: "(Extra TeX packages)"
-            os: ubuntu-22.04
-            python-version: '3.13'
-            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - name-suffix: "Free-threaded"
-            os: ubuntu-22.04
-            python-version: '3.14t'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - os: ubuntu-24.04
-            python-version: '3.14'
-          - name-suffix: "Free-threaded"
-            os: ubuntu-24.04
-            python-version: '3.15t'
-          - os: ubuntu-24.04
-            python-version: '3.15'
-          - os: ubuntu-24.04-arm
-            python-version: '3.12'
-          - os: macos-15  # This runner is on M1 (arm64) chips.
-            python-version: '3.12'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
+#          - name-suffix: "(Minimum Versions)"
+#            os: ubuntu-22.04
+#            python-version: '3.12'
+#            extra-requirements: '-c ci/minver-requirements.txt'
+#            delete-font-cache: true
+#            # https://github.com/matplotlib/matplotlib/issues/29844
+#            pygobject-ver: '<3.52.0'
+#          - os: ubuntu-22.04
+#            python-version: '3.12'
+#            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
+#            extra-requirements: '--group test-extra'
+#            # https://github.com/matplotlib/matplotlib/issues/29844
+#            pygobject-ver: '<3.52.0'
+#          - name-suffix: "(Extra TeX packages)"
+#            os: ubuntu-22.04
+#            python-version: '3.13'
+#            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
+#            # https://github.com/matplotlib/matplotlib/issues/29844
+#            pygobject-ver: '<3.52.0'
+#          - name-suffix: "Free-threaded"
+#            os: ubuntu-22.04
+#            python-version: '3.14t'
+#            # https://github.com/matplotlib/matplotlib/issues/29844
+#            pygobject-ver: '<3.52.0'
+#          - os: ubuntu-24.04
+#            python-version: '3.14'
+#          - name-suffix: "Free-threaded"
+#            os: ubuntu-24.04
+#            python-version: '3.15t'
+#          - os: ubuntu-24.04
+#            python-version: '3.15'
+#          - os: ubuntu-24.04-arm
+#            python-version: '3.12'
+#          - os: macos-15  # This runner is on M1 (arm64) chips.
+#            python-version: '3.12'
+#            # https://github.com/matplotlib/matplotlib/issues/29732
+#            pygobject-ver: '<3.52.0'
+#          - os: macos-26  # This runner is on M1 (arm64) chips.
+#            python-version: '3.13'
+#            # https://github.com/matplotlib/matplotlib/issues/29732
+#            pygobject-ver: '<3.52.0'
           - os: macos-26  # This runner is on M1 (arm64) chips.
-            python-version: '3.13'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
-          - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.14'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
-          - os: macos-15  # This runner is on M1 (arm64) chips.
-            python-version: '3.15'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
+#          - os: macos-15  # This runner is on M1 (arm64) chips.
+#            python-version: '3.15'
+#            # https://github.com/matplotlib/matplotlib/issues/29732
+#            pygobject-ver: '<3.52.0'
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
@@ -328,6 +328,11 @@ jobs:
         run: |
           rm -rf ~/.cache/matplotlib
         if: matrix.delete-font-cache
+
+      #!ci-adventures
+      - name: Size of /opt  
+        run: |
+          sudo du -h /opt 2>&1 || true  # For experimental use, do not merge
 
       - name: Run pytest
         run: |
