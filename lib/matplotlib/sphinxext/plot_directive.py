@@ -128,8 +128,20 @@ plot_formats
     the command line through sphinx_build the list should be passed as
     suffix:dpi,suffix:dpi, ...
 
+    Formats that the Sphinx builder in use cannot use get skipped. HTML
+    pages embed the first entry of this list (PNG by default), and the
+    other entries only appear as download links under the figure, so they
+    are rendered only if *plot_html_show_formats* is True. Other builders
+    get whatever their `supported_image_types`_ allows, i.e., the LaTeX
+    builder gets a PDF and the texinfo builder does not.
+
+    .. _supported_image_types: https://www.sphinx-doc.org/en/master/extdev/builderapi.html#sphinx.builders.Builder.supported_image_types
+
 plot_html_show_formats
-    Whether to show links to the files in HTML (default: True).
+    Whether to show links to the files in HTML (default: True). If
+    False, only the first entry of *plot_formats* (PNG by default) is
+    rendered for HTML, since the other entries are only ever reachable
+    through those links.
 
 plot_rcparams
     A dictionary containing any non-standard rcParams that should
@@ -204,6 +216,7 @@ import jinja2  # Sphinx dependency.
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
 from sphinx.util import logging
+from sphinx.util.images import guess_mimetype
 
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
@@ -637,6 +650,25 @@ def get_plot_formats(config):
     return formats
 
 
+def _formats_for_builder(formats, builder, config):
+    """Return the subset of *formats* that *builder* can make use of."""
+    if builder.format == 'html':
+        # The figure uses the first format; the rest are only reachable
+        # through the download links.
+        return formats if config.plot_html_show_formats else formats[:1]
+    # The same test Sphinx's image collector applies to the candidates for a
+    # ``name.*`` reference, so the two always agree on which file gets used:
+    # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/environment/collectors/asset.py#L118
+    supported = getattr(builder, 'supported_image_types', ())
+    kept = [fmt for fmt in formats
+            if guess_mimetype(f'figure.{fmt[0]}') in supported]
+    # The html branch of the template still references the first format,
+    # and Sphinx's image collector follows that reference.
+    if formats[0] not in kept:
+        kept.insert(0, formats[0])
+    return kept
+
+
 def _parse_srcset(entries):
     """
     Parse srcset for multiples...
@@ -684,7 +716,8 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     if function_name is not None:
         output_base = f'{output_base}_{function_name}'
-    formats = get_plot_formats(config)
+    formats = _formats_for_builder(get_plot_formats(config),
+                                   setup.app.builder, config)
 
     # Try to determine if all images already exist
 

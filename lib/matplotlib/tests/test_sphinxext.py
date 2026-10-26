@@ -17,10 +17,11 @@ tinypages = Path(__file__).parent / 'data/tinypages'
 
 
 def build_sphinx_html(
-        source_dir, doctree_dir, html_dir, extra_args=None, expected_returncode=0):
+        source_dir, doctree_dir, html_dir, extra_args=None, expected_returncode=0,
+        builder='html'):
     # Build the pages with warnings turned into errors.
     extra_args = [] if extra_args is None else extra_args
-    cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
+    cmd = [sys.executable, '-msphinx', '-W', '-b', builder,
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
     # On CI, gcov emits warnings (due to agg headers being included with the
     # same name in multiple extension modules -- but we don't care about their
@@ -337,3 +338,32 @@ Some plots
     assert not (img_dir / "range6_range6.png").exists()
     assert not (img_dir / "range6_range10.png").exists()
     assert not (img_dir / "range4.png").exists()
+
+
+@pytest.mark.parametrize(
+    'builder, extra_args, expected',
+    [
+        ('html', [], {'png', 'hires.png', 'pdf'}),
+        ('html', ['-D', 'plot_html_show_formats=0'], {'png'}),
+        ('latex', [], {'png', 'hires.png', 'pdf'}),
+        ('texinfo', [], {'png', 'hires.png'}),
+    ])
+def test_plot_formats_follow_builder(tmp_path, builder, extra_args, expected):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+""")
+    out_dir = tmp_path / '_build' / builder
+    doctree_dir = tmp_path / 'doctrees'
+
+    build_sphinx_html(tmp_path, doctree_dir, out_dir, extra_args=extra_args,
+                      builder=builder)
+
+    # The directive also copies the script next to the images.
+    rendered = {path.name.removeprefix('index-1.')
+                for path in (tmp_path / 'plot_directive').glob('index-1.*')
+                if path.suffix != '.py'}
+    assert rendered == expected
