@@ -182,46 +182,6 @@ inline void check_shape(const char *name,
 } // namespace internal
 
 
-// This is heavily based on ndarray_view from nanobind
-template <typename Scalar, size_t Dim>
-class array_view {
-public:
-    template <typename... Args>
-    Scalar &operator()(Args... indices) const
-    {
-        static_assert(sizeof...(Args) == Dim,
-            "mpl::array_view::operator(): invalid number of arguments");
-
-        const int64_t indices_i64[] { (int64_t) indices... };
-        int64_t offset = 0;
-        for (size_t i = 0; i < Dim; ++i)
-            offset += indices_i64[i] * m_strides[i];
-
-        return *(m_data + offset);
-    }
-
-    size_t ndim() const { return Dim; }
-    size_t shape(size_t i) const { return (size_t) m_shape[i]; }
-    Scalar *data() const { return m_data; }
-
-private:
-    template <typename, typename> friend class array;
-
-    template <size_t... I1, ssize_t... I2>
-    array_view(Scalar *data, const int64_t *shape, const int64_t *strides,
-        std::index_sequence<I1...>, ::mpl::shape<I2...>)
-        : m_data(data)
-    {
-        ((m_shape[I1] = (I2 == -1) ? shape[I1] : (int64_t) I2), ...);
-        ((m_strides[I1] = strides[I1]), ...);
-    }
-
-    Scalar *m_data = nullptr;
-    int64_t m_shape[Dim] { };
-    int64_t m_strides[Dim] { };
-};
-
-
 // This is heavily based on ndarray from nanobind
 template <typename Scalar, typename Shape>
 class array
@@ -229,24 +189,7 @@ class array
 public:
     using Traits = internal::shape_traits<Shape>;
     using PyArrayType = py::array_t<Scalar, py::array::c_style | py::array::forcecast>;
-    using ViewType = array_view<Scalar, Traits::ndim>;
     using ShapeType = Shape;
-
-    static array unmanaged_empty()
-    {
-        static_assert(Traits::num_free_dim >= 1,
-            "unmanaged_empty() requires at least one free dimension");
-
-        return unmanaged_empty_impl(std::make_index_sequence<Traits::num_free_dim>());
-    }
-
-    static array unmanaged_scalar(Scalar &s)
-    {
-        static_assert(Traits::ndim == 1 && Traits::num_free_dim == 1,
-            "unmanaged_scalar() requires an mpl::array with shape<-1>");
-
-        return unmanaged(&s, 1);
-    }
 
     template <typename... Args, internal::enable_if_args_match<Traits, Args...> = 0>
     static array unmanaged(Scalar *data, Args... args)
@@ -307,12 +250,6 @@ public:
         std::copy(source.begin(), source.end(), m_data);
     }
 
-    ViewType view() const
-    {
-        return ViewType(m_data, m_shape, m_strides,
-            std::make_index_sequence<Dim>(), ShapeType());
-    }
-
     PyArrayType pyarray() const
     {
         if (!m_pyarray) {
@@ -329,6 +266,8 @@ public:
     size_t itemsize() const { return sizeof(Scalar); }
     size_t nbytes() const { return sizeof(Scalar) * size(); }
     Scalar *data() const { return m_data; }
+    Scalar *begin() const { return m_data; }
+    Scalar *end() const { return m_data + size(); }
     bool has_elements() const { return size() != 0; }
     std::string shape_str() const { return internal::shape_str(m_shape, Dim); }
 
