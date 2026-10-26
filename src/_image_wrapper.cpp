@@ -8,10 +8,15 @@
 #include <algorithm>
 
 #include "_image_resample.h"
+#include "py_array.h"
 #include "py_converters.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
+
+using MeshArray = mpl::array<double, mpl::shape<-1, 2>>;
+using InputImageArray = mpl::array<const uint8_t, mpl::ndim<3>>;
+using OutputImageArray = mpl::array<uint8_t, mpl::shape<-1, -1, 3>>;
 
 /**********************************************************************
  * Free functions
@@ -54,7 +59,7 @@ radius: float, default: 1
 )""";
 
 
-static py::array_t<double>
+static MeshArray
 _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
 {
     /* TODO: Could we get away with float, rather than double, arrays here? */
@@ -66,9 +71,8 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
     // If attribute doesn't exist, raises Python AttributeError
     auto inverse = transform.attr("inverted")();
 
-    py::ssize_t mesh_dims[2] = {dims[0]*dims[1], 2};
-    py::array_t<double> input_mesh(mesh_dims);
-    auto p = input_mesh.mutable_data();
+    auto input_mesh_arr = MeshArray(dims[0] * dims[1]);
+    auto p = input_mesh_arr.data();
 
     for (auto y = 0; y < dims[0]; ++y) {
         for (auto x = 0; x < dims[1]; ++x) {
@@ -79,27 +83,17 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
         }
     }
 
-    auto output_mesh = inverse.attr("transform")(input_mesh);
-
-    auto output_mesh_array =
-        py::array_t<double, py::array::c_style | py::array::forcecast>(output_mesh);
-
-    if (output_mesh_array.ndim() != 2) {
-        throw std::runtime_error(mpl::format(
-            "Inverse transformed mesh array should be 2D not {}D",
-            output_mesh_array.ndim()));
-    }
+    auto output_mesh_obj = inverse.attr("transform")(input_mesh_arr);
+    auto output_mesh_arr = MeshArray(output_mesh_obj);
 
     // An undersized mesh would be read out of bounds by the resampler.
-    if (output_mesh_array.shape(0) != mesh_dims[0] ||
-            output_mesh_array.shape(1) != mesh_dims[1]) {
+    if (!output_mesh_arr.is_same_shape(input_mesh_arr)) {
         throw std::runtime_error(mpl::format(
-            "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})",
-            mesh_dims[0], mesh_dims[1],
-            output_mesh_array.shape(0), output_mesh_array.shape(1)));
+            "Inverse transformed mesh array should have shape {} not {}",
+            input_mesh_arr.shape_str(), output_mesh_arr.shape_str()));
     }
 
-    return output_mesh_array;
+    return output_mesh_arr;
 }
 
 
@@ -172,7 +166,7 @@ image_resample(py::array input_array,
 
     // Only used if transform is not affine.
     // Need to keep it in scope for the duration of this function.
-    py::array_t<double> transform_mesh;
+    std::optional<MeshArray> transform_mesh;
 
     // Validate transform
     if (transform.is_none()) {
@@ -186,7 +180,7 @@ image_resample(py::array input_array,
             params.is_affine = is_affine;
         } else {
             transform_mesh = _get_transform_mesh(transform, output_array.shape());
-            params.transform_mesh = transform_mesh.data();
+            params.transform_mesh = transform_mesh->data();
             params.is_affine = false;
         }
     }
@@ -232,18 +226,21 @@ raise_image_comparison_failure(std::string msg)
 
 // This is used by matplotlib.testing.compare to calculate RMS and a difference image.
 static py::tuple
-calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
-                       py::array_t<unsigned char> actual_image)
+calculate_rms_and_diff(const mpl::defer<InputImageArray> &expected_image_obj,
+                       const mpl::defer<InputImageArray> &actual_image_obj)
 {
-    for (const auto & [image, name] : {std::pair{expected_image, "Expected"},
-                                       std::pair{actual_image, "Actual"}})
-    {
-        if (image.ndim() != 3) {
-            raise_image_comparison_failure(mpl::format(
-                "{} image must be 3-dimensional, but is {}-dimensional",
-                name, image.ndim()));
-        }
+    std::optional<InputImageArray> expected_image_opt;
+    std::optional<InputImageArray> actual_image_opt;
+
+    try {
+        expected_image_opt = expected_image_obj.value("expected_image");
+        actual_image_opt = actual_image_obj.value("actual_image");
+    } catch (const py::value_error &e) {
+        raise_image_comparison_failure(e.what());
     }
+
+    auto expected_image = expected_image_opt.value();
+    auto actual_image = actual_image_opt.value();
 
     auto height = expected_image.shape(0);
     auto width = expected_image.shape(1);
@@ -251,34 +248,28 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
 
     if (depth != 3 && depth != 4) {
         raise_image_comparison_failure(mpl::format(
-            "Image must be RGB or RGBA but has depth {}", depth));
+            "expected_image must be RGB or RGBA but has depth {}", depth));
     }
 
-    if (height != actual_image.shape(0) || width != actual_image.shape(1) ||
-            depth != actual_image.shape(2)) {
+    if (!expected_image.is_same_shape(actual_image)) {
         raise_image_comparison_failure(mpl::format(
-            "Image sizes do not match expected size: {expected_image.shape} "
-            "actual size {actual_image.shape}",
-            "expected_image"_a=expected_image, "actual_image"_a=actual_image));
+            "Image shapes do not match. expected_image is {}, actual_image is {}",
+            expected_image.shape_str(), actual_image.shape_str()));
     }
-    auto expected = expected_image.unchecked<3>();
-    auto actual = actual_image.unchecked<3>();
 
-    py::ssize_t diff_dims[3] = {height, width, 3};
-    py::array_t<unsigned char> diff_image(diff_dims);
-    auto diff = diff_image.mutable_unchecked<3>();
+    auto diff_image = OutputImageArray(height, width);
 
     double total = 0.0;
     for (auto i = 0; i < height; i++) {
         for (auto j = 0; j < width; j++) {
             for (auto k = 0; k < depth; k++) {
-                auto pixel_diff = static_cast<double>(expected(i, j, k)) -
-                                  static_cast<double>(actual(i, j, k));
+                auto pixel_diff = static_cast<double>(expected_image(i, j, k)) -
+                                  static_cast<double>(actual_image(i, j, k));
 
                 total += pixel_diff*pixel_diff;
 
                 if (k != 3) { // Hard-code a fully solid alpha channel by omitting it.
-                    diff(i, j, k) = static_cast<unsigned char>(std::clamp(
+                    diff_image(i, j, k) = static_cast<unsigned char>(std::clamp(
                         abs(pixel_diff) * 10, // Expand differences in luminance domain.
                         0.0, 255.0));
                 }

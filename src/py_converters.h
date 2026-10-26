@@ -33,11 +33,6 @@ inline auto convert_transforms(py::array_t<double> obj)
     return obj.unchecked<3>();
 }
 
-inline auto convert_bboxes(py::array_t<double> obj)
-{
-    check_trailing_shape(obj, "bbox array", 2, 2);
-    return obj.unchecked<3>();
-}
 
 inline auto convert_colors(py::array_t<double> obj)
 {
