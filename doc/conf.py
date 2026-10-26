@@ -434,15 +434,11 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-# For speedup, decide which plot_formats to build based on build targets:
+# For speedup, decide which plot_formats to build based on the Sphinx builder:
 #     html only -> png
 #     latex only -> pdf
 #     all other cases, including html + latex -> png, pdf
-# For simplicity, we assume that the build targets appear in the command line.
-# We're falling back on using all formats in case that assumption fails.
-formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
-plot_formats = [formats[target] for target in ['html', 'latex']
-                if target in sys.argv] or list(formats.values())
+plot_formats = [('png', 100), ('pdf', 100)]
 # make 2x images for srcset argument to <img>
 plot_srcset = ['2x']
 
