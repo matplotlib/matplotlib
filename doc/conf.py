@@ -852,6 +852,7 @@ def disable_warning_banner_for_devel(app, pagename, templatename, context, doctr
     if pagename.startswith('devel/'):
         context['theme_show_version_warning_banner'] = False
 
+
 # -----------------------------------------------------------------------------
 # Sphinx setup
 # -----------------------------------------------------------------------------
