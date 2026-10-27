@@ -671,7 +671,7 @@ template <class VerticesArray, class ResultArray>
 void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
 {
     if (vertices.size() != 0 && vertices.shape(1) != 2) {
-        throw std::runtime_error("Invalid vertices array.");
+        throw std::invalid_argument("Invalid vertices array.");
     }
 
     size_t n = vertices.shape(0);
@@ -697,34 +697,7 @@ void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, Resu
     }
 }
 
-template <class VerticesArray, class ResultArray>
-void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
-{
-    if (vertices.shape(0) != 2) {
-        throw std::runtime_error("Invalid vertices array.");
-    }
-
-    double x;
-    double y;
-    double t0;
-    double t1;
-    double t;
-
-    x = vertices(0);
-    y = vertices(1);
-
-    t0 = trans.sx * x;
-    t1 = trans.shx * y;
-    t = t0 + t1 + trans.tx;
-    result(0) = t;
-
-    t0 = trans.shy * x;
-    t1 = trans.sy * y;
-    t = t0 + t1 + trans.ty;
-    result(1) = t;
-}
-
-int count_bboxes_overlapping_bbox(agg::rect_d &a, const BBoxArray &bboxes)
+int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 {
     agg::rect_d b;
     int count = 0;

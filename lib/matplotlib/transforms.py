@@ -1905,15 +1905,34 @@ class Affine2DBase(AffineBase):
         mtx = self.get_matrix()
         return tuple(mtx[:2].swapaxes(0, 1).flat)
 
-    def transform_affine(self, values):
+    def _transform_affine(self, values):
+        # values may either be a 1D sequence containing a single vertex (`(x, y)`)
+        # or a 2D sequence of vertices. For best performance, transform the single
+        # vertex in Python and delegate the 2D sequence to the `_path` module.
+        try:
+            length = len(values)
+        except TypeError:
+            values = np.asarray(values, float, "C")
+            length = len(values) if values.ndim == 1 else None
+
         mtx = self.get_matrix()
-        if isinstance(values, np.ma.MaskedArray):
-            tpoints = affine_transform(values.data, mtx)
-            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(values))
+
+        if length == 2:
+            x, y = values
+            if isinstance(x, (int, float)) and isinstance(y, (int, float)):
+                return np.asarray((
+                    float(mtx[0, 0]) * x + float(mtx[0, 1]) * y + float(mtx[0, 2]),
+                    float(mtx[1, 0]) * x + float(mtx[1, 1]) * y + float(mtx[1, 2])))
         return affine_transform(values, mtx)
 
+    def transform_affine(self, values):
+        if isinstance(values, np.ma.MaskedArray):
+            tpoints = self._transform_affine(values.data)
+            return np.ma.MaskedArray(tpoints, mask=np.ma.getmask(values))
+        return self._transform_affine(values)
+
     if DEBUG:
-        _transform_affine = transform_affine
+        _transform_affine_orig = transform_affine
 
         def transform_affine(self, values):
             # docstring inherited
@@ -1924,7 +1943,7 @@ class Affine2DBase(AffineBase):
                 _api.warn_external(
                     f'A non-numpy array of type {type(values)} was passed in '
                     f'for transformation, which results in poor performance.')
-            return self._transform_affine(values)
+            return self._transform_affine_orig(values)
 
     def inverted(self):
         # docstring inherited
@@ -2008,7 +2027,7 @@ class Affine2D(Affine2DBase):
 
         .
         """
-        self._mtx = mtx
+        self._mtx = np.asarray(mtx)
         self.invalidate()
 
     def set(self, other):
