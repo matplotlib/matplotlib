@@ -5,6 +5,9 @@ import pytest
 import matplotlib.pyplot as plt
 
 from matplotlib.backend_bases import MouseEvent
+from matplotlib.collections import PatchCollection
+from matplotlib.patches import Rectangle
+from mpl_toolkits.mplot3d import art3d, proj3d
 from mpl_toolkits.mplot3d.art3d import (
     get_dir_vector,
     Line3DCollection,
@@ -129,3 +132,37 @@ def test_generate_normals():
     ax = fig.add_subplot(projection='3d')
     ax.add_collection3d(shape)
     plt.draw()
+
+
+def test_patch_collection_2d_to_3d_projects_paths():
+    # Regression test for #24352: a PatchCollection converted with
+    # patch_collection_2d_to_3d must project each patch's path, not just
+    # the (single) offset, so the patches land in the 3D plane.
+    rects = [Rectangle((i, 0), 0.8, 1.0) for i in range(2)]
+    col = PatchCollection(rects)
+    art3d.patch_collection_2d_to_3d(col, zs=0)
+    originals = [path.vertices.copy() for path in col.get_paths()]
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d')
+    ax.set_xlim(0, 2)
+    ax.set_ylim(0, 2)
+    ax.set_zlim(0, 2)
+    ax.add_collection(col)
+    fig.canvas.draw()
+
+    for path, verts in zip(col.get_paths(), originals):
+        xs, ys, zs, _ = proj3d._scale_proj_transform_clip(
+            verts[:, 0], verts[:, 1], np.zeros(len(verts)), ax)
+        nptest.assert_allclose(path.vertices,
+                               np.column_stack([xs, ys]))
+        # The unprojected paths are kept for the next draw.
+        assert col._paths3d is not None
+    nptest.assert_allclose(
+        [path.vertices for path in col._paths3d], originals)
+
+    # A second draw re-projects from the originals, unchanged.
+    before = [path.vertices.copy() for path in col.get_paths()]
+    fig.canvas.draw()
+    nptest.assert_allclose(
+        [path.vertices for path in col.get_paths()], before)

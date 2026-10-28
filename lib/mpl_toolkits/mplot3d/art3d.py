@@ -856,30 +856,51 @@ class Patch3DCollection(PatchCollection):
             xs = []
             ys = []
         self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        # Unlike a PathCollection, a PatchCollection stores the patch
+        # geometry in its paths, so keep the unprojected paths (and the
+        # z position of each patch) for do_3d_projection to project.
+        self._paths3d = list(self.get_paths())
+        self._zdir = zdir
+        self._zs3d = np.broadcast_to(np.atleast_1d(zs), len(self._paths3d))
         self._z_markers_idx = slice(-1)
         self._vzs = None
         self._axlim_clip = axlim_clip
         self.stale = True
 
     def do_3d_projection(self):
-        mask = _scale_invalid_mask(*self._offsets3d, self.axes)
-        if self._axlim_clip:
-            mask |= _viewlim_mask(*self._offsets3d, self.axes)
-        if np.any(mask):
-            xs, ys, zs = np.ma.array(self._offsets3d, mask=mask)
-        else:
-            xs, ys, zs = self._offsets3d
-        vxs, vys, vzs, vis = proj3d._scale_proj_transform_clip(xs, ys, zs, self.axes)
-        self._vzs = vzs
-        if np.ma.isMA(vxs):
-            super().set_offsets(np.ma.column_stack([vxs, vys]))
-        else:
-            super().set_offsets(np.column_stack([vxs, vys]))
-
-        if vzs.size > 0:
+        # Project each path's vertices: projecting only the offsets, as
+        # PathCollection does, leaves the patch geometry unprojected.
+        paths = []
+        vzs = []
+        for path, z in zip(self._paths3d, self._zs3d):
+            verts = path.vertices
+            if len(verts) == 0:
+                paths.append(path)
+                continue
+            segment3d = [juggle_axes(x, y, zval, self._zdir)
+                         for (x, y), zval in
+                         zip(verts, np.broadcast_to(z, len(verts)))]
+            xs0, ys0, zs0 = zip(*segment3d)
+            mask = _scale_invalid_mask(xs0, ys0, zs0, self.axes)
+            if self._axlim_clip:
+                mask |= _viewlim_mask(xs0, ys0, zs0, self.axes)
+            if np.any(mask):
+                xs, ys, zs = np.ma.array(
+                    zip(*segment3d), dtype=float, mask=mask).filled(np.nan)
+            else:
+                xs, ys, zs = xs0, ys0, zs0
+            vxs, vys, vzs_path, vis = proj3d._scale_proj_transform_clip(
+                xs, ys, zs, self.axes)
+            paths.append(mpath.Path(np.ma.column_stack([vxs, vys]),
+                                    path.codes))
+            vzs.append(min(vzs_path))
+        # Set the projected paths directly: PatchCollection.set_paths
+        # would re-interpret them as patches and bake in transforms.
+        Collection.set_paths(self, paths)
+        self._vzs = np.array(vzs) if vzs else None
+        if vzs:
             return min(vzs)
-        else:
-            return np.nan
+        return np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
         # Adjust the color_array alpha values if point depths are defined
