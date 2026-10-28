@@ -2958,6 +2958,15 @@ None}, default: None
             # We don't want to cause undue events in backends.
             return
         self._dpi = dpi
+        # Keep the unscaled dpi that savefig(dpi="figure") and
+        # device-pixel-ratio scaling start from in sync with explicit
+        # dpi changes, but not with the temporary changes made while
+        # saving a figure or scaling it for a HiDPI canvas.
+        canvas = getattr(self, "canvas", None)
+        if (forward and hasattr(self, "_original_dpi")
+                and not getattr(canvas, "_is_saving", False)
+                and getattr(canvas, "_device_pixel_ratio", 1) == 1):
+            self._original_dpi = dpi
         self.dpi_scale_trans.clear().scale(dpi)
         w, h = self.get_size_inches()
         self.set_size_inches(w, h, forward=forward)

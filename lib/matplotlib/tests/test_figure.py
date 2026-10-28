@@ -547,6 +547,19 @@ def test_change_dpi():
     assert fig.canvas.renderer.width == 200
 
 
+def test_savefig_figure_dpi_after_set_dpi():
+    # savefig(dpi="figure") must use the dpi set by set_dpi, not the
+    # dpi the figure was created with.
+    fig, ax = plt.subplots()
+    ax.plot([0, 1], [0, 1])
+    fig.set_dpi(72)
+    fig.set_size_inches(4, 3)
+    with io.BytesIO() as buf:
+        fig.savefig(buf, format="png", dpi="figure")
+        buf.seek(0)
+        assert Image.open(buf).size == (4 * 72, 3 * 72)
+
+
 @pytest.mark.parametrize('width, height', [
     (1, np.nan),
     (-1, 1),
