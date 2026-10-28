@@ -130,8 +130,8 @@ Colormaps and themes
 .. dropdown:: Turbo
    :class-container: sdd
 
-   The Turbo colormap was contributed directly to Matplotlib by its author in
-   :ghpull:`15275`
+   .. literalinclude:: ../../LICENSE/LICENSE_TURBO
+      :language: none
 
 
 .. _licenses-fonts:
