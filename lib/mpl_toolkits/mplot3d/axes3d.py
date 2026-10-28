@@ -457,6 +457,23 @@ class Axes3D(Axes):
     def apply_aspect(self, position=None):
         if position is None:
             position = self.get_position(original=True)
+            # A position obtained from get_position() is the aspect-adjusted
+            # (shrunk) active position; if it was written back with
+            # set_position(), shrinking it again would compound the
+            # adjustment whenever the figure is resized.  Such a position
+            # is recognizable as a sub-box of the subplot cell, centred
+            # on it, so derive from the cell instead in that case.
+            subplotspec = self.get_subplotspec()
+            if subplotspec is not None:
+                cell = subplotspec.get_position(self.figure)
+                centre = position.get_points().mean(axis=0)
+                cell_centre = cell.get_points().mean(axis=0)
+                if (np.allclose(centre, cell_centre)
+                        and cell.containsx(position.x0)
+                        and cell.containsx(position.x1)
+                        and cell.containsy(position.y0)
+                        and cell.containsy(position.y1)):
+                    position = cell
 
         # in the superclass, we would go through and actually deal with axis
         # scales and box/datalim. Those are all irrelevant - all we need to do

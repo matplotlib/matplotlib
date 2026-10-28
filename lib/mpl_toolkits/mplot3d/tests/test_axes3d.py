@@ -168,6 +168,37 @@ def test_aspects_adjust_box():
         ax.set_aspect(aspects[i], adjustable='box')
 
 
+def test_repositioned_axes3d_scales_on_resize(tmp_path):
+    # Repositioning an Axes3D with set_position(get_position()) must not
+    # freeze its size: the aspect-adjusted position is derived from the
+    # subplot cell, so enlarging the figure rescales the axes just like
+    # a figure created at the larger size.
+    def make_figure(figsize=None):
+        fig = plt.figure(figsize=figsize)
+        axes = []
+        for row in range(10):
+            axes.append(fig.add_subplot(10, 2, row * 2 + 1))
+            axes.append(fig.add_subplot(10, 2, row * 2 + 2,
+                                        projection='3d'))
+        for ax in axes:
+            ax.set_position(ax.get_position().translated(0, 0))
+        return fig, axes
+
+    fig, axes = make_figure()
+    fig.savefig(tmp_path / "small.jpg", dpi=300)
+    fig.set_size_inches(7, 20)
+    fig.savefig(tmp_path / "large.jpg", dpi=300)
+    fig.canvas.draw()
+
+    fig_ref, axes_ref = make_figure(figsize=(7, 20))
+    fig_ref.savefig(tmp_path / "ref.jpg", dpi=300)
+    fig_ref.canvas.draw()
+
+    for ax, ax_ref in zip(axes, axes_ref):
+        assert ax.get_window_extent().height == pytest.approx(
+            ax_ref.get_window_extent().height)
+
+
 def test_axes3d_repr():
     fig = plt.figure()
     ax = fig.add_subplot(projection='3d')
