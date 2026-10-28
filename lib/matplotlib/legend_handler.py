@@ -809,3 +809,61 @@ class HandlerPolyCollection(HandlerBase):
         self.update_prop(p, orig_handle, legend)
         p.set_transform(trans)
         return [p]
+
+
+class HandlerContourSet(HandlerBase):
+    """
+    Handler for `.ContourSet` instances.
+
+    A line contour is shown as a line, using the color, linestyle, and
+    linewidth of its first level; a filled contour is shown as a filled
+    patch, using the facecolor of its first level.
+    """
+
+    def _update_prop(self, legend_handle, orig_handle):
+        # orig_handle is a ContourSet and legend_handle is a Patch.
+        # Directly set Patch color attributes (must be RGBA tuples),
+        # using the first level's colors as HandlerPolyCollection does.
+        def first_color(colors):
+            if len(colors) == 0:
+                return (0, 0, 0, 0)
+            return tuple(colors[0])
+
+        legend_handle._facecolor = first_color(orig_handle.get_facecolor())
+        legend_handle._edgecolor = first_color(orig_handle.get_edgecolor())
+        legend_handle._original_facecolor = orig_handle._original_facecolor
+        legend_handle._original_edgecolor = orig_handle._original_edgecolor
+        legend_handle._fill = orig_handle.get_fill()
+        hatches = getattr(orig_handle, "hatches", None)
+        legend_handle._hatch = hatches[0] if hatches else None
+        # Alpha is already taken into account by the color attributes.
+
+    def create_artists(self, legend, orig_handle,
+                       xdescent, ydescent, width, height, fontsize, trans):
+        # docstring inherited
+        if orig_handle.filled:
+            p = Rectangle(xy=(-xdescent, -ydescent),
+                          width=width, height=height)
+            self.update_prop(p, orig_handle, legend)
+        else:
+            edgecolors = orig_handle.get_edgecolor()
+            linewidths = orig_handle.get_linewidths()
+            linestyles = orig_handle.get_linestyles()
+            linestyle = linestyles[0] if len(linestyles) else None
+            # Collection linestyles use (offset, None) for a solid line,
+            # which Line2D would read as dashed; convert it explicitly.
+            if (isinstance(linestyle, tuple) and len(linestyle) == 2
+                    and linestyle[1] is None):
+                linestyle = "-"
+            p = Line2D([-xdescent, width - xdescent],
+                       [(height - ydescent) / 2] * 2,
+                       color=edgecolors[0] if len(edgecolors) else None,
+                       linewidth=(linewidths[0] if len(linewidths)
+                                  else None),
+                       linestyle=linestyle)
+            # Overwrite manually because patch and line properties
+            # don't mix.
+            p.set_drawstyle('default')
+            p.set_marker("")
+        p.set_transform(trans)
+        return [p]

@@ -48,6 +48,7 @@ from matplotlib.offsetbox import (
     DrawingArea, TextArea,
 )
 from matplotlib.container import ErrorbarContainer, BarContainer, StemContainer
+from matplotlib.contour import ContourSet
 from . import legend_handler
 
 
@@ -814,7 +815,8 @@ class Legend(Artist):
         tuple: legend_handler.HandlerTuple(),
         PatchCollection: legend_handler.HandlerPolyCollection(),
         PathCollection: legend_handler.HandlerPathCollection(),
-        PolyCollection: legend_handler.HandlerPolyCollection()
+        PolyCollection: legend_handler.HandlerPolyCollection(),
+        ContourSet: legend_handler.HandlerContourSet(),
         }
 
     # (get|set|update)_default_handler_maps are public interfaces to

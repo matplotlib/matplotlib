@@ -866,6 +866,63 @@ def test_legend_pathcollection_labelcolor_linecolor():
         assert mpl.colors.same_color(text.get_color(), color)
 
 
+def _contour_data():
+    x = np.linspace(-3, 3, 50)
+    X, Y = np.meshgrid(x, x)
+    return X, Y, X**2 + Y**2
+
+
+def test_legend_contour_line(recwarn):
+    # A labelled line contour gets a line-like legend handle with the
+    # color, linestyle, and linewidth of its first level.
+    fig, ax = plt.subplots()
+    X, Y, Z = _contour_data()
+    cs = ax.contour(X, Y, Z, levels=[5.0])
+    cs.set_label("level 5")
+    leg = ax.legend()
+    fig.canvas.draw()
+
+    assert [str(w.message) for w in recwarn
+            if "does not support" in str(w.message)] == []
+    assert len(leg.legend_handles) == 1
+    (handle,) = leg.legend_handles
+    assert isinstance(handle, mlines.Line2D)
+    assert mpl.colors.same_color(handle.get_color(), cs.get_edgecolor()[0])
+    assert handle.get_linewidth() == cs.get_linewidths()[0]
+    assert handle.get_linestyle() == "-"
+
+
+def test_legend_contour_line_dashed():
+    # An explicitly dashed contour keeps a dashed legend handle.
+    fig, ax = plt.subplots()
+    X, Y, Z = _contour_data()
+    cs = ax.contour(X, Y, Z, levels=[5.0], linestyles="dashed")
+    cs.set_label("level 5")
+    leg = ax.legend()
+    fig.canvas.draw()
+
+    (handle,) = leg.legend_handles
+    assert isinstance(handle, mlines.Line2D)
+    assert handle.get_linestyle() == "--"
+
+
+def test_legend_contour_filled():
+    # A labelled filled contour gets a filled patch handle with the
+    # facecolor of its first level.
+    fig, ax = plt.subplots()
+    X, Y, Z = _contour_data()
+    cs = ax.contourf(X, Y, Z, levels=[0, 5, 10])
+    cs.set_label("filled")
+    leg = ax.legend()
+    fig.canvas.draw()
+
+    assert len(leg.legend_handles) == 1
+    (handle,) = leg.legend_handles
+    assert isinstance(handle, mpatches.Rectangle)
+    assert mpl.colors.same_color(handle.get_facecolor(),
+                                 cs.get_facecolor()[0])
+
+
 def test_legend_pathcollection_labelcolor_linecolor_iterable():
     # test the labelcolor for labelcolor='linecolor' on PathCollection
     # with iterable colors
