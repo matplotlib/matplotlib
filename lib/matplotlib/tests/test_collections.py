@@ -455,6 +455,31 @@ def test_EllipseCollection_setter_getter():
     assert_array_almost_equal(ec.get_angles(), new_angles.ravel())
 
 
+def test_polycollection_split_at_nonfinite_vertices():
+    # Vertices transformed out of scale (here, a logit scale) must
+    # split the polygon at the non-finite vertices, so the fill does
+    # not bridge the invalid stretch, as a line would leave a gap.
+    y = np.linspace(0, 1, 101)
+    x1 = 0.5 + 0.7 * np.sin(2 * np.pi * y)  # outside (0, 1) in the middle
+    x2 = np.full_like(y, 0.5)
+
+    fig, ax = plt.subplots()
+    ax.set_xscale("logit")
+    ax.set_yscale("logit")
+    coll = ax.fill_betweenx(y, x1, x2)
+    fig.canvas.draw()
+    _, _, _, paths = coll._prepare_points()
+    assert len(paths) > 1
+    assert all(np.isfinite(path.vertices).all() for path in paths)
+
+    # With a linear scale nothing is out of scale: a single path.
+    fig2, ax2 = plt.subplots()
+    coll2 = ax2.fill_betweenx(y, x1, x2)
+    fig2.canvas.draw()
+    _, _, _, paths2 = coll2._prepare_points()
+    assert len(paths2) == 1
+
+
 @image_comparison(['polycollection_close.png'], remove_text=True, style='mpl20')
 def test_polycollection_close():
     from mpl_toolkits.mplot3d import Axes3D

@@ -1384,6 +1384,42 @@ class PolyCollection(_CollectionWithSizes):
                        for xy, cds in zip(verts, codes)]
         self.stale = True
 
+    def _prepare_points(self):
+        transform, offset_trf, offsets, paths = super()._prepare_points()
+        # A non-affine transform can map vertices outside the scale's
+        # domain to non-finite values; split such polygons at those
+        # vertices so the fill does not bridge the resulting gap.
+        split_paths = []
+        for path in paths:
+            split_paths.extend(self._split_path(path))
+        return transform, offset_trf, offsets, split_paths
+
+    @staticmethod
+    def _split_path(path):
+        """Split *path* at non-finite vertices into closed sub-paths."""
+        verts = path.vertices
+        finite = np.isfinite(verts).all(axis=1)
+        if finite.all():
+            return [path]
+        codes = path.codes
+        if codes is not None and not np.all(
+                (codes == mpath.Path.MOVETO)
+                | (codes == mpath.Path.LINETO)
+                | (codes == mpath.Path.CLOSEPOLY)):
+            # Only split plain polygonal paths; splitting a curved
+            # path at its control points would change its shape.
+            return [path]
+        split_paths = []
+        for start, stop in cbook.contiguous_regions(finite):
+            run = verts[start:stop]
+            if codes is not None and codes[stop - 1] == mpath.Path.CLOSEPOLY:
+                # Drop the closing vertex, which duplicates the first
+                # vertex of the polygon.
+                run = run[:-1]
+            if len(run) >= 3:
+                split_paths.append(mpath.Path._create_closed(run))
+        return split_paths
+
 
 class FillBetweenPolyCollection(PolyCollection):
     """
