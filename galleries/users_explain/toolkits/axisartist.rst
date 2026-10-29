@@ -582,4 +582,3 @@ list of known limitations and areas for future improvement.
 * The location of a ``FloatingAxis`` axis label should optionally be
   specifiable using a coordinate value, for example placing the label of
   ``x = 0`` at ``y = 1``.
-  
