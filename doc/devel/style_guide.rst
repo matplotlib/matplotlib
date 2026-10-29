@@ -394,8 +394,7 @@ Use Sphinx's built in math support:
 In rare cases we want the rendering of the mathematical text in the
 documentation html to exactly match with the rendering of the mathematical
 expression in the Matplotlib figure. In these cases, you can use the
-`matplotlib.sphinxext.mathmpl` Sphinx extension (See also the
-:doc:`../users/explain/text/mathtext` tutorial.)
+`matplotlib.sphinxext.mathmpl` Sphinx extension. Usage is described in :doc:`../users/explain/text/mathtext`.
 
 reStructuredText
 ----------------
@@ -438,7 +437,7 @@ exclusively for performing actions in a determined order.
 
 Tables
 ^^^^^^
-Use ASCII tables with reStructuredText standards in organizing content.
+ 
 Given the size of the table and length of each entry, use:
 
 +-------------+-------------------------------+--------------------+

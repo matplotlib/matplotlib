@@ -3,7 +3,7 @@
 .. _documenting-matplotlib:
 
 =============================
-Write and build documentation
+Build and write documentation
 =============================
 
 All documentation is built from the :file:`doc/` folder, but (as explained in this guide)
@@ -167,8 +167,7 @@ a good introduction into using ReST. More complete information is available in
 the `reStructuredText reference documentation
 <https://docutils.sourceforge.io/rst.html#reference-documentation>`_.
 
-You can find additional information and conventions how ReST is used in the
-Matplotlib documentation in the :doc:`Matplotlib Documentation style guide <style_guide>`.
+See the :doc:`Matplotlib Documentation style guide <style_guide>` for the  ReST conventions used in the Matplotlib documentation.
 
 .. _internal-section-refs:
 
