@@ -6543,15 +6543,15 @@ or pandas.DataFrame
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError(f"Dimensions of C {C.shape} should"
-                                f" be one smaller than X({Nx}) and Y({Ny})"
-                                f" while using shading='flat'."
-                                f" Note that C uses (rows, columns) = (Y, X) indexing."
-                                f" See help({funcname})")
+                raise TypeError(f"Dimensions of C {C.shape} should "
+                                f"be one smaller than X({Nx}) and Y({Ny}) "
+                                f"while using shading='flat'. "
+                                f"Note that C uses (rows, columns) = (Y, X) indexing. "
+                                f"See help({funcname})")
         elif shading == 'nearest':
             if (Nx, Ny) != (ncols, nrows):
-                raise TypeError(f"Dimensions of C {C.shape} are incompatible with"
-                                f" X ({Nx}) and Y ({Ny}) while using "
+                raise TypeError(f"Dimensions of C {C.shape} are incompatible with "
+                                f"X ({Nx}) and Y ({Ny}) while using "
                                 f"shading='nearest'. Expected C.shape to be "
                                 f"({Ny}, {Nx}). See help({funcname})")
             # grid is specified at the center, so define corners
@@ -6592,8 +6592,8 @@ or pandas.DataFrame
                 X = 0.25 * (X[:-1, :-1] + X[:-1, 1:] + X[1:, 1:] + X[1:, :-1])
                 Y = 0.25 * (Y[:-1, :-1] + Y[:-1, 1:] + Y[1:, 1:] + Y[1:, :-1])
             elif (Nx, Ny) != (ncols, nrows):
-                raise TypeError(f"Dimensions of C {C.shape} are incompatible with"
-                                f" X ({Nx}) and/or Y ({Ny}) while using "
+                raise TypeError(f"Dimensions of C {C.shape} are incompatible with "
+                                f"X ({Nx}) and/or Y ({Ny}) while using "
                                 f"shading='gouraud'. Expected C.shape to be "
                                 f"({Ny}, {Nx}) or ({Ny - 1}, {Nx - 1}). "
                                 f"See help({funcname})")
