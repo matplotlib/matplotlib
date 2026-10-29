@@ -24,7 +24,8 @@ using AffineTransformArray = mpl::array<const double, mpl::shape<-1, 3, 3>>;
 using BBoxArray = mpl::array<double, mpl::shape<-1, 2, 2>>;
 using BoolArray = mpl::array<bool, mpl::ndim<1>>;
 using IndexArray = mpl::array<size_t, mpl::ndim<1>>;
-using PointArray = mpl::array<const double, mpl::shape<-1, 2>>;
+using InputPointArray = mpl::array<const double, mpl::shape<-1, 2>>;
+using OutputPointArray = mpl::array<double, mpl::shape<-1, 2>>;
 
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3 };
 
@@ -111,7 +112,7 @@ _finalize_polygon(std::vector<Polygon> &result, bool closed_only)
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
 template <class PathIterator>
-void point_in_path_impl(const PointArray &points, PathIterator &path,
+void point_in_path_impl(const InputPointArray &points, PathIterator &path,
                         const BoolArray &inside_flag)
 {
     uint8_t yflag1;
@@ -245,7 +246,7 @@ void point_in_path_impl(const PointArray &points, PathIterator &path,
 }
 
 template <class PathIterator>
-inline void points_in_path(const PointArray &points,
+inline void points_in_path(const InputPointArray &points,
                            const double r,
                            PathIterator &path,
                            agg::trans_affine &trans,
@@ -275,7 +276,7 @@ inline bool point_in_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
-    auto points = PointArray::unmanaged(points_data, 1);
+    auto points = InputPointArray::unmanaged(points_data, 1);
 
     bool result_data[] = {false};
     auto result = BoolArray::unmanaged(result_data, 1);
@@ -290,7 +291,7 @@ inline bool point_on_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
-    auto points = PointArray::unmanaged(points_data, 1);
+    auto points = InputPointArray::unmanaged(points_data, 1);
 
     bool result_data[] = {false};
     auto result = BoolArray::unmanaged(result_data, 1);
@@ -362,7 +363,7 @@ template <class PathGenerator>
 void get_path_collection_extents(agg::trans_affine &master_transform,
                                  PathGenerator &paths,
                                  AffineTransformArray &transforms,
-                                 PointArray &offsets,
+                                 InputPointArray &offsets,
                                  agg::trans_affine &offset_trans,
                                  extent_limits &extent)
 {
@@ -407,7 +408,7 @@ void point_in_path_collection(double x,
                               agg::trans_affine &master_transform,
                               PathGenerator &paths,
                               AffineTransformArray &transforms,
-                              PointArray &offsets,
+                              InputPointArray &offsets,
                               agg::trans_affine &offset_trans,
                               bool filled,
                               std::vector<size_t> &result)
@@ -667,33 +668,17 @@ clip_path_to_rect(mpl::PathIterator &path, agg::rect_d &rect, bool inside)
     return results;
 }
 
-template <class VerticesArray, class ResultArray>
-void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
+void transform_points(InputPointArray &in_points, agg::trans_affine &trans,
+                      OutputPointArray &out_points)
 {
-    if (vertices.size() != 0 && vertices.shape(1) != 2) {
-        throw std::invalid_argument("Invalid vertices array.");
-    }
-
-    size_t n = vertices.shape(0);
-    double x;
-    double y;
-    double t0;
-    double t1;
-    double t;
+    size_t n = in_points.shape(0);
 
     for (size_t i = 0; i < n; ++i) {
-        x = vertices(i, 0);
-        y = vertices(i, 1);
+        auto x = in_points(i, 0);
+        auto y = in_points(i, 1);
 
-        t0 = trans.sx * x;
-        t1 = trans.shx * y;
-        t = t0 + t1 + trans.tx;
-        result(i, 0) = t;
-
-        t0 = trans.shy * x;
-        t1 = trans.sy * y;
-        t = t0 + t1 + trans.ty;
-        result(i, 1) = t;
+        out_points(i, 0) = trans.sx * x + trans.shx * y + trans.tx;
+        out_points(i, 1) = trans.shy * x +  trans.sy * y +  trans.ty;
     }
 }
 

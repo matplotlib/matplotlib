@@ -61,11 +61,10 @@ PyRendererAgg_draw_path(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_text_image(RendererAgg *self,
-                              py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj,
+                              const mpl::defer<TextImage> &image_obj,
                               int x, int y, double angle, GCAgg &gc)
 {
-    // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
-    auto image = image_obj.mutable_unchecked<2>();
+    auto image = image_obj.value("image");
 
     self->draw_text_image(gc, image, x, y, angle);
 }
@@ -73,15 +72,12 @@ PyRendererAgg_draw_text_image(RendererAgg *self,
 static void
 PyRendererAgg_draw_text_images(
     RendererAgg *self,
-    py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> buffer_obj,
-    py::array_t<py::ssize_t, py::array::c_style | py::array::forcecast> positions_obj,
+    const mpl::defer<GlyphRunBuffer> &buffer_obj,
+    const mpl::defer<GlyphRunPositionArray> &positions_obj,
     GCAgg &gc)
 {
-    if (positions_obj.ndim() != 2 || positions_obj.shape(1) != 5) {
-        throw py::value_error("positions must be of shape (N, 5)");
-    }
-    auto buffer = buffer_obj.unchecked<1>();
-    auto positions = positions_obj.unchecked<2>();
+    auto buffer = buffer_obj.value("buffer");
+    auto positions = positions_obj.value("positions");
 
     // The renderer indexes into the buffer with these.
     auto const& size = buffer.shape(0);
@@ -91,9 +87,8 @@ PyRendererAgg_draw_text_images(
         auto const& cols = positions(i, 2);
         if (offset < 0 || rows < 0 || cols < 0 || offset > size ||
                 (rows > 0 && cols > (size - offset) / rows)) {
-            throw py::value_error(
-                "positions describes a bitmap outside of buffer at row " +
-                std::to_string(i));
+            throw py::value_error(mpl::format(
+                "positions describes a bitmap outside of buffer at row {}", i));
         }
     }
 
@@ -124,10 +119,9 @@ PyRendererAgg_draw_image(RendererAgg *self,
                          GCAgg &gc,
                          double x,
                          double y,
-                         py::array_t<agg::int8u, py::array::c_style | py::array::forcecast> image_obj)
+                         const mpl::defer<RGBAImage> &image_obj)
 {
-    // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
-    auto image = image_obj.mutable_unchecked<3>();
+    auto image = image_obj.value("image");
 
     x = mpl::round(x);
     y = mpl::round(y);
@@ -140,26 +134,26 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    GCAgg &gc,
                                    agg::trans_affine master_transform,
                                    mpl::PathGenerator paths,
-                                   py::array_t<double> transforms_obj,
-                                   py::array_t<double> offsets_obj,
+                                   const mpl::defer<AffineTransformArray> &transforms_obj,
+                                   const mpl::defer<PointArray> &offsets_obj,
                                    agg::trans_affine offset_trans,
-                                   py::array_t<double> facecolors_obj,
-                                   py::array_t<double> edgecolors_obj,
-                                   py::array_t<double> linewidths_obj,
+                                   const mpl::defer<ColorArray> &facecolors_obj,
+                                   const mpl::defer<ColorArray> &edgecolors_obj,
+                                   const mpl::defer<LineWidthArray> &linewidths_obj,
                                    DashesVector dashes,
-                                   py::array_t<uint8_t> antialiaseds_obj,
+                                   const mpl::defer<AntialiasedArray> &antialiaseds_obj,
                                    py::object Py_UNUSED(ignored_obj),
                                    // offset position is no longer used
                                    py::object Py_UNUSED(offset_position_obj),
-                                   py::array_t<double> hatchcolors_obj)
+                                   const mpl::defer<ColorArray> &hatchcolors_obj)
 {
-    auto transforms = convert_transforms(transforms_obj);
-    auto offsets = convert_points(offsets_obj);
-    auto facecolors = convert_colors(facecolors_obj);
-    auto edgecolors = convert_colors(edgecolors_obj);
-    auto hatchcolors = convert_colors(hatchcolors_obj);
-    auto linewidths = linewidths_obj.unchecked<1>();
-    auto antialiaseds = antialiaseds_obj.unchecked<1>();
+    auto transforms = transforms_obj.value("transforms");
+    auto offsets = offsets_obj.value("offsets");
+    auto facecolors = facecolors_obj.value("facecolors");
+    auto edgecolors = edgecolors_obj.value("edgecolors");
+    auto hatchcolors = hatchcolors_obj.value("hatchcolors");
+    auto linewidths = linewidths_obj.value("linewidths");
+    auto antialiaseds = antialiaseds_obj.value("antialiaseds");
 
     self->draw_path_collection(gc,
             master_transform,
@@ -181,17 +175,17 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
                              agg::trans_affine master_transform,
                              unsigned int mesh_width,
                              unsigned int mesh_height,
-                             py::array_t<double, py::array::c_style | py::array::forcecast> coordinates_obj,
-                             py::array_t<double> offsets_obj,
+                             const mpl::defer<QuadMeshCoordinateArray> &coordinates_obj,
+                             const mpl::defer<PointArray> &offsets_obj,
                              agg::trans_affine offset_trans,
-                             py::array_t<double> facecolors_obj,
+                             const mpl::defer<ColorArray> &facecolors_obj,
                              bool antialiased,
-                             py::array_t<double> edgecolors_obj)
+                             const mpl::defer<ColorArray> &edgecolors_obj)
 {
-    auto coordinates = coordinates_obj.mutable_unchecked<3>();
-    auto offsets = convert_points(offsets_obj);
-    auto facecolors = convert_colors(facecolors_obj);
-    auto edgecolors = convert_colors(edgecolors_obj);
+    auto coordinates = coordinates_obj.value("coordinates");
+    auto offsets = offsets_obj.value("offsets");
+    auto facecolors = facecolors_obj.value("facecolors");
+    auto edgecolors = edgecolors_obj.value("edgecolors");
 
     self->draw_quad_mesh(gc,
             master_transform,
@@ -208,12 +202,12 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
 static void
 PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
                                      GCAgg &gc,
-                                     py::array_t<double> points_obj,
-                                     py::array_t<double> colors_obj,
+                                     const mpl::defer<GouraudPointArray> &points_obj,
+                                     const mpl::defer<GouraudColorArray> &colors_obj,
                                      agg::trans_affine trans)
 {
-    auto points = points_obj.unchecked<3>();
-    auto colors = colors_obj.unchecked<3>();
+    auto points = points_obj.value("points");
+    auto colors = colors_obj.value("colors");
 
     self->draw_gouraud_triangles(gc, points, colors, trans);
 }
@@ -250,7 +244,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
              "antialiased"_a, "edgecolors"_a)
         .def("_draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
-             "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
+             "gc"_a, "points"_a, "colors"_a, "trans"_a.none() = nullptr)
 
         .def("clear", &RendererAgg::clear)
 

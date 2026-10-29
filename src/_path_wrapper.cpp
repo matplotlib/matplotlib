@@ -42,7 +42,7 @@ Py_point_in_path(double x, double y, double r, mpl::PathIterator path,
 }
 
 static BoolArray
-Py_points_in_path(const mpl::defer<PointArray> &points_obj,
+Py_points_in_path(const mpl::defer<InputPointArray> &points_obj,
                   double r, mpl::PathIterator path,
                   agg::trans_affine trans)
 {
@@ -58,7 +58,7 @@ static py::tuple
 Py_get_path_collection_extents(agg::trans_affine master_transform,
                                mpl::PathGenerator paths,
                                const mpl::defer<AffineTransformArray> &transforms_obj,
-                               const mpl::defer<PointArray> &offsets_obj,
+                               const mpl::defer<InputPointArray> &offsets_obj,
                                agg::trans_affine offset_trans)
 {
     auto transforms = transforms_obj.value("transforms");
@@ -87,7 +87,7 @@ static IndexArray
 Py_point_in_path_collection(double x, double y, double radius,
                             agg::trans_affine master_transform, mpl::PathGenerator paths,
                             const mpl::defer<AffineTransformArray> &transforms_obj,
-                            const mpl::defer<PointArray> &offsets_obj,
+                            const mpl::defer<InputPointArray> &offsets_obj,
                             agg::trans_affine offset_trans, bool filled)
 {
     auto transforms = transforms_obj.value("transforms");
@@ -118,25 +118,16 @@ Py_clip_path_to_rect(mpl::PathIterator path, agg::rect_d rect, bool inside)
     return convert_polygon_vector(result);
 }
 
-static py::object
-Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecast> vertices_arr,
+static OutputPointArray
+Py_transform_points(const mpl::defer<InputPointArray> &points_obj,
                     agg::trans_affine trans)
 {
-    if (vertices_arr.ndim() == 2) {
-        auto vertices = vertices_arr.unchecked<2>();
+    auto in_points = points_obj.value("points");
 
-        check_trailing_shape(vertices, "vertices", 2);
+    auto out_points = OutputPointArray(in_points.shape(0));
+    transform_points(in_points, trans, out_points);
 
-        py::ssize_t dims[] = { vertices.shape(0), 2 };
-        py::array_t<double> result(dims);
-        auto result_mutable = result.mutable_unchecked<2>();
-
-        affine_transform_2d(vertices, trans, result_mutable);
-        return result;
-    } else {
-        throw py::value_error(mpl::format(
-            "vertices must be 2D, not {}D", vertices_arr.ndim()));
-    }
+    return out_points;
 }
 
 static int
@@ -322,7 +313,7 @@ PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
           "path_a"_a, "trans_a"_a, "path_b"_a, "trans_b"_a);
     m.def("clip_path_to_rect", &Py_clip_path_to_rect,
           "path"_a, "rect"_a, "inside"_a);
-    m.def("affine_transform", &Py_affine_transform,
+    m.def("transform_points", &Py_transform_points,
           "points"_a, "trans"_a);
     m.def("count_bboxes_overlapping_bbox", &Py_count_bboxes_overlapping_bbox,
           "bbox"_a, "bboxes"_a);

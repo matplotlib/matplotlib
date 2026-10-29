@@ -45,7 +45,7 @@ import numpy as np
 from numpy.linalg import inv
 
 from matplotlib import _api, _docstring
-from matplotlib._path import affine_transform, count_bboxes_overlapping_bbox
+from matplotlib._path import transform_points, count_bboxes_overlapping_bbox
 from .path import Path
 
 DEBUG = False
@@ -1923,7 +1923,7 @@ class Affine2DBase(AffineBase):
                 return np.asarray((
                     float(mtx[0, 0]) * x + float(mtx[0, 1]) * y + float(mtx[0, 2]),
                     float(mtx[1, 0]) * x + float(mtx[1, 1]) * y + float(mtx[1, 2])))
-        return affine_transform(values, mtx)
+        return transform_points(values, mtx)
 
     def transform_affine(self, values):
         if isinstance(values, np.ma.MaskedArray):

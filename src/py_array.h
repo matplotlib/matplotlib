@@ -199,14 +199,6 @@ public:
         return unmanaged_empty_impl(std::make_index_sequence<Traits::num_free_dim>());
     }
 
-    static array unmanaged_scalar(Scalar &s)
-    {
-        static_assert(Traits::ndim == 1 && Traits::num_free_dim == 1,
-            "unmanaged_scalar() requires an mpl::array with shape<-1>");
-
-        return unmanaged(&s, 1);
-    }
-
     template <typename... Args, internal::enable_if_args_match<Traits, Args...> = 0>
     static array unmanaged(Scalar *data, Args... args)
     {
