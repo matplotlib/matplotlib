@@ -167,7 +167,7 @@ a good introduction into using ReST. More complete information is available in
 the `reStructuredText reference documentation
 <https://docutils.sourceforge.io/rst.html#reference-documentation>`_.
 
-See the :doc:`Matplotlib Documentation style guide <style_guide>` for the  ReST conventions used in the Matplotlib documentation.
+See the :doc:`style guide <style_guide>` for the  ReST conventions used in the Matplotlib documentation.
 
 .. _internal-section-refs:
 
