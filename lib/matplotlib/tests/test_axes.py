@@ -1808,6 +1808,20 @@ def test_pcolorflaterror():
         ax.pcolormesh(x, y, Z, shading='flat')
 
 
+def test_pcolorautoerror():
+    fig, ax = plt.subplots()
+    x = np.arange(0, 4)
+    y = np.arange(0, 3)
+    Z = np.ones((2, 4))
+    message = (
+        "Dimensions of C (2, 4) are incompatible with X (4) and Y (3). "
+        "Expected C.shape to be (3, 4) for shading='nearest' or "
+        "(2, 3) for shading='flat'. "
+        "Note that C uses (rows, columns) = (Y, X) indexing.")
+    with pytest.raises(TypeError, match=re.escape(message)):
+        ax.pcolormesh(x, y, Z, shading='auto')
+
+
 def test_samesizepcolorflaterror():
     fig, ax = plt.subplots()
     x, y = np.meshgrid(np.arange(5), np.arange(3))

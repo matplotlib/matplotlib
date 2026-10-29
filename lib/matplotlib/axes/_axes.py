@@ -6522,15 +6522,25 @@ or pandas.DataFrame
         if shading == 'auto':
             if ncols == Nx and nrows == Ny:
                 shading = 'nearest'
-            else:
+            elif ncols == Nx - 1 and nrows == Ny - 1:
                 shading = 'flat'
+            else:
+                raise TypeError(
+                    f" Dimensions of C ({nrows}, {ncols}) are incompatible with"
+                    f" X ({Nx}) and Y ({Ny}). Expected C.shape to be"
+                    f" ({Ny}, {Nx}) for shading='nearest' or"
+                    f" ({Ny - 1}, {Nx - 1}) for shading='flat'."
+                    f" Note that C uses (rows, columns) = (Y, X) indexing."
+                    f" See help({funcname})"
+                )
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
                 raise TypeError(f"Dimensions of C {C.shape} should"
                                 f" be one smaller than X({Nx}) and Y({Ny})"
-                                f" while using shading='flat'"
-                                f" see help({funcname})")
+                                f" while using shading='flat'."
+                                f" Note that C uses (rows, columns) = (Y, X) indexing."
+                                f" See help({funcname})")
         else:    # ['nearest', 'gouraud']:
             if (Nx, Ny) != (ncols, nrows):
                 if shading == 'gouraud' and (Nx, Ny) == (ncols + 1, nrows + 1):
@@ -6539,7 +6549,9 @@ or pandas.DataFrame
                     Y = 0.25 * (Y[:-1, :-1] + Y[:-1, 1:] + Y[1:, 1:] + Y[1:, :-1])
                 else:
                     raise TypeError(f"Dimensions of C {C.shape} are incompatible with"
-                                    f" X ({Nx}) and/or Y ({Ny}); see help({funcname})")
+                                    f" X ({Nx}) and/or Y ({Ny})."
+                                    f" Note that C uses (rows, columns) = (Y, X)"
+                                    f" indexing. See help({funcname})")
             if shading == 'nearest':
                 if Nx == 1 or Ny == 1:
                     # If a coordinate array has a single cell center,
