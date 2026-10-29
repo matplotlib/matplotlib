@@ -2369,6 +2369,22 @@ class FigureCanvasBase:
                 # _get_renderer may change the figure dpi (as vector formats
                 # force the figure dpi to 72), so we need to set it again here.
                 with cbook._setattr_cm(self.figure, dpi=dpi):
+                    # Pass the figure's alt text on as the 'Description'
+                    # metadata entry, unless the caller explicitly supplied
+                    # one. Backends that give the alt text an accessible
+                    # representation of its own (currently SVG) read it from
+                    # the figure directly; for the other backends this lands
+                    # in the file metadata only. Restrict this to the formats
+                    # whose print methods accept metadata; the others (e.g.
+                    # jpeg, tiff) reject a metadata argument entirely.
+                    alt_text = self.figure.get_alt_text()
+                    if (alt_text and format in {
+                            'eps', 'pdf', 'pgf', 'png', 'ps', 'svg', 'svgz'}
+                            and 'Description' not in (
+                                kwargs.get('metadata') or {})):
+                        kwargs['metadata'] = {
+                            **(kwargs.get('metadata') or {}),
+                            'Description': alt_text}
                     result = print_method(
                         filename,
                         facecolor=facecolor,

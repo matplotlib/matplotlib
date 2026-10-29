@@ -2739,6 +2739,8 @@ None}, default: None
 
         self.subplotpars = subplotpars
 
+        self._alt_text = ""
+
         self._axstack = _AxesStack()  # track all figure Axes and current Axes
         self.clear()
 
@@ -3295,6 +3297,44 @@ None}, default: None
         """
         self.dpi = val
         self.stale = True
+
+    def get_alt_text(self):
+        """Return the alternative text of the figure; see `set_alt_text`."""
+        return self._alt_text
+
+    def set_alt_text(self, alt_text):
+        """
+        Set the alternative text ("alt text") describing this figure.
+
+        The alt text is a plain-text description of the figure's content
+        for people who cannot see the figure, e.g. when using a screen
+        reader. It defaults to ``""`` (no alternative text).
+
+        When the figure is saved, backends use the alt text as follows:
+
+        - The SVG backend gives the root ``<svg>`` element a
+          ``role="img"`` attribute and writes the alt text as the
+          element's ``<title>`` child, which makes it the accessible name
+          of the figure.
+        - Other backends that accept file metadata (PNG, PDF, PostScript
+          and PGF) receive it as the ``'Description'`` metadata entry,
+          unless a ``'Description'`` is explicitly passed in the
+          *metadata* parameter of `.Figure.savefig`. Unlike the SVG
+          ``<title>``, file metadata is not an accessible name; in
+          particular, this does not make PDF output a tagged PDF.
+
+        Parameters
+        ----------
+        alt_text : str or None
+            The alternative text. Passing None or an empty string clears
+            the alt text, in which case saved output is unchanged.
+        """
+        if alt_text is None:
+            alt_text = ""
+        if not isinstance(alt_text, str):
+            raise TypeError(
+                f"alt_text must be a string or None, not {type(alt_text)}")
+        self._alt_text = alt_text
 
     def set_figwidth(self, val, forward=True):
         """

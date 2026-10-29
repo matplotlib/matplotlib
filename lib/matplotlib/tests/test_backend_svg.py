@@ -561,6 +561,62 @@ def test_svg_metadata():
     assert values == metadata['Keywords']
 
 
+def test_svg_alt_text():
+    # The figure's alt text becomes the accessible name of the SVG:
+    # role="img" on the root element and the alt text as its <title> child.
+    SVGNS = '{http://www.w3.org/2000/svg}'
+
+    fig, ax = plt.subplots()
+    fig.set_alt_text('A line plot of Tom & Jerry against time')
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+
+    root = xml.etree.ElementTree.fromstring(buf)
+    assert root.attrib['role'] == 'img'
+    titles = [node.text for node in root.findall(f'./{SVGNS}title')]
+    assert titles == ['A line plot of Tom & Jerry against time']
+
+
+def test_svg_alt_text_takes_precedence_over_metadata_title():
+    # With both alt text and a 'Title' metadata entry, there is a single
+    # <title> element (the alt text); the Title is still recorded in the
+    # Dublin Core metadata.
+    SVGNS = '{http://www.w3.org/2000/svg}'
+    RDFNS = '{http://www.w3.org/1999/02/22-rdf-syntax-ns#}'
+    CCNS = '{http://creativecommons.org/ns#}'
+    DCNS = '{http://purl.org/dc/elements/1.1/}'
+
+    fig, ax = plt.subplots()
+    fig.set_alt_text('alt text')
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg', metadata={'Title': 'metadata title'})
+        buf = fd.getvalue().decode()
+
+    root = xml.etree.ElementTree.fromstring(buf)
+    titles = [node.text for node in root.findall(f'./{SVGNS}title')]
+    assert titles == ['alt text']
+    rdf, = root.findall(f'./{SVGNS}metadata/{RDFNS}RDF')
+    dc_titles = [node.text
+                 for node in rdf.findall(f'./{CCNS}Work/{DCNS}title')]
+    assert dc_titles == ['metadata title']
+
+
+def test_svg_no_alt_text_by_default():
+    # Without alt text the output is unchanged: no role attribute and no
+    # <title> element on the root element.
+    SVGNS = '{http://www.w3.org/2000/svg}'
+
+    fig, ax = plt.subplots()
+    with BytesIO() as fd:
+        fig.savefig(fd, format='svg')
+        buf = fd.getvalue().decode()
+
+    root = xml.etree.ElementTree.fromstring(buf)
+    assert 'role' not in root.attrib
+    assert not root.findall(f'./{SVGNS}title')
+
+
 @image_comparison(["multi_font_aspath.svg"], style='mpl20')
 def test_multi_font_aspath():
     fonts, test_str = _gen_multi_font_text()

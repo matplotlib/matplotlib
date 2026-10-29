@@ -1734,6 +1734,37 @@ def test_gridspec_no_mutate_input():
     plt.subplot_mosaic('AB', width_ratios=[1, 2], gridspec_kw=gs)
 
 
+def test_alt_text():
+    fig = Figure()
+    assert fig.get_alt_text() == ""
+    fig.set_alt_text("A description of the figure")
+    assert fig.get_alt_text() == "A description of the figure"
+    fig.set_alt_text(None)
+    assert fig.get_alt_text() == ""
+    with pytest.raises(TypeError, match="alt_text must be a string"):
+        fig.set_alt_text(42)
+
+
+def test_alt_text_saved_as_description_metadata():
+    # On backends without an accessible representation of the alt text, it
+    # is passed through as the 'Description' file metadata; an explicit
+    # 'Description' given to savefig takes precedence.
+    fig = Figure()
+    fig.set_alt_text("A description of the figure")
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format="png")
+        fd.seek(0)
+        with Image.open(fd) as im:
+            assert im.text["Description"] == "A description of the figure"
+    with io.BytesIO() as fd:
+        fig.savefig(fd, format="png", metadata={"Description": "explicit"})
+        fd.seek(0)
+        with Image.open(fd) as im:
+            assert im.text["Description"] == "explicit"
+    # Formats whose print methods do not accept metadata at all still save.
+    fig.savefig(io.BytesIO(), format="jpeg")
+
+
 @pytest.mark.parametrize('fmt', ['eps', 'pdf', 'png', 'ps', 'svg', 'svgz'])
 def test_savefig_metadata(fmt):
     Figure().savefig(io.BytesIO(), format=fmt, metadata={})

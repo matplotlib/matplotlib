@@ -328,7 +328,7 @@ def _svg_blend_mode(mpl_blend_mode):
 
 class RendererSVG(RendererBase):
     def __init__(self, width, height, svgwriter, basename=None, image_dpi=72,
-                 *, metadata=None):
+                 *, metadata=None, alt_text=None):
         self.width = width
         self.height = height
         self.writer = _XMLWriter(svgwriter)
@@ -356,6 +356,11 @@ class RendererSVG(RendererBase):
         str_height = _short_float_fmt(height)
         str_width = _short_float_fmt(width)
         svgwriter.write(svgProlog)
+        svg_attrib = {'xmlns:xlink': "http://www.w3.org/1999/xlink"}
+        if alt_text:
+            # Expose the figure as a single image to assistive technology;
+            # the <title> written below is its accessible name.
+            svg_attrib['role'] = 'img'
         self._start_id = self.writer.start(
             'svg',
             width=f'{str_width}pt',
@@ -364,8 +369,10 @@ class RendererSVG(RendererBase):
             xmlns="http://www.w3.org/2000/svg",
             version="1.1",
             id=mpl.rcParams['svg.id'],
-            attrib={'xmlns:xlink': "http://www.w3.org/1999/xlink"})
-        self._write_metadata(metadata)
+            attrib=svg_attrib)
+        if alt_text:
+            self.writer.element('title', text=alt_text)
+        self._write_metadata(metadata, alt_text=alt_text)
         self._write_default_style()
 
     def _get_clippath_id(self, clippath):
@@ -388,7 +395,7 @@ class RendererSVG(RendererBase):
         self.writer.close(self._start_id)
         self.writer.flush()
 
-    def _write_metadata(self, metadata):
+    def _write_metadata(self, metadata, alt_text=None):
         # Add metadata following the Dublin Core Metadata Initiative, and the
         # Creative Commons Rights Expression Language. This is mainly for
         # compatibility with Inkscape.
@@ -406,7 +413,12 @@ class RendererSVG(RendererBase):
         if 'Title' in metadata:
             title = metadata['Title']
             _check_is_str(title, 'Title')
-            writer.element('title', text=title)
+            if not alt_text:
+                # If alt text was given it has already been written as the
+                # <title> (the accessible name); the metadata Title is still
+                # recorded as dc:title below, but a second <title> element
+                # would be ignored or misread by assistive technology.
+                writer.element('title', text=title)
 
         # Special handling.
         date = metadata.get('Date', None)
@@ -1425,6 +1437,12 @@ class FigureCanvasSVG(FigureCanvasBase):
             .. _DC: https://www.dublincore.org/specifications/dublin-core/
 
             __ DC_
+
+        If the figure has alternative text (see `.Figure.set_alt_text`),
+        the root ``<svg>`` element is given a ``role="img"`` attribute and
+        the alt text is written as its ``<title>`` child (its accessible
+        name), taking precedence over the ``<title>`` element otherwise
+        derived from the ``'Title'`` metadata.
         """
         with cbook.open_file_cm(filename, "w", encoding="utf-8") as fh:
             if not cbook.file_requires_unicode(fh):
@@ -1435,7 +1453,8 @@ class FigureCanvasSVG(FigureCanvasBase):
             w, h = width * 72, height * 72
             renderer = MixedModeRenderer(
                 self.figure, width, height, dpi,
-                RendererSVG(w, h, fh, image_dpi=dpi, metadata=metadata),
+                RendererSVG(w, h, fh, image_dpi=dpi, metadata=metadata,
+                            alt_text=self.figure.get_alt_text() or None),
                 bbox_inches_restore=bbox_inches_restore)
             self.figure.draw(renderer)
             renderer.finalize()
