@@ -437,7 +437,6 @@ exclusively for performing actions in a determined order.
 
 Tables
 ^^^^^^
- 
 Given the size of the table and length of each entry, use:
 
 +-------------+-------------------------------+--------------------+
