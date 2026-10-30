@@ -105,7 +105,8 @@ jobs:
       # !ci-adventures
       - name: Size of /opt (Beta)
         run: |
-          sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
 
       - name: Install OS dependencies (1)
         run: |
@@ -124,6 +125,12 @@ jobs:
             ;;
           esac
 
+      # !ci-adventures
+      - name: Size of /opt (Gamma)
+        run: |
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
+
       - name: Install OS dependencies (3)
         run: |
           case "${{ runner.os }}" in
@@ -133,9 +140,10 @@ jobs:
           esac
 
       # !ci-adventures
-      - name: Size of /opt (Gamma)
+      - name: Size of /opt (Delta)
         run: |
-          sudo du -d 4 -h -I homebrew-aside /opt 2>/dev/null | sort -rh | head -200
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
 
       # !ci-adventures
       - name: EJECT!
