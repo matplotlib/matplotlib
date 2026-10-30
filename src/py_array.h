@@ -259,16 +259,25 @@ public:
     }
 
     template <typename... Args>
-    Scalar &operator()(Args... indices) const
+    Scalar *data(Args... indices) const
     {
         static_assert(sizeof...(Args) == (size_t) Dim,
-                      "mpl::array::operator(): invalid number of arguments");
+            "mpl::array::data(): invalid number of arguments");
 
         size_t counter = 0;
         int64_t index = 0;
         ((index += int64_t(indices) * m_strides[counter++]), ...);
 
-        return m_data[index];
+        return m_data + index;
+    }
+
+    template <typename... Args>
+    Scalar &operator()(Args... indices) const
+    {
+        static_assert(sizeof...(Args) == (size_t) Dim,
+                      "mpl::array::operator(): invalid number of arguments");
+
+        return *data(indices...);
     }
 
     PyArrayType pyarray() const
