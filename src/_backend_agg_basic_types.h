@@ -163,6 +163,8 @@ namespace PYBIND11_NAMESPACE { namespace detail {
                 {"saturation", agg::comp_op_hsl_saturation},
                 {"color", agg::comp_op_hsl_color},
                 {"luminosity", agg::comp_op_hsl_luminosity},
+                {"max cover", agg::comp_op_max_cover},
+                {"min cover", agg::comp_op_min_cover},
             };
             value = enum_values.at(src.cast<std::string>());
             return true;
