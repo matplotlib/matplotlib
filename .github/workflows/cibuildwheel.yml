@@ -12,6 +12,7 @@ on:
   # Also allow running this action on PRs if requested by applying the
   # "Run cibuildwheel" label.
   pull_request:
+    paths-ignore: ['**']  #!ci-adventures - Experimental - Do Not Merge
     types:
       - opened
       - synchronize
