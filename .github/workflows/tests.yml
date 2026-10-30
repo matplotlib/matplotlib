@@ -107,68 +107,40 @@ jobs:
         run: |
           sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
-      - name: Install OS dependencies
+      - name: Install OS dependencies (1)
         run: |
           case "${{ runner.os }}" in
-          Linux)
-            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
-            sudo apt-get update -yy
-            sudo apt-get install -yy --no-install-recommends \
-              ccache \
-              cm-super \
-              dvipng \
-              fonts-freefont-otf \
-              fonts-noto-cjk \
-              fonts-wqy-zenhei \
-              gdb \
-              gir1.2-gtk-3.0 \
-              gir1.2-gtk-4.0 \
-              graphviz \
-              inkscape \
-              language-pack-de \
-              lcov \
-              libcairo2 \
-              libcairo2-dev \
-              libffi-dev \
-              libgeos-dev \
-              libnotify4 \
-              libsdl2-2.0-0 \
-              libxkbcommon-x11-0 \
-              libxcb-cursor0 \
-              libxcb-icccm4 \
-              libxcb-image0 \
-              libxcb-keysyms1 \
-              libxcb-randr0 \
-              libxcb-render-util0 \
-              libxcb-xinerama0 \
-              lmodern \
-              ninja-build \
-              pkg-config \
-              qtbase5-dev \
-              texlive-fonts-recommended \
-              texlive-latex-base \
-              texlive-latex-extra \
-              texlive-latex-recommended \
-              texlive-luatex \
-              texlive-pictures \
-              texlive-xetex \
-              ${{ matrix.extra-packages }}
-            if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
-              sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
-            fi
-            if [[ "${{ matrix.os }}" = ubuntu-22.04 ]]; then
-              sudo apt-get install -yy --no-install-recommends \
-                libgirepository1.0-dev
-            else  # ubuntu-24.04
-              sudo apt-get install -yy --no-install-recommends \
-                libgirepository-2.0-dev
-            fi
+          macOS)
+            brew install --display-times --only-dependencies \
+              ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja
             ;;
+          esac
+
+      - name: Install OS dependencies (2)
+        run: |
+          case "${{ runner.os }}" in
           macOS)
             brew install --display-times ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja
+            ;;
+          esac
+
+      - name: Install OS dependencies (3)
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
             brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
+
+      # !ci-adventures
+      - name: Size of /opt (Gamma)
+        run: |
+          sudo du -d 4 -h -I homebrew-aside /opt 2>/dev/null | sort -rh | head -200
+
+      # !ci-adventures
+      - name: EJECT!
+        run: |
+          exit 1
 
       - name: Cache pip
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -278,11 +250,6 @@ jobs:
           python -m pip install \
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
-
-      # !ci-adventures
-      - name: Size of /opt (Gamma)
-        run: |
-          sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
 
       - name: Install Matplotlib
         run: |
