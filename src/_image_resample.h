@@ -548,7 +548,7 @@ public:
 
     void prepare() {}
 
-    void generate(color_type* span, int x, int y, unsigned len) const
+    void generate(color_type* span, [[maybe_unused]] int x, [[maybe_unused]]  int y, unsigned len) const
     {
         if (m_alpha != 1.0) {
             do {
