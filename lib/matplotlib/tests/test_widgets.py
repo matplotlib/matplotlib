@@ -1439,6 +1439,37 @@ def test_slider_reset():
     assert slider.val == 0.5
 
 
+@pytest.mark.parametrize("widget", ["slider", "range_slider"])
+def test_slider_notifies_before_draw(widget):
+    # gh-32526: set_val used to draw before notifying observers, so a callback
+    # that updates other artists paid a wasted render of the previous state.
+    fig, ax = plt.subplots()
+    fig.subplots_adjust(bottom=0.25)
+    if widget == "slider":
+        axsl = fig.add_axes([0.25, 0.1, 0.6, 0.03])
+        w = widgets.Slider(ax=axsl, label='', valmin=0, valmax=1, valinit=0)
+    else:
+        axsl = fig.add_axes([0.25, 0.1, 0.6, 0.03])
+        w = widgets.RangeSlider(ax=axsl, label='', valmin=0, valmax=1,
+                                valinit=(0, 1))
+
+    ndraw = [0]
+    real_draw_idle = fig.canvas.draw_idle
+
+    def counting_draw_idle(*args, **kwargs):
+        ndraw[0] += 1
+        return real_draw_idle(*args, **kwargs)
+
+    fig.canvas.draw_idle = counting_draw_idle
+    draws_at_callback = []
+    w.on_changed(lambda val: draws_at_callback.append(ndraw[0]))
+
+    w.set_val(0.5 if widget == "slider" else (0.25, 0.75))
+
+    assert draws_at_callback[0] == 0
+    assert ndraw[0] == 1
+
+
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
 def test_range_slider(orientation):
     if orientation == "vertical":
