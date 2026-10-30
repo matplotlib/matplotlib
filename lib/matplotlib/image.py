@@ -12,6 +12,7 @@ import numpy as np
 import PIL.Image
 import PIL.PngImagePlugin
 
+
 import matplotlib as mpl
 from matplotlib import _api, cbook
 # For clarity, names from _image are given explicitly in this module
