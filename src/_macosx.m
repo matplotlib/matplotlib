@@ -60,6 +60,8 @@ static bool keyChangeOption = false;
 static bool keyChangeCapsLock = false;
 /* Keep track of the current mouse up/down state for open/closed cursor hand */
 static bool leftMouseGrabbing = false;
+/* Mouse button number set on press, Option/Ctrl remap effective left to 2/3 */
+static int effectiveLeftButton = 1;
 // Global variable to store the original SIGINT handler
 static PyOS_sighandler_t originalSigintAction = NULL;
 
@@ -1523,6 +1525,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
                      [[NSCursor closedHandCursor] set];
                  }
              }
+             effectiveLeftButton = button;
              break;
          }
          case NSEventTypeOtherMouseDown: button = 2; break;
@@ -1548,8 +1551,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
     y = location.y * device_scale;
     switch ([event type])
     {    case NSEventTypeLeftMouseUp:
+             button = effectiveLeftButton;
              leftMouseGrabbing = false;
-             button = 1;
              if ([NSCursor currentCursor]==[NSCursor closedHandCursor])
                  [[NSCursor openHandCursor] set];
              break;
