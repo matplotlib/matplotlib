@@ -799,18 +799,21 @@ class RcParams(MutableMapping, dict):
 
     def __getitem__(self, key):
         if key == "backend":
-            # In theory, this should only ever be used after the global rcParams
-            # has been set up, but better be safe e.g. in presence of breakpoints.
-            if (self is globals().get("rcParams")
-                    and RcParams._backend is rcsetup._auto_backend_sentinel):
-                from matplotlib import pyplot as plt
-                plt.switch_backend(rcsetup._auto_backend_sentinel)
-            return RcParams._backend
+            return self._get_backend_resolved()
         return self._get(key)
 
-    def _get_backend_or_none(self):
-        """Get the requested backend, if any, without triggering resolution."""
-        backend = RcParams._backend
+    @classmethod
+    def _get_backend_resolved(cls):
+        """Get the backend, resolving the auto-sentinel if needed."""
+        if cls._backend is rcsetup._auto_backend_sentinel:
+            from matplotlib import pyplot as plt
+            plt.switch_backend(rcsetup._auto_backend_sentinel)
+        return cls._backend
+
+    @classmethod
+    def _get_backend_or_none(cls):
+        """Get the current backend or None."""
+        backend = cls._backend
         return None if backend is rcsetup._auto_backend_sentinel else backend
 
     def __repr__(self):
@@ -1292,14 +1295,14 @@ def use(backend, *, force=True):
         # value which will be respected when the user finally imports
         # pyplot
         else:
-            rcParams['backend'] = backend
+            rcParams._backend = backend
     # if the user has asked for a given backend, do not helpfully
     # fallback
     rcParams['backend_fallback'] = False
 
 
 if os.environ.get('MPLBACKEND'):
-    rcParams['backend'] = os.environ.get('MPLBACKEND')
+    rcParams._backend = os.environ.get('MPLBACKEND')
 
 
 def get_backend(*, auto_select=True):
@@ -1326,13 +1329,9 @@ def get_backend(*, auto_select=True):
     matplotlib.use
     """
     if auto_select:
-        return rcParams['backend']
+        return rcParams._get_backend_resolved()
     else:
-        backend = rcParams._get('backend')
-        if backend is rcsetup._auto_backend_sentinel:
-            return None
-        else:
-            return backend
+        return rcParams._get_backend_or_none()
 
 
 def interactive(b):
