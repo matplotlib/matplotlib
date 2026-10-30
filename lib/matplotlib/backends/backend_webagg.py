@@ -127,6 +127,7 @@ class WebAggApplication(tornado.web.Application):
 
     class WebSocket(tornado.websocket.WebSocketHandler):
         supports_binary = True
+        supports_zoom_whiskers = False
 
         def open(self, fignum):
             self.fignum = int(fignum)
@@ -140,11 +141,12 @@ class WebAggApplication(tornado.web.Application):
 
         def on_message(self, message):
             message = json.loads(message)
-            # The 'supports_binary' message is on a client-by-client
-            # basis.  The others affect the (shared) canvas as a
-            # whole.
+            # Capability messages are on a client-by-client basis.  The
+            # others affect the (shared) canvas as a whole.
             if message['type'] == 'supports_binary':
                 self.supports_binary = message['value']
+            elif message['type'] == 'supports_zoom_whiskers':
+                self.supports_zoom_whiskers = message['value']
             else:
                 manager = Gcf.get_fig_manager(self.fignum)
                 # It is possible for a figure to be closed,

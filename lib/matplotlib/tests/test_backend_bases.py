@@ -210,6 +210,49 @@ def test_interactive_zoom():
     assert not ax.get_autoscalex_on() and not ax.get_autoscaley_on()
 
 
+def test_interactive_zoom_without_whisker_support():
+    fig, ax = plt.subplots()
+    ax.set(xlim=(0, 10), ylim=(0, 20))
+    fig.canvas.draw()
+
+    start = ax.transData.transform((5, 5)).astype(int)
+    stop = start + (0, 50)
+    button = MouseButton.LEFT
+    start_event = MouseEvent("button_press_event", fig.canvas, *start, button)
+    drag_event = MouseEvent(
+        "motion_notify_event", fig.canvas, *stop, button, buttons={button})
+    stop_event = MouseEvent("button_release_event", fig.canvas, *stop, button)
+
+    # The base toolbar's optional whisker methods are no-ops.
+    tb = NavigationToolbar2(fig.canvas)
+    tb.zoom()
+    tb.press_zoom(start_event)
+    tb.drag_zoom(drag_event)
+    tb.release_zoom(stop_event)
+
+    assert ax.get_xlim() == pytest.approx((0, 10))
+    assert ax.get_ylim() != pytest.approx((0, 20))
+
+
+def test_cancel_zoom_removes_whiskers():
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    start = ax.transData.transform((0.5, 0.5)).astype(int)
+    button = MouseButton.LEFT
+
+    tb = NavigationToolbar2(fig.canvas)
+    tb.zoom()
+    tb.press_zoom(MouseEvent(
+        "button_press_event", fig.canvas, *start, button))
+    removed = []
+    tb.remove_whiskers = lambda: removed.append(True)
+    tb.drag_zoom(MouseEvent(
+        "motion_notify_event", fig.canvas, *start, button, buttons=set()))
+
+    assert removed
+    assert tb._zoom_info is None
+
+
 def test_widgetlock_zoompan():
     fig, ax = plt.subplots()
     ax.plot([0, 1], [0, 1])
