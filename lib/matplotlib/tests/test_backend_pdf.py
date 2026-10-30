@@ -15,7 +15,7 @@ from matplotlib import (
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
-from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.backends.backend_pdf import Name, PdfPages
 from matplotlib.patches import Rectangle
 from matplotlib.testing import _gen_multi_font_text, _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -178,6 +178,14 @@ def test_invalid_metadata():
 
     with pytest.warns(UserWarning, match='not an instance of str.'):
         fig.savefig(io.BytesIO(), format='pdf', metadata={'Title': 1234})
+
+
+def test_name_escaping():
+    # Glyph names come from the font file and may contain PDF delimiters.
+    assert Name('A>>/x(1)[2]{3}%#').pdfRepr() == (
+        b'/A#3e#3e#2fx#281#29#5b2#5d#7b3#7d#25#23')
+    assert Name('a b\x80').pdfRepr() == b'/a#20b#80'
+    assert Name('uni0041.sc_f-i+').pdfRepr() == b'/uni0041.sc_f-i+'
 
 
 def test_multipage_metadata(monkeypatch):
