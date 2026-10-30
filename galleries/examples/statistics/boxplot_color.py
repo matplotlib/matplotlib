@@ -1,4 +1,6 @@
 """
+.. _boxplot_color:
+
 =================================
 Box plots with custom fill colors
 =================================
