@@ -32,6 +32,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
 #include "mplutils.h"
+#include "py_array.h"
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -87,6 +88,8 @@ convert_voidptr(const py::object &obj)
     return result;
 }
 
+using BlitImage = mpl::array<const unsigned char, mpl::shape<-1, -1, 4>>;
+
 // Global vars for Tk functions.  We load these symbols from the tkinter
 // extension module or loaded Tk libraries at run-time.
 static Tk_FindPhoto_t TK_FIND_PHOTO;
@@ -98,9 +101,10 @@ static Tcl_SetVar2_t TCL_SETVAR2;
 
 static void
 mpl_tk_blit(py::object interp_obj, const char *photo_name,
-            py::array_t<unsigned char> data, int comp_rule,
+            const mpl::defer<BlitImage> &image_obj, int comp_rule,
             std::tuple<int, int, int, int> offset, std::tuple<int, int, int, int> bbox)
 {
+    auto image = image_obj.value("image");
     auto interp = convert_voidptr<Tcl_Interp *>(interp_obj);
 
     Tk_PhotoHandle photo;
@@ -108,23 +112,18 @@ mpl_tk_blit(py::object interp_obj, const char *photo_name,
         throw py::value_error("Failed to extract Tk_PhotoHandle");
     }
 
-    auto data_ptr = data.mutable_unchecked<3>();  // Checks ndim and writeable flag.
-    if (data.shape(2) != 4) {
-        throw py::value_error(mpl::format(
-            "Data pointer must be RGBA; last dimension is {}, not 4", data.shape(2)));
-    }
-    if (data.shape(0) > INT_MAX) {  // Limited by Tk_PhotoPutBlock argument type.
+    if (image.shape(0) > INT_MAX) {  // Limited by Tk_PhotoPutBlock argument type.
         throw std::range_error(mpl::format(
-            "Height ({}) exceeds maximum allowable size ({})",
-            data.shape(0), INT_MAX));
+            "image height ({}) exceeds maximum allowable size ({})",
+            image.shape(0), INT_MAX));
     }
-    if (data.shape(1) > INT_MAX / 4) {  // Limited by Tk_PhotoImageBlock.pitch field.
+    if (image.shape(1) > INT_MAX / 4) {  // Limited by Tk_PhotoImageBlock.pitch field.
         throw std::range_error(mpl::format(
-            "Width ({}) exceeds maximum allowable size ({})",
-            data.shape(1), INT_MAX / 4));
+            "image width ({}) exceeds maximum allowable size ({})",
+            image.shape(1), INT_MAX / 4));
     }
-    const auto height = static_cast<int>(data.shape(0));
-    const auto width = static_cast<int>(data.shape(1));
+    const auto height = static_cast<int>(image.shape(0));
+    const auto width = static_cast<int>(image.shape(1));
     int x1, x2, y1, y2;
     std::tie(x1, x2, y1, y2) = bbox;
     if (0 > y1 || y1 > y2 || y2 > height || 0 > x1 || x1 > x2 || x2 > width) {
@@ -136,7 +135,7 @@ mpl_tk_blit(py::object interp_obj, const char *photo_name,
 
     int put_retval;
     Tk_PhotoImageBlock block;
-    block.pixelPtr = data_ptr.mutable_data(height - y2, x1, 0);
+    block.pixelPtr = const_cast<unsigned char *>(image.data(height - y2, x1, 0));
     block.width = x2 - x1;
     block.height = y2 - y1;
     block.pitch = 4 * width;
@@ -365,7 +364,7 @@ PYBIND11_MODULE(_tkagg, m, py::mod_gil_not_used())
     }
 
     m.def("blit", &mpl_tk_blit,
-          "interp"_a, "photo_name"_a, "data"_a, "comp_rule"_a, "offset"_a, "bbox"_a);
+          "interp"_a, "photo_name"_a, "image"_a, "comp_rule"_a, "offset"_a, "bbox"_a);
     m.def("enable_dpi_awareness", &mpl_tk_enable_dpi_awareness,
           "frame_handle"_a, "interp"_a);
 

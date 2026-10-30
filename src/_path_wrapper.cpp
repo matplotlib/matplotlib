@@ -14,6 +14,7 @@
 
 #include "_backend_agg_basic_types.h"
 #include "py_adaptors.h"
+#include "py_array.h"
 #include "py_converters.h"
 
 namespace py = pybind11;
@@ -40,17 +41,15 @@ Py_point_in_path(double x, double y, double r, mpl::PathIterator path,
     return point_in_path(x, y, r, path, trans);
 }
 
-static py::array_t<double>
-Py_points_in_path(py::array_t<double> points_obj, double r, mpl::PathIterator path,
+static BoolArray
+Py_points_in_path(const mpl::defer<InputPointArray> &points_obj,
+                  double r, mpl::PathIterator path,
                   agg::trans_affine trans)
 {
-    auto points = convert_points(points_obj);
+    auto points = points_obj.value("points");
+    auto results = BoolArray(points.shape(0));
 
-    py::ssize_t dims[] = { points.shape(0) };
-    py::array_t<uint8_t> results(dims);
-    auto results_mutable = results.mutable_unchecked<1>();
-
-    points_in_path(points, r, path, trans, results_mutable);
+    points_in_path(points, r, path, trans, results);
 
     return results;
 }
@@ -58,48 +57,50 @@ Py_points_in_path(py::array_t<double> points_obj, double r, mpl::PathIterator pa
 static py::tuple
 Py_get_path_collection_extents(agg::trans_affine master_transform,
                                mpl::PathGenerator paths,
-                               py::array_t<double> transforms_obj,
-                               py::array_t<double> offsets_obj,
+                               const mpl::defer<AffineTransformArray> &transforms_obj,
+                               const mpl::defer<InputPointArray> &offsets_obj,
                                agg::trans_affine offset_trans)
 {
-    auto transforms = convert_transforms(transforms_obj);
-    auto offsets = convert_points(offsets_obj);
+    auto transforms = transforms_obj.value("transforms");
+    auto offsets = offsets_obj.value("offsets");
     extent_limits e;
 
     get_path_collection_extents(
         master_transform, paths, transforms, offsets, offset_trans, e);
 
-    py::ssize_t dims[] = { 2, 2 };
-    py::array_t<double> extents(dims);
-    *extents.mutable_data(0, 0) = e.start.x;
-    *extents.mutable_data(0, 1) = e.start.y;
-    *extents.mutable_data(1, 0) = e.end.x;
-    *extents.mutable_data(1, 1) = e.end.y;
+    auto extents = mpl::array<double, mpl::shape<2, 2>>();
 
-    py::ssize_t minposdims[] = { 2 };
-    py::array_t<double> minpos(minposdims);
-    *minpos.mutable_data(0) = e.minpos.x;
-    *minpos.mutable_data(1) = e.minpos.y;
+    extents(0, 0) = e.start.x;
+    extents(0, 1) = e.start.y;
+    extents(1, 0) = e.end.x;
+    extents(1, 1) = e.end.y;
+
+    auto minpos = mpl::array<double, mpl::shape<2>>();
+
+    minpos(0) = e.minpos.x;
+    minpos(1) = e.minpos.y;
 
     return py::make_tuple(extents, minpos);
 }
 
-static py::object
+static IndexArray
 Py_point_in_path_collection(double x, double y, double radius,
                             agg::trans_affine master_transform, mpl::PathGenerator paths,
-                            py::array_t<double> transforms_obj,
-                            py::array_t<double> offsets_obj,
+                            const mpl::defer<AffineTransformArray> &transforms_obj,
+                            const mpl::defer<InputPointArray> &offsets_obj,
                             agg::trans_affine offset_trans, bool filled)
 {
-    auto transforms = convert_transforms(transforms_obj);
-    auto offsets = convert_points(offsets_obj);
-    std::vector<int> result;
+    auto transforms = transforms_obj.value("transforms");
+    auto offsets = offsets_obj.value("offsets");
+    auto indices = std::vector<size_t>();
 
-    point_in_path_collection(x, y, radius, master_transform, paths, transforms, offsets,
-                             offset_trans, filled, result);
+    point_in_path_collection(x, y, radius, master_transform, paths, transforms,
+                             offsets, offset_trans, filled, indices);
 
-    py::ssize_t dims[] = { static_cast<py::ssize_t>(result.size()) };
-    return py::array(dims, result.data());
+    auto result = IndexArray(indices.size());
+    result.assign(indices);
+
+    return result;
 }
 
 static bool
@@ -117,40 +118,22 @@ Py_clip_path_to_rect(mpl::PathIterator path, agg::rect_d rect, bool inside)
     return convert_polygon_vector(result);
 }
 
-static py::object
-Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecast> vertices_arr,
+static OutputPointArray
+Py_transform_points(const mpl::defer<InputPointArray> &points_obj,
                     agg::trans_affine trans)
 {
-    if (vertices_arr.ndim() == 2) {
-        auto vertices = vertices_arr.unchecked<2>();
+    auto in_points = points_obj.value("points");
 
-        check_trailing_shape(vertices, "vertices", 2);
+    auto out_points = OutputPointArray(in_points.shape(0));
+    transform_points(in_points, trans, out_points);
 
-        py::ssize_t dims[] = { vertices.shape(0), 2 };
-        py::array_t<double> result(dims);
-        auto result_mutable = result.mutable_unchecked<2>();
-
-        affine_transform_2d(vertices, trans, result_mutable);
-        return result;
-    } else if (vertices_arr.ndim() == 1) {
-        auto vertices = vertices_arr.unchecked<1>();
-
-        py::ssize_t dims[] = { vertices.shape(0) };
-        py::array_t<double> result(dims);
-        auto result_mutable = result.mutable_unchecked<1>();
-
-        affine_transform_1d(vertices, trans, result_mutable);
-        return result;
-    } else {
-        throw py::value_error(
-            "vertices must be 1D or 2D, not" + std::to_string(vertices_arr.ndim()) + "D");
-    }
+    return out_points;
 }
 
 static int
-Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, py::array_t<double> bboxes_obj)
+Py_count_bboxes_overlapping_bbox(agg::rect_d bbox, const mpl::defer<BBoxArray> &bboxes_obj)
 {
-    auto bboxes = convert_bboxes(bboxes_obj);
+    auto bboxes = bboxes_obj.value("bboxes");
 
     return count_bboxes_overlapping_bbox(bbox, bboxes);
 }
@@ -330,7 +313,7 @@ PYBIND11_MODULE(_path, m, py::mod_gil_not_used())
           "path_a"_a, "trans_a"_a, "path_b"_a, "trans_b"_a);
     m.def("clip_path_to_rect", &Py_clip_path_to_rect,
           "path"_a, "rect"_a, "inside"_a);
-    m.def("affine_transform", &Py_affine_transform,
+    m.def("transform_points", &Py_transform_points,
           "points"_a, "trans"_a);
     m.def("count_bboxes_overlapping_bbox", &Py_count_bboxes_overlapping_bbox,
           "bbox"_a, "bboxes"_a);

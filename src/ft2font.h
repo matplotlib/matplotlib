@@ -31,6 +31,7 @@ extern "C" {
 }
 
 #include <raqm.h>
+#include "py_array.h"
 
 namespace py = pybind11;
 
@@ -108,6 +109,7 @@ class FT2Font
         void operator()(FT_Glyph glyph) const { FT_Done_Glyph(glyph); }
     };
     using GlyphPtr = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, GlyphDeleter>;
+    using ImageArray = mpl::array<uint8_t, mpl::ndim<2>>;
 
     FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used);
     virtual ~FT2Font();

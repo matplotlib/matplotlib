@@ -20,6 +20,13 @@
 #include "path_converters.h"
 #include "_backend_agg_basic_types.h"
 
+using AffineTransformArray = mpl::array<const double, mpl::shape<-1, 3, 3>>;
+using BBoxArray = mpl::array<double, mpl::shape<-1, 2, 2>>;
+using BoolArray = mpl::array<bool, mpl::ndim<1>>;
+using IndexArray = mpl::array<size_t, mpl::ndim<1>>;
+using InputPointArray = mpl::array<const double, mpl::shape<-1, 2>>;
+using OutputPointArray = mpl::array<double, mpl::shape<-1, 2>>;
+
 const size_t NUM_VERTICES[] = { 1, 1, 1, 2, 3 };
 
 struct XY
@@ -104,8 +111,9 @@ _finalize_polygon(std::vector<Polygon> &result, bool closed_only)
 //
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
-template <class PathIterator, class PointArray, class ResultArray>
-void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &inside_flag)
+template <class PathIterator>
+void point_in_path_impl(const InputPointArray &points, PathIterator &path,
+                        const BoolArray &inside_flag)
 {
     uint8_t yflag1;
     double vtx0, vty0, vtx1, vty1;
@@ -115,8 +123,8 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
     size_t i;
     bool all_done;
 
-    size_t n = safe_first_shape(points);
-    assert(safe_first_shape(inside_flag) >= n);
+    size_t n = points.shape(0);
+    assert(inside_flag.shape(0) >= n);
 
     std::vector<uint8_t> yflag0(n);
     std::vector<uint8_t> subpath_flag(n);
@@ -124,7 +132,7 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
     path.rewind(0);
 
     for (i = 0; i < n; ++i) {
-        inside_flag[i] = 0;
+        inside_flag(i) = false;
     }
 
     unsigned code = 0;
@@ -225,8 +233,8 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
                     subpath_flag[i] = subpath_flag[i] ^ true;
                 }
             }
-            inside_flag[i] |= subpath_flag[i];
-            if (inside_flag[i] == 0) {
+            inside_flag(i) = inside_flag(i) || (subpath_flag[i] > 0);
+            if (!inside_flag(i)) {
                 all_done = false;
             }
         }
@@ -237,16 +245,16 @@ void point_in_path_impl(PointArray &points, PathIterator &path, ResultArray &ins
     } while (code != agg::path_cmd_stop);
 }
 
-template <class PathIterator, class PointArray, class ResultArray>
-inline void points_in_path(PointArray &points,
+template <class PathIterator>
+inline void points_in_path(const InputPointArray &points,
                            const double r,
                            PathIterator &path,
                            agg::trans_affine &trans,
-                           ResultArray &result)
+                           const BoolArray &result)
 {
-    assert(safe_first_shape(result) >= safe_first_shape(points));
-    for (auto i = 0; i < safe_first_shape(points); ++i) {
-        result[i] = false;
+    assert(result.shape(0) >= points.shape(0));
+    for (auto i = 0; i < points.shape(0); ++i) {
+        result(i) = false;
     }
     if (path.total_vertices() < 3) {
         return;
@@ -267,30 +275,26 @@ template <class PathIterator>
 inline bool point_in_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
-    py::ssize_t shape[] = {1, 2};
-    py::array_t<double> points_arr(shape);
-    *points_arr.mutable_data(0, 0) = x;
-    *points_arr.mutable_data(0, 1) = y;
-    auto points = points_arr.mutable_unchecked<2>();
+    double points_data[] = {x, y};
+    auto points = InputPointArray::unmanaged(points_data, 1);
 
-    std::array<int, 1> result{};
+    bool result_data[] = {false};
+    auto result = BoolArray::unmanaged(result_data, 1);
 
     points_in_path(points, r, path, trans, result);
 
-    return result[0] != 0;
+    return result_data[0];
 }
 
 template <class PathIterator>
 inline bool point_on_path(
     double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
 {
-    py::ssize_t shape[] = {1, 2};
-    py::array_t<double> points_arr(shape);
-    *points_arr.mutable_data(0, 0) = x;
-    *points_arr.mutable_data(0, 1) = y;
-    auto points = points_arr.mutable_unchecked<2>();
+    double points_data[] = {x, y};
+    auto points = InputPointArray::unmanaged(points_data, 1);
 
-    std::array<int, 1> result{};
+    bool result_data[] = {false};
+    auto result = BoolArray::unmanaged(result_data, 1);
 
     auto trans_path = agg::conv_transform{path, trans};
     auto nan_removed_path = PathNanRemover{trans_path, true, path.has_codes()};
@@ -298,7 +302,7 @@ inline bool point_on_path(
     auto stroked_path = agg::conv_stroke{curved_path};
     stroked_path.width(r * 2.0);
     point_in_path_impl(points, stroked_path, result);
-    return result[0] != 0;
+    return result_data[0];
 }
 
 struct extent_limits
@@ -337,8 +341,7 @@ struct extent_limits
     }
 };
 
-template <class PathIterator>
-void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
+void update_path_extents(mpl::PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
 {
     double x, y;
     unsigned code;
@@ -356,22 +359,18 @@ void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_li
     }
 }
 
-template <class PathGenerator, class TransformArray, class OffsetArray>
+template <class PathGenerator>
 void get_path_collection_extents(agg::trans_affine &master_transform,
                                  PathGenerator &paths,
-                                 TransformArray &transforms,
-                                 OffsetArray &offsets,
+                                 AffineTransformArray &transforms,
+                                 InputPointArray &offsets,
                                  agg::trans_affine &offset_trans,
                                  extent_limits &extent)
 {
-    if (offsets.size() != 0 && offsets.shape(1) != 2) {
-        throw std::runtime_error("Offsets array must have shape (N, 2)");
-    }
-
     auto Npaths = paths.size();
-    auto Noffsets = safe_first_shape(offsets);
+    auto Noffsets = offsets.shape(0);
     auto N = std::max(Npaths, Noffsets);
-    auto Ntransforms = std::min(safe_first_shape(transforms), N);
+    auto Ntransforms = std::min(transforms.shape(0), N);
 
     agg::trans_affine trans;
 
@@ -402,17 +401,17 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
     }
 }
 
-template <class PathGenerator, class TransformArray, class OffsetArray>
+template <class PathGenerator>
 void point_in_path_collection(double x,
                               double y,
                               double radius,
                               agg::trans_affine &master_transform,
                               PathGenerator &paths,
-                              TransformArray &transforms,
-                              OffsetArray &offsets,
+                              AffineTransformArray &transforms,
+                              InputPointArray &offsets,
                               agg::trans_affine &offset_trans,
                               bool filled,
-                              std::vector<int> &result)
+                              std::vector<size_t> &result)
 {
     auto Npaths = paths.size();
 
@@ -420,13 +419,13 @@ void point_in_path_collection(double x,
         return;
     }
 
-    auto Noffsets = safe_first_shape(offsets);
+    auto Noffsets = offsets.shape(0);
     auto N = std::max(Npaths, Noffsets);
-    auto Ntransforms = std::min(safe_first_shape(transforms), N);
+    auto Ntransforms = std::min(transforms.shape(0), N);
 
     agg::trans_affine trans;
 
-    for (auto i = 0; i < N; ++i) {
+    for (size_t i = 0; i < N; ++i) {
         typename PathGenerator::path_iterator path = paths(i % Npaths);
 
         if (Ntransforms) {
@@ -461,10 +460,9 @@ void point_in_path_collection(double x,
     }
 }
 
-template <class PathIterator1, class PathIterator2>
-bool path_in_path(PathIterator1 &a,
+bool path_in_path(mpl::PathIterator &a,
                   agg::trans_affine &atrans,
-                  PathIterator2 &b,
+                  mpl::PathIterator &b,
                   agg::trans_affine &btrans)
 {
     if (a.total_vertices() < 3) {
@@ -612,9 +610,8 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
     }
 }
 
-template <class PathIterator>
 auto
-clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
+clip_path_to_rect(mpl::PathIterator &path, agg::rect_d &rect, bool inside)
 {
     rect.normalize();
     auto xmin = rect.x1, xmax = rect.x2;
@@ -671,64 +668,20 @@ clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
     return results;
 }
 
-template <class VerticesArray, class ResultArray>
-void affine_transform_2d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
+void transform_points(InputPointArray &in_points, agg::trans_affine &trans,
+                      OutputPointArray &out_points)
 {
-    if (vertices.size() != 0 && vertices.shape(1) != 2) {
-        throw std::runtime_error("Invalid vertices array.");
-    }
-
-    size_t n = vertices.shape(0);
-    double x;
-    double y;
-    double t0;
-    double t1;
-    double t;
+    size_t n = in_points.shape(0);
 
     for (size_t i = 0; i < n; ++i) {
-        x = vertices(i, 0);
-        y = vertices(i, 1);
+        auto x = in_points(i, 0);
+        auto y = in_points(i, 1);
 
-        t0 = trans.sx * x;
-        t1 = trans.shx * y;
-        t = t0 + t1 + trans.tx;
-        result(i, 0) = t;
-
-        t0 = trans.shy * x;
-        t1 = trans.sy * y;
-        t = t0 + t1 + trans.ty;
-        result(i, 1) = t;
+        out_points(i, 0) = trans.sx * x + trans.shx * y + trans.tx;
+        out_points(i, 1) = trans.shy * x +  trans.sy * y +  trans.ty;
     }
 }
 
-template <class VerticesArray, class ResultArray>
-void affine_transform_1d(VerticesArray &vertices, agg::trans_affine &trans, ResultArray &result)
-{
-    if (vertices.shape(0) != 2) {
-        throw std::runtime_error("Invalid vertices array.");
-    }
-
-    double x;
-    double y;
-    double t0;
-    double t1;
-    double t;
-
-    x = vertices(0);
-    y = vertices(1);
-
-    t0 = trans.sx * x;
-    t1 = trans.shx * y;
-    t = t0 + t1 + trans.tx;
-    result(0) = t;
-
-    t0 = trans.shy * x;
-    t1 = trans.sy * y;
-    t = t0 + t1 + trans.ty;
-    result(1) = t;
-}
-
-template <class BBoxArray>
 int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
 {
     agg::rect_d b;
@@ -741,7 +694,8 @@ int count_bboxes_overlapping_bbox(agg::rect_d &a, BBoxArray &bboxes)
         std::swap(a.y1, a.y2);
     }
 
-    size_t num_bboxes = safe_first_shape(bboxes);
+    size_t num_bboxes = bboxes.shape(0);
+
     for (size_t i = 0; i < num_bboxes; ++i) {
         b = agg::rect_d(bboxes(i, 0, 0), bboxes(i, 0, 1), bboxes(i, 1, 0), bboxes(i, 1, 1));
 
@@ -818,8 +772,7 @@ inline bool segments_intersect(const double &x1,
             (u2 < 1.0 || isclose(u2, 1.0)));
 }
 
-template <class PathIterator1, class PathIterator2>
-bool path_intersects_path(PathIterator1 &p1, PathIterator2 &p2)
+bool path_intersects_path(mpl::PathIterator &p1, mpl::PathIterator &p2)
 {
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2) {
         return false;
