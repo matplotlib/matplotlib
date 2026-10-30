@@ -97,8 +97,8 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
 }
 
 
-// Using generic py::array for input and output arrays rather than the more usual
-// py::array_t<type> as this function supports multiple array dtypes.
+// Using generic py::array for input and output arrays rather than
+// mpl::array as this function supports multiple array dtypes.
 static void
 image_resample(py::array input_array,
                py::array& output_array,
