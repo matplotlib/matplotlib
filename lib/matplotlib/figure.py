@@ -2412,7 +2412,7 @@ class SubFigure(FigureBase):
         ----------
         val : float
         """
-        self._parent.dpi = val
+        self._parent.set_dpi(val)
         self.stale = True
 
     def _get_renderer(self):
@@ -3293,7 +3293,8 @@ None}, default: None
         ----------
         val : float
         """
-        self.dpi = val
+        self._original_dpi = val
+        self._set_dpi(val * self.canvas.device_pixel_ratio)
         self.stale = True
 
     def set_figwidth(self, val, forward=True):
