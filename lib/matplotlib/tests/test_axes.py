@@ -1840,7 +1840,12 @@ def test_pcolormesh_degenerate_grid_error(shading):
     x = np.arange(0, 3)
     y = np.array([0])
     Z = np.ones((1, 3))
-    with pytest.raises(TypeError, match="at least two coordinates"):
+    with pytest.raises(
+            TypeError,
+            match=re.escape(
+                "pcolormesh requires the X and Y coordinates to each have at "
+                "least two values to define a mesh, but X has 3 values and Y "
+                "has 1 values.")):
         ax.pcolormesh(x, y, Z, shading=shading)
 
 

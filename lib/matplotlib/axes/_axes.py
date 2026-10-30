@@ -6520,10 +6520,9 @@ or pandas.DataFrame
                             f'see help({funcname})')
         if Nx == 1 or Ny == 1:
             raise TypeError(
-                f"{funcname} requires X and Y to each have at least two "
-                f"coordinates to define a mesh, but X has {Nx} coordinate "
-                f"columns and Y has {Ny} coordinate rows. "
-                "If a single row or column of cells is intended, consider "
+                f"{funcname} requires the X and Y coordinates to each have at least "
+                f"two values to define a mesh, but X has {Nx} values and Y has {Ny} "
+                "values. If a single row or column of cells is intended, consider "
                 "using shading='flat' and specifying the cell edges in X and Y.")
 
         if shading == 'auto':
@@ -6545,13 +6544,13 @@ or pandas.DataFrame
             if (Nx, Ny) != (ncols + 1, nrows + 1):
                 raise TypeError(f"Dimensions of C {C.shape} should "
                                 f"be one smaller than X({Nx}) and Y({Ny}) "
-                                f"while using shading='flat'. "
+                                f"for shading='flat'. "
                                 f"Note that C uses (rows, columns) = (Y, X) indexing. "
                                 f"See help({funcname})")
         elif shading == 'nearest':
             if (Nx, Ny) != (ncols, nrows):
                 raise TypeError(f"Dimensions of C {C.shape} are incompatible with "
-                                f"X ({Nx}) and Y ({Ny}) while using "
+                                f"X ({Nx}) and Y ({Ny}) for "
                                 f"shading='nearest'. Expected C.shape to be "
                                 f"({Ny}, {Nx}). See help({funcname})")
             # grid is specified at the center, so define corners
@@ -6593,7 +6592,7 @@ or pandas.DataFrame
                 Y = 0.25 * (Y[:-1, :-1] + Y[:-1, 1:] + Y[1:, 1:] + Y[1:, :-1])
             elif (Nx, Ny) != (ncols, nrows):
                 raise TypeError(f"Dimensions of C {C.shape} are incompatible with "
-                                f"X ({Nx}) and/or Y ({Ny}) while using "
+                                f"X ({Nx}) and/or Y ({Ny}) for "
                                 f"shading='gouraud'. Expected C.shape to be "
                                 f"({Ny}, {Nx}) or ({Ny - 1}, {Nx - 1}). "
                                 f"See help({funcname})")
