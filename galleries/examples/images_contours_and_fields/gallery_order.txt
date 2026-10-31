@@ -54,7 +54,6 @@ plot_streamplot
 
 # colormapping
 colormap_interactive_adjustment
-colormap_normalizations
 colormap_normalizations_symlognorm
 image_annotated_heatmap
 
