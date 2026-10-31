@@ -617,6 +617,26 @@ def test_intersect_zero_length_segment():
     assert this_path.intersects_path(outline_path)
 
 
+@pytest.mark.parametrize("axis", [0, 1])
+@pytest.mark.parametrize("length", [0, 1e-14, 1e-3, 0.2, 0.6, 1.9, 2])
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize("snap", [None, False, True])
+def test_cleanup_short_line_snap(axis, length, reverse, snap):
+    vertices = np.full((2, 2), 0.1)
+    vertices[1, axis] += length
+    if reverse:
+        vertices = vertices[::-1]
+    path = Path(vertices)
+
+    result = path.cleaned(snap=snap, stroke_width=1, simplify=False)
+
+    if snap is True or (snap is None and length not in [1e-3, 0.2]):
+        expected = np.floor(vertices + 0.5) + 0.5
+    else:
+        expected = vertices
+    assert_array_equal(result.vertices[:2], expected)
+
+
 def test_cleanup_closepoly():
     # if the first connected component of a Path ends in a CLOSEPOLY, but that
     # component contains a NaN, then Path.cleaned should ignore not just the
