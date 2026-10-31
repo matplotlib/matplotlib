@@ -42,6 +42,12 @@ class Kerning(Enum):
     UNFITTED = cast(int, ...)
     UNSCALED = cast(int, ...)
 
+class Direction(Enum):
+    DEFAULT = cast(int, ...)
+    LTR = cast(int, ...)
+    RTL = cast(int, ...)
+    TTB = cast(int, ...)
+
 class LoadFlags(Flag):
     DEFAULT = cast(int, ...)
     NO_SCALE = cast(int, ...)
@@ -248,6 +254,7 @@ class FT2Font(Buffer):
         flags: LoadFlags,
         features: tuple[str, ...] | None = ...,
         language: str | tuple[tuple[str, int, int], ...] | None = ...,
+        direction: Direction = ...,
     ) -> list[LayoutItem]: ...
     def clear(self) -> None: ...
     def draw_glyph_to_bitmap(
@@ -296,6 +303,7 @@ class FT2Font(Buffer):
         *,
         features: tuple[str] | None = ...,
         language: str | list[tuple[str, int, int]] | None = ...,
+        direction: Direction = ...,
     ) -> NDArray[np.float64]: ...
     @property
     def ascender(self) -> int: ...
