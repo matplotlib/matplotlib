@@ -1917,6 +1917,7 @@ class Affine2DBase(AffineBase):
 
         mtx = self.get_matrix()
 
+        # detect single vertex and transform in Python for performance
         if length == 2:
             x, y = values
             if isinstance(x, (int, float)) and isinstance(y, (int, float)):
