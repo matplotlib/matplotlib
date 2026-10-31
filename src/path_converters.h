@@ -587,6 +587,13 @@ class PathSnapper
                     if (fabs(x0 - x1) >= 1e-4 && fabs(y0 - y1) >= 1e-4) {
                         return false;
                     }
+                    // Keep isolated lines visible, ignoring zero-length projection roundoff.
+                    if (total_vertices == 2 &&
+                        (fabs(x0 - x1) >= 1e-4 || fabs(y0 - y1) >= 1e-4) &&
+                        floor(x0 + 0.5) == floor(x1 + 0.5) &&
+                        floor(y0 + 0.5) == floor(y1 + 0.5)) {
+                        return false;
+                    }
                     break;
                 case (agg::path_cmd_end_poly | agg::path_flags_close):
                     if (fabs(x0 - x_start) >= 1e-4 && fabs(y0 - y_start) >= 1e-4) {

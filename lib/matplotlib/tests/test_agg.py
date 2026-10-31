@@ -434,6 +434,22 @@ def test_path_autosnap(fig_test, fig_ref):
     axr.autoscale_view()
 
 
+@pytest.mark.parametrize("dpi", [72, 100, 300])
+@pytest.mark.parametrize("axis", [0, 1])
+@pytest.mark.parametrize("capstyle", ["butt", "round", "projecting"])
+@check_figures_equal(extensions=["png"])
+def test_short_line_autosnap(fig_test, fig_ref, dpi, axis, capstyle):
+    # Short lines must not disappear when both endpoints snap to the same pixel.
+    vertices = np.full((2, 2), 10.1)
+    vertices[1, axis] += 0.2
+    for fig, snap in [(fig_test, None), (fig_ref, False)]:
+        fig.set_size_inches(1, 1)
+        fig.set_dpi(dpi)
+        fig.add_artist(plt.Line2D(
+            *vertices.T, transform=IdentityTransform(), color="red",
+            linewidth=2, solid_capstyle=capstyle, snap=snap))
+
+
 def test_draw_text_images_bounds():
     # Positions must describe bitmaps inside the buffer, as the renderer indexes
     # into it without checking.
