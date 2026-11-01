@@ -598,7 +598,7 @@ class RadialTick(maxis.YTick):
         offset = np.rad2deg(offset_rad)
         full = _is_full_circle_deg(thetamin, thetamax)
 
-        if full:
+        if full or axes._r_label_position_manual:
             angle = (axes.get_rlabel_position() * direction +
                      offset) % 360 - 90
             tick_angle = 0
@@ -918,6 +918,9 @@ class PolarAxes(Axes):
         # The r-axis labels are put at an angle and padded in the r-direction
         self._r_label_position = mtransforms.Affine2D() \
             .translate(self._default_rlabel_position, 0.0)
+        # Whether the rlabel position was set explicitly (via
+        # set_rlabel_position), as opposed to the default position.
+        self._r_label_position_manual = False
         self._yaxis_text_transform = mtransforms.TransformWrapper(
             self._r_label_position + self.transData)
 
@@ -943,6 +946,9 @@ class PolarAxes(Axes):
         thetamin, thetamax = self._realViewLim.intervalx
         if _is_full_circle_rad(thetamin, thetamax):
             return self._yaxis_text_transform, 'bottom', 'left'
+        elif self._r_label_position_manual:
+            halign = 'left' if self.get_theta_direction() > 0 else 'right'
+            pad_shift = _ThetaShift(self, pad, 'rlabel')
         elif self.get_theta_direction() > 0:
             halign = 'left'
             pad_shift = _ThetaShift(self, pad, 'min')
@@ -997,7 +1003,9 @@ class PolarAxes(Axes):
             start.set_visible(visible)
         if end:
             end.set_visible(visible)
-        if visible:
+        if visible and not self._r_label_position_manual:
+            # Labels on a wedge go along the wedge edges, except if a rlabel
+            # position was manually set, in which case it is honored.
             yaxis_text_transform = self._yaxis_transform
         else:
             yaxis_text_transform = self._r_label_position + self.transData
@@ -1275,8 +1283,16 @@ class PolarAxes(Axes):
         ----------
         value : number
             The angular position of the radius labels in degrees.
+
+        Notes
+        -----
+        On axes showing only a wedge (see `set_thetamin` / `set_thetamax`),
+        the radius labels are placed along the wedge edges by default;
+        setting the label position explicitly moves them to the given angle,
+        which may also be outside the wedge.
         """
         self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
+        self._r_label_position_manual = True
 
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)
@@ -1404,9 +1420,8 @@ class PolarAxes(Axes):
             self.set_yticklabels(labels)
         elif fmt is not None:
             self.yaxis.set_major_formatter(mticker.FormatStrFormatter(fmt))
-        if angle is None:
-            angle = self.get_rlabel_position()
-        self.set_rlabel_position(angle)
+        if angle is not None:
+            self.set_rlabel_position(angle)
         for t in self.yaxis.get_ticklabels():
             t._internal_update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
