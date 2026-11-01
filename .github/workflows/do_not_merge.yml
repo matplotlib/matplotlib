@@ -28,4 +28,4 @@ jobs:
           exit 1
       - name: Allow merging
         if: ${{'false' == env.has_tag}}
-        run: exit 0
+        run: exit 1  #!ci-adventures - Always fail as an extra reminder not to merge

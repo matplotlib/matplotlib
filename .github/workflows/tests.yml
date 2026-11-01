@@ -49,62 +49,22 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - name-suffix: "(Minimum Versions)"
-            os: ubuntu-22.04
-            python-version: '3.12'
-            extra-requirements: '-c ci/minver-requirements.txt'
-            delete-font-cache: true
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - os: ubuntu-22.04
-            python-version: '3.12'
-            CFLAGS: "-fno-lto"  # Ensure that disabling LTO works.
-            extra-requirements: '--group test-extra'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - name-suffix: "(Extra TeX packages)"
-            os: ubuntu-22.04
-            python-version: '3.13'
-            extra-packages: 'texlive-fonts-extra texlive-lang-cyrillic'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - name-suffix: "Free-threaded"
-            os: ubuntu-22.04
-            python-version: '3.14t'
-            # https://github.com/matplotlib/matplotlib/issues/29844
-            pygobject-ver: '<3.52.0'
-          - os: ubuntu-24.04
-            python-version: '3.14'
-          - name-suffix: "Free-threaded"
-            os: ubuntu-24.04
-            python-version: '3.15t'
-          - os: ubuntu-24.04
-            python-version: '3.15'
-          - os: ubuntu-24.04-arm
-            python-version: '3.12'
-          - os: macos-15  # This runner is on M1 (arm64) chips.
-            python-version: '3.12'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
-          - os: macos-26  # This runner is on M1 (arm64) chips.
-            python-version: '3.13'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
           - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.14'
-            # https://github.com/matplotlib/matplotlib/issues/29732
-            pygobject-ver: '<3.52.0'
-          - os: macos-15  # This runner is on M1 (arm64) chips.
-            python-version: '3.15'
             # https://github.com/matplotlib/matplotlib/issues/29732
             pygobject-ver: '<3.52.0'
 
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
+          filter: tree:0
           fetch-depth: 0
           filter: blob:none
           persist-credentials: false
+
+      - name: git describe
+        run: |
+          git describe
 
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
@@ -112,87 +72,84 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      - name: Install OS dependencies
+      # !ci-adventures
+      - name: Size of /opt (Alpha)
+        run: |
+          echo "Brew formula"
+          # brew list --formula
+          echo
+          echo "Brew cask"
+          # brew list --cask
+          echo
+          # sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
+
+      - name: Clean Runner Image
         run: |
           case "${{ runner.os }}" in
-          Linux)
-            echo 'Acquire::Retries "3";' | sudo tee /etc/apt/apt.conf.d/80-retries
-            sudo apt-get update -yy
-            sudo apt-get install -yy --no-install-recommends \
-              ccache \
-              cm-super \
-              dvipng \
-              fonts-freefont-otf \
-              fonts-noto-cjk \
-              fonts-wqy-zenhei \
-              gdb \
-              gir1.2-gtk-3.0 \
-              gir1.2-gtk-4.0 \
-              graphviz \
-              inkscape \
-              language-pack-de \
-              lcov \
-              libcairo2 \
-              libcairo2-dev \
-              libffi-dev \
-              libgeos-dev \
-              libnotify4 \
-              libsdl2-2.0-0 \
-              libxkbcommon-x11-0 \
-              libxcb-cursor0 \
-              libxcb-icccm4 \
-              libxcb-image0 \
-              libxcb-keysyms1 \
-              libxcb-randr0 \
-              libxcb-render-util0 \
-              libxcb-xinerama0 \
-              lmodern \
-              ninja-build \
-              pkg-config \
-              qtbase5-dev \
-              texlive-fonts-recommended \
-              texlive-latex-base \
-              texlive-latex-extra \
-              texlive-latex-recommended \
-              texlive-luatex \
-              texlive-pictures \
-              texlive-xetex \
-              ${{ matrix.extra-packages }}
-            if [[ "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
-              sudo apt-get install -yy --no-install-recommends ffmpeg poppler-utils
-            fi
-            if [[ "${{ matrix.os }}" = ubuntu-22.04 ]]; then
-              sudo apt-get install -yy --no-install-recommends \
-                libgirepository1.0-dev
-            else  # ubuntu-24.04
-              sudo apt-get install -yy --no-install-recommends \
-                libgirepository-2.0-dev
-            fi
-            ;;
           macOS)
-            brew update
-            # Periodically, Homebrew updates Python and fails to overwrite the
-            # existing not-managed-by-Homebrew copy without explicitly being told
-            # to do so. GitHub/Azure continues to avoid fixing their runner images:
-            # https://github.com/actions/runner-images/issues/9966
-            # so force an overwrite even if there are no Python updates.
-            # We don't even care about Homebrew's Python because we use the one
-            # from actions/setup-python.
-            for python_package in $(brew list | grep python@); do
-              brew unlink ${python_package}
-              brew link --overwrite ${python_package}
-            done
+            sudo mkdir -p /opt/homebrew-aside/Cellar
+            sudo mkdir -p /opt/homebrew-aside/Caskroom
+            sudo mv /opt/homebrew/.git /opt/homebrew-aside
+            sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
+            sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+            # time find /opt/homebrew -maxdepth 2 -type l -print0 | xargs -0 ls -al
+            # time find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
+            time find /opt/homebrew -maxdepth 2 -type l -delete
             # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
             openssl_link="$(brew --prefix)/bin/openssl"
             case "$(readlink "$openssl_link" 2>/dev/null)" in
                 */openssl@1.1/*) rm -f "$openssl_link" ;;
             esac
-            # Workaround for https://github.com/actions/runner-images/issues/10984
-            brew uninstall --ignore-dependencies --force pkg-config@0.29.2
-            brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
-            brew install --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
             ;;
           esac
+
+      # !ci-adventures
+      - name: Size of /opt (Beta)
+        run: |
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
+
+      - name: Install OS dependencies (1)
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times --only-dependencies \
+              ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja
+            ;;
+          esac
+
+      # !ci-adventures
+      - name: Size of /opt (Gamma)
+        run: |
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
+
+      - name: Install OS dependencies (2)
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja
+            ;;
+          esac
+
+      - name: Install OS dependencies (3)
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
+            ;;
+          esac
+
+      # !ci-adventures
+      - name: Size of /opt (Delta)
+        run: |
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
+
+      # !ci-adventures
+      - name: EJECT!
+        run: |
+          exit 1
 
       - name: Cache pip
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -306,7 +263,7 @@ jobs:
       - name: Install Matplotlib
         run: |
           ccache -s
-          git describe
+          # git describe
 
           # Set flag in a delayed manner to avoid issues with installing other
           # packages

@@ -5,6 +5,7 @@ on:
   push:
     branches: [main, v*.x]
   pull_request:
+    paths-ignore: ['**']  #!ci-adventures - Experimental - Do Not Merge
     branches: [main]
   schedule:
     - cron: '45 19 * * 1'
