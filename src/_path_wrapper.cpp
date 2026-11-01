@@ -27,8 +27,11 @@ convert_polygon_vector(std::vector<Polygon> &polygons)
 
     for (size_t i = 0; i < polygons.size(); ++i) {
         const auto& poly = polygons[i];
-        py::ssize_t dims[] = { static_cast<py::ssize_t>(poly.size()), 2 };
-        result[i] = py::array(dims, reinterpret_cast<const double *>(poly.data()));
+        auto arr = mpl::array<double, mpl::shape<-1, 2>>(poly.size());
+        if (arr.shape(0) > 0) {
+            memcpy(arr.data(), poly.data(), arr.nbytes());
+        }
+        result[i] = arr;
     }
 
     return result;
@@ -193,15 +196,13 @@ Py_cleanup_path(mpl::PathIterator path, agg::trans_affine trans, bool remove_nan
     cleanup_path(path, trans, remove_nans, do_clip, clip_rect, snap_mode, stroke_width,
                  *simplify, return_curves, sketch, vertices, codes);
 
-    auto length = static_cast<py::ssize_t>(codes.size());
+    auto vertices_arr = mpl::array<double, mpl::shape<-1, 2>>(vertices.size() / 2);
+    vertices_arr.assign(vertices);
 
-    py::ssize_t vertices_dims[] = { length, 2 };
-    py::array pyvertices(vertices_dims, vertices.data());
+    auto codes_arr = mpl::array<uint8_t, mpl::ndim<1>>(codes.size());
+    codes_arr.assign(codes);
 
-    py::ssize_t codes_dims[] = { length };
-    py::array pycodes(codes_dims, codes.data());
-
-    return py::make_tuple(pyvertices, pycodes);
+    return py::make_tuple(vertices_arr, codes_arr);
 }
 
 const char *Py_convert_to_string__doc__ =
