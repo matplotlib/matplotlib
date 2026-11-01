@@ -34,13 +34,15 @@ class FigureCanvasGTK3Agg(backend_agg.FigureCanvasAgg,
             bbox_queue = self._bbox_queue
 
         for bbox in bbox_queue:
-            x = int(bbox.x0)
-            y = h - int(bbox.y1)
-            width = int(bbox.x1) - int(bbox.x0)
-            height = int(bbox.y1) - int(bbox.y0)
+            region = self.copy_from_bbox(bbox)
+            # The region is rounded out to whole pixels; take its extents
+            # (in buffer coordinates) rather than rounding the bbox again.
+            x, y, x2, y2 = region.get_extents()
+            width = x2 - x
+            height = y2 - y
 
             buf = cbook._unmultiplied_rgba8888_to_premultiplied_argb32(
-                np.asarray(self.copy_from_bbox(bbox)))
+                np.asarray(region))
             image = cairo.ImageSurface.create_for_data(
                 buf.ravel().data, cairo.FORMAT_ARGB32, width, height)
             image.set_device_scale(scale, scale)
@@ -58,15 +60,11 @@ class FigureCanvasGTK3Agg(backend_agg.FigureCanvasAgg,
         if bbox is None:
             bbox = self.figure.bbox
 
-        scale = self.device_pixel_ratio
         allocation = self.get_allocation()
-        x = int(bbox.x0 / scale)
-        y = allocation.height - int(bbox.y1 / scale)
-        width = (int(bbox.x1) - int(bbox.x0)) // scale
-        height = (int(bbox.y1) - int(bbox.y0)) // scale
+        x0, y0, x1, y1 = bbox._pixel_bounds(scale=self.device_pixel_ratio)
 
         self._bbox_queue.append(bbox)
-        self.queue_draw_area(x, y, width, height)
+        self.queue_draw_area(x0, allocation.height - y1, x1 - x0, y1 - y0)
 
 
 @_BackendGTK3.export
