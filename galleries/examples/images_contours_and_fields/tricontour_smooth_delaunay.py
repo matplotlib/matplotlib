@@ -1,4 +1,6 @@
 """
+.. _tricontour_smooth_delaunay:
+
 ==========================
 Tricontour Smooth Delaunay
 ==========================

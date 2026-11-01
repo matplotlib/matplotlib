@@ -31,6 +31,15 @@ Using Matplotlib
             :maxdepth: 2
             :includehidden:
 
+            explain/plotting/index
+
+    .. grid-item-card::
+        :padding: 2
+
+        .. toctree::
+            :maxdepth: 2
+            :includehidden:
+
             explain/figure/index
 
     .. grid-item-card::
@@ -41,7 +50,6 @@ Using Matplotlib
             :includehidden:
 
             explain/axes/index
-
 
     .. grid-item-card::
         :padding: 2
