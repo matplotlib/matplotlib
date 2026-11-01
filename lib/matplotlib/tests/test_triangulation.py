@@ -1194,48 +1194,66 @@ def test_internal_cpp_api() -> None:
         mpl._tri.Triangulation()  # type: ignore[call-arg]
 
     with pytest.raises(
-            ValueError, match=r'x and y must be 1D arrays of the same length'):
-        mpl._tri.Triangulation(np.array([]), np.array([1]), np.array([[]]), (), (), (),
-                               False)
+            ValueError, match=r"x should have 1 dimension, got 2"):
+        mpl._tri.Triangulation(np.array([[1, 1]]), np.array([1]), np.array([[]]),
+                               None, None, None, False)
+
+    with pytest.raises(
+            ValueError, match=r"x and y must have the same length \(x: 0, y: 1\)"):
+        mpl._tri.Triangulation(np.array([]), np.array([1]), np.array([[]]),
+                               None, None, None, False)
 
     x = np.array([0, 1, 1], dtype=np.float64)
     y = np.array([0, 0, 1], dtype=np.float64)
     with pytest.raises(
             ValueError,
-            match=r'triangles must be a 2D array of shape \(\?,3\)'):
-        mpl._tri.Triangulation(x, y, np.array([[0, 1]]), (), (), (), False)
+            match=r'triangles must have shape \(N, 3\), got \(1, 2\)'):
+        mpl._tri.Triangulation(x, y, np.array([[0, 1]]), None, None, None, False)
 
     tris = np.array([[0, 1, 2]], dtype=np.int_)
     with pytest.raises(
             ValueError,
-            match=r'mask must be a 1D array with the same length as the '
-                  r'triangles array'):
-        mpl._tri.Triangulation(x, y, tris, np.array([0, 1]), (), (), False)
-
-    with pytest.raises(
-            ValueError, match=r'edges must be a 2D array with shape \(\?,2\)'):
-        mpl._tri.Triangulation(x, y, tris, (), np.array([[1]]), (), False)
+            match=r'mask should have 1 dimension, got 2'):
+        mpl._tri.Triangulation(x, y, tris, np.array([[1, 1]]), None, None, False)
 
     with pytest.raises(
             ValueError,
-            match=r'neighbors must be a 2D array with the same shape as the '
-                  r'triangles array'):
-        mpl._tri.Triangulation(x, y, tris, (), (), np.array([[-1]]), False)
+            match=r'mask must have the same length as the triangles array '
+                  r'\(mask: 2, triangles: 1\)'):
+        mpl._tri.Triangulation(x, y, tris, np.array([0, 1]), None, None, False)
 
-    triang = mpl._tri.Triangulation(x, y, tris, (), (), (), False)
+    with pytest.raises(
+            ValueError, match=r'edges must have shape \(N, 2\), got \(1, 1\)'):
+        mpl._tri.Triangulation(x, y, tris, None, np.array([[1]]), None, False)
 
     with pytest.raises(
             ValueError,
-            match=r'z must be a 1D array with the same length as the '
-                  r'triangulation x and y arrays'):
+            match=r'neighbors must have shape \(N, 3\), got \(1, 1\)'):
+        mpl._tri.Triangulation(x, y, tris, None, None, np.array([[-1]]), False)
+
+    triang = mpl._tri.Triangulation(x, y, tris, None, None, None, False)
+
+    with pytest.raises(
+            ValueError,
+            match=r'z should have 1 dimension, got 2'):
+        triang.calculate_plane_coefficients([[1, 1]])
+
+    with pytest.raises(
+            ValueError,
+            match=r'z must have the same length as the triangulation x and y arrays '
+                  r'\(z: 0, x: 3\)'):
         triang.calculate_plane_coefficients([])
 
-    for mask in ([0, 1], None):
-        with pytest.raises(
-                ValueError,
-                match=r'mask must be a 1D array with the same length as the '
-                      r'triangles array'):
-            triang.set_mask(mask)  # type: ignore[arg-type]
+    with pytest.raises(
+            ValueError,
+            match=r'mask should have 1 dimension, got 2'):
+        triang.set_mask([[1, 1]])
+
+    with pytest.raises(
+            ValueError,
+            match=r'mask must have the same length as the triangles array '
+                  r'\(mask: 2, triangles: 1\)'):
+        triang.set_mask([0, 1])
 
     triang.set_mask(np.array([True]))
     assert_array_equal(triang.get_edges(), np.empty((0, 2)))
@@ -1251,7 +1269,13 @@ def test_internal_cpp_api() -> None:
 
     with pytest.raises(
             ValueError,
-            match=r'z must be a 1D array with the same length as the x and y arrays'):
+            match=r'z should have 1 dimension, got 2'):
+        mpl._tri.TriContourGenerator(triang, np.array([[1]]))
+
+    with pytest.raises(
+            ValueError,
+            match=r'z must have the same length as the triangulation x and y arrays '
+                  r'\(z: 1, x: 3\)'):
         mpl._tri.TriContourGenerator(triang, np.array([1]))
 
     z = np.array([0, 1, 2])

@@ -7,7 +7,7 @@ TK_PHOTO_COMPOSITE_SET: int
 def blit(
     interp: int,
     photo_name: str,
-    data: NDArray[np.uint8],
+    image: NDArray[np.uint8],
     comp_rule: int,
     offset: tuple[int, int, int, int],
     bbox: tuple[int, int, int, int],
