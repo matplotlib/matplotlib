@@ -5,6 +5,7 @@ import numpy as np
 import pytest
 
 from matplotlib import pyplot as plt
+from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.testing.decorators import check_figures_equal
 
@@ -387,3 +388,87 @@ def draw_quiverkey_setzorder(fig, zorder=None):
 def test_quiverkey_zorder(fig_test, fig_ref, zorder):
     draw_quiverkey_zorder_argument(fig_test, zorder=zorder)
     draw_quiverkey_setzorder(fig_ref, zorder=zorder)
+
+
+def _arrow_outline(head_pos, length=20., **kwargs):
+    # Vertices of one horizontal arrow, in units of the shaft width.
+    fig, ax = plt.subplots()
+    q = ax.quiver([0], [0], [1], [0], head_pos=head_pos, **kwargs)
+    X, Y = q._h_arrows(np.array([length]))
+    return np.column_stack([X[0], Y[0]])
+
+
+@pytest.mark.parametrize('name, value', [('tail', 0), ('middle', 0.5), ('tip', 1)])
+def test_quiver_head_pos_names(name, value):
+    fig, ax = plt.subplots()
+    assert ax.quiver([0], [0], [1], [1], head_pos=name).head_pos == value
+    np.testing.assert_array_equal(_arrow_outline(name), _arrow_outline(value))
+
+
+def test_quiver_head_pos_default():
+    fig, ax = plt.subplots()
+    assert ax.quiver([0], [0], [1], [1]).head_pos == 1
+    np.testing.assert_array_equal(_arrow_outline('tip'), _arrow_outline(1.0))
+
+
+@pytest.mark.parametrize('head_pos', [0, 1, 0.0, 1.0, 0.3, np.float32(0.3),
+                                      np.int64(1)])
+def test_quiver_head_pos_valid(head_pos):
+    fig, ax = plt.subplots()
+    q = ax.quiver([0], [0], [1], [1], head_pos=head_pos)
+    assert q.head_pos == pytest.approx(head_pos)
+
+
+@pytest.mark.parametrize('head_pos', [-0.1, 1.1, np.nan, 'mid', 'head', None,
+                                      [0.5]])
+def test_quiver_head_pos_invalid(head_pos):
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match='head_pos'):
+        ax.quiver([0], [0], [1], [1], head_pos=head_pos)
+
+
+@pytest.mark.parametrize('head_pos', [0, 0.25, 0.5, 0.75, 0.95, 1])
+def test_quiver_head_pos_geometry(head_pos):
+    length, headlength, headwidth = 20, 5, 3
+    verts = _arrow_outline(head_pos, length, headlength=headlength,
+                           headwidth=headwidth)
+    # The arrow spans the full shaft, with the head inside the shaft's length.
+    assert verts[:, 0].min() == 0
+    assert verts[:, 0].max() == length
+    assert np.abs(verts[:, 1]).max() == headwidth / 2
+    # The back corners of the head move linearly along the shaft.
+    corners = verts[np.abs(verts[:, 1]) == headwidth / 2, 0]
+    np.testing.assert_allclose(corners, head_pos * (length - headlength))
+
+
+@pytest.mark.parametrize('head_pos, ref', [(1 - 1e-9, 'tip'), (1e-9, 'tail')])
+def test_quiver_head_pos_continuous(head_pos, ref):
+    # Positions close to the ends give the same arrow as the ends themselves.
+    verts, ref_verts = _arrow_outline(head_pos), _arrow_outline(ref)
+    path, ref_path = Path(verts), Path(ref_verts)
+    # Sample points offset from the shaft and head edges.
+    points = np.mgrid[-1:22:0.05, -2:2:0.05].reshape(2, -1).T + [0.0123, 0.0071]
+    np.testing.assert_array_equal(path.contains_points(points),
+                                  ref_path.contains_points(points))
+
+
+@pytest.mark.parametrize('pivot', ['tail', 'middle', 'tip'])
+def test_quiver_head_pos_pivot(pivot):
+    # The pivot refers to the shaft, wherever the head is.
+    verts = _arrow_outline(0.5, pivot=pivot)
+    ref_verts = _arrow_outline(1, pivot=pivot)
+    assert verts[:, 0].min() == ref_verts[:, 0].min()
+    assert verts[:, 0].max() == ref_verts[:, 0].max()
+
+
+@pytest.mark.parametrize('head_pos, at_tail', [('tail', True), ('tip', False)])
+def test_quiverkey_head_pos(head_pos, at_tail):
+    # The key uses the same arrowhead position as its quiver.
+    fig, ax = plt.subplots()
+    q = ax.quiver([0, 1], [0, 1], [1, 1], [1, -1], head_pos=head_pos)
+    # labelpos='N' draws a horizontal arrow pointing right.
+    key = ax.quiverkey(q, 0.5, 0.5, 1, 'key', labelpos='N')
+    fig.draw_without_rendering()
+    verts = key.vector.get_paths()[0].vertices
+    corners = verts[np.abs(verts[:, 1]) == np.abs(verts[:, 1]).max(), 0]
+    assert np.all(corners == verts[:, 0].min()) == at_tail
