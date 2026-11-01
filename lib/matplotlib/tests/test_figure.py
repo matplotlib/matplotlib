@@ -1320,7 +1320,18 @@ class TestSubplotMosaic:
         assert list(ax_dict) == list("ABCDEFGHI")
         assert list(fig.axes) == list(ax_dict.values())
 
-    def test_share_all(self):
+    @staticmethod
+    def shared_groups(axd, axis):
+        groups = []
+        for group in axd["A"]._shared_axes[axis]:
+            valid_axes = {ax.get_label() for ax in group if ax in axd.values()}
+            if len(valid_axes) > 1:
+                groups.append(valid_axes)
+
+        return sorted(groups, key=lambda s: sorted(s))
+
+    @pytest.mark.parametrize("share_val", [True, "all", False, "none"])
+    def test_share_all(self, share_val):
         layout = [
             ["A", [["B", "C"],
                    ["D", "E"]]],
@@ -1329,10 +1340,42 @@ class TestSubplotMosaic:
                           ["."]]]]]
         ]
         fig = plt.figure()
-        ax_dict = fig.subplot_mosaic(layout, sharex=True, sharey=True)
-        ax_dict["A"].set(xscale="log", yscale="logit")
-        assert all(ax.get_xscale() == "log" and ax.get_yscale() == "logit"
-                   for ax in ax_dict.values())
+        axd = fig.subplot_mosaic(layout, sharex=share_val, sharey=share_val)
+
+        all_labels = set(axd.keys())
+
+        if share_val in [True, "all"]:
+            assert self.shared_groups(axd, "x") == [all_labels]
+            assert self.shared_groups(axd, "y") == [all_labels]
+        else:
+            assert self.shared_groups(axd, "x") == []
+            assert self.shared_groups(axd, "y") == []
+
+    def test_share_row_col(self):
+        layout = "ABCD;EFCD"
+        fig = plt.figure()
+        axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
+
+        assert self.shared_groups(axd, "x") == [{"A", "E"}, {"B", "F"}]
+        assert self.shared_groups(axd, "y") == [{"A", "B"}, {"C", "D"}, {"E", "F"}]
+
+    def test_share_invalid(self):
+        fig = plt.figure()
+        msg = "must be True, False, 'all', 'none', 'row', or 'col'"
+
+        with pytest.raises(ValueError, match=msg):
+            fig.subplot_mosaic("AB;CD", sharex="invalid_string")
+
+        with pytest.raises(ValueError, match=msg):
+            fig.subplot_mosaic("AB;CD", sharey={"A": "B"})
+
+    def test_share_row_col_spanning(self):
+        layout = "AAB;CDD;EEF"
+        fig = plt.figure()
+        axd = fig.subplot_mosaic(layout, sharey="row", sharex="col")
+
+        assert self.shared_groups(axd, "x") == [{"A", "E"}, {"B", "F"}]
+        assert self.shared_groups(axd, "y") == [{"A", "B"}, {"C", "D"}, {"E", "F"}]
 
 
 def test_reused_gridspec():
