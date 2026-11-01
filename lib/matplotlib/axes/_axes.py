@@ -818,14 +818,14 @@ class Axes(_AxesBase):
 
         # Strip away the units for comparison with non-unitized bounds.
         yy, = self._process_unit_info([("y", y)], kwargs)
-        scaley = (yy < ymin) or (yy > ymax)
 
         trans = self.get_yaxis_transform(which='grid')
         l = mlines.Line2D([xmin, xmax], [y, y], transform=trans, **kwargs)
         self.add_line(l)
         l.get_path()._interpolation_steps = mpl.axis.GRIDLINE_INTERPOLATION_STEPS
-        if scaley:
-            self._request_autoscale_view("y")
+
+        self._request_autoscale_view("y")
+
         return l
 
     @_docstring.interpd
@@ -901,14 +901,14 @@ class Axes(_AxesBase):
 
         # Strip away the units for comparison with non-unitized bounds.
         xx, = self._process_unit_info([("x", x)], kwargs)
-        scalex = (xx < xmin) or (xx > xmax)
 
         trans = self.get_xaxis_transform(which='grid')
         l = mlines.Line2D([x, x], [ymin, ymax], transform=trans, **kwargs)
         self.add_line(l)
         l.get_path()._interpolation_steps = mpl.axis.GRIDLINE_INTERPOLATION_STEPS
-        if scalex:
-            self._request_autoscale_view("x")
+
+        self._request_autoscale_view("x")
+
         return l
 
     @staticmethod
