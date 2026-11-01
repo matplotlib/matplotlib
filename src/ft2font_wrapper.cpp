@@ -35,6 +35,19 @@ const char *Kerning__doc__ = R"""(
     .. versionadded:: 3.10
 )""";
 
+const char *Direction__doc__ = R"""(
+    Paragraph directions for `.FT2Font.set_text`.
+
+    ``DEFAULT`` detects the direction from the first character with a strong
+    direction, which is wrong for, e.g., right-to-left text starting with a Latin
+    word.
+
+    For more information, see `the libraqm documentation
+    <https://host-oman.github.io/libraqm/raqm-Raqm.html#raqm-direction-t>`_.
+
+    .. versionadded:: 3.12
+)""";
+
 const char *FaceFlags__doc__ = R"""(
     Flags returned by `FT2Font.face_flags`.
 
@@ -611,6 +624,10 @@ const char *PyFT2Font_set_text__doc__ = R"""(
         https://learn.microsoft.com/en-us/typography/opentype/spec/featurelist
 
         .. versionadded:: 3.11
+    direction : Direction, default: `.Direction.DEFAULT`
+        The paragraph direction of the text.
+
+        .. versionadded:: 3.12
 
     Returns
     -------
@@ -622,7 +639,8 @@ static py::array_t<double>
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
                    LoadFlags flags = LoadFlags::FORCE_AUTOHINT,
                    std::optional<std::vector<std::string>> features = std::nullopt,
-                   std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
+                   std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr,
+                   raqm_direction_t direction = RAQM_DIRECTION_DEFAULT)
 {
     std::vector<double> xys;
     FT2Font::LanguageType languages = std::visit(overloaded {
@@ -635,7 +653,8 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
         }
     }, languages_or_str);
 
-    self->set_text(text, angle, static_cast<FT_Int32>(flags), features, languages, xys);
+    self->set_text(text, angle, static_cast<FT_Int32>(flags), features, languages,
+                   direction, xys);
 
     py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
     py::array_t<double> result(dims);
@@ -1330,6 +1349,8 @@ const char *PyFT2Font_layout__doc__ = R"""(
     language : str, optional
         The language of the text in a format accepted by libraqm, namely `a BCP47
         language code <https://www.w3.org/International/articles/language-tags/>`_.
+    direction : Direction, default: `.Direction.DEFAULT`
+        The paragraph direction of the text.
 
     Returns
     -------
@@ -1339,7 +1360,8 @@ const char *PyFT2Font_layout__doc__ = R"""(
 static auto
 PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
                  std::optional<std::vector<std::string>> features = std::nullopt,
-                 std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr)
+                 std::variant<FT2Font::LanguageType, std::string> languages_or_str = nullptr,
+                 raqm_direction_t direction = RAQM_DIRECTION_DEFAULT)
 {
     const auto load_flags = static_cast<FT_Int32>(flags);
 
@@ -1354,7 +1376,8 @@ PyFT2Font_layout(PyFT2Font *self, std::u32string text, LoadFlags flags,
     }, languages_or_str);
 
     std::set<FT_String*> glyph_seen_fonts;
-    auto glyphs = self->layout(text, load_flags, features, languages, glyph_seen_fonts);
+    auto glyphs = self->layout(text, load_flags, features, languages, direction,
+                               glyph_seen_fonts);
 
     std::set<decltype(raqm_glyph_t::cluster)> clusters;
     for (auto &glyph : glyphs) {
@@ -1531,6 +1554,13 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .value("UNSCALED", FT_KERNING_UNSCALED)
         .finalize();
 
+    py::native_enum<raqm_direction_t>(m, "Direction", "enum.Enum", Direction__doc__)
+        .value("DEFAULT", RAQM_DIRECTION_DEFAULT)
+        .value("LTR", RAQM_DIRECTION_LTR)
+        .value("RTL", RAQM_DIRECTION_RTL)
+        .value("TTB", RAQM_DIRECTION_TTB)
+        .finalize();
+
     py::native_enum<LoadFlags>(m, "LoadFlags", "enum.Flag", LoadFlags__doc__)
         .value("DEFAULT", LoadFlags::DEFAULT)
         .value("NO_SCALE", LoadFlags::NO_SCALE)
@@ -1698,10 +1728,12 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              PyFT2Font_get_kerning__doc__)
         .def("_layout", &PyFT2Font_layout, "string"_a, "flags"_a, py::kw_only(),
              "features"_a=nullptr, "language"_a=nullptr,
+             "direction"_a=RAQM_DIRECTION_DEFAULT,
              PyFT2Font_layout__doc__)
         .def("set_text", &PyFT2Font_set_text,
              "string"_a, "angle"_a=0.0, "flags"_a=LoadFlags::FORCE_AUTOHINT, py::kw_only(),
              "features"_a=nullptr, "language"_a=nullptr,
+             "direction"_a=RAQM_DIRECTION_DEFAULT,
              PyFT2Font_set_text__doc__)
         .def("get_num_glyphs", &PyFT2Font::get_num_glyphs,
              PyFT2Font_get_num_glyphs__doc__)

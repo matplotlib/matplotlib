@@ -1122,3 +1122,25 @@ def test_layout_cache_fallback_size():
             item.ft_object.set_size(40, 100)
             break
     assert [item.x for item in items()] != first
+
+
+def test_layout_direction():
+    # Direction decides which side the Latin word lands on.
+    ft = fm.get_font(fm.findfont('DejaVu Sans'))
+    ft.set_size(12, 72)
+
+    def latin_left(text, direction):
+        items = ft._layout(text, ft2font.LoadFlags.DEFAULT, direction=direction)
+        latin = [item.x for item in items if item.char.isascii() and item.char != ' ']
+        urdu = [item.x for item in items if not item.char.isascii()]
+        return max(latin) < min(urdu)
+
+    Direction = ft2font.Direction
+    assert latin_left('Python اردو', Direction.DEFAULT)
+    assert not latin_left('Python اردو', Direction.RTL)  # Also checks the cache.
+    assert latin_left('اردو Python', Direction.DEFAULT)
+    assert not latin_left('اردو Python', Direction.LTR)
+
+    ft.set_text('Python اردو', direction=Direction.RTL)
+    with pytest.raises(TypeError):
+        ft.set_text('Python اردو', direction='rtl')
