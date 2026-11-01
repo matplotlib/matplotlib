@@ -295,6 +295,21 @@ def test_empty_line():
     figure.savefig(buf, format='ps')
 
 
+@pytest.mark.parametrize('fmt', ['ps', 'eps'])
+def test_metadata_newline_injection(fmt):
+    # A newline in a DSC comment value (e.g. user-supplied metadata) must not
+    # end the comment and leak the remainder as raw PostScript into the prolog.
+    fig = plt.figure()
+    buf = io.BytesIO()
+    fig.savefig(buf, format=fmt,
+                metadata={"Creator": "a\nsystemdict /showpage get exec\nb"})
+    header = buf.getvalue().split(b"%%EndComments")[0]
+    for line in header.splitlines():
+        # Every header line is a PostScript comment (starting with '%') or
+        # blank; the injected payload must not appear as its own line.
+        assert line == b"" or line.startswith(b"%"), line
+
+
 def test_no_duplicate_definition():
 
     fig = Figure()
