@@ -109,7 +109,7 @@ class FT2Font
         void operator()(FT_Glyph glyph) const { FT_Done_Glyph(glyph); }
     };
     using GlyphPtr = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, GlyphDeleter>;
-    using ImageArray = mpl::array<uint8_t, mpl::ndim<2>>;
+    using ImageBuffer = mpl::array<uint8_t, mpl::ndim<2>>;
 
     FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used);
     virtual ~FT2Font();
@@ -150,9 +150,8 @@ class FT2Font
     std::tuple<long, long> get_bitmap_offset();
     long get_descent();
     void draw_glyphs_to_bitmap(bool antialiased);
-    void draw_glyph_to_bitmap(
-        py::array_t<uint8_t, py::array::c_style> im,
-        int x, int y, size_t glyphInd, bool antialiased);
+    void draw_glyph_to_bitmap(const ImageBuffer &im, int x, int y,
+                              size_t glyphInd, bool antialiased);
     std::string get_glyph_name(unsigned int glyph_number);
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
@@ -164,7 +163,7 @@ class FT2Font
         return face;
     }
 
-    py::array_t<uint8_t, py::array::c_style> &get_image()
+    ImageBuffer &get_image()
     {
         return image;
     }
@@ -222,7 +221,7 @@ class FT2Font
     std::map<LayoutCacheKey, LayoutCacheEntry> layout_cache;
 
     bool warn_if_used;
-    py::array_t<uint8_t, py::array::c_style> image;
+    ImageBuffer image;
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
