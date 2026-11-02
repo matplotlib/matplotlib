@@ -218,6 +218,18 @@ PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
     self->draw_gouraud_triangles(gc, points, colors, trans);
 }
 
+static void
+PyRendererAgg_draw_bilinear_quads(RendererAgg *self,
+                                 GCAgg &gc,
+                                 py::array_t<double> points_obj,
+                                 py::array_t<double> colors_obj,
+                                 agg::trans_affine trans)
+{
+    auto points = points_obj.unchecked<3>();
+    auto colors = colors_obj.unchecked<3>();
+    self->draw_bilinear_quads(gc, points, colors, trans);
+}
+
 #ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
 PYBIND11_MODULE(_backend_agg, m,
                 py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
@@ -250,7 +262,9 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
              "antialiased"_a, "edgecolors"_a)
         .def("_draw_gouraud_triangles", &PyRendererAgg_draw_gouraud_triangles,
-             "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
+              "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
+        .def("_draw_bilinear_quads", &PyRendererAgg_draw_bilinear_quads,
+              "gc"_a, "points"_a, "colors"_a, "trans"_a = nullptr)
 
         .def("clear", &RendererAgg::clear)
 

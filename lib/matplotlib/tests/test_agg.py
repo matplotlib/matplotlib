@@ -57,6 +57,125 @@ def test_repeated_save_with_alpha():
                               decimal=3)
 
 
+@pytest.mark.parametrize("alpha", [1, 0.5, [0.5, 0.75, 1, 0.75]])
+@pytest.mark.parametrize("transform", [
+    mtransforms.Affine2D().scale(80).translate(10, 10),
+    mtransforms.Affine2D.from_values(80, 0, 20, 80, 10, 10),
+    mtransforms.Affine2D.from_values(60, 20, -20, 60, 30, 10),
+    mtransforms.Affine2D.from_values(-80, 0, 0, 80, 100, 10),
+])
+def test_bilinear_quad_colors(alpha, transform):
+    renderer = RendererAgg(128, 128, 100)
+    quads = np.array([[[0, 0], [1, 0], [1, 1], [0, 1]]])
+    # The red channel has the non-affine term u*v. Green and blue are u and v.
+    colors = np.array([[[0., 0, 0, 1], [0, 1, 0, 1],
+                        [1, 1, 1, 1], [0, 0, 1, 1]]])
+    colors[0, :, 3] = alpha
+    renderer.draw_bilinear_quads(renderer.new_gc(), quads, colors, transform)
+
+    x, y = np.meshgrid(np.arange(128) + 0.5, np.arange(128) + 0.5)
+    uv = transform.inverted().transform(
+        np.column_stack([x.ravel(), (128 - y).ravel()])).reshape(128, 128, 2)
+    u, v = uv[..., 0], uv[..., 1]
+    inside = (u > 0.05) & (u < 0.95) & (v > 0.05) & (v < 0.95)
+    corner_alpha = colors[0, :, 3]
+    a = ((1 - u) * (1 - v) * corner_alpha[0]
+         + u * (1 - v) * corner_alpha[1]
+         + u * v * corner_alpha[2] + (1 - u) * v * corner_alpha[3])
+    expected = np.stack([u * v, u, v, a], axis=-1)
+    np.testing.assert_allclose(
+        np.asarray(renderer.buffer_rgba())[inside], 255 * expected[inside], atol=2)
+
+
+def test_bilinear_shared_edge_alpha():
+    renderer = RendererAgg(128, 128, 100)
+    x, y = np.meshgrid([10, 50, 90], [10, 50, 90])
+    p = np.stack([x, y], axis=-1)
+    quads = np.stack([p[:-1, :-1], p[:-1, 1:], p[1:, 1:], p[1:, :-1]],
+                     axis=2).reshape(-1, 4, 2)
+    rgba = np.array([0.2, 0.4, 0.8, 0.5])
+    colors = np.tile(rgba, (4, 4, 1))
+    transform = mtransforms.Affine2D().skew_deg(15, 0).translate(0.25, 0.3)
+    renderer.draw_bilinear_quads(renderer.new_gc(), quads, colors, transform)
+
+    x, y = np.meshgrid(np.arange(128) + 0.5, np.arange(128) + 0.5)
+    points = transform.inverted().transform(
+        np.column_stack([x.ravel(), (128 - y).ravel()])).reshape(128, 128, 2)
+    inside = ((points > 11) & (points < 89)).all(axis=-1)
+    actual = np.asarray(renderer.buffer_rgba())[inside]
+    np.testing.assert_allclose(actual, np.tile(255 * rgba, (len(actual), 1)), atol=2)
+
+
+@pytest.mark.parametrize("alpha", [0.5, 1])
+def test_bilinear_constant_color(alpha):
+    renderer = RendererAgg(128, 128, 100)
+    quads = np.array([[[10, 10], [100, 10], [100, 100], [10, 100]]])
+    colors = np.tile([0.5, 0.5, 0.5, alpha], (1, 4, 1))
+    renderer.draw_bilinear_quads(renderer.new_gc(), quads, colors, IdentityTransform())
+    # Half-byte rounding must not depend on the pixel's local coordinates.
+    expected = np.broadcast_to([128, 128, 128, round(255 * alpha)], (80, 80, 4))
+    np.testing.assert_array_equal(np.asarray(renderer.buffer_rgba())[30:110, 20:100],
+                                 expected)
+
+
+@pytest.mark.parametrize("points_shape, colors_shape", [
+    ((1, 3, 2), (1, 4, 4)), ((1, 4, 3), (1, 4, 4)),
+    ((1, 4, 2), (1, 4, 3)), ((1, 4, 2), (2, 4, 4)),
+])
+def test_bilinear_invalid_shapes(points_shape, colors_shape):
+    renderer = RendererAgg(10, 10, 100)
+    with pytest.raises(ValueError):
+        renderer.draw_bilinear_quads(
+            renderer.new_gc(), np.zeros(points_shape), np.zeros(colors_shape),
+            IdentityTransform())
+    # The temporary blend group must also be closed on failure.
+    assert renderer._group_states == []
+
+
+def test_bilinear_empty():
+    renderer = RendererAgg(10, 10, 100)
+    renderer.draw_bilinear_quads(
+        renderer.new_gc(), np.empty((0, 4, 2)), np.empty((0, 4, 4)),
+        IdentityTransform())
+    assert not np.asarray(renderer.buffer_rgba())[..., 3].any()
+
+
+@pytest.mark.parametrize("invalid", [np.nan, np.inf])
+@pytest.mark.parametrize("array", ['points', 'colors', 'transform'])
+def test_bilinear_nonfinite(array, invalid):
+    renderer = RendererAgg(10, 10, 100)
+    quads = np.array([[[0., 0], [10, 0], [10, 10], [0, 10]]])
+    colors = np.ones((1, 4, 4))
+    transform = mtransforms.Affine2D()
+    if array == 'points':
+        quads[0, 0, 0] = invalid
+    elif array == 'colors':
+        colors[0, 0, 0] = invalid
+    else:
+        transform.translate(invalid, 0)
+    renderer.draw_bilinear_quads(renderer.new_gc(), quads, colors, transform)
+    assert not np.asarray(renderer.buffer_rgba())[..., 3].any()
+
+
+@pytest.mark.parametrize("blend_mode", ['normal', 'multiply'])
+def test_bilinear_backdrop(blend_mode):
+    renderer = RendererAgg(10, 10, 100)
+    gc = renderer.new_gc()
+    renderer.draw_path(gc, Path.unit_rectangle(),
+                       mtransforms.Affine2D().scale(10), (0.8, 0.6, 0.4, 1))
+    gc.set_blend_mode(blend_mode)
+    quads = np.array([[[0, 0], [10, 0], [10, 10], [0, 10]]])
+    renderer.draw_bilinear_quads(
+        gc, quads, np.tile([0.4, 0.2, 0.6, 0.5], (1, 4, 1)), IdentityTransform())
+    color = np.array([0.4, 0.2, 0.6])
+    backdrop = np.array([0.8, 0.6, 0.4])
+    if blend_mode == 'multiply':
+        color *= backdrop
+    expected = np.append(0.5 * (color + backdrop), 1)
+    np.testing.assert_allclose(
+        np.asarray(renderer.buffer_rgba())[5, 5], 255 * expected, atol=1)
+
+
 def test_large_single_path_collection():
     buff = io.BytesIO()
 

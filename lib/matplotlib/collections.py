@@ -2352,7 +2352,7 @@ class _MeshData:
         The vertices. ``coordinates[m, n]`` specifies the (x, y) coordinates
         of vertex (m, n).
 
-    shading : {'flat', 'gouraud'}, default: 'flat'
+    shading : {'flat', 'gouraud', 'bilinear'}, default: 'flat'
     """
     def __init__(self, coordinates, *, shading='flat'):
         _api.check_shape((None, None, 2), coordinates=coordinates)
@@ -2378,8 +2378,8 @@ class _MeshData:
             If the values are provided as a 2D grid, the shape must match the
             coordinates grid. If the values are 1D, they are reshaped to 2D.
             M, N follow from the coordinates grid, where the coordinates grid
-            shape is (M, N) for 'gouraud' *shading* and (M+1, N+1) for 'flat'
-            shading.
+            shape is (M, N) for 'gouraud' or 'bilinear' *shading* and
+            (M+1, N+1) for 'flat' shading.
         """
         height, width = self._coordinates.shape[0:-1]
         if self._shading == 'flat':
@@ -2508,7 +2508,11 @@ class QuadMesh(_MeshData, Collection):
 
     antialiased : bool, default: True
 
-    shading : {'flat', 'gouraud'}, default: 'flat'
+    shading : {'flat', 'gouraud', 'bilinear'}, default: 'flat'
+        Bilinear shading interpolates the mapped RGBA colors over each quad.
+        It requires nondegenerate parallelograms and an affine transform.
+        Quads with any masked corner are omitted. Edges are not drawn, and
+        vector backends render the mesh as an image at the output DPI.
 
     Notes
     -----
@@ -2522,12 +2526,81 @@ class QuadMesh(_MeshData, Collection):
                  **kwargs):
         kwargs.setdefault("pickradius", 0)
         super().__init__(coordinates=coordinates, shading=shading)
+        if shading == 'bilinear':
+            self._check_bilinear_coordinates()
         Collection.__init__(self, **kwargs)
 
         self._antialiased = antialiased
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
         self.set_mouseover(False)
+
+    def _check_bilinear_coordinates(self):
+        """Check that bilinear shading has invertible parallelogram cells."""
+        coordinates = np.asanyarray(self._coordinates)
+        if min(coordinates.shape[:2]) < 2:
+            raise ValueError(
+                "shading='bilinear' requires at least two rows and two columns")
+        if np.ma.is_masked(coordinates) or not np.isfinite(coordinates).all():
+            raise ValueError("shading='bilinear' requires finite, unmasked coordinates")
+
+        p = np.asarray(coordinates, dtype=float)
+        u = p[:-1, 1:] - p[:-1, :-1]
+        v = p[1:, :-1] - p[:-1, :-1]
+        opposite_u = p[1:, 1:] - p[1:, :-1]
+        u_length = np.hypot(u[..., 0], u[..., 1])
+        v_length = np.hypot(v[..., 0], v[..., 1])
+        # Check edge closure, allowing for arithmetic roundoff and the
+        # precision of the supplied coordinates (including float32 inputs).
+        eps = (np.finfo(coordinates.dtype).eps
+               if coordinates.dtype.kind == 'f' else np.finfo(float).eps)
+        coordinate_scale = np.maximum.reduce([
+            np.abs(p[:-1, :-1]), np.abs(p[:-1, 1:]),
+            np.abs(p[1:, 1:]), np.abs(p[1:, :-1]),
+        ])
+        tolerance = (max(1e-12, 16 * eps) * (u_length + v_length)[..., None]
+                     + 4 * eps * coordinate_scale)
+        if np.any(np.abs(u - opposite_u) > tolerance):
+            raise ValueError("shading='bilinear' only supports parallelogram cells")
+
+        if np.any((u_length == 0) | (v_length == 0)):
+            raise ValueError("shading='bilinear' requires nondegenerate cells")
+        # Normalize first so the degeneracy check does not underflow or
+        # overflow when the mesh is expressed in very small or large units.
+        u = u / u_length[..., None]
+        v = v / v_length[..., None]
+        determinant = u[..., 0] * v[..., 1] - u[..., 1] * v[..., 0]
+        if np.any(np.abs(determinant) <= np.finfo(float).eps):
+            raise ValueError("shading='bilinear' requires nondegenerate cells")
+
+    def _convert_mesh_to_bilinear_quads(self, coordinates):
+        """Return quad corners and their RGBA colors, omitting masked cells."""
+        colors = self.get_facecolor()
+        if not len(colors):
+            return np.empty((0, 4, 2)), np.empty((0, 4, 4))
+        colors = np.broadcast_to(
+            colors, (np.prod(coordinates.shape[:2]), 4)).reshape(
+                (*coordinates.shape[:2], 4))
+        points = np.stack([
+            coordinates[:-1, :-1], coordinates[:-1, 1:],
+            coordinates[1:, 1:], coordinates[1:, :-1],
+        ], axis=2).reshape((-1, 4, 2))
+        colors = np.stack([
+            colors[:-1, :-1], colors[:-1, 1:],
+            colors[1:, 1:], colors[1:, :-1],
+        ], axis=2).reshape((-1, 4, 4))
+
+        data = self.get_array()
+        if data is not None and np.ma.is_masked(data):
+            mask = self._getmaskarray(data)
+            if mask.ndim == 3:  # Masked RGB(A) components.
+                mask = mask.any(axis=-1)
+            mask = mask.reshape(coordinates.shape[:2])
+            masked_quads = (mask[:-1, :-1] | mask[:-1, 1:]
+                            | mask[1:, 1:] | mask[1:, :-1]).ravel()
+            points = points[~masked_quads]
+            colors = colors[~masked_quads]
+        return points, colors
 
     def get_paths(self):
         if self._paths is None:
@@ -2545,6 +2618,8 @@ class QuadMesh(_MeshData, Collection):
     def draw(self, renderer):
         if not self.get_visible():
             return
+        if self._shading == 'bilinear' and not self.get_transform().is_affine:
+            raise ValueError("shading='bilinear' requires an affine transform")
         renderer.open_group(self.__class__.__name__, self.get_gid())
         transform = self.get_transform()
         offset_trf = self.get_offset_transform()
@@ -2579,6 +2654,9 @@ class QuadMesh(_MeshData, Collection):
             triangles, colors = self._convert_mesh_to_triangles(coordinates)
             renderer.draw_gouraud_triangles(
                 gc, triangles, colors, transform.frozen())
+        elif self._shading == 'bilinear':
+            quads, colors = self._convert_mesh_to_bilinear_quads(coordinates)
+            renderer.draw_bilinear_quads(gc, quads, colors, transform.frozen())
         else:
             renderer.draw_quad_mesh(
                 gc, transform.frozen(),

@@ -3917,7 +3917,7 @@ def pcolormesh(
     vmin: float | tuple[float, ...] | None = None,
     vmax: float | tuple[float, ...] | None = None,
     colorizer: Colorizer | None = None,
-    shading: Literal["flat", "nearest", "gouraud", "auto"] | None = None,
+    shading: Literal["flat", "nearest", "gouraud", "bilinear", "auto"] | None = None,
     antialiased: bool = False,
     data: DataParamType = None,
     **kwargs,

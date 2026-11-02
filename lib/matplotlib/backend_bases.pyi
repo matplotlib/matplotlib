@@ -108,6 +108,13 @@ class RendererBase:
         colors_array: ArrayLike,
         transform: Transform,
     ) -> None: ...
+    def draw_bilinear_quads(
+        self,
+        gc: GraphicsContextBase,
+        quads_array: ArrayLike,
+        colors_array: ArrayLike,
+        transform: Transform,
+    ) -> None: ...
     def get_image_magnification(self) -> float: ...
     def draw_image(
         self,

@@ -241,7 +241,7 @@ class _MeshData:
         self,
         coordinates: ArrayLike,
         *,
-        shading: Literal["flat", "gouraud"] = ...,
+        shading: Literal["flat", "gouraud", "bilinear"] = ...,
     ) -> None: ...
     def set_array(self, A: ArrayLike | None) -> None: ...
     def get_coordinates(self) -> ArrayLike: ...
@@ -254,7 +254,7 @@ class QuadMesh(_MeshData, Collection):
         coordinates: ArrayLike,
         *,
         antialiased: bool = ...,
-        shading: Literal["flat", "gouraud"] = ...,
+        shading: Literal["flat", "gouraud", "bilinear"] = ...,
         **kwargs
     ) -> None: ...
     def get_paths(self) -> list[Path]: ...

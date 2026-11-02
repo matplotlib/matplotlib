@@ -10,6 +10,7 @@
 
 #include <cmath>
 #include <algorithm>
+#include <array>
 #include <functional>
 #include <optional>
 #include <vector>
@@ -198,6 +199,12 @@ class RendererAgg
                                 ColorArray &colors,
                                 agg::trans_affine &trans);
 
+    template <class PointArray, class ColorArray>
+    void draw_bilinear_quads(GCAgg &gc,
+                            PointArray &points,
+                            ColorArray &colors,
+                            agg::trans_affine &trans);
+
     agg::rect_i get_content_extents();
     void clear();
 
@@ -286,6 +293,12 @@ class RendererAgg
                                 ColorArray &colors,
                                 agg::trans_affine trans,
                                 bool has_clippath);
+
+    template <class PointArray, class ColorArray>
+    void _draw_bilinear_quad(PointArray &points,
+                            ColorArray &colors,
+                            agg::trans_affine trans,
+                            bool has_clippath);
 
   private:
     void create_alpha_buffers();
@@ -1296,6 +1309,129 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
         _draw_gouraud_triangle(point, color, trans, has_clippath);
     }
 
+    pixFmt.comp_op(agg::comp_op_src_over);
+}
+
+// Evaluate the four-corner interpolant at pixel centers, rather than
+// approximating it by a triangulation of the quad.
+class span_bilinear_rgba
+{
+  public:
+    using color_type = agg::rgba8;
+
+    span_bilinear_rgba(agg::trans_affine pixel_to_unit,
+                       const std::array<std::array<double, 4>, 4> &colors)
+        : pixel_to_unit(pixel_to_unit), colors(colors)
+    {
+    }
+
+    void prepare() {}
+
+    void generate(color_type *span, int x, int y, unsigned int len) const
+    {
+        double u = x + 0.5;
+        double v = y + 0.5;
+        pixel_to_unit.transform(&u, &v);
+        for (unsigned int i = 0; i < len; ++i) {
+            // Edge pixels may only be partly covered by the quad.
+            double cu = std::clamp(u, 0.0, 1.0);
+            double cv = std::clamp(v, 0.0, 1.0);
+            double rgba[4];
+            for (int channel = 0; channel < 4; ++channel) {
+                // Nested linear interpolations preserve constant colors exactly,
+                // including channels on a half-byte rounding boundary.
+                double bottom = colors[0][channel] +
+                    cu * (colors[1][channel] - colors[0][channel]);
+                double top = colors[3][channel] +
+                    cu * (colors[2][channel] - colors[3][channel]);
+                rgba[channel] = bottom + cv * (top - bottom);
+            }
+            *span++ = agg::rgba(rgba[0], rgba[1], rgba[2], rgba[3]);
+            u += pixel_to_unit.sx;
+            v += pixel_to_unit.shy;
+        }
+    }
+
+  private:
+    agg::trans_affine pixel_to_unit;
+    std::array<std::array<double, 4>, 4> colors;
+};
+
+template <class PointArray, class ColorArray>
+inline void RendererAgg::_draw_bilinear_quad(PointArray &points,
+                                             ColorArray &colors,
+                                             agg::trans_affine trans,
+                                             bool has_clippath)
+{
+    trans *= agg::trans_affine_scaling(1.0, -1.0);
+    trans *= agg::trans_affine_translation(0.0, (double)height);
+    std::array<std::array<double, 2>, 4> tpoints;
+    std::array<std::array<double, 4>, 4> rgba;
+    for (int i = 0; i < 4; ++i) {
+        tpoints[i] = {points(i, 0), points(i, 1)};
+        trans.transform(&tpoints[i][0], &tpoints[i][1]);
+        if (!std::isfinite(tpoints[i][0]) || !std::isfinite(tpoints[i][1])) {
+            return;
+        }
+        for (int channel = 0; channel < 4; ++channel) {
+            rgba[i][channel] = colors(i, channel);
+            if (!std::isfinite(rgba[i][channel])) {
+                return;
+            }
+        }
+    }
+
+    agg::trans_affine unit_to_pixel(
+        tpoints[1][0] - tpoints[0][0], tpoints[1][1] - tpoints[0][1],
+        tpoints[3][0] - tpoints[0][0], tpoints[3][1] - tpoints[0][1],
+        tpoints[0][0], tpoints[0][1]);
+    double determinant = unit_to_pixel.determinant();
+    if (determinant == 0.0 || !std::isfinite(determinant)) {
+        return;
+    }
+    unit_to_pixel.invert();
+    span_bilinear_rgba span_gen(unit_to_pixel, rgba);
+    agg::span_allocator<agg::rgba8> span_alloc;
+
+    agg::path_storage path;
+    path.move_to(tpoints[0][0], tpoints[0][1]);
+    for (int i = 1; i < 4; ++i) {
+        path.line_to(tpoints[i][0], tpoints[i][1]);
+    }
+    path.close_polygon();
+    theRasterizer.add_path(path);
+    if (has_clippath) {
+        auto pfa = agg::pixfmt_amask_adaptor{pixFmt, alphaMask};
+        auto r = agg::renderer_base{pfa};
+        auto ren = agg::renderer_scanline_aa{r, span_alloc, span_gen};
+        agg::render_scanlines(theRasterizer, scanlineAlphaMask, ren);
+    } else {
+        agg::render_scanlines_aa(theRasterizer, slineP8, rendererBase, span_alloc, span_gen);
+    }
+}
+
+template <class PointArray, class ColorArray>
+inline void RendererAgg::draw_bilinear_quads(GCAgg &gc,
+                                            PointArray &points,
+                                            ColorArray &colors,
+                                            agg::trans_affine &trans)
+{
+    check_trailing_shape(points, "points", 4, 2);
+    check_trailing_shape(colors, "colors", 4, 4);
+    if (points.shape(0) != colors.shape(0)) {
+        throw py::value_error("points and colors arrays must be the same length");
+    }
+
+    pixFmt.comp_op(agg::comp_op_plus);
+    theRasterizer.reset_clipping();
+    rendererBase.reset_clipping(true);
+    set_clipbox(gc.cliprect, theRasterizer);
+    bool has_clippath = render_clippath(gc.clippath.path, gc.clippath.trans, gc.snap_mode);
+    for (py::ssize_t i = 0; i < points.shape(0); ++i) {
+        auto point = std::bind(points, i, std::placeholders::_1, std::placeholders::_2);
+        auto color = std::bind(colors, i, std::placeholders::_1, std::placeholders::_2);
+        _draw_bilinear_quad(point, color, trans, has_clippath);
+    }
     pixFmt.comp_op(agg::comp_op_src_over);
 }
 

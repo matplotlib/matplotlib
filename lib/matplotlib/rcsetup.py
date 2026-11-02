@@ -1032,7 +1032,7 @@ _validators = {
     "markers.fillstyle": validate_fillstyle,
 
     # pcolor(mesh) props:
-    "pcolor.shading": ["auto", "flat", "nearest", "gouraud"],
+    "pcolor.shading": ["auto", "flat", "nearest", "gouraud", "bilinear"],
     "pcolormesh.snap": validate_bool,
 
     # patch props
@@ -3260,9 +3260,10 @@ _DEFINITION = [
     _Param(
         "pcolor.shading",
         default="auto",
-        type=Literal["auto", "flat", "nearest", "gouraud"],
-        validator=["auto", "flat", "nearest", "gouraud"],
+        type=Literal["auto", "flat", "nearest", "gouraud", "bilinear"],
+        validator=["auto", "flat", "nearest", "gouraud", "bilinear"],
         description="The default shading mode for `~.Axes.pcolor` and "
+                    "`~.Axes.pcolormesh`. Bilinear shading is only supported by "
                     "`~.Axes.pcolormesh`."
     ),
     _Param(

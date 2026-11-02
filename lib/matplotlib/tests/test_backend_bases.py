@@ -5,6 +5,7 @@ from matplotlib.backend_bases import (
     FigureCanvasBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
     NavigationToolbar2, RendererBase)
 from matplotlib.backend_tools import RubberbandBase
+from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.testing._markers import needs_pgf_xelatex
 import matplotlib.pyplot as plt
@@ -61,6 +62,79 @@ def test_uses_per_path():
 
 def test_canvas_ctor():
     assert isinstance(FigureCanvasBase().figure, Figure)
+
+
+@pytest.mark.parametrize("magnification", [1, 2])
+def test_bilinear_image_fallback_magnification(magnification):
+    class ImageRenderer(RendererBase):
+        image = None
+
+        def get_canvas_width_height(self):
+            return 100, 100
+
+        def get_image_magnification(self):
+            return magnification
+
+        def draw_image(self, gc, x, y, image, transform=None):
+            self.image = image.copy()
+            self.position = x, y
+
+    renderer = ImageRenderer()
+    quads = np.array([[[25, 30], [75, 30], [75, 80], [25, 80]]])
+    colors = np.tile([0.2, 0.4, 0.8, 0.5], (1, 4, 1))
+    renderer.draw_bilinear_quads(
+        renderer.new_gc(), quads, colors, transforms.IdentityTransform())
+    assert renderer.position == (25, 30)
+    assert renderer.image.shape == (50 * magnification, 50 * magnification, 4)
+    np.testing.assert_allclose(
+        renderer.image[0, 0], 255 * np.array([0.2, 0.4, 0.8, 0.5]), atol=1)
+
+
+@pytest.mark.parametrize("clip", [None, "rectangle", "path"])
+@pytest.mark.parametrize("blend_mode", ['normal', 'multiply'])
+def test_bilinear_image_fallback_matches_agg(clip, blend_mode):
+    quads = np.array([[[10.25, 10.25], [70.25, 10.25],
+                       [90.25, 80.25], [30.25, 80.25]]])
+    colors = np.array([[[0., 0, 0, 1], [0, 1, 0, 1],
+                        [1, 1, 1, 1], [0, 0, 1, 1]]])
+    native = RendererAgg(100, 100, 100)
+    fallback = RendererAgg(100, 100, 100)
+    for renderer, draw in [(native, native.draw_bilinear_quads),
+                           (fallback, lambda *args: RendererBase.draw_bilinear_quads(
+                               fallback, *args))]:
+        gc = renderer.new_gc()
+        renderer.draw_path(gc, path.Path.unit_rectangle(),
+                           transforms.Affine2D().scale(100), (0.8, 0.6, 0.4, 1))
+        gc.set_blend_mode(blend_mode)
+        if clip == "rectangle":
+            gc.set_clip_rectangle(transforms.Bbox.from_bounds(25, 30, 40, 40))
+        elif clip == "path":
+            gc.set_clip_path(transforms.TransformedPath(
+                path.Path.unit_circle(),
+                transforms.Affine2D().scale(30).translate(50, 50)))
+        draw(gc, quads, colors, transforms.IdentityTransform())
+    np.testing.assert_allclose(
+        np.asarray(native.buffer_rgba()), np.asarray(fallback.buffer_rgba()), atol=1)
+
+
+@pytest.mark.parametrize("case", ['empty', 'outside', 'nonfinite', 'singular'])
+def test_bilinear_image_fallback_nothing_to_draw(case):
+    renderer = RendererAgg(10, 10, 100)
+    quads = np.array([[[0., 0], [10, 0], [10, 10], [0, 10]]])
+    colors = np.ones((1, 4, 4))
+    transform = transforms.Affine2D()
+    if case == 'empty':
+        quads = np.empty((0, 4, 2))
+        colors = np.empty((0, 4, 4))
+    elif case == 'outside':
+        transform.translate(20, 0)
+    elif case == 'nonfinite':
+        transform.translate(np.nan, 0)
+    else:
+        transform.scale(0, 1)
+    RendererBase.draw_bilinear_quads(
+        renderer, renderer.new_gc(), quads, colors, transform)
+    assert not np.asarray(renderer.buffer_rgba())[..., 3].any()
 
 
 def test_get_default_filename():

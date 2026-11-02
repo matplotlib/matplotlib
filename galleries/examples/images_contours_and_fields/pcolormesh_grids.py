@@ -132,6 +132,30 @@ y = np.arange(nrows + 1)
 ax.pcolormesh(x, y, Z, shading='gouraud', vmin=Z.min(), vmax=Z.max())
 _annotate(ax, x, y, "shading='gouraud'; X, Y one larger than Z")
 
+# %%
+# Bilinear Shading
+# ----------------
+#
+# ``shading='bilinear'`` interpolates the mapped RGBA colors using all four
+# corners of each quadrilateral, rather than splitting it into Gouraud-shaded
+# triangles. *X*, *Y*, and *Z* must have the same shape. The quadrilaterals must
+# be nondegenerate parallelograms, and the mesh transform must be affine.
+# Bilinear shading is rasterized at the output DPI when saving vector formats.
+#
+# Changing one corner value makes the difference between the two interpolants
+# visible. The same bilinear interpolation also works on a skewed grid.
+
+X, Y = np.meshgrid(np.arange(6), np.arange(6))
+Z = X + 2*Y
+Z[2, 3] = 15
+fig, axs = plt.subplots(1, 3, layout='constrained', figsize=(9, 3))
+axs[0].pcolormesh(X, Y, Z, shading='gouraud')
+axs[0].set_title("shading='gouraud'")
+axs[1].pcolormesh(X, Y, Z, shading='bilinear')
+axs[1].set_title("shading='bilinear'")
+axs[2].pcolormesh(X + 0.3*Y, Y, Z, shading='bilinear')
+axs[2].set_title('Bilinear on a skewed grid')
+
 plt.show()
 # %%
 #

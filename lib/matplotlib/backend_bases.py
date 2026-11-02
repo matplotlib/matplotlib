@@ -150,6 +150,7 @@ class RendererBase:
     * `draw_markers`
     * `draw_path_collection`
     * `draw_quad_mesh`
+    * `draw_bilinear_quads`
     """
     def __init__(self):
         super().__init__()
@@ -348,6 +349,68 @@ class RendererBase:
             An affine transform to apply to the points.
         """
         raise NotImplementedError
+
+    def draw_bilinear_quads(self, gc, quads_array, colors_array, transform):
+        """
+        Draw parallelograms with bilinear interpolation of their corner colors.
+
+        The base implementation renders the quads with Agg and draws the
+        resulting image at the renderer's image magnification. Backends may
+        override this method to implement native bilinear shading.
+
+        Parameters
+        ----------
+        gc : `.GraphicsContextBase`
+            The graphics context.
+        quads_array : (N, 4, 2) array-like
+            Parallelogram corners in the order (0, 0), (1, 0), (1, 1), (0, 1)
+            of the local unit square.
+        colors_array : (N, 4, 4) array-like
+            RGBA colors of the corresponding corners.
+        transform : `~matplotlib.transforms.Transform`
+            An affine transform to apply to the corners.
+        """
+        from matplotlib.backends.backend_agg import RendererAgg
+
+        if not transform.is_affine:
+            raise ValueError("Bilinear shading requires an affine transform")
+        quads = np.asarray(quads_array, dtype=float)
+        rgba = np.asarray(colors_array, dtype=float)
+        _api.check_shape((None, 4, 2), quads_array=quads)
+        _api.check_shape((len(quads), 4, 4), colors_array=rgba)
+        quads = transform.transform(quads.reshape(-1, 2)).reshape((-1, 4, 2))
+        valid = (np.isfinite(quads).all(axis=(1, 2))
+                 & np.isfinite(rgba).all(axis=(1, 2)))
+        quads, rgba = quads[valid], rgba[valid]
+        if not len(quads):
+            return
+
+        points = quads.reshape(-1, 2)
+        bbox = transforms.Bbox([points.min(axis=0), points.max(axis=0)])
+        width, height = self.get_canvas_width_height()
+        bbox = transforms.Bbox.intersection(
+            bbox, transforms.Bbox.from_bounds(0, 0, width, height))
+        if bbox is not None and gc.get_clip_rectangle() is not None:
+            bbox = transforms.Bbox.intersection(bbox, gc.get_clip_rectangle())
+        if bbox is None or bbox.width <= 0 or bbox.height <= 0:
+            return
+
+        magnification = self.get_image_magnification()
+        x0, y0 = np.floor(bbox.p0 * magnification)
+        x1, y1 = np.ceil(bbox.p1 * magnification)
+        width, height = int(x1 - x0), int(y1 - y0)
+        renderer = RendererAgg(width, height, 72 * magnification)
+        image_transform = Affine2D().scale(magnification).translate(-x0, -y0)
+        # Apply clipping and the requested blend mode only when drawing the
+        # completed image, not separately to each of its cells.
+        renderer.draw_bilinear_quads(renderer.new_gc(), quads, rgba, image_transform)
+        image = np.asarray(renderer.buffer_rgba())
+        slice_y, slice_x = cbook._get_nonzero_slices(image[..., 3])
+        image = image[slice_y, slice_x]
+        if image.size:
+            self.draw_image(
+                gc, (x0 + slice_x.start) / magnification,
+                (y0 + height - slice_y.stop) / magnification, image[::-1])
 
     def _iter_collection_raw_paths(self, master_transform, paths,
                                    all_transforms):

@@ -1508,14 +1508,15 @@ def test_pcolormesh_alpha():
 
 
 @pytest.mark.parametrize("dims,alpha", [(3, 1), (4, 0.5)])
+@pytest.mark.parametrize("shading", ['flat', 'bilinear'])
 @check_figures_equal()
-def test_pcolormesh_rgba(fig_test, fig_ref, dims, alpha):
+def test_pcolormesh_rgba(fig_test, fig_ref, dims, alpha, shading):
     ax = fig_test.subplots()
     c = np.ones((5, 6, dims), dtype=float) / 2
-    ax.pcolormesh(c)
+    ax.pcolormesh(c, shading=shading)
 
     ax = fig_ref.subplots()
-    ax.pcolormesh(c[..., 0], cmap="gray", vmin=0, vmax=1, alpha=alpha)
+    ax.pcolormesh(c[..., 0], cmap="gray", vmin=0, vmax=1, alpha=alpha, shading=shading)
 
 
 @check_figures_equal()
@@ -1530,6 +1531,106 @@ def test_pcolormesh_nearest_noargs(fig_test, fig_ref):
 
     ax = fig_ref.subplots()
     ax.pcolormesh(x, y, C, shading="nearest")
+
+
+@check_figures_equal(extensions=['png'])
+def test_pcolormesh_bilinear_noargs(fig_test, fig_ref):
+    x, y = np.meshgrid(np.arange(6), np.arange(6))
+    z = x + 2*y
+    z[2, 3] = 15
+    fig_test.subplots().pcolormesh(z, shading='bilinear')
+    fig_ref.subplots().pcolormesh(x, y, z, shading='bilinear')
+
+
+def test_pcolormesh_bilinear_corner_interpolation():
+    x, y = np.meshgrid(np.arange(6), np.arange(6))
+    z = x + 2*y
+    z[2, 3] = 15
+    fig, ax = plt.subplots(figsize=(2, 2), dpi=100)
+    ax.set(position=[0, 0, 1, 1], xlim=(0, 5), ylim=(0, 5))
+    ax.set_axis_off()
+    mesh = ax.pcolormesh(x, y, z, shading='bilinear')
+    fig.canvas.draw()
+
+    px, py = np.meshgrid(np.arange(200) + 0.5, np.arange(200) + 0.5)
+    points = ax.transData.inverted().transform(
+        np.column_stack([px.ravel(), (200 - py).ravel()])).reshape(200, 200, 2)
+    j, i = np.floor(points).astype(int).transpose(2, 0, 1)
+    u, v = (points - np.floor(points)).transpose(2, 0, 1)
+    colors = mesh.get_facecolor().reshape(6, 6, 4)
+    expected = ((1-u)[..., None] * (1-v)[..., None] * colors[i, j]
+                + u[..., None] * (1-v)[..., None] * colors[i, j+1]
+                + u[..., None] * v[..., None] * colors[i+1, j+1]
+                + (1-u)[..., None] * v[..., None] * colors[i+1, j])
+    inside = (u > 0.05) & (u < 0.95) & (v > 0.05) & (v < 0.95)
+    assert_allclose(
+        np.asarray(fig.canvas.buffer_rgba())[inside], 255 * expected[inside], atol=1)
+
+
+@pytest.mark.parametrize("mask", [
+    [[True, False, False], [False, False, False], [False, False, False]],
+    [[False, False, False], [False, True, False], [False, False, False]],
+    np.ones((3, 3), dtype=bool),
+])
+@check_figures_equal(extensions=['png'])
+def test_pcolormesh_bilinear_masked(fig_test, fig_ref, mask):
+    mask = np.asarray(mask)
+    data = np.ma.array(np.zeros((3, 3)), mask=mask)
+    cell_mask = mask[:-1, :-1] | mask[:-1, 1:] | mask[1:, 1:] | mask[1:, :-1]
+    for fig in [fig_test, fig_ref]:
+        fig.set_size_inches(2, 2)
+        ax = fig.subplots()
+        ax.set(position=[0.1, 0.1, 0.8, 0.8], xlim=(0, 2), ylim=(0, 2))
+        ax.set_axis_off()
+    fig_test.axes[0].pcolormesh(
+        data, shading='bilinear', cmap='gray', vmin=0, vmax=1, alpha=0.5)
+    fig_ref.axes[0].pcolormesh(
+        np.arange(3), np.arange(3), np.ma.array(np.zeros((2, 2)), mask=cell_mask),
+        shading='flat', cmap='gray', vmin=0, vmax=1, alpha=0.5)
+
+
+@check_figures_equal(extensions=['png'])
+def test_pcolormesh_bilinear_edgecolors_ignored(fig_test, fig_ref):
+    data = [[0, 0], [0, 1]]
+    fig_test.subplots().pcolormesh(
+        data, shading='bilinear', edgecolors='red', linewidth=10)
+    fig_ref.subplots().pcolormesh(data, shading='bilinear', edgecolors='none')
+
+
+def test_pcolormesh_bilinear_rcparam():
+    with mpl.rc_context({'pcolor.shading': 'bilinear'}):
+        mesh = plt.pcolormesh([[0, 0], [0, 1]])
+    assert mesh._shading == 'bilinear'
+    assert mesh.get_coordinates().shape == (2, 2, 2)
+
+
+def test_pcolor_bilinear_unsupported():
+    with pytest.raises(ValueError, match="only supported by pcolormesh"):
+        plt.pcolor([[0, 0], [0, 1]], shading='bilinear')
+
+
+def test_pcolormesh_bilinear_shape_mismatch():
+    with pytest.raises(TypeError, match="incompatible"):
+        plt.pcolormesh([0, 1, 2], [0, 1, 2], [[0, 0], [0, 1]], shading='bilinear')
+
+
+def test_pcolormesh_bilinear_non_affine_transform():
+    fig, ax = plt.subplots()
+    ax.pcolormesh([1, 2], [1, 2], [[0, 0], [0, 1]], shading='bilinear')
+    ax.set_xscale('log')
+    with pytest.raises(ValueError, match="requires an affine transform"):
+        fig.canvas.draw()
+
+
+@pytest.mark.parametrize("format", ['pdf', 'svg'])
+def test_pcolormesh_bilinear_vector_output(format):
+    fig, ax = plt.subplots()
+    ax.pcolormesh([[0, 0], [0, 1]], shading='bilinear')
+    ax.set_axis_off()
+    buffer = io.BytesIO()
+    fig.savefig(buffer, format=format, dpi=144)
+    output = buffer.getvalue()
+    assert (b'/Subtype /Image' if format == 'pdf' else b'<image') in output
 
 
 @check_figures_equal()
@@ -1636,9 +1737,12 @@ def test_pcolormesh_switching_shadings():
     ax.pcolormesh(x, y, Z, shading='gouraud')
     with pytest.raises(TypeError):
         ax.pcolormesh(x, y, Z, shading='nearest')
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x, y, Z, shading='bilinear')
 
     ax.pcolormesh(x[:-1], y[:-1], Z, shading='nearest')
     ax.pcolormesh(x[:-1], y[:-1], Z, shading='gouraud')
+    ax.pcolormesh(x[:-1], y[:-1], Z, shading='bilinear')
     with pytest.raises(TypeError):
         ax.pcolormesh(x[:-1], y[:-1], Z, shading='flat')
 

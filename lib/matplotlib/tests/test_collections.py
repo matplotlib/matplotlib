@@ -1063,6 +1063,84 @@ def test_quadmesh_get_coordinates(pcfunc):
     assert_array_equal(coll.get_coordinates(), coords)
 
 
+@pytest.mark.parametrize("dtype", [np.float32, np.float64, int])
+def test_quadmesh_bilinear_parallelograms(dtype):
+    x, y = np.meshgrid([0, 1, 3], [0, 2, 5])
+    coordinates = np.stack([2*x + y + 10, x + 3*y + 20], axis=-1).astype(dtype)
+    mesh = mcollections.QuadMesh(coordinates, shading='bilinear', array=x*y)
+    mesh.update_scalarmappable()
+    quads, colors = mesh._convert_mesh_to_bilinear_quads(coordinates)
+    assert quads.shape == (4, 4, 2)
+    assert colors.shape == (4, 4, 4)
+    assert_array_equal(quads[0], coordinates[[0, 0, 1, 1], [0, 1, 1, 0]])
+
+
+@pytest.mark.parametrize("scale", [1e-100, 1, 1e100])
+def test_quadmesh_bilinear_coordinate_scale(scale):
+    x, y = np.meshgrid([0., 1., 3.], [0., 2., 5.])
+    coordinates = scale * np.stack([x + 0.3*y, y], axis=-1)
+    mcollections.QuadMesh(coordinates, shading='bilinear', array=x*y)
+
+
+@pytest.mark.parametrize("dtype, offset", [(np.float32, 1000), (np.float64, 1e9)])
+def test_quadmesh_bilinear_coordinate_roundoff(dtype, offset):
+    x, y = np.meshgrid([0., 1., 3.], [0., 2., 5.])
+    coordinates = (np.stack([x + 0.3*y, y], axis=-1) + offset).astype(dtype)
+    mcollections.QuadMesh(coordinates, shading='bilinear', array=x*y)
+
+
+@pytest.mark.parametrize("coordinates, message", [
+    (np.array([[[0, 0], [1, 0]], [[0, 1], [2, 1]]]), "parallelogram"),
+    (np.array([[[0, 0], [1, 0]], [[2, 0], [3, 0]]]), "nondegenerate"),
+    (np.array([[[0, 0], [0, 0]], [[0, 1], [0, 1]]]), "nondegenerate"),
+    (np.zeros((1, 2, 2)), "at least two rows and two columns"),
+    (np.zeros((2, 1, 2)), "at least two rows and two columns"),
+    (np.array([[[0, 0], [1, 0]], [[0, 1], [np.nan, 1]]]), "finite"),
+])
+def test_quadmesh_bilinear_invalid_coordinates(coordinates, message):
+    with pytest.raises(ValueError, match=message):
+        mcollections.QuadMesh(coordinates, shading='bilinear')
+
+
+@pytest.mark.parametrize("shape", [(3, 3), (9,), (3, 3, 3), (3, 3, 4)])
+def test_quadmesh_bilinear_masked_corners(shape):
+    x, y = np.meshgrid([0, 1, 2], [0, 1, 2])
+    coordinates = np.stack([x, y], axis=-1)
+    data = np.ones(shape)
+    mask = np.zeros(data.shape, dtype=bool)
+    mask.flat[0] = True
+    mesh = mcollections.QuadMesh(
+        coordinates, shading='bilinear', array=np.ma.array(data, mask=mask))
+    mesh.update_scalarmappable()
+    facecolors = mesh.get_facecolor().copy()
+    quads, colors = mesh._convert_mesh_to_bilinear_quads(coordinates)
+    assert quads.shape == (3, 4, 2)
+    assert colors.shape == (3, 4, 4)
+    assert_array_equal(mesh.get_facecolor(), facecolors)
+
+    # Updating the data must remove the old mask, without a stale color cache.
+    mesh.set_array(data)
+    mesh.update_scalarmappable()
+    quads, colors = mesh._convert_mesh_to_bilinear_quads(coordinates)
+    assert quads.shape == (4, 4, 2)
+    assert colors.shape == (4, 4, 4)
+
+
+@pytest.mark.parametrize("facecolor", ['red', 'none'])
+def test_quadmesh_bilinear_without_array(facecolor):
+    x, y = np.meshgrid([0, 1, 2], [0, 1, 2])
+    coordinates = np.stack([x, y], axis=-1)
+    mesh = mcollections.QuadMesh(
+        coordinates, shading='bilinear', facecolor=facecolor)
+    mesh.update_scalarmappable()
+    quads, colors = mesh._convert_mesh_to_bilinear_quads(coordinates)
+    size = 0 if facecolor == 'none' else 4
+    assert quads.shape == (size, 4, 2)
+    assert colors.shape == (size, 4, 4)
+    if size:
+        assert_array_equal(colors, np.tile(mcolors.to_rgba('red'), (4, 4, 1)))
+
+
 def test_quadmesh_set_array():
     x = np.arange(4)
     y = np.arange(4)
@@ -1081,16 +1159,17 @@ def test_quadmesh_set_array():
 
     z = np.arange(16).reshape((4, 4))
     fig, ax = plt.subplots()
-    coll = ax.pcolormesh(x, y, np.ones(z.shape), shading='gouraud')
-    # Test that the collection is able to update with a 2d array
-    coll.set_array(z)
-    fig.canvas.draw()
-    assert np.array_equal(coll.get_array(), z)
+    for shading in ['gouraud', 'bilinear']:
+        coll = ax.pcolormesh(x, y, np.ones(z.shape), shading=shading)
+        # Test that the collection is able to update with a 2d array
+        coll.set_array(z)
+        fig.canvas.draw()
+        assert np.array_equal(coll.get_array(), z)
 
-    # Check that pre-flattened arrays work too
-    coll.set_array(np.ones(16))
-    fig.canvas.draw()
-    assert np.array_equal(coll.get_array(), np.ones(16))
+        # Check that pre-flattened arrays work too
+        coll.set_array(np.ones(16))
+        fig.canvas.draw()
+        assert np.array_equal(coll.get_array(), np.ones(16))
 
 
 def test_quadmesh_vmin_vmax(pcfunc):

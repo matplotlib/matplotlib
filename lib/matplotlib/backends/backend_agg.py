@@ -306,6 +306,19 @@ class RendererAgg(RendererBase):
                                                transform)
         self.close_blend_group()
 
+    def draw_bilinear_quads(self, gc, quads_array, colors_array, transform):
+        # docstring inherited
+        if not transform.is_affine:
+            raise ValueError("Bilinear shading requires an affine transform")
+        # As for Gouraud triangles, accumulate shared-edge coverage before
+        # blending the complete mesh into the backdrop.
+        self.open_blend_group(gc.get_blend_mode())
+        try:
+            self._renderer._draw_bilinear_quads(
+                gc, quads_array, colors_array, transform)
+        finally:
+            self.close_blend_group()
+
     def get_canvas_width_height(self):
         # docstring inherited
         return self.width, self.height

@@ -6472,7 +6472,11 @@ or pandas.DataFrame
         # - reset shading if shading='auto' to flat or nearest
         #   depending on size;
 
+        if shading == 'bilinear' and funcname != 'pcolormesh':
+            raise ValueError("shading='bilinear' is only supported by pcolormesh")
         _valid_shading = ['gouraud', 'nearest', 'flat', 'auto']
+        if funcname == 'pcolormesh':
+            _valid_shading.append('bilinear')
         try:
             _api.check_in_list(_valid_shading, shading=shading)
         except ValueError:
@@ -6484,7 +6488,7 @@ or pandas.DataFrame
         if len(args) == 1:
             C = np.asanyarray(args[0])
             nrows, ncols = C.shape[:2]
-            if shading in ['gouraud', 'nearest']:
+            if shading in ['gouraud', 'nearest', 'bilinear']:
                 X, Y = np.meshgrid(np.arange(ncols), np.arange(nrows))
             else:
                 X, Y = np.meshgrid(np.arange(ncols + 1), np.arange(nrows + 1))
@@ -6531,7 +6535,7 @@ or pandas.DataFrame
                                 f" be one smaller than X({Nx}) and Y({Ny})"
                                 f" while using shading='flat'"
                                 f" see help({funcname})")
-        else:    # ['nearest', 'gouraud']:
+        else:    # ['nearest', 'gouraud', 'bilinear']:
             if (Nx, Ny) != (ncols, nrows):
                 if shading == 'gouraud' and (Nx, Ny) == (ncols + 1, nrows + 1):
                     # the center of each quad is the average of its four corners
@@ -6876,6 +6880,10 @@ or pandas.DataFrame
             computed as the average of their four corners. In both cases a
             smooth interpolation is carried out between the quadrilateral corners.
 
+            If ``shading='bilinear'`` the dimensions of *X* and *Y* must be
+            the same as those of *C*, with at least two rows and two columns.
+            Each quadrilateral must be a nondegenerate parallelogram.
+
             If *X* and/or *Y* are 1-D arrays or column vectors they will be
             expanded as needed into the appropriate 2D arrays, making a
             rectangular grid.
@@ -6902,7 +6910,7 @@ or pandas.DataFrame
         alpha : float, default: None
             The alpha blending value, between 0 (transparent) and 1 (opaque).
 
-        shading : {'flat', 'nearest', 'gouraud', 'auto'}, optional
+        shading : {'flat', 'nearest', 'gouraud', 'bilinear', 'auto'}, optional
             The fill style for the quadrilateral; defaults to
             :rc:`pcolor.shading`. Possible values:
 
@@ -6923,6 +6931,12 @@ or pandas.DataFrame
               are given by ``C[i', j']``, and the color values of the area
               in between are interpolated from the corner values.
               When Gouraud shading is used, *edgecolors* is ignored.
+            - 'bilinear': Interpolate the RGBA colors of all four corners of
+              each quad bilinearly, after normalization and color mapping.
+              The dimensions of *X* and *Y* must match those of *C*. Each
+              quad must be a nondegenerate parallelogram, and the mesh
+              transform must be affine. *edgecolors* is ignored. This
+              shading is rasterized at the output DPI in vector formats.
             - 'auto': Choose 'flat' if dimensions of *X* and *Y* are one
               larger than *C*.  Choose 'nearest' if dimensions are the same.
 
@@ -6971,6 +6985,8 @@ or pandas.DataFrame
         *C* may be a masked array. If ``C[i, j]`` is masked, the corresponding
         quadrilateral will be transparent. Masking of *X* and *Y* is not
         supported. Use `~.Axes.pcolor` if you need this functionality.
+        With bilinear shading, a quad is transparent if any of its four
+        corner values is masked.
 
         .. _axes-pcolormesh-grid-orientation:
 
@@ -7006,7 +7022,7 @@ or pandas.DataFrame
         exist in the PolyQuadMesh. Because PolyQuadMesh draws each individual
         polygon, it also supports applying hatches and linestyles to the collection.
 
-        Another difference is the support of Gouraud shading in
+        Another difference is the support of Gouraud and bilinear shading in
         `~.Axes.pcolormesh`, which is not available with `~.Axes.pcolor`.
 
         """
