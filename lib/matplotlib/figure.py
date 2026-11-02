@@ -2327,8 +2327,8 @@ default: %(va)s
             requested sharing mode. It binds the specified axis (`x` or `y`) within
             each group.
 
-            Within each group all tick labels are deactivated except for the
-            left-most (sharey) / bottom-most (sharex) Axes.
+            Within each group all inner tick labels and offset texts are deactivated
+            except for the outermost Axes.
 
             Parameters
             ----------
@@ -2381,29 +2381,45 @@ default: %(va)s
                         else:
                             child_ax.sharey(parent)
 
-                # Handle tick label visibility per isolated group using physical
-                # coordinates
+                # Handle tick label visibility per isolated group
+                # using physical coordinates
                 if axis_name == 'x':
-                    # Find the physical bottom-most edge (minimum y-coordinate)
                     bottom_edge = min(
-                        ax.get_subplotspec().get_position(self).ymin
-                        for ax in group
+                        ax.get_subplotspec().get_position(self).ymin for ax in group
                     )
+                    top_edge = max(
+                        ax.get_subplotspec().get_position(self).ymax for ax in group
+                    )
+
                     for ax in group:
-                        # Float tolerance of 1e-5 to account for rounding errors
                         pos = ax.get_subplotspec().get_position(self)
-                        if pos.ymin > bottom_edge + 1e-5:
-                            ax.tick_params(labelbottom=False)
+                        # Detect outer edges using physical coordinates for Mosaic
+                        is_bottom = pos.ymin <= bottom_edge + 1e-5
+                        is_top = pos.ymax >= top_edge - 1e-5
+
+                        # Apply the exact same config logic used by standard GridSpecs
+                        ax._apply_label_outer_xaxis_config(
+                            is_bottom=is_bottom, is_top=is_top
+                        )
+
                 else:
-                    # Find the physical left-most edge (minimum x-coordinate)
                     left_edge = min(
-                        ax.get_subplotspec().get_position(self).xmin
-                        for ax in group
+                        ax.get_subplotspec().get_position(self).xmin for ax in group
                     )
+                    right_edge = max(
+                        ax.get_subplotspec().get_position(self).xmax for ax in group
+                    )
+
                     for ax in group:
                         pos = ax.get_subplotspec().get_position(self)
-                        if pos.xmin > left_edge + 1e-5:
-                            ax.tick_params(labelleft=False)
+                        # Detect outer edges using physical coordinates for Mosaic
+                        is_left = pos.xmin <= left_edge + 1e-5
+                        is_right = pos.xmax >= right_edge - 1e-5
+
+                        # Apply the exact same config logic used by standard GridSpecs
+                        ax._apply_label_outer_yaxis_config(
+                            is_left=is_left, is_right=is_right
+                        )
 
         _apply_sharing(ax_dict, sharex, 'x')
         _apply_sharing(ax_dict, sharey, 'y')

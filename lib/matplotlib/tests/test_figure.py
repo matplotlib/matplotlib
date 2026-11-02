@@ -1377,6 +1377,28 @@ class TestSubplotMosaic:
         assert self.shared_groups(axd, "x") == [{"A", "E"}, {"B", "F"}]
         assert self.shared_groups(axd, "y") == [{"A", "B"}, {"C", "D"}, {"E", "F"}]
 
+    def test_share_offset_text_visibility(self):
+        fig = plt.figure()
+        axd = fig.subplot_mosaic("AB;CD", sharex=True, sharey=True)
+
+        # Plot large numbers to trigger scientific notation
+        for ax in axd.values():
+            ax.plot([0, 1e6], [0, 1e6])
+
+        fig.canvas.draw()
+
+        # For X-axis, only the bottom row should show offset text
+        assert not axd["A"].xaxis.offsetText.get_visible()
+        assert not axd["B"].xaxis.offsetText.get_visible()
+        assert axd["C"].xaxis.offsetText.get_visible()
+        assert axd["D"].xaxis.offsetText.get_visible()
+
+        # For Y-axis, only the left column should show offset text
+        assert axd["A"].yaxis.offsetText.get_visible()
+        assert not axd["B"].yaxis.offsetText.get_visible()
+        assert axd["C"].yaxis.offsetText.get_visible()
+        assert not axd["D"].yaxis.offsetText.get_visible()
+
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""

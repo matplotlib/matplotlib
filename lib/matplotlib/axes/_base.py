@@ -4940,6 +4940,29 @@ class _AxesBase(martist.Artist):
             ss = ss.get_gridspec()._subplot_spec
         return ss
 
+    def _apply_label_outer_xaxis_config(
+        self, is_bottom, is_top, remove_inner_ticks=False
+    ):
+        """Apply the outer label configuration for the x-axis."""
+        label_position = self.xaxis.get_label_position()
+        if not is_top:  # Remove top label/ticklabels/offsettext.
+            if label_position == "top":
+                self.set_xlabel("")
+            top_kw = {'top': False} if remove_inner_ticks else {}
+            self.xaxis.set_tick_params(
+                which="both", labeltop=False, **top_kw)
+            if self.xaxis.offsetText.get_position()[1] == 1:
+                self.xaxis.offsetText.set_visible(False)
+
+        if not is_bottom:  # Remove bottom label/ticklabels/offsettext.
+            if label_position == "bottom":
+                self.set_xlabel("")
+            bottom_kw = {'bottom': False} if remove_inner_ticks else {}
+            self.xaxis.set_tick_params(
+                which="both", labelbottom=False, **bottom_kw)
+            if self.xaxis.offsetText.get_position()[1] == 0:
+                self.xaxis.offsetText.set_visible(False)
+
     def _label_outer_xaxis(self, *, skip_non_rectangular_axes,
                            remove_inner_ticks=False):
         # see documentation in label_outer.
@@ -4949,23 +4972,36 @@ class _AxesBase(martist.Artist):
         ss = self._get_subplotspec_with_optional_colorbar()
         if ss is None:
             return
-        label_position = self.xaxis.get_label_position()
-        if not ss.is_first_row():  # Remove top label/ticklabels/offsettext.
-            if label_position == "top":
-                self.set_xlabel("")
-            top_kw = {'top': False} if remove_inner_ticks else {}
-            self.xaxis.set_tick_params(
-                which="both", labeltop=False, **top_kw)
-            if self.xaxis.offsetText.get_position()[1] == 1:
-                self.xaxis.offsetText.set_visible(False)
-        if not ss.is_last_row():  # Remove bottom label/ticklabels/offsettext.
-            if label_position == "bottom":
-                self.set_xlabel("")
-            bottom_kw = {'bottom': False} if remove_inner_ticks else {}
-            self.xaxis.set_tick_params(
-                which="both", labelbottom=False, **bottom_kw)
-            if self.xaxis.offsetText.get_position()[1] == 0:
-                self.xaxis.offsetText.set_visible(False)
+
+        # Detect outer edges using standard GridSpec rules
+        is_top = ss.is_first_row()
+        is_bottom = ss.is_last_row()
+
+        # Apply config
+        self._apply_label_outer_xaxis_config(is_bottom, is_top, remove_inner_ticks)
+
+    def _apply_label_outer_yaxis_config(
+        self, is_left, is_right, remove_inner_ticks=False
+    ):
+        """Apply the outer label configuration for the y-axis."""
+        label_position = self.yaxis.get_label_position()
+        if not is_left:  # Remove left label/ticklabels/offsettext.
+            if label_position == "left":
+                self.set_ylabel("")
+            left_kw = {'left': False} if remove_inner_ticks else {}
+            self.yaxis.set_tick_params(
+                which="both", labelleft=False, **left_kw)
+            if self.yaxis.offsetText.get_position()[0] == 0:
+                self.yaxis.offsetText.set_visible(False)
+
+        if not is_right:  # Remove right label/ticklabels/offsettext.
+            if label_position == "right":
+                self.set_ylabel("")
+            right_kw = {'right': False} if remove_inner_ticks else {}
+            self.yaxis.set_tick_params(
+                which="both", labelright=False, **right_kw)
+            if self.yaxis.offsetText.get_position()[0] == 1:
+                self.yaxis.offsetText.set_visible(False)
 
     def _label_outer_yaxis(self, *, skip_non_rectangular_axes,
                            remove_inner_ticks=False):
@@ -4976,23 +5012,13 @@ class _AxesBase(martist.Artist):
         ss = self._get_subplotspec_with_optional_colorbar()
         if ss is None:
             return
-        label_position = self.yaxis.get_label_position()
-        if not ss.is_first_col():  # Remove left label/ticklabels/offsettext.
-            if label_position == "left":
-                self.set_ylabel("")
-            left_kw = {'left': False} if remove_inner_ticks else {}
-            self.yaxis.set_tick_params(
-                which="both", labelleft=False, **left_kw)
-            if self.yaxis.offsetText.get_position()[0] == 0:
-                self.yaxis.offsetText.set_visible(False)
-        if not ss.is_last_col():  # Remove right label/ticklabels/offsettext.
-            if label_position == "right":
-                self.set_ylabel("")
-            right_kw = {'right': False} if remove_inner_ticks else {}
-            self.yaxis.set_tick_params(
-                which="both", labelright=False, **right_kw)
-            if self.yaxis.offsetText.get_position()[0] == 1:
-                self.yaxis.offsetText.set_visible(False)
+
+        # Detect outer edges using standard GridSpec rules
+        is_left = ss.is_first_col()
+        is_right = ss.is_last_col()
+
+        # Apply config
+        self._apply_label_outer_yaxis_config(is_left, is_right, remove_inner_ticks)
 
     def set_forward_navigation_events(self, forward):
         """
