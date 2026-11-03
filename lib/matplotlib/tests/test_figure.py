@@ -1399,6 +1399,23 @@ class TestSubplotMosaic:
         assert axd["C"].yaxis.offsetText.get_visible()
         assert not axd["D"].yaxis.offsetText.get_visible()
 
+    def test_share_polar(self):
+        """Ensure polar projections do not lose tick labels when sharing axes."""
+        fig = plt.figure()
+        axd = fig.subplot_mosaic(
+            "AB;CD",
+            sharex=True, sharey=True,
+            subplot_kw={'projection': 'polar'}
+        )
+
+        fig.canvas.draw()
+
+        # Non-rectangular axes (polar) should bypass the inner-label suppression
+        # and keep their theta/radius labels visible regardless of position.
+        for ax in axd.values():
+            assert any(t.get_visible() for t in ax.xaxis.get_ticklabels())
+            assert any(t.get_visible() for t in ax.yaxis.get_ticklabels())
+
 
 def test_reused_gridspec():
     """Test that these all use the same gridspec"""

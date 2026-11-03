@@ -2034,11 +2034,14 @@ default: %(va)s
             The Axes identifiers may be `str` or a non-iterable hashable
             object (e.g. `tuple` s may not be used).
 
-        sharex, sharey : bool, default: False
-            If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
-            among all subplots.  In that case, tick label visibility and axis
-            units behave as for `subplots`.  If False, each subplot's x- or
-            y-axis will be independent.
+        sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+            If True or 'all', the x-axis (*sharex*) or y-axis (*sharey*) will be shared
+            among all subplots. In that case, tick label visibility and axis units
+            behave as for `subplots`. If 'row', Axes that occupy the exact same row span
+            (the same vertical space in the grid) will share an x-axis (or y-axis).
+            If 'col', Axes that occupy the exact same column span (the same horizontal
+            space in the grid) will share an x-axis (or y-axis). If False or 'none',
+            each subplot's x- or y-axis will be independent.
 
         width_ratios : array-like of length *ncols*, optional
             Defines the relative widths of the columns. Each column gets a
@@ -2397,10 +2400,11 @@ default: %(va)s
                         is_bottom = pos.ymin <= bottom_edge + 1e-5
                         is_top = pos.ymax >= top_edge - 1e-5
 
-                        # Apply the exact same config logic used by standard GridSpecs
-                        ax._apply_label_outer_xaxis_config(
-                            is_bottom=is_bottom, is_top=is_top
-                        )
+                        # Applying the logic used by standard GridSpecs
+                        if isinstance(ax.patch, Rectangle):
+                            ax._apply_label_outer_xaxis_config(
+                                is_bottom=is_bottom, is_top=is_top
+                            )
 
                 else:
                     left_edge = min(
@@ -2416,10 +2420,11 @@ default: %(va)s
                         is_left = pos.xmin <= left_edge + 1e-5
                         is_right = pos.xmax >= right_edge - 1e-5
 
-                        # Apply the exact same config logic used by standard GridSpecs
-                        ax._apply_label_outer_yaxis_config(
-                            is_left=is_left, is_right=is_right
-                        )
+                        # Applying the logic used by standard GridSpecs
+                        if isinstance(ax.patch, Rectangle):
+                            ax._apply_label_outer_yaxis_config(
+                                is_left=is_left, is_right=is_right
+                            )
 
         _apply_sharing(ax_dict, sharex, 'x')
         _apply_sharing(ax_dict, sharey, 'y')
