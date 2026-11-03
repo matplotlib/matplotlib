@@ -1254,21 +1254,8 @@ class AutoDateLocator(DateLocator):
 
     Notes
     -----
-    Matplotlib dates are stored as floats counting days since the epoch (see
-    `date2num` and `.get_epoch`).  Their precision is limited to approximately
-    a microsecond for dates near the epoch, so shorter intervals cannot be
-    distinguished, and this locator will not place ticks at sub-microsecond
-    intervals.  For example, data with nanosecond-resolution timestamps
-    (e.g. `numpy.datetime64` values with unit ``'ns'``) may collapse to a
-    single date and result in a view spanning a much wider range than the
-    data.
-
-    If your data needs finer resolution, consider plotting elapsed times
-    relative to a reference time (`numpy.timedelta64` values) instead.
-    Alternatively, the epoch can be set closer to the data with `.set_epoch`
-    (which must be called before any dates are plotted) to improve the
-    representable precision; see
-    :doc:`/gallery/ticks/date_precision_and_epochs` for a discussion.
+    Date resolution is limited to approximately a microsecond.  For details
+    see :ref:`user_axes_units`.
     """
 
     def __init__(self, tz=None, minticks=5, maxticks=None,
