@@ -7,7 +7,6 @@ import string
 
 import numpy as np
 from packaging.version import parse as parse_version
-from packaging.version import Version
 import pytest
 
 import matplotlib as mpl
@@ -159,7 +158,8 @@ def test_rcupdate():
                                  '\\usepackage{sfmath}')}]
     tol = [0, 13.2] if _old_gs_version else [0, 0]
     for i, rc_set in enumerate(rc_sets):
-        if i == 1 and mpl._get_executable_info('pdflatex').version > Version('1.40.26'):
+        if (i == 1 and
+            mpl._get_executable_info('pdflatex').version > parse_version('1.40.26')):
             pytest.xfail(reason="This test currently requires a pdfTeX "
                                 "version of 1.40.26 or earlier")
         with mpl.rc_context(rc_set):

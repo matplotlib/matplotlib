@@ -503,7 +503,7 @@ def _get_executable_info(name):
                 f"version supported by Matplotlib is 3.0")
         return info
     elif name == "pdflatex":
-        return impl(["pdflatex", "-v"], r"pdfTeX .*-(\d+\.\d+\.\d+)")
+        return impl(["pdflatex", "-version"], r"pdfTeX .*-(\d+\.\d+\.\d+)")
     else:
         raise ValueError(f"Unknown executable: {name!r}")
 
