@@ -26,10 +26,9 @@ FT2Image::~FT2Image()
     free(m_buffer);
 }
 
-void draw_bitmap(
-    py::array_t<uint8_t, py::array::c_style> im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
+void draw_bitmap(const FT2Font::ImageBuffer &im, FT_Bitmap *bitmap, FT_Int x, FT_Int y)
 {
-    auto buf = im.mutable_data(0);
+    auto buf = im.data();
 
     FT_Int image_width = (FT_Int)im.shape(1);
     FT_Int image_height = (FT_Int)im.shape(0);
@@ -181,7 +180,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 }
 
 FT2Font::FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used)
-    : warn_if_used(warn_if_used), image({1, 1}), face(nullptr),
+    : warn_if_used(warn_if_used), image(ImageBuffer(1, 1)), face(nullptr),
       char_size(0), char_dpi(0), glyph_matrix{0x10000, 0, 0, 0x10000}, glyph_delta{0, 0},
       charmap_generation(0),
       fallbacks(fallback_list),
@@ -810,8 +809,8 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
     long width = (bbox.xMax - bbox.xMin) / 64 + 2;
     long height = (bbox.yMax - bbox.yMin) / 64 + 2;
 
-    image = py::array_t<uint8_t>{{height, width}};
-    std::memset(image.mutable_data(0), 0, image.nbytes());
+    image = ImageBuffer(height, width);
+    std::memset(image.data(), 0, image.nbytes());
 
     for (auto & glyph: glyphs) {
         FT_CHECK(
@@ -829,8 +828,7 @@ void FT2Font::draw_glyphs_to_bitmap(bool antialiased)
 }
 
 void FT2Font::draw_glyph_to_bitmap(
-    py::array_t<uint8_t, py::array::c_style> im,
-    int x, int y, size_t glyphInd, bool antialiased)
+    const ImageBuffer &im, int x, int y, size_t glyphInd, bool antialiased)
 {
     FT_Vector sub_offset;
     sub_offset.x = 0; // int((xd - (double)x) * 64.0);
