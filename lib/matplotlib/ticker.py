@@ -876,22 +876,32 @@ class ScalarFormatter(Formatter):
 
     def _set_format(self):
         # set the format string to format all the ticklabels
-        if len(self._locs) < 2:
+        locs = np.asarray(self._locs)
+        locs = locs[np.isfinite(locs)]
+
+        if len(locs) < 2:
             # Temporarily augment the locations with the axis end points.
-            _locs = [*self._locs, *self.axis.get_view_interval()]
+            _locs = [*locs, *self.axis.get_view_interval()]
         else:
-            _locs = self._locs
-        locs = (np.asarray(_locs) - self.offset) / 10. ** self._orderOfMagnitude
-        loc_range = np.ptp(locs)
+            _locs = locs
+
+        scaled_locs = (np.asarray(_locs) - self.offset) / 10. ** self._orderOfMagnitude
+        scaled_locs = scaled_locs[np.isfinite(scaled_locs)]
+
+        loc_range = np.ptp(scaled_locs)
         # Curvilinear coordinates can yield two identical points.
         if loc_range == 0:
-            loc_range = np.max(np.abs(locs))
+            loc_range = np.max(np.abs(scaled_locs))
         # Both points might be zero.
         if loc_range == 0:
             loc_range = 1
-        if len(self._locs) < 2:
+
+        if len(locs) == 1:
             # We needed the end points only for the loc_range calculation.
-            locs = locs[:-2]
+            scaled_locs = scaled_locs[:-2]
+
+        locs = scaled_locs
+
         loc_range_oom = int(math.floor(math.log10(loc_range)))
         # first estimate:
         sigfigs = max(0, 3 - loc_range_oom)
