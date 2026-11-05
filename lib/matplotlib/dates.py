@@ -1,6 +1,6 @@
 """
 Matplotlib provides sophisticated date plotting capabilities, standing on the
-shoulders of python :mod:`datetime` and the add-on module dateutil_.
+shoulders of python :mod:`datetime`, :mod:`zoneinfo`, and the add-on module dateutil_.
 
 By default, Matplotlib uses the units machinery described in
 `~matplotlib.units` to convert `datetime.datetime`, and `numpy.datetime64`
@@ -87,7 +87,7 @@ If no explicit timezone is provided, :rc:`timezone` is assumed, provided as a
 string.  If you want to use a different timezone, pass the *tz* keyword
 argument of `num2date` to any date tick locators or formatters you create. This
 can be either a `datetime.tzinfo` instance or a string with the timezone name
-that can be parsed by `~dateutil.tz.gettz`.
+that can be parsed by `~zoneinfo.ZoneInfo`.
 
 A wide range of specific and general purpose date tick locators and
 formatters are provided in this module.  See
@@ -177,13 +177,13 @@ import datetime
 import functools
 import logging
 import re
+import zoneinfo
 
 from dateutil.rrule import (rrule, MO, TU, WE, TH, FR, SA, SU, YEARLY,
                             MONTHLY, WEEKLY, DAILY, HOURLY, MINUTELY,
                             SECONDLY)
 from dateutil.relativedelta import relativedelta
 import dateutil.parser
-import dateutil.tz
 import numpy as np
 
 import matplotlib as mpl
@@ -214,10 +214,10 @@ def _get_tzinfo(tz=None):
     if tz == 'UTC':
         return UTC
     if isinstance(tz, str):
-        tzinfo = dateutil.tz.gettz(tz)
+        tzinfo = zoneinfo.ZoneInfo(tz)
         if tzinfo is None:
             raise ValueError(f"{tz} is not a valid timezone as parsed by"
-                             " dateutil.tz.gettz.")
+                             " zoneinfo.ZoneInfo.")
         return tzinfo
     if isinstance(tz, datetime.tzinfo):
         return tz
@@ -352,7 +352,7 @@ def _from_ordinalf(x, tz=None):
     dt = dt.tolist()
 
     # datetime64 is always UTC:
-    dt = dt.replace(tzinfo=dateutil.tz.gettz('UTC'))
+    dt = dt.replace(tzinfo=datetime.timezone.utc)
     # but maybe we are working in a different timezone so move.
     dt = dt.astimezone(tz)
     # fix round off errors
@@ -463,7 +463,7 @@ def num2date(x, tz=None):
         since the epoch.  See `.get_epoch` for the
         epoch, which can be changed by :rc:`date.epoch` or `.set_epoch`.
     tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-        Timezone of *x*. If a string, *tz* is passed to `dateutil.tz`.
+        Timezone of *x*. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
 
     Returns
     -------
@@ -575,7 +575,7 @@ class DateFormatter(ticker.Formatter):
         fmt : str
             `~datetime.datetime.strftime` format string
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         usetex : bool, default: :rc:`text.usetex`
             To enable/disable the use of TeX's math mode for rendering the
             results of the formatter.
@@ -888,7 +888,7 @@ class AutoDateFormatter(ticker.Formatter):
             Locator that this axis is using.
 
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
 
         defaultfmt : str
             The default format to use if none of the values in ``self.scaled``
@@ -1075,7 +1075,7 @@ class DateLocator(ticker.Locator):
         Parameters
         ----------
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         self.tz = _get_tzinfo(tz)
 
@@ -1086,7 +1086,7 @@ class DateLocator(ticker.Locator):
         Parameters
         ----------
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         self.tz = _get_tzinfo(tz)
 
@@ -1259,7 +1259,7 @@ class AutoDateLocator(DateLocator):
         Parameters
         ----------
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         minticks : int
             The minimum number of ticks desired; controls whether ticks occur
             yearly, monthly, etc.
@@ -1470,7 +1470,7 @@ class YearLocator(RRuleLocator):
         day : int, default: 1
             The day on which to place the ticks.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         rule = rrulewrapper(YEARLY, interval=base, bymonth=month,
                             bymonthday=day, **self.hms0d)
@@ -1513,7 +1513,7 @@ class MonthLocator(RRuleLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         if bymonth is None:
             bymonth = range(1, 13)
@@ -1545,7 +1545,7 @@ class WeekdayLocator(RRuleLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         rule = rrulewrapper(DAILY, byweekday=byweekday,
                             interval=interval, **self.hms0d)
@@ -1568,7 +1568,7 @@ class DayLocator(RRuleLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         if interval != int(interval) or interval < 1:
             raise ValueError("interval must be an integer greater than 0")
@@ -1595,7 +1595,7 @@ class HourLocator(RRuleLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         if byhour is None:
             byhour = range(24)
@@ -1620,7 +1620,7 @@ class MinuteLocator(RRuleLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         if byminute is None:
             byminute = range(60)
@@ -1645,7 +1645,7 @@ class SecondLocator(RRuleLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         if bysecond is None:
             bysecond = range(60)
@@ -1684,7 +1684,7 @@ class MicrosecondLocator(DateLocator):
             The interval between each iteration. For example, if
             ``interval=2``, mark every second occurrence.
         tz : str or `~datetime.tzinfo`, default: :rc:`timezone`
-            Ticks timezone. If a string, *tz* is passed to `dateutil.tz`.
+            Ticks timezone. If a string, *tz* is passed to `~zoneinfo.ZoneInfo`.
         """
         super().__init__(tz=tz)
         self._interval = interval

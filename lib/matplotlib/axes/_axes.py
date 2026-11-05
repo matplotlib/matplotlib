@@ -6518,70 +6518,87 @@ or pandas.DataFrame
         if X.shape != Y.shape:
             raise TypeError(f'Incompatible X, Y inputs to {funcname}; '
                             f'see help({funcname})')
+        if Nx == 1 or Ny == 1:
+            raise TypeError(
+                f"{funcname} requires the X and Y coordinates to each have at least "
+                f"two values to define a mesh, but X has {Nx} values and Y has {Ny} "
+                "values. If a single row or column of cells is intended, consider "
+                "using shading='flat' and specifying the cell edges in X and Y.")
 
         if shading == 'auto':
-            if ncols == Nx and nrows == Ny:
+            if (nrows, ncols) == (Ny, Nx):
                 shading = 'nearest'
-            else:
+            elif (nrows, ncols) == (Ny - 1, Nx - 1):
                 shading = 'flat'
+            else:
+                raise TypeError(
+                    f"Dimensions of C ({nrows}, {ncols}) are incompatible "
+                    f"with X ({Nx}) and Y ({Ny}) for shading='auto'. "
+                    f"With shading='auto', C.shape must be ({Ny}, {Nx}) "
+                    f"to select 'nearest' shading or ({Ny - 1}, {Nx - 1}) "
+                    f"to select 'flat' shading. Note that C uses "
+                    f"(rows, columns) = (Y, X) indexing. "
+                    f"See help({funcname})")
 
         if shading == 'flat':
             if (Nx, Ny) != (ncols + 1, nrows + 1):
-                raise TypeError(f"Dimensions of C {C.shape} should"
-                                f" be one smaller than X({Nx}) and Y({Ny})"
-                                f" while using shading='flat'"
-                                f" see help({funcname})")
-        else:    # ['nearest', 'gouraud']:
+                raise TypeError(f"Dimensions of C {C.shape} should "
+                                f"be one smaller than X({Nx}) and Y({Ny}) "
+                                f"for shading='flat'. "
+                                f"Note that C uses (rows, columns) = (Y, X) indexing. "
+                                f"See help({funcname})")
+        elif shading == 'nearest':
             if (Nx, Ny) != (ncols, nrows):
-                if shading == 'gouraud' and (Nx, Ny) == (ncols + 1, nrows + 1):
-                    # the center of each quad is the average of its four corners
-                    X = 0.25 * (X[:-1, :-1] + X[:-1, 1:] + X[1:, 1:] + X[1:, :-1])
-                    Y = 0.25 * (Y[:-1, :-1] + Y[:-1, 1:] + Y[1:, 1:] + Y[1:, :-1])
-                else:
-                    raise TypeError(f"Dimensions of C {C.shape} are incompatible with"
-                                    f" X ({Nx}) and/or Y ({Ny}); see help({funcname})")
-            if shading == 'nearest':
-                if Nx == 1 or Ny == 1:
-                    # If a coordinate array has a single cell center,
-                    # its corresponding cell size cannot be determined
-                    # from neighboring centers.
-                    raise TypeError(f"C has shape ({nrows}, {ncols}) but "
-                                    "shading='nearest' requires at least two rows "
-                                    "and two columns. Please supply explicit cell "
-                                    "edges for X and Y and use shading='flat' "
-                                    f"with {funcname}.")
-                # grid is specified at the center, so define corners
-                # at the midpoints between the grid centers and then use the
-                # flat algorithm.
-                def _interp_grid(X, require_monotonicity=False):
-                    # helper for below. To ensure the cell edges are calculated
-                    # correctly, when expanding columns, the monotonicity of
-                    # X coords needs to be checked. When expanding rows, the
-                    # monotonicity of Y coords needs to be checked.
-                    dX = np.diff(X, axis=1) * 0.5
-                    if (require_monotonicity and
-                            not (np.all(dX >= 0) or np.all(dX <= 0))):
-                        _api.warn_external(
-                            f"The input coordinates to {funcname} are "
-                            "interpreted as cell centers, but are not "
-                            "monotonically increasing or decreasing. "
-                            "This may lead to incorrectly calculated cell "
-                            "edges, in which case, please supply "
-                            f"explicit cell edges to {funcname}.")
+                raise TypeError(f"Dimensions of C {C.shape} are incompatible with "
+                                f"X ({Nx}) and Y ({Ny}) for "
+                                f"shading='nearest'. Expected C.shape to be "
+                                f"({Ny}, {Nx}). See help({funcname})")
+            # grid is specified at the center, so define corners
+            # at the midpoints between the grid centers and then use the
+            # flat algorithm.
+            def _interp_grid(X, require_monotonicity=False):
+                # helper for below. To ensure the cell edges are calculated
+                # correctly, when expanding columns, the monotonicity of
+                # X coords needs to be checked. When expanding rows, the
+                # monotonicity of Y coords needs to be checked.
+                dX = np.diff(X, axis=1) * 0.5
+                if (require_monotonicity and
+                        not (np.all(dX >= 0) or np.all(dX <= 0))):
+                    _api.warn_external(
+                        f"The input coordinates to {funcname} are "
+                        "interpreted as cell centers, but are not "
+                        "monotonically increasing or decreasing. "
+                        "This may lead to incorrectly calculated cell "
+                        "edges, in which case, please supply "
+                        f"explicit cell edges to {funcname}.")
 
-                    hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
-                    X = hstack((X[:, [0]] - dX[:, [0]],
-                                X[:, :-1] + dX,
-                                X[:, [-1]] + dX[:, [-1]]))
-                    return X
+                hstack = np.ma.hstack if np.ma.isMA(X) else np.hstack
+                X = hstack((X[:, [0]] - dX[:, [0]],
+                            X[:, :-1] + dX,
+                            X[:, [-1]] + dX[:, [-1]]))
+                return X
 
-                if ncols == Nx:
-                    X = _interp_grid(X, require_monotonicity=True)
-                    Y = _interp_grid(Y)
-                if nrows == Ny:
-                    X = _interp_grid(X.T).T
-                    Y = _interp_grid(Y.T, require_monotonicity=True).T
-                shading = 'flat'
+            if ncols == Nx:
+                X = _interp_grid(X, require_monotonicity=True)
+                Y = _interp_grid(Y)
+            if nrows == Ny:
+                X = _interp_grid(X.T).T
+                Y = _interp_grid(Y.T, require_monotonicity=True).T
+            shading = 'flat'
+        elif shading == 'gouraud':
+            if (Nx, Ny) == (ncols + 1, nrows + 1):
+                # the center of each quad is the average of its four corners
+                X = 0.25 * (X[:-1, :-1] + X[:-1, 1:] + X[1:, 1:] + X[1:, :-1])
+                Y = 0.25 * (Y[:-1, :-1] + Y[:-1, 1:] + Y[1:, 1:] + Y[1:, :-1])
+            elif (Nx, Ny) != (ncols, nrows):
+                raise TypeError(f"Dimensions of C {C.shape} are incompatible with "
+                                f"X ({Nx}) and/or Y ({Ny}) for "
+                                f"shading='gouraud'. Expected C.shape to be "
+                                f"({Ny}, {Nx}) or ({Ny - 1}, {Nx - 1}). "
+                                f"See help({funcname})")
+        else:
+            # this should never happen because of the api check above
+            raise ValueError(f"Unknown shading mode: {shading}")
 
         C = cbook.safe_masked_invalid(C, copy=True)
         return X, Y, C, shading
