@@ -2080,10 +2080,10 @@ def test_fixedlocator_rejects_nonfinite(locs):
         mticker.FixedLocator(locs)
 
 
-
 def test_fixedlocator_rejects_nonfinite_with_nbins():
     with pytest.raises(ValueError, match="must contain only finite values"):
         mticker.FixedLocator([0, np.nan, 2], nbins=2)
+
 
 def test_fixedlocator_accepts_empty_and_finite():
     for locs in ([], [0], [0, 1]):
