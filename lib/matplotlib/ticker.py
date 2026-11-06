@@ -1858,7 +1858,6 @@ class FixedLocator(Locator):
     r"""
     Place ticks at a set of fixed values.
 
-
     If *nbins* is None ticks are placed at all values. Otherwise, the *locs* array of
     possible positions will be subsampled to keep the number of ticks
     :math:`\leq nbins + 1`. The subsampling will be done to include the smallest
