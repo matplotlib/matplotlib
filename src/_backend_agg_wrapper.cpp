@@ -5,6 +5,8 @@
 #include <pybind11/subinterpreter.h>
 #endif
 
+#include <optional>
+
 #include "mplutils.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
@@ -142,18 +144,20 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
                                    const mpl::defer<LineWidthArray> &linewidths_obj,
                                    DashesVector dashes,
                                    const mpl::defer<AntialiasedArray> &antialiaseds_obj,
-                                   py::object Py_UNUSED(ignored_obj),
+                                   py::object Py_UNUSED(urls_obj),
                                    // offset position is no longer used
                                    py::object Py_UNUSED(offset_position_obj),
-                                   const mpl::defer<ColorArray> &hatchcolors_obj)
+                                   std::optional<mpl::defer<ColorArray>> &hatchcolors_obj)
 {
     auto transforms = transforms_obj.value("transforms");
     auto offsets = offsets_obj.value("offsets");
     auto facecolors = facecolors_obj.value("facecolors");
     auto edgecolors = edgecolors_obj.value("edgecolors");
-    auto hatchcolors = hatchcolors_obj.value("hatchcolors");
     auto linewidths = linewidths_obj.value("linewidths");
     auto antialiaseds = antialiaseds_obj.value("antialiaseds");
+
+    auto hatchcolors = hatchcolors_obj ? hatchcolors_obj.value().value("hatchcolors") :
+        ColorArray::unmanaged_empty();
 
     self->draw_path_collection(gc,
             master_transform,
@@ -238,7 +242,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "gc"_a, "master_transform"_a, "paths"_a, "transforms"_a, "offsets"_a,
              "offset_trans"_a, "facecolors"_a, "edgecolors"_a, "linewidths"_a,
              "dashes"_a, "antialiaseds"_a, "ignored"_a, "offset_position"_a,
-             py::kw_only(), "hatchcolors"_a = py::array_t<double>().reshape({0, 4}))
+             py::kw_only(), "hatchcolors"_a.none() = nullptr)
         .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
              "coordinates"_a, "offsets"_a, "offset_trans"_a, "facecolors"_a,
