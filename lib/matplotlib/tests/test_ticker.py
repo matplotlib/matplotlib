@@ -2074,6 +2074,8 @@ def test_minorticks_on_multi_fig():
     ([-np.inf], ["−inf"]),
     ([np.nan, np.inf], ["nan", "inf"]),
     ([np.nan, -np.inf], ["nan", "−inf"]),
+    ([], []),
+    ([np.nan, np.nan], ["nan", "nan"]),
 ])
 def test_scalarformatter_nonfinite_fixedlocator(locs, expected):
     fig, ax = plt.subplots()
