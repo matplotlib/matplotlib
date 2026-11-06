@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from collections.abc import Sequence
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from queue import PriorityQueue
 from typing import Any
 import numpy as np
 
 from .description import Desc, desc_like, ShapeSpec
 
-from matplotlib.transforms import Transform
+from matplotlib.transforms import Transform, IdentityTransform
 from matplotlib.typing import RcKeyType
 
 
@@ -372,7 +372,9 @@ class TransformEdge(Edge):
     transform: Transform | Callable[[], Transform], optional
         The :class:`Transform` or a Callable with no inputs that returns the Transform
     """
-    transform: Transform | Callable[[], Transform] | None = None
+    transform: Transform | Callable[[], Transform] = field(
+            default_factory=IdentityTransform
+    )
 
     # TODO: helper for common cases/validation?
 
@@ -380,9 +382,7 @@ class TransformEdge(Edge):
         # TODO: ensure ordering?
         # Stacking and unstacking at every step seems inefficient,
         # especially if initially given as stacked
-        if self.transform is None:
-            return input
-        elif isinstance(self.transform, Callable):   # type: ignore[arg-type]
+        if isinstance(self.transform, Callable):   # type: ignore[arg-type]
             trf = self.transform()                   # type: ignore[operator]
         else:
             trf = self.transform
@@ -392,9 +392,6 @@ class TransformEdge(Edge):
 
     @property
     def inverse(self) -> "TransformEdge":
-        if self.transform is None:
-            raise RuntimeError("Trying to invert a non-invertable edge")
-
         if isinstance(self.transform, Callable):   # type: ignore[arg-type]
             return TransformEdge(
                 self.name + "_r",

@@ -9,6 +9,14 @@ a sine wave.
 This demonstrates extending the functionality of a FuncContainer, adding
 interactive elements.
 
+A set of :class:`Slider`s allow for interactive control over the sine wave's
+phase, amplitude, and frequency.
+
+These sliders trigger a new draw when they are changed.
+
+This also demonstrates adding additional information into the hash function
+for FuncContainer.
+
 """
 
 import inspect
@@ -45,9 +53,10 @@ class SliderContainer(FuncContainer):
             },
         )
 
-    def _query_hash(self, graph, parent_coordinates):
-        key = super()._query_hash(graph, parent_coordinates)
+    def query_hash(self, graph, parent_coordinates):
+        key = super().query_hash(graph, parent_coordinates)
         # inject the slider values into the hashing logic
+        # The superclass hashes the viewport, but we need to add the interactive values
         return hash((key, tuple(s.val for s in self._sliders.values())))
 
 
@@ -97,7 +106,7 @@ phase_slider = Slider(
     orientation="vertical",
 )
 
-# set up the data container
+# Set up the data container
 fc = SliderContainer(
     {
         # the x data does not need the sliders values
@@ -115,6 +124,7 @@ fc = SliderContainer(
     phase=phase_slider,
 )
 
+# Initialize the line and set its container
 line, *_ = ax.plot([], [])
 line.set_container(fc)
 

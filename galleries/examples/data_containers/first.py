@@ -18,16 +18,23 @@ import numpy as np
 
 from matplotlib.data_containers.containers import ArrayContainer, FuncContainer
 
-fc = FuncContainer({"x": (("N",), lambda x: x), "y": (("N",), lambda x: np.sin(1 / x))})
+fc = FuncContainer(
+    xfuncs={"x": (("N",), lambda x: x), "y": (("N",), lambda x: np.sin(1 / x))}
+)
+fc2 = FuncContainer(
+    xfuncs={"x": (("N",), lambda x: x), "y": (("N",), lambda x: np.cos(x))}
+)
 
 th = np.linspace(0, 2 * np.pi, 16)
 ac = ArrayContainer(x=th, y=np.cos(th))
 
 fig, ax = plt.subplots()
-line1, line2, *_ = ax.plot([], [], [], [])
+line1, line2, line3, *_ = ax.plot([], [], "-", [], [], "--", [], [], "o")
 
 line1.set_container(fc)
-line2.set_container(ac)
+line2.set_container(fc2)
+line3.set_container(ac)
+
 
 ax.set_xlim(0, np.pi * 4)
 ax.set_ylim(-1.1, 1.1)

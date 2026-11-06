@@ -13,9 +13,9 @@ from cachetools import LFUCache  # type: ignore[import-untyped]
 
 import numpy as np
 
-from .description import Desc, desc_like
+from .description import Desc, desc_like, ShapeSpec
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Generic, NamedTuple, TypeVar
 
 if TYPE_CHECKING:
     from .conversion_edge import Graph
@@ -129,7 +129,6 @@ class ArrayContainer:
         **data:
             The new arrays
         """
-        # TODO check that this is still consistent with desc!
         if not all(k in self._data for k in data):
             raise NoNewKeys(
                 f"The keys that currently exist are {set(self._data)}.  You "
@@ -145,19 +144,25 @@ class ArrayContainer:
         self._data.update(data)
         self._cache_key = str(uuid.uuid4())
 
+InType = TypeVar("InType")
+
+
+class FuncContainerInputs(NamedTuple, Generic[InType]):
+    shape: ShapeSpec
+    callable: Callable[InType, Any]
+
 
 class FuncContainer:
     def __init__(
         self,
-        # TODO: is this really the best spelling?!
         xfuncs: Optional[
-            dict[str, tuple[tuple[Union[str, int], ...], Callable[[Any], Any]]]
+            dict[str, FuncContainerInputs[[Any]]]
         ] = None,
         yfuncs: Optional[
-            dict[str, tuple[tuple[Union[str, int], ...], Callable[[Any], Any]]]
+            dict[str, FuncContainerInputs[[Any]]]
         ] = None,
         xyfuncs: Optional[
-            dict[str, tuple[tuple[Union[str, int], ...], Callable[[Any, Any], Any]]]
+            dict[str, FuncContainerInputs[[Any, Any]]]
         ] = None,
     ):
         """
@@ -193,7 +198,22 @@ class FuncContainer:
         self._xyfuncs = _split(xyfuncs) if xyfuncs is not None else {}
         self._cache: MutableMapping[Union[str, int], Any] = LFUCache(64)
 
-    def _query_hash(self, data_lim, size):
+    def query_hash(self, data_lim, size):
+        """Compute a hash key for a given data limit and resolution.
+
+        By default, this is a hash of the view parameters (data limits and number
+        of points).
+        This is sufficient for pure functions, but may need to be overridden in
+        subclasses if they introduce additional inputs, such as user interaction.
+
+        Parameters
+        ----------
+        data_lim: Edge
+           This is the :class:`Edge` that converts from parent coordinates (often axes)
+           into data coordinates.
+        size: tuple[int, int]
+           The number of pixels in each of the x and y direction
+        """
         xlims, ylims = data_lim.evaluate({"x": [0, 1], "y": [0, 1]}).values()
         data_bounds = (*(float(x) for x in xlims), *(float(y) for y in ylims))
         hash_key = hash((data_bounds, size))
@@ -223,7 +243,7 @@ class FuncContainer:
         xpix = int(xpix)
         ypix = int(ypix)
 
-        hash_key = self._query_hash(data_lim, (xpix, ypix))
+        hash_key = self.query_hash(data_lim, (xpix, ypix))
         if hash_key in self._cache:
             return self._cache[hash_key], hash_key
 
