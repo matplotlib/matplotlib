@@ -1858,6 +1858,9 @@ class FixedLocator(Locator):
     r"""
     Place ticks at a set of fixed values.
 
+    The tick locations in *locs* must be finite. NaN and infinite
+    locations raise a `ValueError` when the locator is created.
+
     If *nbins* is None ticks are placed at all values. Otherwise, the *locs* array of
     possible positions will be subsampled to keep the number of ticks
     :math:`\leq nbins + 1`. The subsampling will be done to include the smallest
@@ -1866,6 +1869,7 @@ class FixedLocator(Locator):
     """
 
     def __init__(self, locs, nbins=None):
+        # Tick locations must be finite to have valid axis positions.
         self.locs = np.asarray(locs)
         _api.check_shape((None,), locs=self.locs)
         if not np.all(np.isfinite(self.locs)):

@@ -2089,3 +2089,18 @@ def test_fixedlocator_accepts_empty_and_finite():
     for locs in ([], [0], [0, 1]):
         locator = mticker.FixedLocator(locs)
         np.testing.assert_array_equal(locator.locs, locs)
+
+
+def test_fixedlocator_finite_rendering():
+    fig, ax = plt.subplots()
+    try:
+        ax.plot([0, 1], [0, 1])
+        ax.xaxis.set_major_locator(
+            mticker.FixedLocator([0, 0.5, 1])
+        )
+        fig.canvas.draw()
+
+        labels = [tick.get_text() for tick in ax.get_xticklabels()]
+        assert labels == ["0.0", "0.5", "1.0"]
+    finally:
+        plt.close(fig)
