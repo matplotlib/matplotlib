@@ -2065,25 +2065,27 @@ def test_minorticks_on_multi_fig():
     assert isinstance(ax.xaxis.get_minor_locator(), mpl.ticker.AutoMinorLocator)
 
 
-@pytest.mark.parametrize(("locs", "expected"), [
-    ([0, 1, np.nan], ["0", "1", "nan"]),
-    ([0, 1, np.inf], ["0", "1", "inf"]),
-    ([0, 1, -np.inf], ["0", "1", "−inf"]),
-    ([np.nan], ["nan"]),
-    ([np.inf], ["inf"]),
-    ([-np.inf], ["−inf"]),
-    ([np.nan, np.inf], ["nan", "inf"]),
-    ([np.nan, -np.inf], ["nan", "−inf"]),
-    ([], []),
-    ([np.nan, np.nan], ["nan", "nan"]),
+@pytest.mark.parametrize("locs", [
+    [np.nan],
+    [np.inf],
+    [-np.inf],
+    [0, 1, np.nan],
+    [0, 1, np.inf],
+    [0, 1, -np.inf],
+    [np.nan, np.inf],
+    [np.nan, np.nan],
 ])
-def test_scalarformatter_nonfinite_fixedlocator(locs, expected):
-    fig, ax = plt.subplots()
-    try:
-        ax.plot([0, 1], [0, 1])
-        ax.xaxis.set_major_locator(mticker.FixedLocator(locs))
-        fig.canvas.draw()
-        labels = [tick.get_text() for tick in ax.get_xticklabels()]
-        assert labels == expected
-    finally:
-        plt.close(fig)
+def test_fixedlocator_rejects_nonfinite(locs):
+    with pytest.raises(ValueError, match="must contain only finite values"):
+        mticker.FixedLocator(locs)
+
+
+
+def test_fixedlocator_rejects_nonfinite_with_nbins():
+    with pytest.raises(ValueError, match="must contain only finite values"):
+        mticker.FixedLocator([0, np.nan, 2], nbins=2)
+
+def test_fixedlocator_accepts_empty_and_finite():
+    for locs in ([], [0], [0, 1]):
+        locator = mticker.FixedLocator(locs)
+        np.testing.assert_array_equal(locator.locs, locs)
