@@ -64,6 +64,8 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
 
         self._idle_draw_id = 0
         self._rubberband_rect = None
+        self._whiskers = None
+        self._whisker_size = 20
 
         if _GTK_GE_4_12:
             self.connect('realize', self._realize_event)
@@ -268,6 +270,11 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
         # TODO: Only update the rubberband area.
         self.queue_draw()
 
+    def _draw_whiskers(self, whisk, ws=20):
+        self._whiskers = whisk
+        self._whisker_size = ws
+        self.queue_draw()
+
     def do_snapshot(self, snapshot):
         white = Gdk.RGBA()
         white.red = white.green = white.blue = white.alpha = 1.0
@@ -277,6 +284,32 @@ class FigureCanvasGTK4(_FigureCanvasGTK, Gtk.Widget):
         self._post_snapshot(snapshot)
 
     def _post_snapshot(self, snapshot):
+        if self._whiskers:
+            x0, y0, x1, y1 = (dim / self.device_pixel_ratio
+                              for dim in self._whiskers)
+            ws = self._whisker_size / self.device_pixel_ratio
+            rect = Graphene.Rect().init(0, 0, self.get_width(), self.get_height())
+            ctx = snapshot.append_cairo(rect)
+            ctx.set_antialias(1)
+            ctx.move_to(x0, y0)
+            ctx.line_to(x1, y1)
+            if x0 == x1:
+                ctx.move_to(x0 - ws//2, y0)
+                ctx.line_to(x0 + ws//2, y0)
+                ctx.move_to(x1 - ws//2, y1)
+                ctx.line_to(x1 + ws//2, y1)
+            if y0 == y1:
+                ctx.move_to(x0, y0 - ws//2)
+                ctx.line_to(x0, y0 + ws//2)
+                ctx.move_to(x1, y1 - ws//2)
+                ctx.line_to(x1, y1 + ws//2)
+            ctx.set_line_width(3)
+            ctx.set_source_rgb(1, 1, 1)
+            ctx.stroke_preserve()
+            ctx.set_line_width(1)
+            ctx.set_source_rgb(0, 0, 0)
+            ctx.stroke()
+
         if self._rubberband_rect is None:
             return
 
