@@ -813,13 +813,14 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
 )""";
 
 static void
-PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, py::buffer &image,
+PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self,
+                               const mpl::defer<FT2Font::ImageBuffer> &image_obj,
                                int xd, int yd,
                                PyGlyph *glyph, bool antialiased = true)
 {
-    self->draw_glyph_to_bitmap(
-        py::array_t<uint8_t, py::array::c_style>{image},
-        xd, yd, glyph->glyphInd, antialiased);
+    auto image = image_obj.value("image");
+
+    self->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
 }
 
 const char *PyFT2Font_get_glyph_name__doc__ = R"""(
@@ -1597,7 +1598,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
         .value("BOLD", StyleFlags::BOLD)
         .finalize();
 
-    py::classh<FT2Image>(m, "FT2Image", py::is_final(), py::buffer_protocol(),
+
+    py::classh<FT2Image>(m, "FT2Image", py::is_final(),
+                         py::custom_type_setup(mpl::buffer_setup<FT2Image>),
                          PyFT2Image__doc__)
         .def(py::init(
                 [](long width, long height) {
@@ -1610,12 +1613,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
              "width"_a, "height"_a, PyFT2Image_init__doc__)
         .def("draw_rect_filled", &FT2Image::draw_rect_filled,
              "x0"_a, "y0"_a, "x1"_a, "y1"_a,
-             PyFT2Image_draw_rect_filled__doc__)
-        .def_buffer([](FT2Image &self) -> py::buffer_info {
-            std::vector<py::size_t> shape { self.get_height(), self.get_width() };
-            std::vector<py::size_t> strides { self.get_width(), 1 };
-            return py::buffer_info(self.get_buffer(), shape, strides);
-        });
+             PyFT2Image_draw_rect_filled__doc__);
 
     py::classh<PyGlyph>(m, "Glyph", py::is_final(), PyGlyph__doc__)
         .def(py::init<>([]() -> PyGlyph {
@@ -1667,7 +1665,9 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
                         item.glyph_index, item.x, item.y, item.prev_kern);
                 });
 
-    py::classh<PyFT2Font>(m, "FT2Font", py::is_final(), py::buffer_protocol(),
+
+    py::classh<PyFT2Font>(m, "FT2Font", py::is_final(),
+                         py::custom_type_setup(mpl::buffer_setup<PyFT2Font>),
                           PyFT2Font__doc__)
         .def(py::init(
             [ft2Library](
@@ -1841,11 +1841,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
           }, "Thickness of the underline bar.")
         .def_property_readonly(
           "fname", &PyFT2Font_fname,
-          "The original filename for this object.")
-
-        .def_buffer([](PyFT2Font &self) -> py::buffer_info {
-            return self.get_image().request();
-        });
+          "The original filename for this object.");
 
     m.def("_render_glyph_run",
           [ft2Library](py::sequence glyphs, double dpi, double x, double y, double angle,

@@ -6,6 +6,7 @@
 #endif
 
 #include "mplutils.h"
+#include "py_buffer.h"
 #include "py_converters.h"
 #include "_backend_agg.h"
 
@@ -225,7 +226,7 @@ PYBIND11_MODULE(_backend_agg, m,
 PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
 #endif
 {
-    py::classh<RendererAgg>(m, "RendererAgg", py::buffer_protocol())
+    py::classh<RendererAgg>(m, "RendererAgg", py::custom_type_setup(mpl::buffer_setup<RendererAgg>))
         .def(py::init<unsigned int, unsigned int, double>(),
              "width"_a, "height"_a, "dpi"_a)
 
@@ -261,38 +262,11 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "region"_a)
         .def("restore_region",
              py::overload_cast<BufferRegion&, int, int, int, int, int, int>(&RendererAgg::restore_region),
-             "region"_a, "xx1"_a, "yy1"_a, "xx2"_a, "yy2"_a, "x"_a, "y"_a)
+             "region"_a, "xx1"_a, "yy1"_a, "xx2"_a, "yy2"_a, "x"_a, "y"_a);
 
-        .def_buffer([](RendererAgg *renderer) -> py::buffer_info {
-            std::vector<py::ssize_t> shape {
-                static_cast<py::ssize_t>(renderer->get_height()),
-                static_cast<py::ssize_t>(renderer->get_width()),
-                4
-            };
-            std::vector<py::ssize_t> strides {
-                static_cast<py::ssize_t>(renderer->get_width() * 4),
-                4,
-                1
-            };
-            return py::buffer_info(renderer->pixBuffer, shape, strides);
-        });
-
-    py::classh<BufferRegion>(m, "BufferRegion", py::buffer_protocol())
+    py::classh<BufferRegion>(m, "BufferRegion", py::custom_type_setup(mpl::buffer_setup<BufferRegion>))
         // BufferRegion is not constructible from Python, thus no py::init is added.
         .def("set_x", &PyBufferRegion_set_x)
         .def("set_y", &PyBufferRegion_set_y)
-        .def("get_extents", &PyBufferRegion_get_extents)
-        .def_buffer([](BufferRegion *buffer) -> py::buffer_info {
-            std::vector<py::ssize_t> shape {
-                buffer->get_height(),
-                buffer->get_width(),
-                4
-            };
-            std::vector<py::ssize_t> strides {
-                buffer->get_width() * 4,
-                4,
-                1
-            };
-            return py::buffer_info(buffer->get_data(), shape, strides);
-        });
+        .def("get_extents", &PyBufferRegion_get_extents);
 }
