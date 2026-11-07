@@ -7331,7 +7331,7 @@ or pandas.DataFrame
             a subset of ``CS.levels``. If not given, all levels are labeled.
 
         **kwargs
-            All other parameters are documented in `~.ContourLabeler.clabel`.
+            All other parameters are documented in `~.ContourSet.clabel`.
         """
         return CS.clabel(levels, **kwargs)
 

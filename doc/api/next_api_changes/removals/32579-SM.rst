@@ -1,0 +1,5 @@
+``ContourLabeler`` has been removed
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+``matplotlib.contour.ContourLabeler`` has been removed. Its labeling functionality
+is now implemented directly on `.ContourSet`. Use `.ContourSet.clabel` or
+`.Axes.clabel` to label contour plots.
