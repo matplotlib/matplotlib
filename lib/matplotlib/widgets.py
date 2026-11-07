@@ -624,12 +624,11 @@ class Slider(SliderBase):
         else:
             self.poly.set_width(val - self.poly.get_x())
             self._handle.set_xdata([val])
-        self.valtext.set_text(self._format(val))
-        if self.drawon:
-            self.ax.get_figure(root=True).canvas.draw_idle()
         self.val = val
         if self.eventson:
             self._observers.process('changed', val)
+        if self.drawon:
+            self.ax.get_figure(root=True).canvas.draw_idle()
 
     def on_changed(self, func):
         """
@@ -1005,13 +1004,11 @@ class RangeSlider(SliderBase):
             self._handles[0].set_xdata([vmin])
             self._handles[1].set_xdata([vmax])
 
-        self.valtext.set_text(self._format((vmin, vmax)))
-
-        if self.drawon:
-            self.ax.get_figure(root=True).canvas.draw_idle()
         self.val = (vmin, vmax)
         if self.eventson:
             self._observers.process("changed", (vmin, vmax))
+        if self.drawon:
+            self.ax.get_figure(root=True).canvas.draw_idle()
 
     def on_changed(self, func):
         """
