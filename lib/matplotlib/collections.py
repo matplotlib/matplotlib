@@ -2527,6 +2527,8 @@ class QuadMesh(_MeshData, Collection):
         self._antialiased = antialiased
         self._bbox = transforms.Bbox.unit()
         self._bbox.update_from_data_xy(self._coordinates.reshape(-1, 2))
+        # Per-quad corner points and bounding boxes, used by `contains`
+        self._quad_corners_cache = None
         self.set_mouseover(False)
 
     def get_paths(self):
@@ -2590,6 +2592,94 @@ class QuadMesh(_MeshData, Collection):
         gc.restore()
         renderer.close_group(self.__class__.__name__)
         self.stale = False
+
+    def _get_quad_corners(self):
+        """
+        Return, and cache, the four corner-point arrays of every quad and
+        their axis-aligned bounding boxes.
+        """
+        if self._quad_corners_cache is None:
+            coords = self._coordinates
+            if isinstance(coords, np.ma.MaskedArray):
+                coords = coords.data
+            corners = (coords[:-1, :-1], coords[:-1, 1:],
+                       coords[1:, 1:], coords[1:, :-1])
+            bbox = (
+                np.min([c[..., 0] for c in corners], axis=0),
+                np.max([c[..., 0] for c in corners], axis=0),
+                np.min([c[..., 1] for c in corners], axis=0),
+                np.max([c[..., 1] for c in corners], axis=0),
+            )
+            self._quad_corners_cache = (corners, bbox)
+        return self._quad_corners_cache
+
+    def contains(self, mouseevent):
+        # docstring inherited
+        if self._different_canvas(mouseevent) or not self.get_visible():
+            return False, {}
+        pickradius = (
+            float(self._picker)
+            if isinstance(self._picker, Number) and
+               self._picker is not True  # the bool, not just nonzero or 1
+            else self._pickradius)
+        if pickradius > 0:
+            # The vectorized winding-number test below only implements exact
+            # point-in-polygon testing.  Fall back to the general path-based
+            # implementation for the uncommon case of a non-zero pickradius
+            # (QuadMesh defaults to a pickradius of 0).
+            return Collection.contains(self, mouseevent)
+
+        # Invert only the single mouse point into data space, so that
+        # hit-testing stays cheap even for very large meshes.
+        x, y = self.get_transform().inverted().transform(
+            (mouseevent.x, mouseevent.y))
+
+        if not self._bbox.contains(x, y):
+            return False, {}
+
+        (p_a, p_b, p_c, p_d), (xmin, xmax, ymin, ymax) = \
+            self._get_quad_corners()
+
+        # A point usually only lies within a small number of quads, so first
+        # cheaply narrow down to the quads whose bounding box contains the
+        # point before running the more expensive winding-number test below.
+        candidates = np.nonzero((xmin <= x) & (x <= xmax) &
+                                 (ymin <= y) & (y <= ymax))
+        if candidates[0].size == 0:
+            return False, {}
+        p_a, p_b, p_c, p_d = (
+            corner[candidates] for corner in (p_a, p_b, p_c, p_d))
+
+        def side_of_line(x, y, p0, p1):
+            """
+            Return the side of the line the point (x, y) is on.
+
+            left: >0
+            on: 0
+            right: <0
+            """
+            return ((y - p0[..., 1]) * (p1[..., 0] - p0[..., 0])
+                    - (x - p0[..., 0]) * (p1[..., 1] - p0[..., 1]))
+
+        # Winding number, can handle concave polys
+        # Algorithm from Dan Sunday
+        # https://web.archive.org/web/20130126163405/
+        # http://geomalgorithms.com/a03-_inclusion.html
+        winding_number = np.zeros(p_a.shape[0])
+        for (p0, p1) in zip([p_a, p_b, p_c, p_d], [p_b, p_c, p_d, p_a]):
+            winding_number += ((p0[..., 1] <= y)
+                               & (p1[..., 1] > y)  # upward crossing
+                               & (side_of_line(x, y, p0, p1) > 0))
+
+            winding_number -= ((p0[..., 1] > y)
+                               & (p1[..., 1] <= y)  # downward crossing
+                               & (side_of_line(x, y, p0, p1) < 0))
+
+        hit = winding_number != 0
+        ind = np.ravel_multi_index(
+            (candidates[0][hit], candidates[1][hit]),
+            (self._coordinates.shape[0] - 1, self._coordinates.shape[1] - 1))
+        return ind.size > 0, dict(ind=ind)
 
     def get_cursor_data(self, event):
         contained, info = self.contains(event)
