@@ -24,9 +24,9 @@ class FigureCanvasWxAgg(FigureCanvasAgg, _FigureCanvasWxBase):
         else:
             srcDC = wx.MemoryDC(bitmap)
             destDC = wx.MemoryDC(self.bitmap)
-            x = int(bbox.x0)
-            y = int(self.bitmap.GetHeight() - bbox.y1)
-            destDC.Blit(x, y, int(bbox.width), int(bbox.height), srcDC, x, y)
+            x0, y0, x1, y1 = bbox._pixel_bounds()
+            y = self.bitmap.GetHeight() - y1
+            destDC.Blit(x0, y, x1 - x0, y1 - y0, srcDC, x0, y)
             destDC.SelectObject(wx.NullBitmap)
             srcDC.SelectObject(wx.NullBitmap)
         self.gui_repaint()
