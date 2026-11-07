@@ -225,6 +225,38 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
+def _label_anchors(ax, locs):
+    # Anchors of the radial tick labels at the given tick locations.
+    return [t.get_transform().transform((0, loc))
+            for t, loc in zip(ax.yaxis.get_ticklabels(), locs)
+            if t.get_text()]
+
+
+@pytest.mark.parametrize('rlabel_position', [90, 200])
+def test_polar_rlabel_position_wedge(rlabel_position):
+    # On a partial wedge, an explicitly set rlabel position must be honored
+    # (even outside the wedge), while the default keeps the labels on the
+    # wedge edge.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_thetamin(0)
+    ax.set_thetamax(180)
+    fig.canvas.draw()
+    locs = [t.get_position()[1] for t in ax.yaxis.get_ticklabels()
+            if t.get_text() and t.get_position()[1] > 0]
+
+    # Without a manually set position, labels sit on the theta=0 edge.
+    for got, loc in zip(_label_anchors(ax, locs), locs):
+        expected = ax.transData.transform((np.deg2rad(0), loc))
+        assert_allclose(got, expected, atol=15)
+
+    ax.set_rlabel_position(rlabel_position)
+    fig.canvas.draw()
+    for got, loc in zip(_label_anchors(ax, locs), locs):
+        expected = ax.transData.transform((np.deg2rad(rlabel_position), loc))
+        assert_allclose(got, expected, atol=15)
+
+
 @image_comparison(['polar_title_position.png'], style='mpl20')
 def test_polar_title_position():
     fig = plt.figure()
