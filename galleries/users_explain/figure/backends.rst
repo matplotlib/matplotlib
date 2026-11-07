@@ -32,6 +32,8 @@ PyQt/PySide, PyGObject, Tkinter, wxPython, or macOS/Cocoa); also referred to
 as "interactive backends") and hardcopy backends to make image files
 (PNG, SVG, PDF, PS; also referred to as "non-interactive backends").
 
+.. _selecting-a-backend:
+
 Selecting a backend
 -------------------
 
@@ -98,6 +100,13 @@ Here is a detailed description of the configuration methods:
    Using `~matplotlib.use` will require changes in your code if users want to
    use a different backend.  Therefore, you should avoid explicitly calling
    `~matplotlib.use` unless absolutely necessary.
+
+.. note::
+   On WSL2, WSLg should make interactive backends work without a separate
+   X server when a supported GUI toolkit is installed.  If it does not,
+   check that WSLg is running and that ``DISPLAY`` or ``WAYLAND_DISPLAY`` is
+   defined.  For headless WSL sessions, use the non-interactive ``Agg``
+   backend.  See :ref:`the-builtin-backends` and :ref:`selecting-a-backend`.
 
 .. _the-builtin-backends:
 
