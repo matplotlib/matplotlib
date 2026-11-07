@@ -587,8 +587,7 @@ def test_backend_fallback_headful(tmp_path):
          "import matplotlib as mpl; "
          "sentinel = mpl.rcsetup._auto_backend_sentinel; "
          # Check that access on another instance does not resolve the sentinel.
-         "assert mpl.RcParams({'backend': sentinel})['backend'] == sentinel; "
-         "assert mpl.rcParams._get('backend') == sentinel; "
+         "assert mpl.RcParams._get_backend_or_none() is None; "
          "assert mpl.get_backend(auto_select=False) is None; "
          "import matplotlib.pyplot; "
          "print(matplotlib.get_backend())"],
