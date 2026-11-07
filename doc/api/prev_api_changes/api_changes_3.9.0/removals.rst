@@ -33,7 +33,7 @@ fontproperties=labeler.labelFontProps, clip_box=labeler.axes.bbox)`` as a replac
 for the ``ContourLabeler.set_label_props(label, text, color)``.
 
 The ``labelFontProps``, ``labelFontSizeList``, and ``labelTextsList`` attributes of
-`.ContourLabeler` have been removed.  Use the ``labelTexts`` attribute and the font
+``ContourLabeler`` have been removed.  Use the ``labelTexts`` attribute and the font
 properties of the corresponding text objects instead.
 
 ``num2julian``, ``julian2num`` and ``JULIAN_OFFSET``
