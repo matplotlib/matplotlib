@@ -159,16 +159,16 @@ static int wait_for_stdin() {
 }
 
 /* ---------------------------- Cocoa classes ---------------------------- */
-@interface MatplotlibAppDelegate : NSObject <NSApplicationDelegate>
+@interface MPLLegacyAppDelegate : NSObject <NSApplicationDelegate>
 - (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app;
 @end
 
-@interface Window : NSWindow
+@interface MPLLegacyWindow : NSWindow
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen;
 @property (nonatomic, assign) PyObject* manager;
 @end
 
-@interface View : NSView <NSWindowDelegate>
+@interface MPLLegacyView : NSView <NSWindowDelegate>
 {   NSRect rubberband;
     @public double device_scale;
 }
@@ -216,7 +216,7 @@ static void gil_call_method(PyObject* obj, const char* name)
     PyGILState_Release(gstate);
 }
 
-void process_event(char const* cls_name, char const* fmt, ...)
+static void process_event(char const* cls_name, char const* fmt, ...)
 {
     PyGILState_STATE gstate = PyGILState_Ensure();
     PyObject* module = NULL, * cls = NULL,
@@ -250,7 +250,7 @@ static void lazy_init(void) {
 
     NSApp = [NSApplication sharedApplication];
     [NSApp setActivationPolicy:NSApplicationActivationPolicyRegular];
-    appDelegate = [[MatplotlibAppDelegate alloc] init];
+    appDelegate = [[MPLLegacyAppDelegate alloc] init];
     [NSApp setDelegate:appDelegate];
 
     // Run our own event loop while waiting for stdin on the Python side
@@ -372,7 +372,7 @@ PyObject* mpl_modifiers(NSEvent* event)
 
 typedef struct {
     PyObject_HEAD
-    __strong View* view;
+    __strong MPLLegacyView* view;
 } FigureCanvas;
 
 static PyTypeObject FigureCanvasType;
@@ -394,7 +394,7 @@ static int
 FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
 {
     BEGIN_OBJC_ENTRY
-    View *view;
+    MPLLegacyView *view;
     NSTrackingArea *trackingArea;
     PyObject *builtins = NULL,
              *super_obj = NULL,
@@ -414,7 +414,7 @@ FigureCanvas_init(FigureCanvas *self, PyObject *args, PyObject *kwds)
         goto exit;
     }
     NSRect rect = NSMakeRect(0.0, 0.0, width, height);
-    view = [[View alloc] initWithFrame: rect];
+    view = [[MPLLegacyView alloc] initWithFrame: rect];
     view.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
     int opts = (NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved |
                 NSTrackingActiveInKeyWindow | NSTrackingInVisibleRect);
@@ -511,7 +511,7 @@ static PyObject*
 FigureCanvas_set_rubberband(FigureCanvas* self, PyObject *args)
 {
     BEGIN_OBJC_ENTRY
-    View* view = self->view;
+    MPLLegacyView* view = self->view;
     if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return NULL;
@@ -644,7 +644,7 @@ static PyTypeObject FigureManagerType;  // forward declaration, needed in destro
 
 typedef struct {
     PyObject_HEAD
-    __strong Window* window;
+    __strong MPLLegacyWindow* window;
 } FigureManager;
 
 static PyObject*
@@ -680,7 +680,7 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
         return -1;
     }
 
-    View* view = ((FigureCanvas*)canvas)->view;
+    MPLLegacyView* view = ((FigureCanvas*)canvas)->view;
     if (!view) {  /* Something really weird going on */
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
@@ -696,13 +696,13 @@ FigureManager_init(FigureManager *self, PyObject *args, PyObject *kwds)
 
     NSRect rect = NSMakeRect( /* x */ 100, /* y */ 350, width, height);
 
-    Window* window = [[Window alloc] initWithContentRect: rect
-                                               styleMask: NSWindowStyleMaskTitled
-                                                        | NSWindowStyleMaskClosable
-                                                        | NSWindowStyleMaskResizable
-                                                        | NSWindowStyleMaskMiniaturizable
-                                                 backing: NSBackingStoreBuffered
-                                                   defer: YES];
+    MPLLegacyWindow* window = [[MPLLegacyWindow alloc] initWithContentRect: rect
+                                                                 styleMask: NSWindowStyleMaskTitled
+                                                                          | NSWindowStyleMaskClosable
+                                                                          | NSWindowStyleMaskResizable
+                                                                          | NSWindowStyleMaskMiniaturizable
+                                                                   backing: NSBackingStoreBuffered
+                                                                     defer: YES];
     [window setDelegate: view];
     [window setManager: (PyObject*)self];
     [window makeFirstResponder: view];
@@ -893,7 +893,7 @@ FigureManager_resize(FigureManager* self, PyObject *args, PyObject *kwds)
     if (!PyArg_ParseTuple(args, "ii", &width, &height)) {
         return NULL;
     }
-    Window* window = self->window;
+    MPLLegacyWindow* window = self->window;
     if (window) {
         CGFloat device_pixel_ratio = [window backingScaleFactor];
         width /= device_pixel_ratio;
@@ -960,13 +960,13 @@ static PyTypeObject FigureManagerType = {
     },
 };
 
-@implementation MatplotlibAppDelegate
+@implementation MPLLegacyAppDelegate
 - (BOOL)applicationSupportsSecureRestorableState:(NSApplication *)app {
     return YES;
 }
 @end
 
-@interface NavigationToolbar2Handler : NSObject
+@interface MPLLegacyNavigationToolbar2Handler : NSObject
 - (void)installCallbacks:(SEL[7])actions forButtons:(__strong NSButton*[7])buttons;
 - (void)home:(id)sender;
 - (void)back:(id)sender;
@@ -983,11 +983,11 @@ static PyTypeObject FigureManagerType = {
 typedef struct {
     PyObject_HEAD
     __strong NSTextView* messagebox;
-    __strong NavigationToolbar2Handler* handler;
+    __strong MPLLegacyNavigationToolbar2Handler* handler;
     int height;
 } NavigationToolbar2;
 
-@implementation NavigationToolbar2Handler
+@implementation MPLLegacyNavigationToolbar2Handler
 
 - (void)installCallbacks:(SEL[7])actions forButtons:(__strong NSButton*[7])buttons
 {
@@ -1053,7 +1053,7 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         return -1;
     }
 
-    View* view = canvas->view;
+    MPLLegacyView* view = canvas->view;
     if (!view) {
         PyErr_SetString(PyExc_RuntimeError, "NSView* is NULL");
         return -1;
@@ -1121,8 +1121,8 @@ NavigationToolbar2_init(NavigationToolbar2 *self, PyObject *args, PyObject *kwds
         rect.origin.x += rect.size.width + gap;
     }
 
-    NavigationToolbar2Handler *handler;
-    handler = [[NavigationToolbar2Handler alloc] init];
+    MPLLegacyNavigationToolbar2Handler *handler;
+    handler = [[MPLLegacyNavigationToolbar2Handler alloc] init];
     [handler setToolbar:(PyObject*)self];
     [handler installCallbacks: actions forButtons: buttons];
 
@@ -1259,7 +1259,7 @@ choose_save_file(PyObject* unused, PyObject* args)
     RETURN_NULL_OR_NONE
 }
 
-@implementation Window
+@implementation MPLLegacyWindow
 
 - (NSRect)constrainFrameRect:(NSRect)rect toScreen:(NSScreen*)screen
 {
@@ -1273,7 +1273,7 @@ choose_save_file(PyObject* unused, PyObject* args)
 
 @end
 
-@implementation View
+@implementation MPLLegacyView
 - (instancetype)initWithFrame:(NSRect)rect
 {
     if (self = [super initWithFrame: rect]) {
@@ -1423,7 +1423,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 
 - (void)windowDidChangeBackingProperties:(NSNotification *)notification
 {
-    Window* window = [notification object];
+    MPLLegacyWindow* window = [notification object];
 
     [self updateDevicePixelRatio: [window backingScaleFactor]];
 }
@@ -1431,7 +1431,7 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 - (void)windowDidResize: (NSNotification*)notification
 {
     int width, height;
-    Window* window = [notification object];
+    MPLLegacyWindow* window = [notification object];
     NSSize size = [[window contentView] frame].size;
     NSRect rect = [self frame];
 
@@ -1454,8 +1454,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 {
     // A view should not be the delegate of a window, this check
     // will go away with next refactor
-    Window *window = (Window *)[self window];
-    if ([window isKindOfClass:[Window class]]) {
+    MPLLegacyWindow *window = (MPLLegacyWindow *)[self window];
+    if ([window isKindOfClass:[MPLLegacyWindow class]]) {
         gil_call_method([window manager], "_handle_window_will_close");
     }
 }
@@ -1464,8 +1464,8 @@ static int _copy_agg_buffer(CGContextRef cr, PyObject *renderer)
 {
     // A view should not be the delegate of a window, this check
     // will go away with next refactor
-    Window *window = (Window *)[self window];
-    if ([window isKindOfClass:[Window class]]) {
+    MPLLegacyWindow *window = (MPLLegacyWindow *)[self window];
+    if ([window isKindOfClass:[MPLLegacyWindow class]]) {
         gil_call_method([window manager], "_handle_window_should_close");
     }
     return YES;
