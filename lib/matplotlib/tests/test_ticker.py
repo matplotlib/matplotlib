@@ -591,6 +591,14 @@ class TestFixedLocator:
         fixed.set_params(nbins=7)
         assert fixed.nbins == 7
 
+    @pytest.mark.parametrize("value", [np.nan, np.inf, -np.inf])
+    def test_nonfinite_locations(self, value):
+        with pytest.raises(
+            ValueError,
+            match="FixedLocator locations must all be finite",
+        ):
+            mticker.FixedLocator([value])
+
 
 class TestIndexLocator:
     def test_set_params(self):
