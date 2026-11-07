@@ -45,9 +45,7 @@ description of both and their recommended use cases.
         :shadow: none
         :class-footer: api-interface-footer
 
-        **pyplot interface** (function-based, implicit)
-
-        consists of functions in the `.pyplot` module. Figure and Axes are manipulated
+        **pyplot interface** (function-based, implicit) consists of functions in the `.pyplot` module. Figure and Axes are manipulated
         through these functions and are only *implicitly* present in the background.
 
         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -97,6 +95,7 @@ Alphabetical list of modules:
    colors_api.rst
    container_api.rst
    contour_api.rst
+   data_containers.rst
    dates_api.rst
    dviread.rst
    figure_api.rst
