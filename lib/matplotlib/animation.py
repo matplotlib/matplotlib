@@ -1355,7 +1355,8 @@ class Animation:
         else:
             return 'Video too large to embed.'
 
-    def to_jshtml(self, fps=None, embed_frames=True, default_mode=None):
+    def to_jshtml(self, fps=None, embed_frames=True, default_mode=None,
+                  frame_format=None):
         """
         Generate HTML representation of the animation.
 
@@ -1369,6 +1370,8 @@ class Animation:
             What to do when the animation ends. Must be one of ``{'loop',
             'once', 'reflect'}``. Defaults to ``'loop'`` if the *repeat*
             parameter is True, otherwise ``'once'``.
+        frame_format : str, optional
+            Image format embedded into the HTML file
 
         Returns
         -------
@@ -1394,6 +1397,8 @@ class Animation:
                 writer = HTMLWriter(fps=fps,
                                     embed_frames=embed_frames,
                                     default_mode=default_mode)
+                if frame_format is not None:
+                    writer.frame_format = frame_format
                 self.save(str(path), writer=writer)
                 self._html_representation = path.read_text()
 
