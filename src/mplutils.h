@@ -85,7 +85,7 @@ inline void cast(T &dst, const py::object &src, const char *arg_name)
 template <typename T>
 inline void convert(T &dst, const py::object src, const char *arg_name)
 {
-    static_assert(internal::always_false_v<T>::value,
+    static_assert(internal::always_false_v<T>,
         "No convert() specialization registered for this type");
 }
 

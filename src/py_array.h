@@ -391,7 +391,7 @@ public:
     static constexpr auto name = const_name("numpy.ndarray");
 
     bool load(handle, bool) {
-        static_assert(mpl::internal::always_false_v<Scalar>::value,
+        static_assert(mpl::internal::always_false_v<Scalar>,
             "Wrap mpl::array arguments with mpl::defer()");
         return false;
     }
