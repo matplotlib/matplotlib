@@ -111,8 +111,8 @@ _finalize_polygon(std::vector<Polygon> &result, bool closed_only)
 //
 // Input 2D polygon _pgon_ with _numverts_ number of vertices and test point
 // _point_, returns 1 if inside, 0 if outside.
-template <class PathIterator>
-void point_in_path_impl(const InputPointArray &points, PathIterator &path,
+template <class VertexSource>
+void point_in_path_impl(const InputPointArray &points, VertexSource &source,
                         const BoolArray &inside_flag)
 {
     uint8_t yflag1;
@@ -129,7 +129,7 @@ void point_in_path_impl(const InputPointArray &points, PathIterator &path,
     std::vector<uint8_t> yflag0(n);
     std::vector<uint8_t> subpath_flag(n);
 
-    path.rewind(0);
+    source.rewind(0);
 
     for (i = 0; i < n; ++i) {
         inside_flag(i) = false;
@@ -138,7 +138,7 @@ void point_in_path_impl(const InputPointArray &points, PathIterator &path,
     unsigned code = 0;
     do {
         if (code != agg::path_cmd_move_to) {
-            code = path.vertex(&x, &y);
+            code = source.vertex(&x, &y);
             if (code == agg::path_cmd_stop ||
                 (code & agg::path_cmd_end_poly) == agg::path_cmd_end_poly) {
                 continue;
@@ -160,7 +160,7 @@ void point_in_path_impl(const InputPointArray &points, PathIterator &path,
         }
 
         do {
-            code = path.vertex(&x, &y);
+            code = source.vertex(&x, &y);
 
             // The following cases denote the beginning on a new subpath
             if (code == agg::path_cmd_stop ||
@@ -245,10 +245,9 @@ void point_in_path_impl(const InputPointArray &points, PathIterator &path,
     } while (code != agg::path_cmd_stop);
 }
 
-template <class PathIterator>
 inline void points_in_path(const InputPointArray &points,
                            const double r,
-                           PathIterator &path,
+                           mpl::PathIterator &path,
                            agg::trans_affine &trans,
                            const BoolArray &result)
 {
@@ -271,9 +270,9 @@ inline void points_in_path(const InputPointArray &points,
     }
 }
 
-template <class PathIterator>
 inline bool point_in_path(
-    double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
+    double x, double y, const double r,
+    mpl::PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
     auto points = InputPointArray::unmanaged(points_data, 1);
@@ -286,9 +285,9 @@ inline bool point_in_path(
     return result_data[0];
 }
 
-template <class PathIterator>
 inline bool point_on_path(
-    double x, double y, const double r, PathIterator &path, agg::trans_affine &trans)
+    double x, double y, const double r,
+    mpl::PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
     auto points = InputPointArray::unmanaged(points_data, 1);
@@ -359,9 +358,8 @@ void update_path_extents(mpl::PathIterator &path, agg::trans_affine &trans, exte
     }
 }
 
-template <class PathGenerator>
 void get_path_collection_extents(agg::trans_affine &master_transform,
-                                 PathGenerator &paths,
+                                 mpl::PathGenerator &paths,
                                  AffineTransformArray &transforms,
                                  InputPointArray &offsets,
                                  agg::trans_affine &offset_trans,
@@ -377,7 +375,7 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
     extent.reset();
 
     for (auto i = 0; i < N; ++i) {
-        typename PathGenerator::path_iterator path(paths(i % Npaths));
+        auto path(paths(i % Npaths));
         if (Ntransforms) {
             py::ssize_t ti = i % Ntransforms;
             trans = agg::trans_affine(transforms(ti, 0, 0),
@@ -401,12 +399,11 @@ void get_path_collection_extents(agg::trans_affine &master_transform,
     }
 }
 
-template <class PathGenerator>
 void point_in_path_collection(double x,
                               double y,
                               double radius,
                               agg::trans_affine &master_transform,
-                              PathGenerator &paths,
+                              mpl::PathGenerator &paths,
                               AffineTransformArray &transforms,
                               InputPointArray &offsets,
                               agg::trans_affine &offset_trans,
@@ -426,7 +423,7 @@ void point_in_path_collection(double x,
     agg::trans_affine trans;
 
     for (size_t i = 0; i < N; ++i) {
-        typename PathGenerator::path_iterator path = paths(i % Npaths);
+        auto path = paths(i % Npaths);
 
         if (Ntransforms) {
             auto ti = i % Ntransforms;
@@ -829,8 +826,7 @@ inline bool segment_intersects_rectangle(double x1, double y1,
                w * fabs(y1 - y2) + h * fabs(x1 - x2);
 }
 
-template <class PathIterator>
-bool path_intersects_rectangle(PathIterator &path,
+bool path_intersects_rectangle(mpl::PathIterator &path,
                                double rect_x1, double rect_y1,
                                double rect_x2, double rect_y2,
                                bool filled)
@@ -870,8 +866,7 @@ bool path_intersects_rectangle(PathIterator &path,
     return false;
 }
 
-template <class PathIterator>
-void convert_path_to_polygons(PathIterator &path,
+void convert_path_to_polygons(mpl::PathIterator &path,
                               agg::trans_affine &trans,
                               double width,
                               double height,
@@ -921,8 +916,7 @@ __cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<
     } while (code != agg::path_cmd_stop);
 }
 
-template <class PathIterator>
-void cleanup_path(PathIterator &path,
+void cleanup_path(mpl::PathIterator &path,
                   agg::trans_affine &trans,
                   bool remove_nans,
                   bool do_clip,
@@ -994,8 +988,8 @@ void __add_number(double val, char format_code, int precision,
 }
 
 
-template <class PathIterator>
-bool __convert_to_string(PathIterator &path,
+template <class VertexSource>
+bool __convert_to_string(VertexSource &source,
                          int precision,
                          const std::array<std::string, 5> &codes,
                          bool postfix,
@@ -1010,14 +1004,14 @@ bool __convert_to_string(PathIterator &path,
 
     unsigned code;
 
-    while ((code = path.vertex(&std::get<0>(x), &std::get<0>(y))) != agg::path_cmd_stop) {
+    while ((code = source.vertex(&std::get<0>(x), &std::get<0>(y))) != agg::path_cmd_stop) {
         if (code == CLOSEPOLY) {
             buffer += std::get<4>(codes);
         } else if (code < 5) {
             size_t size = NUM_VERTICES[code];
 
             for (size_t i = 1; i < size; ++i) {
-                unsigned subcode = path.vertex(&x.at(i), &y.at(i));
+                unsigned subcode = source.vertex(&x.at(i), &y.at(i));
                 if (subcode != code) {
                     return false;
                 }
@@ -1060,8 +1054,7 @@ bool __convert_to_string(PathIterator &path,
     return true;
 }
 
-template <class PathIterator>
-bool convert_to_string(PathIterator &path,
+bool convert_to_string(mpl::PathIterator &path,
                        agg::trans_affine &trans,
                        agg::rect_d &clip_rect,
                        bool simplify,
@@ -1069,7 +1062,7 @@ bool convert_to_string(PathIterator &path,
                        int precision,
                        const std::array<std::string, 5> &codes,
                        bool postfix,
-                       std::string& buffer)
+                       std::string &buffer)
 {
     bool do_clip = (clip_rect.x1 < clip_rect.x2 && clip_rect.y1 < clip_rect.y2);
 

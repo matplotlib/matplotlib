@@ -64,11 +64,6 @@ struct shape_traits<mpl::shape<Is...>> {
 };
 
 
-// Used for static_assert in type_caster::load
-template <typename T>
-inline constexpr bool always_false_v = false;
-
-
 // Only enables when there is exactly one integral argument per -1 in the shape
 template <typename Traits, typename... Args>
 using enable_if_args_match = std::enable_if_t<
@@ -372,6 +367,19 @@ private:
     int64_t m_strides[Dim] { };
 };
 
+
+template <typename Scalar, typename Shape>
+class defer<array<Scalar, Shape>> : public py::object
+{
+    PYBIND11_OBJECT_DEFAULT(defer, py::object, mpl::internal::check_any)
+
+    array<Scalar, Shape> value(const char *arg_name) const
+    {
+        return array<Scalar, Shape>(*this, arg_name);
+    }
+};
+
+
 } // namespace mpl
 
 
@@ -383,7 +391,7 @@ public:
     static constexpr auto name = const_name("numpy.ndarray");
 
     bool load(handle, bool) {
-        static_assert(mpl::internal::always_false_v<Scalar>,
+        static_assert(mpl::internal::always_false_v<Scalar>::value,
             "Wrap mpl::array arguments with mpl::defer()");
         return false;
     }

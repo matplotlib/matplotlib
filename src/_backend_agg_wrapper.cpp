@@ -46,14 +46,18 @@ PyBufferRegion_get_extents(BufferRegion *self)
 
 static void
 PyRendererAgg_draw_path(RendererAgg *self,
-                        GCAgg &gc,
-                        mpl::PathIterator path,
-                        agg::trans_affine trans,
-                        py::object rgbFace)
+                        const mpl::defer<GCAgg> &gc_obj,
+                        const mpl::defer<mpl::PathIterator> &path_obj,
+                        const mpl::defer<agg::trans_affine> &trans_obj,
+                        const mpl::defer<agg::rgba> &face_obj)
 {
-    agg::rgba face = rgbFace.cast<agg::rgba>();
-    if (!rgbFace.is_none()) {
-        if (gc.forced_alpha || rgbFace.cast<py::sequence>().size() == 3) {
+    GCAgg gc;  gc_obj.assign(gc, "gc");
+    auto path = path_obj.value("path");
+    auto trans = trans_obj.value("trans");
+    auto face = face_obj.value("value");
+
+    if (!face_obj.is_none()) {
+        if (gc.forced_alpha || face_obj.cast<py::sequence>().size() == 3) {
             face.a = gc.alpha;
         }
     }
@@ -64,9 +68,11 @@ PyRendererAgg_draw_path(RendererAgg *self,
 static void
 PyRendererAgg_draw_text_image(RendererAgg *self,
                               const mpl::defer<TextImage> &image_obj,
-                              int x, int y, double angle, GCAgg &gc)
+                              int x, int y, double angle,
+                              const mpl::defer<GCAgg> &gc_obj)
 {
     auto image = image_obj.value("image");
+    GCAgg gc; gc_obj.assign(gc, "gc");
 
     self->draw_text_image(gc, image, x, y, angle);
 }
@@ -76,10 +82,11 @@ PyRendererAgg_draw_text_images(
     RendererAgg *self,
     const mpl::defer<GlyphRunBuffer> &buffer_obj,
     const mpl::defer<GlyphRunPositionArray> &positions_obj,
-    GCAgg &gc)
+    const mpl::defer<GCAgg> &gc_obj)
 {
     auto buffer = buffer_obj.value("buffer");
     auto positions = positions_obj.value("positions");
+    GCAgg gc; gc_obj.assign(gc, "gc");
 
     // The renderer indexes into the buffer with these.
     auto const& size = buffer.shape(0);
@@ -99,16 +106,22 @@ PyRendererAgg_draw_text_images(
 
 static void
 PyRendererAgg_draw_markers(RendererAgg *self,
-                           GCAgg &gc,
-                           mpl::PathIterator marker_path,
-                           agg::trans_affine marker_path_trans,
-                           mpl::PathIterator path,
-                           agg::trans_affine trans,
-                           py::object rgbFace)
+                           const mpl::defer<GCAgg> &gc_obj,
+                           const mpl::defer<mpl::PathIterator> &marker_path_obj,
+                           const mpl::defer<agg::trans_affine> &marker_path_trans_obj,
+                           const mpl::defer<mpl::PathIterator> &path_obj,
+                           const mpl::defer<agg::trans_affine> &trans_obj,
+                           const mpl::defer<agg::rgba> &face_obj)
 {
-    agg::rgba face = rgbFace.cast<agg::rgba>();
-    if (!rgbFace.is_none()) {
-        if (gc.forced_alpha || rgbFace.cast<py::sequence>().size() == 3) {
+    GCAgg gc; gc_obj.assign(gc, "gc");
+    auto marker_path = marker_path_obj.value("marker_path");
+    auto marker_path_trans = marker_path_trans_obj.value("marker_path_trans");
+    auto path = path_obj.value("path");
+    auto trans = trans_obj.value("trans");
+    auto face = face_obj.value("face");
+
+    if (!face_obj.is_none()) {
+        if (gc.forced_alpha || face_obj.cast<py::sequence>().size() == 3) {
             face.a = gc.alpha;
         }
     }
@@ -118,11 +131,12 @@ PyRendererAgg_draw_markers(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_image(RendererAgg *self,
-                         GCAgg &gc,
+                         const mpl::defer<GCAgg> &gc_obj,
                          double x,
                          double y,
                          const mpl::defer<RGBAImage> &image_obj)
 {
+    GCAgg gc; gc_obj.assign(gc, "gc");
     auto image = image_obj.value("image");
 
     x = mpl::round(x);
@@ -132,28 +146,34 @@ PyRendererAgg_draw_image(RendererAgg *self,
 }
 
 static void
-PyRendererAgg_draw_path_collection(RendererAgg *self,
-                                   GCAgg &gc,
-                                   agg::trans_affine master_transform,
-                                   mpl::PathGenerator paths,
-                                   const mpl::defer<AffineTransformArray> &transforms_obj,
-                                   const mpl::defer<PointArray> &offsets_obj,
-                                   agg::trans_affine offset_trans,
-                                   const mpl::defer<ColorArray> &facecolors_obj,
-                                   const mpl::defer<ColorArray> &edgecolors_obj,
-                                   const mpl::defer<LineWidthArray> &linewidths_obj,
-                                   DashesVector dashes,
-                                   const mpl::defer<AntialiasedArray> &antialiaseds_obj,
-                                   py::object Py_UNUSED(urls_obj),
-                                   // offset position is no longer used
-                                   py::object Py_UNUSED(offset_position_obj),
-                                   std::optional<mpl::defer<ColorArray>> &hatchcolors_obj)
+PyRendererAgg_draw_path_collection(
+    RendererAgg *self,
+    const mpl::defer<GCAgg> &gc_obj,
+    const mpl::defer<agg::trans_affine> &master_transform_obj,
+    const mpl::defer<mpl::PathGenerator> &paths_obj,
+    const mpl::defer<AffineTransformArray> &all_transforms_obj,
+    const mpl::defer<PointArray> &offsets_obj,
+    const mpl::defer<agg::trans_affine> &offset_trans_obj,
+    const mpl::defer<ColorArray> &facecolors_obj,
+    const mpl::defer<ColorArray> &edgecolors_obj,
+    const mpl::defer<LineWidthArray> &linewidths_obj,
+    const mpl::defer<LinestyleVector> &linestyles_obj,
+    const mpl::defer<AntialiasedArray> &antialiaseds_obj,
+    py::object Py_UNUSED(urls_obj),
+    // offset position is no longer used
+    py::object Py_UNUSED(offset_position_obj),
+    std::optional<mpl::defer<ColorArray>> &hatchcolors_obj)
 {
-    auto transforms = transforms_obj.value("transforms");
+    GCAgg gc; gc_obj.assign(gc, "gc");
+    auto master_transform = master_transform_obj.value("master_transform");
+    auto paths = paths_obj.value("paths");
+    auto all_transforms = all_transforms_obj.value("all_transforms");
     auto offsets = offsets_obj.value("offsets");
+    auto offset_trans = offset_trans_obj.value("offset_trans");
     auto facecolors = facecolors_obj.value("facecolors");
     auto edgecolors = edgecolors_obj.value("edgecolors");
     auto linewidths = linewidths_obj.value("linewidths");
+    auto linestyles = linestyles_obj.value("linestyles");
     auto antialiaseds = antialiaseds_obj.value("antialiaseds");
 
     auto hatchcolors = hatchcolors_obj ? hatchcolors_obj.value().value("hatchcolors") :
@@ -162,34 +182,39 @@ PyRendererAgg_draw_path_collection(RendererAgg *self,
     self->draw_path_collection(gc,
             master_transform,
             paths,
-            transforms,
+            all_transforms,
             offsets,
             offset_trans,
             facecolors,
             edgecolors,
             linewidths,
-            dashes,
+            linestyles,
             antialiaseds,
             hatchcolors);
 }
 
 static void
-PyRendererAgg_draw_quad_mesh(RendererAgg *self,
-                             GCAgg &gc,
-                             agg::trans_affine master_transform,
-                             unsigned int mesh_width,
-                             unsigned int mesh_height,
-                             const mpl::defer<QuadMeshCoordinateArray> &coordinates_obj,
-                             const mpl::defer<PointArray> &offsets_obj,
-                             agg::trans_affine offset_trans,
-                             const mpl::defer<ColorArray> &facecolors_obj,
-                             bool antialiased,
-                             const mpl::defer<ColorArray> &edgecolors_obj)
+PyRendererAgg_draw_quad_mesh(
+    RendererAgg *self,
+    const mpl::defer<GCAgg> &gc_obj,
+    const mpl::defer<agg::trans_affine> &master_transform_obj,
+    unsigned int mesh_width,
+    unsigned int mesh_height,
+    const mpl::defer<QuadMeshCoordinateArray> &coordinates_obj,
+    const mpl::defer<PointArray> &offsets_obj,
+    const mpl::defer<agg::trans_affine> &offset_trans_obj,
+    const mpl::defer<ColorArray> &facecolors_obj,
+    bool antialiased,
+    std::optional<mpl::defer<ColorArray>> &edgecolors_obj)
 {
+    GCAgg gc; gc_obj.assign(gc, "gc");
+    auto master_transform = master_transform_obj.value("master_transform");
     auto coordinates = coordinates_obj.value("coordinates");
     auto offsets = offsets_obj.value("offsets");
+    auto offset_trans = offset_trans_obj.value("offset_trans");
     auto facecolors = facecolors_obj.value("facecolors");
-    auto edgecolors = edgecolors_obj.value("edgecolors");
+    auto edgecolors = edgecolors_obj ? edgecolors_obj.value().value("edgecolors") :
+        ColorArray::unmanaged_empty();
 
     self->draw_quad_mesh(gc,
             master_transform,
@@ -205,15 +230,26 @@ PyRendererAgg_draw_quad_mesh(RendererAgg *self,
 
 static void
 PyRendererAgg_draw_gouraud_triangles(RendererAgg *self,
-                                     GCAgg &gc,
+                                     const mpl::defer<GCAgg> &gc_obj,
                                      const mpl::defer<GouraudPointArray> &points_obj,
                                      const mpl::defer<GouraudColorArray> &colors_obj,
-                                     agg::trans_affine trans)
+                                     const mpl::defer<agg::trans_affine> &trans_obj)
 {
+    GCAgg gc; gc_obj.assign(gc, "gc");
     auto points = points_obj.value("points");
     auto colors = colors_obj.value("colors");
+    auto trans = trans_obj.value("trans");
 
     self->draw_gouraud_triangles(gc, points, colors, trans);
+}
+
+static BufferRegion *
+PyRendererAgg_copy_from_bbox(RendererAgg *self,
+                             const mpl::defer<agg::rect_d> &bbox_obj)
+{
+    auto bbox = bbox_obj.value("bbox");
+
+    return self->copy_from_bbox(bbox);
 }
 
 #ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
@@ -228,10 +264,10 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
              "width"_a, "height"_a, "dpi"_a)
 
         .def("draw_path", &PyRendererAgg_draw_path,
-             "gc"_a, "path"_a, "trans"_a, "face"_a = nullptr)
+             "gc"_a, "path"_a, "trans"_a, "face"_a.none() = nullptr)
         .def("draw_markers", &PyRendererAgg_draw_markers,
              "gc"_a, "marker_path"_a, "marker_path_trans"_a, "path"_a, "trans"_a,
-             "face"_a = nullptr)
+             "face"_a.none() = nullptr)
         .def("draw_text_image", &PyRendererAgg_draw_text_image,
              "image"_a, "x"_a, "y"_a, "angle"_a, "gc"_a)
         .def("draw_text_images", &PyRendererAgg_draw_text_images,
@@ -239,9 +275,9 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
         .def("draw_image", &PyRendererAgg_draw_image,
              "gc"_a, "x"_a, "y"_a, "image"_a)
         .def("draw_path_collection", &PyRendererAgg_draw_path_collection,
-             "gc"_a, "master_transform"_a, "paths"_a, "transforms"_a, "offsets"_a,
+             "gc"_a, "master_transform"_a, "paths"_a, "all_transforms"_a, "offsets"_a,
              "offset_trans"_a, "facecolors"_a, "edgecolors"_a, "linewidths"_a,
-             "dashes"_a, "antialiaseds"_a, "ignored"_a, "offset_position"_a,
+             "linestyles"_a, "antialiaseds"_a, "urls"_a, "offset_position"_a,
              py::kw_only(), "hatchcolors"_a.none() = nullptr)
         .def("draw_quad_mesh", &PyRendererAgg_draw_quad_mesh,
              "gc"_a, "master_transform"_a, "mesh_width"_a, "mesh_height"_a,
@@ -252,8 +288,7 @@ PYBIND11_MODULE(_backend_agg, m, py::mod_gil_not_used())
 
         .def("clear", &RendererAgg::clear)
 
-        .def("copy_from_bbox", &RendererAgg::copy_from_bbox,
-             "bbox"_a)
+        .def("copy_from_bbox", &PyRendererAgg_copy_from_bbox, "bbox"_a)
         .def("restore_region",
              py::overload_cast<BufferRegion&>(&RendererAgg::restore_region),
              "region"_a)

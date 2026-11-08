@@ -151,14 +151,13 @@ class RendererAgg
         return height;
     }
 
-    template <class PathIterator>
-    void draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, agg::rgba &color);
+    void draw_path(GCAgg &gc, mpl::PathIterator &path,
+                   agg::trans_affine &trans, agg::rgba &color);
 
-    template <class PathIterator>
     void draw_markers(GCAgg &gc,
-                      PathIterator &marker_path,
+                      mpl::PathIterator &marker_path,
                       agg::trans_affine &marker_path_trans,
-                      PathIterator &path,
+                      mpl::PathIterator &path,
                       agg::trans_affine &trans,
                       agg::rgba face);
 
@@ -171,17 +170,16 @@ class RendererAgg
                     double y,
                     RGBAImage &image);
 
-    template <class PathGenerator>
     void draw_path_collection(GCAgg &gc,
                               agg::trans_affine &master_transform,
-                              PathGenerator &path,
+                              mpl::PathGenerator &path,
                               AffineTransformArray &transforms,
                               PointArray &offsets,
                               agg::trans_affine &offset_trans,
                               ColorArray &facecolors,
                               ColorArray &edgecolors,
                               LineWidthArray &linewidths,
-                              DashesVector &linestyles,
+                              LinestyleVector &linestyles,
                               AntialiasedArray &antialiaseds,
                               ColorArray &hatchcolors);
 
@@ -246,41 +244,43 @@ class RendererAgg
         return points * dpi / 72.0;
     }
 
-    template <class R>
-    void set_clipbox(const agg::rect_d &cliprect, R &rasterizer);
+    template <class RasterizerType>
+    void set_clipbox(const agg::rect_d &cliprect, RasterizerType &rasterizer);
 
     std::optional<agg::rect_i> text_clip_rect(const agg::rect_d &cliprect);
 
     void blend_text_bitmap(GCAgg &gc, const agg::int8u *covers, int rows, int cols,
                            int x, int y, const std::optional<agg::rect_i> &clip);
 
-    bool render_clippath(mpl::PathIterator &clippath, const agg::trans_affine &clippath_trans, e_snap_mode snap_mode);
+    bool render_clippath(mpl::PathIterator &clippath,
+                         const agg::trans_affine &clippath_trans,
+                         e_snap_mode snap_mode);
 
     template <class PathIteratorType>
     void _draw_path(PathIteratorType &path, bool has_clippath, const std::optional<agg::rgba> &face, GCAgg &gc);
 
-    template <class PathIterator, class PathGenerator>
+    template <class PathGeneratorType>
     void _draw_path_collection_generic(GCAgg &gc,
                                        agg::trans_affine master_transform,
                                        const agg::rect_d &cliprect,
-                                       PathIterator &clippath,
+                                       mpl::PathIterator &clippath,
                                        const agg::trans_affine &clippath_trans,
-                                       PathGenerator &path_generator,
+                                       PathGeneratorType &path_generator,
                                        AffineTransformArray &transforms,
                                        PointArray &offsets,
                                        const agg::trans_affine &offset_trans,
                                        ColorArray &facecolors,
                                        ColorArray &edgecolors,
                                        LineWidthArray &linewidths,
-                                       DashesVector &linestyles,
+                                       LinestyleVector &linestyles,
                                        AntialiasedArray &antialiaseds,
                                        bool check_snap,
                                        bool has_codes,
                                        ColorArray &hatchcolors);
 
-    template <class PointArray, class ColorArray>
-    void _draw_gouraud_triangle(PointArray &points,
-                                ColorArray &colors,
+    template <class PointArrayType, class ColorArrayType>
+    void _draw_gouraud_triangle(PointArrayType &points,
+                                ColorArrayType &colors,
                                 agg::trans_affine trans,
                                 bool has_clippath);
 
@@ -466,9 +466,9 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
     pixFmt.comp_op(agg::comp_op_src_over);
 }
 
-template <class PathIterator>
 inline void
-RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, agg::rgba &color)
+RendererAgg::draw_path(GCAgg &gc, mpl::PathIterator &path,
+                       agg::trans_affine &trans, agg::rgba &color)
 {
     std::optional<agg::rgba> face;
     if (color.a != 0.0) {
@@ -502,11 +502,10 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
     _draw_path(sketch, has_clippath, face, gc);
 }
 
-template <class PathIterator>
 inline void RendererAgg::draw_markers(GCAgg &gc,
-                                      PathIterator &marker_path,
+                                      mpl::PathIterator &marker_path,
                                       agg::trans_affine &marker_trans,
-                                      PathIterator &path,
+                                      mpl::PathIterator &path,
                                       agg::trans_affine &trans,
                                       agg::rgba color)
 {
@@ -925,20 +924,20 @@ inline void RendererAgg::draw_image(GCAgg &gc,
     pixFmt.comp_op(agg::comp_op_src_over);
 }
 
-template <class PathIterator, class PathGenerator>
+template <class PathGeneratorType>
 inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        agg::trans_affine master_transform,
                                                        const agg::rect_d &cliprect,
-                                                       PathIterator &clippath,
+                                                       mpl::PathIterator &clippath,
                                                        const agg::trans_affine &clippath_trans,
-                                                       PathGenerator &path_generator,
+                                                       PathGeneratorType &path_generator,
                                                        AffineTransformArray &transforms,
                                                        PointArray &offsets,
                                                        const agg::trans_affine &offset_trans,
                                                        ColorArray &facecolors,
                                                        ColorArray &edgecolors,
                                                        LineWidthArray &linewidths,
-                                                       DashesVector &linestyles,
+                                                       LinestyleVector &linestyles,
                                                        AntialiasedArray &antialiaseds,
                                                        bool check_snap,
                                                        bool has_codes,
@@ -973,7 +972,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     bool do_clip = Nfacecolors == 0 && !gc.has_hatchpath();
 
     for (int i = 0; i < (int)N; ++i) {
-        typename PathGenerator::path_iterator path = path_generator(i);
+        auto path = path_generator(i);
 
         if (Ntransforms) {
             int it = i % Ntransforms;
@@ -1055,17 +1054,16 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
     }
 }
 
-template <class PathGenerator>
 inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               agg::trans_affine &master_transform,
-                                              PathGenerator &path,
+                                              mpl::PathGenerator &path,
                                               AffineTransformArray &transforms,
                                               PointArray &offsets,
                                               agg::trans_affine &offset_trans,
                                               ColorArray &facecolors,
                                               ColorArray &edgecolors,
                                               LineWidthArray &linewidths,
-                                              DashesVector &linestyles,
+                                              LinestyleVector &linestyles,
                                               AntialiasedArray &antialiaseds,
                                               ColorArray &hatchcolors)
 {
@@ -1143,8 +1141,6 @@ class QuadMeshGenerator
     };
 
   public:
-    typedef QuadMeshPathIterator path_iterator;
-
     inline QuadMeshGenerator(unsigned meshWidth, unsigned meshHeight,
                              QuadMeshCoordinateArray &coordinates)
         : m_meshWidth(meshWidth), m_meshHeight(meshHeight), m_coordinates(coordinates)
@@ -1156,7 +1152,7 @@ class QuadMeshGenerator
         return (size_t) m_meshWidth * m_meshHeight;
     }
 
-    inline path_iterator operator()(size_t i) const
+    inline auto operator()(size_t i) const
     {
         return QuadMeshPathIterator(i % m_meshWidth, i / m_meshWidth, &m_coordinates);
     }
@@ -1176,7 +1172,7 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
     QuadMeshGenerator path_generator(mesh_width, mesh_height, coordinates);
 
     auto transforms = AffineTransformArray::unmanaged_empty();
-    auto linestyles = DashesVector();
+    auto linestyles = LinestyleVector();
     auto hatchcolors = ColorArray::unmanaged_empty();
 
     double linewidth_scalar = gc.linewidth;
@@ -1204,9 +1200,9 @@ inline void RendererAgg::draw_quad_mesh(GCAgg &gc,
                                   hatchcolors);
 }
 
-template <class PointArray, class ColorArray>
-inline void RendererAgg::_draw_gouraud_triangle(PointArray &points,
-                                                ColorArray &colors,
+template <class PointArrayType, class ColorArrayType>
+inline void RendererAgg::_draw_gouraud_triangle(PointArrayType &points,
+                                                ColorArrayType &colors,
                                                 agg::trans_affine trans,
                                                 bool has_clippath)
 {
@@ -1284,8 +1280,8 @@ inline void RendererAgg::draw_gouraud_triangles(GCAgg &gc,
     pixFmt.comp_op(agg::comp_op_src_over);
 }
 
-template <class R>
-void RendererAgg::set_clipbox(const agg::rect_d &cliprect, R &rasterizer)
+template <class RasterizerType>
+void RendererAgg::set_clipbox(const agg::rect_d &cliprect, RasterizerType &rasterizer)
 {
     // set the clip rectangle from the gc
 

@@ -16,6 +16,8 @@
 #include "path_converters.h"
 
 #include "py_adaptors.h"
+#include "py_converters.h"
+#include "py_array.h"
 
 namespace py = pybind11;
 
@@ -73,7 +75,7 @@ class Dashes
     }
 };
 
-typedef std::vector<Dashes> DashesVector;
+typedef std::vector<Dashes> LinestyleVector;
 
 class GCAgg
 {
@@ -128,188 +130,162 @@ class GCAgg
     GCAgg &operator=(const GCAgg &);
 };
 
-namespace PYBIND11_NAMESPACE { namespace detail {
-    template <> struct type_caster<agg::comp_op_e> {
-    public:
-        PYBIND11_TYPE_CASTER(agg::comp_op_e, const_name("comp_op_e"));
 
-        bool load(handle src, bool) {
-            const std::unordered_map<std::string, agg::comp_op_e> enum_values = {
-                {"clear", agg::comp_op_clear},
-                {"knockout", agg::comp_op_src},
-                //{"dest", agg::comp_op_dst},
-                {"normal", agg::comp_op_src_over},
-                //{"dst_over", agg::comp_op_dst_over},
-                //{"in", agg::comp_op_src_in},
-                //{"dst_in", agg::comp_op_dst_in},
-                //{"out", agg::comp_op_src_out},
-                {"erase", agg::comp_op_dst_out},
-                {"atop", agg::comp_op_src_atop},
-                //{"dst_atop", agg::comp_op_dst_atop},
-                {"xor", agg::comp_op_xor},
-                {"plus", agg::comp_op_plus},
-                {"multiply", agg::comp_op_multiply},
-                {"screen", agg::comp_op_screen},
-                {"overlay", agg::comp_op_overlay},
-                {"darken", agg::comp_op_darken},
-                {"lighten", agg::comp_op_lighten},
-                {"color dodge", agg::comp_op_color_dodge},
-                {"color burn", agg::comp_op_color_burn},
-                {"hard light", agg::comp_op_hard_light},
-                {"soft light", agg::comp_op_soft_light},
-                {"difference", agg::comp_op_difference},
-                {"exclusion", agg::comp_op_exclusion},
-                {"hue", agg::comp_op_hsl_hue},
-                {"saturation", agg::comp_op_hsl_saturation},
-                {"color", agg::comp_op_hsl_color},
-                {"luminosity", agg::comp_op_hsl_luminosity},
-            };
-            value = enum_values.at(src.cast<std::string>());
-            return true;
-        }
+namespace mpl {
+
+inline void convert(agg::comp_op_e &dst, const py::object &src, const char *arg_name)
+{
+    const std::unordered_map<std::string, agg::comp_op_e> enum_values = {
+        {"clear", agg::comp_op_clear},
+        {"knockout", agg::comp_op_src},
+        //{"dest", agg::comp_op_dst},
+        {"normal", agg::comp_op_src_over},
+        //{"dst_over", agg::comp_op_dst_over},
+        //{"in", agg::comp_op_src_in},
+        //{"dst_in", agg::comp_op_dst_in},
+        //{"out", agg::comp_op_src_out},
+        {"erase", agg::comp_op_dst_out},
+        {"atop", agg::comp_op_src_atop},
+        //{"dst_atop", agg::comp_op_dst_atop},
+        {"xor", agg::comp_op_xor},
+        {"plus", agg::comp_op_plus},
+        {"multiply", agg::comp_op_multiply},
+        {"screen", agg::comp_op_screen},
+        {"overlay", agg::comp_op_overlay},
+        {"darken", agg::comp_op_darken},
+        {"lighten", agg::comp_op_lighten},
+        {"color dodge", agg::comp_op_color_dodge},
+        {"color burn", agg::comp_op_color_burn},
+        {"hard light", agg::comp_op_hard_light},
+        {"soft light", agg::comp_op_soft_light},
+        {"difference", agg::comp_op_difference},
+        {"exclusion", agg::comp_op_exclusion},
+        {"hue", agg::comp_op_hsl_hue},
+        {"saturation", agg::comp_op_hsl_saturation},
+        {"color", agg::comp_op_hsl_color},
+        {"luminosity", agg::comp_op_hsl_luminosity},
     };
 
-    template <> struct type_caster<agg::filling_rule_e> {
-    public:
-        PYBIND11_TYPE_CASTER(agg::filling_rule_e, const_name("filling_rule_e"));
+    dst = enum_values.at(src.cast<std::string>());
+}
 
-        bool load(handle src, bool) {
-            const std::unordered_map<std::string, agg::filling_rule_e> enum_values = {
-                {"nonzero", agg::fill_non_zero},
-                {"evenodd", agg::fill_even_odd},
-            };
-            value = enum_values.at(src.cast<std::string>());
-            return true;
-        }
+inline void convert(agg::filling_rule_e &dst, const py::object &src,
+                    const char *arg_name)
+{
+    const std::unordered_map<std::string, agg::filling_rule_e> enum_values = {
+        {"nonzero", agg::fill_non_zero},
+        {"evenodd", agg::fill_even_odd},
     };
 
-    template <> struct type_caster<agg::line_cap_e> {
-    public:
-        PYBIND11_TYPE_CASTER(agg::line_cap_e, const_name("line_cap_e"));
+    dst = enum_values.at(src.cast<std::string>());
+}
 
-        bool load(handle src, bool) {
-            const std::unordered_map<std::string, agg::line_cap_e> enum_values = {
-                {"butt", agg::butt_cap},
-                {"round", agg::round_cap},
-                {"projecting", agg::square_cap},
-            };
-            value = enum_values.at(src.cast<std::string>());
-            return true;
-        }
+inline void convert(agg::line_cap_e &dst, const py::object &src, const char *arg_name)
+{
+    const std::unordered_map<std::string, agg::line_cap_e> enum_values = {
+        {"butt", agg::butt_cap},
+        {"round", agg::round_cap},
+        {"projecting", agg::square_cap},
     };
 
-    template <> struct type_caster<agg::line_join_e> {
-    public:
-        PYBIND11_TYPE_CASTER(agg::line_join_e, const_name("line_join_e"));
+    dst = enum_values.at(src.cast<std::string>());
+}
 
-        bool load(handle src, bool) {
-            const std::unordered_map<std::string, agg::line_join_e> enum_values = {
-                {"miter", agg::miter_join_revert},
-                {"round", agg::round_join},
-                {"bevel", agg::bevel_join},
-            };
-            value = enum_values.at(src.cast<std::string>());
-            return true;
-        }
+inline void convert(agg::line_join_e &dst, const py::object &src, const char *arg_name)
+{
+    const std::unordered_map<std::string, agg::line_join_e> enum_values = {
+        {"miter", agg::miter_join_revert},
+        {"round", agg::round_join},
+        {"bevel", agg::bevel_join},
     };
 
-    template <> struct type_caster<ClipPath> {
-    public:
-        PYBIND11_TYPE_CASTER(ClipPath, const_name("ClipPath"));
+    dst = enum_values.at(src.cast<std::string>());
+}
 
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                return true;
-            }
+inline void convert(ClipPath &dst, const py::object &src, const char *arg_name)
+{
+    if (src.is_none()) {
+        return;
+    }
 
-            auto [path, trans] =
-                src.cast<std::pair<std::optional<mpl::PathIterator>, agg::trans_affine>>();
-            if (path) {
-                value.path = *path;
-            }
-            value.trans = trans;
+    auto [path_obj, trans_obj] = src.cast<std::pair<py::object, py::object>>();
+    if (!path_obj.is_none()) {
+        convert(dst.path, path_obj, "clippath.path");
+    }
+    convert(dst.trans, trans_obj, "clippath.trans");
+}
 
-            return true;
-        }
-    };
+inline void convert(Dashes &dst, const py::object &src, const char *arg_name)
+{
+    auto [dash_offset, dashes_seq_or_none] =
+        src.cast<std::pair<double, std::optional<py::sequence>>>();
 
-    template <> struct type_caster<Dashes> {
-    public:
-        PYBIND11_TYPE_CASTER(Dashes, const_name("Dashes"));
+    if (!dashes_seq_or_none) {
+        return;
+    }
 
-        bool load(handle src, bool) {
-            auto [dash_offset, dashes_seq_or_none] =
-                src.cast<std::pair<double, std::optional<py::sequence>>>();
+    auto dashes_seq = *dashes_seq_or_none;
 
-            if (!dashes_seq_or_none) {
-                return true;
-            }
+    auto nentries = dashes_seq.size();
+    // If the dashpattern has odd length, iterate through it twice (in
+    // accordance with the pdf/ps/svg specs).
+    auto dash_pattern_length = (nentries % 2) ? 2 * nentries : nentries;
 
-            auto dashes_seq = *dashes_seq_or_none;
+    for (py::size_t i = 0; i < dash_pattern_length; i += 2) {
+        auto length = dashes_seq[i % nentries].cast<double>();
+        auto skip = dashes_seq[(i + 1) % nentries].cast<double>();
 
-            auto nentries = dashes_seq.size();
-            // If the dashpattern has odd length, iterate through it twice (in
-            // accordance with the pdf/ps/svg specs).
-            auto dash_pattern_length = (nentries % 2) ? 2 * nentries : nentries;
+        dst.add_dash_pair(length, skip);
+    }
 
-            for (py::size_t i = 0; i < dash_pattern_length; i += 2) {
-                auto length = dashes_seq[i % nentries].cast<double>();
-                auto skip = dashes_seq[(i + 1) % nentries].cast<double>();
+    dst.set_dash_offset(dash_offset);
+}
 
-                value.add_dash_pair(length, skip);
-            }
+inline void convert(LinestyleVector &dst, const py::object &src, const char *arg_name)
+{
+    auto src_seq = src.cast<py::sequence>();
 
-            value.set_dash_offset(dash_offset);
+    for (py::size_t i = 0; i < src_seq.size(); ++i) {
+        Dashes dashes;
+        convert(dashes, src_seq[i], "linestyle element");
+        dst.push_back(dashes);
+    }
+}
 
-            return true;
-        }
-    };
+inline void convert(SketchParams &dst, const py::object &src, const char *arg_name)
+{
+    if (src.is_none()) {
+        dst.scale = 0.0;
+        dst.length = 0.0;
+        dst.randomness = 0.0;
+        return;
+    }
 
-    template <> struct type_caster<SketchParams> {
-    public:
-        PYBIND11_TYPE_CASTER(SketchParams, const_name("SketchParams"));
+    auto params = src.cast<std::tuple<double, double, double>>();
+    std::tie(dst.scale, dst.length, dst.randomness) = params;
+}
 
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                value.scale = 0.0;
-                value.length = 0.0;
-                value.randomness = 0.0;
-                return true;
-            }
+inline void convert(GCAgg &gc, const py::object &src, const char *arg_name)
+{
+    cast(gc.linewidth, src.attr("_linewidth"), "gc.linewidth");
+    cast(gc.alpha, src.attr("_alpha"), "gc.alpha");
+    cast(gc.forced_alpha, src.attr("_forced_alpha"), "gc.forced_alpha");
+    convert(gc.comp_op, src.attr("_blend_mode"), "gc.comp_op");
+    convert(gc.filling_rule, src.attr("_fill_rule"), "gc.filling_rule");
+    convert(gc.color, src.attr("_rgb"), "gc.color");
+    cast(gc.isaa, src.attr("_antialiased"), "gc.isaa");
+    convert(gc.cap, src.attr("_capstyle"), "gc.cap");
+    convert(gc.join, src.attr("_joinstyle"), "gc.join");
+    convert(gc.dashes, src.attr("get_dashes")(), "gc.dashes");
+    convert(gc.cliprect, src.attr("_cliprect"), "gc.cliprect");
+    convert(gc.clippath, src.attr("get_clip_path")(), "gc.clippath");
+    convert(gc.snap_mode, src.attr("get_snap")(), "gc.snap_mode");
+    convert(gc.hatchpath, src.attr("get_hatch_path")(), "gc.hatchpath");
+    convert(gc.hatch_color, src.attr("get_hatch_color")(), "gc.hatch_color");
+    cast(gc.hatch_linewidth, src.attr("get_hatch_linewidth")(), "gc.hatch_linewidth");
+    convert(gc.sketch, src.attr("get_sketch_params")(), "gc.sketch");
+}
 
-            auto params = src.cast<std::tuple<double, double, double>>();
-            std::tie(value.scale, value.length, value.randomness) = params;
-
-            return true;
-        }
-    };
-
-    template <> struct type_caster<GCAgg> {
-    public:
-        PYBIND11_TYPE_CASTER(GCAgg, const_name("GCAgg"));
-
-        bool load(handle src, bool) {
-            value.linewidth = src.attr("_linewidth").cast<double>();
-            value.alpha = src.attr("_alpha").cast<double>();
-            value.forced_alpha = src.attr("_forced_alpha").cast<bool>();
-            value.comp_op = src.attr("_blend_mode").cast<agg::comp_op_e>();
-            value.filling_rule = src.attr("_fill_rule").cast<agg::filling_rule_e>();
-            value.color = src.attr("_rgb").cast<agg::rgba>();
-            value.isaa = src.attr("_antialiased").cast<bool>();
-            value.cap = src.attr("_capstyle").cast<agg::line_cap_e>();
-            value.join = src.attr("_joinstyle").cast<agg::line_join_e>();
-            value.dashes = src.attr("get_dashes")().cast<Dashes>();
-            value.cliprect = src.attr("_cliprect").cast<agg::rect_d>();
-            value.clippath = src.attr("get_clip_path")().cast<ClipPath>();
-            value.snap_mode = src.attr("get_snap")().cast<e_snap_mode>();
-            value.hatchpath = src.attr("get_hatch_path")().cast<mpl::PathIterator>();
-            value.hatch_color = src.attr("get_hatch_color")().cast<agg::rgba>();
-            value.hatch_linewidth = src.attr("get_hatch_linewidth")().cast<double>();
-            value.sketch = src.attr("get_sketch_params")().cast<SketchParams>();
-
-            return true;
-        }
-    };
-}} // namespace PYBIND11_NAMESPACE::detail
+} // namespace mpl
 
 #endif

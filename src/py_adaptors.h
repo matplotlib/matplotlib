@@ -14,9 +14,12 @@
 #include "agg_basics.h"
 #include "py_array.h"
 
-namespace py = pybind11;
-
 namespace mpl {
+
+class PathIterator;
+inline void convert(PathIterator &dst, const py::object &src, const char *arg_name);
+
+namespace py = pybind11;
 
 /************************************************************
  * mpl::PathIterator acts as a bridge between NumPy and Agg.  Given a
@@ -185,45 +188,33 @@ class PathGenerator
 
     path_iterator operator()(size_t i)
     {
-        path_iterator path;
-
-        auto item = m_paths[i % m_npaths];
-        path = item.cast<path_iterator>();
+        PathIterator path;
+        convert(path, m_paths[i % m_npaths], "PathGenerator::operator()");
         return path;
     }
 };
+
+
+inline void convert(PathIterator &dst, const py::object &src, const char *arg_name)
+{
+    if (src.is_none()) {
+        return;
+    }
+
+    py::object vertices = src.attr("vertices");
+    py::object codes = src.attr("codes");
+    auto should_simplify = src.attr("should_simplify").cast<bool>();
+    auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
+
+    dst.set(vertices, codes, should_simplify, simplify_threshold);
 }
 
-namespace PYBIND11_NAMESPACE { namespace detail {
-    template <> struct type_caster<mpl::PathIterator> {
-    public:
-        PYBIND11_TYPE_CASTER(mpl::PathIterator, const_name("PathIterator"));
 
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                return true;
-            }
+inline void convert(PathGenerator &dst, const py::object &src, const char *arg_name)
+{
+    dst.set(py::reinterpret_borrow<py::object>(src));
+}
 
-            py::object vertices = src.attr("vertices");
-            py::object codes = src.attr("codes");
-            auto should_simplify = src.attr("should_simplify").cast<bool>();
-            auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
-
-            value.set(vertices, codes, should_simplify, simplify_threshold);
-
-            return true;
-        }
-    };
-
-    template <> struct type_caster<mpl::PathGenerator> {
-    public:
-        PYBIND11_TYPE_CASTER(mpl::PathGenerator, const_name("PathGenerator"));
-
-        bool load(handle src, bool) {
-            value.set(py::reinterpret_borrow<py::object>(src));
-            return true;
-        }
-    };
-}} // namespace PYBIND11_NAMESPACE::detail
+} // namespace mpl
 
 #endif

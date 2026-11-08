@@ -70,8 +70,7 @@ extension_data = {
   '_image': {
     'subdir': 'matplotlib',
     'sources': files(
-      '_image_wrapper.cpp',
-      'py_converters.cpp',
+      '_image_wrapper.cpp'
     ),
     'dependencies': [
       pybind11_dep,

@@ -176,7 +176,7 @@ image_resample(py::array input_array,
         bool is_affine = py::cast<bool>(transform.attr("is_affine"));
 
         if (is_affine) {
-            convert_trans_affine(transform, params.affine);
+            mpl::convert(params.affine, transform, "transform");
             params.is_affine = is_affine;
         } else {
             transform_mesh = _get_transform_mesh(transform, output_array.shape());

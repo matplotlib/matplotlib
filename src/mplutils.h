@@ -50,6 +50,11 @@ enum {
 
 namespace mpl {
 
+namespace internal {
+    template <typename T> inline constexpr bool always_false_v = false;
+    inline int check_any(PyObject *) { return 1; }
+}
+
 inline int round_to_int(double v)
 {
     return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));
@@ -66,17 +71,52 @@ inline std::string format(const char *fmt, Args &&...args)
     return std::string(py::str(fmt).format(std::forward<Args>(args)...));
 }
 
+template <typename T>
+inline void cast(T &dst, const py::object &src, const char *arg_name)
+{
+    try {
+        dst = src.cast<T>();
+    } catch (...) {
+        throw py::value_error(mpl::format(
+            "Could not cast {} to specified type", arg_name));
+    }
+}
 
-inline int check_any(PyObject *) { return 1; }
+template <typename T>
+inline void convert(T &dst, const py::object src, const char *arg_name)
+{
+    static_assert(internal::always_false_v<T>::value,
+        "No convert() specialization registered for this type");
+}
 
 template <typename T>
 class defer : public py::object
 {
-    PYBIND11_OBJECT_DEFAULT(defer, py::object, check_any)
+    PYBIND11_OBJECT_DEFAULT(defer, py::object, mpl::internal::check_any)
 
-    template <typename... Args>
-    T value(Args &&...args) const { return T(*this, args...); }
+    T value(const char *arg_name) const
+    {
+        auto obj = T();
+        convert(obj, *this, arg_name);
+        return obj;
+    }
+
+    void assign(T &dst, const char *arg_name) const
+    {
+        convert(dst, *this, arg_name);
+    }
 };
+
+template <typename T, typename... Args>
+inline auto asarray(const py::object &object)
+{
+    return py::array_t<T, py::array::c_style | py::array::forcecast>::ensure(object);
+}
+
+inline auto asarray(const py::object &object)
+{
+    return py::array::ensure(object, py::array::c_style);
+}
 
 } // namespace mpl
 

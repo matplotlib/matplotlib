@@ -530,23 +530,19 @@ enum e_snap_mode {
     SNAP_TRUE
 };
 
-namespace PYBIND11_NAMESPACE { namespace detail {
-    template <> struct type_caster<e_snap_mode> {
-    public:
-        PYBIND11_TYPE_CASTER(e_snap_mode, const_name("e_snap_mode"));
+namespace mpl {
 
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                value = SNAP_AUTO;
-                return true;
-            }
+inline void convert(e_snap_mode &dst, const py::object &src, const char *arg_name)
+{
+    if (src.is_none()) {
+        dst = SNAP_AUTO;
+        return;
+    }
 
-            value = src.cast<bool>() ? SNAP_TRUE : SNAP_FALSE;
+    dst = src.cast<bool>() ? SNAP_TRUE : SNAP_FALSE;
+}
 
-            return true;
-        }
-    };
-}} // namespace PYBIND11_NAMESPACE::detail
+} // namespace mpl
 
 template <class VertexSource>
 class PathSnapper
