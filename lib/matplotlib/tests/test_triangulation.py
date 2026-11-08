@@ -1118,10 +1118,10 @@ def test_trirefiner_fortran_contiguous_triangles():
     # github issue 4180.  Test requires two arrays of triangles that are
     # identical except that one is C-contiguous and one is fortran-contiguous.
     triangles1 = np.array([[2, 0, 3], [2, 1, 0]])
-    assert not np.isfortran(triangles1)
+    assert not triangles1.flags.fnc
 
     triangles2 = np.array(triangles1, copy=True, order='F')
-    assert np.isfortran(triangles2)
+    assert triangles2.flags.fnc
 
     x = np.array([0.39, 0.59, 0.43, 0.32])
     y = np.array([33.99, 34.01, 34.19, 34.18])
