@@ -1247,18 +1247,18 @@ def test_internal_cpp_api() -> None:
     with pytest.raises(
             ValueError,
             match=r'mask should have 1 dimension, got 2'):
-        triang.set_mask([[1, 1]])
+        triang.set_mask([[1, 1]])  # type: ignore[arg-type]
 
     with pytest.raises(
             ValueError,
             match=r'mask must have the same length as the triangles array '
                   r'\(mask: 2, triangles: 1\)'):
-        triang.set_mask([0, 1])
+        triang.set_mask([0, 1])  # type: ignore[arg-type]
 
     triang.set_mask(np.array([True]))
     assert_array_equal(triang.get_edges(), np.empty((0, 2)))
 
-    triang.set_mask(())  # Equivalent to Python Triangulation mask=None
+    triang.set_mask(None)
     assert_array_equal(triang.get_edges(), [[1, 0], [2, 0], [2, 1]])
 
     # C++ TriContourGenerator.
