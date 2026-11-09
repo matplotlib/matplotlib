@@ -1,7 +1,7 @@
 The plot directive only renders the formats a build can use
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The `.. plot::` directive, i.e., ``matplotlib.sphinxext.plot_directive``
+The ``.. plot::`` directive, i.e., ``matplotlib.sphinxext.plot_directive``
 saved every entry of ``plot_formats`` on every build. With
 ``plot_html_show_formats = False``, that meant an HTML build also wrote a PDF
 of each figure, which was not linked to. The directive now checks the Sphinx
