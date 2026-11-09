@@ -232,8 +232,9 @@ def _label_anchors(ax, locs):
             if t.get_text()]
 
 
+@pytest.mark.parametrize('theta_direction', [1, -1])
 @pytest.mark.parametrize('rlabel_position', [90, 200])
-def test_polar_rlabel_position_wedge(rlabel_position):
+def test_polar_rlabel_position_wedge(rlabel_position, theta_direction):
     # On a partial wedge, an explicitly set rlabel position must be honored
     # (even outside the wedge), while the default keeps the labels on the
     # wedge edge.
@@ -241,6 +242,7 @@ def test_polar_rlabel_position_wedge(rlabel_position):
     ax = fig.add_subplot(projection='polar')
     ax.set_thetamin(0)
     ax.set_thetamax(180)
+    ax.set_theta_direction(theta_direction)
     fig.canvas.draw()
     locs = [t.get_position()[1] for t in ax.yaxis.get_ticklabels()
             if t.get_text() and t.get_position()[1] > 0]
@@ -252,9 +254,20 @@ def test_polar_rlabel_position_wedge(rlabel_position):
 
     ax.set_rlabel_position(rlabel_position)
     fig.canvas.draw()
-    for got, loc in zip(_label_anchors(ax, locs), locs):
-        expected = ax.transData.transform((np.deg2rad(rlabel_position), loc))
-        assert_allclose(got, expected, atol=15)
+    # The labels are padded off the radial line at the rlabel position, to
+    # the side on which they are aligned: clockwise for counterclockwise
+    # theta and vice versa.  The whole text must end up on that side.
+    tick = ax.yaxis.get_major_ticks()[0]
+    pad = (tick.get_pad() + tick.get_tick_padding()) * fig.dpi / 72
+    angle = np.deg2rad(rlabel_position * theta_direction) + ax.get_theta_offset()
+    normal = theta_direction * np.array([np.sin(angle), -np.cos(angle)])
+    renderer = fig.canvas.get_renderer()
+    labels = [t for t in ax.yaxis.get_ticklabels() if t.get_text()]
+    for t, got, loc in zip(labels, _label_anchors(ax, locs), locs):
+        on_line = ax.transData.transform((np.deg2rad(rlabel_position), loc))
+        assert_allclose(got, on_line + pad * normal, atol=1e-6)
+        corners = t.get_window_extent(renderer).corners() - on_line
+        assert np.all(corners @ normal > 0)
 
 
 @image_comparison(['polar_title_position.png'], style='mpl20')

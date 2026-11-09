@@ -504,11 +504,14 @@ class _ThetaShift(mtransforms.ScaledTranslation):
     def get_matrix(self):
         if self._invalid:
             if self.mode == 'rlabel':
+                # Shift to the side of the radial line on which the labels
+                # are aligned (see RadialTick._determine_anchor): clockwise
+                # for counterclockwise theta and vice versa.
+                direction = self.axes.get_theta_direction()
                 angle = (
-                    np.deg2rad(self.axes.get_rlabel_position()
-                               * self.axes.get_theta_direction())
+                    np.deg2rad(self.axes.get_rlabel_position() * direction)
                     + self.axes.get_theta_offset()
-                    - np.pi / 2
+                    - direction * np.pi / 2
                 )
             elif self.mode == 'min':
                 angle = self.axes._realViewLim.xmin - np.pi / 2
