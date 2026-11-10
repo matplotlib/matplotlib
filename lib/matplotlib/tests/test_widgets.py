@@ -1439,6 +1439,47 @@ def test_slider_reset():
     assert slider.val == 0.5
 
 
+@pytest.mark.parametrize('orientation', ['horizontal', 'vertical'])
+@pytest.mark.parametrize('valstep, expected', [(2, 6), ([0, 4, 7, 10], 7),
+                                               (None, 4.1)])
+def test_slider_scroll(orientation, valstep, expected):
+    fig, ax = plt.subplots()
+    slider = widgets.Slider(ax, 'Gain', 0, 10, valinit=4, valstep=valstep,
+                            orientation=orientation, scroll=True)
+    changed = mock.Mock()
+    slider.on_changed(changed)
+    x, y = ax.transAxes.transform((.5, .5))
+
+    MouseEvent('scroll_event', fig.canvas, x, y, step=1)._process()
+    assert slider.val == pytest.approx(expected)
+    changed.assert_called_once_with(slider.val)
+    assert slider.valtext.get_text() == slider._format(expected)
+
+    MouseEvent('scroll_event', fig.canvas, x, y, step=-1)._process()
+    assert slider.val == pytest.approx(4)
+    assert changed.call_count == 2
+
+
+def test_slider_scroll_event_guards():
+    fig, (ax, other_ax) = plt.subplots(2)
+    slider = widgets.Slider(ax, 'Gain', 0, 10, valinit=10, valstep=1,
+                            scroll=True)
+    other = widgets.Slider(other_ax, 'Other', 0, 10, valinit=4, valstep=1)
+    changed = mock.Mock()
+    slider.on_changed(changed)
+    x, y = ax.transAxes.transform((.5, .5))
+    other_x, other_y = other_ax.transAxes.transform((.5, .5))
+
+    MouseEvent('scroll_event', fig.canvas, x, y, step=1)._process()
+    MouseEvent('scroll_event', fig.canvas, other_x, other_y, step=-1)._process()
+    slider.set_active(False)
+    MouseEvent('scroll_event', fig.canvas, x, y, step=-1)._process()
+
+    assert slider.val == 10
+    assert other.val == 4
+    changed.assert_not_called()
+
+
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
 def test_range_slider(orientation):
     if orientation == "vertical":
