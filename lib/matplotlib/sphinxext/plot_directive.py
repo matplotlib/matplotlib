@@ -360,7 +360,7 @@ def setup(app):
     app.add_css_file('plot_directive.css')
     app.connect('build-finished', _copy_css_file)
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
-                'version': matplotlib.__version__}
+                'version': matplotlib.__version__, 'env_version': 1}
     app.connect('builder-inited', init_filename_registry)
     app.add_env_collector(_FilenameCollector)
     return metadata
@@ -374,6 +374,13 @@ def init_filename_registry(app):
     env = app.builder.env
     if not hasattr(env, 'mpl_plot_image_basenames'):
         env.mpl_plot_image_basenames = defaultdict(set)
+    if not hasattr(env, 'mpl_plot_docnames'):
+        # Set of documents containing a plot directive
+        env.mpl_plot_docnames = set()
+    if not hasattr(env, 'mpl_plot_last_formats'):
+        # The formats written by the the previous build,
+        # based on the builder used for that build
+        env.mpl_plot_last_formats = None
 
 
 class _FilenameCollector(EnvironmentCollector):
@@ -383,11 +390,26 @@ class _FilenameCollector(EnvironmentCollector):
     def clear_doc(self, app, env, docname):
         if docname in env.mpl_plot_image_basenames:
             del env.mpl_plot_image_basenames[docname]
+        env.mpl_plot_docnames.discard(docname)
 
     def merge_other(self, app, env, docnames, other):
         for docname in other.mpl_plot_image_basenames:
             env.mpl_plot_image_basenames[docname].update(
                 other.mpl_plot_image_basenames[docname])
+        env.mpl_plot_docnames |= getattr(other, 'mpl_plot_docnames', set())
+
+    def get_outdated_docs(self, app, env, added, changed, removed):
+        # Doctrees are cached across builders, but the formats written for a
+        # document were chosen for the builder that read it. When the builder
+        # changes, every document with a plot must be read again.
+        builder = app.builder
+        formats = tuple(fmt for fmt, _ in _formats_for_builder(
+            get_plot_formats(app.config, builder), builder, app.config))
+        previous = env.mpl_plot_last_formats
+        env.mpl_plot_last_formats = formats
+        if previous is None or previous == formats:
+            return []
+        return sorted(env.mpl_plot_docnames & env.found_docs)
 
 
 # -----------------------------------------------------------------------------
@@ -869,6 +891,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
     env = document.settings.env
+    env.mpl_plot_docnames.add(env.docname)
     config = env.config
     nofigs = 'nofigs' in options
 

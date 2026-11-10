@@ -398,6 +398,32 @@ def test_plot_formats_warns_for_unusable_entry(tmp_path):
             "plot_formats['texinfo']") in proc.stderr
 
 
+# e.g., in situations where the doctree directory is shared (locally,
+# Read the Docs, etc.) between an HTML build and then a LaTeX build,
+# the latter must not inherit the PNG-only result of the former
+def test_plot_formats_rerender_when_builder_changes(tmp_path):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+""")
+    doctree_dir = tmp_path / 'doctrees'
+    extra_args = ['-D', 'plot_html_show_formats=0']
+    build_sphinx_html(tmp_path, doctree_dir, tmp_path / '_build' / 'html',
+                      extra_args=extra_args)
+    assert not (tmp_path / 'plot_directive' / 'index-1.pdf').exists()
+    latex_dir = tmp_path / '_build' / 'latex'
+    build_sphinx_html(tmp_path, doctree_dir, latex_dir,
+                      extra_args=extra_args, builder='latex')
+    # LaTeX must embed the PDF, not the PNG left over from the HTML build
+    tex = next(latex_dir.glob('*.tex')).read_text()
+    assert '{{index-1}.pdf}' in tex
+    assert (latex_dir / 'index-1.pdf').exists()
+    assert not (latex_dir / 'index-1.png').exists()
+
+
 def test_get_plot_formats_dict_without_builder(monkeypatch):
     # Callers that pass no builder get the one of the running build.
     from matplotlib.sphinxext import plot_directive
