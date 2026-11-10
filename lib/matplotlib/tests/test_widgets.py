@@ -1480,6 +1480,28 @@ def test_slider_scroll_event_guards():
     changed.assert_not_called()
 
 
+def test_slider_scroll_does_not_zoom():
+    fig, (plot_ax, slider_ax) = plt.subplots(2)
+    plot_ax.set_xlim(0, 10)
+    slider = widgets.Slider(slider_ax, 'Gain', 0, 10, valinit=4, valstep=1,
+                            scroll=True)
+    toolbar = mock.MagicMock()
+    slider_x, slider_y = slider_ax.transAxes.transform((.5, .5))
+    plot_x, plot_y = plot_ax.transAxes.transform((.5, .5))
+
+    with mock.patch.object(fig.canvas, 'toolbar', toolbar):
+        MouseEvent('scroll_event', fig.canvas, slider_x, slider_y,
+                   step=1, key='x')._process()
+        assert slider.val == 5
+        assert slider_ax.get_xlim() == (0, 10)
+        toolbar.push_current.assert_not_called()
+
+        MouseEvent('scroll_event', fig.canvas, plot_x, plot_y,
+                   step=1, key='x')._process()
+        assert np.diff(plot_ax.get_xlim())[0] == pytest.approx(8.5)
+        toolbar.push_current.assert_called_once()
+
+
 @pytest.mark.parametrize("orientation", ["horizontal", "vertical"])
 def test_range_slider(orientation):
     if orientation == "vertical":
