@@ -45,6 +45,8 @@ Workflow
 * :ref:`Merge <pr-merging-maintainers>` if a
   :ref:`sufficient number of approvals <pr-approval>` is reached.
 
+.. _draft-pr:
+
 Draft PRs
 ---------
 
@@ -167,7 +169,7 @@ Some explicit rules following from this:
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
-.. _pr-merging:
+.. _pr-merging-maintainers:
 
 Merging
 -------
