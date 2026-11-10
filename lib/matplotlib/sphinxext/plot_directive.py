@@ -650,7 +650,7 @@ def _builder_key(plot_formats, builder):
     if isinstance(plot_formats, dict):
         # check the builder name first, then the builder format
         # see the behaviour for ``.. only::`` directive in Sphinx:
-        # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/builders/__init__.py#L121-L124
+        # https://github.com/sphinx-doc/sphinx/blob/7b2c103eaa4cabf0ac47224c444cf0cbc7c745e5/sphinx/builders/__init__.py#L121-L124
         for key in (builder.name, builder.format):
             if key in plot_formats:
                 return key
@@ -692,7 +692,7 @@ def _formats_for_builder(formats, builder, config):
         return formats if config.plot_html_show_formats else formats[:1]
     # The same test Sphinx's image collector applies to the candidates for a
     # ``name.*`` reference, so the two always agree on which file gets used:
-    # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/environment/collectors/asset.py#L118
+    # https://github.com/sphinx-doc/sphinx/blob/7b2c103eaa4cabf0ac47224c444cf0cbc7c745e5/sphinx/environment/collectors/asset.py#L118
     supported = getattr(builder, 'supported_image_types', ())
     unsupported = [fmt for fmt, _ in formats
                    if guess_mimetype(f'figure.{fmt}') not in supported]
