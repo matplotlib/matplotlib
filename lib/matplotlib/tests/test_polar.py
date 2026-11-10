@@ -270,6 +270,44 @@ def test_polar_rlabel_position_wedge(rlabel_position, theta_direction):
         assert np.all(corners @ normal > 0)
 
 
+def test_polar_rlabel_position_wedge_moved():
+    # The label padding follows the rlabel position also for ticks that
+    # already exist when it is set: made for the default layout, or drawn
+    # at another position.
+    def label_positions(prepare):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='polar')
+        ax.set_thetamax(180)
+        prepare(ax)
+        ax.set_rlabel_position(200)
+        fig.canvas.draw()
+        return [t.get_transform().transform(t.get_position())
+                for t in ax.yaxis.get_ticklabels()]
+
+    def drawn_at_90(ax):
+        ax.set_rlabel_position(90)
+        ax.figure.canvas.draw()
+
+    expected = label_positions(lambda ax: None)
+    assert_allclose(
+        label_positions(lambda ax: ax.yaxis.get_major_ticks()), expected)
+    assert_allclose(label_positions(drawn_at_90), expected)
+
+
+@pytest.mark.parametrize('theta_direction', [1, -1])
+@check_figures_equal()
+def test_polar_rlabel_position_wedge_start(fig_test, fig_ref, theta_direction):
+    # Setting the rlabel position to thetamin gives the default wedge layout,
+    # including the tick marks and the labels on the other edge.
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot(projection='polar')
+        ax.set_thetamin(30)
+        ax.set_thetamax(150)
+        ax.set_theta_direction(theta_direction)
+        ax.yaxis.set_tick_params(tick1On=True, tick2On=True, label2On=True)
+    fig_test.axes[0].set_rlabel_position(30)
+
+
 @image_comparison(['polar_title_position.png'], style='mpl20')
 def test_polar_title_position():
     fig = plt.figure()
