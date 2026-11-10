@@ -11,7 +11,8 @@ Other Sphinx builders get formats in their `supported_image_types`_, i.e.,
 LaTeX builder retains the rendering of its PDFs.
 
 Projects that picked ``plot_formats`` from ``sys.argv`` to get the same
-effect can drop doing so. Files for skipped formats no longer appear in
-the ``plot_directive`` build directory.
+effect can drop doing so, or set ``plot_formats`` to a dict keyed by builder
+instead. Files for skipped formats no longer appear in the ``plot_directive``
+build directory.
 
 .. _supported_image_types: https://www.sphinx-doc.org/en/master/extdev/builderapi.html#sphinx.builders.Builder.supported_image_types

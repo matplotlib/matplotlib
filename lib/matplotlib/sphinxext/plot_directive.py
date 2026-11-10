@@ -128,6 +128,15 @@ plot_formats
     the command line through sphinx_build the list should be passed as
     suffix:dpi,suffix:dpi, ...
 
+    The value can also be a dict that gives each Sphinx builder its own
+    list, keyed by builder name or builder format, the same names that the
+    Sphinx `only`_ directive matches::
+
+        {'html': ['png', 'hires.png'], 'latex': ['pdf']}
+
+    Builders missing from the dict use the default list. On the command
+    line, a single entry is set with ``-D plot_formats.html=png``.
+
     Formats that the Sphinx builder in use cannot use get skipped. HTML
     pages embed the first entry of this list (PNG by default), and the
     other entries only appear as download links under the figure, so they
@@ -135,6 +144,7 @@ plot_formats
     get whatever their `supported_image_types`_ allows, i.e., the LaTeX
     builder gets a PDF and the texinfo builder does not.
 
+    .. _only: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-only
     .. _supported_image_types: https://www.sphinx-doc.org/en/master/extdev/builderapi.html#sphinx.builders.Builder.supported_image_types
 
 plot_html_show_formats
@@ -337,7 +347,8 @@ def setup(app):
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
     app.add_config_value('plot_html_show_source_link', True, True)
-    app.add_config_value('plot_formats', ['png', 'hires.png', 'pdf'], True)
+    app.add_config_value('plot_formats', list(_DEFAULT_FORMATS), True,
+                         types=[list, dict])
     app.add_config_value('plot_basedir', None, True)
     app.add_config_value('plot_html_show_formats', True, True)
     app.add_config_value('plot_rcparams', {}, True)
@@ -632,10 +643,26 @@ def clear_state(plot_rcparams, close=True):
     matplotlib.rcParams.update(plot_rcparams)
 
 
-def get_plot_formats(config):
+_DEFAULT_FORMATS = ('png', 'hires.png', 'pdf')
+
+
+def get_plot_formats(config, builder=None):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
+    if isinstance(plot_formats, dict):
+        if builder is None:
+            builder = setup.app.builder
+        # check the builder name first, then the builder format
+        # see the behaviour for ``.. only::`` directive in Sphinx:
+        # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/builders/__init__.py#L121-L124
+        plot_formats = next(
+            (plot_formats[key] for key in (builder.name, builder.format)
+             if key in plot_formats),
+            _DEFAULT_FORMATS)
+    if isinstance(plot_formats, str):
+        # since ``-D plot_formats.html=png,pdf`` arrives as one string
+        plot_formats = plot_formats.split(',')
     for fmt in plot_formats:
         if isinstance(fmt, str):
             if ':' in fmt:
@@ -716,8 +743,9 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     if function_name is not None:
         output_base = f'{output_base}_{function_name}'
-    formats = _formats_for_builder(get_plot_formats(config),
-                                   setup.app.builder, config)
+    builder = setup.app.builder
+    formats = _formats_for_builder(get_plot_formats(config, builder),
+                                   builder, config)
 
     # Try to determine if all images already exist
 
@@ -834,7 +862,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         raise ExtensionError(
             'plot_srcset option not compatible with single HTML writer')
 
-    formats = get_plot_formats(config)
+    formats = get_plot_formats(config, setup.app.builder)
     default_fmt = formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)

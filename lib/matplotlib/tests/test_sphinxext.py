@@ -347,6 +347,13 @@ Some plots
         ('html', ['-D', 'plot_html_show_formats=0'], {'png'}),
         ('latex', [], {'png', 'hires.png', 'pdf'}),
         ('texinfo', [], {'png', 'hires.png'}),
+        ('html', ['-D', 'plot_formats.html=png'], {'png'}),
+        ('dirhtml', ['-D', 'plot_formats.html=png,pdf'], {'png', 'pdf'}),
+        ('dirhtml', ['-D', 'plot_formats.html=png,pdf',
+                     '-D', 'plot_formats.dirhtml=png'], {'png'}),
+        ('latex', ['-D', 'plot_formats.latex=pdf'], {'pdf'}),
+        ('latex', ['-D', 'plot_formats.html=png'],
+         {'png', 'hires.png', 'pdf'}),
     ])
 def test_plot_formats_follow_builder(tmp_path, builder, extra_args, expected):
     shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')

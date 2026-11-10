@@ -435,10 +435,10 @@ default_role = 'obj'
 # ----------------------------
 
 # For speedup, decide which plot_formats to build based on the Sphinx builder:
-#     html only -> png
-#     latex only -> pdf
-#     all other cases, including html + latex -> png, pdf
-plot_formats = [('png', 100), ('pdf', 100)]
+#     html -> png
+#     latex -> pdf
+#     all other builders -> the plot directive's default formats
+plot_formats = {'html': [('png', 100)], 'latex': [('pdf', 100)]}
 # make 2x images for srcset argument to <img>
 plot_srcset = ['2x']
 
