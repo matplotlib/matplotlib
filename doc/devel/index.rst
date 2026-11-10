@@ -183,6 +183,7 @@ and managing a development environment and workflow:
       .. toctree::
          :maxdepth: 1
 
+         pr_guide_authors.rst
          troubleshooting.rst
 
 
@@ -247,7 +248,7 @@ manage, or release manage, these guidelines describe how our current process wor
          :caption: Triage and Review
 
          triage
-         pr_guide
+         pr_guide_maintainers
 
    .. grid-item-card::
       :shadow: none

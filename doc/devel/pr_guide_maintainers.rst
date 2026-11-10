@@ -1,78 +1,8 @@
-.. _pr-guidelines:
+.. _pr-guide-maintainers:
 
-***********************
-Pull request guidelines
-***********************
-
-`Pull requests (PRs) on GitHub
-<https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
-are the mechanism for contributing to Matplotlib's code and documentation.
-
-We value contributions from people with all levels of experience. In particular,
-if this is your first PR not everything has to be perfect. We'll guide you
-through the PR process. Nevertheless, please try to follow our guidelines as well
-as you can to help make the PR process quick and smooth. If your pull request is
-incomplete or a work-in-progress, please mark it as a :ref:`draft pull request <draft-pr>`
-on GitHub and specify what feedback from the developers would be helpful.
-
-Please be patient with reviewers. We try our best to respond quickly, but we have
-limited bandwidth. If there is no feedback within a couple of days, please ping
-us by posting a comment to your PR or reaching out on a :ref:`communication channel <communication-channels>`
-
-
-.. _pr-author-guidelines:
-
-Summary for pull request authors
-================================
-
-We recommend that you check that your contribution complies with the following
-guidelines before submitting a pull request:
-
-.. rst-class:: checklist
-
-* Changes, both new features and bugfixes, should have good test coverage. See
-  :ref:`testing` for more details.
-
-* Update the :ref:`documentation <pr-documentation>` if necessary.
-
-* All public methods should have informative docstrings with sample usage when
-  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
-
-* For high-level plotting functions, consider adding a small example to the
-  :ref:`examples gallery <gallery>`.
-
-* If you add a new feature or change the API in a backward-incompatible
-  way, please document it as described in :ref:`api_changes`.
-
-* Code should follow our conventions as documented in our :ref:`coding_guidelines`.
-
-* When adding or changing public function signatures, add :ref:`type hints <type-hints>`.
-
-* When adding keyword arguments, see our guide to :ref:`keyword-argument-processing`.
-
-When opening a pull request on Github, please ensure that:
-
-.. rst-class:: checklist
-
-* Changes were made on a :ref:`feature branch <make-feature-branch>`.
-
-* :ref:`prek <pre-commit-hooks>` checks for spelling, formatting, etc pass
-
-* The pull request targets the :ref:`main branch <pr-branch-selection>`
-
-* If your pull request addresses an issue, please use the title to describe the
-  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
-  in the pull request description to ensure that a link is created to the
-  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
-  original issue mentioned is automatically closed when your PR is merged. For more
-  details, see `linking an issue and pull request <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__.
-
-* :ref:`pr-automated-tests` pass
-
-For guidance on creating and managing a pull request, please see our
-:ref:`contributing <contributing>` and :ref:`pull request workflow <edit-flow>`
-guides.
-
+********************************
+Pull request guide for reviewers
+********************************
 
 Summary for pull request reviewers
 ==================================
@@ -105,21 +35,15 @@ Workflow
 --------
 .. rst-class:: checklist
 
-* Make sure all :ref:`automated tests <pr-automated-tests>` pass.
-* The PR should :ref:`target the main branch <pr-branch-selection>`.
+* Make sure all :ref:`automated tests <automated-tests>` pass.
+* The PR should target the ``main`` branch.
 * Tag with descriptive :ref:`labels <pr-labels>`.
 * Set the :ref:`milestone <pr-milestones>`.
 * :ref:`Review <pr-review>` the contents.
 * Approve if all of the above topics are handled.
 * Keep an eye on the :ref:`number of commits <pr-squashing>`.
-* :ref:`Merge <pr-merging>` if a :ref:`sufficient number of approvals <pr-approval>` is reached.
-
-.. _pr-guidelines-details:
-
-Detailed guidelines
-===================
-
-.. _draft-pr:
+* :ref:`Merge <pr-merging-maintainers>` if a
+  :ref:`sufficient number of approvals <pr-approval>` is reached.
 
 Draft PRs
 ---------
@@ -135,24 +59,6 @@ questions by the author.
 
 .. _draft PR: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
 
-.. _pr-documentation:
-
-Documentation
--------------
-
-* Every new feature should be documented.  If it's a new module, don't
-  forget to add a new rst file to the API docs.
-
-* Each high-level plotting function should have a small example in
-  the ``Examples`` section of the docstring.  This should be as simple as
-  possible to demonstrate the method.  More complex examples should go into
-  a dedicated example file in the :file:`examples` directory, which will be
-  rendered to the examples gallery in the documentation.
-
-* Build the docs and make sure all formatting warnings are addressed.
-
-* See :ref:`documenting-matplotlib` for our documentation style guide.
-
 .. _pr-labels:
 
 Labels
@@ -163,9 +69,9 @@ Labels
 * If the PR makes changes to the wheel building Action, add the
   "Run cibuildwheel" label to enable testing wheels.
 * If the PR does not yet have the quality and clarity needed for an effective
-  review, you can use the "status: autoclose candidate" label. This will trigger
-  a two-weeks countdown after which the PR will be automatically closed if no
-  further improvements have been made. See
+  review, you can use the ``status: autoclose candidate`` label. This will
+  trigger a two-weeks countdown after which the PR will be automatically closed
+  if no further improvements have been made. See
   `the autoclose workflow <https://github.com/matplotlib/matplotlib/blob/main/.github/workflows/autoclose_comment.yml>`__
   for more details.
 
@@ -178,10 +84,8 @@ Set the milestone according to these guidelines:
 
 * *New features and API changes* are milestoned for the next meso release
   ``v3.N.0``.
-
 * *Bugfixes, tests for released code, and docstring changes* may be milestoned
   for the next micro release ``v3.N.M``.
-
 * *Documentation changes* (only .rst files and examples) may be milestoned
   ``v3.N-doc``.
 
@@ -263,13 +167,6 @@ Some explicit rules following from this:
     A core dev should only champion one PR at a time and we should try to keep
     the flow of championed PRs reasonable.
 
-.. _pr-automated-tests:
-
-Automated tests
----------------
-Before being merged, a PR should pass the :ref:`automated-tests`. If you are
-unsure why a test is failing, ask on the PR or in our :ref:`communication-channels`
-
 .. _pr-merging:
 
 Merging
@@ -277,18 +174,7 @@ Merging
 After giving the last required :ref:`approval <pr-approval>`, the author of the
 approval should merge the PR. PR authors should not self-merge except for when
 another reviewer explicitly allows it (e.g., "Approve modulo CI passing, may
-self-merge when green", or "Take or leave the comments. You may self merge".).
-
-.. _pr-squashing:
-
-Number of commits and squashing
--------------------------------
-
-* Squashing is case-by-case.  The balance is between burden on the
-  contributor, keeping a relatively clean history, and keeping a
-  history usable for bisecting.  The only time we are really strict
-  about it is to eliminate binary files (ex multiple test image
-  re-generations) and to remove upstream merges.
+self-merge when green", or "Take or leave the comments. You may self merge").
 
 .. _branches_and_backports:
 
@@ -310,19 +196,6 @@ The current active branches are
 *v3.N.M-doc*
   Documentation for the current micro release.  On a micro release, this will be
   replaced by a properly named branch for the new release.
-
-
-.. _pr-branch-selection:
-
-Branch selection for pull requests
-----------------------------------
-
-Generally, all pull requests should target the main branch.
-
-Other branches are fed through :ref:`automatic <automated-backports>` or
-:ref:`manual <manual-backports>`. Directly
-targeting other branches is only rarely necessary for special maintenance
-work.
 
 .. _backport-strategy:
 

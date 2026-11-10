@@ -1,4 +1,5 @@
 .. redirect-from:: /devel/documenting_mpl
+.. _write-documentation:
 
 .. _documenting-matplotlib:
 
