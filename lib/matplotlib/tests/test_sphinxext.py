@@ -347,6 +347,7 @@ Some plots
         ('html', ['-D', 'plot_html_show_formats=0'], {'png'}),
         ('latex', [], {'png', 'hires.png', 'pdf'}),
         ('texinfo', [], {'png', 'hires.png'}),
+        ('texinfo', ['-D', 'plot_formats=pdf,png'], {'pdf', 'png'}),
         ('html', ['-D', 'plot_formats.html=png'], {'png'}),
         ('dirhtml', ['-D', 'plot_formats.html=png,pdf'], {'png', 'pdf'}),
         ('dirhtml', ['-D', 'plot_formats.html=png,pdf',
