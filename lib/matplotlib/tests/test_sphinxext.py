@@ -347,6 +347,9 @@ Some plots
         ('html', ['-D', 'plot_html_show_formats=0'], {'png'}),
         ('latex', [], {'png', 'hires.png', 'pdf'}),
         ('texinfo', [], {'png', 'hires.png'}),
+        # The first format is always written, because the html branch of the
+        # template references it and Sphinx's image collector looks for that
+        # file whatever the builder. The list form never warns.
         ('texinfo', ['-D', 'plot_formats=pdf,png'], {'pdf', 'png'}),
         ('html', ['-D', 'plot_formats.html=png'], {'png'}),
         ('dirhtml', ['-D', 'plot_formats.html=png,pdf'], {'png', 'pdf'}),
