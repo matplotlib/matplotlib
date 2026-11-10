@@ -397,7 +397,8 @@ class Slider(SliderBase):
                  closedmin=True, closedmax=True, slidermin=None,
                  slidermax=None, dragging=True, valstep=None,
                  orientation='horizontal', initcolor='r',
-                 track_color='lightgrey', handle_style=None, **kwargs):
+                 track_color='lightgrey', handle_style=None, scroll=False,
+                 **kwargs):
         """
         Parameters
         ----------
@@ -467,6 +468,11 @@ class Slider(SliderBase):
             Other values will be transformed as marker{foo} and passed to the
             `~.Line2D` constructor. e.g. ``handle_style = {'style'='x'}`` will
             result in ``markerstyle = 'x'``.
+
+        scroll : bool, default: False
+            If True, a scroll event over the slider moves it one step in the
+            scroll direction. The step follows *valstep*, or is one percent
+            of the slider's range if *valstep* is None.
 
         Notes
         -----
@@ -549,6 +555,31 @@ class Slider(SliderBase):
                                    horizontalalignment='left')
 
         self.set_val(valinit)
+        if scroll:
+            self.connect_event('scroll_event', self._scroll)
+
+    def _scroll(self, event):
+        if self.ignore(event) or event.inaxes is not self.ax or not event.step:
+            return
+
+        direction = 1 if event.step > 0 else -1
+        if self.valstep is None:
+            val = self.val + direction * (self.valmax - self.valmin) / 100
+        elif isinstance(self.valstep, Number):
+            val = self.val + direction * self.valstep
+        else:
+            values = np.unique(self.valstep)
+            if direction > 0:
+                idx = np.searchsorted(values, self.val, side='right')
+            else:
+                idx = np.searchsorted(values, self.val, side='left') - 1
+            if not 0 <= idx < len(values):
+                return
+            val = values[idx]
+
+        val = self._value_in_bounds(val)
+        if val is not None and val != self.val:
+            self.set_val(val)
 
     def _value_in_bounds(self, val):
         """Makes sure *val* is with given bounds."""
