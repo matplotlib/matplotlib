@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import sys
+from types import SimpleNamespace
 
 from matplotlib.testing import subprocess_run_for_testing
 import pytest
@@ -395,3 +396,14 @@ def test_plot_formats_warns_for_unusable_entry(tmp_path):
 
     assert ("The texinfo builder cannot use pdf listed in "
             "plot_formats['texinfo']") in proc.stderr
+
+
+def test_get_plot_formats_dict_without_builder(monkeypatch):
+    # Callers that pass no builder get the one of the running build.
+    from matplotlib.sphinxext import plot_directive
+
+    builder = SimpleNamespace(name='latex', format='latex')
+    monkeypatch.setattr(plot_directive.setup, 'app',
+                        SimpleNamespace(builder=builder), raising=False)
+    config = SimpleNamespace(plot_formats={'html': ['png'], 'latex': ['pdf']})
+    assert plot_directive.get_plot_formats(config) == [('pdf', 200)]
