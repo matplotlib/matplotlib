@@ -130,7 +130,7 @@ plot_formats
 
     The value can also be a dict that gives each Sphinx builder its own
     list, keyed by builder name or builder format, the same names that the
-    Sphinx `only`_ directive matches::
+    Sphinx :rst:dir:`only` directive matches::
 
         {'html': ['png', 'hires.png'], 'latex': ['pdf']}
 
@@ -141,11 +141,9 @@ plot_formats
     pages embed the first entry of this list (PNG by default), and the
     other entries only appear as download links under the figure, so they
     are rendered only if *plot_html_show_formats* is True. Other builders
-    get whatever their `supported_image_types`_ allows, i.e., the LaTeX
-    builder gets a PDF and the texinfo builder does not.
-
-    .. _only: https://www.sphinx-doc.org/en/master/usage/restructuredtext/directives.html#directive-only
-    .. _supported_image_types: https://www.sphinx-doc.org/en/master/extdev/builderapi.html#sphinx.builders.Builder.supported_image_types
+    get whatever their `~sphinx.builders.Builder.supported_image_types`
+    allows, i.e., the LaTeX builder gets a PDF and the texinfo builder does
+    not.
 
 plot_html_show_formats
     Whether to show links to the files in HTML (default: True). If

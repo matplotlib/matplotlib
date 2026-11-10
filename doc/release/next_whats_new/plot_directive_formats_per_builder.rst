@@ -3,7 +3,8 @@ Per-builder formats for the plot directive
 
 The ``plot_formats`` setting of `matplotlib.sphinxext.plot_directive` can now
 be a dict that gives each Sphinx builder its own list of formats, keyed by
-builder name or builder format, the same names that ``.. only::`` accepts::
+builder name or builder format, the same names that the
+:external+sphinx:rst:dir:`only` directive accepts::
 
     plot_formats = {'html': ['png', 'hires.png'], 'latex': ['pdf']}
 

@@ -278,6 +278,7 @@ intersphinx_mapping = {
     'pytest': ('https://pytest.org/en/stable/', None),
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/', 'https://static.scipy.org/doc/scipy/objects.inv'),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'wx': ('https://docs.wxpython.org/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
