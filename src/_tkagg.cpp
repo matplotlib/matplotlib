@@ -31,6 +31,8 @@
 
 #include <pybind11/pybind11.h>
 #include <pybind11/numpy.h>
+#include "mplutils.h"
+
 namespace py = pybind11;
 using namespace pybind11::literals;
 
@@ -108,19 +110,18 @@ mpl_tk_blit(py::object interp_obj, const char *photo_name,
 
     auto data_ptr = data.mutable_unchecked<3>();  // Checks ndim and writeable flag.
     if (data.shape(2) != 4) {
-        throw py::value_error(
-            "Data pointer must be RGBA; last dimension is {}, not 4"_s.format(
-                data.shape(2)));
+        throw py::value_error(mpl::format(
+            "Data pointer must be RGBA; last dimension is {}, not 4", data.shape(2)));
     }
     if (data.shape(0) > INT_MAX) {  // Limited by Tk_PhotoPutBlock argument type.
-        throw std::range_error(
-            "Height ({}) exceeds maximum allowable size ({})"_s.format(
-                data.shape(0), INT_MAX));
+        throw std::range_error(mpl::format(
+            "Height ({}) exceeds maximum allowable size ({})",
+            data.shape(0), INT_MAX));
     }
     if (data.shape(1) > INT_MAX / 4) {  // Limited by Tk_PhotoImageBlock.pitch field.
-        throw std::range_error(
-            "Width ({}) exceeds maximum allowable size ({})"_s.format(
-                data.shape(1), INT_MAX / 4));
+        throw std::range_error(mpl::format(
+            "Width ({}) exceeds maximum allowable size ({})",
+            data.shape(1), INT_MAX / 4));
     }
     const auto height = static_cast<int>(data.shape(0));
     const auto width = static_cast<int>(data.shape(1));

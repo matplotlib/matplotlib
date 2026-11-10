@@ -27,16 +27,15 @@
 #endif
 #endif
 
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+#include <array>
+#include <cstddef>
+#include <string>
 
-inline int mpl_round_to_int(double v)
-{
-    return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));
-}
+namespace py = pybind11;
+using namespace pybind11::literals;
 
-inline double mpl_round(double v)
-{
-    return (double)mpl_round_to_int(v);
-}
 
 // 'kind' codes for paths.
 enum {
@@ -48,14 +47,27 @@ enum {
     CLOSEPOLY = 0x4f
 };
 
-#ifdef __cplusplus  // not for macosx.m
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
-#include <array>
-#include <cstddef>
 
-namespace py = pybind11;
-using namespace pybind11::literals;
+namespace mpl {
+
+inline int round_to_int(double v)
+{
+    return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));
+}
+
+inline double round(double v)
+{
+    return (double)round_to_int(v);
+}
+
+template <typename... Args>
+inline std::string format(const char *fmt, Args &&...args)
+{
+    return std::string(py::str(fmt).format(std::forward<Args>(args)...));
+}
+
+} // namespace mpl
+
 
 // Helper for std::visit.
 template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
@@ -67,8 +79,8 @@ template<typename T>
 inline void check_trailing_shape(T array, char const* name, long d1)
 {
     if (array.ndim() != 2) {
-        throw py::value_error(
-            "Expected 2-dimensional array, got {}"_s.format(array.ndim()));
+        throw py::value_error(mpl::format(
+            "Expected 2-dimensional array, got {}", array.ndim()));
     }
     if (array.size() == 0) {
         // Sometimes things come through as atleast_2d, etc., but they're empty, so
@@ -76,9 +88,9 @@ inline void check_trailing_shape(T array, char const* name, long d1)
         return;
     }
     if (array.shape(1) != d1) {
-        throw py::value_error(
-            "{} must have shape (N, {}), got ({}, {})"_s.format(
-                name, d1, array.shape(0), array.shape(1)));
+        throw py::value_error(mpl::format(
+            "{} must have shape (N, {}), got ({}, {})",
+            name, d1, array.shape(0), array.shape(1)));
     }
 }
 
@@ -86,8 +98,8 @@ template<typename T>
 inline void check_trailing_shape(T array, char const* name, long d1, long d2)
 {
     if (array.ndim() != 3) {
-        throw py::value_error(
-            "Expected 3-dimensional array, got {}"_s.format(array.ndim()));
+        throw py::value_error(mpl::format(
+            "Expected 3-dimensional array, got {}", array.ndim()));
     }
     if (array.size() == 0) {
         // Sometimes things come through as atleast_3d, etc., but they're empty, so
@@ -95,9 +107,9 @@ inline void check_trailing_shape(T array, char const* name, long d1, long d2)
         return;
     }
     if (array.shape(1) != d1 || array.shape(2) != d2) {
-        throw py::value_error(
-            "{} must have shape (N, {}, {}), got ({}, {}, {})"_s.format(
-                name, d1, d2, array.shape(0), array.shape(1), array.shape(2)));
+        throw py::value_error(mpl::format(
+            "{} must have shape (N, {}, {}), got ({}, {}, {})",
+            name, d1, d2, array.shape(0), array.shape(1), array.shape(2)));
     }
 }
 
@@ -125,7 +137,5 @@ safe_first_shape(const std::array<T, N> &)
 {
     return N;
 }
-
-#endif
 
 #endif

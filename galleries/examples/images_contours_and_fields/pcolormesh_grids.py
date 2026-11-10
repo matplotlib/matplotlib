@@ -108,13 +108,29 @@ _annotate(ax, x, y, "shading='auto'; X, Y one larger than Z (flat)")
 #
 # `Gouraud shading <https://en.wikipedia.org/wiki/Gouraud_shading>`_ can also
 # be specified, where the color in the quadrilaterals is linearly interpolated
-# between the grid points.  The shapes of *X*, *Y*, *Z* must be the same.
+# between the grid points. The data is specified at the corners of the
+# quadrilaterals, in which case *X*, *Y* and *Z* are all the same shape.
 
 fig, ax = plt.subplots(layout='constrained')
 x = np.arange(ncols)
 y = np.arange(nrows)
 ax.pcolormesh(x, y, Z, shading='gouraud', vmin=Z.min(), vmax=Z.max())
 _annotate(ax, x, y, "shading='gouraud'; X, Y same shape as Z")
+
+# %%
+# Gouraud Shading, one larger grid
+# --------------------------------
+#
+# In some cases, the user has data defined at the centers of the quadrilaterals
+# with *X* and *Y* one larger than *Z*. ``shading='gouraud'`` also supports
+# this by using the grid quadrilateral centers as the corners of each colored
+# quadrilateral. This contracts the pseudocolor plot by half a grid cell.
+
+fig, ax = plt.subplots(layout='constrained')
+x = np.arange(ncols + 1)
+y = np.arange(nrows + 1)
+ax.pcolormesh(x, y, Z, shading='gouraud', vmin=Z.min(), vmax=Z.max())
+_annotate(ax, x, y, "shading='gouraud'; X, Y one larger than Z")
 
 plt.show()
 # %%

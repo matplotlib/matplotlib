@@ -359,17 +359,17 @@ std::vector<raqm_glyph_t> FT2Font::layout(
     if (features) {
         for (auto const& feature : *features) {
             if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
-                throw std::runtime_error("failed to set font feature {}"_s.format(feature));
+                throw std::runtime_error(mpl::format(
+                    "failed to set font feature {}", feature));
             }
         }
     }
     if (languages) {
         for (auto & [lang_str, start, end] : *languages) {
             if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
-                throw std::runtime_error(
-                    "failed to set language between {} and {} characters "_s
-                    "to {!r} for layout"_s.format(
-                        start, end, lang_str));
+                throw std::runtime_error(mpl::format(
+                    "failed to set language between {} and {} characters "
+                    "to {!r} for layout", start, end, lang_str));
             }
         }
     }
@@ -439,18 +439,17 @@ std::vector<raqm_glyph_t> FT2Font::layout(
         if (features) {
             for (auto const& feature : *features) {
                 if (!raqm_add_font_feature(rq, feature.c_str(), feature.size())) {
-                    throw std::runtime_error(
-                        "failed to set font feature {}"_s.format(feature));
+                    throw std::runtime_error(mpl::format(
+                        "failed to set font feature {}", feature));
                 }
             }
         }
         if (languages) {
             for (auto & [lang_str, start, end] : *languages) {
                 if (!raqm_set_language(rq, lang_str.c_str(), start, end - start)) {
-                    throw std::runtime_error(
-                        "failed to set language between {} and {} characters "_s
-                        "to {!r} for layout"_s.format(
-                            start, end, lang_str));
+                    throw std::runtime_error(mpl::format(
+                        "failed to set language between {} and {} characters "
+                        "to {!r} for layout", start, end, lang_str));
                 }
             }
         }

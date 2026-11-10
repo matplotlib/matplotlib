@@ -1433,7 +1433,7 @@ class EngFormatter(ScalarFormatter):
     }
 
     def __init__(self, unit="", places=None, sep=" ", *, usetex=None,
-                 useMathText=None, useOffset=False):
+                 useMathText=None, useOffset=False, useLocale=None):
         r"""
         Parameters
         ----------
@@ -1476,6 +1476,12 @@ class EngFormatter(ScalarFormatter):
             3 digits. See also `.set_useOffset`.
 
             .. versionadded:: 3.10
+
+        useLocale : bool, default: :rc:`axes.formatter.use_locale`.
+            Whether to use locale settings for decimal sign and positive sign.
+            See `.set_useLocale`.
+
+            .. versionadded:: 3.12
         """
         self.unit = unit
         self.places = places
@@ -1483,7 +1489,7 @@ class EngFormatter(ScalarFormatter):
         super().__init__(
             useOffset=useOffset,
             useMathText=useMathText,
-            useLocale=False,
+            useLocale=useLocale,
             usetex=usetex,
         )
 
@@ -1564,7 +1570,10 @@ class EngFormatter(ScalarFormatter):
         '1.0 M'
 
         >>> format_data(-1e-6)  # for self.places = 2
-        '-1.00 \N{MICRO SIGN}'
+        '\N{MINUS SIGN}1.00 \N{MICRO SIGN}'
+
+        .. versionchanged:: 3.12
+           The result now honors :rc:`axes.unicode_minus`.
         """
         sign = 1
         fmt = "g" if self.places is None else f".{self.places:d}f"
@@ -1598,10 +1607,11 @@ class EngFormatter(ScalarFormatter):
             suffix = f"{self.sep}{unit_prefix}{self.unit}"
         else:
             suffix = ""
+        mant_str = self._format_maybe_minus_and_locale(f"%{fmt}", mant)
         if self._usetex or self._useMathText:
-            return f"${mant:{fmt}}${suffix}"
+            return f"${mant_str}${suffix}"
         else:
-            return f"{mant:{fmt}}{suffix}"
+            return f"{mant_str}{suffix}"
 
 
 class PercentFormatter(Formatter):
@@ -1853,11 +1863,17 @@ class FixedLocator(Locator):
     :math:`\leq nbins + 1`. The subsampling will be done to include the smallest
     absolute value; for example, if zero is included in the array of possibilities, then
     it will be included in the chosen ticks.
+
+    Locations in *locs* must be finite. Non-finite values raise a `ValueError`.
     """
 
     def __init__(self, locs, nbins=None):
         self.locs = np.asarray(locs)
         _api.check_shape((None,), locs=self.locs)
+        if not np.all(np.isfinite(self.locs)):
+            raise ValueError(
+                f"FixedLocator locations must all be finite, but got {self.locs!r}"
+            )
         self.nbins = max(nbins, 2) if nbins is not None else None
 
     def set_params(self, nbins=None):

@@ -73,7 +73,7 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
     for (auto y = 0; y < dims[0]; ++y) {
         for (auto x = 0; x < dims[1]; ++x) {
             // The convention for the supplied transform is that pixel centers
-	    // are at 0.5, 1.5, 2.5, etc.
+            // are at 0.5, 1.5, 2.5, etc.
             *p++ = (double)x + 0.5;
             *p++ = (double)y + 0.5;
         }
@@ -85,18 +85,18 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
         py::array_t<double, py::array::c_style | py::array::forcecast>(output_mesh);
 
     if (output_mesh_array.ndim() != 2) {
-        throw std::runtime_error(
-            "Inverse transformed mesh array should be 2D not {}D"_s.format(
-                output_mesh_array.ndim()));
+        throw std::runtime_error(mpl::format(
+            "Inverse transformed mesh array should be 2D not {}D",
+            output_mesh_array.ndim()));
     }
 
     // An undersized mesh would be read out of bounds by the resampler.
     if (output_mesh_array.shape(0) != mesh_dims[0] ||
             output_mesh_array.shape(1) != mesh_dims[1]) {
-        throw std::runtime_error(
-            "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})"_s.format(
-                mesh_dims[0], mesh_dims[1],
-                output_mesh_array.shape(0), output_mesh_array.shape(1)));
+        throw std::runtime_error(mpl::format(
+            "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})",
+            mesh_dims[0], mesh_dims[1],
+            output_mesh_array.shape(0), output_mesh_array.shape(1)));
     }
 
     return output_mesh_array;
@@ -124,9 +124,9 @@ image_resample(py::array input_array,
     }
 
     if (ndim == 3 && input_array.shape(2) != 4) {
-        throw std::invalid_argument(
-            "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of {}"_s.format(
-                input_array.shape(2)));
+        throw std::invalid_argument(mpl::format(
+            "3D input array must be RGBA with shape (M, N, 4), has trailing dimension of {}",
+            input_array.shape(2)));
     }
 
     // Ensure input array is contiguous, regardless of dtype
@@ -139,15 +139,15 @@ image_resample(py::array input_array,
     auto out_ndim = output_array.ndim();
 
     if (out_ndim != ndim) {
-        throw std::invalid_argument(
-            "Input ({}D) and output ({}D) arrays have different dimensionalities"_s.format(
-                ndim, out_ndim));
+        throw std::invalid_argument(mpl::format(
+            "Input ({}D) and output ({}D) arrays have different dimensionalities",
+            ndim, out_ndim));
     }
 
     if (out_ndim == 3 && output_array.shape(2) != 4) {
-        throw std::invalid_argument(
-            "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of {}"_s.format(
-                output_array.shape(2)));
+        throw std::invalid_argument(mpl::format(
+            "3D output array must be RGBA with shape (M, N, 4), has trailing dimension of {}",
+            output_array.shape(2)));
     }
 
     if (!output_array.dtype().is(dtype)) {
@@ -220,6 +220,16 @@ image_resample(py::array input_array,
 }
 
 
+[[noreturn]] static void
+raise_image_comparison_failure(std::string msg)
+{
+    auto exceptions = py::module_::import("matplotlib.testing.exceptions");
+    auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
+    py::set_error(ImageComparisonFailure, msg.c_str());
+    throw py::error_already_set();
+}
+
+
 // This is used by matplotlib.testing.compare to calculate RMS and a difference image.
 static py::tuple
 calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
@@ -229,13 +239,9 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
                                        std::pair{actual_image, "Actual"}})
     {
         if (image.ndim() != 3) {
-            auto exceptions = py::module_::import("matplotlib.testing.exceptions");
-            auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
-            py::set_error(
-                ImageComparisonFailure,
-                "{name} image must be 3-dimensional, but is {ndim}-dimensional"_s.format(
-                    "name"_a=name, "ndim"_a=image.ndim()));
-            throw py::error_already_set();
+            raise_image_comparison_failure(mpl::format(
+                "{} image must be 3-dimensional, but is {}-dimensional",
+                name, image.ndim()));
         }
     }
 
@@ -244,25 +250,16 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
     auto depth = expected_image.shape(2);
 
     if (depth != 3 && depth != 4) {
-        auto exceptions = py::module_::import("matplotlib.testing.exceptions");
-        auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
-        py::set_error(
-            ImageComparisonFailure,
-            "Image must be RGB or RGBA but has depth {depth}"_s.format(
-                "depth"_a=depth));
-        throw py::error_already_set();
+        raise_image_comparison_failure(mpl::format(
+            "Image must be RGB or RGBA but has depth {}", depth));
     }
 
     if (height != actual_image.shape(0) || width != actual_image.shape(1) ||
             depth != actual_image.shape(2)) {
-        auto exceptions = py::module_::import("matplotlib.testing.exceptions");
-        auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
-        py::set_error(
-            ImageComparisonFailure,
-            "Image sizes do not match expected size: {expected_image.shape} "_s
-            "actual size {actual_image.shape}"_s.format(
-                "expected_image"_a=expected_image, "actual_image"_a=actual_image));
-        throw py::error_already_set();
+        raise_image_comparison_failure(mpl::format(
+            "Image sizes do not match expected size: {expected_image.shape} "
+            "actual size {actual_image.shape}",
+            "expected_image"_a=expected_image, "actual_image"_a=actual_image));
     }
     auto expected = expected_image.unchecked<3>();
     auto actual = actual_image.unchecked<3>();

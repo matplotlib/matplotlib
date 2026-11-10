@@ -68,6 +68,15 @@ class MixedModeRenderer:
         # to the underlying C implementation).
         return getattr(self._renderer, attr)
 
+    def close_group(self, s):
+        # docstring inherited
+        # If rasterizing can be stopped, stop it before closing the group so
+        # the vector backend receives the matching close_group (#32174).
+        if self._raster_depth == 0 and self._rasterizing:
+            self.stop_rasterizing()
+            self._rasterizing = False
+        self._renderer.close_group(s)
+
     def close_blend_group(self):
         # docstring inherited
         # If rasterizing can be stopped, stop it before closing the group

@@ -1,0 +1,9 @@
+``EngFormatter.format_data`` honors ``axes.unicode_minus``
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+`.EngFormatter.format_data` and `.EngFormatter.format_eng` now honor
+:rc:`axes.unicode_minus`, like `.ScalarFormatter.format_data`. With the default
+rcParams, negative values are returned with a Unicode minus sign (U+2212)
+instead of an ASCII hyphen (U+002D), as are negative exponents of values beyond
+the range of SI prefixes. Tick labels and the offset text already used
+the Unicode minus, so plots are unchanged.

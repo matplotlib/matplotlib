@@ -99,6 +99,22 @@ def test_twin_axes_both_with_units():
     assert twin.get_yticklabels()[0].get_text() == "a"
 
 
+@pytest.mark.parametrize("twin", ["twinx", "twiny", "twin"])
+def test_twin_axes_offset_text_and_minor_ticks(twin):
+    # The twin's offset text and minor ticks must be on the twin's
+    # side (right/top), not on the host's side (left/bottom).
+    h = host_subplot(111)
+    p = getattr(h, twin)()
+    if twin in ["twinx", "twin"]:
+        assert p.yaxis.offsetText.get_horizontalalignment() == "right"
+        assert not p.yaxis._minor_tick_kw["tick1On"]
+        assert p.yaxis._minor_tick_kw["tick2On"]
+    if twin in ["twiny", "twin"]:
+        assert p.xaxis.offsetText.get_verticalalignment() == "bottom"
+        assert not p.xaxis._minor_tick_kw["tick1On"]
+        assert p.xaxis._minor_tick_kw["tick2On"]
+
+
 def test_axesgrid_colorbar_log_smoketest():
     fig = plt.figure()
     grid = AxesGrid(fig, 111,  # modified to be only subplot

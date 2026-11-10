@@ -1448,7 +1448,7 @@ _validators = {
     "keymap.copy":       validate_stringlist,
 
     # Animation settings
-    "animation.html":         ["html5", "jshtml", "none"],
+    "animation.html":         ["auto", "html5", "jshtml", "none"],
     # Limit, in MB, of size of base64 encoded animation in HTML
     # (i.e. IPython notebook)
     "animation.embed_limit":  validate_float,
@@ -2470,185 +2470,197 @@ _DEFINITION = [
         validator=["center", "top", "bottom", "baseline", "center_baseline"],
         description="Vertical alignment of tick labels relative to the tick lines."
     ),
-    _Section("Grid"),
+    _Section(
+        "Grid",
+        description="Default properties for grid lines. Grids have the four "
+                    "properties: *color*, *linestyle*, *linewidth*, and "
+                    "*alpha*. The ``grid.[property]`` parameters apply to both "
+                    "major and minor grid lines. They may be overridden by the "
+                    "``grid.major.[property]`` and ``grid.minor.[property]``."
+    ),
     _Param(
         "grid.color",
         default="#b0b0b0",
         type=":mpltype:`color`",
         validator=validate_color,
-        description="The default grid line color."
+        description="Grid line color."
     ),
     _Param(
         "grid.linestyle",
         default="-",
         type=":mpltype:`linestyle`",
         validator=_validate_linestyle,
-        description="The default grid line style."
+        description="Grid line style."
     ),
     _Param(
         "grid.linewidth",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="The default grid line width, in points."
+        description="Grid line width, in points."
     ),
     _Param(
         "grid.alpha",
         default=1.0,
         type=float,
         validator=validate_float,
-        description="The default grid line transparency, between 0.0 (fully "
-                    "transparent) and 1.0 (opaque)."
+        description="Grid line transparency, between 0.0 (fully transparent) and 1.0 "
+                    "(opaque)."
     ),
     _Param(
         "grid.major.color",
         default=None,
         type=":mpltype:`color` or None",
         validator=_validate_color_or_None,
-        description="If None defaults to grid.color"
+        description="Major grid line color. None defaults to 'grid.color'."
     ),
     _Param(
         "grid.major.linestyle",
         default=None,
         type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
-        description="If None defaults to grid.linestyle"
+        description="Major grid line style. None defaults to 'grid.linestyle'."
     ),
     _Param(
         "grid.major.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.linewidth"
+        description="Major grid line width. None defaults to 'grid.linewidth'."
     ),
     _Param(
         "grid.major.alpha",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.alpha"
+        description="Major grid line transparency. None defaults to 'grid.alpha'."
     ),
     _Param(
         "grid.minor.color",
         default=None,
         type=":mpltype:`color` or None",
         validator=_validate_color_or_None,
-        description="If None defaults to grid.color"
+        description="Minor grid line color. None defaults to 'grid.color'."
     ),
     _Param(
         "grid.minor.linestyle",
         default=None,
         type=":mpltype:`linestyle` | None",
         validator=_validate_linestyle_or_None,
-        description="If None defaults to grid.linestyle"
+        description="Minor grid line style. None defaults to 'grid.linestyle'."
     ),
     _Param(
         "grid.minor.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.linewidth"
+        description="Minor grid line width. None defaults to 'grid.linewidth'."
     ),
     _Param(
         "grid.minor.alpha",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="If None defaults to grid.alpha"
+        description="Minor grid line transparency. None defaults to 'grid.alpha'."
     ),
-    _Section("Legend"),
+    _Section(
+        "Legend",
+        description="Default legend properties. All entries define defaults for "
+                    "parameters of `.Legend` / `.Axes.legend` / `.Figure.legend`."
+    ),
     _Param(
         "legend.loc",
         default="best",
         type=str | int | tuple[float, float],
         validator=_validate_legend_loc,
-        description="The legend location. See the *loc* parameter in `.Axes.legend`."
+        description="Legend location. See the *loc* parameter in `.Axes.legend`."
     ),
     _Param(
         "legend.frameon",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="if True, draw the legend on a background patch"
+        description="Whether to draw the legend on a background patch."
     ),
     _Param(
         "legend.framealpha",
         default=0.8,
         type=float | None,
         validator=validate_float_or_None,
-        description="legend patch transparency"
+        description="Transparency of the legend background patch."
     ),
     _Param(
         "legend.facecolor",
         default="inherit",
         type=':mpltype:`color` or "inherit"',
         validator=validate_color_or_inherit,
-        description="inherit from axes.facecolor; or color spec"
+        description="Color of the legend background. 'inherit' uses 'axes.facecolor'."
     ),
     _Param(
         "legend.edgecolor",
         default="0.8",
         type=':mpltype:`color` or "inherit"',
         validator=validate_color_or_inherit,
-        description="background patch boundary color"
+        description="Color of the legend frame. 'inherit' uses 'axes.facecolor'."
     ),
     _Param(
         "legend.linewidth",
         default=None,
         type=float | None,
         validator=validate_float_or_None,
-        description="line width of the legend frame, None means inherit from "
-                    "patch.linewidth"
+        description="Line width of the legend frame. None uses 'patch.linewidth'."
     ),
     _Param(
         "legend.fancybox",
         default=True,
         type=bool,
         validator=validate_bool,
-        description="if True, use a rounded box for the legend background, else a "
-                    "rectangle"
+        description="If True, use a rounded box for the legend box, otherwise a "
+                    "rectangle. See the *fancybox* parameter of `.Legend`."
     ),
     _Param(
         "legend.shadow",
         default=False,
         type=bool,
         validator=validate_bool,
-        description="if True, give background a shadow effect"
+        description="Whether to draw a shadow behind the legend."
     ),
     _Param(
         "legend.numpoints",
         default=1,
         type=int,
         validator=validate_int,
-        description="the number of marker points in the legend line"
+        description="Number of marker points in the legend when creating a legend "
+                    "entry for a `.Line2D` (line)."
     ),
     _Param(
         "legend.scatterpoints",
         default=1,
         type=int,
         validator=validate_int,
-        description="number of scatter points"
+        description="Number of scatter points in the legend when creating a legend "
+                    "entry for a `.PathCollection` (scatter plot)."
     ),
     _Param(
         "legend.markerscale",
         default=1.0,
         type=float,
         validator=validate_float,
-        description="the relative size of legend markers vs. original"
+        description="Relative size of legend markers compared to the data markers."
     ),
     _Param(
         "legend.fontsize",
         default="medium",
         type=_FontSizeType,
         validator=validate_fontsize,
-        description="The font size of legend text."
+        description="Font size of legend text."
     ),
     _Param(
         "legend.labelcolor",
         default="None",
         type=':mpltype:`color` or {"linecolor", "markerfacecolor", "markeredgecolor"}',
         validator=_validate_color_or_linecolor,
-        description="The color of the labels in legend entries. The special values "
+        description="Color of the labels in legend entries. The special values "
                     "'linecolor', 'markerfacecolor', and 'markeredgecolor' "
                     "infer the color from the associated legend handle; i.e. using "
                     "'linecolor' will render the label of a red line also in red."
@@ -2658,55 +2670,57 @@ _DEFINITION = [
         default=None,
         type=_FontSizeType | None,
         validator=validate_fontsize_None,
-        description="None sets to the same as the default axes."
+        description="Font size of the legend title. None uses 'font.size'."
     ),
     _Param(
         "legend.borderpad",
         default=0.4,
         type=float,
         validator=validate_float,
-        description="border whitespace"
+        description="Spacing between legend content and the border of the legend "
+                    "box, in font-size units."
     ),
     _Param(
         "legend.labelspacing",
         default=0.5,
         type=float,
         validator=validate_float,
-        description="the vertical space between the legend entries"
+        description="Vertical spacing between the legend entries, in font-size units."
     ),
     _Param(
         "legend.handlelength",
         default=2.0,
         type=float,
         validator=validate_float,
-        description="the length of the legend lines"
+        description="Length of the legend handles, in font-size units."
     ),
     _Param(
         "legend.handleheight",
         default=0.7,
         type=float,
         validator=validate_float,
-        description="the height of the legend handle"
+        description="Height of the legend handles, in font-size units."
     ),
     _Param(
         "legend.handletextpad",
         default=0.8,
         type=float,
         validator=validate_float,
-        description="the space between the legend line and legend text"
+        description="The pad between the legend handle and text, in font-size units."
     ),
     _Param(
         "legend.borderaxespad",
         default=0.5,
         type=float,
         validator=validate_float,
-        description="the border between the axes and legend edge"
+        description="The pad between the axes and legend border, in font-size units."
     ),
     _Param(
         "legend.columnspacing",
         default=2.0,
         type=float,
-        validator=validate_float, description="column separation"
+        validator=validate_float,
+        description="The spacing between columns, in font-size units."
     ),
     _Section(
         "Lines",
@@ -3833,13 +3847,14 @@ _DEFINITION = [
     _Section("Animation"),
     _Param(
         "animation.html",
-        default="none",
-        type=Literal["html5", "jshtml", "none"],
-        validator=["html5", "jshtml", "none"],
-        description="How to display animations as HTML in IPython notebooks: "
-                    "'html5' uses the HTML5 video tag, "
-                    "'jshtml' creates a JavaScript animation, and "
-                    "'none' disables HTML output."
+        default="auto",
+        type=Literal["auto", "html5", "jshtml", "none"],
+        validator=["auto", "html5", "jshtml", "none"],
+        description="How to display animations as HTML in IPython notebooks:\n"
+                    "- 'auto' picks the best available option\n"
+                    "- 'html5' uses HTML5 video tag\n"
+                    "- 'jshtml' creates a JavaScript animation\n"
+                    "- 'none' displays nothing"
     ),
     _Param(
         "animation.writer",

@@ -281,8 +281,8 @@ def test_addfont_as_path(monkeypatch):
 
 @pytest.mark.skipif(sys.platform != 'win32', reason='Windows only')
 def test_user_fonts_win32():
-    if not (os.environ.get('APPVEYOR') or os.environ.get('TF_BUILD')):
-        pytest.xfail("This test should only run on CI (appveyor or azure) "
+    if not os.environ.get('GITHUB_ACTIONS'):
+        pytest.xfail("This test should only run on GitHub Actions "
                      "as the developer's font directory should remain "
                      "unchanged.")
     pytest.xfail("We need to update the registry for this test to work")

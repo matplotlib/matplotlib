@@ -1418,6 +1418,9 @@ class FigureImage(_ImageBase):
             origin=origin
         )
         self.set_figure(fig)
+        # Offsets are in pixels, so the transform is always identity. Setting it
+        # explicitly prevents Figure.add_artist() from overriding it.
+        self.set_transform(IdentityTransform())
         self.ox = offsetx
         self.oy = offsety
         self._internal_update(kwargs)

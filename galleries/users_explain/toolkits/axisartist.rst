@@ -566,16 +566,19 @@ way is to add it as an item of Axes's axis attribute.::
 
 See the first example of this page.
 
-Current limitations and TODO's
+Current limitations and TODOs
 ==============================
 
-The code need more refinement. Here is an incomplete list of issues and TODO's
+The toolkit still requires further refinement. The following is an incomplete
+list of known limitations and areas for future improvement.
 
-* No easy way to support a user customized tick location (for
-  curvilinear grid). A new Locator class needs to be created.
+* There is currently no straightforward way to support user-defined tick
+  locations for curvilinear grids. A new ``Locator`` class would be required.
 
-* FloatingAxis may have coordinate limits, e.g., a floating axis of x = 0,
-  but y only spans from 0 to 1.
+* ``FloatingAxis`` cannot currently define coordinate limits. For example, a
+  floating axis at ``x = 0`` cannot easily be restricted to span only
+  ``y = 0`` to ``1``.
 
-* The location of axislabel of FloatingAxis needs to be optionally
-  given as a coordinate value. ex, a floating axis of x=0 with label at y=1
+* The location of a ``FloatingAxis`` axis label should optionally be
+  specifiable using a coordinate value, for example placing the label of
+  ``x = 0`` at ``y = 1``.

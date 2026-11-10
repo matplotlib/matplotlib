@@ -89,8 +89,6 @@ def _get_available_interactive_backends():
             reason = "$DISPLAY and $WAYLAND_DISPLAY are unset"
         elif _is_macos_and_display_invalid:
             reason = "Display is unavailable"
-        elif env["MPLBACKEND"] == 'macosx' and os.environ.get('TF_BUILD'):
-            reason = "macosx backend fails on Azure"
         elif env["MPLBACKEND"].startswith('gtk'):
             try:
                 import gi
@@ -250,7 +248,7 @@ def test_interactive_backend(env, toolbar):
         if toolbar == "toolmanager":
             pytest.skip("toolmanager is not implemented for macosx.")
     if env["MPLBACKEND"] == "wx":
-        pytest.skip("wx backend is deprecated; tests failed on appveyor")
+        pytest.skip("wx backend is deprecated; tests failed on Windows CI")
     if env["MPLBACKEND"] == "wxagg" and toolbar == "toolmanager":
         pytest.skip("Temporarily deactivated: show() changes figure height "
                     "and thus fails the test")
@@ -475,8 +473,6 @@ def test_cross_Qt_imports(host, mpl):
     assert did_qt_warn or did_macos_warn
 
 
-@pytest.mark.skipif('TF_BUILD' in os.environ,
-                    reason="this test fails an azure for unknown reasons")
 @pytest.mark.skipif(sys.platform == "win32", reason="Cannot send SIGINT on Windows.")
 def test_webagg():
     pytest.importorskip("tornado")
@@ -675,7 +671,7 @@ def test_interactive_timers(env):
     if env["MPLBACKEND"] == "gtk3cairo" and os.getenv("CI"):
         pytest.skip("gtk3cairo timers do not work in remote CI")
     if env["MPLBACKEND"] == "wx":
-        pytest.skip("wx backend is deprecated; tests failed on appveyor")
+        pytest.skip("wx backend is deprecated; tests failed on Windows CI")
     _run_helper(_impl_test_interactive_timers,
                 timeout=_test_timeout, extra_env=env)
 

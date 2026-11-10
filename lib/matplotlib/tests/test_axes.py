@@ -1624,6 +1624,44 @@ def test_pcolor_log_scale(fig_test, fig_ref):
     ax.set_xscale('log')
 
 
+def test_pcolormesh_switching_shadings():
+    nrows, ncols = 3, 4
+    Z = np.arange(nrows * ncols).reshape(nrows, ncols)
+    x = np.arange(ncols + 1)
+    y = np.arange(nrows + 1)
+
+    _, ax = plt.subplots()
+
+    ax.pcolormesh(x, y, Z, shading='flat')
+    ax.pcolormesh(x, y, Z, shading='gouraud')
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x, y, Z, shading='nearest')
+
+    ax.pcolormesh(x[:-1], y[:-1], Z, shading='nearest')
+    ax.pcolormesh(x[:-1], y[:-1], Z, shading='gouraud')
+    with pytest.raises(TypeError):
+        ax.pcolormesh(x[:-1], y[:-1], Z, shading='flat')
+
+
+@check_figures_equal()
+def test_pcolormesh_gouraud_grid_conversion(fig_test, fig_ref):
+    # For X and Y one dimension greater than Z, gouraud converts the
+    # grid representation to match the data shape, by using quad centers.
+    Z = np.arange(6).reshape(2, 3)
+
+    # One larger than Z in each dimension.
+    x_test = np.array([0, 2, 8, 12])
+    y_test = np.array([0, 2, 6])
+    ax_test = fig_test.subplots()
+    ax_test.pcolormesh(x_test, y_test, Z, shading='gouraud')
+
+    # Same shape as Z.
+    x_ref = np.array([1, 5, 10])
+    y_ref = np.array([1, 4])
+    ax_ref = fig_ref.subplots()
+    ax_ref.pcolormesh(x_ref, y_ref, Z, shading='gouraud')
+
+
 def test_pcolorargs():
     n = 12
     x = np.linspace(-1.5, 1.5, n)
@@ -1637,9 +1675,9 @@ def test_pcolorargs():
     with pytest.raises(TypeError):
         ax.pcolormesh(X, Y, Z.T)
     with pytest.raises(TypeError):
-        ax.pcolormesh(x, y, Z[:-1, :-1], shading="gouraud")
+        ax.pcolormesh(x, y, Z[:-2, :-2], shading='gouraud')
     with pytest.raises(TypeError):
-        ax.pcolormesh(X, Y, Z[:-1, :-1], shading="gouraud")
+        ax.pcolormesh(X, Y, Z[:-2, :-2], shading='gouraud')
     x[0] = np.nan
     with pytest.raises(ValueError):
         ax.pcolormesh(x, y, Z[:-1, :-1])
@@ -1770,11 +1808,52 @@ def test_pcolorflaterror():
         ax.pcolormesh(x, y, Z, shading='flat')
 
 
+def test_pcolorautoerror():
+    fig, ax = plt.subplots()
+    x = np.arange(0, 4)
+    y = np.arange(0, 3)
+    Z = np.ones((2, 4))
+    message = (
+        "Dimensions of C (2, 4) are incompatible with X (4) and Y (3) "
+        "for shading='auto'. "
+        "With shading='auto', C.shape must be (3, 4) to select "
+        "'nearest' shading or (2, 3) to select 'flat' shading. "
+        "Note that C uses (rows, columns) = (Y, X) indexing. "
+        "See help(pcolormesh)")
+    with pytest.raises(TypeError, match=re.escape(message)):
+        ax.pcolormesh(x, y, Z, shading='auto')
+
+
+@pytest.mark.parametrize("shading", ["flat", "nearest", "gouraud"])
+def test_pcolormesh_shading_shape_error(shading):
+    fig, ax = plt.subplots()
+    x = np.arange(0, 4)
+    y = np.arange(0, 3)
+    Z = np.ones((4, 4))
+    with pytest.raises(TypeError, match=f"shading='{shading}'"):
+        ax.pcolormesh(x, y, Z, shading=shading)
+
+
+@pytest.mark.parametrize("shading", ["auto", "flat", "nearest", "gouraud"])
+def test_pcolormesh_degenerate_grid_error(shading):
+    fig, ax = plt.subplots()
+    x = np.arange(0, 3)
+    y = np.array([0])
+    Z = np.ones((1, 3))
+    with pytest.raises(
+            TypeError,
+            match=re.escape(
+                "pcolormesh requires the X and Y coordinates to each have at "
+                "least two values to define a mesh, but X has 3 values and Y "
+                "has 1 values.")):
+        ax.pcolormesh(x, y, Z, shading=shading)
+
+
 def test_samesizepcolorflaterror():
     fig, ax = plt.subplots()
     x, y = np.meshgrid(np.arange(5), np.arange(3))
     Z = x + y
-    with pytest.raises(TypeError, match=r".*one smaller than X"):
+    with pytest.raises(TypeError, match=r"one smaller than X"):
         ax.pcolormesh(x, y, Z, shading='flat')
 
 
