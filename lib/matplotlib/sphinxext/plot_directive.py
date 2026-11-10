@@ -134,7 +134,8 @@ plot_formats
 
         {'html': ['png', 'hires.png'], 'latex': ['pdf']}
 
-    Builders missing from the dict use the default list. On the command
+    Builders missing from the dict use the default list, and an entry that
+    lists a format its builder cannot use produces a warning. On the command
     line, a single entry is set with ``-D plot_formats.html=png``.
 
     Formats that the Sphinx builder in use cannot use get skipped. HTML
@@ -644,6 +645,18 @@ def clear_state(plot_rcparams, close=True):
 _DEFAULT_FORMATS = ('png', 'hires.png', 'pdf')
 
 
+def _builder_key(plot_formats, builder):
+    """Return the key of a *plot_formats* dict that applies to *builder*."""
+    if isinstance(plot_formats, dict):
+        # check the builder name first, then the builder format
+        # see the behaviour for ``.. only::`` directive in Sphinx:
+        # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/builders/__init__.py#L121-L124
+        for key in (builder.name, builder.format):
+            if key in plot_formats:
+                return key
+    return None
+
+
 def get_plot_formats(config, builder=None):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
@@ -651,13 +664,9 @@ def get_plot_formats(config, builder=None):
     if isinstance(plot_formats, dict):
         if builder is None:
             builder = setup.app.builder
-        # check the builder name first, then the builder format
-        # see the behaviour for ``.. only::`` directive in Sphinx:
-        # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/builders/__init__.py#L121-L124
-        plot_formats = next(
-            (plot_formats[key] for key in (builder.name, builder.format)
-             if key in plot_formats),
-            _DEFAULT_FORMATS)
+        key = _builder_key(plot_formats, builder)
+        plot_formats = (plot_formats[key] if key is not None
+                        else _DEFAULT_FORMATS)
     if isinstance(plot_formats, str):
         # since ``-D plot_formats.html=png,pdf`` arrives as one string
         plot_formats = plot_formats.split(',')
@@ -685,8 +694,15 @@ def _formats_for_builder(formats, builder, config):
     # ``name.*`` reference, so the two always agree on which file gets used:
     # https://github.com/sphinx-doc/sphinx/blob/8494d3d3e237590b9168383579a561c4b71ff7e5/sphinx/environment/collectors/asset.py#L118
     supported = getattr(builder, 'supported_image_types', ())
-    kept = [fmt for fmt in formats
-            if guess_mimetype(f'figure.{fmt[0]}') in supported]
+    unsupported = [fmt for fmt, _ in formats
+                   if guess_mimetype(f'figure.{fmt}') not in supported]
+    key = _builder_key(config.plot_formats, builder)
+    if unsupported and key is not None:
+        # The default list is meant to carry formats for other builders,
+        # so only an entry written for this builder is worth a warning.
+        _log.warning('The %s builder cannot use %s listed in plot_formats[%r]',
+                     builder.name, ', '.join(unsupported), key, once=True)
+    kept = [fmt for fmt in formats if fmt[0] not in unsupported]
     # The html branch of the template still references the first format,
     # and Sphinx's image collector follows that reference.
     if formats[0] not in kept:

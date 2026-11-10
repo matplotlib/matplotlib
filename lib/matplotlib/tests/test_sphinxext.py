@@ -374,3 +374,20 @@ def test_plot_formats_follow_builder(tmp_path, builder, extra_args, expected):
                 for path in (tmp_path / 'plot_directive').glob('index-1.*')
                 if path.suffix != '.py'}
     assert rendered == expected
+
+
+def test_plot_formats_warns_for_unusable_entry(tmp_path):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+""")
+    proc = build_sphinx_html(
+        tmp_path, tmp_path / 'doctrees', tmp_path / '_build' / 'texinfo',
+        extra_args=['-D', 'plot_formats.texinfo=png,pdf'], builder='texinfo',
+        expected_returncode=1)
+
+    assert ("The texinfo builder cannot use pdf listed in "
+            "plot_formats['texinfo']") in proc.stderr
