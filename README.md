@@ -59,7 +59,7 @@ Our active mailing lists (which are mirrored on Discourse) are:
 -   [Development](https://mail.python.org/mailman/listinfo/matplotlib-devel)
     mailing list: <matplotlib-devel@python.org>
 
-[Discourse Chat](https://discourse.matplotlib.org/chat/c/matplotlib/2) is for
+[Discourse Chat](https://discourse.matplotlib.org/c/contribute/8) is for
 coordinating development and asking questions directly related to contributing
 to matplotlib.
 
