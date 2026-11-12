@@ -203,7 +203,7 @@ def test_lw_scaling():
 
 
 def test_is_sorted_and_has_non_nan():
-    with pytest.raises(ValueError):
+    with pytest.raises(TypeError):
         _path.is_sorted_and_has_non_nan(None)
     with pytest.raises(ValueError):
         _path.is_sorted_and_has_non_nan([[[[None]], None]])

@@ -212,7 +212,7 @@ def test_ft2font_invalid_args(tmp_path):
     file = fm.findfont('DejaVu Sans')
 
     # hinting_factor argument.
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         ft2font.FT2Font(file, 1.3)
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match='text.hinting_factor rcParam was deprecated .+ 3.11'):
@@ -221,14 +221,14 @@ def test_ft2font_invalid_args(tmp_path):
                       match='The hinting_factor parameter was deprecated'):
         ft2font.FT2Font(file, 0)
 
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         # failing to be a list will fail before the 0
         ft2font.FT2Font(file, _fallback_list=(0,))
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         ft2font.FT2Font(file, _fallback_list=[0])
 
     # kerning_factor argument.
-    with pytest.raises(TypeError, match='incompatible constructor arguments'):
+    with pytest.raises(TypeError, match='incompatible function arguments'):
         ft2font.FT2Font(file, _kerning_factor=1.3)
     with pytest.warns(mpl.MatplotlibDeprecationWarning,
                       match='text.kerning_factor rcParam was deprecated .+ 3.11'):

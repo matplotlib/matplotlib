@@ -902,7 +902,7 @@ def test_count_bboxes_overlapping_bbox():
         [[1], [2]],
     ]:
         with pytest.raises(ValueError):
-            count_bboxes_overlapping_bbox(invalid_bbox, None)
+            count_bboxes_overlapping_bbox(invalid_bbox, [[0, 0], [0, 0]])
 
     corners = (
         [[0, 0], [2, 2]],

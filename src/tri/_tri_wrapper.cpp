@@ -1,31 +1,24 @@
 #include "_tri.h"
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-#include <pybind11/subinterpreter.h>
-#endif
 
-using namespace pybind11::literals;
+namespace nb = nanobind;
+using namespace nanobind::literals;
 
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-PYBIND11_MODULE(_tri, m,
-                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
-#else
-PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
-#endif
+NB_MODULE(_tri, m)
 {
-    py::classh<Triangulation>(m, "Triangulation", py::is_final())
-        .def(py::init<const Triangulation::CoordinateArray&,
-                      const Triangulation::CoordinateArray&,
-                      const Triangulation::TriangleArray&,
-                      const Triangulation::MaskArray&,
-                      const Triangulation::EdgeArray&,
-                      const Triangulation::NeighborArray&,
-                      bool>(),
+    nb::class_<Triangulation>(m, "Triangulation", nb::is_final())
+        .def(nb::init<const mpl::defer<Triangulation::CoordinateArray>&,
+                      const mpl::defer<Triangulation::CoordinateArray>&,
+                      const mpl::defer<Triangulation::TriangleArray>&,
+                      const std::optional<mpl::defer<Triangulation::MaskArray>>&,
+                      const std::optional<mpl::defer<Triangulation::EdgeArray>>&,
+                      const std::optional<mpl::defer<Triangulation::NeighborArray>>&,
+                      mpl::bool_>(),
             "x"_a,
             "y"_a,
             "triangles"_a,
-            "mask"_a,
-            "edges"_a,
-            "neighbors"_a,
+            "mask"_a.none(),
+            "edges"_a.none(),
+            "neighbors"_a.none(),
             "correct_triangle_orientations"_a,
             "Create a new C++ Triangulation object.\n"
             "This should not be called directly, use the python class\n"
@@ -37,11 +30,12 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("get_neighbors", &Triangulation::get_neighbors,
             "Return neighbors array.")
         .def("set_mask", &Triangulation::set_mask,
+            "mask"_a.none(),
             "Set or clear the mask array.");
 
-    py::classh<TriContourGenerator>(m, "TriContourGenerator", py::is_final())
-        .def(py::init<Triangulation&,
-                      const TriContourGenerator::CoordinateArray&>(),
+    nb::class_<TriContourGenerator>(m, "TriContourGenerator", nb::is_final())
+        .def(nb::init<Triangulation&,
+                      const mpl::defer<TriContourGenerator::CoordinateArray>&>(),
             "triangulation"_a,
             "z"_a,
             "Create a new C++ TriContourGenerator object.\n"
@@ -52,8 +46,8 @@ PYBIND11_MODULE(_tri, m, py::mod_gil_not_used())
         .def("create_filled_contour", &TriContourGenerator::create_filled_contour,
             "Create and return a filled contour.");
 
-    py::classh<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", py::is_final())
-        .def(py::init<Triangulation&>(),
+    nb::class_<TrapezoidMapTriFinder>(m, "TrapezoidMapTriFinder", nb::is_final())
+        .def(nb::init<Triangulation&>(),
             "triangulation"_a,
             "Create a new C++ TrapezoidMapTriFinder object.\n"
             "This should not be called directly, use the python class\n"
