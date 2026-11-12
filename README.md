@@ -5,7 +5,7 @@
 [![LFX Health Score](https://insights.linuxfoundation.org/api/badge/health-score?project=matplotlib)](https://insights.linuxfoundation.org/project/matplotlib)
 
 [![Discourse help forum](https://img.shields.io/badge/help_forum-discourse-blue.svg)](https://discourse.matplotlib.org)
-[![Discourse chat](https://img.shields.io/badge/chat-discourse-mediumaquamarine)](https://discourse.matplotlib.org/chat/c/matplotlib/2)
+[![Discourse chat](https://img.shields.io/badge/chat-discourse-mediumaquamarine)](https://discourse.matplotlib.org/c/contribute/8)
 [![GitHub issues](https://img.shields.io/badge/issue_tracking-github-blue.svg)](https://github.com/matplotlib/matplotlib/issues)
 [![Contributing](https://img.shields.io/badge/PR-Welcome-%23FF8300.svg?)](https://matplotlib.org/stable/devel/index.html)
 
