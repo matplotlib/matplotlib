@@ -1,6 +1,6 @@
 import os
 import types
-from collections.abc import Callable, Iterable, Sequence
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from datetime import datetime
 from enum import Enum
 from functools import total_ordering
@@ -12,7 +12,11 @@ from numpy import typing as npt
 
 from matplotlib import _api, path, transforms
 from matplotlib._type1font import Type1Font
-from matplotlib.backend_bases import FigureCanvasBase, GraphicsContextBase
+from matplotlib.backend_bases import (
+    FigureCanvasBase,
+    FigureManagerBase,
+    GraphicsContextBase,
+)
 from matplotlib.dviread import DviFont
 from matplotlib.figure import Figure
 from matplotlib.font_manager import FontPath, FontProperties
@@ -21,6 +25,7 @@ from matplotlib.transforms import BboxBase, Transform, TransformedBbox, Transfor
 from matplotlib.typing import (
     CapStyleType,
     ColorType,
+    FillRuleType,
     JoinStyleType,
     LineStyleType,
     RGBColorType,
@@ -60,6 +65,8 @@ type _SupportsPdfReprExt = (
 )
 
 type _MetadataDict = dict[str, str | datetime | Name]
+# User-supplied metadata; a None value removes that key.
+type _MetadataInput = Mapping[str, str | datetime | Name | None]
 
 def pdfRepr(obj: _SupportsPdfReprExt) -> bytes: ...
 
@@ -88,7 +95,9 @@ class Verbatim:
 class Op(Enum):
     close_fill_stroke = b"b"
     fill_stroke = b"B"
+    fill_evenodd_stroke = b"B*"
     fill = b"f"
+    fill_evenodd = b"f*"
     closepath = b"h"
     close_stroke = b"s"
     stroke = b"S"
@@ -126,7 +135,9 @@ class Op(Enum):
     shading = b"sh"
     def pdfRepr(self) -> bytes: ...
     @classmethod
-    def paint_path(cls, fill: bool, stroke: bool) -> bytes: ...
+    def paint_path(
+        cls, fill: bool, stroke: bool, *, fill_rule: FillRuleType = "nonzero"
+    ) -> Op: ...
 
 class Stream:
     def __init__(
@@ -144,7 +155,7 @@ class PdfFile:
     def __init__(
         self,
         filename: str | os.PathLike | IO[Any],
-        metadata: _MetadataDict | None = None,
+        metadata: _MetadataInput | None = None,
     ) -> None: ...
     @property
     def dviFontInfo(self) -> dict[Name, types.SimpleNamespace]: ...
@@ -358,7 +369,7 @@ class GraphicsContextPdf(GraphicsContextBase):
     def __repr__(self) -> str: ...
     def stroke(self) -> bool: ...
     def fill(self, *args: ColorType) -> bool: ...
-    def paint(self) -> Op: ...
+    def paint(self, *, fill_rule: FillRuleType = "nonzero") -> Op: ...
     def capstyle_cmd(self, style: CapStyleType) -> _CommandType: ...
     def joinstyle_cmd(self, style: JoinStyleType) -> _CommandType: ...
     def linewidth_cmd(self, width: float) -> _CommandType: ...
@@ -388,7 +399,7 @@ class PdfPages:
         self,
         filename: str | os.PathLike | IO[Any],
         keep_empty: None = None,
-        metadata: _MetadataDict | None = None,
+        metadata: _MetadataInput | None = None,
     ) -> None: ...
     def __enter__(self) -> Self: ...
     def __exit__(
@@ -396,9 +407,7 @@ class PdfPages:
     ) -> None: ...
     def close(self) -> None: ...
     def infodict(self) -> _MetadataDict: ...
-    def savefig(
-        self, figure: Figure | int | None = None, **kwargs: dict[str, Any]
-    ) -> None: ...
+    def savefig(self, figure: Figure | int | None = None, **kwargs: Any) -> None: ...
     def get_pagecount(self) -> int: ...
     def attach_note(
         self,
@@ -415,6 +424,8 @@ class FigureCanvasPdf(FigureCanvasBase):
         filename: PdfPages | str | os.PathLike | IO[Any],
         *,
         bbox_inches_restore: _RectangleType | None = None,
-        metadata: _MetadataDict | None = None,
+        metadata: _MetadataInput | None = None,
     ) -> None: ...
     def draw(self) -> None: ...
+
+FigureManagerPdf = FigureManagerBase
