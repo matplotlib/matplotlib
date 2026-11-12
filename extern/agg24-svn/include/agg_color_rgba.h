@@ -24,6 +24,11 @@
 #ifndef AGG_COLOR_RGBA_INCLUDED
 #define AGG_COLOR_RGBA_INCLUDED
 
+#ifdef MPL_ADD_AGG_HSL_BLEND_MODES
+#include <array>
+#include <utility>
+#endif
+
 #include <math.h>
 #include "agg_basics.h"
 #include "agg_gamma_lut.h"
