@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from .description import Desc, desc_like
 from .conversion_edge import Graph, TransformEdge
 
