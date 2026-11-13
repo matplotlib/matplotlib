@@ -2225,6 +2225,25 @@ def test_colorizer_multinorm_explicit():
     assert_array_almost_equal(ca.to_rgba(data), res)
 
 
+def test_colorizer_multinorm_instance():
+    # An existing MultiNorm is used as is, not wrapped in a new MultiNorm.
+    norm = mcolors.MultiNorm(['linear', 'log'])
+    ca = mcolorizer.Colorizer('BiOrangeBlue', norm)
+    assert ca.norm is norm
+
+
+def test_multi_norm_autoscale_none_only_signals_change():
+    norm = mcolors.MultiNorm(['linear', 'linear'])
+    calls = []
+    norm.callbacks.connect('changed', lambda: calls.append(True))
+    data = [[0, 1, 2], [3, 4, 5]]
+    norm.autoscale_None(data)
+    assert len(calls) == 1
+    # limits are already set, so nothing changes and no signal is emitted
+    norm.autoscale_None(data)
+    assert len(calls) == 1
+
+
 def test_get_set_clim_raises():
     fig, ax = plt.subplots(1, 1)
     x_0 = np.arange(9, dtype='float32').reshape(3, 3)
