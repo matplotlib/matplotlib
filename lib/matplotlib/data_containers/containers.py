@@ -15,7 +15,7 @@ import numpy as np
 
 from .description import Desc, desc_like, ShapeSpec
 
-from typing import TYPE_CHECKING, Generic, NamedTuple, TypeVar
+from typing import TYPE_CHECKING, Generic, NamedTuple, ParamSpec
 
 if TYPE_CHECKING:
     from .conversion_edge import Graph
@@ -152,7 +152,7 @@ class ArrayContainer:
         self._data.update(data)
         self._cache_key = str(uuid.uuid4())
 
-InType = TypeVar("InType")
+InType = ParamSpec("InType")
 
 
 class FuncContainerInputs(NamedTuple, Generic[InType]):

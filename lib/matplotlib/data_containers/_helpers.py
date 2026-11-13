@@ -1,8 +1,13 @@
 from .description import Desc, desc_like
 from .conversion_edge import Graph, TransformEdge
 
+from typing import TYPE_CHECKING
 
-def _get_base_transform_graph(ax):
+if TYPE_CHECKING:
+    from matplotlib.axes import Axes
+
+
+def _get_base_transform_graph(ax: Axes | None) -> Graph:
     """Compute the Graph for a given axes.
 
     Produces a minimal graph that provides enough for `FuncContainer`.
