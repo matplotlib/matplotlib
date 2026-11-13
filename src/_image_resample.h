@@ -5,13 +5,24 @@
 
 #define MPL_DISABLE_AGG_GRAY_CLIPPING
 
+#include <cmath>
+#include <cstddef>
+#include <type_traits>
+#include <utility>
+
+#include "agg_basics.h"
+#include "agg_color_rgba.h"
+#include "agg_conv_transform.h"
 #include "agg_image_accessors.h"
+#include "agg_image_filters.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_gray.h"
 #include "agg_pixfmt_rgba.h"
+#include "agg_rasterizer_scanline_aa.h"
+#include "agg_rasterizer_sl_clip.h"
 #include "agg_renderer_base.h"
 #include "agg_renderer_scanline.h"
-#include "agg_rasterizer_scanline_aa.h"
+#include "agg_rendering_buffer.h"
 #include "agg_scanline_u.h"
 #include "agg_span_allocator.h"
 #include "agg_span_converter.h"
@@ -19,6 +30,7 @@
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_adaptor.h"
 #include "agg_span_interpolator_linear.h"
+#include "agg_trans_affine.h"
 
 #include "agg_workaround.h"
 

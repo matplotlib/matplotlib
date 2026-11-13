@@ -7,8 +7,16 @@
 #include "_tri.h"
 
 #include <algorithm>
+#include <cassert>
+#include <cmath>
+#include <cstddef>
+#include <iostream>
+#include <map>
+#include <ostream>
 #include <random>
 #include <set>
+#include <stdexcept>
+#include <vector>
 
 
 TriEdge::TriEdge()

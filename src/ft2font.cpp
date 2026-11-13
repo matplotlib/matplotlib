@@ -4,12 +4,24 @@
 #include "mplutils.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
 #include <cstdio>
-#include <iterator>
+#include <cstdlib>
+#include <cstring>
 #include <map>
+#include <math.h>
+#include <memory>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
 #ifndef M_PI

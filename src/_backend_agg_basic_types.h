@@ -6,9 +6,15 @@
 
 #include <pybind11/pybind11.h>
 
+#include <cstddef>
+#include <optional>
+#include <string>
+#include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
+#include "agg_basics.h"
 #include "agg_color_rgba.h"
 #include "agg_math_stroke.h"
 #include "agg_pixfmt_rgba.h"

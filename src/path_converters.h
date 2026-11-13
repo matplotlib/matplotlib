@@ -6,12 +6,15 @@
 #include <pybind11/pybind11.h>
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 
+#include "agg_basics.h"
 #include "agg_clip_liang_barsky.h"
-#include "mplutils.h"
 #include "agg_conv_segmentator.h"
+
+#include "mplutils.h"
 
 /*
  This file contains a number of vertex converters that modify

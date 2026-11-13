@@ -7,13 +7,29 @@
 #include <pybind11/subinterpreter.h>
 #endif
 
-#include "ft2font.h"
-#include "mplutils.h"
-
+#include <algorithm>
+#include <array>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstdio>
+#include <cstring>
+#include <exception>
+#include <iterator>
+#include <math.h>
+#include <memory>
+#include <optional>
 #include <set>
 #include <sstream>
+#include <stdexcept>
+#include <string>
+#include <string_view>
 #include <unordered_map>
+#include <variant>
+#include <vector>
+
+#include "ft2font.h"
+#include "mplutils.h"
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338328

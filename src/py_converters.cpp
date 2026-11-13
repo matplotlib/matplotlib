@@ -1,5 +1,9 @@
 #include "py_converters.h"
 
+#include <stdexcept>
+
+#include "agg_trans_affine.h"
+
 void convert_trans_affine(const py::object& transform, agg::trans_affine& affine)
 {
     // If None assume identity transform so leave affine unchanged
