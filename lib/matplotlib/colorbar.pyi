@@ -118,22 +118,17 @@ class Colorbar:
 ColorbarBase = Colorbar
 
 class BivarColorbar:
-    n_rasterize: int
-    mappable: mcolorizer.ColorizingArtist
-    ax: Axes
-    alpha: float | None
-    colorizer: mcolorizer.Colorizer
-    ticklocations: tuple[Literal["auto", "left", "right"], Literal["auto", "top", "bottom"]]
     def __init__(
         self,
         ax: Axes,
         mappable: mcolorizer.ColorizingArtist | mcolorizer.Colorizer,
         *,
-        alpha: float | None = ...,
         location: Literal["left", "right", "top", "bottom"] | None = ...,
         ticklocations: tuple[Literal["auto", "left", "right"], Literal["auto", "top", "bottom"]] = ...,
         aspect: float = ...,
     ) -> None: ...
+    @property
+    def ax(self) -> Axes: ...
     @property
     def aspect(self) -> float: ...
     @aspect.setter
@@ -145,9 +140,7 @@ class BivarColorbar:
     @property
     def yaxis(self) -> Axis: ...
     def update_normals(self, mappable: mcolorizer.ColorizingArtist | None = ...) -> None: ...
-    def set_alpha(self, alpha: float | None) -> None: ...
     def remove(self) -> None: ...
-    def drag_pan(self, button: Any, key: Any, x: float, y: float) -> None: ...
 
 class MultivarColorbar(Sequence[Colorbar]):
     mappable: mcolorizer.ColorizingArtist

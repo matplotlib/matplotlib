@@ -1444,16 +1444,17 @@ class BivarColorbar:
     and associated with `.ColorizingArtist`\s (such as an
     `.AxesImage` generated via `~.axes.Axes.imshow`).
 
+    BivarColorbar uses a regular Axes as underlying Artist.
     Unlike `Colorbar`, `BivarColorbar` does not support
-    customizing the ticks, and ticks must be customized on the axes instead.
+    customizing the ticks via a high-level API. Instead, customize ticks
+    directly on the underlying Axes ``BivarColorbar.ax``.
     """
 
-    n_rasterize = 256  # rasterize solids if number of colors >= n_rasterize
+    _n_rasterize = 256  # rasterize solids if number of colors > _n_rasterize
 
     def __init__(
         self, ax, mappable,
         *,
-        alpha=None,
         location=None,
         ticklocations=('auto', 'auto'),
         aspect=1.0,
@@ -1464,11 +1465,8 @@ class BivarColorbar:
         ax : `~matplotlib.axes.Axes`
             The `~.axes.Axes` instance in which the colorbar is drawn.
 
-        mappable : `.ColorizingArtist`
+        mappable : `.ColorizingArtist` or `.Colorizer`
             The mappable whose colormap and norm will be used.
-
-        alpha : float
-            The colorbars transparency between 0 (transparent) and 1 (opaque).
 
         location : None or {'left', 'right', 'top', 'bottom'}
             Set the bivariate colorbars's location
@@ -1478,64 +1476,74 @@ class BivarColorbar:
         ticklocations : tuple describing the ticklocation of the y and x axis
             The first element must be {'auto', 'left', 'right'}
             The second element must be {'auto', 'top', 'bottom''}.
-            If 'auto', the ticklocations are determined by the *location*.
+            If 'auto', a reasonable default is chosen based on *location*.
         """
 
-        self.ax = ax
-        self.location = location
+        self._ax = ax
         if isinstance(mappable, mpl.colorizer.Colorizer):
             mappable = mcolorizer.ColorizingArtist(mappable)
 
-        self.mappable = mappable
+        self._mappable = mappable
         self.aspect = aspect
-        self.colorizer = mappable.colorizer
 
         mappable.colorbar = self
         mappable.colorbar_cid = mappable.callbacks.connect(
             'changed', self.update_normals)
 
-        ticklocations = list(ticklocations)
-        if len(ticklocations) != 2:
-            raise ValueError("ticklocations must be a tuple of length 2")
-        _api.check_in_list(['auto', 'left', 'right'],
-                           ticklocation=ticklocations[0])
-        _api.check_in_list(['auto', 'top', 'bottom'],
-                           ticklocation=ticklocations[1])
-
-        location_ticklocs = _get_bivar_ticklocations_from_location(location)
-        for i in range(2):
-            if ticklocations[i] == 'auto':
-                ticklocations[i] = location_ticklocs[i]
-        self.ticklocations = ticklocations
-        self.ax.yaxis.set(label_position=self.ticklocations[0],
-                          ticks_position=self.ticklocations[0])
-        self.ax.xaxis.set(label_position=self.ticklocations[1],
-                          ticks_position=self.ticklocations[1])
+        yticklocation, xticklocation = _resolve_bivar_ticklocations(
+            ticklocations, location)
+        self.ax.yaxis.set(label_position=yticklocation,
+                          ticks_position=yticklocation)
+        self.ax.xaxis.set(label_position=xticklocation,
+                          ticks_position=xticklocation)
 
         self._image = None
-        self.alpha = None
-        # Call set_alpha to handle array-like alphas properly
-        self.set_alpha(alpha)
-
         self.update_normals()  # also calls _draw_all()
         self.ax._colorbar = self
-        self._interactive_funcs = ["_get_view", "_set_view",
-                                   "_set_view_from_bbox", "drag_pan"]
-        for x in self._interactive_funcs:
-            setattr(self.ax, x, getattr(self, x))
-        self.ax.cla = self._cbar_cla
+        self._patch_ax_methods()
+
+    @property
+    def ax(self):
+        """The `~.axes.Axes` in which the colorbar is drawn."""
+        return self._ax
+
+    @property
+    def _colorizer(self):
+        # Not stored, so it follows if the colorizer of the mappable is replaced.
+        return self._mappable.colorizer
 
     @property
     def aspect(self):
-        return self._aspect
+        """The aspect ratio (height / width) of the colorbar."""
+        return self.ax.get_box_aspect()
 
     @aspect.setter
     def aspect(self, aspect):
         aspect = float(aspect)
-        self._aspect = aspect
         self.ax.set_box_aspect(aspect)
         if hasattr(self.ax, "_colorbar_info"):
             self.ax._colorbar_info["aspect"] = aspect
+
+    def _patch_ax_methods(self):
+        """Override Axes for colorbar-specific behavior."""
+        self.ax.cla = self._cbar_cla
+        # interactive methods
+        self.ax._get_view = self._get_view
+        self.ax._set_view = self._set_view
+        self.ax._set_view_from_bbox = self._set_view_from_bbox
+        self.ax.drag_pan = self._drag_pan
+
+    def _unpatch_ax_methods(self):
+        """Undo override Axes for colorbar-specific behavior."""
+        # Note: del works because we added these methods as
+        # instance attributes, hiding the class-level methods.
+        # Deleting the attributes uncovers the methods.
+        del self.ax.cla
+        # interactive methods
+        del self.ax._get_view
+        del self.ax._set_view
+        del self.ax._set_view_from_bbox
+        del self.ax.drag_pan
 
     def _draw_all(self):
         """
@@ -1544,66 +1552,54 @@ class BivarColorbar:
         """
 
         # transform from 0-1 to vmin-vmax:
-        if self.mappable.get_array() is not None:
-            self.mappable.autoscale_None()
-        if not self.colorizer.norm.scaled():
+        if self._mappable.get_array() is not None:
+            self._mappable.autoscale_None()
+        if not self._colorizer.norm.scaled():
             # If we still aren't scaled after autoscaling, use 0, 1 as default
             self._set_view([0, 1, 0, 1])
-        n, m = self.colorizer.cmap.N, self.colorizer.cmap.M
-        x = self.colorizer.norm.norms[1].inverse(np.linspace(0, 1, m + 1))
-        y = self.colorizer.norm.norms[0].inverse(np.linspace(0, 1, n + 1))
+        n, m = self._colorizer.cmap.N, self._colorizer.cmap.M
+        x = self._colorizer.norm.norms[1].inverse(np.linspace(0, 1, m + 1))
+        y = self._colorizer.norm.norms[0].inverse(np.linspace(0, 1, n + 1))
         X, Y = np.meshgrid(x, y)
-
-        if self.alpha is None:
-            lut = self.colorizer.cmap.lut
-        else:
-            lut = np.copy(self.colorizer.cmap.lut)
-            lut[:, :, 3] *= self.alpha
-
-        if n * m > self.n_rasterize:
-            rasterized = True
-        else:
-            rasterized = False
 
         if self._image is not None:
             self._image.remove()
         self._image = self.ax.pcolormesh(
-                X, Y, lut,
-                alpha=self.alpha,
-                rasterized=rasterized,
+                X, Y, self._colorizer.cmap.lut,
+                rasterized=n * m > self._n_rasterize,
                 edgecolors='none', shading='flat')
         # Apply norm scaling (supports LogNorm etc.)
-        if getattr(self.colorizer.norm.norms[0], '_scale', None):
+        if getattr(self._colorizer.norm.norms[0], '_scale', None):
             # use the norm's scale (if it exists and is not None):
-            self.ax.set_yscale(self.colorizer.norm.norms[0]._scale)
+            self.ax.set_yscale(self._colorizer.norm.norms[0]._scale)
         else:
             # fallback for custom norms, or NoNorm()
             self.ax.set_yscale(
                 'function',
                 functions=(
-                    self.colorizer.norm.norms[0],
-                    self.colorizer.norm.norms[0].inverse
+                    self._colorizer.norm.norms[0],
+                    self._colorizer.norm.norms[0].inverse
                 )
             )
 
-        if getattr(self.colorizer.norm.norms[1], '_scale', None):
+        if getattr(self._colorizer.norm.norms[1], '_scale', None):
             # use the norm's scale (if it exists and is not None):
-            self.ax.set_xscale(self.colorizer.norm.norms[1]._scale)
+            self.ax.set_xscale(self._colorizer.norm.norms[1]._scale)
         else:
             # fallback for custom norms, or NoNorm()
             self.ax.set_xscale(
                 'function',
                 functions=(
-                    self.colorizer.norm.norms[1],
-                    self.colorizer.norm.norms[1].inverse
+                    self._colorizer.norm.norms[1],
+                    self._colorizer.norm.norms[1].inverse
                 )
             )
         # Manually set limits (image is in Axes coordinates)
         extent = [
-            self.colorizer.norm.norms[1].vmin,
-            self.colorizer.norm.norms[1].vmax,
-            self.colorizer.norm.norms[0].vmin,
-            self.colorizer.norm.norms[0].vmax,
+            self._colorizer.norm.norms[1].vmin,
+            self._colorizer.norm.norms[1].vmax,
+            self._colorizer.norm.norms[0].vmin,
+            self._colorizer.norm.norms[0].vmax,
         ]
         self.ax.set_ylim(extent[2:4])
         self.ax.set_xlim(extent[0:2])
@@ -1623,17 +1619,8 @@ class BivarColorbar:
         return self.ax.yaxis
 
     def update_normals(self, mappable=None):
-        self.set_alpha(self.mappable.get_alpha())
+        """Redraw the colorbar after the norm or colormap of the mappable changed."""
         self._draw_all()
-
-    def set_alpha(self, alpha):
-        """
-        Set the transparency between 0 (transparent) and 1 (opaque).
-
-        If an array is provided, *alpha* will be set to None to use the
-        transparency values associated with the colormap.
-        """
-        self.alpha = None if isinstance(alpha, np.ndarray) else alpha
 
     def remove(self):
         """
@@ -1648,11 +1635,11 @@ class BivarColorbar:
                 if self.ax in a._colorbars:
                     a._colorbars.remove(self.ax)
         self.ax.remove()
-        self.mappable.callbacks.disconnect(self.mappable.colorbar_cid)
-        self.mappable.colorbar = None
-        self.mappable.colorbar_cid = None
+        self._mappable.callbacks.disconnect(self._mappable.colorbar_cid)
+        self._mappable.colorbar = None
+        self._mappable.colorbar_cid = None
 
-        ax = self.mappable.axes
+        ax = self._mappable.axes
         if ax is None:
             return
         try:
@@ -1664,40 +1651,38 @@ class BivarColorbar:
             ax.set_subplotspec(subplotspec)
 
     def _get_view(self):
-        ynorm, xnorm = self.colorizer.norm.norms
+        ynorm, xnorm = self._colorizer.norm.norms
         return ynorm.vmin, ynorm.vmax, xnorm.vmin, xnorm.vmax
 
     def _set_view(self, view):
-        ynorm, xnorm = self.colorizer.norm.norms
+        ynorm, xnorm = self._colorizer.norm.norms
         if (view[0] != ynorm.vmin
            or view[1] != ynorm.vmax
            or view[2] != xnorm.vmin
            or view[3] != xnorm.vmax):
-            with self.colorizer.norm.callbacks.blocked():
+            with self._colorizer.norm.callbacks.blocked():
                 ynorm.vmin, ynorm.vmax, xnorm.vmin, xnorm.vmax = view
-            self.colorizer.norm._changed()
+            self._colorizer.norm._changed()
 
     def _set_view_from_bbox(self, bbox, direction='in',
                             mode=None, twinx=False, twiny=False):
         new_xbound, new_ybound = self.ax._prepare_view_from_bbox(
             bbox, direction=direction, mode=mode, twinx=twinx, twiny=twiny)
-        ynorm, xnorm = self.colorizer.norm.norms
+        ynorm, xnorm = self._colorizer.norm.norms
         ynorm.vmin, ynorm.vmax = new_ybound
         xnorm.vmin, xnorm.vmax = new_xbound
 
-    def drag_pan(self, button, key, x, y):
+    def _drag_pan(self, button, key, x, y):
         points = self.ax._get_pan_points(button, key, x, y)
         if points is not None:
-            ynorm, xnorm = self.colorizer.norm.norms
+            ynorm, xnorm = self._colorizer.norm.norms
             xnorm.vmin, xnorm.vmax = points[:, 0]
             ynorm.vmin, ynorm.vmax = points[:, 1]
 
     def _cbar_cla(self):
         """Function to clear the interactive colorbar state."""
-        for x in self._interactive_funcs:
-            delattr(self.ax, x)
+        self._unpatch_ax_methods()
         # We now restore the old cla() back and can call it directly
-        del self.ax.cla
         self.ax.cla()
 
 
@@ -2030,14 +2015,27 @@ def _get_ticklocation_from_orientation(orientation):
         orientation=orientation)
 
 
-def _get_bivar_ticklocations_from_location(location):
-    loc_0 = _api.getitem_checked(
-        {None: "right", "left": "left", "right": "right",
-         "top": "left", "bottom": "left"}, location=location)
-    loc_1 = _api.getitem_checked(
-        {None: "bottom", "left": "bottom", "right": "bottom",
-         "top": "top", "bottom": "bottom"}, location=location)
-    return (loc_0, loc_1)
+def _resolve_bivar_ticklocations(ticklocations, location):
+    """
+    Return the (y, x) tick locations of a bivariate colorbar.
+
+    'auto' entries in *ticklocations* are replaced by a default based on
+    *location*.
+    """
+    if len(ticklocations) != 2:
+        raise ValueError("ticklocations must be a tuple of length 2")
+    yticklocation, xticklocation = ticklocations
+    _api.check_in_list(['auto', 'left', 'right'], ticklocation=yticklocation)
+    _api.check_in_list(['auto', 'top', 'bottom'], ticklocation=xticklocation)
+    if yticklocation == 'auto':
+        yticklocation = _api.getitem_checked(
+            {None: "right", "left": "left", "right": "right",
+             "top": "left", "bottom": "left"}, location=location)
+    if xticklocation == 'auto':
+        xticklocation = _api.getitem_checked(
+            {None: "bottom", "left": "bottom", "right": "bottom",
+             "top": "top", "bottom": "bottom"}, location=location)
+    return yticklocation, xticklocation
 
 
 def _normalize_parents(parents):

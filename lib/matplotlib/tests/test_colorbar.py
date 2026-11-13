@@ -1494,16 +1494,6 @@ def test_bivar_cbar_aspect():
     assert cbar.aspect == 4
 
 
-def test_bivar_cbar_alpha():
-    fig, ax = plt.subplots(1, 1)
-    mp = ax.imshow([[[100, 1], [10, 1]], [[0.5, 0.2], [0.3, 1]]],
-                   cmap='BiOrangeBlue',
-                   alpha=0.5,
-                   )
-    cbar = fig.colorbar_bivar(mp)
-    assert cbar._image._alpha == 0.5
-
-
 # If we decide in the future to disallow calling colorbar() on the "wrong" figure,
 # just delete this test.
 def test_bivar_cbar_wrong_figure():
@@ -1699,7 +1689,21 @@ def test_colorbar_bivar_not_via_fig():
     ca = mpl.colorizer.Colorizer('BiOrangeBlue', norm)
     fig, ax = plt.subplots()
     cb = mpl.colorbar.BivarColorbar(ax, ca)
-    assert cb.colorizer is ca
+    assert cb._colorizer is ca
+
+
+def test_bivar_cbar_cla_unpatches_ax():
+    norm = mpl.colors.MultiNorm(['linear', 'linear'])
+    ca = mpl.colorizer.Colorizer('BiOrangeBlue', norm)
+    fig, ax = plt.subplots()
+    cb = mpl.colorbar.BivarColorbar(ax, ca)
+    patched = ['cla', '_get_view', '_set_view', '_set_view_from_bbox', 'drag_pan']
+    assert all(name in vars(ax) for name in patched)
+    ax.cla()
+    assert not any(name in vars(ax) for name in patched)
+    # ax is read-only
+    with pytest.raises(AttributeError):
+        cb.ax = ax
 
 
 def test_remove_colorbar_with_no_mappable():
