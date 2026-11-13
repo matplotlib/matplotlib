@@ -14,7 +14,7 @@ class Desc:
     #   - what is the relative size to the other variable values (N vs N+1)
     # We are probably going to have to implement a DSL for this (😞)
     shape: ShapeSpec
-    coordinates: str = "auto"
+    coordinates: str = "data"
 
     @staticmethod
     def validate_shapes(

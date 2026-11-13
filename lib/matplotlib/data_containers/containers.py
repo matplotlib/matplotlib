@@ -77,7 +77,7 @@ class NoNewKeys(ValueError): ...
 
 
 class ArrayContainer:
-    def __init__(self, coordinates: dict[str, str] | None = None, /, **data):
+    def __init__(self, coordinates: str | dict[str, str] = "data", /, **data):
         """A container which represents numpy arrays.
 
         Arrays in an ArrayContainer are only updated via an explicit call to
@@ -85,14 +85,22 @@ class ArrayContainer:
 
         Parameters
         ----------
-        coordinates: dict[str, str]
+        coordinates: str | dict[str, str]
             A mapping of string keys to string coordinate systems for data in
-            the container
+            the container. If a string, all arrays will be in the same coordinate
+            space, the string given.
         **data
             The initial arrays for the container
 
         """
+        default_coordinates = "data"
+
+        if isinstance(coordinates, str):
+            default_coordinates = coordinates
+            coordinates = {}
+
         coordinates = coordinates or {}
+
         if extra_keys := (set(coordinates.keys()) - set(data.keys())):
             raise ValueError(
                 f"Coordinates contains keys not in data: {extra_keys}"
@@ -101,9 +109,9 @@ class ArrayContainer:
         self._cache_key = str(uuid.uuid4())
         self._desc = {
             k: (
-                Desc(v.shape, coordinates.get(k, "auto"))
+                Desc(v.shape, coordinates.get(k, default_coordinates))
                 if hasattr(v, "shape")
-                else Desc((), coordinates.get(k, "auto"))
+                else Desc((), coordinates.get(k, default_coordinates))
             )
             for k, v in data.items()
         }
@@ -164,6 +172,7 @@ class FuncContainer:
         xyfuncs: Optional[
             dict[str, FuncContainerInputs[[Any, Any]]]
         ] = None,
+        coordinates: str | dict[str, str] = "data",
     ):
         """
         A container that wraps several functions.  They are split into 3 categories:
@@ -184,12 +193,20 @@ class FuncContainer:
         xfuncs, yfuncs, xyfuncs : dict[str, tuple[shape, func]]
 
         """
+        default_coordinates = "data"
+
+        if isinstance(coordinates, str):
+            default_coordinates = coordinates
+            coordinates = {}
+
+        coordinates = coordinates or {}
+
         self._desc: dict[str, Desc] = {}
 
         def _split(input_dict):
             out = {}
             for k, (shape, func) in input_dict.items():
-                self._desc[k] = Desc(shape)
+                self._desc[k] = Desc(shape, coordinates.get(k, default_coordinates))
                 out[k] = func
             return out
 
