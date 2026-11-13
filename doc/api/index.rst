@@ -93,6 +93,7 @@ Alphabetical list of modules:
    cm_api.rst
    collections_api.rst
    colorbar_api.rst
+   colorbar_bivar_api.rst
    colorizer_api.rst
    colors_api.rst
    container_api.rst

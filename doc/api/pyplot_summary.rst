@@ -263,6 +263,7 @@ Colormapping
 
    clim
    colorbar
+   colorbar_bivar
    gci
    sci
    get_cmap

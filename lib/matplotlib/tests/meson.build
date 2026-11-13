@@ -34,6 +34,7 @@ python_sources = [
   'test_cbook.py',
   'test_collections.py',
   'test_colorbar.py',
+  'test_colorbar_bivar.py',
   'test_colors.py',
   'test_compare_images.py',
   'test_constrainedlayout.py',
