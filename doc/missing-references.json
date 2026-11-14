@@ -74,6 +74,10 @@
       "lib/matplotlib/offsetbox.py:docstring of matplotlib.offsetbox.AnnotationBbox:1",
       "lib/matplotlib/text.py:docstring of matplotlib.text.Annotation:1"
     ],
+    "matplotlib.ticker._SymmetricalLogMixin": [
+      "lib/matplotlib/ticker.py:docstring of matplotlib.ticker.LogFormatter:1",
+      "lib/matplotlib/ticker.py:docstring of matplotlib.ticker.SymmetricalLogLocator:1"
+    ],
     "matplotlib.transforms._BlendedMixin": [
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.BlendedAffine2D:1",
       "lib/matplotlib/transforms.py:docstring of matplotlib.transforms.BlendedGenericTransform:1"
