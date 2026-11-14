@@ -1,6 +1,8 @@
 #ifndef MPL_AGG_WORKAROUND_H
 #define MPL_AGG_WORKAROUND_H
 
+#include "agg_basics.h"
+#include "agg_color_rgba.h"
 #include "agg_pixfmt_rgba.h"
 #include "agg_trans_affine.h"
 

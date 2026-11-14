@@ -5,6 +5,14 @@
 #include <pybind11/subinterpreter.h>
 #endif
 
+#include <cstdint>
+#include <string>
+#include <vector>
+
+#include "agg_basics.h"
+#include "agg_color_rgba.h"
+#include "agg_trans_affine.h"
+
 #include "mplutils.h"
 #include "py_converters.h"
 #include "_backend_agg.h"

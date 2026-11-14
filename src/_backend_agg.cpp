@@ -3,6 +3,20 @@
 #define NO_IMPORT_ARRAY
 
 #include <Python.h>
+
+#include <cstddef>
+#include <stdexcept>
+#include <string>
+
+#include "agg_basics.h"
+#include "agg_color_gray.h"
+#include "agg_color_rgba.h"
+#include "agg_conv_curve.h"
+#include "agg_conv_transform.h"
+#include "agg_renderer_scanline.h"
+#include "agg_rendering_buffer.h"
+#include "agg_trans_affine.h"
+
 #include "_backend_agg.h"
 
 RendererAgg::RendererAgg(unsigned int width, unsigned int height, double dpi)

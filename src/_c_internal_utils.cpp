@@ -1,7 +1,9 @@
 #include <Python.h>
 /* Python.h must be included before any system headers,
     to ensure visibility macros are properly set. */
-#include <stdexcept>
+
+#include <cstddef>
+#include <memory>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
@@ -19,6 +21,7 @@
 #include <pybind11/pybind11.h>
 #ifdef __linux__
 #include <dlfcn.h>
+#include <stdexcept>
 #endif
 #ifdef _WIN32
 #include <Objbase.h>
