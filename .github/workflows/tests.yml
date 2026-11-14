@@ -108,7 +108,7 @@ jobs:
           sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
             /opt 2>/dev/null | sort -rh | head -200
 
-      - name: Install OS dependencies (1)
+      - name: Install dependencies of brew packages
         run: |
           case "${{ runner.os }}" in
           macOS)
@@ -123,19 +123,76 @@ jobs:
           sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
             /opt 2>/dev/null | sort -rh | head -200
 
-      - name: Install OS dependencies (2)
+      - name: Install ccache
         run: |
           case "${{ runner.os }}" in
           macOS)
-            brew install --display-times ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja
+            brew install --display-times ccache
             ;;
           esac
 
-      - name: Install OS dependencies (3)
+      - name: Install ffmpeg
         run: |
           case "${{ runner.os }}" in
           macOS)
-            brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc inkscape
+            brew install --display-times ffmpeg
+            ;;
+          esac
+
+      - name: Install ghostscript
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times ghostscript
+            ;;
+          esac
+
+      - name: Install gpg
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times gpg
+            ;;
+          esac
+
+      - name: Install gobject-introspection and gtk4
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times gobject-introspection gtk4
+            ;;
+          esac
+
+      - name: Install imagemagick
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times imagemagick
+            ;;
+          esac
+
+      - name: Install ninja
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times ninja
+            ;;
+          esac
+
+
+      - name: Install fonts
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc
+            ;;
+          esac
+
+      - name: Install inkscape
+        run: |
+          case "${{ runner.os }}" in
+          macOS)
+            brew install --display-times --cask inkscape
             ;;
           esac
 
