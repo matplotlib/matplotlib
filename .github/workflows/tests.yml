@@ -112,8 +112,14 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           macOS)
-            brew install --display-times --only-dependencies \
-              ccache ffmpeg ghostscript gpg gtk4 imagemagick ninja
+            PACKAGES="ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja"
+            EXCLUDES="python icu4c"
+
+            exclude_regex="^($(echo "$EXCLUDES" | tr ' ' '|'))(@[0-9.]+)?$"
+
+            brew deps --formula --union --include-build $PACKAGES \
+              | grep -Ev "$exclude_regex" \
+              | xargs brew install --display-times --ignore-dependencies
             ;;
           esac
 
