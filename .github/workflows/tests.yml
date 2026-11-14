@@ -113,7 +113,7 @@ jobs:
           case "${{ runner.os }}" in
           macOS)
             PACKAGES="ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja"
-            EXCLUDES="python icu4c gettext glib x265"
+            EXCLUDES="python icu4c openssl openjpeg x265"
 
             TO_INSTALL=$(python tools/macos_brew_cache.py "$PACKAGES" "$EXCLUDES")
             brew install --display-times $TO_INSTALL
