@@ -379,13 +379,13 @@ namespace pybind11::detail {
 
 template <typename Scalar, typename Shape>
 struct handle_type_name<mpl::defer<mpl::array<Scalar, Shape>>> {
-    static constexpr auto name = const_name("numpy.typing.NDArray");
+    static constexpr auto name = const_name("numpy.ndarray");
 };
 
 template <typename Scalar, typename Shape>
 struct type_caster<mpl::array<Scalar, Shape>> {
 public:
-    static constexpr auto name = const_name("numpy.typing.NDArray");
+    static constexpr auto name = const_name("numpy.ndarray");
 
     bool load(handle, bool) {
         static_assert(mpl::internal::always_false_v<Scalar>,
