@@ -1,21 +1,18 @@
-# Usage: python3 deps.py "ccache ffmpeg ..." "python icu4c"
+# Usage: python3 macos_brew_cache.py "ccache ffmpeg ..." "python icu4c"
 #
-# Prints the dependencies of the given packages, minus the excluded ones, in a
-# form suitable for passing to `brew install`. Not run or tested. It relies on
-# `brew info --json=v2` reporting direct runtime dependencies (build and test
-# dependencies are in separate fields) under the key "dependencies".
+# Prints the recursive dependencies of the given packages, minus the excluded ones
+#
 
 import json
 import subprocess
 import sys
 
+from collections.abc import Sequence
 
-def info(names):
-    # One `brew info` call for a whole list of formulae. --json=v2 gives a
-    # single JSON object with a "formulae" array holding one entry per name.
-    # check=True raises CalledProcessError if brew fails (e.g. unknown name).
+
+def brew_info(packages: list[str]):
     result = subprocess.run(
-        ["brew", "info", "--json=v2", "--formula", *names],
+        ["brew", "info", "--json=v2", "--formula", *packages],
         check=True,
         capture_output=True,
         text=True,
@@ -23,90 +20,92 @@ def info(names):
     return json.loads(result.stdout)["formulae"]
 
 
+class Graph:
+    _packages: list[str]
+    _excludes: set[str]
+    _dependencies: dict[str, list[str]]
+    _name_map: dict[str, str]
+    _tainted_cache: dict[str, bool]
+
+    def __init__(self, packages: Sequence[str], excludes: Sequence[str]) -> None:
+        self._packages = list(packages)
+        self._dependencies = {}
+        self._name_map = {}
+        self._tainted_cache = {}
+
+        self._get_info()
+
+        self._excludes = {self._resolve_name(e) for e in excludes}
+
+    def _get_info(self) -> None:
+        requested_packages = set(self._packages)
+        pending_packages = list(self._packages)
+
+        while pending_packages:
+            for formula in brew_info(pending_packages):
+                dependencies = formula.get("dependencies", [])
+                full_name = formula["full_name"]
+                self._name_map[full_name] = full_name
+                self._name_map[formula["name"]] = full_name
+                for alias in formula["aliases"]:
+                    self._name_map[alias] = full_name
+                self._dependencies[full_name] = dependencies
+
+            pending_packages = sorted({
+                dep for deps in self._dependencies.values() for dep in deps
+                if dep not in requested_packages
+            })
+
+            requested_packages.update(pending_packages)
+
+    def _resolve_name(self, name: str) -> str:
+        name = name.split("@")[0]
+        return self._name_map[name] if name in self._name_map else name
+
+    def is_excluded(self, name: str) -> bool:
+        print(name, self._resolve_name(name))
+        return self._resolve_name(name) in self._excludes
+
+    def is_tainted(self, name: str) -> bool:
+        cache = self._tainted_cache
+        name = self._resolve_name(name)
+
+        if name in cache:
+            return cache[name]
+
+        # Mark the formula as untainted before recursing to prevent an infinite loop
+        cache[name] = False
+        cache[name] = any(
+            self.is_excluded(dep) or self.is_tainted(dep)
+            for dep in self._dependencies.get(name, [])
+        )
+
+        return cache[name]
+
+    def get_filtered_packages(self) -> set[str]:
+        print(self._name_map)
+        result = set()
+        stack = list(self._packages)
+
+        while stack:
+            name = stack.pop()
+            for dep in self._dependencies.get(name, []):
+                if dep in result:
+                    continue
+                if not self.is_excluded(dep) and not self.is_tainted(dep):
+                    result.add(dep)
+                stack.append(dep)
+
+        return sorted(result)
+
+
 def main():
-    # First argument: space-separated packages. Second: space-separated
-    # excludes. split() with no argument also handles repeated whitespace and
-    # an empty string (which yields an empty list).
-    packages = sys.argv[1].split()
-    excludes = set(sys.argv[2].split())
+    packages = sys.argv[1].split() if sys.argv[1] else []
+    excludes = sys.argv[2].split() if sys.argv[2] else []
 
-    def is_excluded(name):
-        # Versioned formulae look like "python@3.13" or "icu4c@78". Cutting
-        # at the first "@" lets the plain exclude "python" match all of them.
-        return name.split("@")[0] in excludes
+    graph = Graph(packages, excludes)
 
-    # graph maps a formula name to the list of its direct runtime
-    # dependencies. It is filled in one layer at a time below.
-    graph = {}
-
-    # requested records every name already sent to `brew info`, so no formula
-    # is fetched twice. pending is the next layer to fetch.
-    requested = set(packages)
-    pending = list(packages)
-
-    while pending:
-        # Fetch the whole layer in a single call instead of one per formula.
-        for formula in info(pending):
-            deps = formula.get("dependencies", [])
-            # Dependencies of tap formulae may be listed by full name
-            # ("user/tap/name"), so the entry is stored under both names to
-            # make later lookups succeed either way.
-            graph[formula["name"]] = deps
-            graph[formula["full_name"]] = deps
-            for alias in formula["aliases"]:
-                graph[alias] = deps
-
-        # The next layer is every dependency seen so far that has not been
-        # requested yet. Excluded names are skipped, so their own
-        # dependencies are never fetched either. Sorting makes the order of
-        # `brew info` calls deterministic.
-        pending = sorted(
-            {
-                dep
-                for deps in graph.values()
-                for dep in deps
-                if not is_excluded(dep) and dep not in requested
-            }
-        )
-        requested.update(pending)
-
-    # memo caches the result of tainted() per formula. A formula is "tainted"
-    # when installing it would pull in an excluded formula, directly or
-    # through any chain of dependencies. brew install resolves dependencies
-    # itself, so a tainted formula cannot be installed without installing the
-    # excluded one. The only way around that is to leave it out entirely.
-    memo = {}
-
-    def is_tainted(name):
-        if name in memo:
-            return memo[name]
-        # Mark the formula as untainted before recursing. If the dependency
-        # graph ever contains a cycle, the recursion then stops here instead
-        # of looping forever.
-        memo[name] = False
-        memo[name] = any(
-            is_excluded(dep) or is_tainted(dep) for dep in graph.get(name, [])
-        )
-        return memo[name]
-
-    # keep is the final set of formulae to install. The traversal starts from
-    # the requested packages themselves. The packages are never added to
-    # keep, because the goal is to install only their dependencies.
-    keep = set()
-    stack = list(packages)
-    while stack:
-        name = stack.pop()
-        for dep in graph.get(name, []):
-            if dep in keep:
-                continue
-            if not is_excluded(dep) and not is_tainted(dep):
-                keep.add(dep)
-            stack.append(dep)
-
-    # Print one line of space-separated names, sorted so that the output is
-    # stable between runs.
-    print(" ".join(sorted(keep)))
-
+    print(" ".join(graph.get_filtered_packages()))
 
 if __name__ == "__main__":
     main()
