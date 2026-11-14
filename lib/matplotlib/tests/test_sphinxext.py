@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import shutil
 import sys
+from types import SimpleNamespace
 
 from matplotlib.testing import subprocess_run_for_testing, is_ci_environment
 import pytest
@@ -17,10 +18,11 @@ tinypages = Path(__file__).parent / 'data/tinypages'
 
 
 def build_sphinx_html(
-        source_dir, doctree_dir, html_dir, extra_args=None, expected_returncode=0):
+        source_dir, doctree_dir, html_dir, extra_args=None, expected_returncode=0,
+        builder='html'):
     # Build the pages with warnings turned into errors.
     extra_args = [] if extra_args is None else extra_args
-    cmd = [sys.executable, '-msphinx', '-W', '-b', 'html',
+    cmd = [sys.executable, '-msphinx', '-W', '-b', builder,
            '-d', str(doctree_dir), str(source_dir), str(html_dir), *extra_args]
     timeout = 60
     if is_ci_environment():
@@ -340,3 +342,97 @@ Some plots
     assert not (img_dir / "range6_range6.png").exists()
     assert not (img_dir / "range6_range10.png").exists()
     assert not (img_dir / "range4.png").exists()
+
+
+@pytest.mark.parametrize(
+    'builder, extra_args, expected',
+    [
+        ('html', [], {'png', 'hires.png', 'pdf'}),
+        ('html', ['-D', 'plot_html_show_formats=0'], {'png'}),
+        ('latex', [], {'png', 'hires.png', 'pdf'}),
+        ('texinfo', [], {'png', 'hires.png'}),
+        # The first format is always written, because the html branch of the
+        # template references it and Sphinx's image collector looks for that
+        # file whatever the builder. The list form never warns.
+        ('texinfo', ['-D', 'plot_formats=pdf,png'], {'pdf', 'png'}),
+        ('html', ['-D', 'plot_formats.html=png'], {'png'}),
+        ('dirhtml', ['-D', 'plot_formats.html=png,pdf'], {'png', 'pdf'}),
+        ('dirhtml', ['-D', 'plot_formats.html=png,pdf',
+                     '-D', 'plot_formats.dirhtml=png'], {'png'}),
+        ('latex', ['-D', 'plot_formats.latex=pdf'], {'pdf'}),
+        ('latex', ['-D', 'plot_formats.html=png'],
+         {'png', 'hires.png', 'pdf'}),
+    ])
+def test_plot_formats_follow_builder(tmp_path, builder, extra_args, expected):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+""")
+    out_dir = tmp_path / '_build' / builder
+    doctree_dir = tmp_path / 'doctrees'
+
+    build_sphinx_html(tmp_path, doctree_dir, out_dir, extra_args=extra_args,
+                      builder=builder)
+
+    # The directive also copies the script next to the images.
+    rendered = {path.name.removeprefix('index-1.')
+                for path in (tmp_path / 'plot_directive').glob('index-1.*')
+                if path.suffix != '.py'}
+    assert rendered == expected
+
+
+def test_plot_formats_warns_for_unusable_entry(tmp_path):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+""")
+    proc = build_sphinx_html(
+        tmp_path, tmp_path / 'doctrees', tmp_path / '_build' / 'texinfo',
+        extra_args=['-D', 'plot_formats.texinfo=png,pdf'], builder='texinfo',
+        expected_returncode=1)
+
+    assert ("The texinfo builder cannot use pdf listed in "
+            "plot_formats['texinfo']") in proc.stderr
+
+
+# e.g., in situations where the doctree directory is shared (locally,
+# Read the Docs, etc.) between an HTML build and then a LaTeX build,
+# the latter must not inherit the PNG-only result of the former
+def test_plot_formats_rerender_when_builder_changes(tmp_path):
+    shutil.copyfile(tinypages / 'conf.py', tmp_path / 'conf.py')
+    shutil.copytree(tinypages / '_static', tmp_path / '_static')
+    (tmp_path / 'index.rst').write_text("""
+.. plot::
+
+    plt.plot(range(2))
+""")
+    doctree_dir = tmp_path / 'doctrees'
+    extra_args = ['-D', 'plot_html_show_formats=0']
+    build_sphinx_html(tmp_path, doctree_dir, tmp_path / '_build' / 'html',
+                      extra_args=extra_args)
+    assert not (tmp_path / 'plot_directive' / 'index-1.pdf').exists()
+    latex_dir = tmp_path / '_build' / 'latex'
+    build_sphinx_html(tmp_path, doctree_dir, latex_dir,
+                      extra_args=extra_args, builder='latex')
+    # LaTeX must embed the PDF, not the PNG left over from the HTML build
+    tex = next(latex_dir.glob('*.tex')).read_text()
+    assert '{{index-1}.pdf}' in tex
+    assert (latex_dir / 'index-1.pdf').exists()
+    assert not (latex_dir / 'index-1.png').exists()
+
+
+def test_get_plot_formats_dict_without_builder(monkeypatch):
+    # Callers that pass no builder get the one of the running build.
+    from matplotlib.sphinxext import plot_directive
+
+    builder = SimpleNamespace(name='latex', format='latex')
+    monkeypatch.setattr(plot_directive.setup, 'app',
+                        SimpleNamespace(builder=builder), raising=False)
+    config = SimpleNamespace(plot_formats={'html': ['png'], 'latex': ['pdf']})
+    assert plot_directive.get_plot_formats(config) == [('pdf', 200)]
