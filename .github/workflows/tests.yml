@@ -117,9 +117,9 @@ jobs:
 
             exclude_regex="^($(echo "$EXCLUDES" | tr ' ' '|'))(@[0-9.]+)?$"
 
-            brew deps --formula --union --include-build $PACKAGES \
+            brew deps --formula --union $PACKAGES \
               | grep -Ev "$exclude_regex" \
-              | xargs brew install --display-times --ignore-dependencies
+              | xargs brew install --display-times
             ;;
           esac
 
