@@ -1251,6 +1251,11 @@ class AutoDateLocator(DateLocator):
 
             locator = AutoDateLocator()
             locator.intervald[HOURLY] = [3]  # only show every 3 hours
+
+    Notes
+    -----
+    Date resolution is limited to approximately a microsecond.  For details
+    see :ref:`user_axes_units`.
     """
 
     def __init__(self, tz=None, minticks=5, maxticks=None,

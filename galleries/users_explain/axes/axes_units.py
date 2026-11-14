@@ -113,6 +113,23 @@ axs[1].set_xlim(3683, 3683+60)
 
 # %%
 #
+# Matplotlib dates are stored as floating point numbers counting days since
+# the epoch (see :ref:`date-format`).  This limits the precision of the dates
+# to approximately a microsecond, so shorter intervals cannot be
+# distinguished.  For example, if data with nanosecond-resolution timestamps
+# (e.g. ``numpy.datetime64`` values with unit ``'ns'``) is plotted, close
+# timestamps may collapse to a single date, and the result is a view that
+# spans a much wider range than the data.
+#
+# If your data needs finer resolution, consider plotting elapsed times
+# relative to a reference time (`numpy.timedelta64` values) instead.
+# Alternatively, the epoch can be set closer to the data with
+# `~.dates.set_epoch` (which must be called before any dates are plotted) to
+# improve the representable precision; see :ref:`date_precision_and_epochs`
+# for a discussion.
+
+# %%
+#
 # String conversion: categorical plots
 # ====================================
 #
