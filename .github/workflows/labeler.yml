@@ -1,7 +1,7 @@
 ---
 name: "Pull Request Labeler"
 on:
-  - pull_request_target
+  - workflow_dispatch  #!ci-adventures - Experimental - Do Not Merge
 
 permissions: {}
 

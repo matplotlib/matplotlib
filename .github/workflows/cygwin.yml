@@ -25,6 +25,7 @@ on:
     paths:
       - 'src/**'
       - '.github/workflows/cygwin.yml'
+      - '!**'  #!ci-adventures - Experimental - Do Not Merge
   schedule:
     # 5:47 UTC on Saturdays
     - cron: "47 5 * * 6"
