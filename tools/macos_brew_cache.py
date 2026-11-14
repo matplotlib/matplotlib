@@ -63,7 +63,6 @@ class Graph:
         return self._name_map[name] if name in self._name_map else name
 
     def is_excluded(self, name: str) -> bool:
-        print(name, self._resolve_name(name))
         return self._resolve_name(name) in self._excludes
 
     def is_tainted(self, name: str) -> bool:
@@ -83,7 +82,6 @@ class Graph:
         return cache[name]
 
     def get_filtered_packages(self) -> set[str]:
-        print(self._name_map)
         result = set()
         stack = list(self._packages)
 
