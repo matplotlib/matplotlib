@@ -115,23 +115,8 @@ jobs:
             PACKAGES="ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja"
             EXCLUDES="python icu4c"
 
-            exclude_regex="^($(echo "$EXCLUDES" | tr ' ' '|'))(@[0-9.]+)?$"
-
-            seen=""
-            layer="$PACKAGES"
-            while [ -n "$layer" ]; do
-              next=$(brew deps --formula --direct --union $layer | grep -Ev "$exclude_regex")
-              layer=""
-              for f in $next; do
-                case " $seen " in
-                  *" $f "*) ;;
-                  *) layer="$layer $f" ;;
-                esac
-              done
-              seen="$seen$layer"
-            done
-
-            brew install --display-times $seen
+            TO_INSTALL=$(python tools/macos_brew_cache.py "$PACKAGES" "$EXCLUDES")
+            brew install --display-times $TO_INSTALL
             ;;
           esac
 
