@@ -77,7 +77,7 @@ def main():
     # excluded one. The only way around that is to leave it out entirely.
     memo = {}
 
-    def tainted(name):
+    def is_tainted(name):
         if name in memo:
             return memo[name]
         # Mark the formula as untainted before recursing. If the dependency
@@ -85,7 +85,7 @@ def main():
         # of looping forever.
         memo[name] = False
         memo[name] = any(
-            is_excluded(dep) or tainted(dep) for dep in graph.get(name, [])
+            is_excluded(dep) or is_tainted(dep) for dep in graph.get(name, [])
         )
         return memo[name]
 
@@ -97,12 +97,10 @@ def main():
     while stack:
         name = stack.pop()
         for dep in graph.get(name, []):
-            # Skip excluded formulae, tainted formulae, and anything already
-            # kept. Skipping a tainted formula also skips everything below
-            # it, since the traversal never descends into it.
-            if is_excluded(dep) or tainted(dep) or dep in keep:
+            if dep in keep:
                 continue
-            keep.add(dep)
+            if not is_excluded(dep) and not is_tainted(dep):
+                keep.add(dep)
             stack.append(dep)
 
     # Print one line of space-separated names, sorted so that the output is
