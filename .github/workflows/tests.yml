@@ -117,9 +117,21 @@ jobs:
 
             exclude_regex="^($(echo "$EXCLUDES" | tr ' ' '|'))(@[0-9.]+)?$"
 
-            brew deps --formula --union $PACKAGES \
-              | grep -Ev "$exclude_regex" \
-              | xargs brew install --display-times
+            seen=""
+            layer="$PACKAGES"
+            while [ -n "$layer" ]; do
+              next=$(brew deps --formula --direct --union $layer | grep -Ev "$exclude_regex")
+              layer=""
+              for f in $next; do
+                case " $seen " in
+                  *" $f "*) ;;
+                  *) layer="$layer $f" ;;
+                esac
+              done
+              seen="$seen$layer"
+            done
+
+            brew install --display-times $seen
             ;;
           esac
 
