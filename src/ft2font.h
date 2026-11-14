@@ -155,7 +155,7 @@ class FT2Font
     long get_name_index(char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
     void get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes);
-    bool get_char_fallback_index(FT_ULong charcode, int& index) const;
+    FT2Font *get_font_for_char(FT_ULong charcode);
 
     FT_Face const &get_face() const
     {
