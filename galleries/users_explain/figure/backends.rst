@@ -279,6 +279,13 @@ The following backend API versions exist
        *hatchcolor*. The presence of the parameter is inferred by introspection, so
        that matplotlib 3.11+ will still work with backends implementing API version
        1.0.
+   * - 1.2
+     - Matplotlib 3.12
+     - `~matplotlib.backend_bases.NavigationToolbar2.draw_whiskers` and
+       `~matplotlib.backend_bases.NavigationToolbar2.remove_whiskers` optionally draw
+       the single-axis zoom
+       indicator. Backends implementing older versions continue to work without the
+       indicator.
 
 There is currently no plan to remove support for older API versions.
 

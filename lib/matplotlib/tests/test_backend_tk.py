@@ -4,7 +4,8 @@ import os
 import platform
 import subprocess
 import sys
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -13,6 +14,24 @@ from matplotlib.testing import subprocess_run_helper
 
 
 _test_timeout = 60  # A reasonably safe value for slower architectures.
+
+
+def test_zoom_whiskers_contrast():
+    toolbar_cls = pytest.importorskip(
+        "matplotlib.backends._backend_tk").NavigationToolbar2Tk
+    toolbar = toolbar_cls.__new__(toolbar_cls)
+    toolbar.canvas = SimpleNamespace(
+        _tkcanvas=MagicMock(),
+        figure=SimpleNamespace(bbox=SimpleNamespace(height=100)),
+    )
+
+    toolbar.draw_whiskers(None, 10, 20, 10, 80, ws=20)
+
+    calls = toolbar.canvas._tkcanvas.create_line.call_args_list
+    assert [(call.kwargs["fill"], call.kwargs["width"]) for call in calls] == [
+        ("white", 3), ("white", 3), ("white", 3),
+        ("black", 1), ("black", 1), ("black", 1),
+    ]
 
 
 def _isolated_tk_test(success_count, func=None):
