@@ -583,6 +583,67 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
     assert ax_b.get_xlim() == pytest.approx(ax_b_twin.get_xlim(), abs=0.15)
 
 
+@pytest.mark.parametrize("tool", ["zoom", "pan"])
+@pytest.mark.parametrize("button", [MouseButton.LEFT, MouseButton.RIGHT])
+@pytest.mark.parametrize("twin", ["twinx", "twiny"])
+@pytest.mark.parametrize("twin_navigate", [True, False])
+@pytest.mark.parametrize("forward_nav", [True, False, "auto"])
+@pytest.mark.parametrize("active_twin", [True, False])
+def test_interactive_twin_navigation(
+        tool, button, twin, twin_navigate, forward_nav, active_twin):
+    fig, ax = plt.subplots()
+    ax_twin = getattr(ax, twin)()
+    active, other = (ax_twin, ax) if active_twin else (ax, ax_twin)
+    for axes in [active, other]:
+        axes.set(xlim=(0, 10), ylim=(0, 10))
+        axes.patch.set_visible(False)
+    active.set_zorder(other.get_zorder() + 1)
+    active.set_forward_navigation_events(forward_nav)
+    other.set_navigate(twin_navigate)
+    fig.canvas.draw()
+
+    toolbar = NavigationToolbar2(fig.canvas)
+    getattr(toolbar, tool)()
+    start, stop = active.transData.transform([(2, 2), (6, 6)]).astype(int)
+    MouseEvent("button_press_event", fig.canvas, *start, button)._process()
+    MouseEvent("motion_notify_event", fig.canvas, *stop,
+               buttons={button})._process()
+    MouseEvent("button_release_event", fig.canvas, *stop, button)._process()
+
+    shared_axis, independent_axis = ("x", "y") if twin == "twinx" else ("y", "x")
+    active_shared = getattr(active, f"get_{shared_axis}lim")()
+    other_shared = getattr(other, f"get_{shared_axis}lim")()
+    active_independent = getattr(active, f"get_{independent_axis}lim")()
+    other_independent = getattr(other, f"get_{independent_axis}lim")()
+
+    assert active_shared != pytest.approx((0, 10))
+    assert active_independent != pytest.approx((0, 10))
+    # Shared limits still propagate, even when the other Axes opts out.
+    assert other_shared == pytest.approx(active_shared)
+    assert other_independent == pytest.approx(
+        active_independent if twin_navigate else (0, 10))
+
+
+@pytest.mark.parametrize("tool", ["zoom", "pan"])
+@pytest.mark.parametrize("opt_out", ["navigate", "can_navigate", "outside"])
+def test_twin_navigation_axes_filter(tool, opt_out, monkeypatch):
+    fig, ax = plt.subplots()
+    ax_twin = ax.twinx()
+    ax.set_zorder(ax_twin.get_zorder() + 1)
+    ax.set_forward_navigation_events(False)
+    if opt_out == "navigate":
+        ax_twin.set_navigate(False)
+    elif opt_out == "can_navigate":
+        monkeypatch.setattr(ax_twin, f"can_{tool}", lambda: False)
+    else:
+        monkeypatch.setattr(ax_twin, "in_axes", lambda event: False)
+    event = MouseEvent("button_press_event", fig.canvas,
+                       *ax.transAxes.transform((.5, .5)), MouseButton.LEFT)
+    toolbar = NavigationToolbar2(fig.canvas)
+
+    assert toolbar._start_event_axes_interaction(event, method=tool) == [ax]
+
+
 def test_get_width_height_floating_point_precision():
     fig = plt.figure(figsize=(1, 2.03), dpi=100)
     assert fig.bbox.height < 203  # due to floating-point precision
