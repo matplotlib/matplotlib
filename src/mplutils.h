@@ -50,6 +50,11 @@ enum {
 
 namespace mpl {
 
+namespace internal {
+    template <typename T> inline constexpr bool always_false_v = false;
+    inline int check_any(PyObject *) { return 1; }
+}
+
 inline int round_to_int(double v)
 {
     return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));
@@ -66,76 +71,58 @@ inline std::string format(const char *fmt, Args &&...args)
     return std::string(py::str(fmt).format(std::forward<Args>(args)...));
 }
 
+template <typename T>
+inline void cast(T &dst, const py::object &src, std::string arg_name)
+{
+    try {
+        dst = src.cast<T>();
+    } catch (...) {
+        throw py::value_error(mpl::format(
+            "Could not cast {} to specified type", arg_name));
+    }
+}
+
+template <typename T>
+inline void convert(T &dst, const py::object src, std::string arg_name)
+{
+    static_assert(internal::always_false_v<T>,
+        "No convert() specialization registered for this type");
+}
+
+template <typename T>
+class defer : public py::object
+{
+    PYBIND11_OBJECT_DEFAULT(defer, py::object, mpl::internal::check_any)
+
+    T value(std::string arg_name) const
+    {
+        auto obj = T();
+        convert(obj, *this, arg_name);
+        return obj;
+    }
+
+    void assign(T &dst, std::string arg_name) const
+    {
+        convert(dst, *this, arg_name);
+    }
+};
+
+template <typename T, typename... Args>
+inline auto asarray(const py::object &object)
+{
+    return py::array_t<T, py::array::c_style | py::array::forcecast>::ensure(object);
+}
+
+inline auto asarray(const py::object &object)
+{
+    return py::array::ensure(object, py::array::c_style);
+}
+
 } // namespace mpl
 
 
 // Helper for std::visit.
 template<typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
-
-// Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
-// so that we don't need to access the NPY_INTP_FMT macro here.
-template<typename T>
-inline void check_trailing_shape(T array, char const* name, long d1)
-{
-    if (array.ndim() != 2) {
-        throw py::value_error(mpl::format(
-            "Expected 2-dimensional array, got {}", array.ndim()));
-    }
-    if (array.size() == 0) {
-        // Sometimes things come through as atleast_2d, etc., but they're empty, so
-        // don't bother enforcing the trailing shape.
-        return;
-    }
-    if (array.shape(1) != d1) {
-        throw py::value_error(mpl::format(
-            "{} must have shape (N, {}), got ({}, {})",
-            name, d1, array.shape(0), array.shape(1)));
-    }
-}
-
-template<typename T>
-inline void check_trailing_shape(T array, char const* name, long d1, long d2)
-{
-    if (array.ndim() != 3) {
-        throw py::value_error(mpl::format(
-            "Expected 3-dimensional array, got {}", array.ndim()));
-    }
-    if (array.size() == 0) {
-        // Sometimes things come through as atleast_3d, etc., but they're empty, so
-        // don't bother enforcing the trailing shape.
-        return;
-    }
-    if (array.shape(1) != d1 || array.shape(2) != d2) {
-        throw py::value_error(mpl::format(
-            "{} must have shape (N, {}, {}), got ({}, {}, {})",
-            name, d1, d2, array.shape(0), array.shape(1), array.shape(2)));
-    }
-}
-
-// In most cases, code should use safe_first_shape(obj) instead of
-// obj.shape(0), since safe_first_shape(obj) == 0 when any dimension is 0.
-template <typename T, py::ssize_t ND>
-py::ssize_t safe_first_shape(const py::detail::unchecked_reference<T, ND> &a)
-{
-    bool empty = (ND == 0);
-    for (py::ssize_t i = 0; i < ND; i++) {
-        if (a.shape(i) == 0) {
-            empty = true;
-        }
-    }
-    if (empty) {
-        return 0;
-    } else {
-        return a.shape(0);
-    }
-}
-
-template <typename T, std::size_t N>
-constexpr std::size_t
-safe_first_shape(const std::array<T, N> &)
-{
-    return N;
-}
 
 #endif
