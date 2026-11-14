@@ -72,7 +72,7 @@ inline std::string format(const char *fmt, Args &&...args)
 }
 
 template <typename T>
-inline void cast(T &dst, const py::object &src, const char *arg_name)
+inline void cast(T &dst, const py::object &src, std::string arg_name)
 {
     try {
         dst = src.cast<T>();
@@ -83,7 +83,7 @@ inline void cast(T &dst, const py::object &src, const char *arg_name)
 }
 
 template <typename T>
-inline void convert(T &dst, const py::object src, const char *arg_name)
+inline void convert(T &dst, const py::object src, std::string arg_name)
 {
     static_assert(internal::always_false_v<T>,
         "No convert() specialization registered for this type");
@@ -94,14 +94,14 @@ class defer : public py::object
 {
     PYBIND11_OBJECT_DEFAULT(defer, py::object, mpl::internal::check_any)
 
-    T value(const char *arg_name) const
+    T value(std::string arg_name) const
     {
         auto obj = T();
         convert(obj, *this, arg_name);
         return obj;
     }
 
-    void assign(T &dst, const char *arg_name) const
+    void assign(T &dst, std::string arg_name) const
     {
         convert(dst, *this, arg_name);
     }

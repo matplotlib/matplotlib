@@ -247,7 +247,7 @@ void point_in_path_impl(const InputPointArray &points, VertexSource &source,
 
 inline void points_in_path(const InputPointArray &points,
                            const double r,
-                           mpl::PathIterator &path,
+                           PathIterator &path,
                            agg::trans_affine &trans,
                            const BoolArray &result)
 {
@@ -272,7 +272,7 @@ inline void points_in_path(const InputPointArray &points,
 
 inline bool point_in_path(
     double x, double y, const double r,
-    mpl::PathIterator &path, agg::trans_affine &trans)
+    PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
     auto points = InputPointArray::unmanaged(points_data, 1);
@@ -287,7 +287,7 @@ inline bool point_in_path(
 
 inline bool point_on_path(
     double x, double y, const double r,
-    mpl::PathIterator &path, agg::trans_affine &trans)
+    PathIterator &path, agg::trans_affine &trans)
 {
     double points_data[] = {x, y};
     auto points = InputPointArray::unmanaged(points_data, 1);
@@ -340,7 +340,7 @@ struct extent_limits
     }
 };
 
-void update_path_extents(mpl::PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
+void update_path_extents(PathIterator &path, agg::trans_affine &trans, extent_limits &extents)
 {
     double x, y;
     unsigned code;
@@ -359,7 +359,7 @@ void update_path_extents(mpl::PathIterator &path, agg::trans_affine &trans, exte
 }
 
 void get_path_collection_extents(agg::trans_affine &master_transform,
-                                 mpl::PathGenerator &paths,
+                                 PathGenerator &paths,
                                  AffineTransformArray &transforms,
                                  InputPointArray &offsets,
                                  agg::trans_affine &offset_trans,
@@ -403,7 +403,7 @@ void point_in_path_collection(double x,
                               double y,
                               double radius,
                               agg::trans_affine &master_transform,
-                              mpl::PathGenerator &paths,
+                              PathGenerator &paths,
                               AffineTransformArray &transforms,
                               InputPointArray &offsets,
                               agg::trans_affine &offset_trans,
@@ -457,9 +457,9 @@ void point_in_path_collection(double x,
     }
 }
 
-bool path_in_path(mpl::PathIterator &a,
+bool path_in_path(PathIterator &a,
                   agg::trans_affine &atrans,
-                  mpl::PathIterator &b,
+                  PathIterator &b,
                   agg::trans_affine &btrans)
 {
     if (a.total_vertices() < 3) {
@@ -608,7 +608,7 @@ inline void clip_to_rect_one_step(const Polygon &polygon, Polygon &result, const
 }
 
 auto
-clip_path_to_rect(mpl::PathIterator &path, agg::rect_d &rect, bool inside)
+clip_path_to_rect(PathIterator &path, agg::rect_d &rect, bool inside)
 {
     rect.normalize();
     auto xmin = rect.x1, xmax = rect.x2;
@@ -769,7 +769,7 @@ inline bool segments_intersect(const double &x1,
             (u2 < 1.0 || isclose(u2, 1.0)));
 }
 
-bool path_intersects_path(mpl::PathIterator &p1, mpl::PathIterator &p2)
+bool path_intersects_path(PathIterator &p1, PathIterator &p2)
 {
     if (p1.total_vertices() < 2 || p2.total_vertices() < 2) {
         return false;
@@ -826,7 +826,7 @@ inline bool segment_intersects_rectangle(double x1, double y1,
                w * fabs(y1 - y2) + h * fabs(x1 - x2);
 }
 
-bool path_intersects_rectangle(mpl::PathIterator &path,
+bool path_intersects_rectangle(PathIterator &path,
                                double rect_x1, double rect_y1,
                                double rect_x2, double rect_y2,
                                bool filled)
@@ -866,7 +866,7 @@ bool path_intersects_rectangle(mpl::PathIterator &path,
     return false;
 }
 
-void convert_path_to_polygons(mpl::PathIterator &path,
+void convert_path_to_polygons(PathIterator &path,
                               agg::trans_affine &trans,
                               double width,
                               double height,
@@ -916,7 +916,7 @@ __cleanup_path(VertexSource &source, std::vector<double> &vertices, std::vector<
     } while (code != agg::path_cmd_stop);
 }
 
-void cleanup_path(mpl::PathIterator &path,
+void cleanup_path(PathIterator &path,
                   agg::trans_affine &trans,
                   bool remove_nans,
                   bool do_clip,
@@ -1054,7 +1054,7 @@ bool __convert_to_string(VertexSource &source,
     return true;
 }
 
-bool convert_to_string(mpl::PathIterator &path,
+bool convert_to_string(PathIterator &path,
                        agg::trans_affine &trans,
                        agg::rect_d &clip_rect,
                        bool simplify,

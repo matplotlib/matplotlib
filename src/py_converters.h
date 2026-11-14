@@ -22,7 +22,7 @@ namespace mpl {
 
 namespace py = pybind11;
 
-inline void convert(agg::rect_d &dst, const py::object &src, const char *arg_name)
+inline void convert(agg::rect_d &dst, const py::object &src, std::string arg_name)
 {
     if (src.is_none()) {
         dst.x1 = 0.0;
@@ -59,7 +59,7 @@ inline void convert(agg::rect_d &dst, const py::object &src, const char *arg_nam
     dst.y2 = data[3];
 }
 
-inline void convert(agg::rgba &dst, const py::object &src, const char *arg_name)
+inline void convert(agg::rgba &dst, const py::object &src, std::string arg_name)
 {
     if (src.is_none()) {
         dst.r = 0.0;
@@ -84,7 +84,7 @@ inline void convert(agg::rgba &dst, const py::object &src, const char *arg_name)
 }
 
 inline void convert(agg::trans_affine &dst, const py::object &src,
-                    const char *arg_name)
+                    std::string arg_name)
 {
     // If None assume identity transform
     if (src.is_none()) {

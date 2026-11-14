@@ -532,7 +532,7 @@ enum e_snap_mode {
 
 namespace mpl {
 
-inline void convert(e_snap_mode &dst, const py::object &src, const char *arg_name)
+inline void convert(e_snap_mode &dst, const py::object &src, std::string arg_name)
 {
     if (src.is_none()) {
         dst = SNAP_AUTO;

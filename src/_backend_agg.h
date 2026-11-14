@@ -151,13 +151,13 @@ class RendererAgg
         return height;
     }
 
-    void draw_path(GCAgg &gc, mpl::PathIterator &path,
+    void draw_path(GCAgg &gc, PathIterator &path,
                    agg::trans_affine &trans, agg::rgba &color);
 
     void draw_markers(GCAgg &gc,
-                      mpl::PathIterator &marker_path,
+                      PathIterator &marker_path,
                       agg::trans_affine &marker_path_trans,
-                      mpl::PathIterator &path,
+                      PathIterator &path,
                       agg::trans_affine &trans,
                       agg::rgba face);
 
@@ -172,7 +172,7 @@ class RendererAgg
 
     void draw_path_collection(GCAgg &gc,
                               agg::trans_affine &master_transform,
-                              mpl::PathGenerator &path,
+                              PathGenerator &path,
                               AffineTransformArray &transforms,
                               PointArray &offsets,
                               agg::trans_affine &offset_trans,
@@ -252,7 +252,7 @@ class RendererAgg
     void blend_text_bitmap(GCAgg &gc, const agg::int8u *covers, int rows, int cols,
                            int x, int y, const std::optional<agg::rect_i> &clip);
 
-    bool render_clippath(mpl::PathIterator &clippath,
+    bool render_clippath(PathIterator &clippath,
                          const agg::trans_affine &clippath_trans,
                          e_snap_mode snap_mode);
 
@@ -263,7 +263,7 @@ class RendererAgg
     void _draw_path_collection_generic(GCAgg &gc,
                                        agg::trans_affine master_transform,
                                        const agg::rect_d &cliprect,
-                                       mpl::PathIterator &clippath,
+                                       PathIterator &clippath,
                                        const agg::trans_affine &clippath_trans,
                                        PathGeneratorType &path_generator,
                                        AffineTransformArray &transforms,
@@ -353,7 +353,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
         rendererBase.reset_clipping(true);
 
         // Create and transform the path
-        mpl::PathIterator hatch_path(gc.hatchpath);
+        PathIterator hatch_path(gc.hatchpath);
         agg::trans_affine hatch_trans;
         hatch_trans *= agg::trans_affine_scaling(1.0, -1.0);
         hatch_trans *= agg::trans_affine_translation(0.0, 1.0);
@@ -467,7 +467,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
 }
 
 inline void
-RendererAgg::draw_path(GCAgg &gc, mpl::PathIterator &path,
+RendererAgg::draw_path(GCAgg &gc, PathIterator &path,
                        agg::trans_affine &trans, agg::rgba &color)
 {
     std::optional<agg::rgba> face;
@@ -503,9 +503,9 @@ RendererAgg::draw_path(GCAgg &gc, mpl::PathIterator &path,
 }
 
 inline void RendererAgg::draw_markers(GCAgg &gc,
-                                      mpl::PathIterator &marker_path,
+                                      PathIterator &marker_path,
                                       agg::trans_affine &marker_trans,
-                                      mpl::PathIterator &path,
+                                      PathIterator &path,
                                       agg::trans_affine &trans,
                                       agg::rgba color)
 {
@@ -928,7 +928,7 @@ template <class PathGeneratorType>
 inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
                                                        agg::trans_affine master_transform,
                                                        const agg::rect_d &cliprect,
-                                                       mpl::PathIterator &clippath,
+                                                       PathIterator &clippath,
                                                        const agg::trans_affine &clippath_trans,
                                                        PathGeneratorType &path_generator,
                                                        AffineTransformArray &transforms,
@@ -1056,7 +1056,7 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
 
 inline void RendererAgg::draw_path_collection(GCAgg &gc,
                                               agg::trans_affine &master_transform,
-                                              mpl::PathGenerator &path,
+                                              PathGenerator &path,
                                               AffineTransformArray &transforms,
                                               PointArray &offsets,
                                               agg::trans_affine &offset_trans,

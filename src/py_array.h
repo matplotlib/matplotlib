@@ -210,7 +210,7 @@ public:
         init(&pyarray);
     }
 
-    explicit array(const py::object object, const char *arg_name = "Array")
+    explicit array(const py::object object, std::string arg_name = "Array")
     {
         // Create pyarray from object
         auto pyarray = PyArrayType::ensure(object);
@@ -226,7 +226,7 @@ public:
             }
         }
 
-        internal::check_shape(arg_name, Dim, Traits::base_shape,
+        internal::check_shape(arg_name.c_str(), Dim, Traits::base_shape,
                               static_cast<size_t>(pyarray.ndim()), pyarray.shape());
 
         init(&pyarray);
@@ -373,7 +373,7 @@ class defer<array<Scalar, Shape>> : public py::object
 {
     PYBIND11_OBJECT_DEFAULT(defer, py::object, mpl::internal::check_any)
 
-    array<Scalar, Shape> value(const char *arg_name) const
+    array<Scalar, Shape> value(std::string arg_name) const
     {
         return array<Scalar, Shape>(*this, arg_name);
     }

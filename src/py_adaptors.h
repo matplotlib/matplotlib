@@ -14,15 +14,16 @@
 #include "agg_basics.h"
 #include "py_array.h"
 
-namespace mpl {
-
 class PathIterator;
-inline void convert(PathIterator &dst, const py::object &src, const char *arg_name);
+
+namespace mpl {
+inline void convert(PathIterator &dst, const py::object &src, std::string arg_name);
+}
 
 namespace py = pybind11;
 
 /************************************************************
- * mpl::PathIterator acts as a bridge between NumPy and Agg.  Given a
+ * PathIterator acts as a bridge between NumPy and Agg.  Given a
  * pair of NumPy arrays, vertices and codes, it iterates over
  * those vertices and codes, using the standard Agg vertex source
  * interface:
@@ -189,13 +190,14 @@ class PathGenerator
     path_iterator operator()(size_t i)
     {
         PathIterator path;
-        convert(path, m_paths[i % m_npaths], "PathGenerator::operator()");
+        mpl::convert(path, m_paths[i % m_npaths], "PathGenerator::operator()");
         return path;
     }
 };
 
+namespace mpl {
 
-inline void convert(PathIterator &dst, const py::object &src, const char *arg_name)
+inline void convert(PathIterator &dst, const py::object &src, std::string arg_name)
 {
     if (src.is_none()) {
         return;
@@ -210,7 +212,7 @@ inline void convert(PathIterator &dst, const py::object &src, const char *arg_na
 }
 
 
-inline void convert(PathGenerator &dst, const py::object &src, const char *arg_name)
+inline void convert(PathGenerator &dst, const py::object &src, std::string arg_name)
 {
     dst.set(py::reinterpret_borrow<py::object>(src));
 }

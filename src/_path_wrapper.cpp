@@ -39,7 +39,7 @@ convert_polygon_vector(std::vector<Polygon> &polygons)
 
 static bool
 Py_point_in_path(double x, double y, double r,
-                 const mpl::defer<mpl::PathIterator> &path_obj,
+                 const mpl::defer<PathIterator> &path_obj,
                  const mpl::defer<agg::trans_affine> &trans_obj)
 {
     auto path = path_obj.value("path");
@@ -50,7 +50,7 @@ Py_point_in_path(double x, double y, double r,
 
 static BoolArray
 Py_points_in_path(const mpl::defer<InputPointArray> &points_obj, double r,
-                  const mpl::defer<mpl::PathIterator> &path_obj,
+                  const mpl::defer<PathIterator> &path_obj,
                   const mpl::defer<agg::trans_affine> &trans_obj)
 {
     auto points = points_obj.value("points");
@@ -65,7 +65,7 @@ Py_points_in_path(const mpl::defer<InputPointArray> &points_obj, double r,
 
 static py::tuple
 Py_get_path_collection_extents(const mpl::defer<agg::trans_affine> &master_transform_obj,
-                               const mpl::defer<mpl::PathGenerator> &paths_obj,
+                               const mpl::defer<PathGenerator> &paths_obj,
                                const mpl::defer<AffineTransformArray> &transforms_obj,
                                const mpl::defer<InputPointArray> &offsets_obj,
                                const mpl::defer<agg::trans_affine> &offset_trans_obj)
@@ -98,7 +98,7 @@ Py_get_path_collection_extents(const mpl::defer<agg::trans_affine> &master_trans
 static IndexArray
 Py_point_in_path_collection(double x, double y, double radius,
                             const mpl::defer<agg::trans_affine> &master_transform_obj,
-                            const mpl::defer<mpl::PathGenerator> &paths_obj,
+                            const mpl::defer<PathGenerator> &paths_obj,
                             const mpl::defer<AffineTransformArray> &transforms_obj,
                             const mpl::defer<InputPointArray> &offsets_obj,
                             const mpl::defer<agg::trans_affine> &offset_trans_obj,
@@ -121,9 +121,9 @@ Py_point_in_path_collection(double x, double y, double radius,
 }
 
 static bool
-Py_path_in_path(const mpl::defer<mpl::PathIterator> &path_a_obj,
+Py_path_in_path(const mpl::defer<PathIterator> &path_a_obj,
                 const mpl::defer<agg::trans_affine> &trans_a_obj,
-                const mpl::defer<mpl::PathIterator> &path_b_obj,
+                const mpl::defer<PathIterator> &path_b_obj,
                 const mpl::defer<agg::trans_affine> &trans_b_obj)
 {
     auto path_a = path_a_obj.value("path_a");
@@ -135,7 +135,7 @@ Py_path_in_path(const mpl::defer<mpl::PathIterator> &path_a_obj,
 }
 
 static py::list
-Py_clip_path_to_rect(const mpl::defer<mpl::PathIterator> &path_obj,
+Py_clip_path_to_rect(const mpl::defer<PathIterator> &path_obj,
                      const mpl::defer<agg::rect_d> &rect_obj, bool inside)
 {
     auto path = path_obj.value("path");
@@ -169,8 +169,8 @@ Py_count_bboxes_overlapping_bbox(const mpl::defer<agg::rect_d> &bbox_obj,
 }
 
 static bool
-Py_path_intersects_path(const mpl::defer<mpl::PathIterator> &path1_obj,
-                        const mpl::defer<mpl::PathIterator> &path2_obj, bool filled)
+Py_path_intersects_path(const mpl::defer<PathIterator> &path1_obj,
+                        const mpl::defer<PathIterator> &path2_obj, bool filled)
 {
     auto path1 = path1_obj.value("path1");
     auto path2 = path2_obj.value("path2");
@@ -192,7 +192,7 @@ Py_path_intersects_path(const mpl::defer<mpl::PathIterator> &path1_obj,
 }
 
 static bool
-Py_path_intersects_rectangle(const mpl::defer<mpl::PathIterator> &path_obj,
+Py_path_intersects_rectangle(const mpl::defer<PathIterator> &path_obj,
                              double rect_x1, double rect_y1,
                              double rect_x2, double rect_y2, bool filled)
 {
@@ -202,7 +202,7 @@ Py_path_intersects_rectangle(const mpl::defer<mpl::PathIterator> &path_obj,
 }
 
 static py::list
-Py_convert_path_to_polygons(const mpl::defer<mpl::PathIterator> &path_obj,
+Py_convert_path_to_polygons(const mpl::defer<PathIterator> &path_obj,
                             const mpl::defer<agg::trans_affine> &trans_obj,
                             double width, double height, bool closed_only)
 {
@@ -216,7 +216,7 @@ Py_convert_path_to_polygons(const mpl::defer<mpl::PathIterator> &path_obj,
 }
 
 static py::tuple
-Py_cleanup_path(const mpl::defer<mpl::PathIterator> &path_obj,
+Py_cleanup_path(const mpl::defer<PathIterator> &path_obj,
                 const mpl::defer<agg::trans_affine> &trans_obj, bool remove_nans,
                 const mpl::defer<agg::rect_d> &clip_rect_obj,
                 const mpl::defer<e_snap_mode> snap_mode_obj, double stroke_width,
@@ -279,7 +279,7 @@ postfix : bool
 )""";
 
 static py::object
-Py_convert_to_string(const mpl::defer<mpl::PathIterator> &path_obj,
+Py_convert_to_string(const mpl::defer<PathIterator> &path_obj,
                      const mpl::defer<agg::trans_affine> &trans_obj,
                      const mpl::defer<agg::rect_d> &cliprect_obj,
                      std::optional<bool> simplify,

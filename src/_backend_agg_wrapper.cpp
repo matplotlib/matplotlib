@@ -47,7 +47,7 @@ PyBufferRegion_get_extents(BufferRegion *self)
 static void
 PyRendererAgg_draw_path(RendererAgg *self,
                         const mpl::defer<GCAgg> &gc_obj,
-                        const mpl::defer<mpl::PathIterator> &path_obj,
+                        const mpl::defer<PathIterator> &path_obj,
                         const mpl::defer<agg::trans_affine> &trans_obj,
                         const mpl::defer<agg::rgba> &face_obj)
 {
@@ -107,9 +107,9 @@ PyRendererAgg_draw_text_images(
 static void
 PyRendererAgg_draw_markers(RendererAgg *self,
                            const mpl::defer<GCAgg> &gc_obj,
-                           const mpl::defer<mpl::PathIterator> &marker_path_obj,
+                           const mpl::defer<PathIterator> &marker_path_obj,
                            const mpl::defer<agg::trans_affine> &marker_path_trans_obj,
-                           const mpl::defer<mpl::PathIterator> &path_obj,
+                           const mpl::defer<PathIterator> &path_obj,
                            const mpl::defer<agg::trans_affine> &trans_obj,
                            const mpl::defer<agg::rgba> &face_obj)
 {
@@ -150,7 +150,7 @@ PyRendererAgg_draw_path_collection(
     RendererAgg *self,
     const mpl::defer<GCAgg> &gc_obj,
     const mpl::defer<agg::trans_affine> &master_transform_obj,
-    const mpl::defer<mpl::PathGenerator> &paths_obj,
+    const mpl::defer<PathGenerator> &paths_obj,
     const mpl::defer<AffineTransformArray> &all_transforms_obj,
     const mpl::defer<PointArray> &offsets_obj,
     const mpl::defer<agg::trans_affine> &offset_trans_obj,

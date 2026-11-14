@@ -23,7 +23,7 @@ namespace py = pybind11;
 
 struct ClipPath
 {
-    mpl::PathIterator path;
+    PathIterator path;
     agg::trans_affine trans;
 };
 
@@ -113,7 +113,7 @@ class GCAgg
 
     e_snap_mode snap_mode;
 
-    mpl::PathIterator hatchpath;
+    PathIterator hatchpath;
     agg::rgba hatch_color;
     double hatch_linewidth;
 
@@ -133,7 +133,7 @@ class GCAgg
 
 namespace mpl {
 
-inline void convert(agg::comp_op_e &dst, const py::object &src, const char *arg_name)
+inline void convert(agg::comp_op_e &dst, const py::object &src, std::string arg_name)
 {
     const std::unordered_map<std::string, agg::comp_op_e> enum_values = {
         {"clear", agg::comp_op_clear},
@@ -180,7 +180,7 @@ inline void convert(agg::filling_rule_e &dst, const py::object &src,
     dst = enum_values.at(src.cast<std::string>());
 }
 
-inline void convert(agg::line_cap_e &dst, const py::object &src, const char *arg_name)
+inline void convert(agg::line_cap_e &dst, const py::object &src, std::string arg_name)
 {
     const std::unordered_map<std::string, agg::line_cap_e> enum_values = {
         {"butt", agg::butt_cap},
@@ -191,7 +191,7 @@ inline void convert(agg::line_cap_e &dst, const py::object &src, const char *arg
     dst = enum_values.at(src.cast<std::string>());
 }
 
-inline void convert(agg::line_join_e &dst, const py::object &src, const char *arg_name)
+inline void convert(agg::line_join_e &dst, const py::object &src, std::string arg_name)
 {
     const std::unordered_map<std::string, agg::line_join_e> enum_values = {
         {"miter", agg::miter_join_revert},
@@ -202,7 +202,7 @@ inline void convert(agg::line_join_e &dst, const py::object &src, const char *ar
     dst = enum_values.at(src.cast<std::string>());
 }
 
-inline void convert(ClipPath &dst, const py::object &src, const char *arg_name)
+inline void convert(ClipPath &dst, const py::object &src, std::string arg_name)
 {
     if (src.is_none()) {
         return;
@@ -215,7 +215,7 @@ inline void convert(ClipPath &dst, const py::object &src, const char *arg_name)
     convert(dst.trans, trans_obj, "clippath.trans");
 }
 
-inline void convert(Dashes &dst, const py::object &src, const char *arg_name)
+inline void convert(Dashes &dst, const py::object &src, std::string arg_name)
 {
     auto [dash_offset, dashes_seq_or_none] =
         src.cast<std::pair<double, std::optional<py::sequence>>>();
@@ -241,7 +241,7 @@ inline void convert(Dashes &dst, const py::object &src, const char *arg_name)
     dst.set_dash_offset(dash_offset);
 }
 
-inline void convert(LinestyleVector &dst, const py::object &src, const char *arg_name)
+inline void convert(LinestyleVector &dst, const py::object &src, std::string arg_name)
 {
     auto src_seq = src.cast<py::sequence>();
 
@@ -252,7 +252,7 @@ inline void convert(LinestyleVector &dst, const py::object &src, const char *arg
     }
 }
 
-inline void convert(SketchParams &dst, const py::object &src, const char *arg_name)
+inline void convert(SketchParams &dst, const py::object &src, std::string arg_name)
 {
     if (src.is_none()) {
         dst.scale = 0.0;
@@ -265,7 +265,7 @@ inline void convert(SketchParams &dst, const py::object &src, const char *arg_na
     std::tie(dst.scale, dst.length, dst.randomness) = params;
 }
 
-inline void convert(GCAgg &gc, const py::object &src, const char *arg_name)
+inline void convert(GCAgg &gc, const py::object &src, std::string arg_name)
 {
     cast(gc.linewidth, src.attr("_linewidth"), "gc.linewidth");
     cast(gc.alpha, src.attr("_alpha"), "gc.alpha");
