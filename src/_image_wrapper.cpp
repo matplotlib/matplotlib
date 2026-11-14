@@ -1,17 +1,23 @@
-#include <pybind11/pybind11.h>
-#include <pybind11/native_enum.h>
-#include <pybind11/numpy.h>
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-#include <pybind11/subinterpreter.h>
-#endif
+#include <nanobind/nanobind.h>
+#include <nanobind/ndarray.h>
 
 #include <algorithm>
+#include <array>
+#include <cstdint>
+#include <exception>
 
 #include "_image_resample.h"
-#include "py_converters.h"
+#include "agg_convert_overloads.h"
+#include "mpl_utils.h"
+#include "mpl_array.h"
+#include "mpl_shape.h"
 
-namespace py = pybind11;
-using namespace pybind11::literals;
+namespace nb = nanobind;
+using namespace nanobind::literals;
+
+using MeshArray = mpl::array<double, mpl::shape<-1, 2>>;
+using InputImageArray = mpl::array<const std::uint8_t, mpl::ndim<3>>;
+using OutputImageArray = mpl::array<std::uint8_t, mpl::shape<-1, -1, 3>>;
 
 /**********************************************************************
  * Free functions
@@ -54,8 +60,8 @@ radius: float, default: 1
 )""";
 
 
-static py::array_t<double>
-_get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
+static MeshArray
+_get_transform_mesh(const nb::object& transform, size_t height, size_t width)
 {
     /* TODO: Could we get away with float, rather than double, arrays here? */
 
@@ -66,12 +72,11 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
     // If attribute doesn't exist, raises Python AttributeError
     auto inverse = transform.attr("inverted")();
 
-    py::ssize_t mesh_dims[2] = {dims[0]*dims[1], 2};
-    py::array_t<double> input_mesh(mesh_dims);
-    auto p = input_mesh.mutable_data();
+    auto input_mesh_arr = MeshArray(height * width);
+    auto p = input_mesh_arr.data();
 
-    for (auto y = 0; y < dims[0]; ++y) {
-        for (auto x = 0; x < dims[1]; ++x) {
+    for (size_t y = 0; y < height; ++y) {
+        for (size_t x = 0; x < width; ++x) {
             // The convention for the supplied transform is that pixel centers
             // are at 0.5, 1.5, 2.5, etc.
             *p++ = (double)x + 0.5;
@@ -79,43 +84,39 @@ _get_transform_mesh(const py::object& transform, const py::ssize_t *dims)
         }
     }
 
-    auto output_mesh = inverse.attr("transform")(input_mesh);
-
-    auto output_mesh_array =
-        py::array_t<double, py::array::c_style | py::array::forcecast>(output_mesh);
-
-    if (output_mesh_array.ndim() != 2) {
-        throw std::runtime_error(mpl::format(
-            "Inverse transformed mesh array should be 2D not {}D",
-            output_mesh_array.ndim()));
-    }
+    auto output_mesh_obj = inverse.attr("transform")(input_mesh_arr);
+    auto output_mesh_arr = MeshArray(output_mesh_obj);
 
     // An undersized mesh would be read out of bounds by the resampler.
-    if (output_mesh_array.shape(0) != mesh_dims[0] ||
-            output_mesh_array.shape(1) != mesh_dims[1]) {
+    if (!output_mesh_arr.is_same_shape(input_mesh_arr)) {
         throw std::runtime_error(mpl::format(
-            "Inverse transformed mesh array should have shape ({}, {}) not ({}, {})",
-            mesh_dims[0], mesh_dims[1],
-            output_mesh_array.shape(0), output_mesh_array.shape(1)));
+            "Inverse transformed mesh array should have shape {} not {}",
+            input_mesh_arr.shape_str(), output_mesh_arr.shape_str()));
     }
 
-    return output_mesh_array;
+    return output_mesh_arr;
 }
 
 
-// Using generic py::array for input and output arrays rather than the more usual
-// py::array_t<type> as this function supports multiple array dtypes.
+// Using generic nb::ndarray for input and output arrays rather than
+// mpl::array as this function supports multiple array dtypes.
 static void
-image_resample(py::array input_array,
-               py::array& output_array,
-               const py::object& transform,
+image_resample(const nb::object& input_array_obj,
+               const nb::object& output_array_obj,
+               const nb::object& transform,
                interpolation_e interpolation,
-               bool resample_,  // Avoid name clash with resample() function
+               mpl::bool_ resample_,  // Avoid name clash with resample() function
                float alpha,
-               bool norm,
+               mpl::bool_ norm,
                float radius)
 {
     // Validate input_array
+    nb::ndarray<nb::device::cpu, nb::ro, nb::c_contig> input_array;
+    if (!nb::try_cast(input_array_obj, input_array)) {
+        // Unknown casting error
+        throw std::invalid_argument("Could not cast input array to a nanobind ndarray");
+    }
+
     auto dtype = input_array.dtype();  // Validated when determine resampler below
     auto ndim = input_array.ndim();
 
@@ -129,13 +130,25 @@ image_resample(py::array input_array,
             input_array.shape(2)));
     }
 
-    // Ensure input array is contiguous, regardless of dtype
-    input_array = py::array::ensure(input_array, py::array::c_style);
-    if (!input_array) {
-        throw std::invalid_argument("Input array could not be made C-contiguous");
+    // Validate output array
+    nb::ndarray<nb::device::cpu, nb::c_contig> output_array;
+    if (!nb::try_cast(output_array_obj, output_array, false)) {
+        // nb::ndarray has no flags(). Try casting again without C-contiguous flag
+        nb::ndarray<nb::device::cpu> output_array_any_contig;
+        if (nb::try_cast(output_array_obj, output_array_any_contig, false)) {
+            throw std::invalid_argument("Output array must be C-contiguous");
+        }
+
+        // nb::ndarray has no is_writable(). Try casting again as read-only
+        nb::ndarray<nb::device::cpu, nb::ro> output_array_ro;
+        if (nb::try_cast(output_array_obj, output_array_ro, false)) {
+            throw std::invalid_argument("Output array must be writeable");
+        }
+
+        // Unknown casting error
+        throw std::invalid_argument("Could not cast output array to a nanobind ndarray");
     }
 
-    // Validate output array
     auto out_ndim = output_array.ndim();
 
     if (out_ndim != ndim) {
@@ -150,16 +163,8 @@ image_resample(py::array input_array,
             output_array.shape(2)));
     }
 
-    if (!output_array.dtype().is(dtype)) {
+    if (output_array.dtype() != dtype) {
         throw std::invalid_argument("Input and output arrays have mismatched types");
-    }
-
-    if ((output_array.flags() & py::array::c_style) == 0) {
-        throw std::invalid_argument("Output array must be C-contiguous");
-    }
-
-    if (!output_array.writeable()) {
-        throw std::invalid_argument("Output array must be writeable");
     }
 
     resample_params_t params;
@@ -172,78 +177,80 @@ image_resample(py::array input_array,
 
     // Only used if transform is not affine.
     // Need to keep it in scope for the duration of this function.
-    py::array_t<double> transform_mesh;
+    std::optional<MeshArray> transform_mesh;
 
     // Validate transform
     if (transform.is_none()) {
         params.is_affine = true;
     } else {
-        // Raises Python AttributeError if no such attribute or TypeError if cast fails
-        bool is_affine = py::cast<bool>(transform.attr("is_affine"));
+        // Raises Python AttributeError if no such attribute
+        bool is_affine = mpl::is_true(transform.attr("is_affine"));
 
         if (is_affine) {
-            convert_trans_affine(transform, params.affine);
+            mpl::convert(params.affine, transform, "transform");
             params.is_affine = is_affine;
         } else {
-            transform_mesh = _get_transform_mesh(transform, output_array.shape());
-            params.transform_mesh = transform_mesh.data();
+            transform_mesh = _get_transform_mesh(
+                transform, output_array.shape(0), output_array.shape(1));
+            params.transform_mesh = transform_mesh->data();
             params.is_affine = false;
         }
     }
 
     if (auto resampler =
             (ndim == 2) ? (
-                (dtype.equal(py::dtype::of<std::uint8_t>())) ? resample<agg::gray8> :
-                (dtype.equal(py::dtype::of<std::int8_t>())) ? resample<agg::gray8> :
-                (dtype.equal(py::dtype::of<std::uint16_t>())) ? resample<agg::gray16> :
-                (dtype.equal(py::dtype::of<std::int16_t>())) ? resample<agg::gray16> :
-                (dtype.equal(py::dtype::of<float>())) ? resample<agg::gray32> :
-                (dtype.equal(py::dtype::of<double>())) ? resample<agg::gray64> :
+                (dtype == nb::dtype<std::uint8_t>()) ? resample<agg::gray8> :
+                (dtype == nb::dtype<std::int8_t>()) ? resample<agg::gray8> :
+                (dtype == nb::dtype<std::uint16_t>()) ? resample<agg::gray16> :
+                (dtype == nb::dtype<std::int16_t>()) ? resample<agg::gray16> :
+                (dtype == nb::dtype<float>()) ? resample<agg::gray32> :
+                (dtype == nb::dtype<double>()) ? resample<agg::gray64> :
                 nullptr) : (
             // ndim == 3
-                (dtype.equal(py::dtype::of<std::uint8_t>())) ? resample<agg::rgba8> :
-                (dtype.equal(py::dtype::of<std::int8_t>())) ? resample<agg::rgba8> :
-                (dtype.equal(py::dtype::of<std::uint16_t>())) ? resample<agg::rgba16> :
-                (dtype.equal(py::dtype::of<std::int16_t>())) ? resample<agg::rgba16> :
-                (dtype.equal(py::dtype::of<float>())) ? resample<agg::rgba32> :
-                (dtype.equal(py::dtype::of<double>())) ? resample<agg::rgba64> :
+                (dtype == nb::dtype<std::uint8_t>()) ? resample<agg::rgba8> :
+                (dtype == nb::dtype<std::int8_t>()) ? resample<agg::rgba8> :
+                (dtype == nb::dtype<std::uint16_t>()) ? resample<agg::rgba16> :
+                (dtype == nb::dtype<std::int16_t>()) ? resample<agg::rgba16> :
+                (dtype == nb::dtype<float>()) ? resample<agg::rgba32> :
+                (dtype == nb::dtype<double>()) ? resample<agg::rgba64> :
                 nullptr)) {
-        Py_BEGIN_ALLOW_THREADS
+        nb::gil_scoped_release release;
         resampler(
             input_array.data(), input_array.shape(1), input_array.shape(0),
-            output_array.mutable_data(), output_array.shape(1), output_array.shape(0),
+            output_array.data(), output_array.shape(1), output_array.shape(0),
             params);
-        Py_END_ALLOW_THREADS
     } else {
         throw std::invalid_argument("arrays must be of dtype byte, short, float32 or float64");
     }
 }
 
-
 [[noreturn]] static void
 raise_image_comparison_failure(std::string msg)
 {
-    auto exceptions = py::module_::import("matplotlib.testing.exceptions");
+    auto exceptions = nb::module_::import_("matplotlib.testing.exceptions");
     auto ImageComparisonFailure = exceptions.attr("ImageComparisonFailure");
-    py::set_error(ImageComparisonFailure, msg.c_str());
-    throw py::error_already_set();
+    PyErr_SetString(ImageComparisonFailure.ptr(), msg.c_str());
+    throw nb::python_error();
 }
 
 
 // This is used by matplotlib.testing.compare to calculate RMS and a difference image.
-static py::tuple
-calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
-                       py::array_t<unsigned char> actual_image)
+static nb::tuple
+calculate_rms_and_diff(const mpl::defer<InputImageArray> &expected_image_obj,
+                       const mpl::defer<InputImageArray> &actual_image_obj)
 {
-    for (const auto & [image, name] : {std::pair{expected_image, "Expected"},
-                                       std::pair{actual_image, "Actual"}})
-    {
-        if (image.ndim() != 3) {
-            raise_image_comparison_failure(mpl::format(
-                "{} image must be 3-dimensional, but is {}-dimensional",
-                name, image.ndim()));
-        }
+    std::optional<InputImageArray> expected_image_opt;
+    std::optional<InputImageArray> actual_image_opt;
+
+    try {
+        expected_image_opt = expected_image_obj.value("expected_image");
+        actual_image_opt = actual_image_obj.value("actual_image");
+    } catch (const std::exception &e) {
+        raise_image_comparison_failure(e.what());
     }
+
+    auto expected_image = expected_image_opt.value();
+    auto actual_image = actual_image_opt.value();
 
     auto height = expected_image.shape(0);
     auto width = expected_image.shape(1);
@@ -251,34 +258,28 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
 
     if (depth != 3 && depth != 4) {
         raise_image_comparison_failure(mpl::format(
-            "Image must be RGB or RGBA but has depth {}", depth));
+            "expected_image must be RGB or RGBA but has depth {}", depth));
     }
 
-    if (height != actual_image.shape(0) || width != actual_image.shape(1) ||
-            depth != actual_image.shape(2)) {
+    if (!expected_image.is_same_shape(actual_image)) {
         raise_image_comparison_failure(mpl::format(
-            "Image sizes do not match expected size: {expected_image.shape} "
-            "actual size {actual_image.shape}",
-            "expected_image"_a=expected_image, "actual_image"_a=actual_image));
+            "Image shapes do not match. expected_image is {}, actual_image is {}",
+            expected_image.shape_str(), actual_image.shape_str()));
     }
-    auto expected = expected_image.unchecked<3>();
-    auto actual = actual_image.unchecked<3>();
 
-    py::ssize_t diff_dims[3] = {height, width, 3};
-    py::array_t<unsigned char> diff_image(diff_dims);
-    auto diff = diff_image.mutable_unchecked<3>();
+    auto diff_image = OutputImageArray(height, width);
 
     double total = 0.0;
     for (auto i = 0; i < height; i++) {
         for (auto j = 0; j < width; j++) {
             for (auto k = 0; k < depth; k++) {
-                auto pixel_diff = static_cast<double>(expected(i, j, k)) -
-                                  static_cast<double>(actual(i, j, k));
+                auto pixel_diff = static_cast<double>(expected_image(i, j, k)) -
+                                  static_cast<double>(actual_image(i, j, k));
 
                 total += pixel_diff*pixel_diff;
 
                 if (k != 3) { // Hard-code a fully solid alpha channel by omitting it.
-                    diff(i, j, k) = static_cast<unsigned char>(std::clamp(
+                    diff_image(i, j, k) = static_cast<unsigned char>(std::clamp(
                         abs(pixel_diff) * 10, // Expand differences in luminance domain.
                         0.0, 255.0));
                 }
@@ -287,18 +288,13 @@ calculate_rms_and_diff(py::array_t<unsigned char> expected_image,
     }
     total = total / (width * height * depth);
 
-    return py::make_tuple(sqrt(total), diff_image);
+    return nb::make_tuple(sqrt(total), diff_image);
 }
 
 
-#ifdef PYBIND11_HAS_SUBINTERPRETER_SUPPORT
-PYBIND11_MODULE(_image, m,
-                py::mod_gil_not_used(), py::multiple_interpreters::per_interpreter_gil())
-#else
-PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
-#endif
+NB_MODULE(_image, m)
 {
-    py::native_enum<interpolation_e>(m, "_InterpolationType", "enum.Enum")
+    nb::enum_<interpolation_e>(m, "_InterpolationType")
         .value("NEAREST", NEAREST)
         .value("BILINEAR", BILINEAR)
         .value("BICUBIC", BICUBIC)
@@ -316,8 +312,7 @@ PYBIND11_MODULE(_image, m, py::mod_gil_not_used())
         .value("SINC", SINC)
         .value("LANCZOS", LANCZOS)
         .value("BLACKMAN", BLACKMAN)
-        .export_values()
-        .finalize();
+        .export_values();
 
     m.def("resample", &image_resample,
         "input_array"_a,

@@ -6,8 +6,8 @@
 #ifndef MPL_FT2FONT_H
 #define MPL_FT2FONT_H
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
+#define PY_SSIZE_T_CLEAN
+#include <nanobind/nanobind.h>
 
 #include <map>
 #include <memory>
@@ -31,8 +31,10 @@ extern "C" {
 }
 
 #include <raqm.h>
+#include "mpl_array.h"
+#include "mpl_buffer.h"
 
-namespace py = pybind11;
+namespace nb = nanobind;
 
 // By definition, FT_FIXED as 2 16bit values stored in a single long.
 #define FIXED_MAJOR(val) (signed short)((val & 0xffff0000) >> 16)
@@ -88,6 +90,11 @@ class FT2Image
     {
         return m_height;
     }
+    auto *create_buffer_info() const
+    {
+        using BufferInfo = mpl::buffer_info<uint8_t, mpl::shape<-1, -1>>;
+        return new BufferInfo(m_buffer, m_height, m_width);
+    }
 
   private:
     unsigned char *m_buffer;
@@ -108,6 +115,7 @@ class FT2Font
         void operator()(FT_Glyph glyph) const { FT_Done_Glyph(glyph); }
     };
     using GlyphPtr = std::unique_ptr<std::remove_pointer_t<FT_Glyph>, GlyphDeleter>;
+    using ImageBuffer = mpl::array<uint8_t, mpl::ndim<2>>;
 
     FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used);
     virtual ~FT2Font();
@@ -148,11 +156,10 @@ class FT2Font
     std::tuple<long, long> get_bitmap_offset();
     long get_descent();
     void draw_glyphs_to_bitmap(bool antialiased);
-    void draw_glyph_to_bitmap(
-        py::array_t<uint8_t, py::array::c_style> im,
-        int x, int y, size_t glyphInd, bool antialiased);
+    void draw_glyph_to_bitmap(const ImageBuffer &im, int x, int y,
+                              size_t glyphInd, bool antialiased);
     std::string get_glyph_name(unsigned int glyph_number);
-    long get_name_index(char *name);
+    long get_name_index(const char *name);
     FT_UInt get_char_index(FT_ULong charcode, bool fallback);
     void get_path(std::vector<double> &vertices, std::vector<unsigned char> &codes);
     bool get_char_fallback_index(FT_ULong charcode, int& index) const;
@@ -161,8 +168,15 @@ class FT2Font
     {
         return face;
     }
+    auto *create_buffer_info() const
+    {
+        using BufferInfo = mpl::buffer_info<uint8_t, mpl::shape<-1, -1>>;
 
-    py::array_t<uint8_t, py::array::c_style> &get_image()
+        auto result = new BufferInfo(image.data(), image.shape(0), image.shape(1));
+        result->set_owner(nb::cast(image.ndarray()));
+        return result;
+    }
+    ImageBuffer &get_image()
     {
         return image;
     }
@@ -220,7 +234,7 @@ class FT2Font
     std::map<LayoutCacheKey, LayoutCacheEntry> layout_cache;
 
     bool warn_if_used;
-    py::array_t<uint8_t, py::array::c_style> image;
+    ImageBuffer image;
     FT_Face face;
     FT_Vector pen;    /* untransformed origin  */
     std::vector<FT_Glyph> glyphs;
@@ -241,4 +255,4 @@ class FT2Font
     FT2Font &operator=(const FT2Font &);
 };
 
-#endif
+#endif // MPL_FT2FONT_H

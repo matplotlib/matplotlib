@@ -10,7 +10,7 @@ If it does not exist it is created automatically via ``meson setup``
 
 Prerequisites
 -------------
-``meson``, ``pybind11``, and ``clang-tidy`` must be available.
+``meson``, ``nanobind``, and ``clang-tidy`` must be available.
 
 Usage
 -----

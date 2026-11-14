@@ -105,7 +105,7 @@ jobs:
         run: brew install llvm
 
       - name: Install build dependencies
-        run: pip3 install meson ninja pybind11 setuptools-scm
+        run: pip3 install meson ninja nanobind setuptools-scm
 
       - name: Run clang-tidy
         run: |
