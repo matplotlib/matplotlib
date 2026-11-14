@@ -111,6 +111,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+          cache: 'pip'
+          cache-dependency-path: |
+            pyproject.toml
+            ci/minver-requirements.txt
 
       - name: Install OS dependencies
         run: |
@@ -194,24 +198,6 @@ jobs:
             ;;
           esac
 
-      - name: Cache pip
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pip
-          key: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{
-            hashFiles('pyproject.toml', 'ci/minver-requirements.txt') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
-      - name: Cache pip
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        if: startsWith(runner.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
       - name: Cache ccache
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
