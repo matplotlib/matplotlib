@@ -10,16 +10,6 @@ import sys
 from collections.abc import Sequence
 
 
-def brew_info(packages: list[str]):
-    result = subprocess.run(
-        ["brew", "info", "--json=v2", "--formula", *packages],
-        check=True,
-        capture_output=True,
-        text=True,
-    )
-    return json.loads(result.stdout)["formulae"]
-
-
 class Graph:
     _packages: list[str]
     _excludes: set[str]
@@ -33,16 +23,23 @@ class Graph:
         self._name_map = {}
         self._tainted_cache = {}
 
-        self._get_info()
+        self._get_brew_info()
 
         self._excludes = {self._resolve_name(e) for e in excludes}
 
-    def _get_info(self) -> None:
+    def _get_brew_info(self) -> None:
         requested_packages = set(self._packages)
         pending_packages = list(self._packages)
 
         while pending_packages:
-            for formula in brew_info(pending_packages):
+            brew_info_result = subprocess.run(
+                ["brew", "info", "--json=v2", "--formula", *pending_packages],
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+
+            for formula in json.loads(brew_info_result.stdout)["formulae"]:
                 dependencies = formula.get("dependencies", [])
                 full_name = formula["full_name"]
                 self._name_map[full_name] = full_name
@@ -60,7 +57,7 @@ class Graph:
 
     def _resolve_name(self, name: str) -> str:
         name = name.split("@")[0]
-        return self._name_map[name] if name in self._name_map else name
+        return self._name_map.get(name, name)
 
     def is_excluded(self, name: str) -> bool:
         return self._resolve_name(name) in self._excludes
@@ -86,7 +83,7 @@ class Graph:
         stack = list(self._packages)
 
         while stack:
-            name = stack.pop()
+            name = self._resolve_name(stack.pop())
             for dep in self._dependencies.get(name, []):
                 if dep in result:
                     continue
@@ -98,8 +95,9 @@ class Graph:
 
 
 def main():
-    packages = sys.argv[1].split() if sys.argv[1] else []
-    excludes = sys.argv[2].split() if sys.argv[2] else []
+    argv = sys.argv
+    packages = argv[1].split() if len(argv) > 1 and argv[1] else []
+    excludes = argv[2].split() if len(argv) > 2 and argv[2] else []
 
     graph = Graph(packages, excludes)
 
