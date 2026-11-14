@@ -118,6 +118,15 @@ ENV/
 env.bak/
 venv.bak/
 
+# pixi files on top level
+pixi.toml
+.pixi/
+# ignore the lock file, but we want to commit this if lock is purposely made from
+# pyproject.toml.  If you want the lock file committed, just do `git add -f pixi.lock`
+# after generating it.
+pixi.lock
+
+
 # Jupyter files #
 #################
 
