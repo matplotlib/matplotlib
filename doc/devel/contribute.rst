@@ -87,8 +87,8 @@ our code consistent and mitigating the impact of changes.
 * :ref:`pr-guidelines`
 
 Code is contributed through pull requests, so we recommend that you start at
-:ref:`how-to-pull-request` If you get stuck, please reach out on the
-:ref:`contributor_incubator`
+:ref:`how-to-pull-request`. If you get stuck, please reach out on the
+:ref:`contributor_incubator`.
 
 .. _contribute_documentation:
 
@@ -133,6 +133,7 @@ Other documentation is generated from the following external sources:
 * matplotlib.org homepage: https://github.com/matplotlib/mpl-brochure-site
 * cheat sheets: https://github.com/matplotlib/cheatsheets
 * third party packages: https://github.com/matplotlib/mpl-third-party
+* Matplotlib custom Sphinx theme: https://github.com/matplotlib/mpl-sphinx-theme
 
 Instructions and guidelines for contributing documentation are found in:
 

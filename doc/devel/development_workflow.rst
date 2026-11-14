@@ -27,6 +27,8 @@ why you did it, we recommend the following:
   Matplotlib developers can give feedback and eventually include your suggested
   code into the ``main`` branch.
 
+.. _git-overview:
+
 Overview
 --------
 
