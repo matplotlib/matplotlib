@@ -527,6 +527,21 @@ def test_LogNorm_inverse():
     assert_array_almost_equal([0.4], norm.inverse([0.30103]))
 
 
+def test_LogNorm_single_valid_value():
+    """
+    Test that non-positive values map to masked result when vmin and vmax are equal.
+    """
+    norm = mcolors.LogNorm()
+    result = norm([0, 1])
+
+    # vmin and vmax are autoscaled to 1, since that is the only valid value.
+    assert norm.vmin == 1
+    assert norm.vmax == 1
+
+    np.testing.assert_array_equal(result.mask, [True, False])
+    assert result[1] == 0
+
+
 def test_PowerNorm():
     # Check an exponent of 1 gives same results as a normal linear
     # normalization. Also implicitly checks that vmin/vmax are
