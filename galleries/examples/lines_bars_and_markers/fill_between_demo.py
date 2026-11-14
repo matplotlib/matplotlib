@@ -1,4 +1,6 @@
 """
+.. _fill_between_demo:
+
 ===============================
 Fill the area between two lines
 ===============================
