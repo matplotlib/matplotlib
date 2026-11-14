@@ -1,0 +1,12 @@
+mathtext no longer spaces operators at the edges of an expression
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+mathtext puts a space on each side of relation, binary and arrow operators.
+Following TeX, which discards the glue at the boundaries of a math list, such an
+operator is no longer spaced on a side that abuts the start or end of the
+expression (or of a ``{...}`` group or delimiter).
+
+For example, in ``"a$=b$"`` there is now no space before the ``=`` (only after
+it), matching ``usetex``, and a lone operator such as ``$\doteq$`` no longer has
+surrounding space.  This slightly changes the horizontal metrics of math strings
+that begin or end with such an operator.
