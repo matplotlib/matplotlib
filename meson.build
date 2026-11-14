@@ -38,6 +38,7 @@ project(
 add_project_arguments('-DMPL_FIX_AGG_IMAGE_FILTER_LUT_BUGS', language : 'cpp')
 add_project_arguments('-DMPL_FIX_AGG_INTERPOLATION_ENDPOINT_BUG', language : 'cpp')
 add_project_arguments('-DMPL_ADD_AGG_HSL_BLEND_MODES', language : 'cpp')
+add_project_arguments('-DMPL_ADD_AGG_CUSTOM_BLEND_MODES', language : 'cpp')
 
 cc = meson.get_compiler('c')
 cpp = meson.get_compiler('cpp')
