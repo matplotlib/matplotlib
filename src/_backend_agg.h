@@ -44,8 +44,11 @@
 #include "path_converters.h"
 #include "array.h"
 #include "agg_workaround.h"
+#include "py_buffer.h"
 
 namespace py = pybind11;
+
+using RGBABufferInfo = mpl::buffer_info<agg::int8u, mpl::shape<-1, -1, 4>>;
 
 /**********************************************************************/
 
@@ -70,6 +73,11 @@ class BufferRegion
     // prevent copying
     BufferRegion(const BufferRegion &) = delete;
     BufferRegion &operator=(const BufferRegion &) = delete;
+
+    auto *create_buffer_info() const
+    {
+        return new RGBABufferInfo(data, height, width);
+    }
 
     agg::int8u *get_data()
     {
@@ -127,6 +135,11 @@ class RendererAgg
     RendererAgg(unsigned int width, unsigned int height, double dpi);
 
     virtual ~RendererAgg();
+
+    auto *create_buffer_info() const
+    {
+        return new RGBABufferInfo(pixBuffer, height, width);
+    }
 
     unsigned int get_width()
     {
