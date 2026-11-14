@@ -1,6 +1,6 @@
 # To set up a development environment using conda run:
 #
-#   conda env create -f environment.yml
+#   conda create -f environment.yml
 #   conda activate mpl-dev
 #   pip install --verbose --no-build-isolation --group dev --editable .
 #
@@ -47,11 +47,9 @@ dependencies:
   - sphinx-tags>=0.4.0
   - pystemmer
   - pikepdf
-  - pip
-  - pip:
-      - mpl-sphinx-theme~=3.11.0
-      - sphinxcontrib-svg2pdfconverter>=1.1.0
-      - sphinxcontrib-video>=0.2.1
+  - sphinxcontrib-svg2pdfconverter>=1.1.0
+  - sphinxcontrib-video>=0.2.1
+  - mpl-sphinx-theme~=3.11.0
   # testing
   - black<26
   - coverage
@@ -72,3 +70,4 @@ dependencies:
   - pytz
   - ruff
   - tox
+  - pip
