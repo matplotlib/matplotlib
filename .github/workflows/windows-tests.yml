@@ -194,6 +194,9 @@ jobs:
             windows-conda-py312-mpl-${{ github.ref }}-
             windows-conda-py312-mpl-
 
+      - name: Install OS dependencies
+        run: choco install --yes --no-progress inkscape
+
       - name: Set up micromamba
         uses: mamba-org/setup-micromamba@f457c30a868e4760d3a6fcea5f25dc655b8edf39  # v3
         with:
@@ -211,7 +214,7 @@ jobs:
           MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
         run: |
           micromamba create --yes --name mpl-dev --file environment.yml `
-            python=3.12 pywin32 codecov ffmpeg inkscape
+            python=3.12 codecov ffmpeg
 
       - name: Build Matplotlib
         env:
