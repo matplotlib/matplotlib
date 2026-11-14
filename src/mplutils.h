@@ -36,7 +36,6 @@
 namespace py = pybind11;
 using namespace pybind11::literals;
 
-
 // 'kind' codes for paths.
 enum {
     STOP = 0,
@@ -76,7 +75,7 @@ template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 // Check that array has shape (N, d1) or (N, d1, d2).  We cast d1, d2 to longs
 // so that we don't need to access the NPY_INTP_FMT macro here.
 template<typename T>
-inline void check_trailing_shape(T array, char const* name, long d1)
+constexpr void check_trailing_shape(T array, char const* name, long d1)
 {
     if (array.ndim() != 2) {
         throw py::value_error(mpl::format(
@@ -95,7 +94,7 @@ inline void check_trailing_shape(T array, char const* name, long d1)
 }
 
 template<typename T>
-inline void check_trailing_shape(T array, char const* name, long d1, long d2)
+constexpr void check_trailing_shape(T array, char const* name, long d1, long d2)
 {
     if (array.ndim() != 3) {
         throw py::value_error(mpl::format(
