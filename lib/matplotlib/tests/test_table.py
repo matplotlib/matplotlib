@@ -266,9 +266,14 @@ def test_table_dataframe(pd):
     fig, ax = plt.subplots()
     table = ax.table(df, loc='center')
 
-    for r, (index, row) in enumerate(df.iterrows()):
-        for c, col in enumerate(df.columns if r == 0 else row.values):
-            assert table[r if r == 0 else r+1, c].get_text().get_text() == str(col)
+    for c, col in enumerate(df.columns):
+        # Check the column names go to top row of table
+        assert table[0, c].get_text().get_text() == col
+
+    for index, letter, number in df.itertuples():
+        # Check subsequent table rows have correct data values
+        assert table[index + 1, 0].get_text().get_text() == letter
+        assert table[index + 1, 1].get_text().get_text() == str(number)
 
 
 def test_table_fontsize():
