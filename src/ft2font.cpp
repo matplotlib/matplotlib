@@ -322,12 +322,12 @@ void FT2Font::set_kerning_factor(int factor)
 std::vector<raqm_glyph_t> FT2Font::layout(
     std::u32string_view text, FT_Int32 flags,
     std::optional<std::vector<std::string>> features, LanguageType languages,
-    std::set<FT_String*>& glyph_seen_fonts)
+    raqm_direction_t direction, std::set<FT_String*>& glyph_seen_fonts)
 {
     clear();
 
     auto const& key = LayoutCacheKey{
-        std::u32string{text}, flags, features, languages, shaping_state(),
+        std::u32string{text}, flags, features, languages, direction, shaping_state(),
         glyph_matrix.xx, glyph_matrix.xy, glyph_matrix.yx, glyph_matrix.yy};
     if (auto const& cached = layout_cache.find(key); cached != layout_cache.end()) {
         auto const& entry = cached->second;
@@ -345,6 +345,10 @@ std::vector<raqm_glyph_t> FT2Font::layout(
         std::unique_ptr<std::remove_pointer_t<raqm_t>, decltype(&raqm_destroy)>(
             rq, raqm_destroy);
 
+    // Kept by raqm_clear_contents below.
+    if (!raqm_set_par_direction(rq, direction)) {
+        throw std::runtime_error("failed to set text direction for layout");
+    }
     if (!raqm_set_text(rq, reinterpret_cast<const uint32_t *>(text.data()),
                        text.size()))
     {
@@ -476,7 +480,7 @@ std::vector<raqm_glyph_t> FT2Font::layout(
 void FT2Font::set_text(
     std::u32string_view text, double angle, FT_Int32 flags,
     std::optional<std::vector<std::string>> features, LanguageType languages,
-    std::vector<double> &xys)
+    raqm_direction_t direction, std::vector<double> &xys)
 {
     FT_Matrix matrix; /* transformation matrix */
 
@@ -492,7 +496,7 @@ void FT2Font::set_text(
     matrix.yy = (FT_Fixed)cosangle;
 
     std::set<FT_String*> glyph_seen_fonts;
-    auto rq_glyphs = layout(text, flags, features, languages, glyph_seen_fonts);
+    auto rq_glyphs = layout(text, flags, features, languages, direction, glyph_seen_fonts);
 
     bbox.xMin = bbox.yMin = 32000;
     bbox.xMax = bbox.yMax = -32000;
