@@ -232,16 +232,18 @@ def install_inkscape(out: list[str], err: list[str]) -> None:
 
         run_checked(
             [
-                "time", "hdiutil", "attach", "-readonly",
+                "hdiutil", "attach", "-readonly",
                 "-nobrowse", "-noverify", "-noautofsck",
                 "-mountpoint", str(mount_point), str(dmg)
             ],
             out, err,
         )
         run_timestamped(
-            ["ditto", "-V", str(mount_point / "Inkscape.app"),
-             "/Applications/Inkscape.app"],
-            out,
+            [
+                "ditto", "-V", str(mount_point / "Inkscape.app"),
+                "/Applications/Inkscape.app"
+            ],
+            out, err,
         )
 
 
