@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import urllib.request
 
 from collections.abc import Sequence
@@ -161,6 +162,21 @@ def download(url: str, expected_hash: str, dest: Path) -> None:
         )
 
 
+def run_task(func, *args) -> tuple[int, str, str, float]:
+    out: list[str] = []
+    err: list[str] = []
+    start = time.perf_counter()
+    try:
+        func(out, err, *args)
+        code = 0
+    except subprocess.CalledProcessError as e:
+        code = e.returncode
+    except Exception as e:
+        err.append(f"{e}\n")
+        code = 1
+    return code, "".join(out), "".join(err), time.perf_counter() - start
+
+
 def install_brew_packages(out: list[str], err: list[str]) -> None:
     run_checked(["brew", "install", "--display-times", *PACKAGES], out, err)
 
@@ -203,20 +219,6 @@ def install_inkscape(out: list[str], err: list[str]) -> None:
             )
         finally:
             run_checked(["hdiutil", "detach", str(mount_point)], out, err)
-
-
-def run_task(func, *args) -> tuple[int, str, str]:
-    out: list[str] = []
-    err: list[str] = []
-    try:
-        func(out, err, *args)
-        code = 0
-    except subprocess.CalledProcessError as e:
-        code = e.returncode
-    except Exception as e:
-        err.append(f"{e}\n")
-        code = 1
-    return code, "".join(out), "".join(err)
 
 
 def install_cache_only_packages():
