@@ -158,7 +158,7 @@ def test_rcupdate():
                                  '\\usepackage{sfmath}')}]
     tol = [0, 13.2] if _old_gs_version else [0, 0]
     for i, rc_set in enumerate(rc_sets):
-        if (i == 1 and
+        if (rc_set['pgf.texsystem'] == 'pdflatex' and
             mpl._get_executable_info('pdflatex').version > parse_version('1.40.26')):
             pytest.xfail(reason="This test currently requires a pdfTeX "
                                 "version of 1.40.26 or earlier")
