@@ -19,7 +19,7 @@ case).
 Matplotlib does this mapping in two steps, with a normalization from
 the input data to [0, 1] occurring first, and then mapping onto the
 indices in the colormap.  Normalizations are classes defined in the
-:func:`matplotlib.colors` module.  The default, linear normalization
+:mod:`matplotlib.colors` module.  The default, linear normalization
 is :func:`matplotlib.colors.Normalize`.
 
 Artists that map data to color pass the arguments *vmin* and *vmax* to
