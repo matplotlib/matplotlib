@@ -1,6 +1,13 @@
-# Usage: ???
-#
-#
+#!/usr/bin/env python3
+"""
+Tool to install macOS packages on GitHub runners
+
+Usage: python tools/install_macos_packages.py <command>
+
+Commands:
+cache-only
+all
+"""
 
 import hashlib
 import json
@@ -8,7 +15,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import time
 import urllib.request
 
 from collections.abc import Sequence
@@ -27,7 +33,7 @@ PACKAGES = (
 CACHE_INCLUDE = ("gpg",)
 
 # Packages to explicitly exclude from the cache due to their size.
-CACHE_EXCLUDE = ("python")  # , "icu4c", "openssl", "openjpeg", "x265")
+CACHE_EXCLUDE = ("python", "icu4c", "openssl")
 
 # URLs and SHA-256 hashes of fonts to install
 FONTS = (
@@ -213,69 +219,52 @@ def run_task(func, *args) -> tuple[int, str, str]:
     return code, "".join(out), "".join(err)
 
 
+def install_cache_only_packages():
+    package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
+    filtered_packages = package_filter.get_filtered_packages()
+    filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
+    subprocess.run(
+        ["brew", "install", "--display-times", *filtered_packages], check=True
+    )
+
+
+def install_all_packages():
+    tasks = {
+        "brew install": (install_brew_packages,),
+        "font 0": (install_font, FONTS[0]),
+        "font 1": (install_font, FONTS[1]),
+        "inkscape": (install_inkscape,),
+    }
+    exit_code = 0
+    with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
+        futures = {
+            executor.submit(run_task, *task): name
+            for name, task in tasks.items()
+        }
+        for future in as_completed(futures):
+            code, out, err, elapsed = future.result()
+            print(f"::group::{futures[future]} (exit {code}, {elapsed:.2f}s)")
+            if out:
+                print(out, end="")
+            if err:
+                print(err, end="")
+            print("::endgroup::")
+            sys.stdout.flush()
+            exit_code = exit_code or code
+    if exit_code:
+        sys.exit(exit_code)
+
+
 def main():
     if len(sys.argv) < 2:
         exit("No command provided")
 
     command = sys.argv[1]
-    if command == "clean":
-        # `sudo mkdir -p /opt/homebrew-aside/Cellar`
-        # `sudo mkdir -p /opt/homebrew-aside/Caskroom`
-        # `sudo mv /opt/homebrew/.git /opt/homebrew-aside`
-        # `sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar`
-        # `sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom`
-        # `time find /opt/homebrew -maxdepth 2 -type l -delete`
-        aside = "/opt/homebrew-aside"
-        brew_root = Path("/opt/homebrew")
-        subprocess.run(["sudo", "mkdir", "-p", f"{aside}/Cellar"], check=True)
-        subprocess.run(["sudo", "mkdir", "-p", f"{aside}/Caskroom"], check=True)
-        subprocess.run(["sudo", "mv", str(brew_root / ".git"), aside], check=True)
-        for sub in ("Cellar", "Caskroom"):
-            entries = [str(p) for p in (brew_root / sub).glob("*")]
-            if entries:
-                subprocess.run(
-                    ["sudo", "mv", *entries, f"{aside}/{sub}"], check=True
-                )
-        start = time.perf_counter()
-        subprocess.run(
-            ["find", str(brew_root), "-maxdepth", "2", "-type", "l", "-delete"],
-            check=True,
-        )
-        print(f"find took {time.perf_counter() - start:.2f}s")
+    if command == "cache-only":
+        install_cache_only_packages()
 
-    elif command == "make-cache":
-        package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
-        filtered_packages = package_filter.get_filtered_packages()
-        filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
-        subprocess.run(
-            ["brew", "install", "--display-times", *filtered_packages], check=True
-        )
-
-    elif command == "install":
-        tasks = {
-            "brew install": (install_brew_packages,),
-            "font 0": (install_font, FONTS[0]),
-            "font 1": (install_font, FONTS[1]),
-            "inkscape": (install_inkscape,),
-        }
-        exit_code = 0
-        with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
-            futures = {
-                executor.submit(run_task, *task): name
-                for name, task in tasks.items()
-            }
-            for future in as_completed(futures):
-                code, out, err, elapsed = future.result()
-                print(f"::group::{futures[future]} (exit {code}, {elapsed:.2f}s)")
-                if out:
-                    print(out, end="")
-                if err:
-                    print(err, end="")
-                print("::endgroup::")
-                sys.stdout.flush()
-                exit_code = exit_code or code
-        if exit_code:
-            sys.exit(exit_code)
+    elif command == "all":
+        install_all_packages()
 
     else:
         exit(f"Unknown command: {command}")
