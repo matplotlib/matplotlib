@@ -86,19 +86,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           macOS)
-            sudo mkdir -p /opt/homebrew-aside/Cellar
-            sudo mkdir -p /opt/homebrew-aside/Caskroom
-            sudo mv /opt/homebrew/.git /opt/homebrew-aside
-            sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
-            sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
-            # time find /opt/homebrew -maxdepth 2 -type l -print0 | xargs -0 ls -al
-            # time find /opt/homebrew -maxdepth 2 -type l ! -exec test -e {} \; -delete
-            time find /opt/homebrew -maxdepth 2 -type l -delete
-            # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
-            openssl_link="$(brew --prefix)/bin/openssl"
-            case "$(readlink "$openssl_link" 2>/dev/null)" in
-                */openssl@1.1/*) rm -f "$openssl_link" ;;
-            esac
+            python tools/macos_runner_helper.py clean-runner
             ;;
           esac
 
@@ -112,12 +100,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           macOS)
-            PACKAGES="ccache ffmpeg ghostscript gpg gobject-introspection gtk4 imagemagick ninja"
-            EXCLUDES="python icu4c openssl openjpeg x265"
-
-            TO_INSTALL=$(python tools/macos_brew_cache.py "$PACKAGES" "$EXCLUDES")
-            brew install --display-times $TO_INSTALL
-            brew install --display-times gpg ccache
+            python tools/macos_runner_helper.py create-cache
             ;;
           esac
 
@@ -131,25 +114,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           macOS)
-            brew install --display-times \
-              ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
-            ;;
-          esac
-
-      - name: Install fonts
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times --cask font-noto-sans-cjk font-noto-sans-cjk-sc
-            ;;
-          esac
-
-      - name: Install inkscape
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            defaults write com.apple.frameworks.diskimages skip-verify -bool true
-            brew install --display-times --cask inkscape
+            python tools/macos_runner_helper.py install-packages
             ;;
           esac
 
