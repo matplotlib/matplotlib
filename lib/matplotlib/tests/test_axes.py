@@ -10111,12 +10111,12 @@ def test_ecdf(fig_test, fig_ref):
     axs_ref[0].plot([-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
                     np.arange(8) / 7, ds="steps-post")
     axs_ref[0].plot([-np.inf, 0, 1, 2, np.inf, np.inf],
-                    np.array([21, 20, 18, 14, 3, 0]) / 21,
+                    np.array([21, 18, 18, 9, 3, 0]) / 21,
                     ds="steps-pre", ls=":")
     axs_ref[1].plot(np.arange(8) / 7,
                     [-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
                     ds="steps-pre")
-    axs_ref[1].plot(np.array([21, 20, 18, 14, 3, 0]) / 21,
+    axs_ref[1].plot(np.array([21, 18, 18, 9, 3, 0]) / 21,
                     [-np.inf, 0, 1, 2, np.inf, np.inf],
                     ds="steps-post", ls=":")
 
