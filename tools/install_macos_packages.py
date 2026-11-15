@@ -207,14 +207,19 @@ def install_inkscape(out: list[str], err: list[str]) -> None:
         download(INKSCAPE["url"], INKSCAPE["hash"], dmg)
 
         run_checked(
-            ["hdiutil", "attach", "-nobrowse", "-readonly",
-             "-mountpoint", str(mount_point), str(dmg)],
+            [
+                "hdiutil", "attach", "-readonly",
+                "-nobrowse", "-noverify", "-noautofsck",
+                "-mountpoint", str(mount_point), str(dmg)
+            ],
             out, err,
         )
         try:
             run_checked(
-                ["ditto", str(mount_point / "Inkscape.app"),
-                 "/Applications/Inkscape.app"],
+                [
+                    "ditto", str(mount_point / "Inkscape.app"),
+                    "/Applications/Inkscape.app"
+                ],
                 out, err,
             )
         finally:
