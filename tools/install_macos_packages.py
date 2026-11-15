@@ -15,6 +15,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 import urllib.request
 
@@ -153,6 +154,29 @@ def run_checked(cmd: list[str], out: list[str], err: list[str]) -> None:
         raise subprocess.CalledProcessError(result.returncode, cmd)
 
 
+def run_timestamped(cmd: list[str], out: list[str], err: list[str]) -> None:
+    start = time.perf_counter()
+    proc = subprocess.Popen(
+        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+    )
+
+    def pump(stream, sink: list[str]) -> None:
+        for line in stream:
+            sink.append(f"[{time.perf_counter() - start:8.2f}s] {line}")
+
+    threads = [
+        threading.Thread(target=pump, args=(proc.stdout, out)),
+        threading.Thread(target=pump, args=(proc.stderr, err)),
+    ]
+    for thread in threads:
+        thread.start()
+    for thread in threads:
+        thread.join()
+    returncode = proc.wait()
+    if returncode != 0:
+        raise subprocess.CalledProcessError(returncode, cmd)
+
+
 def download(url: str, expected_hash: str, dest: Path) -> None:
     urllib.request.urlretrieve(url, dest)
     digest = hashlib.sha256(dest.read_bytes()).hexdigest()
@@ -214,16 +238,11 @@ def install_inkscape(out: list[str], err: list[str]) -> None:
             ],
             out, err,
         )
-        try:
-            run_checked(
-                [
-                    "time", "ditto", str(mount_point / "Inkscape.app"),
-                    "/Applications/Inkscape.app"
-                ],
-                out, err,
-            )
-        finally:
-            run_checked(["time", "hdiutil", "detach", str(mount_point)], out, err)
+        run_timestamped(
+            ["ditto", "-V", str(mount_point / "Inkscape.app"),
+             "/Applications/Inkscape.app"],
+            out,
+        )
 
 
 def install_cache_only_packages():
