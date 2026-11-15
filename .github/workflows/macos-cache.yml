@@ -1,0 +1,82 @@
+---
+name: macOS Homebrew Cache
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.number }}-${{ github.event.ref }}
+  cancel-in-progress: true
+
+on:
+  schedule:
+    # 9:41 UTC on Sundays and Wednesdays
+    - cron: "41 9 * * 0,3"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build-cache:
+    permissions:
+      contents: read
+      actions: write
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-26]
+    runs-on: ${{ matrix.os }}
+    name: "Build Homebrew cache (${{ matrix.os }})"
+    env:
+      CACHE_PREFIX: ${{ matrix.os }}-brew-cache-
+      CACHE_KEY: ${{ matrix.os }}-brew-cache-${{ github.run_id }}-${{ github.run_attempt }}
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.14'
+
+      - name: Clean Runner Image
+        run: |
+          sudo mkdir -p /opt/homebrew-aside/Cellar
+          sudo mkdir -p /opt/homebrew-aside/Caskroom
+          sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
+          sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+          find /opt/homebrew -maxdepth 2 -type l -delete
+
+      - name: Install cache-only packages
+        run: python tools/install_macos_packages.py cache-only
+
+      - name: Report /opt size
+        run: |
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
+
+      - name: Save cache
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            /opt/homebrew
+            !/opt/homebrew/.git
+            !/opt/homebrew/.github
+            !/opt/homebrew/completions
+            !/opt/homebrew/docs
+            !/opt/homebrew/lib/ruby
+            !/opt/homebrew/Library/Homebrew
+            !/opt/homebrew/Library/Taps
+            !/opt/homebrew/var/cache
+            !/opt/homebrew/var/homebrew/locks
+
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Delete old caches
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh cache list --repo "$GITHUB_REPOSITORY" --ref "$GITHUB_REF" \
+            --key "$CACHE_PREFIX" --limit 100 --json id,key \
+            --jq ".[] | select(.key != \"$CACHE_KEY\") | .id" |
+          while read -r id; do
+            gh cache delete "$id" --repo "$GITHUB_REPOSITORY"
+          done

@@ -5,21 +5,7 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    branches-ignore:
-      - auto-backport-of-pr-[0-9]+
-      - v[0-9]+.[0-9]+.[0-9x]+-doc
-      - dependabot/**
   pull_request:
-    branches-ignore:
-      - v[0-9]+.[0-9]+.[0-9x]+-doc
-    paths-ignore:
-      # Skip running tests if changes are only in documentation directories
-      - 'doc/**'
-      - 'galleries/**'
-  schedule:
-    # 5:47 UTC on Saturdays
-    - cron: "47 5 * * 6"
   workflow_dispatch:
 
 permissions: {}
@@ -31,53 +17,95 @@ env:
 
 jobs:
   build-cache:
-    # if: false
     permissions:
       contents: read
-    runs-on: macos-26
-    name: "Build brew cache"
+      actions: write
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, macos-26]
+    runs-on: ${{ matrix.os }}
+    name: "Build Homebrew cache (${{ matrix.os }})"
+    env:
+      CACHE_PREFIX: ${{ matrix.os }}-brew-cache-
+      CACHE_KEY: ${{ matrix.os }}-brew-cache-${{ github.run_id }}-${{ github.run_attempt }}
 
     steps:
+      - name: Check for existing cache
+        id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          count=$(gh cache list --key "$CACHE_PREFIX" --limit 1 --json id --jq length)
+          if [ "$count" -gt 0 ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        if: steps.check.outputs.exists != 'true'
         with:
           persist-credentials: false
 
       - name: Set up Python
+        if: steps.check.outputs.exists != 'true'
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
         with:
           python-version: '3.14'
 
       - name: Clean Runner Image
-        run: python tools/macos_runner_helper.py clean
+        if: steps.check.outputs.exists != 'true'
+        run: |
+          sudo mkdir -p /opt/homebrew-aside/Cellar
+          sudo mkdir -p /opt/homebrew-aside/Caskroom
+          sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
+          sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+          find /opt/homebrew -maxdepth 2 -type l -delete
 
-      - name: Make cache
-        run: python tools/macos_runner_helper.py make-cache
+      - name: Install cache-only packages
+        if: steps.check.outputs.exists != 'true'
+        run: python tools/install_macos_packages.py cache-only
 
-      # !ci-adventures
-      - name: Size of /opt
+      - name: Report /opt size
+        if: steps.check.outputs.exists != 'true'
         run: |
           sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
             /opt 2>/dev/null | sort -rh | head -200
 
       - name: Save cache
+        if: steps.check.outputs.exists != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: |
             /opt/homebrew
+            !/opt/homebrew/.git
+            !/opt/homebrew/.github
+            !/opt/homebrew/completions
+            !/opt/homebrew/docs
             !/opt/homebrew/lib/ruby
             !/opt/homebrew/Library/Homebrew
-          key: macos-excelsior
+            !/opt/homebrew/Library/Taps
+            !/opt/homebrew/var/cache
+            !/opt/homebrew/var/homebrew/locks
+
+          key: ${{ env.CACHE_KEY }}
 
   test:
-    needs: [build-cache]
+    needs: build-cache
     if: >-
-      github.event_name == 'workflow_dispatch' ||
+      !cancelled() &&
+      needs.build-cache.result == 'success' &&
       (
-        github.repository == 'matplotlib/matplotlib' &&
-        !contains(github.event.head_commit.message, '[ci skip]') &&
-        !contains(github.event.head_commit.message, '[skip ci]') &&
-        !contains(github.event.head_commit.message, '[skip github]') &&
-        !contains(github.event.head_commit.message, '[ci doc]')
+        github.event_name == 'workflow_dispatch' ||
+        (
+          github.repository == 'matplotlib/matplotlib' &&
+          !contains(github.event.head_commit.message, '[ci skip]') &&
+          !contains(github.event.head_commit.message, '[skip ci]') &&
+          !contains(github.event.head_commit.message, '[skip github]') &&
+          !contains(github.event.head_commit.message, '[ci doc]')
+        )
       )
     permissions:
       contents: read
@@ -88,6 +116,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - os: macos-15  # This runner is on M1 (arm64) chips.
+            python-version: '3.14'
           - os: macos-26  # This runner is on M1 (arm64) chips.
             python-version: '3.14'
             # https://github.com/matplotlib/matplotlib/issues/29732
@@ -110,278 +140,12 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      # - name: Clean Runner Image
-      #   run: python tools/macos_runner_helper.py clean
-
-      - name: Restore cache
+      - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          path: |
-            /opt/homebrew
-            !/opt/homebrew/lib/ruby
-            !/opt/homebrew/Library/Homebrew
-          key: macos-excelsior
+          path: /opt/homebrew
+          key: ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
       - name: Install brew packages, fonts, and inkscape
-        run: python tools/macos_runner_helper.py install
-
-
-      # !ci-adventures
-      - name: Size of /opt (Delta)
-        run: |
-          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
-            /opt 2>/dev/null | sort -rh | head -200
-
-      # !ci-adventures
-      - name: EJECT!
-        run: |
-          exit 1
-
-      - name: Cache pip
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        if: startsWith(runner.os, 'Linux')
-        with:
-          path: ~/.cache/pip
-          key: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{
-            hashFiles('pyproject.toml', 'ci/minver-requirements.txt') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
-      - name: Cache pip
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        if: startsWith(runner.os, 'macOS')
-        with:
-          path: ~/Library/Caches/pip
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
-      - name: Cache ccache
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            ~/.ccache
-          key: ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-${{ hashFiles('src/*') }}
-          restore-keys: |
-            ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
-      - name: Cache Matplotlib
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: |
-            ~/.cache/matplotlib
-            !~/.cache/matplotlib/tex.cache
-            !~/.cache/matplotlib/test_cache
-          key: 6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
-          restore-keys: |
-            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
-            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
-
-      - name: Install Python dependencies
-        run: |
-          # Upgrade pip and setuptools and wheel to get as clean an install as
-          # possible.
-          python -m pip install --upgrade pip setuptools wheel
-
-          # Install pre-release versions during our weekly upcoming dependency tests.
-          if [[ "${{ github.event_name }}" == 'schedule'
-                && "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
-            PRE="--pre"
-          fi
-
-          # Install dependencies from PyPI.
-          # Preinstall build requirements to enable no-build-isolation builds.
-          python -m pip install --upgrade $PRE --prefer-binary \
-            --group build --group test ${{ matrix.extra-requirements }}
-
-          # Install optional dependencies from PyPI.
-          # Sphinx is needed to run sphinxext tests
-          python -m pip install --upgrade sphinx!=6.1.2
-
-          if [[ "${{ matrix.python-version }}" != 3.*t && "${{ matrix.python-version }}" != 3.15 ]]; then
-          # GUI toolkits are pip-installable only for some versions of Python
-          # so don't fail if we can't install them.  Make it easier to check
-          # whether the install was successful by trying to import the toolkit
-          # (sometimes, the install appears to be successful but shared
-          # libraries cannot be loaded at runtime, so an actual import is a
-          # better check).
-          python -m pip install --upgrade pycairo 'cairocffi>=0.8' 'PyGObject${{ matrix.pygobject-ver }}' &&
-            (
-              python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
-              echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
-            ) && (
-              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
-              echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
-            )
-
-          # PyQt5 does not have any wheels for ARM on Linux.
-          if [[ "${{ matrix.os }}" != 'ubuntu-24.04-arm' ]]; then
-            python -mpip install --upgrade --only-binary :all: pyqt5 &&
-              python -c 'import PyQt5.QtCore' &&
-              echo 'PyQt5 is available' ||
-              echo 'PyQt5 is not available'
-          fi
-          python -mpip install --upgrade --only-binary :all: pyqt6 &&
-            python -c 'import PyQt6.QtCore' &&
-            echo 'PyQt6 is available' ||
-            echo 'PyQt6 is not available'
-          python -mpip install --upgrade --only-binary :all: pyside6 &&
-            python -c 'import PySide6.QtCore' &&
-            echo 'PySide6 is available' ||
-            echo 'PySide6 is not available'
-
-          python -mpip install --upgrade --only-binary :all: \
-            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
-            wxPython &&
-            python -c 'import wx' &&
-            echo 'wxPython is available' ||
-            echo 'wxPython is not available'
-
-          fi  # Skip backends on Python 3.*t.
-
-      - name: Install the nightly dependencies
-        # Only install the nightly dependencies during the scheduled event
-        if: github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)'
-        run: |
-          python -m pip install pytz tzdata  # Must be installed for Pandas.
-          python -m pip install \
-            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
-            --upgrade --only-binary=:all: numpy pandas
-
-      - name: Install Matplotlib
-        run: |
-          ccache -s
-          # git describe
-
-          # Set flag in a delayed manner to avoid issues with installing other
-          # packages
-          if [[ "${{ runner.os }}" == 'macOS' ]]; then
-            export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
-            export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
-          else
-            export CPPFLAGS='--coverage -fprofile-abs-path -fprofile-update=prefer-atomic'
-          fi
-
-          python -m pip install --no-deps --no-build-isolation --verbose \
-            --config-settings=setup-args="-DrcParams-backend=Agg" \
-            --editable .[dev]
-
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            unset CPPFLAGS
-          fi
-
-      - name: Clear font cache
-        run: |
-          rm -rf ~/.cache/matplotlib
-        if: matrix.delete-font-cache
-
-      - name: Run pytest
-        run: |
-          if [[ "${{ matrix.python-version }}" == 3.*t ]]; then
-            export PYTHON_GIL=0
-          fi
-          if [[ "${{ matrix.python-version }}" == 3.15* ]]; then
-            export PYTEST_ADDOPTS="-k 'not test_backends_interactive'"
-          fi
-          pytest -rfEsXR -n auto \
-            --maxfail=50 --timeout=300 --durations=25 \
-            --cov-report=xml --cov=lib --log-level=DEBUG --color=yes
-
-      - name: Cleanup non-failed image files
-        if: failure()
-        run: |
-          find ./result_images -name "*-expected*.png" | while read file; do
-            if [[ $file == *-expected_???.png ]]; then
-              extension=${file: -7:3}
-              base=${file%*-expected_$extension.png}_$extension
-            else
-              extension="png"
-              base=${file%-expected.png}
-            fi
-            if [[ ! -e ${base}-failed-diff.png ]]; then
-              indent=""
-              list=($file $base.png)
-              if [[ $extension != "png" ]]; then
-                list+=(${base%_$extension}-expected.$extension ${base%_$extension}.$extension)
-              fi
-              for to_remove in "${list[@]}"; do
-                if [[ -e $to_remove ]]; then
-                  rm $to_remove
-                  echo "${indent}Removed $to_remove"
-                fi
-                indent+=" "
-              done
-            fi
-          done
-
-          if [ "$(find ./result_images -mindepth 1 -type d)" ]; then
-              find ./result_images/* -type d -empty -delete
-          fi
-
-      - name: Filter C coverage
-        if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        run: |
-          if [[ "${{ runner.os }}" != 'macOS' ]]; then
-            LCOV_IGNORE_ERRORS=','  # do not ignore any lcov errors by default
-            if [[ "${{ matrix.os }}" = ubuntu-24.04 || "${{ matrix.os }}" = ubuntu-24.04-arm ]]; then
-              # filter mismatch errors detected by lcov 2.x
-              LCOV_IGNORE_ERRORS='mismatch'
-            fi
-            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --capture --directory . --exclude $PWD/subprojects --exclude $PWD/build \
-              --output-file coverage.info
-            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --output-file coverage.info --extract coverage.info $PWD/src/'*'
-            lcov --rc lcov_branch_coverage=1 --ignore-errors $LCOV_IGNORE_ERRORS \
-              --list coverage.info
-            find . -name '*.gc*' -delete
-          else
-            xcrun llvm-profdata merge -sparse default.*.profraw \
-              -o default.profdata
-            xcrun llvm-cov export -format="lcov" build/*/src/*.so \
-              -instr-profile default.profdata > info.lcov
-          fi
-
-      - name: Upload macOS crash logs
-        if: failure() && runner.os == 'macOS'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: macos-crash-logs
-          path: ~/Library/Logs/DiagnosticReports/*
-
-      - name: Upload code coverage
-        if: ${{ !cancelled() && github.event_name != 'schedule' }}
-        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5  # v7.1.1
-        with:
-          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }}"
-          token: ${{ secrets.CODECOV_TOKEN }}
-
-      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        if: failure()
-        with:
-          name: "${{ matrix.python-version }} ${{ matrix.os }} ${{ matrix.name-suffix }} result images"
-          path: ./result_images
-
-  # Separate dependent job to only upload one issue from the matrix of jobs
-  create-issue:
-    if: ${{ failure() && github.event_name == 'schedule' }}
-    needs: [test]
-    permissions:
-      issues: write
-    runs-on: ubuntu-latest
-    name: "Create issue on failure"
-
-    steps:
-      - name: Create issue on failure
-        uses: imjohnbo/issue-bot@3188c6ce06249206709d3b1f274d0d4c5a521601  # v3.4.5
-        with:
-          title: "[TST] Upcoming dependency test failures"
-          body: |
-            The weekly build with nightly wheels from numpy and pandas
-            has failed. Check the logs for any updates that need to be
-            made in matplotlib.
-            https://github.com/${{github.repository}}/actions/runs/${{github.run_id}}
-
-          pinned: false
-          close-previous: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python tools/install_macos_packages.py all

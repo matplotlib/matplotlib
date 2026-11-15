@@ -252,14 +252,6 @@ def main():
         )
 
     elif command == "install":
-        # Perform the following in parallel:
-        # 1) `brew install --display-times` with PACKAGES
-        # 2) download and install FONTS[0]
-        # 3) download and install FONTS[1]
-        # 4) download and install INKSCAPE
-        # stdout and stderr should be collected for each subcommand and printed after
-        # that command runs. exit with a status code if any subprocess exits.
-        # I don't know how to install FONTS or INKSCAPE
         tasks = {
             "brew install": (install_brew_packages,),
             "font 0": (install_font, FONTS[0]),
@@ -273,14 +265,14 @@ def main():
                 for name, task in tasks.items()
             }
             for future in as_completed(futures):
-                code, out, err = future.result()
-                print(f"=== {futures[future]} (exit {code}) ===")
+                code, out, err, elapsed = future.result()
+                print(f"::group::{futures[future]} (exit {code}, {elapsed:.2f}s)")
                 if out:
                     print(out, end="")
                 if err:
-                    print(err, end="", file=sys.stderr)
+                    print(err, end="")
+                print("::endgroup::")
                 sys.stdout.flush()
-                sys.stderr.flush()
                 exit_code = exit_code or code
         if exit_code:
             sys.exit(exit_code)
