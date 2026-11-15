@@ -64,6 +64,10 @@ jobs:
           sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
           find /opt/homebrew -maxdepth 2 -type l -delete
 
+      - name: Install cache-only packages
+        if: steps.check.outputs.exists != 'true'
+        run: python tools/install_macos_packages.py cache-only
+
       - name: Prepare /opt/homebrew for cache
         if: steps.check.outputs.exists != 'true'
         run:
@@ -147,6 +151,8 @@ jobs:
         with:
           path: /opt/homebrew
           key: ${{ matrix.os }}-brew-cache
+          restore-keys: |
+            ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
       - name: Install brew packages, fonts, and inkscape
