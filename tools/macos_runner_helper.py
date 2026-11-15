@@ -27,7 +27,7 @@ PACKAGES = (
 CACHE_INCLUDE = ("gpg",)
 
 # Packages to explicitly exclude from the cache due to their size.
-CACHE_EXCLUDE = ("python", "icu4c", "openssl", "openjpeg", "x265")
+CACHE_EXCLUDE = ("python")  # , "icu4c", "openssl", "openjpeg", "x265")
 
 # URLs and SHA-256 hashes of fonts to install
 FONTS = (
