@@ -223,7 +223,7 @@ def install_font(out: list[str], err: list[str], font: dict[str, str]) -> None:
 
 
 def install_inkscape(out: list[str], err: list[str]) -> None:
-    with tempfile.TemporaryDirectory() as tmp:
+    with tempfile.TemporaryDirectory(delete=False) as tmp:
         tmp_path = Path(tmp)
         dmg = tmp_path / "Inkscape.dmg"
         mount_point = tmp_path / "mnt"
