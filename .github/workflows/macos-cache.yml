@@ -48,10 +48,26 @@ jobs:
       - name: Install cache-only packages
         run: python tools/install_macos_packages.py cache-only
 
-      - name: Report /opt size
+      - name: Prepare /opt/homebrew for cache
+        run:
+          to_remove=(
+            /opt/homebrew/.git
+            /opt/homebrew/.github
+            /opt/homebrew/completions
+            /opt/homebrew/docs
+            /opt/homebrew/lib/ruby
+            /opt/homebrew/Library/Homebrew
+            /opt/homebrew/Library/Taps
+            /opt/homebrew/var/cache
+            /opt/homebrew/var/homebrew/locks
+          )
+
+          sudo mv "${to_remove[@]}" /opt/homebrew-aside
+
+      - name: Report /opt/homebrew size
         run: |
-          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
-            /opt 2>/dev/null | sort -rh | head -200
+          sudo du -d 4 -h -I \
+            /opt/homebrew 2>/dev/null | sort -rh | head -200
 
       - name: Save cache
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
