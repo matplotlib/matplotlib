@@ -117,7 +117,7 @@ jobs:
 
             TO_INSTALL=$(python tools/macos_brew_cache.py "$PACKAGES" "$EXCLUDES")
             brew install --display-times $TO_INSTALL
-            brew install --display-times gpg
+            brew install --display-times gpg ccache
             ;;
           esac
 
@@ -132,7 +132,7 @@ jobs:
           case "${{ runner.os }}" in
           macOS)
             brew install --display-times \
-              ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+              ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
             ;;
           esac
 
