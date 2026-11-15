@@ -117,6 +117,7 @@ jobs:
 
             TO_INSTALL=$(python tools/macos_brew_cache.py "$PACKAGES" "$EXCLUDES")
             brew install --display-times $TO_INSTALL
+            brew install --display-times gpg
             ;;
           esac
 
@@ -126,62 +127,14 @@ jobs:
           sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
             /opt 2>/dev/null | sort -rh | head -200
 
-      - name: Install ccache
+      - name: Install brew packages
         run: |
           case "${{ runner.os }}" in
           macOS)
-            brew install --display-times ccache
+            brew install --display-times \
+              ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
             ;;
           esac
-
-      - name: Install ffmpeg
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times ffmpeg
-            ;;
-          esac
-
-      - name: Install ghostscript
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times ghostscript
-            ;;
-          esac
-
-      - name: Install gpg
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times gpg
-            ;;
-          esac
-
-      - name: Install gobject-introspection and gtk4
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times gobject-introspection gtk4
-            ;;
-          esac
-
-      - name: Install imagemagick
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times imagemagick
-            ;;
-          esac
-
-      - name: Install ninja
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            brew install --display-times ninja
-            ;;
-          esac
-
 
       - name: Install fonts
         run: |
@@ -195,6 +148,7 @@ jobs:
         run: |
           case "${{ runner.os }}" in
           macOS)
+            defaults write com.apple.frameworks.diskimages skip-verify -bool true
             brew install --display-times --cask inkscape
             ;;
           esac
