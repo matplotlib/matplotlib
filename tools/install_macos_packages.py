@@ -208,7 +208,7 @@ def install_inkscape(out: list[str], err: list[str]) -> None:
 
         run_checked(
             [
-                "hdiutil", "attach", "-readonly",
+                "time", "hdiutil", "attach", "-readonly",
                 "-nobrowse", "-noverify", "-noautofsck",
                 "-mountpoint", str(mount_point), str(dmg)
             ],
@@ -217,13 +217,13 @@ def install_inkscape(out: list[str], err: list[str]) -> None:
         try:
             run_checked(
                 [
-                    "ditto", str(mount_point / "Inkscape.app"),
+                    "time", "ditto", str(mount_point / "Inkscape.app"),
                     "/Applications/Inkscape.app"
                 ],
                 out, err,
             )
         finally:
-            run_checked(["hdiutil", "detach", str(mount_point)], out, err)
+            run_checked(["time", "hdiutil", "detach", str(mount_point)], out, err)
 
 
 def install_cache_only_packages():
