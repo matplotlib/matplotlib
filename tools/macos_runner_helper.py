@@ -218,7 +218,7 @@ def main():
         exit("No command provided")
 
     command = sys.argv[1]
-    if command == "clean-runner":
+    if command == "clean":
         # `sudo mkdir -p /opt/homebrew-aside/Cellar`
         # `sudo mkdir -p /opt/homebrew-aside/Caskroom`
         # `sudo mv /opt/homebrew/.git /opt/homebrew-aside`
@@ -243,7 +243,7 @@ def main():
         )
         print(f"find took {time.perf_counter() - start:.2f}s")
 
-    elif command == "create-cache":
+    elif command == "make-cache":
         package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
         filtered_packages = package_filter.get_filtered_packages()
         filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
@@ -251,7 +251,7 @@ def main():
             ["brew", "install", "--display-times", *filtered_packages], check=True
         )
 
-    elif command == "install-packages":
+    elif command == "install":
         # Perform the following in parallel:
         # 1) `brew install --display-times` with PACKAGES
         # 2) download and install FONTS[0]

@@ -30,7 +30,45 @@ env:
   PYTHONFAULTHANDLER: 1
 
 jobs:
+  build-cache:
+    permissions:
+      contents: read
+    runs-on: macos-26
+    name: "Build brew cache"
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
+        with:
+          python-version: '3.14'
+
+      - name: Clean Runner Image
+        run: python tools/macos_runner_helper.py clean
+
+      - name: Make cache
+        run: python tools/macos_runner_helper.py make-cache
+
+      # !ci-adventures
+      - name: Size of /opt
+        run: |
+          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
+            /opt 2>/dev/null | sort -rh | head -200
+
+      - name: Save cache
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            /opt/homebrew
+            !/opt/homebrew/lib/ruby
+            !/opt/homebrew/Library/Homebrew
+          key: macos-excelsior
+
   test:
+    needs: [build-cache]
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (
@@ -71,52 +109,22 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      # !ci-adventures
-      - name: Size of /opt (Alpha)
-        run: |
-          echo "Brew formula"
-          # brew list --formula
-          echo
-          echo "Brew cask"
-          # brew list --cask
-          echo
-          # sudo du -d 4 -h /opt 2>/dev/null | sort -rh | head -50
-
       - name: Clean Runner Image
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            python tools/macos_runner_helper.py clean-runner
-            ;;
-          esac
+        run: python tools/macos_runner_helper.py clean
 
-      # !ci-adventures
-      - name: Size of /opt (Beta)
-        run: |
-          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
-            /opt 2>/dev/null | sort -rh | head -200
+      - name: Restore cache
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            /opt/homebrew
+            !/opt/homebrew/lib/ruby
+            !/opt/homebrew/Library/Homebrew
+          key: macos-excelsior
+          fail-on-cache-miss: true
 
-      - name: Install dependencies of brew packages
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            python tools/macos_runner_helper.py create-cache
-            ;;
-          esac
+      - name: Install brew packages, fonts, and inkscape
+        run: python tools/macos_runner_helper.py install
 
-      # !ci-adventures
-      - name: Size of /opt (Gamma)
-        run: |
-          sudo du -d 4 -h -I homebrew-aside -I runner-cache -I pipelinesagent-cache \
-            /opt 2>/dev/null | sort -rh | head -200
-
-      - name: Install brew packages
-        run: |
-          case "${{ runner.os }}" in
-          macOS)
-            python tools/macos_runner_helper.py install-packages
-            ;;
-          esac
 
       # !ci-adventures
       - name: Size of /opt (Delta)
