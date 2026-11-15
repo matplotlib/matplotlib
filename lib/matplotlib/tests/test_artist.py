@@ -276,6 +276,26 @@ def test_artist_set_invalid_property_raises():
         line.set(not_a_property=1)
 
 
+def test_artist_set_invalid_property_suggestion():
+    line = mlines.Line2D([0, 1], [0, 1])
+
+    with pytest.raises(AttributeError, match=r"Did you mean 'color'\?") as exc:
+        line.set(colour="red")
+    assert exc.value.name == "colour"
+
+    patch = mpatches.Rectangle((0, 0), 1, 1)
+    with pytest.raises(AttributeError, match=r"Did you mean 'facecolor'\?"):
+        patch.update({"facecolour": "red"})
+
+    with pytest.raises(AttributeError) as exc:
+        line.set(not_a_property=1)
+    assert "Did you mean" not in str(exc.value)
+
+    _, ax = plt.subplots()
+    with pytest.raises(AttributeError, match=r"Did you mean 'color'\?"):
+        ax.plot([0, 1], colour="red")
+
+
 def test_artist_set_duplicate_aliases_raises():
     """
     Test that set() raises TypeError when both a property and its alias are provided.
