@@ -31,6 +31,7 @@ env:
 
 jobs:
   build-cache:
+    if: false
     permissions:
       contents: read
     runs-on: macos-26
@@ -68,7 +69,7 @@ jobs:
           key: macos-excelsior
 
   test:
-    needs: [build-cache]
+    # needs: [build-cache]
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (
@@ -109,8 +110,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
-      - name: Clean Runner Image
-        run: python tools/macos_runner_helper.py clean
+      # - name: Clean Runner Image
+      #   run: python tools/macos_runner_helper.py clean
 
       - name: Restore cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
