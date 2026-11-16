@@ -6,8 +6,8 @@ import time
 import psutil
 
 LOG = os.environ.get("CI_MONITOR_LOG", "/tmp/ci_monitor.tsv")
-TOP_N = 20
-INTERVAL = 2.0
+TOP_N = 50
+INTERVAL = 0.25
 
 _stop = False
 

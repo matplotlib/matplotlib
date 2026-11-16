@@ -188,24 +188,10 @@ jobs:
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
-
-      - name: Run install_macos_packages.py in the background
-        run: |
-          python tools/ci_monitor.py mark "install_macos_packages.py (background)"
-          (
-            python tools/install_macos_packages.py install-all \
-              > "$RUNNER_TEMP/install.log" 2>&1 < /dev/null && code=0 || code=$?
-            echo "$code" > "$RUNNER_TEMP/install.status.tmp"
-            mv "$RUNNER_TEMP/install.status.tmp" "$RUNNER_TEMP/install.status"
-          ) > /dev/null 2>&1 < /dev/null &
-
-      - name: Wait for install_macos_packages.py to finish
-        timeout-minutes: 5
-        run: |
-          python tools/ci_monitor.py mark "Wait for install_macos_packages.py"
-          while [ ! -f "$RUNNER_TEMP/install.status" ]; do sleep 5; done
-          cat "$RUNNER_TEMP/install.log"
-          exit "$(cat "$RUNNER_TEMP/install.status")"
+      - name: Run install_macos_packages.py
+        run:
+          python tools/ci_monitor.py mark "install_macos_packages.py"
+          python tools/install_macos_packages.py install-all
 
       - name: Stop CPU monitor
         if: always()
