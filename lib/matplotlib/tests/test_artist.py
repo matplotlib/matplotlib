@@ -278,7 +278,7 @@ def test_artist_set_invalid_property_raises():
 
 @pytest.mark.parametrize("property_name, suggestion", [
     ("colour", "color"),
-    ("linewdith", "linewidth"),
+    ("linewidthw", "linewidth"),
 ])
 def test_artist_set_invalid_property_suggests_close_match(property_name, suggestion):
     line = mlines.Line2D([0, 1], [0, 1])
