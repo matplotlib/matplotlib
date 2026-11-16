@@ -156,6 +156,11 @@ jobs:
             pygobject-ver: '<3.52.0'
 
     steps:
+      - name: Disable unneeded macOS services
+        if: startsWith(runner.os, 'macOS')
+        run: |
+          sudo mdutil -a -i off
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
