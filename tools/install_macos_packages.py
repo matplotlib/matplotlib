@@ -5,8 +5,8 @@ Tool to install macOS packages on GitHub runners
 Usage: python tools/install_macos_packages.py <command>
 
 Commands:
-cache-only
-all
+install-cache-only
+install-all
 """
 
 import hashlib
@@ -20,7 +20,7 @@ import time
 import urllib.request
 
 from collections.abc import Sequence
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 # Homebrew packages that will be installed on every run. By default, the dependencies
@@ -37,25 +37,22 @@ CACHE_INCLUDE = ("gpg",)
 # Packages to explicitly exclude from the cache due to their size.
 CACHE_EXCLUDE = ("python", "icu4c", "openssl")
 
-# URLs and SHA-256 hashes of fonts to install
-FONTS = (
-    {
-        "url": "https://github.com/notofonts/noto-cjk/releases/download/"
-               "Sans2.004/00_NotoSansCJK.ttc.zip",
-        "hash": "a56077736038875f3a5b1e6715b2713a2bd049cc0bf0dfdf645927b070d38bfc"
-    },
-    {
-        "url": "https://github.com/notofonts/noto-cjk/releases/download/"
-               "Sans2.004/08_NotoSansCJKsc.zip",
-        "hash": "a927e56f53bd6c3b920bc139c0b94aa36c7d9ad0cf009b159437a1a003581140"
-    }
-)
+# Homebrew cask names of fonts to install
+FONT_PACKAGES = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
 
-# The URL and SHA-256 hash of the Inkscape DMG
-INKSCAPE = {
-    "url": "https://media.inkscape.org/dl/resources/file/Inkscape-1.4.4_arm64.dmg",
-    "hash": "eacca94ab01e59467cdd5452a2867c3734450f9a4cfb3346956cc9b07f34f3f1"
-}
+# Homebrew cask name of Inkscape
+INKSCAPE_PACKAGE = "inkscape"
+
+
+def run_brew_info(*args: str) -> dict:
+    result = subprocess.run(
+        ["brew", "info", "--json=v2", *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+
+    return json.loads(result.stdout)
 
 
 class PackageFilter:
@@ -71,23 +68,18 @@ class PackageFilter:
         self._name_map = {}
         self._tainted_cache = {}
 
-        self._get_brew_info()
+        self._fill_graph()
 
         self._excludes = {self._resolve_name(e) for e in excludes}
 
-    def _get_brew_info(self) -> None:
+    def _fill_graph(self) -> None:
         requested_packages = set(self._packages)
         pending_packages = list(self._packages)
 
         while pending_packages:
-            brew_info_result = subprocess.run(
-                ["brew", "info", "--json=v2", "--formula", *pending_packages],
-                check=True,
-                capture_output=True,
-                text=True,
-            )
+            info = run_brew_info("--formula", *pending_packages)
 
-            for formula in json.loads(brew_info_result.stdout)["formulae"]:
+            for formula in info["formulae"]:
                 dependencies = formula.get("dependencies", [])
                 full_name = formula["full_name"]
                 self._name_map[full_name] = full_name
@@ -146,132 +138,148 @@ class PackageFilter:
         return sorted(result)
 
 
-def run_checked(cmd: list[str], out: list[str], err: list[str]) -> None:
-    result = subprocess.run(cmd, capture_output=True, text=True)
-    out.append(result.stdout)
-    err.append(result.stderr)
-    if result.returncode != 0:
-        raise subprocess.CalledProcessError(result.returncode, cmd)
+def download_cask(package_name: str, dest: Path) -> None:
+    info = run_brew_info("--cask", package_name)
+    cask = info["casks"][0]
+    url = cask["url"]
+    expected_hash = cask["sha256"]
 
-
-def run_timestamped(cmd: list[str], out: list[str], err: list[str]) -> None:
-    start = time.perf_counter()
-    proc = subprocess.Popen(
-        cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
-    )
-
-    def pump(stream, sink: list[str]) -> None:
-        for line in stream:
-            sink.append(f"[{time.perf_counter() - start:8.2f}s] {line}")
-
-    threads = [
-        threading.Thread(target=pump, args=(proc.stdout, out)),
-        threading.Thread(target=pump, args=(proc.stderr, err)),
-    ]
-    for thread in threads:
-        thread.start()
-    for thread in threads:
-        thread.join()
-    returncode = proc.wait()
-    if returncode != 0:
-        raise subprocess.CalledProcessError(returncode, cmd)
-
-
-def download(url: str, expected_hash: str, dest: Path) -> None:
     urllib.request.urlretrieve(url, dest)
-    digest = hashlib.sha256(dest.read_bytes()).hexdigest()
-    if digest != expected_hash:
+    actual_hash = hashlib.sha256(dest.read_bytes()).hexdigest()
+    if (expected_hash != "no_check") and (actual_hash != expected_hash):
         raise RuntimeError(
-            f"SHA-256 mismatch for {url}: expected {expected_hash}, got {digest}"
+            f"SHA-256 mismatch for {url}: expected {expected_hash}, got {actual_hash}"
         )
 
 
-def run_task(func, *args) -> tuple[int, str, str, float]:
-    out: list[str] = []
-    err: list[str] = []
-    start = time.perf_counter()
-    try:
-        func(out, err, *args)
-        code = 0
-    except subprocess.CalledProcessError as e:
-        code = e.returncode
-    except Exception as e:
-        err.append(f"{e}\n")
-        code = 1
-    return code, "".join(out), "".join(err), time.perf_counter() - start
+class Task:
+    name: str
+    out: list[str]
+    err: list[str]
+
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.out = []
+        self.err = []
+        self._start = time.perf_counter()
+
+    def execute(self, tmp_path: Path) -> None:
+        raise NotImplementedError
+
+    def run(self, *args: str) -> None:
+        proc = subprocess.Popen(
+            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+        )
+
+        def pump(stream, sink: list[str]) -> None:
+            for line in stream:
+                sink.append(f"[{time.perf_counter() - self._start:8.2f}s] {line}")
+
+        threads = [
+            threading.Thread(target=pump, args=(proc.stdout, self.out)),
+            threading.Thread(target=pump, args=(proc.stderr, self.err)),
+        ]
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        returncode = proc.wait()
+        if returncode != 0:
+            raise subprocess.CalledProcessError(returncode, args)
+
+    def __call__(self) -> tuple[int, str, str, float]:
+        try:
+            with tempfile.TemporaryDirectory(delete=False) as tmp:
+                tmp_path = Path(tmp)
+                self.execute(tmp_path)
+            code = 0
+        except subprocess.CalledProcessError as e:
+            code = e.returncode
+        except Exception as e:
+            self.err.append(f"{e}\n")
+            code = 1
+        return (
+            code,
+            "".join(self.out),
+            "".join(self.err),
+            time.perf_counter() - self._start,
+        )
 
 
-def install_brew_packages(out: list[str], err: list[str]) -> None:
-    run_checked(["brew", "install", "--display-times", *PACKAGES], out, err)
+class InstallPackagesTask(Task):
+
+    def __init__(self, name: str, packages: Sequence[str]) -> None:
+        super().__init__(name)
+        self._packages = list(packages)
+
+    def execute(self, tmp_path: Path) -> None:
+        self.run("brew", "install", "--display-times", *self._packages)
 
 
-def install_font(out: list[str], err: list[str], font: dict[str, str]) -> None:
-    with tempfile.TemporaryDirectory() as tmp:
-        tmp_path = Path(tmp)
+class InstallFontTask(Task):
+
+    def __init__(self, package_name: str) -> None:
+        super().__init__(package_name)
+        self._package_name = package_name
+
+    def execute(self, tmp_path: Path) -> None:
         archive = tmp_path / "font.zip"
-        download(font["url"], font["hash"], archive)
+        download_cask(self._package_name, archive)
 
         extracted = tmp_path / "extracted"
-        run_checked(["unzip", "-o", str(archive), "-d", str(extracted)], out, err)
+        self.run("unzip", "-o", str(archive), "-d", str(extracted))
 
         font_dir = Path.home() / "Library" / "Fonts"
         font_dir.mkdir(parents=True, exist_ok=True)
         for path in extracted.rglob("*"):
             if path.suffix.lower() in {".ttc", ".ttf", ".otf"}:
                 shutil.copy2(path, font_dir / path.name)
-                out.append(f"Installed {path.name}\n")
+                self.out.append(f"Installed {path.name}\n")
 
 
-def install_inkscape(out: list[str], err: list[str]) -> None:
-    with tempfile.TemporaryDirectory(delete=False) as tmp:
-        tmp_path = Path(tmp)
+class InstallInkscapeTask(Task):
+
+    def __init__(self, package_name: str) -> None:
+        super().__init__(package_name)
+        self._package_name = package_name
+
+    def execute(self, tmp_path: Path) -> None:
         dmg = tmp_path / "Inkscape.dmg"
-        mount_point = tmp_path / "mnt"
-        mount_point.mkdir()
-        download(INKSCAPE["url"], INKSCAPE["hash"], dmg)
+        mnt = tmp_path / "mnt"
+        mnt.mkdir()
 
-        run_checked(
-            [
-                "hdiutil", "attach", "-readonly",
-                "-nobrowse", "-noverify", "-noautofsck",
-                "-mountpoint", str(mount_point), str(dmg)
-            ],
-            out, err,
-        )
-        run_timestamped(
-            [
-                "ditto", "-V", str(mount_point / "Inkscape.app"),
-                "/Applications/Inkscape.app"
-            ],
-            out, err,
-        )
+        download_cask(self._package_name, dmg)
+
+        self.run("hdiutil", "attach", "-readonly",
+                 "-nobrowse", "-noverify", "-noautofsck",
+                 "-mountpoint", str(mnt), str(dmg))
+        self.run("ditto", str(mnt / "Inkscape.app"), "/Applications/Inkscape.app")
 
 
 def install_cache_only_packages():
     package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
     filtered_packages = package_filter.get_filtered_packages()
     filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
-    subprocess.run(
-        ["brew", "install", "--display-times", *filtered_packages], check=True
-    )
+
+    code, out, err, _ = InstallPackagesTask("cache-only packages", filtered_packages)()
+    print(out, end="")
+    print(err, end="")
+    if code:
+        sys.exit(code)
 
 
 def install_all_packages():
-    tasks = {
-        "brew install": (install_brew_packages,),
-        "font 0": (install_font, FONTS[0]),
-        "font 1": (install_font, FONTS[1]),
-        "inkscape": (install_inkscape,),
-    }
+    tasks = [
+        InstallPackagesTask("all packages", PACKAGES),
+        *(InstallFontTask(package) for package in FONT_PACKAGES),
+        InstallInkscapeTask(INKSCAPE_PACKAGE),
+    ]
     exit_code = 0
     with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
-        futures = {
-            executor.submit(run_task, *task): name
-            for name, task in tasks.items()
-        }
-        for future in as_completed(futures):
+        futures = [(task.name, executor.submit(task)) for task in tasks]
+        for name, future in futures:
             code, out, err, elapsed = future.result()
-            print(f"::group::{futures[future]} (exit {code}, {elapsed:.2f}s)")
+            print(f"::group::{name} (exit {code}, {elapsed:.2f}s)")
             if out:
                 print(out, end="")
             if err:
@@ -288,10 +296,10 @@ def main():
         exit("No command provided")
 
     command = sys.argv[1]
-    if command == "cache-only":
+    if command == "install-cache-only":
         install_cache_only_packages()
 
-    elif command == "all":
+    elif command == "install-all":
         install_all_packages()
 
     else:
