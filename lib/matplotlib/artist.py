@@ -1,6 +1,7 @@
 from collections import namedtuple
 from collections.abc import Sequence
 import contextlib
+from difflib import get_close_matches
 from enum import StrEnum, auto
 from functools import cache, reduce, wraps
 import inspect
@@ -1315,6 +1316,10 @@ Supported properties are
             else:
                 func = getattr(self, f"set_{k}", None)
                 if not callable(func):
+                    suggestion = get_close_matches(
+                        k, ArtistInspector(self).get_setters(), n=1)
+                    if suggestion:
+                        errfmt += f". Did you mean {suggestion[0]!r}?"
                     raise AttributeError(
                         errfmt.format(cls=type(self), prop_name=k),
                         name=k)

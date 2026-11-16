@@ -276,6 +276,18 @@ def test_artist_set_invalid_property_raises():
         line.set(not_a_property=1)
 
 
+@pytest.mark.parametrize("property_name, suggestion", [
+    ("colour", "color"),
+    ("linewdith", "linewidth"),
+])
+def test_artist_set_invalid_property_suggests_close_match(property_name, suggestion):
+    line = mlines.Line2D([0, 1], [0, 1])
+
+    with pytest.raises(AttributeError,
+                       match=rf"Did you mean '{suggestion}'\?"):
+        line.set(**{property_name: 1})
+
+
 def test_artist_set_duplicate_aliases_raises():
     """
     Test that set() raises TypeError when both a property and its alias are provided.
