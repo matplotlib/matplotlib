@@ -45,22 +45,6 @@ Workflow
 * :ref:`Merge <pr-merging-maintainers>` if a
   :ref:`sufficient number of approvals <pr-approval>` is reached.
 
-.. _draft-pr:
-
-Draft PRs
----------
-
-Authors may create a `draft PR`_ (or change to draft status later) if the code
-is not yet ready for a regular full review. Typical use cases are posting code
-as a basis for discussion or signalling that you intend to rework the code as
-a result of feedback. Authors should clearly communicate why the PR has draft
-status and what needs to be done to make it ready for review. In particular,
-they should explicitly ask for targeted feedback if needed. By default,
-reviewers will not look at the code of a draft PR and only respond to specific
-questions by the author.
-
-.. _draft PR: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
-
 .. _pr-labels:
 
 Labels

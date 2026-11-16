@@ -19,8 +19,6 @@ well as you can to help make the PR process quick and smooth.
   `draft pull request <draft PR>`__ on GitHub and specify what feedback from
   the developers would be helpful.
 
-.. _draft PR: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
-
 Please be patient with reviewers. We try our best to respond quickly, but we
 have limited bandwidth. If there is no feedback within a couple of days, please
 ping us by posting a comment to your PR or reaching out on one of our
@@ -38,14 +36,12 @@ guidelines before submitting a pull request:
 
 * Changes, both new features and bugfixes, should have good test coverage. See
   :ref:`testing` for more details.
-* Update the :ref:`documentation <pr-documentation>` if necessary.
-* All public methods should have informative docstrings with sample usage when
-  appropriate. Use the :ref:`docstring standards <writing-docstrings>`.
+* Update the :ref:`documentation <pr-documentation>` if necessary, including
+  :ref:`docstring <writing-docstrings>` for public methods.
 * For high-level plotting functions, consider
   :ref:`adding a small example <writing-examples-and-tutorials>` to the
   :ref:`examples gallery <gallery>`.
-* If you add a new feature or change the API in a backward-incompatible
-  way, please document it as described in :ref:`api_changes`.
+* Document new features and API changes in :ref:`api_changes`.
 * Code should follow our conventions as documented in our
   :ref:`coding_guidelines`.
 * When adding or changing public function signatures, add
@@ -57,21 +53,16 @@ When opening a pull request on Github, please ensure that:
 
 .. rst-class:: checklist
 
+* Add an informative title and description for your pull request. Mention
+  `the issue <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
+  your pull request addresses, if that's the case.
 * Changes were made on a :ref:`feature branch <git-overview>` (i.e. not on the
   ``main`` branch.)
 * :ref:`prek <pre-commit-hooks>` checks for spelling, formatting, etc pass
 * The pull request targets the :ref:`main branch <pr-branch-selection>`
-* If your pull request addresses an issue, please use the title to describe the
-  issue (e.g. "Add ability to plot timedeltas") and mention the issue number
-  in the pull request description to ensure that a link is created to the
-  original issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the
-  original issue mentioned is automatically closed when your PR is merged. For more
-  details, see
-  `linking an issue and pull request <https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__.
 * :ref:`pr-automated-tests` pass
-* You follow the Pull Request template, which includes a checklist of items to
-  verify before submitting your PR and an :ref:`AI Disclosure <generative_ai>`
-  section.
+* You follow the Pull Request template, including the
+  :ref:`AI Disclosure <generative_ai>` section.
 
 For guidance on creating and managing a pull request, please see our
 :ref:`contributing <contributing>` and :ref:`pull request workflow <edit-flow>`
@@ -108,6 +99,17 @@ Documentation
 * See how to :ref:`write documentation <write-documentation>` for Matplotlib and
   consult our :ref:`documentation style guide <document_style>`.
 
+Linking issues
+==============
+
+If your pull request addresses an issue, please use the title to describe the
+issue (e.g. "Add ability to plot timedeltas") and mention the issue number in
+the pull request description to ensure that a link is created to the original
+issue (e.g. "Closes #8869" or "Fixes #8869"). This will ensure the original
+issue mentioned is automatically closed when your PR is merged. See
+`<https://docs.github.com/en/issues/tracking-your-work-with-issues/linking-a-pull-request-to-an-issue>`__
+for more information.
+
 Next steps
 ==========
 
@@ -130,6 +132,22 @@ Automated tests
 Before being merged, a PR should pass the :ref:`automated-tests`. If you are
 unsure why a test is failing, ask on the PR or in one of our
 :ref:`communication-channels`.
+
+.. _draft-pr:
+
+Draft PRs
+---------
+
+Authors may create a `draft PR`_ (or change to draft status later) if the code
+is not yet ready for a regular full review. Typical use cases are posting code
+as a basis for discussion or signalling that you intend to rework the code as
+a result of feedback. Authors should clearly communicate why the PR has draft
+status and what needs to be done to make it ready for review. In particular,
+they should explicitly ask for targeted feedback if needed. By default,
+reviewers will not look at the code of a draft PR and only respond to specific
+questions by the author.
+
+.. _draft PR: https://docs.github.com/en/github/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests#draft-pull-requests
 
 Approval
 --------
