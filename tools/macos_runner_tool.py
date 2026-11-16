@@ -273,7 +273,7 @@ class Task:
 
 
 class DisableServicesTask(Task):
-    def __init__(self, name: str, services: Sequence[tuple(str, str)]) -> None:
+    def __init__(self, services: Sequence[tuple(str, str)]) -> None:
         super().__init__("disable services")
         self._services = list(services)
 
