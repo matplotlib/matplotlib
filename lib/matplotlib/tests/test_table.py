@@ -303,4 +303,3 @@ def test_table_empty_celltext():
     msg_color_col = "'cellColours' must contain at least one column."
     with pytest.raises(ValueError, match=msg_color_col):
         ax.table(cellColours=[[]])
-
