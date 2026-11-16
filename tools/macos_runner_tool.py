@@ -91,6 +91,12 @@ SERVICES = (
     ("user", "com.apple.routined"),
 )
 
+PROCESSES_TO_KILL = (
+    r"^[Ss]iri.*",
+    r"Safari",
+    r"Intelligence",
+)
+
 
 def run_brew_info(*args: str) -> dict:
     result = subprocess.run(
@@ -282,8 +288,6 @@ class DisableServicesTask(Task):
         self._services = list(services)
 
     def execute(self, tmp_path: Path) -> None:
-        self.run("sudo", "mdutil", "-a", "-i", "off")
-
         for domain, name in self._services:
             if domain == "gui":
                 specifier = f"gui/501/{name}"
@@ -297,6 +301,12 @@ class DisableServicesTask(Task):
             try:
                 self.run("sudo", "launchctl", "bootout", specifier)
                 self.run("sudo", "launchctl", "disable", specifier)
+            except subprocess.CalledProcessError:
+                pass
+
+        for pattern in PROCESSES_TO_KILL:
+            try:
+                self.run("killall", "-9", "-m", pattern)
             except subprocess.CalledProcessError:
                 pass
 

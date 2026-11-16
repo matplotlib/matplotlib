@@ -174,7 +174,9 @@ jobs:
 
       - name: Disable unneeded macOS services
         if: startsWith(runner.os, 'macOS')
-        run: python tools/macos_runner_tool.py disable-services
+        run: |
+          sudo mdutil -a -i off >/dev/null 2>&1 &
+          python tools/macos_runner_tool.py disable-services
 
       - name: Start CPU monitor
         run: |
