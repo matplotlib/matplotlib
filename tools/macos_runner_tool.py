@@ -251,7 +251,7 @@ class Task:
             self.out.extend(lines)
             if returncode != 0:
                 self.out.append(
-                    f"Command {' '.join(args)} failed - {returncode}"
+                    f"Command {' '.join(args)} failed - {returncode}\n"
                 )
 
         for (_, returncode), args in zip(results, cmds):
@@ -284,7 +284,6 @@ class DisableServicesTask(Task):
     def execute(self, tmp_path: Path) -> None:
         self.run("sudo", "mdutil", "-a", "-i", "off")
 
-        bootouts = []
         for domain, name in self._services:
             if domain == "gui":
                 specifier = f"gui/501/{name}"
@@ -295,12 +294,11 @@ class DisableServicesTask(Task):
             else:
                 raise ValueError(f"Unsupported domain: {domain}")
 
-            bootouts.append(("sudo", "launchctl", "bootout", specifier))
-
-        try:
-            self.run_in_parallel(tuple(bootouts))
-        except subprocess.CalledProcessError:
-            pass
+            try:
+                self.run("sudo", "launchctl", "bootout", specifier)
+                self.run("sudo", "launchctl", "disable", specifier)
+            except subprocess.CalledProcessError:
+                pass
 
 
 class InstallPackagesTask(Task):
