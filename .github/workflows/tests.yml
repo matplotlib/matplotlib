@@ -193,6 +193,145 @@ jobs:
           python tools/ci_monitor.py mark "install_macos_packages.py"
           python tools/install_macos_packages.py install-all
 
+      - name: Update monitor mark
+        run:
+          python tools/ci_monitor.py mark "Install Python dependencies"
+
+      - name: Cache pip
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: startsWith(runner.os, 'Linux')
+        with:
+          path: ~/.cache/pip
+          key: |
+            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{
+            hashFiles('pyproject.toml', 'ci/minver-requirements.txt') }}
+          restore-keys: |
+            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
+      - name: Cache pip
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        if: startsWith(runner.os, 'macOS')
+        with:
+          path: ~/Library/Caches/pip
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
+          restore-keys: |
+            ${{ matrix.os }}-py${{ matrix.python-version }}-pip-
+      - name: Cache ccache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            ~/.ccache
+          key: ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-${{ hashFiles('src/*') }}
+          restore-keys: |
+            ${{ matrix.os }}-py${{ matrix.python-version }}-ccache-
+      - name: Cache Matplotlib
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        with:
+          path: |
+            ~/.cache/matplotlib
+            !~/.cache/matplotlib/tex.cache
+            !~/.cache/matplotlib/test_cache
+          key: 6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-${{ github.sha }}
+          restore-keys: |
+            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
+            6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
+
+      - name: Install Python dependencies
+        run: |
+          # Upgrade pip and setuptools and wheel to get as clean an install as
+          # possible.
+          python -m pip install --upgrade pip setuptools wheel
+
+          # Install pre-release versions during our weekly upcoming dependency tests.
+          if [[ "${{ github.event_name }}" == 'schedule'
+                && "${{ matrix.name-suffix }}" != '(Minimum Versions)' ]]; then
+            PRE="--pre"
+          fi
+
+          # Install dependencies from PyPI.
+          # Preinstall build requirements to enable no-build-isolation builds.
+          python -m pip install --upgrade $PRE --prefer-binary \
+            --group build --group test ${{ matrix.extra-requirements }}
+
+          # Install optional dependencies from PyPI.
+          # Sphinx is needed to run sphinxext tests
+          python -m pip install --upgrade sphinx!=6.1.2
+
+          if [[ "${{ matrix.python-version }}" != 3.*t && "${{ matrix.python-version }}" != 3.15 ]]; then
+          # GUI toolkits are pip-installable only for some versions of Python
+          # so don't fail if we can't install them.  Make it easier to check
+          # whether the install was successful by trying to import the toolkit
+          # (sometimes, the install appears to be successful but shared
+          # libraries cannot be loaded at runtime, so an actual import is a
+          # better check).
+          python -m pip install --upgrade pycairo 'cairocffi>=0.8' 'PyGObject${{ matrix.pygobject-ver }}' &&
+            (
+              python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
+              echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+            ) && (
+              python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
+              echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
+            )
+
+          # PyQt5 does not have any wheels for ARM on Linux.
+          if [[ "${{ matrix.os }}" != 'ubuntu-24.04-arm' ]]; then
+            python -mpip install --upgrade --only-binary :all: pyqt5 &&
+              python -c 'import PyQt5.QtCore' &&
+              echo 'PyQt5 is available' ||
+              echo 'PyQt5 is not available'
+          fi
+          python -mpip install --upgrade --only-binary :all: pyqt6 &&
+            python -c 'import PyQt6.QtCore' &&
+            echo 'PyQt6 is available' ||
+            echo 'PyQt6 is not available'
+          python -mpip install --upgrade --only-binary :all: pyside6 &&
+            python -c 'import PySide6.QtCore' &&
+            echo 'PySide6 is available' ||
+            echo 'PySide6 is not available'
+
+          python -mpip install --upgrade --only-binary :all: \
+            -f "https://extras.wxpython.org/wxPython4/extras/linux/gtk3/${{ matrix.os }}" \
+            wxPython &&
+            python -c 'import wx' &&
+            echo 'wxPython is available' ||
+            echo 'wxPython is not available'
+
+          fi  # Skip backends on Python 3.*t.
+
+      - name: Install the nightly dependencies
+        # Only install the nightly dependencies during the scheduled event
+        if: github.event_name == 'schedule' && matrix.name-suffix != '(Minimum Versions)'
+        run: |
+          python -m pip install pytz tzdata  # Must be installed for Pandas.
+          python -m pip install \
+            --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
+            --upgrade --only-binary=:all: numpy pandas
+
+      - name: Update monitor mark
+        run:
+          python tools/ci_monitor.py mark "Install Matplotlib"
+
+      - name: Install Matplotlib
+        run: |
+          ccache -s
+          git describe
+
+          # Set flag in a delayed manner to avoid issues with installing other
+          # packages
+          if [[ "${{ runner.os }}" == 'macOS' ]]; then
+            export CPPFLAGS='-fprofile-instr-generate=default.%m.profraw'
+            export CPPFLAGS="$CPPFLAGS -fcoverage-mapping"
+          else
+            export CPPFLAGS='--coverage -fprofile-abs-path -fprofile-update=prefer-atomic'
+          fi
+
+          python -m pip install --no-deps --no-build-isolation --verbose \
+            --config-settings=setup-args="-DrcParams-backend=Agg" \
+            --editable .[dev]
+
+          if [[ "${{ runner.os }}" != 'macOS' ]]; then
+            unset CPPFLAGS
+          fi
+
       - name: Stop CPU monitor
         if: always()
         run: kill "$(cat /tmp/ci_monitor.pid)" || true
