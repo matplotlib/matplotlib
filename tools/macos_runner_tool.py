@@ -1,20 +1,39 @@
 #!/usr/bin/env python3
 """
-Tool to optimize the performance of GitHub macOS runners
+Optimize the performance of GitHub macOS runners.
 
-Usage: python tools/macos_runner_tool.py <command>
+Run as ``python tools/macos_runner_tool.py <command>``.
 
-Commands:
+Notes
+-----
+The following commands are available.
+
 disable-services
+    Disables various unneeded macOS system services which waste
+    resources better spent installing packages or compiling.
+
 install-cache-only-packages
+    Prepares our GitHub Actions cache by installing all dependencies
+    of PACKAGES except for those which would trigger the installation
+    of those in CACHE_EXCLUDE. Packages in CACHE_INCLUDE are also installed.
+
+    This command is intended to be used by the macos-cache.yml Action.
+
 install-all-packages
+    Performs the following in parallel:
 
+    - Uses `brew install` to install all PACKAGES.
+    - Manually installs each font specified by FONT_CASKS.
+    - Manually installs Inkscape.
 
+    This command is intended to be used by test runners.
 """
+
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -91,6 +110,8 @@ SERVICES = (
     ("user", "com.apple.routined"),
 )
 
+# Lingering processes to kill after disabling system services.
+# Exercise caution as `killall -9 -m` uses partial matching.
 PROCESSES_TO_KILL = (
     r"^[Ss]iri.*",
     r"Safari",
@@ -99,6 +120,7 @@ PROCESSES_TO_KILL = (
 
 
 def run_brew_info(*args: str) -> dict:
+    """Return Homebrew package metadata for the requested formulae or casks."""
     result = subprocess.run(
         ["brew", "info", "--json=v2", *args],
         check=True,
@@ -110,6 +132,42 @@ def run_brew_info(*args: str) -> dict:
 
 
 class PackageFilter:
+    """
+    Generate a filtered list of Homebrew dependencies.
+
+    The list contains all dependencies of the specified base `packages`,
+    minus the `excludes` and everything that depends on them.
+
+    Consider the following dependency graph:
+
+    A       B   C
+    |           |
+    +---+       +---+
+    |   |       |   |
+    D   E       F   G
+                    |
+                    +---+
+                    |   |
+                    H   I
+                    |
+                    J
+
+    (A, B, C) will never be included in the result as they are base packages.
+
+    If we exclude H: both H (the excluded package) and G (its dependent)
+    will be excluded. The end result will be: (D, E, F, I, J)
+
+    The goal of this class is to install as many Homebrew packages as possible
+    in our cache without triggering the inclusion of large packages.
+
+    Parameters
+    ----------
+    packages : sequence of str
+        The base packages whose dependencies are considered.
+    excludes : sequence of str
+        The packages to exclude, along with any package that depends on them.
+    """
+
     _packages: list[str]
     _excludes: set[str]
     _dependencies: dict[str, list[str]]
@@ -125,9 +183,12 @@ class PackageFilter:
         self._excludes = {self._resolve_name(e) for e in excludes}
 
     def _fill_graph(self) -> None:
+        """Populate ``_name_map`` and ``_dependencies`` using `brew info`."""
         requested_packages = set(self._packages)
         pending_packages = list(self._packages)
 
+        # As an optimization, run `brew info` on one "layer" at a time
+        # rather than per-formula.
         while pending_packages:
             info = run_brew_info("--formula", *pending_packages)
 
@@ -148,13 +209,16 @@ class PackageFilter:
             requested_packages.update(pending_packages)
 
     def _resolve_name(self, name: str) -> str:
+        """Return the canonical full_name of the named package."""
         name = name.split("@")[0]
         return self._name_map.get(name, name)
 
     def is_excluded(self, name: str) -> bool:
+        """Return whether the named package is in the exclude list."""
         return self._resolve_name(name) in self._excludes
 
     def has_excluded_dependency(self, name: str) -> bool:
+        """Return whether the named package has a dependency in the exclude list."""
         name = self._resolve_name(name)
         seen = {name}
         stack = [name]
@@ -171,6 +235,15 @@ class PackageFilter:
         return False
 
     def get_filtered_packages(self) -> list[str]:
+        """
+        Return all packages installable without installing an excluded one.
+
+        Returns
+        -------
+        list of str
+            The sorted names of the packages that can be installed without
+            triggering the installation of an excluded package.
+        """
         result = set()
         seen = set()
         stack = list(self._packages)
@@ -190,14 +263,34 @@ class PackageFilter:
         return sorted(result)
 
 
-def download_cask(package_name: str, dest: Path) -> None:
-    info = run_brew_info("--cask", package_name)
+def download_cask(name: str, destination: Path) -> None:
+    """
+    Download the named Homebrew cask to the specified destination.
+
+    The URL and SHA-256 hash of the cask are looked up with `brew info`.
+    """
+    ATTEMPTS = 3
+    TIMEOUT = 60
+
+    info = run_brew_info("--cask", name)
     cask = info["casks"][0]
     url = cask["url"]
     expected_hash = cask["sha256"]
 
-    urllib.request.urlretrieve(url, dest)
-    actual_hash = hashlib.sha256(dest.read_bytes()).hexdigest()
+    for attempt in range(ATTEMPTS):
+        try:
+            timeout = TIMEOUT
+            with urllib.request.urlopen(url, timeout=timeout) as response:
+                with destination.open("wb") as f:
+                    shutil.copyfileobj(response, f)
+            break
+        except OSError as e:
+            permanent = isinstance(e, urllib.error.HTTPError) and e.code < 500
+            if permanent or attempt == ATTEMPTS - 1:
+                raise
+            time.sleep(2 ** attempt)
+
+    actual_hash = hashlib.sha256(destination.read_bytes()).hexdigest()
     if (expected_hash != "no_check") and (actual_hash != expected_hash):
         raise RuntimeError(
             f"SHA-256 mismatch for {url}: expected {expected_hash}, got {actual_hash}"
@@ -205,6 +298,11 @@ def download_cask(package_name: str, dest: Path) -> None:
 
 
 def run_tasks(*tasks: Task) -> None:
+    """
+    Run the specified tasks in parallel using a ThreadPoolExecutor.
+
+    The output of each task is printed using GitHub Actions grouping syntax.
+    """
     exit_code = 0
     with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
         futures = [(task.name, executor.submit(task)) for task in tasks]
@@ -221,6 +319,7 @@ def run_tasks(*tasks: Task) -> None:
 
 
 class Task:
+    """Represent an abstract task. Used with `run_tasks`."""
     name: str
     out: list[str]
 
@@ -230,39 +329,49 @@ class Task:
         self._start = time.perf_counter()
 
     def execute(self, tmp_path: Path) -> None:
+        """
+        Perform the work of the task.
+
+        Parameters
+        ----------
+        tmp_path : pathlib.Path
+            A temporary directory available to the task.
+
+        Raises
+        ------
+        NotImplementedError
+            Always, unless overridden by a subclass.
+        """
         raise NotImplementedError
 
     def run(self, *args: str) -> None:
-        self.run_in_parallel((args,))
+        """
+        Run a subprocess and collect its output with timestamps.
 
-    def run_in_parallel(self, cmds: tuple[tuple[str, ...], ...]) -> None:
-        procs = [
-            subprocess.Popen(
-                args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-            )
-            for args in cmds
-        ]
+        Parameters
+        ----------
+        *args : str
+            The command and its arguments.
 
-        def drain(proc: subprocess.Popen[str]) -> tuple[list[str], int]:
-            lines = [
-                f"[{time.perf_counter() - self._start:8.2f}s] {line}"
-                for line in proc.stdout
-            ]
-            return lines, proc.wait()
+        Raises
+        ------
+        subprocess.CalledProcessError
+            If the subprocess exits with a non-zero status.
+        """
+        with subprocess.Popen(
+            args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+        ) as proc:
+            for line in proc.stdout:
+                self.out.append(f"[{time.perf_counter() - self._start:8.2f}s] {line}")
+        if proc.returncode != 0:
+            raise subprocess.CalledProcessError(proc.returncode, args)
 
-        with ThreadPoolExecutor(max_workers=max(len(procs), 1)) as pool:
-            results = list(pool.map(drain, procs))
-
-        for (lines, returncode), args in zip(results, cmds):
-            self.out.extend(lines)
-            if returncode != 0:
-                self.out.append(
-                    f"Command {' '.join(args)} failed - {returncode}\n"
-                )
-
-        for (_, returncode), args in zip(results, cmds):
-            if returncode != 0:
-                raise subprocess.CalledProcessError(returncode, args)
+    def run_ignoring_errors(self, *args: str) -> None:
+        """Run a subprocess, ignoring a non-zero exit status."""
+        try:
+            self.run(*args)
+        except subprocess.CalledProcessError:
+            pass
 
     def __call__(self) -> tuple[int, str, float]:
         try:
@@ -275,43 +384,33 @@ class Task:
         except Exception as e:
             self.out.append(f"{e}\n")
             code = 1
-        return (
-            code,
-            "".join(self.out),
-            time.perf_counter() - self._start,
-        )
+        return (code, "".join(self.out), time.perf_counter() - self._start)
 
 
 class DisableServicesTask(Task):
-    def __init__(self, services: Sequence[tuple(str, str)]) -> None:
+    """Disable various unneeded macOS system services."""
+
+    def __init__(self, services: Sequence[tuple[str, str]]) -> None:
         super().__init__("disable services")
         self._services = list(services)
 
     def execute(self, tmp_path: Path) -> None:
         for domain, name in self._services:
-            if domain == "gui":
-                specifier = f"gui/501/{name}"
-            elif domain == "user":
-                specifier = f"user/501/{name}"
-            elif domain == "system":
-                specifier = f"system/{name}"
-            else:
+            if domain not in {"gui", "user", "system"}:
                 raise ValueError(f"Unsupported domain: {domain}")
 
-            try:
-                self.run("sudo", "launchctl", "bootout", specifier)
-                self.run("sudo", "launchctl", "disable", specifier)
-            except subprocess.CalledProcessError:
-                pass
+            uid = "" if domain == "system" else f"{os.getuid()}/"
+            specifier = f"{domain}/{uid}{name}"
+
+            self.run_ignoring_errors("sudo", "launchctl", "bootout", specifier)
+            self.run_ignoring_errors("sudo", "launchctl", "disable", specifier)
 
         for pattern in PROCESSES_TO_KILL:
-            try:
-                self.run("killall", "-9", "-m", pattern)
-            except subprocess.CalledProcessError:
-                pass
+            self.run_ignoring_errors("sudo", "killall", "-9", "-m", pattern)
 
 
 class InstallPackagesTask(Task):
+    """Perform a `brew install` of the specified packages."""
 
     def __init__(self, name: str, packages: Sequence[str]) -> None:
         super().__init__(name)
@@ -322,6 +421,7 @@ class InstallPackagesTask(Task):
 
 
 class InstallFontTask(Task):
+    """Download and install a font."""
 
     def __init__(self, package_name: str) -> None:
         super().__init__(package_name)
@@ -343,6 +443,7 @@ class InstallFontTask(Task):
 
 
 class InstallInkscapeTask(Task):
+    """Download and install Inkscape."""
 
     def __init__(self, package_name: str) -> None:
         super().__init__(package_name)
@@ -361,25 +462,20 @@ class InstallInkscapeTask(Task):
         self.run("ditto", str(mnt / "Inkscape.app"), "/Applications/Inkscape.app")
 
 
-def main():
+def main() -> None:
     if len(sys.argv) < 2:
         exit("No command provided")
 
     command = sys.argv[1]
 
     if command == "disable-services":
-        run_tasks(
-            DisableServicesTask(SERVICES),
-        )
+        run_tasks(DisableServicesTask(SERVICES))
 
     elif command == "install-cache-only-packages":
         package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
         filtered_packages = package_filter.get_filtered_packages()
         filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
-
-        run_tasks(
-            InstallPackagesTask("cache-only packages", filtered_packages)
-        )
+        run_tasks(InstallPackagesTask("cache-only packages", filtered_packages))
 
     elif command == "install-all-packages":
         run_tasks(
@@ -389,7 +485,7 @@ def main():
         )
 
     else:
-        exit(f"Unknown command: {command}")
+        sys.exit(f"Unknown command: {command}")
 
 
 if __name__ == "__main__":
