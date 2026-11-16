@@ -286,3 +286,16 @@ def test_table_fontsize():
     assert cell_fontsize == test_fontsize, f"Actual:{test_fontsize},got:{cell_fontsize}"
     cell_fontsize = t[(1, 1)].get_fontsize()
     assert cell_fontsize == test_fontsize, f"Actual:{test_fontsize},got:{cell_fontsize}"
+
+
+def test_table_empty_celltext():
+    fig, ax = plt.subplots()
+    with pytest.raises(ValueError, match="'cellText' must contain at least one row."):
+        ax.table(cellText=[])
+    with pytest.raises(ValueError, match="'cellText' must contain at least one column."):
+        ax.table(cellText=[[]])
+    with pytest.raises(ValueError, match="'cellColours' must contain at least one row."):
+        ax.table(cellColours=[])
+    with pytest.raises(ValueError, match="'cellColours' must contain at least one column."):
+        ax.table(cellColours=[[]])
+

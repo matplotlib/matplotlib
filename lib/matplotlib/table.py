@@ -750,6 +750,10 @@ def table(ax,
 
     # Check we have some cellText
     if cellText is None:
+        if len(cellColours) == 0:
+            raise ValueError("'cellColours' must contain at least one row.")
+        if len(cellColours[0]) == 0:
+            raise ValueError("'cellColours' must contain at least one column.")
         # assume just colours are needed
         rows = len(cellColours)
         cols = len(cellColours[0])
@@ -771,7 +775,11 @@ def table(ax,
         cellText = cellText.values
 
     rows = len(cellText)
+    if rows == 0:
+        raise ValueError("'cellText' must contain at least one row.")
     cols = len(cellText[0])
+    if cols == 0:
+        raise ValueError("'cellText' must contain at least one column.")
     for row in cellText:
         if len(row) != cols:
             raise ValueError(f"Each row in 'cellText' must have {cols} "
