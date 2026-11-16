@@ -158,6 +158,7 @@ jobs:
     steps:
       - name: Disable unneeded macOS services
         if: startsWith(runner.os, 'macOS')
+        continue-on-error: true
         run: |
           sudo mdutil -a -i off
           sudo launchctl bootout system/com.apple.coreduetd
