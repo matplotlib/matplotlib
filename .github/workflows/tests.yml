@@ -160,34 +160,44 @@ jobs:
         if: startsWith(runner.os, 'macOS')
         shell: bash {0}
         run: |
-          sudo mdutil -a -i off
-          sudo launchctl bootout system/com.apple.coreduetd
-          sudo launchctl bootout system/com.apple.triald.system
-          sudo launchctl bootout gui/501/com.apple.callintelligenced
-          sudo launchctl bootout gui/501/com.apple.duetexpertd
-          sudo launchctl bootout gui/501/com.apple.homed
-          sudo launchctl bootout gui/501/com.apple.intelligencecontextd
-          sudo launchctl bootout gui/501/com.apple.intelligenceflowd
-          sudo launchctl bootout gui/501/com.apple.intelligenceplatformd
-          sudo launchctl bootout gui/501/com.apple.intelligencetasksd
-          sudo launchctl bootout gui/501/com.apple.knowledge-agent
-          sudo launchctl bootout gui/501/com.apple.knowledgeconstructiond
-          sudo launchctl bootout gui/501/com.apple.mediaanalysisd
-          sudo launchctl bootout gui/501/com.apple.parsec-fbf
-          sudo launchctl bootout gui/501/com.apple.parsecd
-          sudo launchctl bootout gui/501/com.apple.proactived
-          sudo launchctl bootout gui/501/com.apple.proactiveeventtrackerd
-          sudo launchctl bootout gui/501/com.apple.routined
-          sudo launchctl bootout gui/501/com.apple.siriactionsd
-          sudo launchctl bootout gui/501/com.apple.siriappintentsd
-          sudo launchctl bootout gui/501/com.apple.siriinferenced
-          sudo launchctl bootout gui/501/com.apple.siriknowledged
-          sudo launchctl bootout gui/501/com.apple.sirittsd
-          sudo launchctl bootout gui/501/com.apple.spotlightknowledged
-          sudo launchctl bootout gui/501/com.apple.suggestd
-          sudo launchctl bootout gui/501/com.apple.triald
-          sudo launchctl bootout gui/501/com.apple.visualintelligenced
-          sudo launchctl bootout gui/501/com.apple.weatherd
+          sudo mdutil -a -i off >/dev/null 2>&1 &
+          services=(
+            gui/501/com.apple.callintelligenced
+            gui/501/com.apple.duetexpertd
+            gui/501/com.apple.homed
+            gui/501/com.apple.intelligencecontextd
+            gui/501/com.apple.intelligenceflowd
+            gui/501/com.apple.intelligenceplatformd
+            gui/501/com.apple.intelligencetasksd
+            gui/501/com.apple.knowledge-agent
+            gui/501/com.apple.knowledgeconstructiond
+            gui/501/com.apple.mediaanalysisd
+            gui/501/com.apple.parsec-fbf
+            gui/501/com.apple.parsecd
+            gui/501/com.apple.proactived
+            gui/501/com.apple.proactiveeventtrackerd
+            gui/501/com.apple.routined
+            gui/501/com.apple.Safari.History
+            gui/501/com.apple.Safari.PasswordBreachAgent
+            gui/501/com.apple.Safari.SafeBrowsing.Service
+            gui/501/com.apple.SafariBookmarksSyncAgent
+            gui/501/com.apple.SafariLaunchAgent
+            gui/501/com.apple.siriactionsd
+            gui/501/com.apple.siriappintentsd
+            gui/501/com.apple.siriinferenced
+            gui/501/com.apple.siriknowledged
+            gui/501/com.apple.sirittsd
+            gui/501/com.apple.spotlightknowledged
+            gui/501/com.apple.suggestd
+            gui/501/com.apple.triald
+            gui/501/com.apple.visualintelligenced
+            gui/501/com.apple.weatherd
+            system/com.apple.coreduetd
+            system/com.apple.triald.system
+          )
+          for service in "${services[@]}"; do
+            sudo launchctl bootout "$service" >/dev/null 2>&1 &
+          done
 
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
