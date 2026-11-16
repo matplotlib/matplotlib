@@ -14,6 +14,7 @@ env:
   NO_AT_BRIDGE: 1  # Necessary for GTK3 interactive test.
   OPENBLAS_NUM_THREADS: 1
   PYTHONFAULTHANDLER: 1
+  CI_MONITOR_LOG: /tmp/ci_monitor.tsv
 
 jobs:
   build-cache:
@@ -55,6 +56,14 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Start CPU monitor
+        if: steps.check.outputs.exists != 'true'
+        run: |
+          python -m pip install psutil
+          nohup python tools/ci_monitor.py run > /dev/null 2>&1 &
+          echo $! > /tmp/ci_monitor.pid
+          python tools/ci_monitor.py mark "Clean Runner Image"
+
       - name: Clean Runner Image
         if: steps.check.outputs.exists != 'true'
         run: |
@@ -66,11 +75,14 @@ jobs:
 
       - name: Install cache-only packages
         if: steps.check.outputs.exists != 'true'
-        run: python tools/install_macos_packages.py cache-only
+        run: |
+          python tools/ci_monitor.py mark "Install cache-only packages"
+          python tools/install_macos_packages.py cache-only
 
       - name: Prepare /opt/homebrew for cache
         if: steps.check.outputs.exists != 'true'
-        run:
+        run: |
+          python tools/ci_monitor.py mark "Prepare /opt/homebrew for cache"
           to_remove=(
             /opt/homebrew/.git
             /opt/homebrew/.github
@@ -88,6 +100,7 @@ jobs:
       - name: Report /opt/homebrew size
         if: steps.check.outputs.exists != 'true'
         run: |
+          python tools/ci_monitor.py mark "Report /opt/homebrew size"
           sudo du -d 4 -h -I \
             /opt/homebrew 2>/dev/null | sort -rh | head -200
 
@@ -97,6 +110,19 @@ jobs:
         with:
           path: /opt/homebrew
           key: ${{ env.CACHE_KEY }}
+
+      - name: Stop CPU monitor
+        if: always() && steps.check.outputs.exists != 'true'
+        run: kill "$(cat /tmp/ci_monitor.pid)" || true
+
+      - name: Upload CPU monitor log
+        if: always() && steps.check.outputs.exists != 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: ci-monitor-build-cache-${{ matrix.os }}
+          path: ${{ env.CI_MONITOR_LOG }}
+          if-no-files-found: ignore
+          retention-days: 14
 
   test:
     needs: build-cache
@@ -146,6 +172,13 @@ jobs:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
 
+      - name: Start CPU monitor
+        run: |
+          python -m pip install psutil
+          nohup python tools/ci_monitor.py run > /dev/null 2>&1 &
+          echo $! > /tmp/ci_monitor.pid
+          python tools/ci_monitor.py mark "Restore Homebrew cache"
+
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
@@ -158,6 +191,7 @@ jobs:
 
       - name: Run install_macos_packages.py in the background
         run: |
+          python tools/ci_monitor.py mark "install_macos_packages.py (background)"
           (
             python tools/install_macos_packages.py install-all \
               > "$RUNNER_TEMP/install.log" 2>&1 < /dev/null && code=0 || code=$?
@@ -168,6 +202,20 @@ jobs:
       - name: Wait for install_macos_packages.py to finish
         timeout-minutes: 5
         run: |
+          python tools/ci_monitor.py mark "Wait for install_macos_packages.py"
           while [ ! -f "$RUNNER_TEMP/install.status" ]; do sleep 5; done
           cat "$RUNNER_TEMP/install.log"
           exit "$(cat "$RUNNER_TEMP/install.status")"
+
+      - name: Stop CPU monitor
+        if: always()
+        run: kill "$(cat /tmp/ci_monitor.pid)" || true
+
+      - name: Upload CPU monitor log
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: ci-monitor-test-${{ matrix.os }}
+          path: ${{ env.CI_MONITOR_LOG }}
+          if-no-files-found: ignore
+          retention-days: 1
