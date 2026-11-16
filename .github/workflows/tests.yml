@@ -189,7 +189,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run install_macos_packages.py
-        run:
+        run: |
           python tools/ci_monitor.py mark "install_macos_packages.py"
           python tools/install_macos_packages.py install-all
 
