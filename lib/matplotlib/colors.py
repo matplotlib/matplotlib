@@ -1219,6 +1219,9 @@ class LinearSegmentedColormap(Colormap):
         """
         if not np.iterable(colors):
             raise ValueError('colors must be iterable')
+        colors = list(colors)
+        if len(colors) == 0:
+            raise ValueError('colors must not be empty')
 
         try:
             # Assume the passed colors are a list of colors

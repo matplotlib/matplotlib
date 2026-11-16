@@ -1853,6 +1853,11 @@ def test_LinearSegmentedColormap_from_list_invalid_inputs(colors):
         mcolors.LinearSegmentedColormap.from_list("lsc", colors)
 
 
+def test_LinearSegmentedColormap_from_list_empty():
+    with pytest.raises(ValueError, match="colors must not be empty"):
+        mcolors.LinearSegmentedColormap.from_list("lsc", [])
+
+
 def test_LinearSegmentedColormap_from_list_value_color_tuple():
     value_color_tuples = [(0, "red"), (0.6, "blue"), (1, "green")]
     cmap = mcolors.LinearSegmentedColormap.from_list("lsc", value_color_tuples, N=11)
