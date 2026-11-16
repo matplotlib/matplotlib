@@ -77,7 +77,7 @@ jobs:
         if: steps.check.outputs.exists != 'true'
         run: |
           python tools/ci_monitor.py mark "Install cache-only packages"
-          python tools/install_macos_packages.py cache-only
+          python tools/macos_runner_tool.py install-cache-only-packages
 
       - name: Prepare /opt/homebrew for cache
         if: steps.check.outputs.exists != 'true'
@@ -156,49 +156,6 @@ jobs:
             pygobject-ver: '<3.52.0'
 
     steps:
-      - name: Disable unneeded macOS services
-        if: startsWith(runner.os, 'macOS')
-        shell: bash {0}
-        run: |
-          sudo mdutil -a -i off >/dev/null 2>&1 &
-          services=(
-            gui/501/com.apple.callintelligenced
-            gui/501/com.apple.duetexpertd
-            gui/501/com.apple.homed
-            gui/501/com.apple.intelligencecontextd
-            gui/501/com.apple.intelligenceflowd
-            gui/501/com.apple.intelligenceplatformd
-            gui/501/com.apple.intelligencetasksd
-            gui/501/com.apple.knowledge-agent
-            gui/501/com.apple.knowledgeconstructiond
-            gui/501/com.apple.mediaanalysisd
-            gui/501/com.apple.parsec-fbf
-            gui/501/com.apple.parsecd
-            gui/501/com.apple.proactived
-            gui/501/com.apple.proactiveeventtrackerd
-            gui/501/com.apple.routined
-            gui/501/com.apple.Safari.History
-            gui/501/com.apple.Safari.PasswordBreachAgent
-            gui/501/com.apple.Safari.SafeBrowsing.Service
-            gui/501/com.apple.SafariBookmarksSyncAgent
-            gui/501/com.apple.SafariLaunchAgent
-            gui/501/com.apple.siriactionsd
-            gui/501/com.apple.siriappintentsd
-            gui/501/com.apple.siriinferenced
-            gui/501/com.apple.siriknowledged
-            gui/501/com.apple.sirittsd
-            gui/501/com.apple.spotlightknowledged
-            gui/501/com.apple.suggestd
-            gui/501/com.apple.triald
-            gui/501/com.apple.visualintelligenced
-            gui/501/com.apple.weatherd
-            system/com.apple.coreduetd
-            system/com.apple.triald.system
-          )
-          for service in "${services[@]}"; do
-            sudo launchctl bootout "$service" >/dev/null 2>&1 &
-          done
-
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
@@ -214,6 +171,10 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           allow-prereleases: true
+
+      - name: Disable unneeded macOS services
+        if: startsWith(runner.os, 'macOS')
+        run: python tools/macos_runner_tool.py disable-services
 
       - name: Start CPU monitor
         run: |
@@ -231,10 +192,10 @@ jobs:
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
-      - name: Run install_macos_packages.py
+      - name: Run macos_runner_tool.py install-all-packages
         run: |
-          python tools/ci_monitor.py mark "install_macos_packages.py"
-          python tools/install_macos_packages.py install-all
+          python tools/ci_monitor.py mark "macos_runner_tool.py install-all-packages"
+          python tools/macos_runner_tool.py install-all-packages
 
       - name: Update monitor mark
         run:

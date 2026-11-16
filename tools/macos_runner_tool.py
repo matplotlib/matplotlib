@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Tool to install macOS packages on GitHub runners
+Tool to optimize the performance of GitHub macOS runners
 
-Usage: python tools/install_macos_packages.py <command>
+Usage: python tools/macos_runner_tool.py <command>
 
 Commands:
-install-cache-only
-install-all
+disable-services
+install-cache-only-packages
+install-all-packages
+
+
 """
 from __future__ import annotations
 
@@ -42,6 +45,51 @@ FONT_CASKS = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
 
 # Homebrew cask name of Inkscape
 INKSCAPE_CASK = "inkscape"
+
+# System services to disable
+SERVICES = (
+    # Safari Bookmark Sync is chewing CPU while we are building matplotlib.
+    ("gui", "com.apple.Safari.History"),
+    ("gui", "com.apple.Safari.PasswordBreachAgent"),
+    ("gui", "com.apple.Safari.SafeBrowsing.Service"),
+    ("gui", "com.apple.SafariBookmarksSyncAgent"),
+    ("gui", "com.apple.SafariLaunchAgent"),
+
+    # These were also chewing CPU
+    ("gui", "com.apple.helpd"),  # Help Daemon / help documentation
+    ("gui", "com.apple.homed"),  # HomeKit / smart home
+    ("gui", "com.apple.weatherd"),  # Weather widget
+    ("gui", "com.apple.triald"),  # A/B testing, telemetry
+    ("system", "com.apple.triald.system"),
+
+    # Image file analysis / VisualIntelligence
+    ("gui", "com.apple.mediaanalysisd"),
+    ("gui", "com.apple.visualintelligenced"),
+
+    # Siri Search / Knowledge Graph / Apple Intelligence / etc
+    ("gui", "com.apple.duetexpertd"),
+    ("gui", "com.apple.intelligencecontextd"),
+    ("gui", "com.apple.intelligenceflowd"),
+    ("gui", "com.apple.intelligenceplatformd"),
+    ("gui", "com.apple.intelligencetasksd"),
+    ("gui", "com.apple.knowledge-agent"),
+    ("gui", "com.apple.knowledgeconstructiond"),
+    ("gui", "com.apple.parsec-fbf"),
+    ("gui", "com.apple.parsecd"),
+    ("gui", "com.apple.proactived"),
+    ("gui", "com.apple.proactiveeventtrackerd"),
+    ("gui", "com.apple.siriactionsd"),
+    ("gui", "com.apple.siriappintentsd"),
+    ("gui", "com.apple.siriinferenced"),
+    ("gui", "com.apple.siriknowledged"),
+    ("gui", "com.apple.sirittsd"),
+    ("gui", "com.apple.spotlightknowledged"),
+    ("gui", "com.apple.suggestd"),
+    ("system", "com.apple.coreduetd"),
+    ("user", "com.apple.siri.context.service"),
+    ("user", "com.apple.siri-distributed-evaluation"),
+    ("user", "com.apple.routined"),
+)
 
 
 def run_brew_info(*args: str) -> dict:
@@ -179,16 +227,32 @@ class Task:
         raise NotImplementedError
 
     def run(self, *args: str) -> None:
-        proc = subprocess.Popen(
-            args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
-        )
+        self.run_in_parallel((args,))
 
-        for line in proc.stdout:
-            self.out.append(f"[{time.perf_counter() - self._start:8.2f}s] {line}")
+    def run_in_parallel(self, cmds: tuple[tuple[str, ...], ...]) -> None:
+        procs = [
+            subprocess.Popen(
+                args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
+            )
+            for args in cmds
+        ]
 
-        returncode = proc.wait()
-        if returncode != 0:
-            raise subprocess.CalledProcessError(returncode, args)
+        def drain(proc: subprocess.Popen[str]) -> tuple[list[str], int]:
+            lines = [
+                f"[{time.perf_counter() - self._start:8.2f}s] {line}"
+                for line in proc.stdout
+            ]
+            return lines, proc.wait()
+
+        with ThreadPoolExecutor(max_workers=max(len(procs), 1)) as pool:
+            results = list(pool.map(drain, procs))
+
+        for lines, _ in results:
+            self.out.extend(lines)
+
+        for (_, returncode), args in zip(results, cmds):
+            if returncode != 0:
+                raise subprocess.CalledProcessError(returncode, args)
 
     def __call__(self) -> tuple[int, str, float]:
         try:
@@ -206,6 +270,30 @@ class Task:
             "".join(self.out),
             time.perf_counter() - self._start,
         )
+
+
+class DisableServicesTask(Task):
+    def __init__(self, name: str, services: Sequence[tuple(str, str)]) -> None:
+        super().__init__("disable services")
+        self._services = list(services)
+
+    def execute(self, tmp_path: Path) -> None:
+        cmds = []
+        cmds.append(("sudo", "mdutil", "-a", "-i", "off"))
+
+        for domain, name in self._services:
+            if domain == "gui":
+                specifier = f"gui/501/{name}"
+            elif domain == "user":
+                specifier = f"user/501/{name}"
+            elif domain == "system":
+                specifier = f"system/{name}"
+            else:
+                raise ValueError(f"Unsupported domain: {domain}")
+
+            cmds.append(("sudo", "launchctl", "bootout", specifier))
+
+        self.run_in_parallel(tuple(cmds))
 
 
 class InstallPackagesTask(Task):
@@ -263,7 +351,13 @@ def main():
         exit("No command provided")
 
     command = sys.argv[1]
-    if command == "install-cache-only":
+
+    if command == "disable-services":
+        run_tasks(
+            DisableServicesTask(SERVICES),
+        )
+
+    elif command == "install-cache-only-packages":
         package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
         filtered_packages = package_filter.get_filtered_packages()
         filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
@@ -272,7 +366,7 @@ def main():
             InstallPackagesTask("cache-only packages", filtered_packages)
         )
 
-    elif command == "install-all":
+    elif command == "install-all-packages":
         run_tasks(
             InstallPackagesTask("all packages", PACKAGES),
             *(InstallFontTask(cask) for cask in FONT_CASKS),
