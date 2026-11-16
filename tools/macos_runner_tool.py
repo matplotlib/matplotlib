@@ -247,8 +247,12 @@ class Task:
         with ThreadPoolExecutor(max_workers=max(len(procs), 1)) as pool:
             results = list(pool.map(drain, procs))
 
-        for lines, _ in results:
+        for (lines, returncode), args in zip(results, cmds):
             self.out.extend(lines)
+            if returncode != 0:
+                self.out.append(
+                    f"Command {' '.join(args)} failed - {returncode}"
+                )
 
         for (_, returncode), args in zip(results, cmds):
             if returncode != 0:
@@ -278,9 +282,9 @@ class DisableServicesTask(Task):
         self._services = list(services)
 
     def execute(self, tmp_path: Path) -> None:
-        cmds = []
-        cmds.append(("sudo", "mdutil", "-a", "-i", "off"))
+        self.run("sudo", "mdutil", "-a", "-i", "off")
 
+        bootouts = []
         for domain, name in self._services:
             if domain == "gui":
                 specifier = f"gui/501/{name}"
@@ -291,9 +295,12 @@ class DisableServicesTask(Task):
             else:
                 raise ValueError(f"Unsupported domain: {domain}")
 
-            cmds.append(("sudo", "launchctl", "bootout", specifier))
+            bootouts.append(("sudo", "launchctl", "bootout", specifier))
 
-        self.run_in_parallel(tuple(cmds))
+        try:
+            self.run_in_parallel(tuple(bootouts))
+        except subprocess.CalledProcessError:
+            pass
 
 
 class InstallPackagesTask(Task):
