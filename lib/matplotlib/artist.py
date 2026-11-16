@@ -1313,9 +1313,15 @@ Supported properties are
                 if p not in excluded
             ]
 
-        if matches := difflib.get_close_matches(name, props, n=1, cutoff=0.6):
-            return matches[0]
-        return None
+        # Match _api.list_suggestion_error_msg; could be a shared _api helper.
+        best = difflib.get_close_matches(name, props, cutoff=0.5)
+        match len(best):
+            case 0:
+                return ""
+            case 1:
+                return f" Did you mean: {best[0]!r}?"
+            case _:
+                return f" Did you mean one of: {', '.join(map(repr, best))}?"
 
     def _update_props(self, props, errfmt):
         """
@@ -1336,7 +1342,7 @@ Supported properties are
                 if not callable(func):
                     msg = errfmt.format(cls=type(self), prop_name=k)
                     if suggestion := self._suggest_property(k):
-                        msg = f"{msg}. Did you mean {repr(suggestion)}?"
+                        msg = f"{msg}.{suggestion}"
                     raise AttributeError(msg, name=k)
                 ret.append(func(v))
         if ret:

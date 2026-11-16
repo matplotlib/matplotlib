@@ -279,12 +279,20 @@ def test_artist_set_invalid_property_raises():
 def test_artist_set_invalid_property_suggestion():
     line = mlines.Line2D([0, 1], [0, 1])
 
-    with pytest.raises(AttributeError, match=r"Did you mean 'color'\?") as exc:
+    with pytest.raises(
+        AttributeError, match=r"Did you mean one of: 'color', 'gapcolor'\?"
+    ) as exc:
         line.set(colour="red")
     assert exc.value.name == "colour"
 
+    with pytest.raises(AttributeError, match=r"Did you mean: 'zorder'\?"):
+        line.set(zorde=1)
+
     patch = mpatches.Rectangle((0, 0), 1, 1)
-    with pytest.raises(AttributeError, match=r"Did you mean 'facecolor'\?"):
+    with pytest.raises(
+        AttributeError,
+        match=r"Did you mean one of: 'facecolor', 'hatchcolor', 'color'\?",
+    ):
         patch.update({"facecolour": "red"})
 
     with pytest.raises(AttributeError) as exc:
@@ -292,7 +300,9 @@ def test_artist_set_invalid_property_suggestion():
     assert "Did you mean" not in str(exc.value)
 
     _, ax = plt.subplots()
-    with pytest.raises(AttributeError, match=r"Did you mean 'color'\?"):
+    with pytest.raises(
+        AttributeError, match=r"Did you mean one of: 'color', 'gapcolor'\?"
+    ):
         ax.plot([0, 1], colour="red")
 
 
