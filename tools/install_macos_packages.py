@@ -8,6 +8,7 @@ Commands:
 install-cache-only
 install-all
 """
+from __future__ import annotations
 
 import hashlib
 import json
@@ -15,7 +16,6 @@ import shutil
 import subprocess
 import sys
 import tempfile
-import threading
 import time
 import urllib.request
 
@@ -38,10 +38,10 @@ CACHE_INCLUDE = ("gpg",)
 CACHE_EXCLUDE = ("python", "icu4c", "openssl")
 
 # Homebrew cask names of fonts to install
-FONT_PACKAGES = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
+FONT_CASKS = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
 
 # Homebrew cask name of Inkscape
-INKSCAPE_PACKAGE = "inkscape"
+INKSCAPE_CASK = "inkscape"
 
 
 def run_brew_info(*args: str) -> dict:
@@ -60,13 +60,11 @@ class PackageFilter:
     _excludes: set[str]
     _dependencies: dict[str, list[str]]
     _name_map: dict[str, str]
-    _tainted_cache: dict[str, bool]
 
     def __init__(self, packages: Sequence[str], excludes: Sequence[str]) -> None:
         self._packages = list(packages)
         self._dependencies = {}
         self._name_map = {}
-        self._tainted_cache = {}
 
         self._fill_graph()
 
@@ -102,21 +100,21 @@ class PackageFilter:
     def is_excluded(self, name: str) -> bool:
         return self._resolve_name(name) in self._excludes
 
-    def is_tainted(self, name: str) -> bool:
-        cache = self._tainted_cache
+    def has_excluded_dependency(self, name: str) -> bool:
         name = self._resolve_name(name)
+        seen = {name}
+        stack = [name]
 
-        if name in cache:
-            return cache[name]
+        while stack:
+            for dep in self._dependencies.get(stack.pop(), []):
+                if self.is_excluded(dep):
+                    return True
+                dep = self._resolve_name(dep)
+                if dep not in seen:
+                    seen.add(dep)
+                    stack.append(dep)
 
-        # Mark the formula as untainted before recursing to prevent an infinite loop
-        cache[name] = False
-        cache[name] = any(
-            self.is_excluded(dep) or self.is_tainted(dep)
-            for dep in self._dependencies.get(name, [])
-        )
-
-        return cache[name]
+        return False
 
     def get_filtered_packages(self) -> list[str]:
         result = set()
@@ -131,7 +129,7 @@ class PackageFilter:
             for dep in self._dependencies.get(name, []):
                 if dep in result:
                     continue
-                if not self.is_excluded(dep) and not self.is_tainted(dep):
+                if not self.is_excluded(dep) and not self.has_excluded_dependency(dep):
                     result.add(dep)
                 stack.append(dep)
 
@@ -152,15 +150,29 @@ def download_cask(package_name: str, dest: Path) -> None:
         )
 
 
+def run_tasks(*tasks: Task) -> None:
+    exit_code = 0
+    with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
+        futures = [(task.name, executor.submit(task)) for task in tasks]
+        for name, future in futures:
+            code, out, elapsed = future.result()
+            print(f"::group::{name} (exit {code}, {elapsed:.2f}s)")
+            if out:
+                print(out, end="")
+            print("::endgroup::")
+            sys.stdout.flush()
+            exit_code = exit_code or code
+    if exit_code:
+        sys.exit(exit_code)
+
+
 class Task:
     name: str
     out: list[str]
-    err: list[str]
 
     def __init__(self, name: str) -> None:
         self.name = name
         self.out = []
-        self.err = []
         self._start = time.perf_counter()
 
     def execute(self, tmp_path: Path) -> None:
@@ -168,26 +180,17 @@ class Task:
 
     def run(self, *args: str) -> None:
         proc = subprocess.Popen(
-            args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True
+            args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True
         )
 
-        def pump(stream, sink: list[str]) -> None:
-            for line in stream:
-                sink.append(f"[{time.perf_counter() - self._start:8.2f}s] {line}")
+        for line in proc.stdout:
+            self.out.append(f"[{time.perf_counter() - self._start:8.2f}s] {line}")
 
-        threads = [
-            threading.Thread(target=pump, args=(proc.stdout, self.out)),
-            threading.Thread(target=pump, args=(proc.stderr, self.err)),
-        ]
-        for thread in threads:
-            thread.start()
-        for thread in threads:
-            thread.join()
         returncode = proc.wait()
         if returncode != 0:
             raise subprocess.CalledProcessError(returncode, args)
 
-    def __call__(self) -> tuple[int, str, str, float]:
+    def __call__(self) -> tuple[int, str, float]:
         try:
             with tempfile.TemporaryDirectory(delete=False) as tmp:
                 tmp_path = Path(tmp)
@@ -196,12 +199,11 @@ class Task:
         except subprocess.CalledProcessError as e:
             code = e.returncode
         except Exception as e:
-            self.err.append(f"{e}\n")
+            self.out.append(f"{e}\n")
             code = 1
         return (
             code,
             "".join(self.out),
-            "".join(self.err),
             time.perf_counter() - self._start,
         )
 
@@ -256,51 +258,26 @@ class InstallInkscapeTask(Task):
         self.run("ditto", str(mnt / "Inkscape.app"), "/Applications/Inkscape.app")
 
 
-def install_cache_only_packages():
-    package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
-    filtered_packages = package_filter.get_filtered_packages()
-    filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
-
-    code, out, err, _ = InstallPackagesTask("cache-only packages", filtered_packages)()
-    print(out, end="")
-    print(err, end="")
-    if code:
-        sys.exit(code)
-
-
-def install_all_packages():
-    tasks = [
-        InstallPackagesTask("all packages", PACKAGES),
-        *(InstallFontTask(package) for package in FONT_PACKAGES),
-        InstallInkscapeTask(INKSCAPE_PACKAGE),
-    ]
-    exit_code = 0
-    with ThreadPoolExecutor(max_workers=len(tasks)) as executor:
-        futures = [(task.name, executor.submit(task)) for task in tasks]
-        for name, future in futures:
-            code, out, err, elapsed = future.result()
-            print(f"::group::{name} (exit {code}, {elapsed:.2f}s)")
-            if out:
-                print(out, end="")
-            if err:
-                print(err, end="")
-            print("::endgroup::")
-            sys.stdout.flush()
-            exit_code = exit_code or code
-    if exit_code:
-        sys.exit(exit_code)
-
-
 def main():
     if len(sys.argv) < 2:
         exit("No command provided")
 
     command = sys.argv[1]
     if command == "install-cache-only":
-        install_cache_only_packages()
+        package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
+        filtered_packages = package_filter.get_filtered_packages()
+        filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
+
+        run_tasks(
+            InstallPackagesTask("cache-only packages", filtered_packages)
+        )
 
     elif command == "install-all":
-        install_all_packages()
+        run_tasks(
+            InstallPackagesTask("all packages", PACKAGES),
+            *(InstallFontTask(cask) for cask in FONT_CASKS),
+            InstallInkscapeTask(INKSCAPE_CASK),
+        )
 
     else:
         exit(f"Unknown command: {command}")

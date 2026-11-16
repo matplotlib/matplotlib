@@ -155,5 +155,19 @@ jobs:
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
-      - name: Install brew packages, fonts, and inkscape
-        run: python tools/install_macos_packages.py all
+
+      - name: Run install_macos_packages.py in the background
+        run: |
+          (
+            python tools/install_macos_packages.py install-all \
+              > "$RUNNER_TEMP/install.log" 2>&1 < /dev/null && code=0 || code=$?
+            echo "$code" > "$RUNNER_TEMP/install.status.tmp"
+            mv "$RUNNER_TEMP/install.status.tmp" "$RUNNER_TEMP/install.status"
+          ) > /dev/null 2>&1 < /dev/null &
+
+      - name: Wait for install_macos_packages.py to finish
+        timeout-minutes: 5
+        run: |
+          while [ ! -f "$RUNNER_TEMP/install.status" ]; do sleep 5; done
+          cat "$RUNNER_TEMP/install.log"
+          exit "$(cat "$RUNNER_TEMP/install.status")"

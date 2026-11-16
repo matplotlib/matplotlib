@@ -46,7 +46,7 @@ jobs:
           find /opt/homebrew -maxdepth 2 -type l -delete
 
       - name: Install cache-only packages
-        run: python tools/install_macos_packages.py cache-only
+        run: python tools/install_macos_packages.py install-cache-only
 
       - name: Prepare /opt/homebrew for cache
         run:
