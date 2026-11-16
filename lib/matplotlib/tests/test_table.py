@@ -2,6 +2,7 @@ import datetime
 from unittest.mock import Mock
 
 import numpy as np
+import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
@@ -290,12 +291,16 @@ def test_table_fontsize():
 
 def test_table_empty_celltext():
     fig, ax = plt.subplots()
-    with pytest.raises(ValueError, match="'cellText' must contain at least one row."):
+    msg_row = "'cellText' must contain at least one row."
+    with pytest.raises(ValueError, match=msg_row):
         ax.table(cellText=[])
-    with pytest.raises(ValueError, match="'cellText' must contain at least one column."):
+    msg_col = "'cellText' must contain at least one column."
+    with pytest.raises(ValueError, match=msg_col):
         ax.table(cellText=[[]])
-    with pytest.raises(ValueError, match="'cellColours' must contain at least one row."):
+    msg_color_row = "'cellColours' must contain at least one row."
+    with pytest.raises(ValueError, match=msg_color_row):
         ax.table(cellColours=[])
-    with pytest.raises(ValueError, match="'cellColours' must contain at least one column."):
+    msg_color_col = "'cellColours' must contain at least one column."
+    with pytest.raises(ValueError, match=msg_color_col):
         ax.table(cellColours=[[]])
 
