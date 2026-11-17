@@ -185,6 +185,23 @@ jobs:
           echo $! > /tmp/ci_monitor.pid
           python tools/ci_monitor.py mark "Restore Homebrew cache"
 
+      - name: Clear Homebrew
+        run: |
+          to_remove=(
+            /opt/homebrew/.git
+            /opt/homebrew/.github
+            /opt/homebrew/completions
+            /opt/homebrew/docs
+            /opt/homebrew/lib/ruby
+            /opt/homebrew/Library/Homebrew
+            /opt/homebrew/Library/Taps
+            /opt/homebrew/var/cache
+            /opt/homebrew/var/homebrew/locks
+          )
+
+          sudo mv "${to_remove[@]}" /opt/homebrew-aside
+          brew install zstd
+
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
