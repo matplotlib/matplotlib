@@ -208,6 +208,7 @@ jobs:
           file /opt/homebrew/lib/libglib-2.0.0.dylib
           echo
           file /opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib
+          brew install gobject-introspection gtk4
 
       - name: Eject
         run: exit 1
