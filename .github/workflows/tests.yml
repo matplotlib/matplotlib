@@ -56,14 +56,6 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Start CPU monitor
-        if: steps.check.outputs.exists != 'true'
-        run: |
-          python -m pip install psutil
-          nohup python tools/ci_monitor.py run > /dev/null 2>&1 &
-          echo $! > /tmp/ci_monitor.pid
-          python tools/ci_monitor.py mark "Clean Runner Image"
-
       - name: Clean Runner Image
         if: steps.check.outputs.exists != 'true'
         run: |
@@ -107,22 +99,11 @@ jobs:
       - name: Save cache
         if: steps.check.outputs.exists != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        env:
+          PATH: /usr/bin:/bin:/usr/sbin:/sbin
         with:
           path: /opt/homebrew
           key: ${{ env.CACHE_KEY }}
-
-      - name: Stop CPU monitor
-        if: always() && steps.check.outputs.exists != 'true'
-        run: kill "$(cat /tmp/ci_monitor.pid)" || true
-
-      - name: Upload CPU monitor log
-        if: always() && steps.check.outputs.exists != 'true'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
-        with:
-          name: ci-monitor-build-cache-${{ matrix.os }}
-          path: ${{ env.CI_MONITOR_LOG }}
-          if-no-files-found: ignore
-          retention-days: 14
 
   test:
     needs: build-cache
@@ -186,7 +167,6 @@ jobs:
           python tools/ci_monitor.py mark "Restore Homebrew cache"
 
       - name: Clean Runner Image
-        if: steps.check.outputs.exists != 'true'
         run: |
           sudo mkdir -p /opt/homebrew-aside/Cellar
           sudo mkdir -p /opt/homebrew-aside/Caskroom
