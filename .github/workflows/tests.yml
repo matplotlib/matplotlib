@@ -195,9 +195,9 @@ jobs:
           fail-on-cache-miss: true
 
 
-      - name: Relink Homebrew?
+      - name: list homebrew/lib
         run: |
-          brew list --formula | xargs -I % sh -c 'brew unlink %; brew link %'
+          ls -altr /opt/homebrew/lib
 
       - name: Run macos_runner_tool.py install-all-packages
         run: |
