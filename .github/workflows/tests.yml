@@ -59,6 +59,7 @@ jobs:
       - name: Clean Runner Image
         if: steps.check.outputs.exists != 'true'
         run: |
+          cp -L /opt/homebrew/bin/{zstd,unzstd,gtar} /usr/local/bin
           sudo mkdir -p /opt/homebrew-aside/Cellar
           sudo mkdir -p /opt/homebrew-aside/Caskroom
           sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
@@ -97,7 +98,7 @@ jobs:
         if: steps.check.outputs.exists != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         env:
-          PATH: /usr/bin:/bin:/usr/sbin:/sbin
+          PATH: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
         with:
           path: /opt/homebrew
           key: ${{ env.CACHE_KEY }}
@@ -165,24 +166,23 @@ jobs:
 
       - name: Clean Runner Image
         run: |
+          cp -L /opt/homebrew/bin/{zstd,unzstd,gtar} /usr/local/bin
           sudo mkdir -p /opt/homebrew-aside/Cellar
           sudo mkdir -p /opt/homebrew-aside/Caskroom
           sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
           sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
           find /opt/homebrew -maxdepth 2 -type l -delete
-          brew install zstd
 
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         env:
-          PATH: /usr/bin:/bin:/usr/sbin:/sbin
+          PATH: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
         with:
           path: /opt/homebrew
           key: ${{ matrix.os }}-brew-cache
           restore-keys: |
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
-
 
       - name: list homebrew/lib
         run: |
