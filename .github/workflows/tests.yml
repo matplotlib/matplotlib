@@ -68,13 +68,11 @@ jobs:
       - name: Install cache-only packages
         if: steps.check.outputs.exists != 'true'
         run: |
-          python tools/ci_monitor.py mark "Install cache-only packages"
           python tools/macos_runner_tool.py install-cache-only-packages
 
       - name: Prepare /opt/homebrew for cache
         if: steps.check.outputs.exists != 'true'
         run: |
-          python tools/ci_monitor.py mark "Prepare /opt/homebrew for cache"
           to_remove=(
             /opt/homebrew/.git
             /opt/homebrew/.github
@@ -92,7 +90,6 @@ jobs:
       - name: Report /opt/homebrew size
         if: steps.check.outputs.exists != 'true'
         run: |
-          python tools/ci_monitor.py mark "Report /opt/homebrew size"
           sudo du -d 4 -h -I \
             /opt/homebrew 2>/dev/null | sort -rh | head -200
 
