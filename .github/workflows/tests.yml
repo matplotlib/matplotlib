@@ -185,21 +185,14 @@ jobs:
           echo $! > /tmp/ci_monitor.pid
           python tools/ci_monitor.py mark "Restore Homebrew cache"
 
-      - name: Clear Homebrew
+      - name: Clean Runner Image
+        if: steps.check.outputs.exists != 'true'
         run: |
-          to_remove=(
-            /opt/homebrew/.git
-            /opt/homebrew/.github
-            /opt/homebrew/completions
-            /opt/homebrew/docs
-            /opt/homebrew/lib/ruby
-            /opt/homebrew/Library/Homebrew
-            /opt/homebrew/Library/Taps
-            /opt/homebrew/var/cache
-            /opt/homebrew/var/homebrew/locks
-          )
-
-          sudo mv "${to_remove[@]}" /opt/homebrew-aside
+          sudo mkdir -p /opt/homebrew-aside/Cellar
+          sudo mkdir -p /opt/homebrew-aside/Caskroom
+          sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
+          sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
+          find /opt/homebrew -maxdepth 2 -type l -delete
           brew install zstd
 
       - name: Restore Homebrew cache
