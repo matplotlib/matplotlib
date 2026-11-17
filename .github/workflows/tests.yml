@@ -194,6 +194,11 @@ jobs:
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
+
+      - name: Relink Homebrew?
+        run: |
+          brew list --formula | xargs -I % sh -c 'brew unlink %; brew link %'
+
       - name: Run macos_runner_tool.py install-all-packages
         run: |
           python tools/ci_monitor.py mark "macos_runner_tool.py install-all-packages"
