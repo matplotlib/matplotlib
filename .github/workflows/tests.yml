@@ -198,7 +198,16 @@ jobs:
       - name: list homebrew/lib
         run: |
           ls -altr /opt/homebrew/lib
+
+      - name: list more things
+        run: |
+          printenv
+          echo
           ls -altr /opt/homebrew/Cellar/glib/2.90.1/lib/
+          echo
+          file /opt/homebrew/lib/libglib-2.0.0.dylib
+          echo
+          file /opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib
 
       - name: Eject
         run: exit 1
