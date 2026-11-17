@@ -59,7 +59,9 @@ jobs:
       - name: Clean Runner Image
         if: steps.check.outputs.exists != 'true'
         run: |
-          cp -L /opt/homebrew/bin/{zstd*,unzstd,gtar} /usr/local/bin
+          sudo cp -L /opt/homebrew/bin/{zstd*,unzstd,gtar} /usr/local/bin
+          sudo mkdir -p /usr/local/lib
+          sudo cp -L /opt/homebrew/lib/lib{lz*,zstd*} /usr/local/lib
           sudo mkdir -p /opt/homebrew-aside/Cellar
           sudo mkdir -p /opt/homebrew-aside/Caskroom
           sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
@@ -167,6 +169,8 @@ jobs:
       - name: Clean Runner Image
         run: |
           cp -L /opt/homebrew/bin/{zstd*,unzstd,gtar} /usr/local/bin
+          sudo mkdir -p /usr/local/lib
+          sudo cp -L /opt/homebrew/lib/lib{lz*,zstd*} /usr/local/lib
           sudo mkdir -p /opt/homebrew-aside/Cellar
           sudo mkdir -p /opt/homebrew-aside/Caskroom
           sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
