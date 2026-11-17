@@ -460,6 +460,9 @@ class InstallInkscapeTask(Task):
                  "-nobrowse", "-noverify", "-noautofsck",
                  "-mountpoint", str(mnt), str(dmg))
         self.run("ditto", str(mnt / "Inkscape.app"), "/Applications/Inkscape.app")
+        self.run("ln", "-s",
+                 "/Applications/Inkscape.app/Contents/MacOS/inkscape",
+                 "/usr/local/bin")
 
 
 def main() -> None:
