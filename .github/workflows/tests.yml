@@ -59,14 +59,7 @@ jobs:
       - name: Clean Runner Image
         if: steps.check.outputs.exists != 'true'
         run: |
-          sudo cp -L /opt/homebrew/bin/{zstd*,unzstd,gtar} /usr/local/bin
-          sudo mkdir -p /usr/local/lib
-          sudo cp -L /opt/homebrew/lib/lib{lz*,zstd*} /usr/local/lib
-          sudo mkdir -p /opt/homebrew-aside/Cellar
-          sudo mkdir -p /opt/homebrew-aside/Caskroom
-          sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
-          sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
-          find /opt/homebrew -maxdepth 2 -type l -delete
+          python tools/macos_runner_tool.py clean-runner
 
       - name: Install cache-only packages
         if: steps.check.outputs.exists != 'true'
@@ -168,14 +161,7 @@ jobs:
 
       - name: Clean Runner Image
         run: |
-          cp -L /opt/homebrew/bin/{zstd*,unzstd,gtar} /usr/local/bin
-          sudo mkdir -p /usr/local/lib
-          sudo cp -L /opt/homebrew/lib/lib{lz*,zstd*} /usr/local/lib
-          sudo mkdir -p /opt/homebrew-aside/Cellar
-          sudo mkdir -p /opt/homebrew-aside/Caskroom
-          sudo mv /opt/homebrew/Cellar/* /opt/homebrew-aside/Cellar
-          sudo mv /opt/homebrew/Caskroom/* /opt/homebrew-aside/Caskroom
-          find /opt/homebrew -maxdepth 2 -type l -delete
+          python tools/macos_runner_tool.py clean-runner
 
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0

@@ -366,6 +366,10 @@ class Task:
         if proc.returncode != 0:
             raise subprocess.CalledProcessError(proc.returncode, args)
 
+    def run_string(self, cmd: str, *args: str) -> None:
+        """Pass the specified string into `bash -c`"""
+        self.run("bash", "-c", cmd, "bash", *args)
+
     def run_ignoring_errors(self, *args: str) -> None:
         """Run a subprocess, ignoring a non-zero exit status."""
         try:
@@ -385,6 +389,46 @@ class Task:
             self.out.append(f"{e}\n")
             code = 1
         return (code, "".join(self.out), time.perf_counter() - self._start)
+
+
+class CleanRunnerTask(Task):
+    """Clean pre-installed Homebrew packages from GitHub runner."""
+    def __init__(self) -> None:
+        super().__init__("clean runner")
+
+    def execute(self, tmp_path: Path) -> None:
+        # Preserve various utilities needed for cache restoration
+        PRESERVE_UTILS = r"""
+            set -e
+            shopt -s nullglob
+            for p in \
+                /opt/homebrew/bin/{zstd*,unzstd,gtar} \
+                /opt/homebrew/lib/lib{lz*,zstd*} \
+                /opt/homebrew/opt/{xz,lz4}
+            do
+                [ -e "$p" ] || continue
+                mkdir -p "$1$(dirname "$p")"
+                cp -RLp "$p" "$1$(dirname "$p")/"
+            done
+        """
+        self.run_string(PRESERVE_UTILS, tmp_path / "preserved")
+
+        # Delete the contents of various homebrew subdirectories.
+        # `mv ... /opt/homebrew-aside` is used for performance (fs rename)
+        REMOVE_BREW_SUBDIR = r"""
+            set -e
+            sudo mkdir -p "/opt/homebrew-aside/$1"
+            sudo find "/opt/homebrew/$1" -mindepth 1 -maxdepth 1 \
+                -exec sh -c 'mv "$@" "$0"' "/opt/homebrew-aside/$1/" {} +
+        """
+        self.run_string(REMOVE_BREW_SUBDIR, "Cellar")
+        self.run_string(REMOVE_BREW_SUBDIR, "Caskroom")
+
+        # Clear all symlinks in /opt/homebrew/bin, .../lib, etc.
+        self.run("find", "/opt/homebrew", "-maxdepth", "2", "-type", "l", "-delete")
+
+        # Restore preserved binaries/libraries
+        self.run("sudo", "ditto", tmp_path / "preserved/opt/homebrew", "/opt/homebrew")
 
 
 class DisableServicesTask(Task):
@@ -471,7 +515,10 @@ def main() -> None:
 
     command = sys.argv[1]
 
-    if command == "disable-services":
+    if command == "clean-runner":
+        run_tasks(CleanRunnerTask())
+
+    elif command == "disable-services":
         run_tasks(DisableServicesTask(SERVICES))
 
     elif command == "install-cache-only-packages":
