@@ -393,25 +393,27 @@ class Task:
 
 class CleanRunnerTask(Task):
     """Clean pre-installed Homebrew packages from GitHub runner."""
-    def __init__(self) -> None:
+    def __init__(self, preserve_utils: bool) -> None:
         super().__init__("clean runner")
+        self._preserve_utils = preserve_utils
 
     def execute(self, tmp_path: Path) -> None:
-        # Preserve various utilities needed for cache restoration
-        PRESERVE_UTILS = r"""
-            set -e
-            shopt -s nullglob
-            for p in \
-                /opt/homebrew/bin/{zstd*,unzstd,gtar} \
-                /opt/homebrew/lib/lib{lz*,zstd*} \
-                /opt/homebrew/opt/{xz,lz4}
-            do
-                [ -e "$p" ] || continue
-                mkdir -p "$1$(dirname "$p")"
-                cp -RLp "$p" "$1$(dirname "$p")/"
-            done
-        """
-        self.run_string(PRESERVE_UTILS, tmp_path / "preserved")
+        if self._preserve_utils:
+            # Preserve various utilities needed for cache restoration
+            PRESERVE_UTILS = r"""
+                set -e
+                shopt -s nullglob
+                for p in \
+                    /opt/homebrew/bin/{zstd*,unzstd,gtar} \
+                    /opt/homebrew/lib/lib{lz*,zstd*} \
+                    /opt/homebrew/opt/{xz,lz4}
+                do
+                    [ -e "$p" ] || continue
+                    mkdir -p "$1$(dirname "$p")"
+                    cp -RLp "$p" "$1$(dirname "$p")/"
+                done
+            """
+            self.run_string(PRESERVE_UTILS, tmp_path)
 
         # Delete the contents of various homebrew subdirectories.
         # `mv ... /opt/homebrew-aside` is used for performance (fs rename)
@@ -427,8 +429,9 @@ class CleanRunnerTask(Task):
         # Clear all symlinks in /opt/homebrew/bin, .../lib, etc.
         self.run("find", "/opt/homebrew", "-maxdepth", "2", "-type", "l", "-delete")
 
-        # Restore preserved binaries/libraries
-        self.run("sudo", "ditto", tmp_path / "preserved/opt/homebrew", "/opt/homebrew")
+        # Restore preserved utilities
+        if self._preserve_utils:
+            self.run("sudo", "ditto", tmp_path / "opt/homebrew", "/opt/homebrew")
 
 
 class DisableServicesTask(Task):
@@ -515,8 +518,11 @@ def main() -> None:
 
     command = sys.argv[1]
 
-    if command == "clean-runner":
-        run_tasks(CleanRunnerTask())
+    if command == "clean-runner-for-cache":
+        run_tasks(CleanRunnerTask(preserve_utils=False))
+
+    elif command == "clean-runner":
+        run_tasks(CleanRunnerTask(preserve_utils=True))
 
     elif command == "disable-services":
         run_tasks(DisableServicesTask(SERVICES))
