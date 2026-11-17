@@ -198,6 +198,10 @@ jobs:
       - name: list homebrew/lib
         run: |
           ls -altr /opt/homebrew/lib
+          ls -altr /opt/homebrew/Cellar/glib/2.90.1/lib/
+
+      - name: Eject
+        run: exit 1
 
       - name: Run macos_runner_tool.py install-all-packages
         run: |
