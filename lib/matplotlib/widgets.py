@@ -470,9 +470,13 @@ class Slider(SliderBase):
             result in ``markerstyle = 'x'``.
 
         scroll : bool, default: False
-            If True, a scroll event over the slider moves it one step in the
-            scroll direction. The step follows *valstep*, or is one percent
-            of the slider's range if *valstep* is None.
+            Whether scrolling over the slider changes its value. Each nonzero
+            scroll event moves one step in the scroll direction. A numeric
+            *valstep* sets the step size, and a sequence of values advances to
+            the next allowed value in that direction. If *valstep* is None,
+            the step is 1% of the slider's range.
+
+            .. versionadded:: 3.12
 
         Notes
         -----

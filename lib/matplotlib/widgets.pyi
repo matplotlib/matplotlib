@@ -112,6 +112,7 @@ class Slider(SliderBase):
         initcolor: ColorType = ...,
         track_color: ColorType = ...,
         handle_style: dict[str, Any] | None = ...,
+        scroll: bool = ...,
         **kwargs
     ) -> None: ...
     def set_val(self, val: float) -> None: ...
