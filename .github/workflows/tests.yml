@@ -59,7 +59,7 @@ jobs:
       - name: Clean Runner Image
         if: steps.check.outputs.exists != 'true'
         run: |
-          python tools/macos_runner_tool.py clean-runner-for-cache
+          python tools/macos_runner_tool.py clean-runner
 
       - name: Install cache-only packages
         if: steps.check.outputs.exists != 'true'
@@ -161,6 +161,7 @@ jobs:
 
       - name: Clean Runner Image
         run: |
+          python tools/macos_runner_tool.py preserve-tools
           python tools/macos_runner_tool.py clean-runner
 
       - name: Restore Homebrew cache

@@ -393,28 +393,10 @@ class Task:
 
 class CleanRunnerTask(Task):
     """Clean pre-installed Homebrew packages from GitHub runner."""
-    def __init__(self, preserve_utils: bool) -> None:
+    def __init__(self) -> None:
         super().__init__("clean runner")
-        self._preserve_utils = preserve_utils
 
     def execute(self, tmp_path: Path) -> None:
-        if self._preserve_utils:
-            # Preserve various utilities needed for cache restoration
-            PRESERVE_UTILS = r"""
-                set -e
-                shopt -s nullglob
-                for p in \
-                    /opt/homebrew/bin/{zstd*,unzstd,gtar} \
-                    /opt/homebrew/lib/lib{lz*,zstd*} \
-                    /opt/homebrew/opt/{xz,lz4}
-                do
-                    [ -e "$p" ] || continue
-                    mkdir -p "$1$(dirname "$p")"
-                    cp -RLp "$p" "$1$(dirname "$p")/"
-                done
-            """
-            self.run_string(PRESERVE_UTILS, tmp_path)
-
         # Delete the contents of various homebrew subdirectories.
         # `mv ... /opt/homebrew-aside` is used for performance (fs rename)
         REMOVE_BREW_SUBDIR = r"""
@@ -429,9 +411,55 @@ class CleanRunnerTask(Task):
         # Clear all symlinks in /opt/homebrew/bin, .../lib, etc.
         self.run("find", "/opt/homebrew", "-maxdepth", "2", "-type", "l", "-delete")
 
-        # Restore preserved utilities
-        if self._preserve_utils:
-            self.run("sudo", "ditto", tmp_path / "opt/homebrew", "/opt/homebrew")
+
+class PreserveToolsTask(Task):
+    """Preserve select tools to /usr/local and rewrite linker entries."""
+
+    def __init__(self) -> None:
+        super().__init__("preserve tools")
+
+    def execute(self, tmp_path: Path) -> None:
+        HOMEBREW_PATH = Path("/opt/homebrew")
+        OUT_BIN_DIR = Path("/usr/local/bin")
+        OUT_LIB_DIR = Path("/usr/local/lib")
+        BINS = ("unzstd", "gtar")
+        LIBS = ("libzstd.1.dylib", "liblzma.5.dylib", "liblz4.1.dylib")
+
+        def get_linker_entries_to_rewrite(path: Path):
+            cmd = ("otool", "-L", str(path))
+            result = subprocess.run(cmd, check=True, capture_output=True, text=True)
+            entries = [
+                line.split(" (compatibility", 1)[0].strip()
+                for line in result.stdout.splitlines()[1:]
+            ]
+            return [e for e in entries if e.strip().startswith(str(HOMEBREW_PATH))]
+
+        def rewrite_linker_entries(path: Path):
+            to_rewrite = get_linker_entries_to_rewrite(path)
+
+            args: list[str | Path] = []
+            for entry in to_rewrite:
+                args += ["-change", entry, OUT_LIB_DIR / Path(entry).name]
+
+            self.run("sudo", "install_name_tool", *args, path)
+            self.run("sudo", "codesign", "--force", "--sign", "-", path)
+
+        self.run("sudo", "mkdir", "-p", OUT_BIN_DIR, OUT_LIB_DIR)
+
+        for bin in BINS:
+            self.run("sudo", "cp", "-L", HOMEBREW_PATH / "bin" / bin, OUT_BIN_DIR)
+            self.run("sudo", "chmod", "u+w", OUT_BIN_DIR / bin)
+
+        for lib in LIBS:
+            self.run("sudo", "cp", "-L", HOMEBREW_PATH / "lib" / lib, OUT_LIB_DIR)
+            self.run("sudo", "chmod", "u+w", OUT_LIB_DIR / lib)
+
+        rewrite_linker_entries(OUT_BIN_DIR / "unzstd")
+
+        for bin in BINS:
+            self.run("file", OUT_BIN_DIR / bin)
+            self.run(OUT_BIN_DIR / bin, "--version")
+            self.run("otool", "-L", OUT_BIN_DIR / bin)
 
 
 class DisableServicesTask(Task):
@@ -518,11 +546,11 @@ def main() -> None:
 
     command = sys.argv[1]
 
-    if command == "clean-runner-for-cache":
-        run_tasks(CleanRunnerTask(preserve_utils=False))
+    if command == "clean-runner":
+        run_tasks(CleanRunnerTask())
 
-    elif command == "clean-runner":
-        run_tasks(CleanRunnerTask(preserve_utils=True))
+    elif command == "preserve-tools":
+        run_tasks(PreserveToolsTask())
 
     elif command == "disable-services":
         run_tasks(DisableServicesTask(SERVICES))
