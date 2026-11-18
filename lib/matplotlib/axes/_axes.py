@@ -8125,8 +8125,9 @@ such objects
             weights = np.take(weights, argsort)   # Reorder weights like we reordered x.
             cum_weights = np.cumsum(weights / np.sum(weights))
         if compress:
-            # Get indices of unique x values.
-            compress_idxs = [0, *(x[:-1] != x[1:]).nonzero()[0] + 1]
+            # Keep the last occurrence of each unique x value, as its entry in
+            # cum_weights includes the weights of all its duplicates.
+            compress_idxs = [*(x[:-1] != x[1:]).nonzero()[0], len(x) - 1]
             x = x[compress_idxs]
             cum_weights = cum_weights[compress_idxs]
         if orientation == "vertical":
