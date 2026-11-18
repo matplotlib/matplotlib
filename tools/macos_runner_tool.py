@@ -415,9 +415,9 @@ class CleanRunnerTask(Task):
         # Clear all symlinks
         self.run_string(r"""
             find /opt/homebrew \
-                ( -path /opt/homebrew/Library -o \
+                \( -path /opt/homebrew/Library -o \
                   -path /opt/homebrew/Frameworks -o \
-                  -path /opt/homebrew/share ) \
+                  -path /opt/homebrew/share \) \
                 -prune -o -type l -delete
         """)
 
