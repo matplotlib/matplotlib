@@ -410,14 +410,16 @@ class CleanRunnerTask(Task):
             fi
         """
         for subdir in (
-            "Caskroom", "Cellar"  # , "include", "opt", "var/homebrew/linked",
+            "Caskroom", "Cellar", "include", "opt", "var/homebrew/linked", "test"
         ):
             self.run_string(REMOVE_BREW_SUBDIR, subdir)
 
         # Clear all symlinks
         self.run_string(r"""
-            find /opt/homebrew \( -path /opt/homebrew/Library -o \
-                -path /opt/homebrew/Frameworks -o -path /opt/homebrew/share \) -prune \
+            find /opt/homebrew \( -path /opt/homebrew/completions \
+                -o -path /opt/homebrew/Library \
+                -o -path /opt/homebrew/Frameworks \
+                -o -path /opt/homebrew/share \) -prune \
                 -o -type l -exec rm {} \;
         """)
 
@@ -435,7 +437,7 @@ class PreserveToolsTask(Task):
         HOMEBREW_PATH = Path("/opt/homebrew")
         OUT_BIN_DIR = Path("/usr/local/bin")
         OUT_LIB_DIR = Path("/usr/local/lib")
-        BINS = ("unzstd", "gtar")
+        BINS = ("zstd", "zstdmt", "unzstd", "gtar")
         LIBS = ("libzstd.1.dylib", "liblzma.5.dylib", "liblz4.1.dylib")
 
         def get_linker_entries_to_rewrite(path: Path):
