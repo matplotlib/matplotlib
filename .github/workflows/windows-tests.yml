@@ -61,14 +61,9 @@ jobs:
         uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0  # v7.1.0
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Cache pip
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: windows-${{ matrix.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('pyproject.toml') }}
-          restore-keys: |
-            windows-${{ matrix.os }}-py${{ matrix.python-version }}-pip-
+          cache: 'pip'
+          cache-dependency-path: |
+            pyproject.toml
 
       - name: Install OS dependencies
         run: choco install ninja --yes --no-progress
@@ -176,14 +171,6 @@ jobs:
           fetch-depth: 0
           filter: blob:none
           persist-credentials: false
-
-      - name: Cache pip
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        with:
-          path: ~\AppData\Local\pip\Cache
-          key: windows-conda-py312-pip-${{ hashFiles('environment.yml') }}
-          restore-keys: |
-            windows-conda-py312-pip-
 
       - name: Cache Matplotlib
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
