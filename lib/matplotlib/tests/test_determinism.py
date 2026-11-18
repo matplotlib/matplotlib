@@ -15,7 +15,7 @@ from matplotlib.image import BboxImage
 from matplotlib.offsetbox import AnchoredOffsetbox, AuxTransformBox
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
-from matplotlib.testing import subprocess_run_for_testing
+from matplotlib.testing import subprocess_run_for_testing, is_ci_environment
 from matplotlib.testing._markers import needs_ghostscript, needs_usetex
 import matplotlib.testing.compare
 from matplotlib.text import TextPath
@@ -180,13 +180,16 @@ def test_determinism_check(objects, fmt, usetex):
     fmt : {"pdf", "ps", "svg"}
         Output format.
     """
+    timeout = 60
+    if is_ci_environment():
+        timeout *= 6
     plots = [
         subprocess_run_for_testing(
             [sys.executable, "-R", "-c",
              f"from matplotlib.tests.test_determinism import _save_figure;"
              f"_save_figure({objects!r}, {fmt!r}, {usetex})"],
             env={**os.environ, "SOURCE_DATE_EPOCH": "946684800",
-                 "MPLBACKEND": "Agg"},
+                 "MPLBACKEND": "Agg"}, timeout=timeout,
             text=False, capture_output=True, check=True).stdout
         for _ in range(3)
     ]
