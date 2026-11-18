@@ -410,8 +410,7 @@ class CleanRunnerTask(Task):
             fi
         """
         for subdir in (
-            "Caskroom", "Cellar", "include", "lib", "libexec",
-            "opt", "var/homebrew/linked",
+            "Caskroom", "Cellar"  # , "include", "opt", "var/homebrew/linked",
         ):
             self.run_string(REMOVE_BREW_SUBDIR, subdir)
 
