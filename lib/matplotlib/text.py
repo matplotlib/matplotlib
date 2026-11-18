@@ -2196,6 +2196,17 @@ or callable, default: value of *xycoords*
             self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
 
+    def _check_xy(self, renderer=None):
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+        if not super()._check_xy(renderer):
+            return False
+        if self.arrow_patch is None:
+            return True
+        # A valid data position can still be undefined in display coordinates.
+        transform = self._get_xy_transform(renderer, self.anncoords)
+        return np.isfinite(transform.transform(self.get_unitless_position())).all()
+
     def update_positions(self, renderer):
         """
         Update the pixel positions of the annotation text and the arrow patch.
