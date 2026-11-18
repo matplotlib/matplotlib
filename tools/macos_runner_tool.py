@@ -406,11 +406,20 @@ class CleanRunnerTask(Task):
             sudo find "/opt/homebrew/$1" -mindepth 1 -maxdepth 1 \
                 -exec sh -c 'mv "$@" "$0"' "/opt/homebrew-aside/$1/" {} +
         """
-        self.run_string(REMOVE_BREW_SUBDIR, "Cellar")
-        self.run_string(REMOVE_BREW_SUBDIR, "Caskroom")
+        for subdir in (
+            "Caskroom", "Cellar", "include", "lib", "libexec",
+            "opt", "var/homebrew/linked",
+        ):
+            self.run_string(REMOVE_BREW_SUBDIR, subdir)
 
-        # Clear all symlinks in /opt/homebrew/bin, .../lib, etc.
-        self.run("find", "/opt/homebrew", "-maxdepth", "2", "-type", "l", "-delete")
+        # Clear all symlinks
+        self.run_string(r"""
+            find /opt/homebrew \
+                ( -path /opt/homebrew/Library -o \
+                  -path /opt/homebrew/Frameworks -o \
+                  -path /opt/homebrew/share ) \
+                -prune -o -type l -delete
+        """)
 
 
 class PreserveToolsTask(Task):
