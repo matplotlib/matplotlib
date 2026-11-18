@@ -419,7 +419,7 @@ class CleanRunnerTask(Task):
         self.run_string(r"""
             find /opt/homebrew \( -path /opt/homebrew/Library -o \
                 -path /opt/homebrew/Frameworks -o -path /opt/homebrew/share \) -prune \
-                -o -type l -delete
+                -o -type l -exec rm {} \;
         """)
 
 
