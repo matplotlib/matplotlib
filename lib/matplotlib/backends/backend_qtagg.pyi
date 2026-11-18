@@ -12,7 +12,11 @@ from matplotlib.backends.backend_qt import (
 )
 
 class FigureCanvasQTAgg(
-    FigureCanvasAgg[NavigationToolbar2QT, FigureManagerQT, TimerQT], FigureCanvasQT
+    # this needs to get specialized here to match the specialization
+    # done by FigureCavasBaseQt or the type checkers may explode with
+    # inconsistent resolution of the generic types in the diamond.
+    FigureCanvasAgg[NavigationToolbar2QT, FigureManagerQT, TimerQT],
+    FigureCanvasQT,
 ):
     def paintEvent(self, event: Any) -> None: ...
 

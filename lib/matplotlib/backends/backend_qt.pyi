@@ -32,7 +32,8 @@ def _create_qApp() -> Any: ...
 class TimerQT(TimerBase): ...
 
 class FigureCanvasQT(  # QtWidgets.QWidget
-    FigureCanvasBase[NavigationToolbar2QT, FigureManagerQT, TimerQT], _UntypedToolkitWidget
+    FigureCanvasBase[NavigationToolbar2QT, FigureManagerQT, TimerQT],
+    _UntypedToolkitWidget,
 ):
     buttond: dict[Any, MouseButton]
     def set_cursor(self, cursor: Any) -> None: ...
@@ -64,7 +65,9 @@ class FigureManagerQT(FigureManagerBase[FigureCanvasQT, NavigationToolbar2QT]):
     ) -> None: ...
     def destroy(self, *args: Any) -> None: ...
 
-class NavigationToolbar2QT(NavigationToolbar2[FigureCanvasQT], _UntypedToolkitWidget):  # QtWidgets.QToolBar
+class NavigationToolbar2QT(
+    NavigationToolbar2[FigureCanvasQT], _UntypedToolkitWidget
+):  # QtWidgets.QToolBar
     coordinates: bool
     locLabel: Any
     # Backend-authoring API: toolitem method name -> QAction, used by
