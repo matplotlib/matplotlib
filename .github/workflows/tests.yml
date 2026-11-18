@@ -172,9 +172,9 @@ jobs:
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
-      - name: list homebrew/lib
+      - name: list links at depth >=3
         run: |
-          ls -altr /opt/homebrew/lib
+          find /opt/homebrew -mindepth 3 -type l
 
       - name: list homebrew/lib/pkgconfig
         run: |
