@@ -393,6 +393,7 @@ class Task:
 
 class CleanRunnerTask(Task):
     """Clean pre-installed Homebrew packages from GitHub runner."""
+
     def __init__(self) -> None:
         super().__init__("clean runner")
 
@@ -413,7 +414,7 @@ class CleanRunnerTask(Task):
 
 
 class PreserveToolsTask(Task):
-    """Preserve select tools to /usr/local and rewrite linker entries."""
+    """Preserve select tools to /usr/local and rewrite their linker entries."""
 
     def __init__(self) -> None:
         super().__init__("preserve tools")
@@ -544,33 +545,31 @@ def main() -> None:
     if len(sys.argv) < 2:
         exit("No command(s) provided")
 
-    tasks = []
-
     for command in sys.argv[1:]:
         if command == "clean-runner":
-            tasks.append(CleanRunnerTask())
+            run_tasks(CleanRunnerTask())
 
         elif command == "preserve-tools":
-            tasks.append(PreserveToolsTask())
+            run_tasks(PreserveToolsTask())
 
         elif command == "disable-services":
-            tasks.append(DisableServicesTask(SERVICES))
+            run_tasks(DisableServicesTask(SERVICES))
 
         elif command == "install-cache-only-packages":
             package_filter = PackageFilter(PACKAGES, CACHE_EXCLUDE)
             filtered_packages = package_filter.get_filtered_packages()
             filtered_packages = sorted(set(filtered_packages) | set(CACHE_INCLUDE))
-            tasks.append(InstallPackagesTask("cache-only packages", filtered_packages))
+            run_tasks(InstallPackagesTask("cache-only packages", filtered_packages))
 
         elif command == "install-all-packages":
-            tasks.append(InstallPackagesTask("all packages", PACKAGES))
-            tasks.extend(InstallFontTask(cask) for cask in FONT_CASKS)
-            tasks.append(InstallInkscapeTask(INKSCAPE_CASK))
+            run_tasks(
+                InstallPackagesTask("all packages", PACKAGES),
+                *(InstallFontTask(cask) for cask in FONT_CASKS),
+                InstallInkscapeTask(INKSCAPE_CASK),
+            )
 
         else:
             sys.exit(f"Unknown command: {command}")
-
-    run_tasks(*tasks)
 
 
 if __name__ == "__main__":
