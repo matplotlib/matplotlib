@@ -2628,13 +2628,6 @@ def key_press_handler(event, canvas=None, toolbar=None):
         return
 
     # these bindings require the mouse to be over an Axes to trigger
-    def _get_uniform_gridstate(ticks):
-        # Return True/False if all grid lines are on or off, None if they are
-        # not all in the same state.
-        return (True if all(tick.gridline.get_visible() for tick in ticks) else
-                False if not any(tick.gridline.get_visible() for tick in ticks) else
-                None)
-
     ax = event.inaxes
     # toggle major grids in current Axes (default key 'g')
     # Both here and below (for 'G'), we do nothing if *any* grid (major or
@@ -2642,10 +2635,10 @@ def key_press_handler(event, canvas=None, toolbar=None):
     # customization.
     if (event.key in rcParams['keymap.grid']
             # Exclude minor grids not in a uniform state.
-            and None not in [_get_uniform_gridstate(ax.xaxis.minorTicks),
-                             _get_uniform_gridstate(ax.yaxis.minorTicks)]):
-        x_state = _get_uniform_gridstate(ax.xaxis.majorTicks)
-        y_state = _get_uniform_gridstate(ax.yaxis.majorTicks)
+            and None not in [ax.xaxis._minor_ticks.get_grid_visible(),
+                             ax.yaxis._minor_ticks.get_grid_visible()]):
+        x_state = ax.xaxis._major_ticks.get_grid_visible()
+        y_state = ax.yaxis._major_ticks.get_grid_visible()
         cycle = [(False, False), (True, False), (True, True), (False, True)]
         try:
             x_state, y_state = (
@@ -2661,10 +2654,10 @@ def key_press_handler(event, canvas=None, toolbar=None):
     # toggle major and minor grids in current Axes (default key 'G')
     if (event.key in rcParams['keymap.grid_minor']
             # Exclude major grids not in a uniform state.
-            and None not in [_get_uniform_gridstate(ax.xaxis.majorTicks),
-                             _get_uniform_gridstate(ax.yaxis.majorTicks)]):
-        x_state = _get_uniform_gridstate(ax.xaxis.minorTicks)
-        y_state = _get_uniform_gridstate(ax.yaxis.minorTicks)
+            and None not in [ax.xaxis._major_ticks.get_grid_visible(),
+                             ax.yaxis._major_ticks.get_grid_visible()]):
+        x_state = ax.xaxis._minor_ticks.get_grid_visible()
+        y_state = ax.yaxis._minor_ticks.get_grid_visible()
         cycle = [(False, False), (True, False), (True, True), (False, True)]
         try:
             x_state, y_state = (
