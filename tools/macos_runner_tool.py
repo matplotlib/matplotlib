@@ -403,8 +403,11 @@ class CleanRunnerTask(Task):
         REMOVE_BREW_SUBDIR = r"""
             set -e
             sudo mkdir -p "/opt/homebrew-aside/$1"
-            sudo find "/opt/homebrew/$1" -mindepth 1 -maxdepth 1 \
-                -exec sh -c 'mv "$@" "$0"' "/opt/homebrew-aside/$1/" {} +
+
+            if [ -d "/opt/homebrew/$1" ]; then
+                sudo find "/opt/homebrew/$1" -mindepth 1 -maxdepth 1 \
+                    -exec sh -c 'mv "$@" "$0"' "/opt/homebrew-aside/$1/" {} +
+            fi
         """
         for subdir in (
             "Caskroom", "Cellar", "include", "lib", "libexec",
