@@ -188,7 +188,6 @@ jobs:
           echo
           file /opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib
 
-
       - name: Run macos_runner_tool.py install-all-packages
         run: |
           python tools/ci_monitor.py mark "macos_runner_tool.py install-all-packages"
@@ -306,9 +305,6 @@ jobs:
           python -m pip install \
             --index-url https://pypi.anaconda.org/scientific-python-nightly-wheels/simple \
             --upgrade --only-binary=:all: numpy pandas
-
-      - name: Eject
-        run: exit 1
 
       - name: Update monitor mark
         run:
