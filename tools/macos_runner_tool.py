@@ -54,7 +54,7 @@ PACKAGES = (
 )
 
 # Additional packages to include in the cache
-CACHE_INCLUDE = ("gpg",)
+CACHE_INCLUDE = ("gpg", "gnu-tar", "zstd")
 
 # Packages to explicitly exclude from the cache due to their size.
 CACHE_EXCLUDE = ("python", "icu4c", "openssl")
@@ -414,7 +414,10 @@ class CleanRunnerTask(Task):
 
 
 class PreserveToolsTask(Task):
-    """Preserve select tools to /usr/local and rewrite their linker entries."""
+    """
+    Preserve select tools by copying to /usr/local and rewriting linker entries.
+    This is necessary as GitHub's actions/cache/restore needs both gtar and unzstd
+    """
 
     def __init__(self) -> None:
         super().__init__("preserve tools")

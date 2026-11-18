@@ -92,8 +92,6 @@ jobs:
       - name: Save cache
         if: steps.check.outputs.exists != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        env:
-          PATH: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
         with:
           path: /opt/homebrew
           key: ${{ env.CACHE_KEY }}
@@ -178,6 +176,10 @@ jobs:
         run: |
           ls -altr /opt/homebrew/lib
 
+      - name: list homebrew/lib/pkgconfig
+        run: |
+          ls -altr /opt/homebrew/lib/pkgconfig
+
       - name: list more things
         run: |
           printenv
@@ -187,6 +189,9 @@ jobs:
           file /opt/homebrew/lib/libglib-2.0.0.dylib
           echo
           file /opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib
+
+      - name: Eject!
+        run: exit 1
 
       - name: Run macos_runner_tool.py install-all-packages
         run: |
