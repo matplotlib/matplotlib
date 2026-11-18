@@ -50,6 +50,8 @@ enum {
 
 namespace mpl {
 
+const double pi = 3.141592653589793238462643383279502;
+
 inline int round_to_int(double v)
 {
     return (int)(v + ((v >= 0.0) ? 0.5 : -0.5));

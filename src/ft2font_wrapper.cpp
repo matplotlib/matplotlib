@@ -16,7 +16,6 @@
 #include <cstring>
 #include <exception>
 #include <iterator>
-#include <math.h>
 #include <memory>
 #include <optional>
 #include <set>
@@ -30,10 +29,6 @@
 
 #include "ft2font.h"
 #include "mplutils.h"
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338328
-#endif
 
 namespace py = pybind11;
 using namespace pybind11::literals;
@@ -1451,8 +1446,8 @@ PyFT2Font_render_glyph_run(
     double angle, double height, LoadFlags flags, FT_Render_Mode render_mode)
 {
     auto load_flags = static_cast<FT_Int32>(flags);
-    auto cos = std::cos(angle * (M_PI / 180.0));
-    auto sin = std::sin(angle * (M_PI / 180.0));
+    auto cos = std::cos(angle * (mpl::pi / 180.0));
+    auto sin = std::sin(angle * (mpl::pi / 180.0));
     auto round = [](double value) { return (FT_Fixed)std::nearbyint(value); };
 
     auto done_bitmap = [ft2Library](FT_Bitmap *b) { FT_Bitmap_Done(ft2Library, b); };
