@@ -61,6 +61,10 @@ jobs:
         with:
           python-version: '3.14'
 
+      - name: Preserve tools
+        run: |
+          python tools/macos_runner_tool.py preserve-tools
+
       - name: Snapshot /opt/homebrew
         if: steps.check.outputs.exists != 'true'
         run: python3 tools/macos_snapshot.py snapshot
@@ -71,7 +75,7 @@ jobs:
           HOMEBREW_NO_AUTO_UPDATE: 1
           HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
-          python tools/macos_runner_tool.py install-all-packages
+          python tools/macos_runner_tool.py install-cache-only-packages
 
       - name: Build delta and report
         if: steps.check.outputs.exists != 'true'
@@ -91,8 +95,7 @@ jobs:
       - name: Report /opt/homebrew-diff size
         if: steps.check.outputs.exists != 'true'
         run: |
-          sudo du -d 4 -h -I \
-            /opt/homebrew-diff 2>/dev/null | sort -rh | head -200
+          sudo du -d 4 -h /opt/homebrew-diff 2>/dev/null | sort -rh | head -200
 
       - name: Swap delta
         if: steps.check.outputs.exists != 'true'
@@ -103,6 +106,8 @@ jobs:
       - name: Save brew delta
         if: steps.check.outputs.exists != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
+        env:
+          PATH: /usr/local/bin:/usr/bin:/usr/sbin
         with:
           path: /opt/homebrew
           key: ${{ env.CACHE_KEY }}
@@ -170,8 +175,6 @@ jobs:
 
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        env:
-          PATH: /usr/bin:/usr/sbin
         with:
           path: /opt/homebrew
           key: ${{ matrix.os }}-brew-cache

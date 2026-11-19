@@ -9,7 +9,6 @@ import subprocess
 import tarfile
 
 PREFIX = "/opt/homebrew"
-ASIDE = "/opt/homebrew.full"
 MARKER = ".brew-delta"
 MANIFEST = "/tmp/brew-manifest.json"
 TOP_N = 20
@@ -143,19 +142,6 @@ def cmd_diff(args):
     write_report(args.log, added, modified, deleted, before, after, args.out)
 
 
-def cmd_swap_in(args):
-    run(["sudo", "mv", PREFIX, ASIDE])
-    run(["sudo", "mv", args.out, PREFIX])
-
-
-def cmd_swap_out(args):
-    # Nothing to undo if the swap never started
-    if not os.path.exists(ASIDE):
-        return
-    run(["sudo", "rm", "-rf", PREFIX])
-    run(["sudo", "mv", ASIDE, PREFIX])
-
-
 def cmd_finalize(args):
     marker = os.path.join(PREFIX, MARKER)
     with open(os.path.join(marker, "deleted.txt")) as f:
@@ -183,8 +169,6 @@ def main():
     handlers = {
         "snapshot": cmd_snapshot,
         "diff": cmd_diff,
-        "swap-in": cmd_swap_in,
-        "swap-out": cmd_swap_out,
         "finalize": cmd_finalize,
     }
     handlers[args.command](args)
