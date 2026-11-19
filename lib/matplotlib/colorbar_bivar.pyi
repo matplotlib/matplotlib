@@ -27,10 +27,10 @@ class BivarColorbar:
     def xaxis(self) -> Axis: ...
     @property
     def yaxis(self) -> Axis: ...
-    def update_normals(self, mappable: mcolorizer.ColorizingArtist | None = ...) -> None: ...
+    def update_normal(self, mappable: mcolorizer.ColorizingArtist | None = ...) -> None: ...
     def remove(self) -> None: ...
 
-def make_bivar_axes(
+def make_axes(
     parents: Axes | list[Axes] | np.ndarray,
     location: Literal["left", "right", "top", "bottom"] | None = ...,
     fraction: float = ...,
@@ -38,7 +38,7 @@ def make_bivar_axes(
     aspect: float = ...,
     **kwargs
 ) -> tuple[Axes, dict[str, Any]]: ...
-def make_bivar_axes_gridspec(
+def make_axes_gridspec(
     parent: Axes,
     *,
     location: Literal["left", "right", "top", "bottom"] | None = ...,
