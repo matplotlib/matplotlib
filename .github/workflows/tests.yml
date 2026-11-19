@@ -97,8 +97,8 @@ jobs:
       - name: Swap delta
         if: steps.check.outputs.exists != 'true'
         run: |
-          mv /opt/homebrew /opt/homebrew-aside
-          mv /opt/homebrew-diff /opt/homebrew
+          sudo mv /opt/homebrew /opt/homebrew-aside
+          sudo mv /opt/homebrew-diff /opt/homebrew
 
       - name: Save brew delta
         if: steps.delta-cache.outputs.cache-hit != 'true'
