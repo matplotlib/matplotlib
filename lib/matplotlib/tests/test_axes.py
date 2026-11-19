@@ -912,7 +912,7 @@ def test_errorbar_mapview_kwarg():
     ax.errorbar(x=D.keys(), y=D.values(), xerr=D.values())
 
 
-@image_comparison(['single_point', 'single_point'], style='mpl20')
+@image_comparison(['single_point.png', 'single_point.png'], style='mpl20')
 def test_single_point():
     # Issue #1796: don't let lines.marker affect the grid
     matplotlib.rcParams['lines.marker'] = 'o'
@@ -1185,7 +1185,7 @@ def test_inverted_limits():
     assert ax.get_ylim() == (10, 1)
 
 
-@image_comparison(['nonfinite_limits'], style='mpl20')
+@image_comparison(['nonfinite_limits.png'], style='mpl20')
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
     # silence divide by zero warning from log(0)
@@ -5990,7 +5990,7 @@ def test_vlines_hlines_blended_transform():
                colors='r')
 
 
-@image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True,
+@image_comparison(['step_linestyle.png', 'step_linestyle.png'], remove_text=True,
                   style='_classic_test', tol=0.2)
 def test_step_linestyle():
     # Tolerance caused by reordering of floating-point operations
