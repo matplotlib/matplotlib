@@ -47,20 +47,23 @@ from pathlib import Path
 
 # Homebrew packages that will be installed on every run. By default, the dependencies
 # of these packages will be included in the GitHub Actions cache.
-PACKAGES = (
+PACKAGES = set([
     "ccache", "ffmpeg", "ghostscript",
     "gobject-introspection", "gtk4",
     "imagemagick", "ninja"
-)
+])
+
+REINSTALL_PACKAGES = set(["glib", "gobject-introspection"])
 
 # Additional packages to include in the cache
-CACHE_INCLUDE = ("gobject-introspection", "gtk4")
+CACHE_INCLUDE = set([])
 
 # Packages to explicitly exclude from the cache due to their size.
-CACHE_EXCLUDE = ("openssl")
+CACHE_EXCLUDE = set(["openssl"])
+
 
 # Homebrew cask names of fonts to install
-FONT_CASKS = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
+FONT_CASKS = set(["font-noto-sans-cjk", "font-noto-sans-cjk-sc"])
 
 # Homebrew cask name of Inkscape
 INKSCAPE_CASK = "inkscape"
@@ -506,11 +509,17 @@ class DisableServicesTask(Task):
 class InstallPackagesTask(Task):
     """Perform a `brew install` of the specified packages."""
 
-    def __init__(self, name: str, packages: Sequence[str]) -> None:
+    def __init__(self,
+        name: str,
+        packages: Sequence[str],
+        reinstall: Sequence[str]
+    ) -> None:
         super().__init__(name)
         self._packages = list(packages)
+        self._reinstall = reinstall
 
     def execute(self, tmp_path: Path) -> None:
+        self.run("brew", "reinstall", "--display-times", *self._reinstall)
         self.run("brew", "install", "--display-times", *self._packages)
 
 
@@ -581,7 +590,7 @@ def main() -> None:
 
         elif command == "install-all-packages":
             run_tasks(
-                InstallPackagesTask("all packages", PACKAGES),
+                InstallPackagesTask("all packages", PACKAGES, REINSTALL_PACKAGES),
                 *(InstallFontTask(cask) for cask in FONT_CASKS),
                 InstallInkscapeTask(INKSCAPE_CASK),
             )
