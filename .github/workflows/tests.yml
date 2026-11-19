@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-15, macos-26]
+        os: [macos-15]
     runs-on: ${{ matrix.os }}
     name: "Build Homebrew cache (${{ matrix.os }})"
     env:
@@ -45,6 +45,11 @@ jobs:
             echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Export runner info
+        run: |
+          echo "DELTA_DIR=$RUNNER_TEMP/brew-delta" >> "$GITHUB_ENV"
+          echo "DELTA_LOG=$RUNNER_TEMP/brew-delta.log" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         if: steps.check.outputs.exists != 'true'
         with:
@@ -56,44 +61,41 @@ jobs:
         with:
           python-version: '3.14'
 
-      - name: Clean Runner Image
+      - name: Snapshot /opt/homebrew
         if: steps.check.outputs.exists != 'true'
-        run: |
-          python tools/macos_runner_tool.py clean-runner
+        run: python3 tools/macos_snapshot.py snapshot
 
       - name: Install cache-only packages
         if: steps.check.outputs.exists != 'true'
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
-          python tools/macos_runner_tool.py install-cache-only-packages
+          python tools/macos_runner_tool.py install-all-packages
 
-      - name: Prepare /opt/homebrew for cache
+      - name: Build delta and report
         if: steps.check.outputs.exists != 'true'
-        run: |
-          to_remove=(
-            /opt/homebrew/.git
-            /opt/homebrew/.github
-            /opt/homebrew/completions
-            /opt/homebrew/docs
-            /opt/homebrew/lib/ruby
-            /opt/homebrew/Library/Homebrew
-            /opt/homebrew/Library/Taps
-            /opt/homebrew/var/cache
-            /opt/homebrew/var/homebrew/locks
-          )
+        run: python3 tools/macos_snapshot.py diff "/opt/homebrew-diff" --log "$DELTA_LOG"
 
-          sudo mv "${to_remove[@]}" /opt/homebrew-aside
+      - name: Upload report
+        if: always() && steps.check.outputs.exists != 'true'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9  # v7.0.2
+        with:
+          name: brew-delta-report
+          path: ${{ env.DELTA_LOG }}
+          if-no-files-found: ignore
 
-      - name: Report /opt/homebrew size
+      - name: Report /opt/homebrew-diff size
         if: steps.check.outputs.exists != 'true'
         run: |
           sudo du -d 4 -h -I \
-            /opt/homebrew 2>/dev/null | sort -rh | head -200
+            /opt/homebrew-diff 2>/dev/null | sort -rh | head -200
 
-      - name: Save cache
-        if: steps.check.outputs.exists != 'true'
+      - name: Save brew delta
+        if: steps.delta-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          path: /opt/homebrew
+          path: /opt/homebrew-diff
           key: ${{ env.CACHE_KEY }}
 
   test:
@@ -157,18 +159,8 @@ jobs:
           echo $! > /tmp/ci_monitor.pid
           python tools/ci_monitor.py mark "Restore Homebrew cache"
 
-      - name: Clean Runner Image
-        run: |
-          python tools/macos_runner_tool.py preserve-tools clean-runner
-
-      - name: list links at depth >=3
-        run: |
-          find /opt/homebrew -mindepth 3 -type l
-
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
-        env:
-          PATH: /usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin
         with:
           path: /opt/homebrew
           key: ${{ matrix.os }}-brew-cache
@@ -176,24 +168,13 @@ jobs:
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
 
-      - name: list homebrew/lib/pkgconfig
-        run: |
-          ls -altr /opt/homebrew/lib/pkgconfig
-
-      - name: list more things
-        run: |
-          printenv
-          echo
-          ls -altr /opt/homebrew/Cellar/glib/2.90.1/lib/
-          echo
-          file /opt/homebrew/lib/libglib-2.0.0.dylib
-          echo
-          file /opt/homebrew/Cellar/glib/2.90.1/lib/libglib-2.0.0.dylib
-
-      - name: Eject!
-        run: exit 1
+      - name: Apply brew delta
+        run: python3 .github/scripts/brew_delta.py restore /opt/homebrew-diff
 
       - name: Run macos_runner_tool.py install-all-packages
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: 1
+          HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
           python tools/ci_monitor.py mark "macos_runner_tool.py install-all-packages"
           python tools/macos_runner_tool.py install-all-packages
