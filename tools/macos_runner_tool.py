@@ -54,7 +54,7 @@ PACKAGES = (
 )
 
 # Additional packages to include in the cache
-CACHE_INCLUDE = ("gobject-introspection")
+CACHE_INCLUDE = ("gobject-introspection",)
 
 # Packages to explicitly exclude from the cache due to their size.
 CACHE_EXCLUDE = ("icu4c", "openssl")
