@@ -452,6 +452,9 @@ class PreserveToolsTask(Task):
         def rewrite_linker_entries(path: Path):
             to_rewrite = get_linker_entries_to_rewrite(path)
 
+            if len(to_rewrite) == 0:
+                return
+
             args: list[str | Path] = []
             for entry in to_rewrite:
                 args += ["-change", entry, OUT_LIB_DIR / Path(entry).name]
@@ -469,7 +472,8 @@ class PreserveToolsTask(Task):
             self.run("sudo", "cp", "-L", HOMEBREW_PATH / "lib" / lib, OUT_LIB_DIR)
             self.run("sudo", "chmod", "u+w", OUT_LIB_DIR / lib)
 
-        rewrite_linker_entries(OUT_BIN_DIR / "unzstd")
+        for bin in BINS:
+            rewrite_linker_entries(OUT_BIN_DIR / bin)
 
         for bin in BINS:
             self.run("file", OUT_BIN_DIR / bin)
