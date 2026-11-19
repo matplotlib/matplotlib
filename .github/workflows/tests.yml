@@ -75,7 +75,7 @@ jobs:
           HOMEBREW_NO_AUTO_UPDATE: 1
           HOMEBREW_NO_INSTALL_CLEANUP: 1
         run: |
-          python tools/macos_runner_tool.py install-cache-only-packages
+          python tools/macos_runner_tool.py install-all-packages
 
       - name: Build delta and report
         if: steps.check.outputs.exists != 'true'
