@@ -1,6 +1,11 @@
 """
 Colorbars for bivariate colormaps.
 
+.. admonition:: Provisional status of colorbar_bivar
+
+    The ``colorbar_bivar`` module and its contents are considered provisional
+    and may change at any time without a deprecation period.
+
 A bivariate colorbar (`BivarColorbar`) shows a `.BivarColormap` as a 2D image,
 with one data variable along each axis. It is typically created with
 `.Figure.colorbar_bivar`.
@@ -75,7 +80,7 @@ class BivarColorbar:
         location=None,
         ticklocations=('auto', 'auto'),
         aspect=1.0,
-                ):
+    ):
         """
         Parameters
         ----------
@@ -86,7 +91,9 @@ class BivarColorbar:
             The mappable whose colormap and norm will be used.
 
         location : None or {'left', 'right', 'top', 'bottom'}
-            Set the bivariate colorbars's location
+            The location of the bivariate colorbar relative to the Axes.
+            If not None, this information is used to determine
+            'auto' *ticklocations*.
 
         Other Parameters
         ----------------
@@ -105,7 +112,7 @@ class BivarColorbar:
 
         mappable.colorbar = self
         mappable.colorbar_cid = mappable.callbacks.connect(
-            'changed', self.update_normals)
+            'changed', self.update_normal)
 
         yticklocation, xticklocation = _resolve_bivar_ticklocations(
             ticklocations, location)
@@ -115,7 +122,7 @@ class BivarColorbar:
                           ticks_position=xticklocation)
 
         self._image = None
-        self.update_normals()  # also calls _draw_all()
+        self.update_normal()  # also calls _draw_all()
         self.ax._colorbar = self
         self._patch_ax_methods()
 
@@ -241,8 +248,13 @@ class BivarColorbar:
     def yaxis(self):
         return self.ax.yaxis
 
-    def update_normals(self, mappable=None):
+    def update_normal(self, mappable=None):
         """Redraw the colorbar after the norm or colormap of the mappable changed."""
+        # This method is the callback in
+        #     mappable.colorbar_cid = mappable.callbacks.connect(
+        #         'changed', self.update_normal)
+        # which requires a callable that accepts the mappable as an argument.
+        # _draw_all() takes no arguments, so it cannot be connected directly.
         self._draw_all()
 
     def remove(self):
@@ -347,8 +359,8 @@ def _to_bivar_kwargs(kwargs, aspect):
 
 
 @_docstring.interpd
-def make_bivar_axes(parents, location=None, fraction=0.15,
-                    shrink=1.0, aspect=1.0, **kwargs):
+def make_axes(parents, location=None, fraction=0.15,
+              shrink=1.0, aspect=1.0, **kwargs):
     """
     Create an `~.axes.Axes` suitable for a bivariate colorbar.
 
@@ -375,8 +387,8 @@ def make_bivar_axes(parents, location=None, fraction=0.15,
 
 
 @_docstring.interpd
-def make_bivar_axes_gridspec(parent, *, location=None,
-                             fraction=0.15, shrink=1.0, aspect=1.0, **kwargs):
+def make_axes_gridspec(parent, *, location=None,
+                       fraction=0.15, shrink=1.0, aspect=1.0, **kwargs):
     """
     Create an `~.axes.Axes` suitable for a bivariate colorbar.
 
