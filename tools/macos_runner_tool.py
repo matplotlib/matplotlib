@@ -48,16 +48,16 @@ from pathlib import Path
 # Homebrew packages that will be installed on every run. By default, the dependencies
 # of these packages will be included in the GitHub Actions cache.
 PACKAGES = (
-    "ccache", "ffmpeg", "ghostscript", "gpg",
+    "ccache", "ffmpeg", "ghostscript",
     "gobject-introspection", "gtk4",
     "imagemagick", "ninja"
 )
 
 # Additional packages to include in the cache
-CACHE_INCLUDE = ("gpg", "gnu-tar", "zstd")
+CACHE_INCLUDE = ("gobject-introspection")
 
 # Packages to explicitly exclude from the cache due to their size.
-CACHE_EXCLUDE = ("python", "icu4c", "openssl")
+CACHE_EXCLUDE = ("icu4c", "openssl")
 
 # Homebrew cask names of fonts to install
 FONT_CASKS = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
