@@ -53,10 +53,10 @@ PACKAGES = set([
     "imagemagick", "ninja"
 ])
 
-REINSTALL_PACKAGES = set(["glib", "gobject-introspection"])
+REINSTALL_PACKAGES = set([])
 
 # Additional packages to include in the cache
-CACHE_INCLUDE = set([])
+CACHE_INCLUDE = set(["gobject-introspection", "gtk4"])
 
 # Packages to explicitly exclude from the cache due to their size.
 CACHE_EXCLUDE = set(["openssl"])
