@@ -511,16 +511,18 @@ class InstallPackagesTask(Task):
 
     def __init__(self,
         name: str,
-        packages: Sequence[str],
-        reinstall: Sequence[str] = set()
+        packages_to_install: Sequence[str] = [],
+        packages_to_reinstall: Sequence[str] = []
     ) -> None:
         super().__init__(name)
-        self._packages = list(packages)
-        self._reinstall = reinstall
+        self._to_install = list(packages_to_install)
+        self._to_reinstall = list(packages_to_reinstall)
 
     def execute(self, tmp_path: Path) -> None:
-        self.run("brew", "reinstall", "--display-times", *self._reinstall)
-        self.run("brew", "install", "--display-times", *self._packages)
+        if len(self._to_reinstall) > 0:
+            self.run("brew", "reinstall", "--display-times", *self._to_reinstall)
+        if len(self._to_install) > 0:
+            self.run("brew", "install", "--display-times", *self._to_install)
 
 
 class InstallFontTask(Task):
