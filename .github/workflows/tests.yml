@@ -77,7 +77,7 @@ jobs:
         if: steps.check.outputs.exists != 'true'
         run: |
           sudo mkdir /opt/homebrew-diff
-          sudo chmod 777 /opt/homebrew-diff
+          sudo chown "$(id -un):$(id -gn)" /opt/homebrew-diff
           python3 tools/macos_snapshot.py diff "/opt/homebrew-diff" --log "$DELTA_LOG"
 
       - name: Upload report
