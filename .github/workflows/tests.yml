@@ -75,7 +75,9 @@ jobs:
 
       - name: Build delta and report
         if: steps.check.outputs.exists != 'true'
-        run: python3 tools/macos_snapshot.py diff "/opt/homebrew-diff" --log "$DELTA_LOG"
+        run: |
+          sudo mkdir /opt/homebrew-diff
+          python3 tools/macos_snapshot.py diff "/opt/homebrew-diff" --log "$DELTA_LOG"
 
       - name: Upload report
         if: always() && steps.check.outputs.exists != 'true'
