@@ -5,9 +5,12 @@ import json
 import os
 import shutil
 import stat
+import subprocess
 import tarfile
 
 PREFIX = "/opt/homebrew"
+ASIDE = "/opt/homebrew.full"
+MARKER = ".brew-delta"
 MANIFEST = "/tmp/brew-manifest.json"
 TOP_N = 20
 
@@ -23,6 +26,10 @@ class Counter(io.RawIOBase):
     def write(self, data):
         self.count += len(data)
         return len(data)
+
+
+def run(cmd):
+    subprocess.run(cmd, check=True)
 
 
 def human(n):
@@ -77,6 +84,13 @@ def copy_entry(src, dst):
         shutil.copy2(src, dst, follow_symlinks=False)
 
 
+def stage(rel, out):
+    parent = os.path.dirname(rel)
+    if parent and not os.path.lexists(os.path.join(out, parent)):
+        stage(parent, out)
+    copy_entry(os.path.join(PREFIX, rel), os.path.join(out, rel))
+
+
 def write_report(path, added, modified, deleted, before, after, tree):
     size_added = sum(file_size(after[p]) for p in added)
     size_modified = sum(file_size(after[p]) for p in modified)
@@ -120,23 +134,31 @@ def cmd_diff(args):
     modified = sorted(p for p in after if p in before and before[p] != after[p])
     deleted = sorted(p for p in before if p not in after)
     shutil.rmtree(args.out, ignore_errors=True)
-    tree = os.path.join(args.out, "tree")
-    os.makedirs(tree)
+    os.makedirs(os.path.join(args.out, MARKER))
     for rel in added + modified:
-        copy_entry(os.path.join(PREFIX, rel), os.path.join(tree, rel))
-    with open(os.path.join(args.out, "deleted.txt"), "w") as f:
+        stage(rel, args.out)
+    with open(os.path.join(args.out, MARKER, "deleted.txt"), "w") as f:
         f.write("\n".join(deleted))
-    write_report(args.log, added, modified, deleted, before, after, tree)
+    shutil.copystat(PREFIX, args.out)
+    write_report(args.log, added, modified, deleted, before, after, args.out)
 
 
-def cmd_restore(args):
-    tree = os.path.join(args.out, "tree")
-    for dirpath, dirnames, filenames in os.walk(tree):
-        for name in dirnames + filenames:
-            src = os.path.join(dirpath, name)
-            rel = os.path.relpath(src, tree)
-            copy_entry(src, os.path.join(PREFIX, rel))
-    with open(os.path.join(args.out, "deleted.txt")) as f:
+def cmd_swap_in(args):
+    run(["sudo", "mv", PREFIX, ASIDE])
+    run(["sudo", "mv", args.out, PREFIX])
+
+
+def cmd_swap_out(args):
+    # Nothing to undo if the swap never started
+    if not os.path.exists(ASIDE):
+        return
+    run(["sudo", "rm", "-rf", PREFIX])
+    run(["sudo", "mv", ASIDE, PREFIX])
+
+
+def cmd_finalize(args):
+    marker = os.path.join(PREFIX, MARKER)
+    with open(os.path.join(marker, "deleted.txt")) as f:
         deleted = [line for line in f.read().split("\n") if line]
     for rel in deleted:
         path = os.path.join(PREFIX, rel)
@@ -144,6 +166,7 @@ def cmd_restore(args):
             os.remove(path)
         elif os.path.isdir(path):
             shutil.rmtree(path)
+    shutil.rmtree(marker)
 
 
 def main():
@@ -153,12 +176,16 @@ def main():
     diff = sub.add_parser("diff")
     diff.add_argument("out")
     diff.add_argument("--log", default="brew-delta.log")
-    sub.add_parser("restore").add_argument("out")
+    sub.add_parser("swap-in").add_argument("out")
+    sub.add_parser("swap-out")
+    sub.add_parser("finalize")
     args = parser.parse_args()
     handlers = {
         "snapshot": cmd_snapshot,
         "diff": cmd_diff,
-        "restore": cmd_restore,
+        "swap-in": cmd_swap_in,
+        "swap-out": cmd_swap_out,
+        "finalize": cmd_finalize,
     }
     handlers[args.command](args)
 

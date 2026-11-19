@@ -94,11 +94,17 @@ jobs:
           sudo du -d 4 -h -I \
             /opt/homebrew-diff 2>/dev/null | sort -rh | head -200
 
+      - name: Swap delta
+        if: steps.check.outputs.exists != 'true'
+        run: |
+          mv /opt/homebrew /opt/homebrew-aside
+          mv /opt/homebrew-diff /opt/homebrew
+
       - name: Save brew delta
         if: steps.delta-cache.outputs.cache-hit != 'true'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          path: /opt/homebrew-diff
+          path: /opt/homebrew
           key: ${{ env.CACHE_KEY }}
 
   test:
@@ -165,14 +171,11 @@ jobs:
       - name: Restore Homebrew cache
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
-          path: /opt/homebrew-diff
+          path: /opt/homebrew
           key: ${{ matrix.os }}-brew-cache
           restore-keys: |
             ${{ matrix.os }}-brew-cache-
           fail-on-cache-miss: true
-
-      - name: Apply brew delta
-        run: python3 .github/scripts/brew_delta.py restore /opt/homebrew-diff
 
       - name: Run macos_runner_tool.py install-all-packages
         env:
