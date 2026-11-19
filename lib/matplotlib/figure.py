@@ -1562,10 +1562,6 @@ default: %(va)s
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.')
             fig = cbar._figure_of_first_axes(ax)
-            if isinstance(fig.get_layout_engine(), ConstrainedLayoutEngine):
-                raise NotImplementedError(
-                    "colorbar_multivar does not support constrained layout yet. "
-                    "Pass the Axes to draw the colorbars in as *caxes* instead.")
             current_ax = fig.gca()
             caxes, kwargs, colorbar_info = cbar_multivar.make_axes(
                 ax, n_variates, n_major, **kwargs)

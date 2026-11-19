@@ -1,6 +1,8 @@
 from matplotlib import colorizer as mcolorizer
 from matplotlib.axes import Axes
+from matplotlib.backend_bases import RendererBase
 from matplotlib.colorbar import Colorbar
+from matplotlib.transforms import Bbox
 
 import numpy as np
 from collections.abc import Sequence
@@ -22,6 +24,9 @@ class MultivarColorbar(Sequence[Colorbar]):
     @overload
     def __getitem__(self, index: slice[int | None, int | None, int | None], /) -> Sequence[Colorbar]: ...
     def __len__(self) -> int: ...
+    def get_tightbbox(
+        self, renderer: RendererBase | None = ..., for_layout_only: bool = ...
+    ) -> Bbox: ...
 
 def make_axes(
     parents: Axes | list[Axes] | np.ndarray,

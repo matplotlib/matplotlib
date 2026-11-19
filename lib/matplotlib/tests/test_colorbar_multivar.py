@@ -125,11 +125,34 @@ def test_colorbar_multivar_n_major_grid(location, n_major, shape):
         fig.colorbar_multivar(mim, n_major=0)
 
 
-def test_colorbar_multivar_constrained_layout_not_supported():
-    fig, ax = plt.subplots(layout='constrained')
-    mim = ax.imshow(np.zeros((2, 3, 4)), cmap='2VarAddA')
-    with pytest.raises(NotImplementedError, match='constrained layout'):
-        fig.colorbar_multivar(mim)
-    # Axes given explicitly need no layout.
-    fig.colorbar_multivar(mim, caxes=[fig.add_axes((0, 0, 0.1, 0.1)),
-                                      fig.add_axes((0.2, 0, 0.1, 0.1))])
+@image_comparison(['multivar_cbar_locationing_constrained.png',
+                   ], style='mpl20',
+                  remove_text=True, savefig_kwarg={'dpi': 40}, tol=0.05)
+def test_colorbar_multivar_location_constrained():
+    data = (np.arange(12).reshape((3, 4)) % 4,
+            np.arange(12).reshape((3, 4)) % 3)
+    # -------------------
+    locations = ['left', 'right', 'top', 'bottom']
+    fig, axes = plt.subplots(2, 2, constrained_layout='constrained')
+    for i, ax in enumerate(axes.ravel()):
+        mim = ax.imshow(data, cmap='2VarAddA')
+        fig.colorbar_multivar(mim, location=locations[i])
+
+
+@image_comparison(['multivar_cbar_n_major.png',
+                   ], style='mpl20',
+                  remove_text=True, savefig_kwarg={'dpi': 40}, tol=0.05)
+def test_colorbar_multivar_n_major():
+    data = (np.arange(12).reshape((3, 4)) % 4,
+            np.arange(12).reshape((3, 4)) % 3,
+            np.arange(12).reshape((3, 4)) % 5)
+    # -------------------
+    fig, axes = plt.subplots(4, 3, figsize=(8, 8), constrained_layout='constrained')
+    locations = ['left', 'right', 'top', 'bottom']
+    for i, axs in enumerate(axes):
+        for j, ax in enumerate(axs):
+            mim = ax.imshow(data, cmap='3VarAddA')
+            fig.colorbar_multivar(mim, n_major=j + 1, location=locations[i])
+
+    with pytest.raises(ValueError, match="cannot be zero"):
+        fig.colorbar_multivar(mim, n_major=0)

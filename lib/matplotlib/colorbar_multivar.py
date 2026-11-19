@@ -22,6 +22,7 @@ import numpy as np
 from matplotlib import _docstring
 from matplotlib import colorbar as mcolorbar
 from matplotlib import colorizer as mcolorizer
+from matplotlib import transforms as mtransforms
 
 
 _docstring.interpd.register(
@@ -123,8 +124,13 @@ class MultivarColorbar(Sequence):
         return self._mappable.colorizer
 
     def _set_colorbar_info(self, colorbar_info):
-        """Store the layout information created by `make_axes`."""
+        """
+        Store the layout information created by `make_axes`, and
+        register the colorbars with their parent Axes for constrained layout.
+        """
         self._colorbar_info = colorbar_info
+        for parent in colorbar_info['parents']:
+            parent._colorbars.append(self)
 
     def update_normal(self, mappable=None):
         """Redraw the colorbars after the norm or colormap of the mappable changed."""
@@ -164,6 +170,129 @@ class MultivarColorbar(Sequence):
             ax._set_position(pos)
         else:
             ax.set_subplotspec(subplotspec)
+
+    def get_tightbbox(self, renderer=None, for_layout_only=False):
+        """
+        Return the tight bounding box of the colorbars in display space.
+
+        With *for_layout_only*, and if the colorbars were created by
+        `.Figure.colorbar_multivar`, this is the space needed to fit all
+        colorbars in their grid, as used by constrained layout.
+        """
+        if for_layout_only and hasattr(self, '_colorbar_info'):
+            # figure out the maximum size of the tight boxes
+            # then multiply that up to the correct size
+            bounds = self.axes[0].get_tightbbox(renderer=renderer,
+                                                for_layout_only=True).bounds
+            x0, y0, width, height = bounds
+            for ax in self.axes[1:]:
+                bb = ax.get_tightbbox(renderer=renderer,
+                                      for_layout_only=True).bounds
+                x0 = min(x0, bb[0])
+                y0 = min(y0, bb[1])
+                width = max(width, bb[2])
+                height = max(height, bb[3])
+            n_major = self._colorbar_info["n_major"]
+            n_minor = self._colorbar_info["n_minor"]
+
+            maj_p = self._colorbar_info["major_pad"]
+            min_p = self._colorbar_info["minor_pad"]
+
+            if self._colorbar_info["orientation"] == 'vertical':
+                # height *= n_major
+                width *= n_minor + min_p * (n_minor - 1)
+                height *= n_major + maj_p * (n_major - 1)
+            else:
+                width *= n_major + maj_p * (n_major - 1)
+                height *= n_minor + min_p * (n_minor - 1)
+
+            bbox = mtransforms.Bbox.from_bounds(x0, y0, width, height)
+        else:
+            # the bbox around the colorbars as they are currently placed
+            bbox = mtransforms.Bbox.union(
+                [ax.get_tightbbox(renderer=renderer, for_layout_only=for_layout_only)
+                 for ax in self.axes])
+        return bbox
+
+    def _get_tight_packing_inside(self, bbox):
+        """
+        Positions the colorbars in a grid contained in bbox
+
+        This function relates to get_tightbbox(for_layout_only=True)
+        It requires that self._colorbar_info exists
+
+        It will position colorbars so that the bboxes
+        of each component spans the assigned bbox
+
+        The procedure for vertical colorbars is as follows:
+        1. Calculate the height of each colorbar, based on n_minor and the padding
+        2. From the height calculate the width using the aspect
+        3. With both the width and height known, position the colorbars equispaced.
+
+        Horizontal colorbars follow the same procedure but the height and width
+        are swapped.
+        """
+        x_b, y_b, width_b, height_b = bbox.bounds  # b for box
+        if hasattr(self, '_colorbar_info'):
+            n_major = self._colorbar_info["n_major"]
+            n_minor = self._colorbar_info["n_minor"]
+            aspect = self._colorbar_info["aspect"]
+            major_pad = self._colorbar_info["major_pad"]
+            if self._colorbar_info["orientation"] == 'vertical':
+                if n_major > 1:
+                    bar_height = height_b * (1 - major_pad) / n_major
+                    y_spacing = (height_b - bar_height * n_major)/(n_major-1)
+                else:
+                    bar_height = height_b
+                    y_spacing = 0
+                bar_width = bar_height / aspect
+                if n_minor > 1:
+                    x_spacing = (width_b - bar_width * n_minor)/(n_minor)
+                else:
+                    x_spacing = 0
+            else:
+                if n_major > 1:
+                    bar_width = width_b * (1 - major_pad) / n_major
+                    x_spacing = (width_b - bar_width * n_major)/(n_major-1)
+                else:
+                    bar_width = width_b
+                    x_spacing = 0
+                bar_height = bar_width / aspect
+                if n_minor > 1:
+                    y_spacing = (height_b - bar_height * n_minor)/(n_minor)
+                else:
+                    y_spacing = 0
+
+            x_step = bar_width + x_spacing
+            y_step = bar_height + y_spacing
+            bboxes = []
+            if self._colorbar_info["orientation"] == 'vertical':
+                for i in range(n_minor):
+                    for j in range(n_major):
+                        bboxes.append(mtransforms.Bbox([[x_b + i * x_step,
+                                                         y_b + j * y_step],
+                                                        [x_b + i * x_step + bar_width,
+                                                         y_b + j * y_step + bar_height],
+                                                        ]))
+            else:
+                for i in range(n_minor):
+                    for j in range(n_major):
+                        bboxes.append(mtransforms.Bbox([[x_b + j * x_step,
+                                                         y_b + i * y_step],
+                                                        [x_b + j * x_step + bar_width,
+                                                         y_b + i * y_step + bar_height],
+                                                        ]))
+            return bboxes
+        else:
+            raise ValueError("_set_tight_packing cannot be called "
+                             "unless the MultivarColorbar was created "
+                             "by fig.colorbar_multivar(mappable).")
+
+    def _get_original_position(self):
+        """The bbox around the original positions of all colorbar Axes."""
+        # comparable to axes.get_position(original=True)
+        return mtransforms.Bbox.union(
+            [ax.get_position(original=True) for ax in self.axes])
 
     def __getitem__(self, index):
         return self._colorbars[index]
@@ -285,6 +414,7 @@ def make_axes(parents, n_variates, n_major=-1, location=None,
         cax.set_aspect('auto')
         caxes.append(cax)
 
-    colorbar_info.update(n_major=n_major, n_minor=n_minor, major_pad=major_pad,
-                         minor_pad=minor_pad, orientation=orientation)
+    colorbar_info.update(type='MultivarColorbar', n_major=n_major, n_minor=n_minor,
+                         major_pad=major_pad, minor_pad=minor_pad,
+                         orientation=orientation)
     return caxes, kwargs, colorbar_info
