@@ -54,10 +54,10 @@ PACKAGES = (
 )
 
 # Additional packages to include in the cache
-CACHE_INCLUDE = ("gobject-introspection",)
+CACHE_INCLUDE = ("gobject-introspection", "gtk4")
 
 # Packages to explicitly exclude from the cache due to their size.
-CACHE_EXCLUDE = ("icu4c", "openssl")
+CACHE_EXCLUDE = ("openssl")
 
 # Homebrew cask names of fonts to install
 FONT_CASKS = ("font-noto-sans-cjk", "font-noto-sans-cjk-sc")
