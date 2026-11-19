@@ -512,7 +512,7 @@ class InstallPackagesTask(Task):
     def __init__(self,
         name: str,
         packages: Sequence[str],
-        reinstall: Sequence[str]
+        reinstall: Sequence[str] = set()
     ) -> None:
         super().__init__(name)
         self._packages = list(packages)
