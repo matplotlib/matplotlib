@@ -957,6 +957,31 @@ ReST text are delimited by the line ``# %%`` :
 
 In this way text, code, and figures are output in a "notebook" style.
 
+Outputs
+-------
+When generating visuals with Matplotlib using ``.py`` files in examples,
+display the visual with `matplotlib.pyplot.show` to display the visual.
+Keep the documentation clear of Python output lines.
+
+.. table::
+   :width: 100%
+   :widths: 50, 50
+
+   +------------------------------------+------------------------------------+
+   | Correct                            | Incorrect                          |
+   +====================================+====================================+
+   | ::                                 | ::                                 |
+   |                                    |                                    |
+   |    plt.plot([1, 2, 3], [1, 2, 3])  |    plt.plot([1, 2, 3], [1, 2, 3])  |
+   |    plt.show()                      |                                    |
+   +------------------------------------+------------------------------------+
+   | ::                                 | ::                                 |
+   |                                    |                                    |
+   |    fig, ax = plt.subplots()        |    fig, ax = plt.subplots()        |
+   |    ax.plot([1, 2, 3], [1, 2, 3])   |    ax.plot([1, 2, 3], [1, 2, 3])   |
+   |    fig.show()                      |                                    |
+   +------------------------------------+------------------------------------+
+
 .. _sample-data:
 
 Sample data
