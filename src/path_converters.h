@@ -6,12 +6,15 @@
 #include <pybind11/pybind11.h>
 
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <limits>
 
+#include "agg_basics.h"
 #include "agg_clip_liang_barsky.h"
-#include "mplutils.h"
 #include "agg_conv_segmentator.h"
+
+#include "mplutils.h"
 
 /*
  This file contains a number of vertex converters that modify
@@ -1083,13 +1086,12 @@ class Sketch
           m_rand(0)
     {
         rewind(0);
-        const double d_M_PI = 3.14159265358979323846;
         // Set derived values to zero if m_length or m_randomness are zero to
         // avoid divide-by-zero errors when a sketch is created but not used.
         if (m_length <= std::numeric_limits<double>::epsilon() || m_randomness <= std::numeric_limits<double>::epsilon()) {
             m_p_scale = 0.0;
         } else {
-            m_p_scale = (2.0 * d_M_PI) / (m_length * m_randomness);
+            m_p_scale = (2.0 * agg::pi) / (m_length * m_randomness);
         }
         if (m_randomness <= std::numeric_limits<double>::epsilon()) {
             m_log_randomness = 0.0;

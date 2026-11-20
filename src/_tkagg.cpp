@@ -10,6 +10,10 @@
 // you can get it at https://python-pillow.github.io
 
 #include <Python.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/numpy.h>
+
+#include <climits>
 #include <new>
 #include <stdexcept>
 #include <string>
@@ -29,8 +33,6 @@
 #endif
 #endif
 
-#include <pybind11/pybind11.h>
-#include <pybind11/numpy.h>
 #include "mplutils.h"
 
 namespace py = pybind11;

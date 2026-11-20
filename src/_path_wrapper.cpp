@@ -5,10 +5,15 @@
 #endif
 
 #include <array>
-#include <limits>
+#include <cstddef>
+#include <cstdint>
 #include <optional>
+#include <stdexcept>
 #include <string>
 #include <vector>
+
+#include "agg_basics.h"
+#include "agg_trans_affine.h"
 
 #include "_path.h"
 

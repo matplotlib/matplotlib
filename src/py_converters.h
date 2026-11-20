@@ -14,6 +14,8 @@
 
 namespace py = pybind11;
 
+#include <stdexcept>
+
 #include "agg_basics.h"
 #include "agg_color_rgba.h"
 #include "agg_trans_affine.h"

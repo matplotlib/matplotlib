@@ -7,10 +7,16 @@
 #include <array>
 #include <cassert>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <limits>
+#include <new>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "agg_basics.h"
 #include "agg_conv_contour.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_stroke.h"
