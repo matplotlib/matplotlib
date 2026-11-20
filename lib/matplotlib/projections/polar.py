@@ -490,11 +490,12 @@ class _ThetaShift(mtransforms.ScaledTranslation):
         The padding to apply, in points.
     mode : {'min', 'max', 'rlabel'}
         Whether to shift away from the start (``'min'``) or the end (``'max'``)
-        of the axes, or using the rlabel position (``'rlabel'``).
+        of the axes, or away from the radial line of the r-labels
+        (``'rlabel'``).
     """
     def __init__(self, axes, pad, mode):
         super().__init__(pad, pad, axes.get_figure(root=False).dpi_scale_trans)
-        self.set_children(axes._realViewLim)
+        self.set_children(axes._realViewLim, axes._r_label_transform)
         self.axes = axes
         self.mode = mode
         self.pad = pad
@@ -504,11 +505,14 @@ class _ThetaShift(mtransforms.ScaledTranslation):
     def get_matrix(self):
         if self._invalid:
             if self.mode == 'rlabel':
+                # Shift to the side of the radial line on which the labels
+                # are aligned (see RadialTick._determine_anchor): clockwise
+                # for counterclockwise theta and vice versa.
+                direction = self.axes.get_theta_direction()
                 angle = (
-                    np.deg2rad(self.axes.get_rlabel_position()
-                               * self.axes.get_theta_direction())
+                    self.axes._get_rlabel_theta() * direction
                     + self.axes.get_theta_offset()
-                    - np.pi / 2
+                    - direction * np.pi / 2
                 )
             elif self.mode == 'min':
                 angle = self.axes._realViewLim.xmin - np.pi / 2
@@ -516,6 +520,29 @@ class _ThetaShift(mtransforms.ScaledTranslation):
                 angle = self.axes._realViewLim.xmax + np.pi / 2
             self._t = (self.pad * np.cos(angle) / 72, self.pad * np.sin(angle) / 72)
         return super().get_matrix()
+
+
+class _RLabelTransform(mtransforms.Affine2DBase):
+    """
+    Translate theta to the radial line on which the r-labels are placed.
+
+    The angle is evaluated lazily (see `PolarAxes._get_rlabel_theta`), so that
+    it follows both the rlabel position and the current theta limits.
+    """
+    def __init__(self, axes):
+        super().__init__()
+        self.set_children(axes.viewLim)
+        self.axes = axes
+
+    __str__ = mtransforms._make_str_method("axes")
+
+    def get_matrix(self):
+        if self._invalid:
+            self._mtx = mtransforms.IdentityTransform._mtx.copy()
+            self._mtx[0, 2] = self.axes._get_rlabel_theta()
+            self._inverted = None
+            self._invalid = 0
+        return self._mtx
 
 
 class RadialTick(maxis.YTick):
@@ -598,16 +625,14 @@ class RadialTick(maxis.YTick):
         offset = np.rad2deg(offset_rad)
         full = _is_full_circle_deg(thetamin, thetamax)
 
+        angle = (np.rad2deg(axes._get_rlabel_theta()) * direction +
+                 offset) % 360 - 90
         if full:
-            angle = (axes.get_rlabel_position() * direction +
-                     offset) % 360 - 90
             tick_angle = 0
+        elif direction > 0:
+            tick_angle = np.deg2rad(angle)
         else:
-            angle = (thetamin * direction + offset) % 360 - 90
-            if direction > 0:
-                tick_angle = np.deg2rad(angle)
-            else:
-                tick_angle = np.deg2rad(angle + 180)
+            tick_angle = np.deg2rad(angle + 180)
         text_angle = (angle + 90) % 180 - 90  # between -90 and +90.
         mode, user_angle = self._labelrotation
         if mode == 'auto':
@@ -915,11 +940,12 @@ class PolarAxes(Axes):
                 mtransforms.BboxTransformTo(self.viewLim),
                 mtransforms.IdentityTransform()) +
             self.transData)
-        # The r-axis labels are put at an angle and padded in the r-direction
-        self._r_label_position = mtransforms.Affine2D() \
-            .translate(self._default_rlabel_position, 0.0)
+        # The r-axis labels are put at an angle and padded in the r-direction.
+        # The angle (in radians) is None until set by set_rlabel_position.
+        self._r_label_position = None
+        self._r_label_transform = _RLabelTransform(self)
         self._yaxis_text_transform = mtransforms.TransformWrapper(
-            self._r_label_position + self.transData)
+            self._r_label_transform + self.transData)
 
     def get_xaxis_transform(self, which='grid'):
         _api.check_in_list(['tick1', 'tick2', 'grid'], which=which)
@@ -932,7 +958,9 @@ class PolarAxes(Axes):
         return self._xaxis_text_transform, 'center', 'center'
 
     def get_yaxis_transform(self, which='grid'):
-        if which in ('tick1', 'tick2'):
+        if which == 'tick1':
+            return self._r_label_transform + self.transData
+        elif which == 'tick2':
             return self._yaxis_text_transform
         elif which == 'grid':
             return self._yaxis_transform
@@ -941,15 +969,12 @@ class PolarAxes(Axes):
 
     def get_yaxis_text1_transform(self, pad):
         thetamin, thetamax = self._realViewLim.intervalx
+        trans = self._r_label_transform + self.transData
         if _is_full_circle_rad(thetamin, thetamax):
-            return self._yaxis_text_transform, 'bottom', 'left'
-        elif self.get_theta_direction() > 0:
-            halign = 'left'
-            pad_shift = _ThetaShift(self, pad, 'min')
-        else:
-            halign = 'right'
-            pad_shift = _ThetaShift(self, pad, 'max')
-        return self._yaxis_text_transform + pad_shift, 'center', halign
+            return trans, 'bottom', 'left'
+        halign = 'left' if self.get_theta_direction() > 0 else 'right'
+        pad_shift = _ThetaShift(self, pad, 'rlabel')
+        return trans + pad_shift, 'center', halign
 
     def get_yaxis_text2_transform(self, pad):
         if self.get_theta_direction() > 0:
@@ -1000,7 +1025,7 @@ class PolarAxes(Axes):
         if visible:
             yaxis_text_transform = self._yaxis_transform
         else:
-            yaxis_text_transform = self._r_label_position + self.transData
+            yaxis_text_transform = self._r_label_transform + self.transData
         if self._yaxis_text_transform != yaxis_text_transform:
             self._yaxis_text_transform.set(yaxis_text_transform)
             self.yaxis.reset_ticks()
@@ -1265,7 +1290,9 @@ class PolarAxes(Axes):
         float
             The theta position of the radius labels in degrees.
         """
-        return np.rad2deg(self._r_label_position.get_matrix()[0, 2])
+        if self._r_label_position is None:
+            return np.rad2deg(self._default_rlabel_position)
+        return np.rad2deg(self._r_label_position)
 
     def set_rlabel_position(self, value):
         """
@@ -1275,8 +1302,32 @@ class PolarAxes(Axes):
         ----------
         value : number
             The angular position of the radius labels in degrees.
+
+        Notes
+        -----
+        On axes showing only a wedge (see `set_thetamin` / `set_thetamax`),
+        the radius labels are placed along the wedge edges by default;
+        setting the label position explicitly moves them to the given angle,
+        which may also be outside the wedge.
         """
-        self._r_label_position.clear().translate(np.deg2rad(value), 0.0)
+        self._r_label_position = float(np.deg2rad(value))
+        self._r_label_transform.invalidate()
+
+    def _get_rlabel_theta(self):
+        """
+        Return the theta of the radial line on which the radius labels are
+        placed, in radians.
+
+        This is the position set by `set_rlabel_position`, if any. Otherwise,
+        it is the default position on a full circle and thetamin on a
+        partial wedge, so that the labels go along the wedge edge.
+        """
+        if self._r_label_position is not None:
+            return self._r_label_position
+        elif _is_full_circle_rad(*self.viewLim.intervalx):
+            return self._default_rlabel_position
+        else:
+            return self.viewLim.xmin
 
     def set_rscale(self, *args, **kwargs):
         return Axes.set_yscale(self, *args, **kwargs)
@@ -1404,9 +1455,8 @@ class PolarAxes(Axes):
             self.set_yticklabels(labels)
         elif fmt is not None:
             self.yaxis.set_major_formatter(mticker.FormatStrFormatter(fmt))
-        if angle is None:
-            angle = self.get_rlabel_position()
-        self.set_rlabel_position(angle)
+        if angle is not None:
+            self.set_rlabel_position(angle)
         for t in self.yaxis.get_ticklabels():
             t._internal_update(kwargs)
         return self.yaxis.get_gridlines(), self.yaxis.get_ticklabels()
