@@ -238,6 +238,27 @@ def test_contains():
         ax.viewLim.set(vl)
 
 
+@pytest.mark.parametrize("projection, xytext, label", [
+    ("rectilinear", (np.nan, np.nan), ""),
+    ("polar", (0, 0), "label"),  # Below the radial origin after setting the limits.
+])
+def test_annotation_arrow_nonfinite_position(projection, xytext, label):
+    fig, ax = plt.subplots(subplot_kw={"projection": projection})
+    ax.set_ylim(.25, 1.25)
+    fig.canvas.draw()
+    background = np.asarray(fig.canvas.buffer_rgba()).copy()
+
+    ann = ax.annotate(label, (0, .5), xytext=xytext, arrowprops={})
+    fig.canvas.draw()
+    np.testing.assert_array_equal(fig.canvas.buffer_rgba(), background)
+    assert np.isinf(ann.get_tightbbox().extents).all()
+
+    ann.set_position((.5, .75))
+    fig.canvas.draw()
+    assert not np.array_equal(fig.canvas.buffer_rgba(), background)
+    assert np.isfinite(ann.arrow_patch.get_window_extent().extents).all()
+
+
 def test_annotation_contains():
     # Check that Annotation.contains looks at the bboxes of the text and the
     # arrow separately, not at the joint bbox.
