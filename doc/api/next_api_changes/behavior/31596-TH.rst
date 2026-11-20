@@ -1,0 +1,10 @@
+``avhline()`` / ``axvline()`` always trigger autoscaling
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`~.axes.Axes.axhline` and `~.axes.Axes.axvline` now always trigger autoscaling,
+like most other plotting functions.
+
+Previously, autoscaling was not executed when the lines were already in the
+view limits; i.e. they were still visible, but margins were not expanded.
+The lines were still added to the data limits so that any subsequent,
+explicitly called or through another plotting function, would only then
+take the lines into account for margins.
