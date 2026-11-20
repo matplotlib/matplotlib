@@ -201,6 +201,8 @@ jobs:
           # Workaround for https://github.com/actions/runner-images/issues/10984
           brew uninstall --ignore-dependencies --force pkg-config@0.29.2
 
+          brew install ccache ffmpeg ghostscript gobject-introspection gtk4 imagemagick ninja
+
       - name: Restore Homebrew cache
         if: false
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
@@ -212,6 +214,7 @@ jobs:
           fail-on-cache-miss: true
 
       - name: Run macos_runner_tool.py install-all-packages
+        if: false
         env:
           HOMEBREW_NO_AUTO_UPDATE: 1
           HOMEBREW_NO_INSTALL_CLEANUP: 1
@@ -294,7 +297,7 @@ jobs:
           python -m pip install --upgrade pycairo 'cairocffi>=0.8' 'PyGObject${{ matrix.pygobject-ver }}' &&
             (
               python -c 'import gi; gi.require_version("Gtk", "4.0"); from gi.repository import Gtk' &&
-              echo 'PyGObject 4 is available' || echo 'PyGObject 4 is not available'
+              echo 'PyGObject 4 is available' || exit 1
             ) && (
               python -c 'import gi; gi.require_version("Gtk", "3.0"); from gi.repository import Gtk' &&
               echo 'PyGObject 3 is available' || echo 'PyGObject 3 is not available'
