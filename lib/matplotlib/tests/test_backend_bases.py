@@ -587,3 +587,40 @@ def test_get_width_height_floating_point_precision():
     fig = plt.figure(figsize=(1, 2.03), dpi=100)
     assert fig.bbox.height < 203  # due to floating-point precision
     assert fig.canvas.get_width_height() == (100, 203)
+
+
+def test_toggle_grid_keys():
+    fig, ax = plt.subplots()
+    ax.minorticks_on()
+    x, y = ax.transAxes.transform((0.5, 0.5))
+
+    def press(key):
+        KeyEvent("key_press_event", fig.canvas, key, x, y)._process()
+
+    def grid_state(which):
+        return tuple(
+            {t.gridline.get_visible()
+             for t in (axis.get_minor_ticks() if which == "minor"
+                       else axis.get_major_ticks())}
+            for axis in [ax.xaxis, ax.yaxis])
+
+    # 'g' cycles the major grids through x, x+y, y, none.
+    assert grid_state("major") == ({False}, {False})
+    expected = [({True}, {False}), ({True}, {True}), ({False}, {True}),
+                ({False}, {False})]
+    for state in expected:
+        press("g")
+        assert grid_state("major") == state
+        assert grid_state("minor") == ({False}, {False})
+
+    # 'G' cycles the major and minor grids together.
+    for state in expected:
+        press("G")
+        assert grid_state("major") == grid_state("minor") == state
+
+    # Nothing happens if a grid is not in a uniform state.
+    ax.xaxis.get_major_ticks()[0].gridline.set_visible(True)
+    press("g")
+    assert grid_state("major") == ({False, True}, {False})
+    press("G")
+    assert grid_state("minor") == ({False}, {False})

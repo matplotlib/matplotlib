@@ -646,3 +646,30 @@ def test_set_rticks_ticklabels_no_warning():
     fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
     ax.set_rticks([0, 1, 2, 3])
     ax.yaxis.set_ticklabels(['zero', 'one', 'two', 'three'])
+
+
+def test_polar_drag_rlabels_alignment():
+    fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+    ax.set_thetamax(180)
+    ax.yaxis.minorticks_on()
+    fig.draw_without_rendering()
+    ticks = ax.yaxis.get_major_ticks() + ax.yaxis.get_minor_ticks()
+    for tick in ticks:
+        tick.label1.set(verticalalignment="top", horizontalalignment="center")
+        tick.label2.set(verticalalignment="top", horizontalalignment="center")
+
+    # Drag the radial labels from their current angle to 90°.
+    start = ax.transData.transform((np.deg2rad(ax.get_rlabel_position()), 0.5))
+    stop = ax.transData.transform((np.deg2rad(90), 0.5))
+    ax.start_pan(*start, button=1)
+    ax.drag_pan(1, None, *stop)
+    ax.end_pan()
+    assert ax.get_rlabel_position() == pytest.approx(90)
+
+    _, va1, ha1 = ax.get_yaxis_text1_transform(0.0)
+    _, va2, ha2 = ax.get_yaxis_text2_transform(0.0)
+    for tick in ticks:
+        assert tick.label1.get_verticalalignment() == va1
+        assert tick.label1.get_horizontalalignment() == ha1
+        assert tick.label2.get_verticalalignment() == va2
+        assert tick.label2.get_horizontalalignment() == ha2
