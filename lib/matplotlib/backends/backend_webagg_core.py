@@ -509,7 +509,7 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
                     s.send_binary(diff)
 
     @classmethod
-    def get_javascript(cls, stream=None):
+    def get_javascript(cls, stream=None, *, pyodide=False):
         if stream is None:
             output = StringIO()
         else:
@@ -517,6 +517,9 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         output.write((Path(__file__).parent / "web_backend/js/mpl.js")
                      .read_text(encoding="utf-8"))
+        if pyodide:
+            output.write((Path(__file__).parent / "web_backend/js/mpl_pyodide.js")
+                         .read_text(encoding="utf-8"))
 
         toolitems = []
         for name, tooltip, image, method in cls.ToolbarCls.toolitems:
@@ -535,6 +538,11 @@ class FigureManagerWebAgg(backend_bases.FigureManagerBase):
 
         output.write("mpl.default_extension = {};".format(
             json.dumps(FigureCanvasWebAggCore.get_default_filetype())))
+
+        if pyodide:
+            output.write("mpl.toolbar_image_callback = null;\n")
+            output.write("mpl.set_toolbar_image_callback = function(c) {\n")
+            output.write("  mpl.toolbar_image_callback=c;}\n")
 
         if stream is None:
             return output.getvalue()
