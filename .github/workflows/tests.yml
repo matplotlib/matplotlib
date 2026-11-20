@@ -62,6 +62,7 @@ jobs:
           python-version: '3.14'
 
       - name: Preserve tools
+        if: steps.check.outputs.exists != 'true'
         run: |
           python tools/macos_runner_tool.py preserve-tools
 
@@ -173,7 +174,31 @@ jobs:
           echo $! > /tmp/ci_monitor.pid
           python tools/ci_monitor.py mark "Restore Homebrew cache"
 
+      - name: Clean Homebrew
+        run: |
+          # Periodically, Homebrew updates Python and fails to overwrite the
+          # existing not-managed-by-Homebrew copy without explicitly being told
+          # to do so. GitHub/Azure continues to avoid fixing their runner images:
+          # https://github.com/actions/runner-images/issues/9966
+          # so force an overwrite even if there are no Python updates.
+          # We don't even care about Homebrew's Python because we use the one
+          # from actions/setup-python.
+          for python_package in $(brew list | grep python@); do
+            brew unlink ${python_package}
+            brew link --overwrite ${python_package}
+          done
+
+          # Remove the stale openssl@1.1 symlink present in the macOS 15 runner image
+          openssl_link="$(brew --prefix)/bin/openssl"
+          case "$(readlink "$openssl_link" 2>/dev/null)" in
+            */openssl@1.1/*) rm -f "$openssl_link" ;;
+          esac
+
+          # Workaround for https://github.com/actions/runner-images/issues/10984
+          brew uninstall --ignore-dependencies --force pkg-config@0.29.2
+
       - name: Restore Homebrew cache
+        if: false
         uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9  # v6.1.0
         with:
           path: /opt/homebrew
@@ -234,6 +259,8 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          printenv
+
           # Upgrade pip and setuptools and wheel to get as clean an install as
           # possible.
           python -m pip install --upgrade pip setuptools wheel
