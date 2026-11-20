@@ -1,5 +1,6 @@
 """
 .. redirect-from:: /gallery/statistics/histogram_features
+.. _histogram_normalization:
 
 ===================================
 Histogram bins, density, and weight
