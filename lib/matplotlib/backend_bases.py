@@ -2725,7 +2725,7 @@ def button_press_handler(event, canvas=None, toolbar=None):
 
 def scroll_handler(event, canvas=None, toolbar=None):
     ax = event.inaxes
-    if ax is None:
+    if ax is None or not ax.get_navigate():
         return
     if ax.name != "rectilinear":
         # zooming is currently only supported on rectilinear axes
