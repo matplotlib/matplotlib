@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-03-12T19:45:29.415822</dc:date>
+    <dc:date>2026-09-11T11:57:04.998338</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev2072+gb1cf5d4866.d20260312, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v0.1.0.dev55212+unknown.g25781de6a, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
-   <g transform="translate(153.9 30.117188) scale(0.12 -0.12)">
+   <g transform="translate(158.7 30.117188) scale(0.12 -0.12)">
     <defs>
      <path id="STIXGeneral-Regular-4e6" d="M 3661 -198 
 L 3238 -198 
@@ -162,11 +162,11 @@ z
     <use xlink:href="#DejaVuSans-3" transform="translate(61.999939 0.40625)"/>
     <use xlink:href="#STIXGeneral-Regular-4e5" transform="translate(93.787048 0.40625)"/>
     <use xlink:href="#DejaVuSans-3" transform="translate(155.786987 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-3d8" transform="translate(207.574097 0.40625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(323.074005 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(354.861115 0.40625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(416.861053 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-3dc" transform="translate(468.648163 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-3d8" transform="translate(187.574097 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(283.074005 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(314.861115 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(376.861053 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-3dc" transform="translate(408.648163 0.40625)"/>
    </g>
   </g>
  </g>
