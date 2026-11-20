@@ -27,7 +27,7 @@ reference.
 * `fontTools <https://fonttools.readthedocs.io/en/latest/>`_ (>= 4.28.2)
 * `kiwisolver <https://github.com/nucleic/kiwi>`_ (>= 1.3.1)
 * `NumPy <https://numpy.org>`_ (>= 2.0)
-* `packaging <https://pypi.org/project/packaging/>`_ (>= 20.0)
+* `packaging <https://pypi.org/project/packaging/>`_ (>= 23.2)
 * `Pillow <https://pillow.readthedocs.io/en/latest/>`_ (>= 9.0)
 * `pyparsing <https://pypi.org/project/pyparsing/>`_ (>= 3)
 
@@ -236,7 +236,7 @@ when :ref:`installing Matplotlib for development <development-install>`, which
 means that the dependencies must be explicitly installed, either by :ref:`creating a virtual environment <dev-environment>`
 (recommended) or by manually installing the following packages:
 
-- `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.13.1).
+- `meson-python <https://meson-python.readthedocs.io/>`_ (>= 0.18.0).
 - `PyBind11 <https://pypi.org/project/pybind11/>`_ (>= 3.0.0). Used to connect C/C++ code
   with Python.
 - `setuptools_scm <https://pypi.org/project/setuptools-scm/>`_ (>= 7).  Used to

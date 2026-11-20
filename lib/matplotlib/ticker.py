@@ -1863,11 +1863,17 @@ class FixedLocator(Locator):
     :math:`\leq nbins + 1`. The subsampling will be done to include the smallest
     absolute value; for example, if zero is included in the array of possibilities, then
     it will be included in the chosen ticks.
+
+    Locations in *locs* must be finite. Non-finite values raise a `ValueError`.
     """
 
     def __init__(self, locs, nbins=None):
         self.locs = np.asarray(locs)
         _api.check_shape((None,), locs=self.locs)
+        if not np.all(np.isfinite(self.locs)):
+            raise ValueError(
+                f"FixedLocator locations must all be finite, but got {self.locs!r}"
+            )
         self.nbins = max(nbins, 2) if nbins is not None else None
 
     def set_params(self, nbins=None):
@@ -2900,7 +2906,8 @@ class AsinhLocator(Locator):
 
         # Round the data-space values to be intuitive base-n numbers, keeping track of
         # positive and negative values separately and carefully treating the zero value.
-        with np.errstate(divide="ignore"):  # base ** log(0) = base ** -inf = 0.
+        # base ** log(0) = base ** -inf = 0.
+        with np.errstate(divide="ignore", invalid="ignore"):
             if self.base > 1:
                 pows = (np.sign(xs)
                         * self.base ** np.floor(np.log(abs(xs)) / math.log(self.base)))

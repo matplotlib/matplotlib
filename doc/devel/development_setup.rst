@@ -186,7 +186,7 @@ setup.
 
       Create a new `conda`_ environment and install the Python dependencies with ::
 
-        conda env create -f environment.yml
+        conda create -f environment.yml
 
       You can use ``mamba`` instead of ``conda`` in the above command if
       you have `mamba`_ installed.

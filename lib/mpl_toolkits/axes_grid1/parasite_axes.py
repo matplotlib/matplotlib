@@ -162,6 +162,7 @@ class HostAxesBase:
         will have ticks on the right.
         """
         ax = self._add_twin_axes(axes_class, sharex=self)
+        ax.yaxis.tick_right()
         self.axis["right"].set_visible(False)
         ax.axis["right"].set_visible(True)
         ax.axis["left", "top", "bottom"].set_visible(False)
@@ -175,6 +176,7 @@ class HostAxesBase:
         will have ticks on the top.
         """
         ax = self._add_twin_axes(axes_class, sharey=self)
+        ax.xaxis.tick_top()
         self.axis["top"].set_visible(False)
         ax.axis["top"].set_visible(True)
         ax.axis["left", "right", "bottom"].set_visible(False)
@@ -191,6 +193,8 @@ class HostAxesBase:
             aux_trans = mtransforms.IdentityTransform()
         ax = self._add_twin_axes(
             axes_class, aux_transform=aux_trans, viewlim_mode="transform")
+        ax.xaxis.tick_top()
+        ax.yaxis.tick_right()
         self.axis["top", "right"].set_visible(False)
         ax.axis["top", "right"].set_visible(True)
         ax.axis["left", "bottom"].set_visible(False)

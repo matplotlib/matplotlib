@@ -1,6 +1,8 @@
 """
 
 .. redirect-from:: /tutorials/colors/colormapnorms
+.. redirect-from:: /gallery/images_contours_and_fields/colormap_normalizations
+.. redirect-from:: /gallery/userdemo/colormap_normalizations
 
 .. _colormapnorms:
 
@@ -19,7 +21,7 @@ case).
 Matplotlib does this mapping in two steps, with a normalization from
 the input data to [0, 1] occurring first, and then mapping onto the
 indices in the colormap.  Normalizations are classes defined in the
-:func:`matplotlib.colors` module.  The default, linear normalization
+:mod:`matplotlib.colors` module.  The default, linear normalization
 is :func:`matplotlib.colors.Normalize`.
 
 Artists that map data to color pass the arguments *vmin* and *vmax* to
@@ -339,9 +341,9 @@ plt.show()
 # Custom normalization: Manually implement two linear ranges
 # ----------------------------------------------------------
 #
-# The `.TwoSlopeNorm` described above makes a useful example for
-# defining your own norm.  Note for the colorbar to work, you must
-# define an inverse for your norm:
+# `.TwoSlopeNorm` is already built into Matplotlib. The class below does the same
+# thing by hand, to show how you can create your own norm. For the colorbar to
+# work, you must also define an inverse for your norm:
 
 
 class MidpointNormalize(colors.Normalize):

@@ -247,7 +247,6 @@
 "topic: text/fonts":
   - changed-files:
       - any-glob-to-any-file:
-          - 'src/checkdep_freetype2.c'
           - 'src/ft2font*'
 "topic: text/mathtext":
   - changed-files:

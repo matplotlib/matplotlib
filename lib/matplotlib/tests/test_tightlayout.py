@@ -24,7 +24,7 @@ def example_plot(ax, fontsize=12):
     ax.set_title('Title', fontsize=fontsize)
 
 
-@image_comparison(['tight_layout1'], style='mpl20')
+@image_comparison(['tight_layout1.png'], style='mpl20')
 def test_tight_layout1():
     """Test tight_layout for a single subplot."""
     fig, ax = plt.subplots()
@@ -32,7 +32,7 @@ def test_tight_layout1():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout2'], style='mpl20')
+@image_comparison(['tight_layout2.png'], style='mpl20')
 def test_tight_layout2():
     """Test tight_layout for multiple subplots."""
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(nrows=2, ncols=2)
@@ -43,7 +43,7 @@ def test_tight_layout2():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout3'], style='mpl20')
+@image_comparison(['tight_layout3.png'], style='mpl20')
 def test_tight_layout3():
     """Test tight_layout for multiple subplots."""
     ax1 = plt.subplot(221)
@@ -55,7 +55,7 @@ def test_tight_layout3():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout4'], style='mpl20')
+@image_comparison(['tight_layout4.png'], style='mpl20')
 def test_tight_layout4():
     """Test tight_layout for subplot2grid."""
     ax1 = plt.subplot2grid((3, 3), (0, 0))
@@ -69,7 +69,7 @@ def test_tight_layout4():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout5'], style='mpl20')
+@image_comparison(['tight_layout5.png'], style='mpl20')
 def test_tight_layout5():
     """Test tight_layout for image."""
     ax = plt.subplot()
@@ -78,7 +78,7 @@ def test_tight_layout5():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout6'], style='mpl20')
+@image_comparison(['tight_layout6.png'], style='mpl20')
 def test_tight_layout6():
     """Test tight_layout for gridspec."""
 
@@ -120,7 +120,7 @@ def test_tight_layout6():
                          h_pad=0.45)
 
 
-@image_comparison(['tight_layout7'], style='mpl20')
+@image_comparison(['tight_layout7.png'], style='mpl20')
 def test_tight_layout7():
     # tight layout with left and right titles
     fontsize = 24
@@ -134,7 +134,7 @@ def test_tight_layout7():
     plt.tight_layout()
 
 
-@image_comparison(['tight_layout8'], style='mpl20', tol=0.005)
+@image_comparison(['tight_layout8.png'], style='mpl20', tol=0.005)
 def test_tight_layout8():
     """Test automatic use of tight_layout."""
     fig = plt.figure()
@@ -144,7 +144,7 @@ def test_tight_layout8():
     fig.draw_without_rendering()
 
 
-@image_comparison(['tight_layout9'], style='mpl20')
+@image_comparison(['tight_layout9.png'], style='mpl20')
 def test_tight_layout9():
     # Test tight_layout for non-visible subplots
     # GH 8244

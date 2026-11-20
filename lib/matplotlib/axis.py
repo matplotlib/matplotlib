@@ -2506,14 +2506,15 @@ class Axis(martist.Artist):
         Parameters
         ----------
         tz : str or `datetime.tzinfo`, default: :rc:`timezone`
-            The timezone used to create date labels.
+            The timezone used to create date labels. If a string, *tz* is passed to
+            `~zoneinfo.ZoneInfo`.
         """
         # By providing a sample datetime instance with the desired timezone,
         # the registered converter can be selected, and the "units" attribute,
         # which is the timezone, can be set.
         if isinstance(tz, str):
-            import dateutil.tz
-            tz = dateutil.tz.gettz(tz)
+            import zoneinfo
+            tz = zoneinfo.ZoneInfo(tz)
         self.update_units(datetime.datetime(2009, 1, 1, 0, 0, 0, 0, tz))
 
     def get_tick_space(self):

@@ -912,7 +912,7 @@ def test_errorbar_mapview_kwarg():
     ax.errorbar(x=D.keys(), y=D.values(), xerr=D.values())
 
 
-@image_comparison(['single_point', 'single_point'], style='mpl20')
+@image_comparison(['single_point.png', 'single_point.png'], style='mpl20')
 def test_single_point():
     # Issue #1796: don't let lines.marker affect the grid
     matplotlib.rcParams['lines.marker'] = 'o'
@@ -1185,7 +1185,7 @@ def test_inverted_limits():
     assert ax.get_ylim() == (10, 1)
 
 
-@image_comparison(['nonfinite_limits'], style='mpl20')
+@image_comparison(['nonfinite_limits.png'], style='mpl20')
 def test_nonfinite_limits():
     x = np.arange(0., np.e, 0.01)
     # silence divide by zero warning from log(0)
@@ -1808,11 +1808,52 @@ def test_pcolorflaterror():
         ax.pcolormesh(x, y, Z, shading='flat')
 
 
+def test_pcolorautoerror():
+    fig, ax = plt.subplots()
+    x = np.arange(0, 4)
+    y = np.arange(0, 3)
+    Z = np.ones((2, 4))
+    message = (
+        "Dimensions of C (2, 4) are incompatible with X (4) and Y (3) "
+        "for shading='auto'. "
+        "With shading='auto', C.shape must be (3, 4) to select "
+        "'nearest' shading or (2, 3) to select 'flat' shading. "
+        "Note that C uses (rows, columns) = (Y, X) indexing. "
+        "See help(pcolormesh)")
+    with pytest.raises(TypeError, match=re.escape(message)):
+        ax.pcolormesh(x, y, Z, shading='auto')
+
+
+@pytest.mark.parametrize("shading", ["flat", "nearest", "gouraud"])
+def test_pcolormesh_shading_shape_error(shading):
+    fig, ax = plt.subplots()
+    x = np.arange(0, 4)
+    y = np.arange(0, 3)
+    Z = np.ones((4, 4))
+    with pytest.raises(TypeError, match=f"shading='{shading}'"):
+        ax.pcolormesh(x, y, Z, shading=shading)
+
+
+@pytest.mark.parametrize("shading", ["auto", "flat", "nearest", "gouraud"])
+def test_pcolormesh_degenerate_grid_error(shading):
+    fig, ax = plt.subplots()
+    x = np.arange(0, 3)
+    y = np.array([0])
+    Z = np.ones((1, 3))
+    with pytest.raises(
+            TypeError,
+            match=re.escape(
+                "pcolormesh requires the X and Y coordinates to each have at "
+                "least two values to define a mesh, but X has 3 values and Y "
+                "has 1 values.")):
+        ax.pcolormesh(x, y, Z, shading=shading)
+
+
 def test_samesizepcolorflaterror():
     fig, ax = plt.subplots()
     x, y = np.meshgrid(np.arange(5), np.arange(3))
     Z = x + y
-    with pytest.raises(TypeError, match=r".*one smaller than X"):
+    with pytest.raises(TypeError, match=r"one smaller than X"):
         ax.pcolormesh(x, y, Z, shading='flat')
 
 
@@ -5949,7 +5990,7 @@ def test_vlines_hlines_blended_transform():
                colors='r')
 
 
-@image_comparison(['step_linestyle', 'step_linestyle'], remove_text=True,
+@image_comparison(['step_linestyle.png', 'step_linestyle.png'], remove_text=True,
                   style='_classic_test', tol=0.2)
 def test_step_linestyle():
     # Tolerance caused by reordering of floating-point operations
@@ -10070,12 +10111,12 @@ def test_ecdf(fig_test, fig_ref):
     axs_ref[0].plot([-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
                     np.arange(8) / 7, ds="steps-post")
     axs_ref[0].plot([-np.inf, 0, 1, 2, np.inf, np.inf],
-                    np.array([21, 20, 18, 14, 3, 0]) / 21,
+                    np.array([21, 18, 18, 9, 3, 0]) / 21,
                     ds="steps-pre", ls=":")
     axs_ref[1].plot(np.arange(8) / 7,
                     [-np.inf, -np.inf, -np.inf, 0, 1, 1, 2, np.inf],
                     ds="steps-pre")
-    axs_ref[1].plot(np.array([21, 20, 18, 14, 3, 0]) / 21,
+    axs_ref[1].plot(np.array([21, 18, 18, 9, 3, 0]) / 21,
                     [-np.inf, 0, 1, 2, np.inf, np.inf],
                     ds="steps-post", ls=":")
 
