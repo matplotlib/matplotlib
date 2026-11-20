@@ -1983,3 +1983,25 @@ def test_cursor_overlapping_axes_blitting_warning():
         cursor = widgets.Cursor(ax1, useblit=True)
 
     assert cursor.useblit is False
+
+
+@pytest.mark.parametrize("slider_cls, init, new", [
+    (widgets.Slider, 0.5, 0.8),
+    (widgets.RangeSlider, (0.2, 0.5), (0.3, 0.9)),
+])
+@pytest.mark.parametrize("drawon", [True, False])
+def test_slider_set_val_notifies_before_draw(slider_cls, init, new, drawon):
+    # Observers must be notified before the canvas is redrawn, so that the
+    # first redraw already reflects any artists updated in the callback.
+    fig, ax = plt.subplots()
+    slider = slider_cls(ax=ax, label="", valmin=0, valmax=1, valinit=init)
+    slider.drawon = drawon
+    events = []
+    with mock.patch.object(fig.canvas, "draw_idle",
+                           side_effect=lambda: events.append("draw")):
+        slider.on_changed(lambda val: events.append("changed"))
+        slider.set_val(new)
+    if drawon:
+        assert events == ["changed", "draw"]
+    else:
+        assert events == ["changed"]
