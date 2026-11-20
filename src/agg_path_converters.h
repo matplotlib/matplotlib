@@ -1,16 +1,16 @@
 /* -*- mode: c++; c-basic-offset: 4 -*- */
 
-#ifndef MPL_PATH_CONVERTERS_H
-#define MPL_PATH_CONVERTERS_H
+#ifndef MPL_AGG_PATH_CONVERTERS_H
+#define MPL_AGG_PATH_CONVERTERS_H
 
-#include <pybind11/pybind11.h>
+#include <nanobind/nanobind.h>
 
 #include <cmath>
 #include <cstdint>
 #include <limits>
 
 #include "agg_clip_liang_barsky.h"
-#include "mplutils.h"
+#include "mpl_utils.h"
 #include "agg_conv_segmentator.h"
 
 /*
@@ -530,23 +530,19 @@ enum e_snap_mode {
     SNAP_TRUE
 };
 
-namespace PYBIND11_NAMESPACE { namespace detail {
-    template <> struct type_caster<e_snap_mode> {
-    public:
-        PYBIND11_TYPE_CASTER(e_snap_mode, const_name("e_snap_mode"));
+namespace mpl {
 
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                value = SNAP_AUTO;
-                return true;
-            }
+inline void convert(e_snap_mode &dst, const nb::object &src, std::string arg_name)
+{
+    if (src.is_none()) {
+        dst = SNAP_AUTO;
+        return;
+    }
 
-            value = src.cast<bool>() ? SNAP_TRUE : SNAP_FALSE;
+    dst = mpl::is_true(src) ? SNAP_TRUE : SNAP_FALSE;
+}
 
-            return true;
-        }
-    };
-}} // namespace PYBIND11_NAMESPACE::detail
+} // namespace mpl
 
 template <class VertexSource>
 class PathSnapper
@@ -1178,4 +1174,4 @@ class Sketch
     double m_log_randomness;
 };
 
-#endif // MPL_PATH_CONVERTERS_H
+#endif // MPL_AGG_PATH_CONVERTERS_H
