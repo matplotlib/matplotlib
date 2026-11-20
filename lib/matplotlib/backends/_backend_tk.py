@@ -605,6 +605,8 @@ class FigureManagerTk(FigureManagerBase):
                 self.window.iconphoto(False, icon_img_large, icon_img)
 
                 self.canvas._tkcanvas.focus_set()
+                if self._window_dpi.get() != 96:
+                    self._update_window_dpi()
             else:
                 self.canvas.draw_idle()
             if mpl.rcParams['figure.raise_window']:
