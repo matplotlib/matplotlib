@@ -130,7 +130,7 @@ def _create_pdf_info_dict(backend, metadata):
     backend : str
         The name of the backend to use in the Producer value.
 
-    metadata : dict[str, Union[str, datetime, Name]]
+    metadata : dict[str, Union[str, datetime, Name, None]]
         A dictionary of metadata supplied by the user with information
         following the PDF specification, also defined in
         `~.backend_pdf.PdfPages` below.
@@ -643,7 +643,7 @@ class PdfFile:
         filename : str or path-like or file-like
             Output target; if a string, a file will be opened for writing.
 
-        metadata : dict from strings to strings and dates
+        metadata : dict from strings to strings, dates, or None
             Information dictionary object (see PDF reference section 10.2.1
             'Document Information Dictionary'), e.g.:
             ``{'Creator': 'My software', 'Author': 'Me', 'Title': 'Awesome'}``.

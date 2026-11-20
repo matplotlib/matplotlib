@@ -93,7 +93,7 @@ class GridSpec(GridSpecBase):
     def tight_layout(
         self,
         figure: Figure,
-        renderer: RendererBase | None = ...,
+        renderer: RendererBase[Any] | None = ...,
         pad: float = ...,
         h_pad: float | None = ...,
         w_pad: float | None = ...,

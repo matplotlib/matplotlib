@@ -18,10 +18,10 @@ from .deprecation import (  # noqa: F401, re-exported API
 class _Unset: ...
 UNSET = _Unset()
 
-class classproperty[T](Any):
+class classproperty[T, R](Any):
     def __init__(
         self,
-        fget: Callable[[T], Any],
+        fget: Callable[[T], R],
         fset: None = ...,
         fdel: None = ...,
         doc: str | None = None,
@@ -29,9 +29,9 @@ class classproperty[T](Any):
     @overload
     def __get__(self, instance: None, owner: None) -> Self: ...
     @overload
-    def __get__(self, instance: object, owner: type[object]) -> Any: ...
+    def __get__(self, instance: object, owner: type[object]) -> R: ...
     @property
-    def fget(self) -> Callable[[T], Any]: ...
+    def fget(self) -> Callable[[T], R]: ...
 
 def check_isinstance(
     types: type | tuple[type | None, ...], /, **kwargs: Any

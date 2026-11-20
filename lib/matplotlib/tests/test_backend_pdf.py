@@ -3,6 +3,7 @@ import decimal
 import io
 from pathlib import Path
 import string
+from typing import assert_type
 
 import numpy as np
 from packaging.version import parse as parse_version
@@ -14,8 +15,9 @@ from matplotlib import (
 )
 from matplotlib.cbook import _get_data_path
 from matplotlib.ft2font import FT2Font
+from matplotlib.backend_bases import FigureManagerBase
 from matplotlib.backends._backend_pdf_ps import get_glyphs_subset, font_as_file
-from matplotlib.backends.backend_pdf import PdfPages
+from matplotlib.backends.backend_pdf import FigureManagerPdf, Name, PdfPages
 from matplotlib.patches import Rectangle
 from matplotlib.testing import _gen_multi_font_text, _has_tex_package
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
