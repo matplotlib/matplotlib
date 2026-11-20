@@ -3244,7 +3244,8 @@ class NavigationToolbar2:
             for ax in grps[zorder]:
                 axes_to_trigger.append(ax)
                 # NOTE: shared axes are automatically triggered, but twin-axes not!
-                axes_to_trigger.extend(ax._twinned_axes.get_siblings(ax))
+                axes_to_trigger.extend(
+                    filter(_ax_filter, ax._twinned_axes.get_siblings(ax)))
 
                 if _capture_events(ax):
                     break  # break if we hit a capturing axes
