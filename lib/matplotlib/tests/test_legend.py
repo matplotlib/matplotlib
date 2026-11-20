@@ -663,6 +663,39 @@ def test_empty_bar_chart_with_legend():
     plt.legend()
 
 
+def test_empty_bar_chart_legend_style():
+    # issue #21506
+    _, ax = plt.subplots()
+    ax.bar([], [], color='red', alpha=0.3, label='empty')
+    assert mpl.colors.same_color(
+        ax.legend().legend_handles[0].get_facecolor(),
+        mpl.colors.to_rgba('red', 0.3),
+    )
+
+    _, ax = plt.subplots()
+    ax.bar([], [], label='a')
+    ax.bar([], [], label='b')
+    handles = ax.legend().legend_handles
+    assert mpl.colors.same_color(handles[0].get_facecolor(), 'C0')
+    assert mpl.colors.same_color(handles[1].get_facecolor(), 'C1')
+
+    _, ax = plt.subplots()
+    ax.bar([], [],
+           facecolor='red', edgecolor='black', linewidth=3,
+           label='styled', hatch='//')
+    handle = ax.legend().legend_handles[0]
+    assert mpl.colors.same_color(handle.get_edgecolor(), 'black')
+    assert handle.get_linewidth() == 3
+    assert handle.get_hatch() == '//'
+
+    _, ax = plt.subplots()
+    ax.barh([], [], color='green', label='h')
+    assert mpl.colors.same_color(
+        ax.legend().legend_handles[0].get_facecolor(),
+        'green',
+    )
+
+
 @image_comparison(['shadow_argument_types.png'], remove_text=True, style='mpl20',
                   tol=0 if platform.machine() == 'x86_64' else 0.028)
 def test_shadow_argument_types():
