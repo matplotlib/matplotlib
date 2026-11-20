@@ -278,6 +278,7 @@ intersphinx_mapping = {
     'pytest': ('https://pytest.org/en/stable/', None),
     'python': ('https://docs.python.org/3/', None),
     'scipy': ('https://docs.scipy.org/doc/scipy/', 'https://static.scipy.org/doc/scipy/objects.inv'),
+    'sphinx': ('https://www.sphinx-doc.org/en/master/', None),
     'tornado': ('https://www.tornadoweb.org/en/stable/', None),
     'wx': ('https://docs.wxpython.org/', None),
     'xarray': ('https://docs.xarray.dev/en/stable/', None),
@@ -434,15 +435,11 @@ default_role = 'obj'
 # Plot directive configuration
 # ----------------------------
 
-# For speedup, decide which plot_formats to build based on build targets:
-#     html only -> png
-#     latex only -> pdf
-#     all other cases, including html + latex -> png, pdf
-# For simplicity, we assume that the build targets appear in the command line.
-# We're falling back on using all formats in case that assumption fails.
-formats = {'html': ('png', 100), 'latex': ('pdf', 100)}
-plot_formats = [formats[target] for target in ['html', 'latex']
-                if target in sys.argv] or list(formats.values())
+# For speedup, decide which plot_formats to build based on the Sphinx builder:
+#     html -> png
+#     latex -> pdf
+#     all other builders -> the plot directive's default formats
+plot_formats = {'html': [('png', 100)], 'latex': [('pdf', 100)]}
 # make 2x images for srcset argument to <img>
 plot_srcset = ['2x']
 
