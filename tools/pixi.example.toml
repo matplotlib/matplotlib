@@ -1,0 +1,63 @@
+# Local developer Pixi environment for Matplotlib
+# ------------------------------------------------
+# This file is optional and intended for local use only.
+# Do NOT commit it unless you intend to change project defaults.
+#
+# Usage:
+#   pixi install
+#   pixi run python -m pip install \
+#       --no-build-isolation \
+#       --config-settings=setup-args="-Db_lto=false" \
+#       --editable .
+#   pixi run tests-core
+#   pixi run build-doc
+
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64"]
+
+[dependencies]
+python = "3.12.*"
+pip = "*"
+meson = "*"
+ninja = "*"
+pkg-config = "*"
+# Optional: comment out if you prefer system compilers
+compilers = "*"
+meson-python = "*"
+pybind11 = "*"
+setuptools = ">=64"
+setuptools-scm = ">=7"
+
+# ------------------------------------------------
+# Tasks (developer convenience)
+# ------------------------------------------------
+
+[tasks.clean-build]
+cmd = "rm -rf build meson-logs meson-private .mesonpy-*"
+description = "Clean meson build artifacts"
+
+[tasks.build-doc]
+cmd = "make -C doc html"
+description = "Build the documentation"
+
+[tasks.tests-core]
+cmd = "pytest --pyargs matplotlib"
+description = "Run Matplotlib tests (core only)"
+
+[tasks.tests-all]
+cmd = "pytest --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
+description = "Run all Matplotlib tests"
+
+# ------------------------------------------------
+# Environments
+# ------------------------------------------------
+
+[environments]
+# Single environment for developer convenience
+default = { features = ["build", "test", "doc"], solve-group = "main" }
+
+# Optional: lighter environments if desired
+test = { features = ["test"], solve-group = "main" }
+test-extra = { features = ["test", "test-extra"], solve-group = "main" }
+doc = { features = ["doc"], solve-group = "main" }
