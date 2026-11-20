@@ -398,12 +398,18 @@ def make_layout_margins(layoutgrids, fig, renderer, *, w_pad=0, h_pad=0,
         # make margin for colorbars.  These margins go in the
         # padding margin, versus the margin for Axes decorators.
         for cbax in ax._colorbars:
+            if cbax._colorbar_info["type"] == "MultivarColorbar":
+                #  a matplotlib.colorbar.MultivarColorbar object
+                fig = cbax.axes[0].get_figure(root=False)
+                tightbbox = cbax.get_tightbbox(renderer, for_layout_only=True)
+                cbbbox = tightbbox.transformed(fig.transFigure.inverted())
+            else:
+                cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
             # note pad is a fraction of the parent width...
             pad = colorbar_get_pad(layoutgrids, cbax)
             # colorbars can be child of more than one subplot spec:
             cbp_rspan, cbp_cspan = get_cb_parent_spans(cbax)
             loc = cbax._colorbar_info['location']
-            cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
             if loc == 'right':
                 if cbp_cspan.stop == ss.colspan.stop:
                     # only increase if the colorbar is on the right edge
@@ -691,7 +697,7 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
     Parameters
     ----------
     layoutgrids : dict
-    cbax : `~matplotlib.axes.Axes`
+    cbax : `~matplotlib.colorbar.MultiColorbars` or `~matplotlib.axes.Axes`
         Axes for the colorbar.
     renderer : `~matplotlib.backend_bases.RendererBase` subclass.
         The renderer to use.
@@ -701,10 +707,18 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
     compress : bool
         Whether we're in compressed layout mode.
     """
+    cb_info = cbax._colorbar_info
+    if cb_info["type"] == "MultivarColorbar":
+        multi_cbar = cbax
+        cbaxes = multi_cbar.axes
+        multi = True
+    else:
+        multi = False
+        cbaxes = [cbax]
 
-    parents = cbax._colorbar_info['parents']
+    parents = cb_info['parents']
     gs = parents[0].get_gridspec()
-    fig = cbax.get_figure(root=False)
+    fig = cbaxes[0].get_figure(root=False)
     trans_fig_to_subfig = fig.transFigure - fig.transSubfigure
 
     cb_rspans, cb_cspans = get_cb_parent_spans(cbax)
@@ -712,11 +726,11 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
                                                  cols=cb_cspans)
     pb = layoutgrids[gs].get_inner_bbox(rows=cb_rspans, cols=cb_cspans)
 
-    location = cbax._colorbar_info['location']
-    anchor = cbax._colorbar_info['anchor']
-    fraction = cbax._colorbar_info['fraction']
-    aspect = cbax._colorbar_info['aspect']
-    shrink = cbax._colorbar_info['shrink']
+    location = cb_info['location']
+    anchor = cb_info['anchor']
+    fraction = cb_info['fraction']
+    aspect = cb_info['aspect']
+    shrink = cb_info['shrink']
 
     # For colorbars with a single parent in compressed layout,
     # use the actual visual size of the parent axis after apply_aspect()
@@ -736,14 +750,20 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
             # Keep the pb x-coordinates but use actual y-coordinates
             pb = Bbox.from_extents(pb.x0, actual_pos_fig.y0,
                                    pb.x1, actual_pos_fig.y1)
-        elif location in ('top', 'bottom'):
+        else:  # location in ('top', 'bottom'):
             # For horizontal colorbars, use the actual parent bbox width
             # for colorbar sizing
             # Keep the pb y-coordinates but use actual x-coordinates
             pb = Bbox.from_extents(actual_pos_fig.x0, pb.y0,
                                    actual_pos_fig.x1, pb.y1)
 
-    cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
+    if multi:
+        tightbbox = martist._get_tightbbox_for_layout_only(multi_cbar, renderer)
+        cbbbox = tightbbox.transformed(fig.transFigure.inverted())
+        cbpos = multi_cbar._get_original_position()
+        cbpos = cbpos.transformed(fig.transSubfigure - fig.transFigure)
+    else:
+        cbpos, cbbbox = get_pos_and_bbox(cbax, renderer)
 
     # Colorbar gets put at extreme edge of outer bbox of the subplotspec
     # It needs to be moved in by: 1) a pad 2) its "margin" 3) by
@@ -754,6 +774,8 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
         pbcb = pb.shrunk(fraction, shrink).anchored(anchor, pb)
         # The colorbar is at the left side of the parent.  Need
         # to translate to right (or left)
+        if multi:
+            pbcb.x1 = pbcb.x0 + cbbbox.width
         if location == 'right':
             lmargin = cbpos.x0 - cbbbox.x0
             dx = bboxparent.x1 - pbcb.x0 + offset['right']
@@ -768,6 +790,8 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
             pbcb = pbcb.translated(dx, 0)
     else:  # horizontal axes:
         pbcb = pb.shrunk(shrink, fraction).anchored(anchor, pb)
+        if multi:
+            pbcb.y1 = pbcb.y0 + cbbbox.height
         if location == 'top':
             bmargin = cbpos.y0 - cbbbox.y0
             dy = bboxparent.y1 - pbcb.y0 + offset['top']
@@ -781,14 +805,19 @@ def reposition_colorbar(layoutgrids, cbax, renderer, *, offset=None, compress=Fa
             offset['bottom'] += cbbbox.height + cbpad
             pbcb = pbcb.translated(0, dy)
 
-    pbcb = trans_fig_to_subfig.transform_bbox(pbcb)
-    cbax.set_transform(fig.transSubfigure)
-    cbax._set_position(pbcb)
-    cbax.set_anchor(anchor)
     if location in ['bottom', 'top']:
         aspect = 1 / aspect
-    cbax.set_box_aspect(aspect)
-    cbax.set_aspect('auto')
+    if multi:
+        new_bboxs = multi_cbar._get_tight_packing_inside(pbcb)
+    else:
+        new_bboxs = [pbcb]
+    for cbax, new_bbox in zip(cbaxes, new_bboxs):
+        transformed_bbox = trans_fig_to_subfig.transform_bbox(new_bbox)
+        cbax.set_transform(fig.transSubfigure)
+        cbax._set_position(transformed_bbox)
+        cbax.set_anchor(anchor)
+        cbax.set_box_aspect(aspect)
+        cbax.set_aspect('auto')
     return offset
 
 
