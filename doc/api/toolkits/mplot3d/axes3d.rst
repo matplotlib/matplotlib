@@ -52,6 +52,7 @@ Text and annotations
    :template: autosummary.rst
    :nosignatures:
 
+   annotate
    text
    text2D
 
