@@ -89,6 +89,18 @@ class _FigureWidget(RemoteFrameBuffer):
                     modifiers=modifiers,
                 )
             case {
+                "type": "pointer_leave",
+                "x": x,
+                "y": y,
+                "modifiers": modifiers,
+            }:
+                self._handle_location_event(
+                    name="figure_leave_event",
+                    x=x,
+                    y=y,
+                    modifiers=modifiers,
+                )
+            case {
                 "type": "pointer_down",
                 "x": x,
                 "y": y,
