@@ -1257,7 +1257,8 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
 
     # output is a list of dicts
     bxpstats = []
-
+    if labels is not None and len(labels) == 0 and np.ndim(X) == 1 and len(X) == 0:
+        return []
     # convert X to a list of lists
     X = _reshape_2D(X, "X")
 

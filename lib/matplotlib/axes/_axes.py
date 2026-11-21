@@ -4947,7 +4947,8 @@ or pandas.DataFrame
 
         # width
         if widths is None:
-            widths = [np.clip(0.15 * np.ptp(positions), 0.15, 0.5)] * N
+            widths = ([np.clip(0.15 * np.ptp(positions), 0.15, 0.5)] * N
+                      if N else [])
         elif np.isscalar(widths):
             widths = [widths] * N
         elif len(widths) != N:
@@ -5043,7 +5044,7 @@ or pandas.DataFrame
                 for artist, lbl in zip(box_or_med, label):
                     artist.set_label(lbl)
 
-        if manage_ticks:
+        if manage_ticks and N:
             axis_name = "x" if orientation == 'vertical' else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
             axis = self._axis_map[axis_name]
