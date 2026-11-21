@@ -86,22 +86,17 @@ public:
     void set_owner(PyObject *owner) { m_owner = owner; }
     PyObject *get_owner() const { return m_owner; }
 
-    void fill_view(Py_buffer *view, int flags)
+    void fill_view(Py_buffer *view)
     {
-        auto needs_shape = ((flags & PyBUF_ND) == PyBUF_ND);
-        auto needs_strides = ((flags & PyBUF_STRIDES) == PyBUF_STRIDES);
-        auto format = internal::get_buffer_format<Scalar>();
-
         view->buf = const_cast<std::remove_const_t<Scalar> *>(m_data);
-        view->itemsize = 1;
+        view->itemsize = sizeof(Scalar);
         view->len = nbytes();
         view->readonly = is_readonly() ? 1 : 0;
         view->ndim = ndim();
-        view->format = (flags & PyBUF_FORMAT) ? const_cast<char *>(format) : nullptr;
-        view->shape = needs_shape ? m_shape : nullptr;
-        view->strides = needs_strides ? m_strides : nullptr;
+        view->format = const_cast<char *>(internal::get_buffer_format<Scalar>());
+        view->shape = m_shape;
+        view->strides = m_strides;
         view->suboffsets = nullptr;
-        view->internal = this;
     }
 
 private:
@@ -120,14 +115,18 @@ private:
 template <typename T>
 inline int getbuffer(PyObject *obj, Py_buffer *view, int flags)
 {
-    using BufferInfo = decltype(std::declval<T>().create_buffer_info());
+    // This function is heavily based on pybind11_getbuffer()
+
+    using BufferInfo = std::remove_pointer_t<
+        decltype(std::declval<T>().create_buffer_info())>;
 
     if (view == nullptr) {
         PyErr_SetString(PyExc_BufferError, "getbuffer: view is NULL");
         return -1;
     }
 
-    view->obj = nullptr;
+    std::memset(view, 0, sizeof(Py_buffer));
+    std::unique_ptr<BufferInfo> info = nullptr;
 
     T *self = nullptr;
     try {
@@ -142,30 +141,49 @@ inline int getbuffer(PyObject *obj, Py_buffer *view, int flags)
         return -1;
     }
 
-    BufferInfo info = nullptr;
-
     try {
-        info = self->create_buffer_info();
+        info.reset(self->create_buffer_info());
     } catch (const std::exception &e) {
         PyErr_SetString(PyExc_BufferError, e.what());
         return -1;
     }
 
-    if (!info) {
-        PyErr_NoMemory();
+    if (info == nullptr) {
+        PyErr_SetString(PyExc_BufferError, "create_buffer_info() returned nullptr.");
         return -1;
     }
 
-    if (info->is_readonly() && (flags & PyBUF_WRITABLE) == PyBUF_WRITABLE) {
-        delete info;
+    if ((flags & PyBUF_WRITABLE) == PyBUF_WRITABLE && info->is_readonly()) {
         PyErr_SetString(PyExc_BufferError, "getbuffer: object is not writable");
         return -1;
     }
 
-    Py_INCREF(obj);
-    view->obj = obj;
+    // Fill in all the information, and then downgrade as requested by the caller,
+    // or raise an error if that's not possible.
+    info->fill_view(view);
+
+    if ((flags & PyBUF_FORMAT) != PyBUF_FORMAT) {
+        view->format = nullptr;
+    }
+
+    // Note, all contiguity flags imply PyBUF_STRIDES and lower.
+    if ((flags & PyBUF_STRIDES) != PyBUF_STRIDES) {
+        // If no strides are requested, the buffer must be C-contiguous.
+        // https://docs.python.org/3/c-api/buffer.html#contiguity-requests
+        view->strides = nullptr;
+
+        // Since this is a contiguous buffer, it can also pretend to be 1D.
+        if ((flags & PyBUF_ND) != PyBUF_ND) {
+            view->shape = nullptr;
+            view->ndim = 0;
+        }
+    }
+
     Py_XINCREF(info->get_owner());
-    info->fill_view(view, flags);
+
+    view->obj = obj;
+    Py_INCREF(view->obj);
+    view->internal = info.release();
 
     return 0;
 }
