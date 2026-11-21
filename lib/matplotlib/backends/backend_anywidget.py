@@ -55,7 +55,7 @@ class _FigureWidget(RemoteFrameBuffer):
                 "button": button,
                 "modifiers": modifiers,
             }:
-                self._handle_button_event(
+                self._handle_mouse_event(
                     name="button_press_event",
                     x=x,
                     y=y,
@@ -69,26 +69,40 @@ class _FigureWidget(RemoteFrameBuffer):
                 "button": button,
                 "modifiers": modifiers,
             }:
-                self._handle_button_event(
+                self._handle_mouse_event(
                     name="button_release_event",
                     x=x,
                     y=y,
                     button=button,
                     modifiers=modifiers,
                 )
+            case {
+                "type": "pointer_move",
+                "x": x,
+                "y": y,
+                "buttons": buttons,
+                "modifiers": modifiers,
+            }:
+                self._handle_mouse_event(
+                    name="motion_notify_event",
+                    x=x,
+                    y=y,
+                    buttons=buttons,
+                    modifiers=modifiers,
+                )
 
-    def _handle_button_event(
+    def _handle_mouse_event(
         self,
         *,
         name: str,
         x: float,
         y: float,
-        button: int,
         modifiers: tuple[str, ...],
+        button: int | None = None,
+        buttons: tuple[int, ...] = (),
     ) -> None:
-        mouse_button = _BUTTONS.get(button)
         width, height = self._display_size
-        if mouse_button is None or not width or not height:
+        if not width or not height or (button is not None and button not in _BUTTONS):
             return
         # Map top-left CSS coordinates into the bottom-left Agg frame.
         frame_width, frame_height = self.canvas.get_width_height(physical=True)
@@ -98,7 +112,10 @@ class _FigureWidget(RemoteFrameBuffer):
             "ctrl" if mod == "Control" else mod.lower() for mod in modifiers
         ]
         MouseEvent(
-            name, self.canvas, x, y, button=mouse_button, modifiers=mpl_modifiers
+            name, self.canvas, x, y,
+            button=_BUTTONS[button] if button is not None else None,
+            buttons=[_BUTTONS[b] for b in buttons if b in _BUTTONS],
+            modifiers=mpl_modifiers,
         )._process()
 
 
