@@ -120,7 +120,7 @@ RendererAgg::restore_region(BufferRegion &region, int xx1, int yy1, int xx2, int
     rendererBase.copy_from(rbuf, &rect, x, y);
 }
 
-bool RendererAgg::render_clippath(mpl::PathIterator &clippath,
+bool RendererAgg::render_clippath(PathIterator &clippath,
                                   const agg::trans_affine &clippath_trans,
                                   e_snap_mode snap_mode)
 {
