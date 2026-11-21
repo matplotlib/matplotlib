@@ -1269,3 +1269,13 @@ def test_cbar_wrong_figures():
     im1 = ax1.imshow([[0, 1], [2, 3]])
     with pytest.raises(ValueError, match="not all parents share"):
         fig0.colorbar(im0, ax=[im0, im1])
+
+
+def test_figure_of_first_axes():
+    fig0, axs0 = plt.subplots(2, 2)
+    fig1, ax1 = plt.subplots()
+    assert mpl.colorbar._figure_of_first_axes(ax1) is fig1
+    assert mpl.colorbar._figure_of_first_axes([axs0[0, 1], ax1]) is fig0
+    assert mpl.colorbar._figure_of_first_axes(axs0) is fig0
+    subfig = fig1.subfigures()
+    assert mpl.colorbar._figure_of_first_axes(subfig.subplots()) is subfig
