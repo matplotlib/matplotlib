@@ -69,6 +69,7 @@ inline std::string format(const char *fmt, Args &&...args)
 
 inline int check_any(PyObject *) { return 1; }
 
+// Defers the creation of an object until value() is called.
 template <typename T>
 class defer : public py::object
 {
