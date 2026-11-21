@@ -1395,6 +1395,22 @@ def _get_ticklocation_from_orientation(orientation):
         orientation=orientation)
 
 
+def _figure_of_first_axes(axes):
+    """
+    Return the (sub)figure of the first of *axes*.
+
+    *axes* can be a single Axes, an iterable of Axes or an array of Axes, as
+    accepted by the *ax* parameter of `.Figure.colorbar`.
+    """
+    if isinstance(axes, np.ndarray):
+        first = axes.flat[0]
+    elif np.iterable(axes):
+        first = [*axes][0]
+    else:
+        first = axes
+    return first.get_figure(root=False)
+
+
 @_docstring.interpd
 def make_axes(parents, location=None, orientation=None, fraction=0.15,
               shrink=1.0, aspect=20, **kwargs):

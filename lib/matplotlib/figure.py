@@ -46,6 +46,10 @@ from matplotlib.backend_bases import (
 import matplotlib._api as _api
 import matplotlib.cbook as cbook
 import matplotlib.colorbar as cbar
+import matplotlib.colorbar_bivar as cbar_bivar
+import matplotlib.colorbar_multivar as cbar_multivar
+import matplotlib.colors as mcolors
+import matplotlib.colorizer as mcolorizer
 import matplotlib.image as mimage
 
 from matplotlib.axes import Axes
@@ -1353,38 +1357,72 @@ default: %(va)s
         therefore, this workaround is not used by default (see issue #1188).
 
         """
+        if isinstance(getattr(mappable, "cmap", None), mcolors.BivarColormap):
+            raise ValueError("`Figure.colorbar` can only be used together with a "
+                             "scalar colormap, please use `Figure.colorbar_bivar` "
+                             "when working with a bivariate colormap")
+        if isinstance(getattr(mappable, "cmap", None), mcolors.MultivarColormap):
+            raise ValueError("`Figure.colorbar` can only be used together with a "
+                             "scalar colormap, please use `Figure.colorbar_multivar` "
+                             "when working with a multivariate colormap")
 
-        if ax is None:
-            ax = getattr(mappable, "axes", None)
+        cax, kwargs = self._get_colorbar_axes(
+            mappable, cax, ax, use_gridspec, kwargs,
+            cbar.make_axes, cbar.make_axes_gridspec)
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
+        cb = cbar.Colorbar(cax, mappable, **{
+            k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+        cax.get_figure(root=False).stale = True
+        return cb
 
+    def _get_colorbar_axes(self, mappable, cax, ax, use_gridspec, kwargs,
+                           make_axes, make_axes_gridspec):
+        """
+        Return the Axes to draw a colorbar for *mappable* in, and the keyword
+        arguments that remain for the colorbar.
+
+        This is the part shared by `.Figure.colorbar` and its variants for other
+        kinds of colorbars, which differ only in how a new colorbar Axes is made.
+
+        If *cax* is given, it is used as is. Otherwise, a new Axes is created by
+        taking space from *ax* (by default the Axes of *mappable*), using
+        *make_axes_gridspec* if *use_gridspec* is true and *ax* is positioned
+        with a subplotspec, and *make_axes* otherwise. Both have the signature
+        of `.colorbar.make_axes` and return the new Axes and the remaining
+        keyword arguments.
+        """
         if cax is None:
+            if ax is None:
+                ax = getattr(mappable, "axes", None)
             if ax is None:
                 raise ValueError(
                     'Unable to determine Axes to steal space for Colorbar. '
                     'Either provide the *cax* argument to use as the Axes for '
                     'the Colorbar, provide the *ax* argument to steal space '
                     'from it, or add *mappable* to an Axes.')
-            fig = (  # Figure of first Axes; logic copied from make_axes.
-                [*ax.flat] if isinstance(ax, np.ndarray)
-                else [*ax] if np.iterable(ax)
-                else [ax])[0].get_figure(root=False)
+            fig = cbar._figure_of_first_axes(ax)
             current_ax = fig.gca()
-            if (fig.get_layout_engine() is not None and
-                    not fig.get_layout_engine().colorbar_gridspec):
+            layout_engine = fig.get_layout_engine()
+            if layout_engine is not None and not layout_engine.colorbar_gridspec:
                 use_gridspec = False
             if (use_gridspec
                     and isinstance(ax, mpl.axes._base._AxesBase)
                     and ax.get_subplotspec()):
-                cax, kwargs = cbar.make_axes_gridspec(ax, **kwargs)
+                cax, kwargs = make_axes_gridspec(ax, **kwargs)
             else:
-                cax, kwargs = cbar.make_axes(ax, **kwargs)
+                cax, kwargs = make_axes(ax, **kwargs)
             # make_axes calls add_{axes,subplot} which changes gca; undo that.
             fig.sca(current_ax)
             cax.grid(visible=False, which='both', axis='both')
 
+        self._warn_if_mappable_on_other_figure(mappable)
+        return cax, kwargs
+
+    def _warn_if_mappable_on_other_figure(self, mappable):
+        """Warn if a colorbar for *mappable* is added to a different figure."""
         if (hasattr(mappable, "get_figure") and
                 (mappable_host_fig := mappable.get_figure(root=True)) is not None):
-            # Warn in case of mismatch
             if mappable_host_fig is not self._root_figure:
                 _api.warn_external(
                         f'Adding colorbar to a different Figure '
@@ -1392,11 +1430,159 @@ default: %(va)s
                         f'{repr(self._root_figure)} which '
                         f'fig.colorbar is called on.')
 
+    @_docstring.interpd
+    def colorbar_bivar(
+            self, mappable, *, cax=None, ax=None, use_gridspec=True, **kwargs):
+        """
+        Add a bivariate colorbar to a plot.
+
+        .. admonition:: Provisional
+
+            This method and the returned `.BivarColorbar` are provisional and
+            may change at any time without a deprecation period.
+
+        Parameters
+        ----------
+        mappable
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`
+            etc.) described by this bivariate colorbar.
+            This argument is mandatory for the `.Figure.colorbar_bivar` method
+            but optional for the`.pyplot.colorbar_bivar` function, which sets
+            the default to the current image.
+
+        cax : `~matplotlib.axes.Axes`, optional
+            Axes into which the colorbar will be drawn.  If `None`, then a new
+            Axes is created and the space for it will be stolen from the Axes(s)
+            specified in *ax*.
+
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+            The one or more parent Axes from which space for a new colorbar Axes
+            will be stolen. This parameter is only used if *cax* is not set.
+
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
+
+        use_gridspec : bool, optional
+            If *cax* is ``None``, a new *cax* is created as an instance of
+            Axes.  If *ax* is positioned with a subplotspec and *use_gridspec*
+            is ``True``, then *cax* is also positioned with a subplotspec.
+
+        Returns
+        -------
+        bivariate_colorbar : `~matplotlib.colorbar_bivar.BivarColorbar`
+
+        Other Parameters
+        ----------------
+        %(_make_bivar_axes_kw_doc)s
+        %(_bivar_colorbar_kw_doc)s
+
+        """
+
+        if isinstance(mappable, mcolorizer.Colorizer):
+            mappable = mcolorizer.ColorizingArtist(mappable)
+        if not isinstance(mappable.colorizer.cmap, mcolors.BivarColormap):
+            raise ValueError("A bivariate colorbar can only be used together with a "
+                             f"bivariate colormap, not {type(mappable.colorizer.cmap)}")
+        cax, kwargs = self._get_colorbar_axes(
+            mappable, cax, ax, use_gridspec, kwargs,
+            cbar_bivar.make_axes, cbar_bivar.make_axes_gridspec)
         NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
-            'fraction', 'pad', 'shrink', 'aspect', 'anchor', 'panchor']
-        cb = cbar.Colorbar(cax, mappable, **{
-            k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+            'fraction', 'pad', 'shrink', 'anchor', 'panchor']
+        cb = cbar_bivar.BivarColorbar(cax, mappable, **{
+              k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
         cax.get_figure(root=False).stale = True
+        return cb
+
+    @_docstring.interpd
+    def colorbar_multivar(
+            self, mappable, *, caxes=None, ax=None, n_major=-1, **kwargs):
+        """
+        Add a multivariate colorbar to a plot.
+
+        .. admonition:: Provisional
+
+            This method and the returned `.MultivarColorbar` are provisional and
+            may change at any time without a deprecation period.
+
+        A multivariate colorbar consists of one regular colorbar per variable
+        of the multivariate colormap.
+
+        Parameters
+        ----------
+        mappable
+            The `matplotlib.colorizer.ColorizingArtist` (i.e., `.AxesImage`
+            etc.) described by this multivariate colorbar.
+            This argument is mandatory for the `.Figure.colorbar_multivar` method
+            but optional for the `.pyplot.colorbar_multivar` function, which sets
+            the default to the current image.
+
+        caxes : list of `~matplotlib.axes.Axes`, optional
+            Axes into which the colorbars will be drawn, one per variable.  If
+            `None`, then new Axes are created and the space for them will be
+            stolen from the Axes(s) specified in *ax*.
+
+        ax : `~matplotlib.axes.Axes` or iterable or `numpy.ndarray` of Axes, optional
+            The one or more parent Axes from which space for the new colorbar
+            Axes will be stolen. This parameter is only used if *caxes* is not
+            set.
+
+            Defaults to the Axes that contains the mappable used to create the
+            colorbar.
+
+        n_major : int, default: -1
+            Number of colorbars along the long axis of the colorbars.
+            If -1, all colorbars are placed sequentially along the long axis.
+
+        Returns
+        -------
+        multivariate_colorbar : `~matplotlib.colorbar_multivar.MultivarColorbar`
+
+        Other Parameters
+        ----------------
+        %(_make_multivar_axes_kw_doc)s
+        """
+        if isinstance(mappable, mcolorizer.Colorizer):
+            mappable = mcolorizer.ColorizingArtist(mappable)
+        if not isinstance(mappable.colorizer.cmap, mcolors.MultivarColormap):
+            raise ValueError("A multivariate colorbar can only be used together "
+                             "with a multivariate colormap, not "
+                             f"{type(mappable.colorizer.cmap)}")
+
+        n_variates = mappable.colorizer.cmap.n_variates
+
+        if ax is None:
+            ax = getattr(mappable, "axes", None)
+
+        colorbar_info = None
+        if caxes is None:
+            if ax is None:
+                raise ValueError(
+                    'Unable to determine Axes to steal space for Colorbar. '
+                    'Either provide the *caxes* argument to use as the Axes for '
+                    'the Colorbar, provide the *ax* argument to steal space '
+                    'from it, or add *mappable* to an Axes.')
+            fig = cbar._figure_of_first_axes(ax)
+            if isinstance(fig.get_layout_engine(), ConstrainedLayoutEngine):
+                raise NotImplementedError(
+                    "colorbar_multivar does not support constrained layout yet. "
+                    "Pass the Axes to draw the colorbars in as *caxes* instead.")
+            current_ax = fig.gca()
+            caxes, kwargs, colorbar_info = cbar_multivar.make_axes(
+                ax, n_variates, n_major, **kwargs)
+            # make_axes calls add_{axes,subplot} which changes gca; undo that.
+            fig.sca(current_ax)
+            for cax in caxes:
+                cax.grid(visible=False, which='both', axis='both')
+
+        self._warn_if_mappable_on_other_figure(mappable)
+        NON_COLORBAR_KEYS = [  # remove kws that cannot be passed to Colorbar
+            'fraction', 'pad', 'shrink', 'anchor', 'panchor']
+        cb = cbar_multivar.MultivarColorbar(caxes, mappable, **{
+              k: v for k, v in kwargs.items() if k not in NON_COLORBAR_KEYS})
+        if colorbar_info is not None:
+            cb._set_colorbar_info(colorbar_info)
+        for cax in caxes:
+            cax.get_figure(root=False).stale = True
         return cb
 
     def subplots_adjust(self, left=None, bottom=None, right=None, top=None,
