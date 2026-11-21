@@ -123,7 +123,7 @@ replacement for the ``ContourLabeler.set_label_props(label, text, color)``.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The ``labelFontProps``, ``labelFontSizeList``, and ``labelTextsList``
-attributes of `.ContourLabeler` have been deprecated.  Use the ``labelTexts``
+attributes of ``ContourLabeler`` have been deprecated.  Use the ``labelTexts``
 attribute and the font properties of the corresponding text objects instead.
 
 ``backend_ps.PsBackendHelper`` and ``backend_ps.ps_backend_helper``

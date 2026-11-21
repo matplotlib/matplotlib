@@ -124,7 +124,7 @@ or `~.Collection.get_linewidths` instead.
 ``add_label_clabeltext`` method of ``ContourLabeler``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-... has been removed.  Use `~.ContourLabeler.add_label` instead.
+... has been removed.  Use ``ContourLabeler.add_label`` instead.
 Passing extra positional arguments to ``Figure.add_axes``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

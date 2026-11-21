@@ -800,14 +800,19 @@ def test_negative_linestyles(style):
     assert CS4.negative_linestyles == style
 
 
-def test_contour_remove():
+@pytest.mark.parametrize("contour_func, args", [
+    ("contour", (np.arange(16).reshape((4, 4)),)),
+    ("tricontour", ([0, 1, 1, 0], [0, 0, 1, 1], [0, 1, 2, 3])),
+])
+def test_contour_remove(contour_func, args):
     ax = plt.figure().add_subplot()
     orig_children = ax.get_children()
-    cs = ax.contour(np.arange(16).reshape((4, 4)))
-    cs.clabel()
+    cs = getattr(ax, contour_func)(*args)
+    assert cs.clabel()
     assert ax.get_children() != orig_children
     cs.remove()
     assert ax.get_children() == orig_children
+    assert not cs.labelTexts
 
 
 def test_contour_remove_with_labels():
