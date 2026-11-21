@@ -84,6 +84,12 @@ class _FigureWidget(RemoteFrameBuffer):
                     key=key,
                     modifiers=modifiers,
                 )
+            case {"type": "key_up", "key": key, "modifiers": modifiers}:
+                self._handle_key_event(
+                    name="key_release_event",
+                    key=key,
+                    modifiers=modifiers,
+                )
             case {
                 "type": "pointer_enter",
                 "x": x,
