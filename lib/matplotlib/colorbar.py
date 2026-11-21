@@ -1063,6 +1063,8 @@ class Colorbar:
 
         try:
             ax = self.mappable.axes
+            if ax is None:
+                return
         except AttributeError:
             return
         try:

@@ -3575,11 +3575,16 @@ class MultiNorm(Norm):
             - If structured array, must have `n_components` fields. Each field
               is used for the limits of one constituent norm.
         """
+        changed = False
         with self.callbacks.blocked():
             A = self._iterable_components_in_data(A, self.n_components)
             for n, a in zip(self.norms, A):
+                vmin, vmax = n.vmin, n.vmax
                 n.autoscale_None(a)
-        self._changed()
+                if vmin != n.vmin or vmax != n.vmax:
+                    changed = True
+        if changed:
+            self._changed()
 
     def scaled(self):
         """Return whether both *vmin* and *vmax* are set on all constituent norms."""
