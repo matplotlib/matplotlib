@@ -2408,9 +2408,11 @@ def test_grouped_bar_hatch_sequence():
         for rect in c:
             assert rect.get_hatch() == hatch
 
+
 def test_boxplot_empty_data_empty_tick_labels():
     fig, ax = plt.subplots()
     ax.boxplot([], tick_labels=[])
+
 
 def test_boxplot_dates_pandas(pd):
     # smoke test for boxplot and dates in pandas
