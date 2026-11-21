@@ -15,7 +15,7 @@ import numpy as np
 from jupyter_rfb import RemoteFrameBuffer
 
 from matplotlib.backend_bases import (
-    FigureManagerBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
+    FigureManagerBase, KeyEvent, LocationEvent, MouseButton, MouseEvent, ResizeEvent,
 )
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_webagg_core import _SPECIAL_KEYS_LUT
@@ -40,11 +40,10 @@ class _FigureWidget(RemoteFrameBuffer):
         self._last_press = None
         width, height = canvas.get_width_height()
         self._display_size = width, height
-        self._last_pointer_xy = (None, None)
+        self._last_pointer_xy = None
         super().__init__(
             css_width=f"{width}px",
             css_height=f"{height}px",
-            resizable=False,
             quality=100,
         )
 
@@ -76,8 +75,13 @@ class _FigureWidget(RemoteFrameBuffer):
 
     def handle_event(self, event):
         match event:
-            case {"type": "resize", "width": width, "height": height}:
-                self._display_size = width, height
+            case {
+                "type": "resize",
+                "width": width,
+                "height": height,
+                "ratio": ratio,
+            }:
+                self._handle_resize(width=width, height=height, ratio=ratio)
             case {"type": "key_down", "key": key, "modifiers": modifiers}:
                 self._handle_key_event(
                     name="key_press_event",
@@ -177,6 +181,16 @@ class _FigureWidget(RemoteFrameBuffer):
                     modifiers=modifiers,
                 )
 
+    def _handle_resize(self, *, width: float, height: float, ratio: float) -> None:
+        self._display_size = width, height
+        if width <= 0 or height <= 0 or ratio <= 0:
+            return
+        self.canvas._set_device_pixel_ratio(ratio)
+        fig = self.canvas.figure
+        fig.set_size_inches(width * ratio / fig.dpi, height * ratio / fig.dpi,
+                            forward=False)
+        ResizeEvent("resize_event", self.canvas)._process()
+
     def _canvas_xy(self, x: float, y: float) -> tuple[float, float] | None:
         width, height = self._display_size
         if not width or not height:
@@ -190,7 +204,7 @@ class _FigureWidget(RemoteFrameBuffer):
     ) -> None:
         xy = self._canvas_xy(x, y)
         if xy is not None:
-            self._last_pointer_xy = xy
+            self._last_pointer_xy = x, y
             LocationEvent(
                 name, self.canvas, *xy, modifiers=_mpl_modifiers(modifiers),
             )._process()
@@ -210,7 +224,7 @@ class _FigureWidget(RemoteFrameBuffer):
         xy = self._canvas_xy(x, y)
         if xy is None or (button is not None and button not in _BUTTONS):
             return
-        self._last_pointer_xy = xy
+        self._last_pointer_xy = x, y
         MouseEvent(
             name, self.canvas, *xy,
             button=_BUTTONS[button] if button is not None else None,
@@ -230,7 +244,8 @@ class _FigureWidget(RemoteFrameBuffer):
         if len(key) == 1 and "shift" in mods:
             mods.remove("shift")
         mpl_key = "+".join([*mods, _SPECIAL_KEYS_LUT.get(key, key)])
-        KeyEvent(name, self.canvas, mpl_key, *self._last_pointer_xy)._process()
+        xy = self._canvas_xy(*self._last_pointer_xy) if self._last_pointer_xy else None
+        KeyEvent(name, self.canvas, mpl_key, *(xy or (None, None)))._process()
 
 
 class FigureManager(FigureManagerBase):
