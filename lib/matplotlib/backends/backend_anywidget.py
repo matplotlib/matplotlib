@@ -14,8 +14,10 @@ Install the widget extra, then run this in a notebook::
 import numpy as np
 from jupyter_rfb import RemoteFrameBuffer
 
+from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
-    FigureManagerBase, KeyEvent, LocationEvent, MouseButton, MouseEvent, ResizeEvent,
+    CloseEvent, FigureManagerBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
+    ResizeEvent,
 )
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 from matplotlib.backends.backend_webagg_core import _SPECIAL_KEYS_LUT
@@ -75,6 +77,10 @@ class _FigureWidget(RemoteFrameBuffer):
 
     def handle_event(self, event):
         match event:
+            case {"type": "close"}:
+                manager = self.canvas.manager
+                if manager is not None and manager._widget is self:
+                    Gcf.destroy(manager)
             case {
                 "type": "resize",
                 "width": width,
@@ -252,17 +258,27 @@ class FigureManager(FigureManagerBase):
     def __init__(self, canvas, num):
         super().__init__(canvas, num)
         self._widget = None
+        self._closed = False
 
     def show(self):
+        if self._closed:
+            return
         if self._widget is None:
             self._widget = _FigureWidget(self.canvas)
             self._widget.display()
         self._widget.request_draw()
 
     def destroy(self):
-        if self._widget is not None:
-            self._widget.close()
-        super().destroy()
+        if self._closed:
+            return
+        self._closed = True
+        widget, self._widget = self._widget, None
+        try:
+            CloseEvent("close_event", self.canvas)._process()
+        finally:
+            if widget is not None and widget.comm is not None:
+                widget.close()
+            super().destroy()
 
 
 class FigureCanvas(FigureCanvasAgg):
