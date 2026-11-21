@@ -118,6 +118,20 @@ class _FigureWidget(RemoteFrameBuffer):
                     buttons=buttons,
                     modifiers=modifiers,
                 )
+            case {
+                "type": "wheel",
+                "x": x,
+                "y": y,
+                "dy": dy,
+                "modifiers": modifiers,
+            } if dy != 0:
+                self._handle_mouse_event(
+                    name="scroll_event",
+                    x=x,
+                    y=y,
+                    step=1 if dy < 0 else -1,
+                    modifiers=modifiers,
+                )
 
     def _handle_mouse_event(
         self,
@@ -129,6 +143,7 @@ class _FigureWidget(RemoteFrameBuffer):
         button: int | None = None,
         buttons: tuple[int, ...] = (),
         dblclick: bool = False,
+        step: float = 0,
     ) -> None:
         width, height = self._display_size
         if not width or not height or (button is not None and button not in _BUTTONS):
@@ -145,6 +160,7 @@ class _FigureWidget(RemoteFrameBuffer):
             button=_BUTTONS[button] if button is not None else None,
             buttons=[_BUTTONS[b] for b in buttons if b in _BUTTONS],
             dblclick=dblclick,
+            step=step,
             modifiers=mpl_modifiers,
         )._process()
 
