@@ -33,7 +33,7 @@ def _checkdep_usetex() -> bool:
 
 
 needs_ghostscript = pytest.mark.skipif(
-    "eps" not in matplotlib.testing.compare.converter,
+    "eps" not in matplotlib.testing.compare.comparable_formats(),
     reason="This test needs a ghostscript installation")
 needs_pgf_lualatex = pytest.mark.skipif(
     not matplotlib.testing._check_for_pgf('lualatex'),
