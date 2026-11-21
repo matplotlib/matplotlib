@@ -17,7 +17,6 @@ import os
 import string
 import struct
 import sys
-import time
 import types
 import zlib
 
@@ -208,20 +207,22 @@ def _datetime_to_pdf(d):
     Used for PDF and PGF.
     """
     r = d.strftime('D:%Y%m%d%H%M%S')
-    z = d.utcoffset()
-    if z is not None:
-        z = z.seconds
-    else:
-        if time.daylight:
-            z = time.altzone
-        else:
-            z = time.timezone
-    if z == 0:
+    offset = d.utcoffset()
+    if offset is None:
+        offset = d.astimezone().utcoffset()
+
+    if offset is None:
+        return r + 'Z'
+
+    total_seconds = int(offset.total_seconds())
+    if total_seconds == 0:
         r += 'Z'
-    elif z < 0:
-        r += "+%02d'%02d'" % ((-z) // 3600, (-z) % 3600)
     else:
-        r += "-%02d'%02d'" % (z // 3600, z % 3600)
+        sign = '+' if total_seconds > 0 else '-'
+        total_seconds = abs(total_seconds)
+        hours = total_seconds // 3600
+        minutes = (total_seconds % 3600) // 60
+        r += f"{sign}{hours:02d}'{minutes:02d}'"
     return r
 
 
