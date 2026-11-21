@@ -1254,3 +1254,18 @@ def test_colorbar_format_string_and_old():
     plt.imshow([[0, 1]])
     cb = plt.colorbar(format="{x}%")
     assert isinstance(cb._formatter, StrMethodFormatter)
+
+
+def test_remove_colorbar_with_no_mappable():
+    fig, ax = plt.subplots()
+    cb = mpl.colorbar.Colorbar(ax)
+    cb.remove()
+
+
+def test_cbar_wrong_figures():
+    fig0, ax0 = plt.subplots()
+    fig1, ax1 = plt.subplots()
+    im0 = ax0.imshow([[0, 1], [2, 3]])
+    im1 = ax1.imshow([[0, 1], [2, 3]])
+    with pytest.raises(ValueError, match="not all parents share"):
+        fig0.colorbar(im0, ax=[im0, im1])
