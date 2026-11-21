@@ -66,6 +66,19 @@ inline std::string format(const char *fmt, Args &&...args)
     return std::string(py::str(fmt).format(std::forward<Args>(args)...));
 }
 
+
+inline int check_any(PyObject *) { return 1; }
+
+// Defers the creation of an object until value() is called.
+template <typename T>
+class defer : public py::object
+{
+    PYBIND11_OBJECT_DEFAULT(defer, py::object, check_any)
+
+    template <typename... Args>
+    T value(Args &&...args) const { return T(*this, args...); }
+};
+
 } // namespace mpl
 
 
