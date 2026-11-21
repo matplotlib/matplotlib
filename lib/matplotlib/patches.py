@@ -4884,8 +4884,8 @@ class ConnectionPatch(FancyArrowPatch):
         )
         return path, fillable
 
-    def _check_xy(self, renderer):
-        """Check whether the annotation needs to be drawn."""
+    def _should_draw(self, renderer):
+        """Return whether the annotation should be drawn, given *annotation_clip*."""
 
         b = self.get_annotation_clip()
 
@@ -4910,6 +4910,6 @@ class ConnectionPatch(FancyArrowPatch):
         return True
 
     def draw(self, renderer):
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer):
             return
         super().draw(renderer)
