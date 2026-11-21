@@ -14,6 +14,7 @@ Install the widget extra, then run this in a notebook::
 import numpy as np
 from jupyter_rfb import RemoteFrameBuffer
 
+from matplotlib import cbook
 from matplotlib._pylab_helpers import Gcf
 from matplotlib.backend_bases import (
     CloseEvent, FigureManagerBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
@@ -43,14 +44,28 @@ class _FigureWidget(RemoteFrameBuffer):
         width, height = canvas.get_width_height()
         self._display_size = width, height
         self._last_pointer_xy = None
+        self._pending_renderer = None
+        self._drawing_frame = False
         super().__init__(
             css_width=f"{width}px",
             css_height=f"{height}px",
             quality=100,
         )
+        canvas.mpl_connect("draw_event", self._on_draw)
+
+    def _on_draw(self, event):
+        if (event.canvas is self.canvas and not self._drawing_frame
+                and not self.canvas.is_saving() and self.comm is not None):
+            self._pending_renderer = event.renderer
+            self.request_draw()
 
     def get_frame(self):
-        self.canvas.draw()
+        # A canvas.draw() already rendered the frame. A widget-initiated
+        # redraw (e.g. a resize) may still need to render it.
+        renderer, self._pending_renderer = self._pending_renderer, None
+        if self.canvas.figure.stale or renderer is not self.canvas.get_renderer():
+            with cbook._setattr_cm(self, _drawing_frame=True):
+                self.canvas.draw()
         # RFB retains the frame, while Agg reuses its pixel buffer.
         return np.asarray(self.canvas.buffer_rgba()).copy()
 
