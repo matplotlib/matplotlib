@@ -180,7 +180,7 @@ FT2Font::get_path(std::vector<double> &vertices, std::vector<unsigned char> &cod
 }
 
 FT2Font::FT2Font(std::vector<FT2Font *> &fallback_list, bool warn_if_used)
-    : warn_if_used(warn_if_used), image(ImageBuffer(1, 1)), face(nullptr),
+    : warn_if_used(warn_if_used), image{1, 1}, face(nullptr),
       char_size(0), char_dpi(0), glyph_matrix{0x10000, 0, 0, 0x10000}, glyph_delta{0, 0},
       charmap_generation(0),
       fallbacks(fallback_list),

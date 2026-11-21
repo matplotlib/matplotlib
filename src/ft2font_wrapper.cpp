@@ -1,5 +1,6 @@
 #define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
 #include <pybind11/pybind11.h>
+#include <pybind11/attr.h>
 #include <pybind11/native_enum.h>
 #include <pybind11/numpy.h>
 #include <pybind11/stl.h>
@@ -1667,7 +1668,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
 
 
     py::classh<PyFT2Font>(m, "FT2Font", py::is_final(),
-                         py::custom_type_setup(mpl::buffer_setup<PyFT2Font>),
+                          py::custom_type_setup(mpl::buffer_setup<PyFT2Font>),
                           PyFT2Font__doc__)
         .def(py::init(
             [ft2Library](

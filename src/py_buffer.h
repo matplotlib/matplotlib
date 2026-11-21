@@ -25,7 +25,7 @@ namespace internal {
 template <typename T>
 constexpr const char *get_buffer_format()
 {
-    using U = std::remove_cv_t<T>;
+    using U = std::remove_const_t<T>;
 
     if constexpr (std::is_same_v<U, bool>) {
         return "?";
@@ -92,7 +92,7 @@ public:
         auto needs_strides = ((flags & PyBUF_STRIDES) == PyBUF_STRIDES);
         auto format = internal::get_buffer_format<Scalar>();
 
-        view->buf = const_cast<std::remove_cv_t<Scalar> *>(m_data);
+        view->buf = const_cast<std::remove_const_t<Scalar> *>(m_data);
         view->itemsize = 1;
         view->len = nbytes();
         view->readonly = is_readonly() ? 1 : 0;
