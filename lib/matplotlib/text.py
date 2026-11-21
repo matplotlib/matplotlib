@@ -1834,16 +1834,20 @@ class _AnnotationBase:
 
     def set_annotation_clip(self, b):
         """
-        Set the annotation's clipping behavior.
+        Set whether the annotation should be not drawn when the annotated
+        point is outside the Axes.
+
+        Note: The naming is historic. *clip* here means "not drawn" not
+        "partially drawn within the Axes", as *clip_on* does.
 
         Parameters
         ----------
         b : bool or None
-            - True: The annotation will be clipped when ``self.xy`` is
-              outside the Axes.
+            - True: The annotation will not be drawn when the annotated point
+              ``self.xy`` is outside the Axes.
             - False: The annotation will always be drawn.
-            - None: The annotation will be clipped when ``self.xy`` is
-              outside the Axes and ``self.xycoords == "data"``.
+            - None: The annotation will not be drawn when the annotated point
+              ``self.xy`` is outside the Axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
 
