@@ -86,6 +86,31 @@ def test_legend_auto3():
     ax.legend(loc='best')
 
 
+def test_legend_best_prunes_candidates(monkeypatch):
+    fig, ax = plt.subplots()
+    paths = [ax.plot([0, 0], [0, 0], label=str(index))[0].get_path()
+             for index in range(2)]
+    legend = ax.legend(loc='best')
+    offsets = [(21, 1), (21, 1), (31, 1)]
+    offsets.extend((10 * code + 1, 1) for code in range(5, 11))
+    monkeypatch.setattr(legend, '_auto_legend_data',
+                        lambda renderer: ([], paths, offsets))
+    monkeypatch.setattr(legend, '_get_anchored_bbox',
+                        lambda code, *args: (10 * code, 0))
+    calls = []
+
+    def intersects_bbox(path, bbox, filled):
+        assert not filled
+        code = int(bbox.x0 / 10)
+        index = paths.index(path)
+        calls.append((code, index))
+        return code == 1 or (code == 3 and index == 0) or (code == 4 and index == 1)
+
+    monkeypatch.setattr(type(paths[0]), 'intersects_bbox', intersects_bbox)
+    assert legend._find_best_position(2, 2, fig.canvas.get_renderer()) == (40, 0)
+    assert calls == [(1, 0), (1, 1), (3, 0), (4, 0), (4, 1)]
+
+
 def test_legend_auto4():
     """
     Check that the legend location with automatic placement is the same,

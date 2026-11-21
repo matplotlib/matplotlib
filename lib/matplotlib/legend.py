@@ -1214,23 +1214,27 @@ class Legend(Artist):
             in_y = ((y_bottom[:, np.newaxis] < y)
                     & (y < y_bottom[:, np.newaxis] + height))
 
-        candidates = []
-        for loc_code, legendBox in candidate_boxes:
+        best_badness = np.inf
+        for _, legendBox in candidate_boxes:
             contained_count = np.count_nonzero(
                 in_x[np.where(x_left == legendBox.x0)[0][0]]
                 & in_y[np.where(y_bottom == legendBox.y0)[0][0]])
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
-            badness = (contained_count
-                       + legendBox.count_overlaps(bboxes)
-                       + sum(line.intersects_bbox(legendBox, filled=False)
-                             for line in lines))
-            # Include the loc code to favor lower codes in case of a tie.
-            candidates.append((badness, loc_code, (legendBox.x0, legendBox.y0)))
+            badness = contained_count + legendBox.count_overlaps(bboxes)
+            if badness >= best_badness:
+                continue
+            for line in lines:
+                badness += line.intersects_bbox(legendBox, filled=False)
+                if badness >= best_badness:
+                    break
+            if badness >= best_badness:
+                continue
+            best_badness = badness
+            # Candidates are evaluated in order, so ties favor lower codes.
+            left, bottom = legendBox.x0, legendBox.y0
             if badness == 0:
                 break
-
-        _, _, (left, bottom) = min(candidates)
 
         if self._loc_used_default and time.perf_counter() - start_time > 1:
             _api.warn_external(
