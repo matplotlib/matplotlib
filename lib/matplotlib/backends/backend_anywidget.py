@@ -45,19 +45,46 @@ class _FigureWidget(RemoteFrameBuffer):
         return np.asarray(self.canvas.buffer_rgba()).copy()
 
     def handle_event(self, event):
-        match event["type"]:
-            case "resize":
-                self._display_size = event["width"], event["height"]
-            case "pointer_down":
-                self._handle_button_press(
-                    x=event["x"],
-                    y=event["y"],
-                    button=event["button"],
-                    modifiers=event["modifiers"],
+        match event:
+            case {"type": "resize", "width": width, "height": height}:
+                self._display_size = width, height
+            case {
+                "type": "pointer_down",
+                "x": x,
+                "y": y,
+                "button": button,
+                "modifiers": modifiers,
+            }:
+                self._handle_button_event(
+                    name="button_press_event",
+                    x=x,
+                    y=y,
+                    button=button,
+                    modifiers=modifiers,
+                )
+            case {
+                "type": "pointer_up",
+                "x": x,
+                "y": y,
+                "button": button,
+                "modifiers": modifiers,
+            }:
+                self._handle_button_event(
+                    name="button_release_event",
+                    x=x,
+                    y=y,
+                    button=button,
+                    modifiers=modifiers,
                 )
 
-    def _handle_button_press(
-        self, *, x: float, y: float, button: int, modifiers: tuple[str, ...],
+    def _handle_button_event(
+        self,
+        *,
+        name: str,
+        x: float,
+        y: float,
+        button: int,
+        modifiers: tuple[str, ...],
     ) -> None:
         mouse_button = _BUTTONS.get(button)
         width, height = self._display_size
@@ -67,10 +94,12 @@ class _FigureWidget(RemoteFrameBuffer):
         frame_width, frame_height = self.canvas.get_width_height(physical=True)
         x = frame_width * x / width
         y = frame_height * (1 - y / height)
-        mpl_modifiers = ["ctrl" if mod == "Control" else mod.lower()
-                         for mod in modifiers]
-        MouseEvent("button_press_event", self.canvas, x, y,
-                   button=mouse_button, modifiers=mpl_modifiers)._process()
+        mpl_modifiers = [
+            "ctrl" if mod == "Control" else mod.lower() for mod in modifiers
+        ]
+        MouseEvent(
+            name, self.canvas, x, y, button=mouse_button, modifiers=mpl_modifiers
+        )._process()
 
 
 class FigureManager(FigureManagerBase):
