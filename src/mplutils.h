@@ -65,12 +65,24 @@ inline double round(double v)
     return (double)round_to_int(v);
 }
 
+// Formats a string using Python's str.format() semantics.
 template <typename... Args>
 inline std::string format(const char *fmt, Args &&...args)
 {
     return std::string(py::str(fmt).format(std::forward<Args>(args)...));
 }
 
+// Converts the source py::object into a T and stores the result in 'dst'.
+// Types should provide their own specialization.
+template <typename T>
+inline void convert(T &dst, const py::object src, std::string arg_name)
+{
+    static_assert(internal::always_false_v<T>,
+        "No convert() specialization registered for this type");
+}
+
+// Performs a cast using pybind11::cast(). On failure, raises an
+// error mentioning the argument name.
 template <typename T>
 inline void cast(T &dst, const py::object &src, std::string arg_name)
 {
@@ -82,13 +94,8 @@ inline void cast(T &dst, const py::object &src, std::string arg_name)
     }
 }
 
-template <typename T>
-inline void convert(T &dst, const py::object src, std::string arg_name)
-{
-    static_assert(internal::always_false_v<T>,
-        "No convert() specialization registered for this type");
-}
-
+// A pybind11 wrapper class which defers the creation of an object until
+// explicitly requested. Uses mpl::convert() to create the resulting object.
 template <typename T>
 class defer : public py::object
 {
