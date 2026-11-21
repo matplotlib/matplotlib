@@ -10,6 +10,7 @@ python_sources = [
   'test_artist.py',
   'test_axes.py',
   'test_axis.py',
+  'test_backend_anywidget.py',
   'test_backend_bases.py',
   'test_backend_cairo.py',
   'test_backend_gtk3.py',

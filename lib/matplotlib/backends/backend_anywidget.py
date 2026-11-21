@@ -30,6 +30,7 @@ _BUTTONS = {
 class _FigureWidget(RemoteFrameBuffer):
     def __init__(self, canvas):
         self.canvas = canvas
+        self._last_press = None
         width, height = canvas.get_width_height()
         self._display_size = width, height
         super().__init__(
@@ -43,6 +44,27 @@ class _FigureWidget(RemoteFrameBuffer):
         self.canvas.draw()
         # RFB retains the frame, while Agg reuses its pixel buffer.
         return np.asarray(self.canvas.buffer_rgba()).copy()
+
+    def _near_last_press(self, *, x: float, y: float) -> bool:
+        if self._last_press is None:
+            return False
+        last_x, last_y, _ = self._last_press
+        return (x - last_x) ** 2 + (y - last_y) ** 2 <= 5 ** 2
+
+    def _is_double_click(
+        self, *, x: float, y: float, button: int, timestamp: float | None,
+    ) -> bool:
+        # RFB sends double_click after the second release. Matplotlib needs
+        # dblclick on the second press, so use the frontend's clock (seconds).
+        if button != 1 or timestamp is None:
+            self._last_press = None
+            return False
+        if (self._near_last_press(x=x, y=y)
+                and 0 <= timestamp - self._last_press[2] <= 0.5):
+            self._last_press = None
+            return True
+        self._last_press = x, y, timestamp
+        return False
 
     def handle_event(self, event):
         match event:
@@ -61,6 +83,8 @@ class _FigureWidget(RemoteFrameBuffer):
                     y=y,
                     button=button,
                     modifiers=modifiers,
+                    dblclick=self._is_double_click(
+                        x=x, y=y, button=button, timestamp=event.get("timestamp")),
                 )
             case {
                 "type": "pointer_up",
@@ -69,6 +93,8 @@ class _FigureWidget(RemoteFrameBuffer):
                 "button": button,
                 "modifiers": modifiers,
             }:
+                if not self._near_last_press(x=x, y=y):
+                    self._last_press = None
                 self._handle_mouse_event(
                     name="button_release_event",
                     x=x,
@@ -83,6 +109,8 @@ class _FigureWidget(RemoteFrameBuffer):
                 "buttons": buttons,
                 "modifiers": modifiers,
             }:
+                if buttons and not self._near_last_press(x=x, y=y):
+                    self._last_press = None
                 self._handle_mouse_event(
                     name="motion_notify_event",
                     x=x,
@@ -100,6 +128,7 @@ class _FigureWidget(RemoteFrameBuffer):
         modifiers: tuple[str, ...],
         button: int | None = None,
         buttons: tuple[int, ...] = (),
+        dblclick: bool = False,
     ) -> None:
         width, height = self._display_size
         if not width or not height or (button is not None and button not in _BUTTONS):
@@ -115,6 +144,7 @@ class _FigureWidget(RemoteFrameBuffer):
             name, self.canvas, x, y,
             button=_BUTTONS[button] if button is not None else None,
             buttons=[_BUTTONS[b] for b in buttons if b in _BUTTONS],
+            dblclick=dblclick,
             modifiers=mpl_modifiers,
         )._process()
 
