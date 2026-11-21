@@ -14,7 +14,9 @@ Install the widget extra, then run this in a notebook::
 import numpy as np
 from jupyter_rfb import RemoteFrameBuffer
 
-from matplotlib.backend_bases import FigureManagerBase, MouseButton, MouseEvent
+from matplotlib.backend_bases import (
+    FigureManagerBase, LocationEvent, MouseButton, MouseEvent,
+)
 from matplotlib.backends.backend_agg import FigureCanvasAgg
 
 
@@ -25,6 +27,10 @@ _BUTTONS = {
     4: MouseButton.BACK,
     5: MouseButton.FORWARD,
 }
+
+
+def _mpl_modifiers(modifiers: tuple[str, ...]) -> list[str]:
+    return ["ctrl" if mod == "Control" else mod.lower() for mod in modifiers]
 
 
 class _FigureWidget(RemoteFrameBuffer):
@@ -70,6 +76,18 @@ class _FigureWidget(RemoteFrameBuffer):
         match event:
             case {"type": "resize", "width": width, "height": height}:
                 self._display_size = width, height
+            case {
+                "type": "pointer_enter",
+                "x": x,
+                "y": y,
+                "modifiers": modifiers,
+            }:
+                self._handle_location_event(
+                    name="figure_enter_event",
+                    x=x,
+                    y=y,
+                    modifiers=modifiers,
+                )
             case {
                 "type": "pointer_down",
                 "x": x,
@@ -133,6 +151,23 @@ class _FigureWidget(RemoteFrameBuffer):
                     modifiers=modifiers,
                 )
 
+    def _canvas_xy(self, x: float, y: float) -> tuple[float, float] | None:
+        width, height = self._display_size
+        if not width or not height:
+            return None
+        # Map top-left CSS coordinates into the bottom-left Agg frame.
+        frame_width, frame_height = self.canvas.get_width_height(physical=True)
+        return frame_width * x / width, frame_height * (1 - y / height)
+
+    def _handle_location_event(
+        self, *, name: str, x: float, y: float, modifiers: tuple[str, ...],
+    ) -> None:
+        xy = self._canvas_xy(x, y)
+        if xy is not None:
+            LocationEvent(
+                name, self.canvas, *xy, modifiers=_mpl_modifiers(modifiers),
+            )._process()
+
     def _handle_mouse_event(
         self,
         *,
@@ -145,23 +180,16 @@ class _FigureWidget(RemoteFrameBuffer):
         dblclick: bool = False,
         step: float = 0,
     ) -> None:
-        width, height = self._display_size
-        if not width or not height or (button is not None and button not in _BUTTONS):
+        xy = self._canvas_xy(x, y)
+        if xy is None or (button is not None and button not in _BUTTONS):
             return
-        # Map top-left CSS coordinates into the bottom-left Agg frame.
-        frame_width, frame_height = self.canvas.get_width_height(physical=True)
-        x = frame_width * x / width
-        y = frame_height * (1 - y / height)
-        mpl_modifiers = [
-            "ctrl" if mod == "Control" else mod.lower() for mod in modifiers
-        ]
         MouseEvent(
-            name, self.canvas, x, y,
+            name, self.canvas, *xy,
             button=_BUTTONS[button] if button is not None else None,
             buttons=[_BUTTONS[b] for b in buttons if b in _BUTTONS],
             dblclick=dblclick,
             step=step,
-            modifiers=mpl_modifiers,
+            modifiers=_mpl_modifiers(modifiers),
         )._process()
 
 
