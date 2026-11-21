@@ -15,9 +15,10 @@ import numpy as np
 from jupyter_rfb import RemoteFrameBuffer
 
 from matplotlib.backend_bases import (
-    FigureManagerBase, LocationEvent, MouseButton, MouseEvent,
+    FigureManagerBase, KeyEvent, LocationEvent, MouseButton, MouseEvent,
 )
 from matplotlib.backends.backend_agg import FigureCanvasAgg
+from matplotlib.backends.backend_webagg_core import _SPECIAL_KEYS_LUT
 
 
 _BUTTONS = {
@@ -39,6 +40,7 @@ class _FigureWidget(RemoteFrameBuffer):
         self._last_press = None
         width, height = canvas.get_width_height()
         self._display_size = width, height
+        self._last_pointer_xy = (None, None)
         super().__init__(
             css_width=f"{width}px",
             css_height=f"{height}px",
@@ -76,6 +78,12 @@ class _FigureWidget(RemoteFrameBuffer):
         match event:
             case {"type": "resize", "width": width, "height": height}:
                 self._display_size = width, height
+            case {"type": "key_down", "key": key, "modifiers": modifiers}:
+                self._handle_key_event(
+                    name="key_press_event",
+                    key=key,
+                    modifiers=modifiers,
+                )
             case {
                 "type": "pointer_enter",
                 "x": x,
@@ -176,6 +184,7 @@ class _FigureWidget(RemoteFrameBuffer):
     ) -> None:
         xy = self._canvas_xy(x, y)
         if xy is not None:
+            self._last_pointer_xy = xy
             LocationEvent(
                 name, self.canvas, *xy, modifiers=_mpl_modifiers(modifiers),
             )._process()
@@ -195,6 +204,7 @@ class _FigureWidget(RemoteFrameBuffer):
         xy = self._canvas_xy(x, y)
         if xy is None or (button is not None and button not in _BUTTONS):
             return
+        self._last_pointer_xy = xy
         MouseEvent(
             name, self.canvas, *xy,
             button=_BUTTONS[button] if button is not None else None,
@@ -203,6 +213,18 @@ class _FigureWidget(RemoteFrameBuffer):
             step=step,
             modifiers=_mpl_modifiers(modifiers),
         )._process()
+
+    def _handle_key_event(
+        self, *, name: str, key: str, modifiers: tuple[str, ...],
+    ) -> None:
+        prefix = tuple(mod for mod in ("Control", "Alt", "Shift", "Meta")
+                       if mod in modifiers and mod != key)
+        # The browser already applies Shift to printable characters.
+        mods = _mpl_modifiers(prefix)
+        if len(key) == 1 and "shift" in mods:
+            mods.remove("shift")
+        mpl_key = "+".join([*mods, _SPECIAL_KEYS_LUT.get(key, key)])
+        KeyEvent(name, self.canvas, mpl_key, *self._last_pointer_xy)._process()
 
 
 class FigureManager(FigureManagerBase):
