@@ -240,28 +240,30 @@ class _SVGWithMatplotlibFontsConverter(_SVGConverter):
         return super().__call__(orig, dest)
 
 
-def _update_converter():
+def _find_converter():
+    converter = {}
+
     try:
         mpl._get_executable_info("magick")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        _converter[('gif', '')] = _MagickConverter()
+        converter[('gif', '')] = _MagickConverter()
     try:
         mpl._get_executable_info("gs")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        _converter[('pdf', '')] = _converter[('eps', '')] = _GSConverter()
+        converter[('pdf', '')] = converter[('eps', '')] = _GSConverter()
     try:
         mpl._get_executable_info("inkscape")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        _converter[('svg', '')] = _SVGConverter()
-        _converter[('svg', 'fonts')] = _SVGWithMatplotlibFontsConverter()
+        converter[('svg', '')] = _SVGConverter()
+        converter[('svg', 'fonts')] = _SVGWithMatplotlibFontsConverter()
 
-    _converter_extensions = {extension for extension, variant in _converter}
+    return converter
 
 
 def _get_converter(extension, variant=""):
@@ -270,9 +272,8 @@ def _get_converter(extension, variant=""):
 
 # The _converter dictionary maps (extension, variant) tuples to
 # the converter classes.
-_converter = {}
-_converter_extensions = set()
-_update_converter()
+_converter = _find_converter()
+_converter_extensions = {extension for extension, _ in _converter}
 
 
 def comparable_formats():
