@@ -4948,7 +4948,7 @@ or pandas.DataFrame
         # width
         if widths is None:
             widths = ([np.clip(0.15 * np.ptp(positions), 0.15, 0.5)] * N
-                      if N else [])
+                      if N > 0 else [])
         elif np.isscalar(widths):
             widths = [widths] * N
         elif len(widths) != N:
