@@ -5044,7 +5044,7 @@ or pandas.DataFrame
                 for artist, lbl in zip(box_or_med, label):
                     artist.set_label(lbl)
 
-        if manage_ticks and N:
+        if manage_ticks and N > 0:
             axis_name = "x" if orientation == 'vertical' else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
             axis = self._axis_map[axis_name]
