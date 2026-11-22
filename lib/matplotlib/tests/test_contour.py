@@ -1,6 +1,7 @@
 import datetime
 import platform
 import re
+import warnings
 from unittest import mock
 
 import contourpy
@@ -344,6 +345,25 @@ def test_contourf_decreasing_levels():
     plt.figure()
     with pytest.raises(ValueError):
         plt.contourf(z, [1.0, 0.0])
+
+
+@pytest.mark.parametrize("plotter", ["contour", "contourf"])
+def test_contour_constant_z_warns(plotter):
+    z = np.full((10, 10), 5.0)
+    with pytest.warns(
+            UserWarning,
+            match=r"No contour levels can be computed: Z has no variation "
+                  r"\(min == max == 5\.0\)"):
+        getattr(plt, plotter)(z)
+
+
+@pytest.mark.parametrize("plotter", ["contour", "contourf"])
+def test_contour_constant_z_explicit_levels_do_not_warn(plotter):
+    z = np.full((10, 10), 5.0)
+    with warnings.catch_warnings(record=True) as record:
+        warnings.simplefilter("always")
+        getattr(plt, plotter)(z, levels=[4.0, 5.0, 6.0])
+    assert not record
 
 
 def test_contourf_symmetric_locator():
