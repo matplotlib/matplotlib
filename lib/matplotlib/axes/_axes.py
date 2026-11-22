@@ -5032,7 +5032,7 @@ or pandas.DataFrame
                 fliers.append(do_plot(flier_x, flier_y, **flier_kw))
 
         # Set legend labels
-        if label:
+        if label and N:
             box_or_med = boxes if showbox and patch_artist else medians
             if cbook.is_scalar_or_string(label):
                 # assign the label only to the first box
@@ -5043,7 +5043,7 @@ or pandas.DataFrame
                 for artist, lbl in zip(box_or_med, label):
                     artist.set_label(lbl)
 
-        if manage_ticks:
+        if manage_ticks and N:
             axis_name = "x" if orientation == 'vertical' else "y"
             interval = getattr(self.dataLim, f"interval{axis_name}")
             axis = self._axis_map[axis_name]

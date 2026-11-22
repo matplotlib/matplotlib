@@ -163,6 +163,11 @@ class Test_boxplot_stats:
         with pytest.raises(ValueError):
             cbook.boxplot_stats(self.data, labels=labels)
 
+    def test_empty_input_empty_labels(self):
+        assert cbook.boxplot_stats([], labels=[]) == []
+        # Without explicit empty labels, an empty dataset remains one dataset.
+        assert len(cbook.boxplot_stats([])) == 1
+
     def test_bad_dims(self):
         data = np.random.normal(size=(34, 34, 34))
         with pytest.raises(ValueError):

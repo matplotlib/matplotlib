@@ -1264,6 +1264,10 @@ def boxplot_stats(X, whis=1.5, bootstrap=None, labels=None, autorange=False):
     ncols = len(X)
     if labels is None:
         labels = itertools.repeat(None)
+    elif len(labels) == 0 and ncols == 1 and len(X[0]) == 0:
+        # An empty input with no labels represents zero datasets. Preserve the
+        # single empty dataset behavior when labels are omitted or provided.
+        return []
     elif len(labels) != ncols:
         raise ValueError(f"The number of labels ({len(labels)}) must match the"
             f" number of columns ({ncols}).")
