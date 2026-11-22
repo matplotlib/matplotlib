@@ -1193,8 +1193,7 @@ class Legend(Artist):
             left, bottom = self._get_anchored_bbox(loc_code, bbox,
                                                    self.get_bbox_to_anchor(),
                                                    renderer)
-            candidate_boxes.append((loc_code,
-                                    Bbox.from_bounds(left, bottom, width, height)))
+            candidate_boxes.append(Bbox.from_bounds(left, bottom, width, height))
 
         # Every candidate box has the same width and height, with only a handful of
         # distinct left/bottom edges. For speed we compute each point's membership
@@ -1203,8 +1202,8 @@ class Legend(Artist):
         if offsets:
             pts.append(np.asarray(offsets, dtype=float))
         pts = np.concatenate(pts) if pts else np.empty((0, 2))
-        x_left = np.unique([box.x0 for _, box in candidate_boxes])
-        y_bottom = np.unique([box.y0 for _, box in candidate_boxes])
+        x_left = np.unique([box.x0 for box in candidate_boxes])
+        y_bottom = np.unique([box.y0 for box in candidate_boxes])
         x, y = pts[:, 0], pts[:, 1]
         with np.errstate(invalid='ignore'):
             # Broadcast the (n_edges, 1) edge positions against the (n_points,)
@@ -1215,7 +1214,7 @@ class Legend(Artist):
                     & (y < y_bottom[:, np.newaxis] + height))
 
         best_badness = np.inf
-        for _, legendBox in candidate_boxes:
+        for legendBox in candidate_boxes:
             contained_count = np.count_nonzero(
                 in_x[np.where(x_left == legendBox.x0)[0][0]]
                 & in_y[np.where(y_bottom == legendBox.y0)[0][0]])
