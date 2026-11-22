@@ -2,6 +2,7 @@ import functools
 import os
 import sys
 import traceback
+import weakref
 
 import matplotlib as mpl
 from matplotlib import _api, backend_tools, cbook
@@ -710,9 +711,15 @@ class _IconEngine(QtGui.QIconEngine):
     def __init__(self, image_path, toolbar=None):
         super().__init__()
         self.image_path = image_path
-        self.toolbar = toolbar
+        self._toolbar = weakref.ref(toolbar) if toolbar is not None else None
+
+    @property
+    def toolbar(self):
+        return self._toolbar() if self._toolbar is not None else None
 
     def _is_dark_mode(self):
+        if self.toolbar is None:
+            return False
         return self.toolbar.palette().color(self.toolbar.backgroundRole()).value() < 128
 
     def paint(self, painter, rect, mode, state):
