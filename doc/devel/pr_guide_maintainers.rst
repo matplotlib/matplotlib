@@ -40,7 +40,7 @@ Workflow
 * Tag with descriptive :ref:`labels <pr-labels>`.
 * Set the :ref:`milestone <pr-milestones>`.
 * :ref:`Review <pr-review>` the contents.
-* Approve if all of the above topics are handled.
+* Approve when you are satisfied with the PR.
 * Keep an eye on the :ref:`number of commits <pr-squashing>`.
 * :ref:`Merge <pr-merging-maintainers>` if a
   :ref:`sufficient number of approvals <pr-approval>` is reached.
@@ -119,7 +119,7 @@ Approval
 --------
 As a guiding principle, we require two `approvals`_ from core developers (those
 with commit rights) before merging a pull request. This two-pairs-of-eyes
-strategy shall ensure a consistent project direction and prevent accidental
+strategy ensures a consistent project direction and prevents accidental
 mistakes. It is permissible to merge with one approval if the change is not
 fundamental and can easily be reverted at any time in the future.
 
@@ -157,10 +157,10 @@ Some explicit rules following from this:
 
 Merging
 -------
-After giving the last required :ref:`approval <pr-approval>`, the author of the
-approval should merge the PR. PR authors should not self-merge except for when
-another reviewer explicitly allows it (e.g., "Approve modulo CI passing, may
-self-merge when green", or "Take or leave the comments. You may self merge").
+After giving the last required :ref:`approval <pr-approval>`, the approver
+should merge the PR. PR authors should not self-merge except for when another
+reviewer explicitly allows it (e.g., "Approve modulo CI passing, may self-merge
+when green", or "Take or leave the comments. You may self merge").
 
 .. _branches_and_backports:
 

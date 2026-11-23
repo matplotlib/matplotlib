@@ -1,4 +1,5 @@
 .. _pr-guidelines:
+.. redirect-from:: /devel/pr_guide.rst
 
 ****************************
 Pull request authoring guide
@@ -8,10 +9,10 @@ Pull request authoring guide
 <https://docs.github.com/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests>`__
 are the mechanism for contributing to Matplotlib's code and documentation.
 
-We value contributions from people with all levels of experience. In particular,
-if this is your first PR not everything has to be perfect. We'll guide you
-through the PR process. Nevertheless, please try to follow our guidelines as
-well as you can to help make the PR process quick and smooth.
+We value contributions from people with all levels of experience and not
+everything has to be perfect. We'll guide you through the PR process.
+Nevertheless, please try to follow our guidelines as well as you can to help
+make the PR process quick and smooth.
 
 .. admonition:: Note
 
@@ -120,7 +121,7 @@ merging the PR.
 If the PR does not yet have the quality and clarity needed for an effective
 review, or if you fail to fill out the PR template correctly (including not
 providing an AI Disclosure), your PR may be labeled as
-``status: autoclose candidate``. This will trigger a two-weeks countdown after
+``status: autoclose candidate``. This will trigger a two-weeks countdown, after
 which the PR will be automatically closed if no further improvements have been
 made. See `the autoclose workflow <https://github.com/matplotlib/matplotlib/blob/main/.github/workflows/autoclose_comment.yml>`__
 for more details.
@@ -153,9 +154,8 @@ Approval
 --------
 As a guiding principle, we require two `approvals`_ from core developers (those
 with commit rights) before merging a pull request. This two-pairs-of-eyes
-strategy shall ensure a consistent project direction and prevent accidental
-mistakes. It is permissible to merge with one approval if the change is not
-fundamental and can easily be reverted at any time in the future.
+strategy ensures a consistent project direction and prevents accidental
+mistakes.
 
 .. _approvals: https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests
 
@@ -166,10 +166,10 @@ details on this process.
 
 Merging
 -------
-After giving the last required approval, the author of the
-approval should merge the PR. PR authors should not self-merge except for when
-another reviewer explicitly allows it (e.g., "Approve modulo CI passing, may
-self-merge when green", or "Take or leave the comments. You may self merge").
+After giving the last required approval, the approver should merge the PR. PR
+authors should not self-merge except for when another reviewer explicitly allows
+it (e.g., "Approve modulo CI passing, may self-merge when green", or "Take or
+leave the comments. You may self merge").
 
 .. _pr-squashing:
 
