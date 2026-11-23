@@ -304,9 +304,9 @@ Matplotlib repository will be tested. The Tests workflow is skipped in forked
 repositories but you can trigger a run manually from the `GitHub web interface
 <https://docs.github.com/en/actions/managing-workflow-runs/manually-running-a-workflow>`_.
 
-You can see the GitHub Actions results at
-https://github.com/your_GitHub_user_name/matplotlib/actions -- here's `an
-example <https://github.com/QuLogic/matplotlib/actions>`_.
+You can see the GitHub Actions results for your fork on its Actions page. For
+example, see `the Actions page for QuLogic's Matplotlib fork
+<https://github.com/QuLogic/matplotlib/actions>`_.
 
 
 tox: Test multiple python versions
