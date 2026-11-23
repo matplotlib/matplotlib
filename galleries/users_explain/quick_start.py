@@ -424,7 +424,13 @@ data = 10**data1
 axs[0].plot(xdata, data)
 
 axs[1].set_yscale('log')
-axs[1].plot(xdata, data)
+data =  10**np.random.default_rng(19680801).standard_normal(100)
+
+fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), layout='constrained')
+axs[0].plot(data)
+
+axs[1].set_yscale('log')
+axs[1].plot(data)
 
 # %%
 # The scale sets the mapping from data values to spacing along the Axis. This
