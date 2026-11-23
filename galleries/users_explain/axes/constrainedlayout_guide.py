@@ -608,7 +608,8 @@ fig.suptitle('subplot2grid')
 #   For example, an Artist placed outside an Axes in data or Axes coordinates
 #   may need extra space. Constrained layout resizes the Axes to make room,
 #   which moves the Artist and can change how much space it needs. The layout
-#   may take several passes to settle.
+#   may take several passes to settle; if it does not, the Artist may be
+#   clipped or overlap other content.
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
