@@ -609,7 +609,7 @@ fig.suptitle('subplot2grid')
 #   may need extra space. Constrained layout resizes the Axes to make room,
 #   which moves the Artist and can change how much space it needs. The layout
 #   may take several passes to settle; if it does not, the Artist may be
-#   clipped or overlap other content.
+#   clipped, overlap other content, or be allotted too much space.  
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
