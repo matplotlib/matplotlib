@@ -695,7 +695,17 @@ FT2Font::CachedGlyph const *FT2Font::cache_glyph(FT_UInt glyph_index, FT_Int32 f
     // Load without the translation, so the outline sits at the origin.  The
     // face transform is restored either way, as other methods load through it.
     FT_Set_Transform(face, &glyph_matrix, nullptr);
-    auto const& load_error = FT_Load_Glyph(face, glyph_index, flags);
+    auto load_error = FT_Load_Glyph(face, glyph_index, flags);
+
+    // By default, hinting is enabled and the font's native hinter is used.
+    // For some fonts, this results in a division by zero error (#32650).
+    // If an error occurs while using the native hinter, try again with the auto-hinter.
+    auto used_native_hinter = (flags & (FT_LOAD_FORCE_AUTOHINT | FT_LOAD_NO_HINTING)) == 0;
+    if (used_native_hinter && load_error) {
+        flags |= FT_LOAD_FORCE_AUTOHINT;
+        load_error = FT_Load_Glyph(face, glyph_index, flags);
+    }
+
     if (load_error) {
         FT_Set_Transform(face, &glyph_matrix, &glyph_delta);
         THROW_FT_ERROR("FT_Load_Glyph", load_error);
