@@ -248,10 +248,11 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Artists created by `~.Axes.plot`, and we set the linestyle of the second line
 # after the fact with `~.Line2D.set_linestyle`.
 
+data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
+
 fig, ax = plt.subplots(figsize=(5, 2.7))
-x = np.arange(len(data1))
-ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
-l, = ax.plot(x, np.cumsum(data2), color='orange', linewidth=2)
+ax.plot(np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
+l, = ax.plot(np.cumsum(data2), color='orange', linewidth=2)
 l.set_linestyle(':')
 
 # %%
@@ -263,6 +264,8 @@ l.set_linestyle(':')
 # list of specifications. Some Artists will take multiple colors.  i.e. for
 # a `~.Axes.scatter` plot, the edge of the markers can be different colors
 # from the interior:
+
+data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
@@ -283,6 +286,8 @@ ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
 # markerstyles available as string codes (see :mod:`~.matplotlib.markers`), or
 # users can define their own `~.MarkerStyle` (see
 # :doc:`/gallery/lines_bars_and_markers/marker_reference`):
+
+data1, data2, data3, data4 = np.random.default_rng(19680801).standard_normal((4, 100))
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.plot(data1, 'o', label='data1')
@@ -373,10 +378,12 @@ ax.set_ylim(-2, 2)
 #
 # Often we want to identify lines or markers with a `.Axes.legend`:
 
+data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
+
 fig, ax = plt.subplots(figsize=(5, 2.7))
-ax.plot(np.arange(len(data1)), data1, label='data1')
-ax.plot(np.arange(len(data2)), data2, label='data2')
-ax.plot(np.arange(len(data3)), data3, 'd', label='data3')
+ax.plot(data1, label='data1')
+ax.plot(data2, label='data2')
+ax.plot(data3, 'd', label='data3')
 ax.legend()
 
 # %%
@@ -402,13 +409,13 @@ ax.legend()
 # :doc:`/gallery/scales/scales` for other examples).  Here we set the scale
 # manually:
 
+data = 10**np.random.default_rng(19680801).standard_normal(100)
+
 fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), layout='constrained')
-xdata = np.arange(len(data1))  # make an ordinal for this
-data = 10**data1
-axs[0].plot(xdata, data)
+axs[0].plot(data)
 
 axs[1].set_yscale('log')
-axs[1].plot(xdata, data)
+axs[1].plot(data)
 
 # %%
 # The scale sets the mapping from data values to spacing along the Axis. This
@@ -423,11 +430,14 @@ axs[1].plot(xdata, data)
 # Axis objects to put tick marks.  A simple interface to this is
 # `~.Axes.set_xticks`:
 
+x = np.arange(100)
+y = np.random.default_rng(19680801).standard_normal(100)
+
 fig, axs = plt.subplots(2, 1, layout='constrained')
-axs[0].plot(xdata, data1)
+axs[0].plot(x, y)
 axs[0].set_title('Automatic ticks')
 
-axs[1].plot(xdata, data1)
+axs[1].plot(x, y)
 axs[1].set_xticks(np.arange(0, 100, 30), ['zero', '30', 'sixty', '90'])
 axs[1].set_yticks([-1.5, 0, 1.5])  # note that we don't need to specify labels
 axs[1].set_title('Manual ticks')
@@ -489,6 +499,9 @@ ax.bar(categories, np.random.rand(len(categories)))
 # :doc:`/gallery/subplots_axes_and_figures/secondary_axis` for further
 # examples.
 
+t = np.arange(0.0, 5.0, 0.01)
+s = np.cos(2 * np.pi * t)
+
 fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(7, 2.7), layout='constrained')
 l1, = ax1.plot(t, s)
 ax2 = ax1.twinx()
@@ -509,6 +522,7 @@ ax4.set_xlabel('Angle [°]')
 
 from matplotlib.colors import LogNorm
 
+data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
 X, Y = np.meshgrid(np.linspace(-3, 3, 128), np.linspace(-3, 3, 128))
 Z = (1 - X/2 + X**5 + Y**3) * np.exp(-X**2 - Y**2)
 
