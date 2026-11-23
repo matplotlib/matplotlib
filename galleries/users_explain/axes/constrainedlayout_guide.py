@@ -605,9 +605,10 @@ fig.suptitle('subplot2grid')
 # * It assumes that the extra space needed for ticklabels, axis labels,
 #   and titles is independent of original location of Axes. This is
 #   often true, but there are rare cases where it is not.
-#   For example, text positioned outside an Axes with ``Axes.text`` can
-#   change its position in the figure as constrained layout resizes the Axes.
-#   This can make the layout unstable, especially on the first draw.
+#   For example, an Artist placed outside an Axes in data or Axes coordinates
+#   may need extra space. Constrained layout resizes the Axes to make room,
+#   which moves the Artist and can change how much space it needs. The layout
+#   may take several passes to settle.
 #
 # * There are small differences in how the backends handle rendering fonts,
 #   so the results will not be pixel-identical.
