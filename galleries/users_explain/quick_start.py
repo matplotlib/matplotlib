@@ -522,6 +522,7 @@ ax.bar(categories, np.random.rand(len(categories)))
 
 t = np.arange(0.0, 5.0, 0.01)
 s = np.cos(2 * np.pi * t)
+
 fig, (ax1, ax3) = plt.subplots(1, 2, figsize=(7, 2.7), layout='constrained')
 l1, = ax1.plot(t, s)
 ax2 = ax1.twinx()
