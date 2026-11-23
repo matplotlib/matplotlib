@@ -386,7 +386,12 @@ data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
 fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.plot(np.arange(len(data1)), data1, label='data1')
 ax.plot(np.arange(len(data2)), data2, label='data2')
-ax.plot(np.arange(len(data3)), data3, 'd', label='data3')
+data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
+
+fig, ax = plt.subplots(figsize=(5, 2.7))
+ax.plot(data1, label='data1')
+ax.plot(data2, label='data2')
+ax.plot(data3, 'd', label='data3')
 ax.legend()
 
 # %%
