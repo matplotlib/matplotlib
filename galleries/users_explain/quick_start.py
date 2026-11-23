@@ -252,7 +252,11 @@ data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
 fig, ax = plt.subplots(figsize=(5, 2.7))
 x = np.arange(len(data1))
 ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
-l, = ax.plot(x, np.cumsum(data2), color='orange', linewidth=2)
+data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
+
+fig, ax = plt.subplots(figsize=(5, 2.7))
+ax.plot(np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
+l, = ax.plot(np.cumsum(data2), color='orange', linewidth=2)
 l.set_linestyle(':')
 
 # %%
