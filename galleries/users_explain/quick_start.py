@@ -270,6 +270,7 @@ l.set_linestyle(':')
 # from the interior:
 
 data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
+
 fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
 
