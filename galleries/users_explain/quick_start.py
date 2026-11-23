@@ -248,10 +248,7 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Artists created by `~.Axes.plot`, and we set the linestyle of the second line
 # after the fact with `~.Line2D.set_linestyle`.
 
-data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
-fig, ax = plt.subplots(figsize=(5, 2.7))
-x = np.arange(len(data1))
-ax.plot(x, np.cumsum(data1), color='blue', linewidth=3, linestyle='--')
+
 data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
@@ -381,11 +378,6 @@ ax.set_ylim(-2, 2)
 # -------
 #
 # Often we want to identify lines or markers with a `.Axes.legend`:
-
-data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
-fig, ax = plt.subplots(figsize=(5, 2.7))
-ax.plot(np.arange(len(data1)), data1, label='data1')
-ax.plot(np.arange(len(data2)), data2, label='data2')
 data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
@@ -417,13 +409,6 @@ ax.legend()
 # :doc:`/gallery/scales/scales` for other examples).  Here we set the scale
 # manually:
 
-data1 = np.random.default_rng(19680801).standard_normal(100)
-fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), layout='constrained')
-xdata = np.arange(len(data1))  # make an ordinal for this
-data = 10**data1
-axs[0].plot(xdata, data)
-
-axs[1].set_yscale('log')
 data = 10**np.random.default_rng(19680801).standard_normal(100)
 
 fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), layout='constrained')
@@ -444,12 +429,6 @@ axs[1].plot(data)
 # Each Axis has a tick *locator* and *formatter* that choose where along the
 # Axis objects to put tick marks.  A simple interface to this is
 # `~.Axes.set_xticks`:
-
-data1 = np.random.default_rng(19680801).standard_normal(100)
-xdata = np.arange(len(data1))
-fig, axs = plt.subplots(2, 1, layout='constrained')
-axs[0].plot(xdata, data1)
-axs[0].set_title('Automatic ticks')
 
 x = np.arange(100)
 y = np.random.default_rng(19680801).standard_normal(100)
