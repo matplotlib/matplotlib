@@ -248,7 +248,6 @@ my_plotter(ax2, data3, data4, {'marker': 'o'})
 # Artists created by `~.Axes.plot`, and we set the linestyle of the second line
 # after the fact with `~.Line2D.set_linestyle`.
 
-
 data1, data2 = np.random.default_rng(19680801).standard_normal((2, 100))
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
@@ -378,6 +377,7 @@ ax.set_ylim(-2, 2)
 # -------
 #
 # Often we want to identify lines or markers with a `.Axes.legend`:
+
 data1, data2, data3 = np.random.default_rng(19680801).standard_normal((3, 100))
 
 fig, ax = plt.subplots(figsize=(5, 2.7))
