@@ -238,25 +238,73 @@ def test_contains():
         ax.viewLim.set(vl)
 
 
-@pytest.mark.parametrize("projection, xytext, label", [
-    ("rectilinear", (np.nan, np.nan), ""),
-    ("polar", (0, 0), "label"),  # Below the radial origin after setting the limits.
+@pytest.mark.parametrize("param", ["xy", "xytext"])
+@pytest.mark.parametrize("value", [np.nan, np.inf, -np.inf])
+@pytest.mark.parametrize("arrowprops", [None, {}])
+def test_annotation_nonfinite_input(param, value, arrowprops):
+    fig, ax = plt.subplots()
+    positions = {"xy": (.5, .5), "xytext": (.75, .75)}
+    positions[param] = (.5, value)
+    ax.annotate("label", **positions, arrowprops=arrowprops)
+    with pytest.raises(ValueError, match=rf"\b{param}\b.*finite"):
+        fig.canvas.draw()
+
+
+def test_annotation_nonfinite_set_position():
+    fig, ax = plt.subplots()
+    ann = ax.annotate("label", (.5, .5), arrowprops={})
+    fig.canvas.draw()
+    ann.set_position((np.nan, .5))
+    with pytest.raises(ValueError, match=r"xytext.*finite"):
+        fig.canvas.draw()
+
+
+@pytest.mark.parametrize("xy, xytext, warn", [
+    ((0, .5), (0, 0), True),   # Only the text loses its display position.
+    ((0, 0), (.5, .75), False),  # The target loses its display position.
+    ((0, 0), (0, 0), False),  # An undrawable target also suppresses the warning.
 ])
-def test_annotation_arrow_nonfinite_position(projection, xytext, label):
-    fig, ax = plt.subplots(subplot_kw={"projection": projection})
-    ax.set_ylim(.25, 1.25)
+def test_annotation_nonfinite_display_position(xy, xytext, warn, caplog):
+    fig, ax = plt.subplots(subplot_kw={"projection": "polar"})
+    ax.set_ylim(0, 1)
+    # Even with clipping disabled, an undefined target cannot be drawn.
+    ann = ax.annotate("label", xy, xytext=xytext, arrowprops={}, annotation_clip=False)
+    fig.canvas.draw()
+    original = np.asarray(fig.canvas.buffer_rgba()).copy()
+    assert np.isfinite(ann.get_tightbbox().extents).all()
+
+    ax.set_rmin(.25)
+    ann.set_visible(False)
     fig.canvas.draw()
     background = np.asarray(fig.canvas.buffer_rgba()).copy()
-
-    ann = ax.annotate(label, (0, .5), xytext=xytext, arrowprops={})
+    ann.set_visible(True)
     fig.canvas.draw()
     np.testing.assert_array_equal(fig.canvas.buffer_rgba(), background)
     assert np.isinf(ann.get_tightbbox().extents).all()
+    records = [r for r in caplog.records if r.name == "matplotlib.text"]
+    if warn:
+        record, = records
+        assert record.levelname == "WARNING"
+        assert "xytext" in record.getMessage()
+    else:
+        assert not records
 
-    ann.set_position((.5, .75))
+    ax.set_rmin(0)
     fig.canvas.draw()
-    assert not np.array_equal(fig.canvas.buffer_rgba(), background)
-    assert np.isfinite(ann.arrow_patch.get_window_extent().extents).all()
+    np.testing.assert_array_equal(fig.canvas.buffer_rgba(), original)
+    assert np.isfinite(ann.get_tightbbox().extents).all()
+
+
+@pytest.mark.parametrize("clip, drawn", [(None, False), (True, False), (False, True)])
+def test_annotation_target_outside_axes(clip, drawn, caplog):
+    fig, ax = plt.subplots()
+    fig.canvas.draw()
+    background = np.asarray(fig.canvas.buffer_rgba()).copy()
+    ax.annotate("label", (1.02, .5), xytext=(.5, .5), arrowprops={},
+                annotation_clip=clip)
+    fig.canvas.draw()
+    assert (not np.array_equal(fig.canvas.buffer_rgba(), background)) == drawn
+    assert not [r for r in caplog.records if r.name == "matplotlib.text"]
 
 
 def test_annotation_contains():

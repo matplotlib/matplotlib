@@ -1,0 +1,8 @@
+Annotations with non-finite coordinates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Drawing an `.Annotation` raises `ValueError` if *xy* or *xytext* contains a
+non-finite value. If a finite *xy* has no finite display position, the
+annotation is silently skipped. If the target is visible but a finite *xytext*
+has no finite display position, Matplotlib logs a warning and skips the
+annotation for that draw. Changing the axis limits can make it visible again.
