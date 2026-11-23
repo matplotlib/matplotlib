@@ -424,7 +424,7 @@ data = 10**data1
 axs[0].plot(xdata, data)
 
 axs[1].set_yscale('log')
-data =  10**np.random.default_rng(19680801).standard_normal(100)
+data = 10**np.random.default_rng(19680801).standard_normal(100)
 
 fig, axs = plt.subplots(1, 2, figsize=(5, 2.7), layout='constrained')
 axs[0].plot(data)
