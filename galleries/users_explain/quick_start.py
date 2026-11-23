@@ -292,6 +292,7 @@ ax.scatter(data1, data2, s=50, facecolor='C0', edgecolor='k')
 # :doc:`/gallery/lines_bars_and_markers/marker_reference`):
 
 data1, data2, data3, data4 = np.random.default_rng(19680801).standard_normal((4, 100))
+
 fig, ax = plt.subplots(figsize=(5, 2.7))
 ax.plot(data1, 'o', label='data1')
 ax.plot(data2, 'd', label='data2')
