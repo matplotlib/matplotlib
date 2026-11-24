@@ -42,6 +42,7 @@ typing_sources = [
   '_macosx.pyi',
   '_tkagg.pyi',
   # Pure Python types.
+  'backend_gtk4cairo.pyi',
   'backend_pdf.pyi',
   'registry.pyi',
 ]
