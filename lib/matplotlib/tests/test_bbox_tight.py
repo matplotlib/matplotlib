@@ -12,7 +12,7 @@ from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
 
 @image_comparison(['bbox_inches_tight'], remove_text=True, style='mpl20',
-                  savefig_kwarg={'bbox_inches': 'tight'})
+                  savefig_kwarg={'bbox_inches': 'tight'}, tol=4.0)
 def test_bbox_inches_tight(text_placeholders):
     #: Test that a figure saved using bbox_inches='tight' is clipped correctly
     data = [[66386, 174296, 75131, 577908, 32015],

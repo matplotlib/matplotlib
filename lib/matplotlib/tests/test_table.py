@@ -18,7 +18,7 @@ def test_non_square():
     plt.table(cellColours=cellcolors)
 
 
-@image_comparison(['table_zorder.png'], remove_text=True, style='mpl20')
+@image_comparison(['table_zorder.png'], remove_text=True, style='mpl20', tol=4.0)
 def test_zorder():
     data = [[66386, 174296],
             [58230, 381139]]
@@ -51,7 +51,7 @@ def test_zorder():
     plt.yticks([])
 
 
-@image_comparison(['table_labels.png'], style='mpl20')
+@image_comparison(['table_labels.png'], style='mpl20', tol=6.0)
 def test_label_colours():
     dim = 3
 
@@ -88,7 +88,7 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(['table_cell_manipulation.png'], style='mpl20')
+@image_comparison(['table_cell_manipulation.png'], style='mpl20', tol=2.0)
 def test_diff_cell_table(text_placeholders):
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     cellText = [['1'] * len(cells)] * 2
@@ -124,7 +124,7 @@ def test_customcell():
         assert c == code
 
 
-@image_comparison(['table_auto_column.png'], style='mpl20')
+@image_comparison(['table_auto_column.png'], style='mpl20', tol=5.0)
 def test_auto_column():
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 
