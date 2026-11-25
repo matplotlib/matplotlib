@@ -1,3 +1,10 @@
+__all__ = [
+    "FigureCanvasMac",
+    "FigureManagerMac",
+    "NavigationToolbar2Mac",
+    "TimerMac",
+]
+
 from matplotlib.backend_bases import _Backend
 
 from ._backend_legacymac import (
@@ -5,8 +12,6 @@ from ._backend_legacymac import (
     FigureManagerLegacyMac as FigureManagerMac,
     NavigationToolbar2LegacyMac as NavigationToolbar2Mac,
     TimerLegacyMac as TimerMac)
-
-__all__ = [FigureCanvasMac, FigureManagerMac, NavigationToolbar2Mac, TimerMac]
 
 
 @_Backend.export
