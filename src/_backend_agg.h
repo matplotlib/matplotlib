@@ -494,7 +494,12 @@ RendererAgg::draw_path(GCAgg &gc, PathIterator &path, agg::trans_affine &trans, 
 
     auto tpath = agg::conv_transform{path, trans};
     auto nan_removed = PathNanRemover{tpath, true, path.has_codes()};
-    auto clipped = PathClipper(nan_removed, clip, width, height);
+    // Keep segments whose stroke can still reach the canvas: grow the clip
+    // rectangle by half the line width (PathClipper adds its own 1 px).
+    double pad = 0.5 * points_to_pixels(gc.linewidth);
+    auto clipped = PathClipper(
+        nan_removed, clip,
+        agg::rect_base<double>(-pad, -pad, width + pad, height + pad));
     auto snapped = PathSnapper{
         clipped, gc.snap_mode, path.total_vertices(), snapping_linewidth};
     auto simplified = PathSimplifier{snapped, simplify, path.simplify_threshold()};
@@ -1032,7 +1037,10 @@ inline void RendererAgg::_draw_path_collection_generic(GCAgg &gc,
         gc.isaa = antialiaseds(i % Naa);
         auto tpath = agg::conv_transform{path, trans};
         auto nan_removed = PathNanRemover{tpath, true, has_codes};
-        auto clipped = PathClipper(nan_removed, do_clip, width, height);
+        double pad = 0.5 * points_to_pixels(gc.linewidth);
+        auto clipped = PathClipper(
+            nan_removed, do_clip,
+            agg::rect_base<double>(-pad, -pad, width + pad, height + pad));
         if (check_snap) {
             auto snapped = PathSnapper{
                 clipped, gc.snap_mode, path.total_vertices(), points_to_pixels(gc.linewidth)};
