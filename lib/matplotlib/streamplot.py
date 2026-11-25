@@ -498,6 +498,8 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
     u_ax = u / (dmap.grid.nx - 1)
     v_ax = v / (dmap.grid.ny - 1)
     speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
+    # Plain ndarrays are much faster to index than MaskedArrays; masked -> NaN.
+    u, v, speed = (np.ma.filled(x, np.nan) for x in (u, v, speed))
 
     def forward_time(xi, yi):
         if not dmap.grid.within_grid(xi, yi):
@@ -721,7 +723,7 @@ def interpgrid(a, xi, yi):
     ai = a0 * (1 - yt) + a1 * yt
 
     if not isinstance(xi, np.ndarray):
-        if np.ma.is_masked(ai):
+        if np.isnan(ai):
             raise TerminateTrajectory
 
     return ai
