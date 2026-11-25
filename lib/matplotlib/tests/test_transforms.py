@@ -426,7 +426,7 @@ def test_external_transform_api():
 
 
 @image_comparison(['pre_transform_data'], remove_text=True, style='mpl20',
-                  tol=0.05)
+                  tol=0.25)
 def test_pre_transform_plotting():
     # a catch-all for as many as possible plot layouts which handle
     # pre-transforming the data NOTE: The axis range is important in this

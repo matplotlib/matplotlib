@@ -132,6 +132,7 @@ test = [
     "pytest-timeout",
     "pytest-xdist",
     "pytest-xvfb",
+    "resvg-py",
     "tornado",
 ]
 

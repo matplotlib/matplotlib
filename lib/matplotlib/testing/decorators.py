@@ -210,7 +210,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
                     'gif': 'because ImageMagick is not installed',
                     'pdf': 'because Ghostscript is not installed',
                     'eps': 'because Ghostscript is not installed',
-                    'svg': 'because Inkscape is not installed',
+                    'svg': 'because resvg-py is not installed',
                 }.get(extension, 'on this system')
                 pytest.skip(f"Cannot compare {extension} files {reason}")
 

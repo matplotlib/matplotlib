@@ -358,27 +358,21 @@ otherwise they must be installed manually:
 - pytest-xdist_ to run tests in parallel
 - pytest-xvfb_ to run tests without windows popping up (Linux)
 - pytz_ used to test pytz int
+- resvg-py_ used to render SVG files in image comparison tests
 - sphinx_ used to test our sphinx extensions
 - xarray_ used to test compatibility with xarray
 
 External tools
 ^^^^^^^^^^^^^^
 - Ghostscript_ (>= 9.0, to render PDF files)
-- Inkscape_ (to render SVG files)
 - `WenQuanYi Zen Hei`_ and `Noto Sans CJK`_ fonts for testing font fallback and
   non-Western fonts
 
 If any of these dependencies are not discovered, then the tests that rely on
 them will be skipped by pytest.
 
-.. note::
-
-  When installing Inkscape on Windows, make sure that you select “Add
-  Inkscape to system PATH”, either for all users or current user, or the
-  tests will not find it.
-
 .. _Ghostscript: https://ghostscript.com/
-.. _Inkscape: https://inkscape.org
+.. _resvg-py: https://pypi.org/project/resvg-py/
 .. _WenQuanYi Zen Hei: http://wenq.org/en/
 .. _nbconvert: https://pypi.org/project/nbconvert/
 .. _nbformat: https://pypi.org/project/nbformat/
@@ -475,7 +469,7 @@ Optional
 The documentation can be built without these packages, but the build
 process will raise various warnings:
 
-* Inkscape_
+* `Inkscape <https://inkscape.org>`_
 * `optipng <http://optipng.sourceforge.net>`_
 * ffmpeg_
 * the font `xkcd script <https://github.com/ipython/xkcd-font/>`_ or `Comic Neue <https://github.com/crozynski/comicneue>`_
