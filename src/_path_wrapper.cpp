@@ -132,18 +132,9 @@ Py_affine_transform(py::array_t<double, py::array::c_style | py::array::forcecas
 
         affine_transform_2d(vertices, trans, result_mutable);
         return result;
-    } else if (vertices_arr.ndim() == 1) {
-        auto vertices = vertices_arr.unchecked<1>();
-
-        py::ssize_t dims[] = { vertices.shape(0) };
-        py::array_t<double> result(dims);
-        auto result_mutable = result.mutable_unchecked<1>();
-
-        affine_transform_1d(vertices, trans, result_mutable);
-        return result;
     } else {
-        throw py::value_error(
-            "vertices must be 1D or 2D, not" + std::to_string(vertices_arr.ndim()) + "D");
+        throw py::value_error(mpl::format(
+            "vertices must be 2D, not {}D", vertices_arr.ndim()));
     }
 }
 

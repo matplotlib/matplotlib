@@ -4,7 +4,7 @@ from .. import cbook, transforms
 from . import backend_agg, backend_gtk3
 from .backend_gtk3 import GLib, Gtk, _BackendGTK3
 
-import cairo  # Presence of cairo is already checked by _backend_gtk.
+import cairo  # Presence of cairo is already checked by backend_gtk3.
 
 
 class FigureCanvasGTK3Agg(backend_agg.FigureCanvasAgg,

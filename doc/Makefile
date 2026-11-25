@@ -17,7 +17,7 @@ help:
 # workaround because sphinx does not completely clean up (#11139)
 clean:
 	@$(SPHINXBUILD) -M clean "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
-	rm -rf "$(SOURCEDIR)/build"
+	rm -rf "$(SOURCEDIR)/$(BUILDDIR)"
 	rm -rf "$(SOURCEDIR)/_tags"
 	rm -rf "$(SOURCEDIR)/api/_as_gen"
 	rm -rf "$(SOURCEDIR)/gallery"
@@ -30,7 +30,7 @@ clean:
 	rm -f $(SOURCEDIR)/sg_execution_times.rst
 
 show:
-	@python -c "import webbrowser; webbrowser.open_new_tab('file://$(shell pwd)/build/html/index.html')"
+	@python -c "import webbrowser; webbrowser.open_new_tab('file://$(shell pwd)/$(BUILDDIR)/html/index.html')"
 
 html-noplot:
 	$(SPHINXBUILD) -D plot_gallery=0 -b html $(SOURCEDIR) $(BUILDDIR)/html $(SPHINXOPTS) $(O)

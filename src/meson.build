@@ -31,9 +31,9 @@ else
 endif
 
 if host_machine.system() == 'darwin'
-  coretext = dependency('appleframeworks', modules: 'CoreText')
+  appleframeworks = dependency('appleframeworks', modules: ['CoreGraphics', 'CoreText'])
 else
-  coretext = []
+  appleframeworks = []
 endif
 
 extension_data = {
@@ -50,7 +50,7 @@ extension_data = {
     'sources': files(
       '_c_internal_utils.cpp',
     ),
-    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, coretext],
+    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, appleframeworks],
   },
   'ft2font': {
     'subdir': 'matplotlib',

@@ -129,8 +129,8 @@ PyRendererAgg_draw_image(RendererAgg *self,
     // TODO: This really shouldn't be mutable, but Agg's renderer buffers aren't const.
     auto image = image_obj.mutable_unchecked<3>();
 
-    x = mpl_round(x);
-    y = mpl_round(y);
+    x = mpl::round(x);
+    y = mpl::round(y);
 
     self->draw_image(gc, x, y, image);
 }

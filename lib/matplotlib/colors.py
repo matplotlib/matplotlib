@@ -2945,13 +2945,14 @@ def _make_norm_from_scale(
                 self.autoscale_None(value)
             if self.vmin > self.vmax:
                 raise ValueError("vmin must be less or equal to vmax")
-            if self.vmin == self.vmax:
-                return np.full_like(value, 0)
             if clip is None:
                 clip = self.clip
             if clip:
                 value = np.clip(value, self.vmin, self.vmax)
             t_value = self._trf.transform(value).reshape(np.shape(value))
+            if self.vmin == self.vmax:
+                t_value.fill(0)
+                return t_value
             t_vmin, t_vmax = self._trf.transform([self.vmin, self.vmax])
             if not np.isfinite([t_vmin, t_vmax]).all():
                 raise ValueError("Invalid vmin or vmax")
@@ -3575,11 +3576,16 @@ class MultiNorm(Norm):
             - If structured array, must have `n_components` fields. Each field
               is used for the limits of one constituent norm.
         """
+        changed = False
         with self.callbacks.blocked():
             A = self._iterable_components_in_data(A, self.n_components)
             for n, a in zip(self.norms, A):
+                vmin, vmax = n.vmin, n.vmax
                 n.autoscale_None(a)
-        self._changed()
+                if vmin != n.vmin or vmax != n.vmax:
+                    changed = True
+        if changed:
+            self._changed()
 
     def scaled(self):
         """Return whether both *vmin* and *vmax* are set on all constituent norms."""

@@ -56,25 +56,23 @@ def test_toolbar_button_dispatch_allowlist():
     assert canvas.toolbar.method_calls == []
 
 
-@pytest.mark.parametrize("host, origin, allowed", [
-    ("localhost:8988", "http://localhost:8988", True),
-    ("localhost:8988", "http://evil.com", False),
-    ("localhost:8988", "http://127.0.0.1:8988", False),
-    ("localhost:8988", "http://[::1]:8988", False),
-    ("127.0.0.1:8988", "http://127.0.0.1:8988", True),
-    ("127.0.0.1:8988", "http://localhost:8988", False),
-    ("127.0.0.1:8988", "http://[::1]:8988", False),
-    ("[::1]:8988", "http://[::1]:8988", True),
-    ("[::1]:8988", "http://[::2]:8988", False),
-    ("[::1]:8988", "http://localhost:8988", False),
-    ("[::1]:8988", "http://evil.com", False),
+@pytest.mark.parametrize("host, origin", [
+    ("localhost:8988", "http://example.com"),
+    ("localhost:8988", "http://127.0.0.1:8988"),
+    ("localhost:8988", "http://[::1]:8988"),
+    ("127.0.0.1:8988", "http://localhost:8988"),
+    ("127.0.0.1:8988", "http://[::1]:8988"),
+    ("[::1]:8988", "http://[::2]:8988"),
+    ("[::1]:8988", "http://localhost:8988"),
+    ("[::1]:8988", "http://example.com"),
 ])
-def test_websocket_rejects_cross_origin(host, origin, allowed):
+def test_websocket_rejects_cross_origin(host, origin):
     """Verify Tornado's default check_origin rejects cross-origin requests."""
     pytest.importorskip("tornado")
     from matplotlib.backends.backend_webagg import WebAggApplication
 
-    ws = WebAggApplication.WebSocket.__new__(WebAggApplication.WebSocket)
-    ws.request = MagicMock()
-    ws.request.headers = {"Host": host}
-    assert ws.check_origin(origin) is allowed
+    app = WebAggApplication()
+    request = MagicMock()
+    request.headers = {"Host": host}
+    ws = WebAggApplication.WebSocket(app, request)
+    assert not ws.check_origin(origin)  # Not allowed.

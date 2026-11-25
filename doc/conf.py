@@ -843,6 +843,16 @@ else:
     extensions.append('sphinx.ext.viewcode')
 
 
+def disable_warning_banner_for_devel(app, pagename, templatename, context, doctree):
+    """Hide the version warning on pages that redirect to devdocs.
+
+    The stable-version link on these pages leads back to the same development
+    page, so the warning is misleading.
+    """
+    if pagename.startswith('devel/'):
+        context['theme_show_version_warning_banner'] = False
+
+
 # -----------------------------------------------------------------------------
 # Sphinx setup
 # -----------------------------------------------------------------------------
@@ -856,4 +866,5 @@ def setup(app):
     app.connect('autodoc-process-bases', autodoc_process_bases)
     if sphinx.version_info[:2] < (7, 1):
         app.connect('html-page-context', add_html_cache_busting, priority=1000)
+    app.connect('html-page-context', disable_warning_banner_for_devel, priority=400)
     app.config.autodoc_use_legacy_class_based = True

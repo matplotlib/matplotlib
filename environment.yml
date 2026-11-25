@@ -1,6 +1,6 @@
 # To set up a development environment using conda run:
 #
-#   conda env create -f environment.yml
+#   conda create -f environment.yml
 #   conda activate mpl-dev
 #   pip install --verbose --no-build-isolation --group dev --editable .
 #
@@ -19,7 +19,7 @@ dependencies:
   - importlib-resources>=3.2.0
   - kiwisolver>=1.3.1
   - pybind11>=2.13.2
-  - meson-python>=0.13.1
+  - meson-python>=0.18.0
   - numpy>=2.0
   - pillow>=9
   - pkg-config
@@ -47,17 +47,15 @@ dependencies:
   - sphinx-tags>=0.4.0
   - pystemmer
   - pikepdf
-  - pip
-  - pip:
-      - mpl-sphinx-theme~=3.11.0
-      - sphinxcontrib-svg2pdfconverter>=1.1.0
-      - sphinxcontrib-video>=0.2.1
+  - sphinxcontrib-svg2pdfconverter>=1.1.0
+  - sphinxcontrib-video>=0.2.1
+  - mpl-sphinx-theme~=3.11.0
   # testing
   - black<26
   - coverage
   - gtk4
   - ipykernel
-  - nbconvert[execute]!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1
+  - nbconvert>=7.4
   - nbformat!=5.0.0,!=5.0.1
   - pandas!=0.25.0
   - psutil
@@ -72,3 +70,4 @@ dependencies:
   - pytz
   - ruff
   - tox
+  - pip

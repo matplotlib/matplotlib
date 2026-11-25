@@ -56,8 +56,286 @@ def _contour_labeler_event_handler(cs, inline, inline_spacing, event):
             canvas.draw()
 
 
-class ContourLabeler:
-    """Mixin to provide labelling capability to `.ContourSet`."""
+def _find_closest_point_on_path(xys, p):
+    """
+    Parameters
+    ----------
+    xys : (N, 2) array-like
+        Coordinates of vertices.
+    p : (float, float)
+        Coordinates of point.
+
+    Returns
+    -------
+    d2min : float
+        Minimum square distance of *p* to *xys*.
+    proj : (float, float)
+        Projection of *p* onto *xys*.
+    imin : (int, int)
+        Consecutive indices of vertices of segment in *xys* where *proj* is.
+        Segments are considered as including their end-points; i.e. if the
+        closest point on the path is a node in *xys* with index *i*, this
+        returns ``(i-1, i)``.  For the special case where *xys* is a single
+        point, this returns ``(0, 0)``.
+    """
+    if len(xys) == 1:
+        return (((p - xys[0]) ** 2).sum(), xys[0], (0, 0))
+    dxys = xys[1:] - xys[:-1]  # Individual segment vectors.
+    norms = (dxys ** 2).sum(axis=1)
+    norms[norms == 0] = 1  # For zero-length segment, replace 0/0 by 0/1.
+    rel_projs = np.clip(  # Project onto each segment in relative 0-1 coords.
+        ((p - xys[:-1]) * dxys).sum(axis=1) / norms,
+        0, 1)[:, None]
+    projs = xys[:-1] + rel_projs * dxys  # Projs. onto each segment, in (x, y).
+    d2s = ((projs - p) ** 2).sum(axis=1)  # Squared distances.
+    imin = np.argmin(d2s)
+    return (d2s[imin], projs[imin], (imin, imin+1))
+
+
+_docstring.interpd.register(contour_set_attributes=r"""
+Attributes
+----------
+levels : array
+    The values of the contour levels.
+
+layers : array
+    Same as levels for line contours; half-way between
+    levels for filled contours.  See ``ContourSet._process_colors``.
+""")
+
+
+@_docstring.interpd
+class ContourSet(mcoll.Collection):
+    """
+    Store a set of contour lines or filled regions.
+
+    User-callable method: `~.Axes.clabel`
+
+    Parameters
+    ----------
+    ax : `~matplotlib.axes.Axes`
+
+    levels : [level0, level1, ..., leveln]
+        A list of floating point numbers indicating the contour levels.
+
+    allsegs : [level0segs, level1segs, ...]
+        List of all the polygon segments for all the *levels*.
+        For contour lines ``len(allsegs) == len(levels)``, and for
+        filled contour regions ``len(allsegs) = len(levels)-1``. The lists
+        should look like ::
+
+            level0segs = [polygon0, polygon1, ...]
+            polygon0 = [[x0, y0], [x1, y1], ...]
+
+    allkinds : ``None`` or [level0kinds, level1kinds, ...]
+        Optional list of all the polygon vertex kinds (code types), as
+        described and used in Path. This is used to allow multiply-
+        connected paths such as holes within filled polygons.
+        If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
+        should look like ::
+
+            level0kinds = [polygon0kinds, ...]
+            polygon0kinds = [vertexcode0, vertexcode1, ...]
+
+        If *allkinds* is not ``None``, usually all polygons for a
+        particular contour level are grouped together so that
+        ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
+
+    **kwargs
+        Keyword arguments are as described in the docstring of
+        `~.Axes.contour`.
+
+    %(contour_set_attributes)s
+    """
+
+    def __init__(self, ax, *args,
+                 levels=None, filled=False, linewidths=None, linestyles=None,
+                 hatches=(None,), alpha=None, origin=None, extent=None,
+                 cmap=None, colors=None, norm=None, vmin=None, vmax=None,
+                 colorizer=None, extend='neither', antialiased=None, nchunk=0,
+                 locator=None, transform=None, negative_linestyles=None,
+                 **kwargs):
+        """
+        Draw contour lines or filled regions, depending on
+        whether keyword arg *filled* is ``False`` (default) or ``True``.
+
+        Call signature::
+
+            ContourSet(ax, levels, allsegs, [allkinds], **kwargs)
+
+        Parameters
+        ----------
+        ax : `~matplotlib.axes.Axes`
+            The `~.axes.Axes` object to draw on.
+
+        levels : [level0, level1, ..., leveln]
+            A list of floating point numbers indicating the contour
+            levels.
+
+        allsegs : [level0segs, level1segs, ...]
+            List of all the polygon segments for all the *levels*.
+            For contour lines ``len(allsegs) == len(levels)``, and for
+            filled contour regions ``len(allsegs) = len(levels)-1``. The lists
+            should look like ::
+
+                level0segs = [polygon0, polygon1, ...]
+                polygon0 = [[x0, y0], [x1, y1], ...]
+
+        allkinds : [level0kinds, level1kinds, ...], optional
+            Optional list of all the polygon vertex kinds (code types), as
+            described and used in Path. This is used to allow multiply-
+            connected paths such as holes within filled polygons.
+            If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
+            should look like ::
+
+                level0kinds = [polygon0kinds, ...]
+                polygon0kinds = [vertexcode0, vertexcode1, ...]
+
+            If *allkinds* is not ``None``, usually all polygons for a
+            particular contour level are grouped together so that
+            ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
+
+        **kwargs
+            Keyword arguments are as described in the docstring of
+            `~.Axes.contour`.
+        """
+        if antialiased is None and filled:
+            # Eliminate artifacts; we are not stroking the boundaries.
+            antialiased = False
+            # The default for line contours will be taken from the
+            # LineCollection default, which uses :rc:`lines.antialiased`.
+        super().__init__(
+            antialiaseds=antialiased,
+            alpha=alpha,
+            transform=transform,
+            colorizer=colorizer,
+        )
+        self.axes = ax
+        self.levels = levels
+        self.filled = filled
+        self.hatches = hatches
+        self.origin = origin
+        self.extent = extent
+        self.colors = colors
+        self.extend = extend
+
+        self.nchunk = nchunk
+        self.locator = locator
+
+        if "color" in kwargs:
+            raise _api.kwarg_error("ContourSet.__init__", "color")
+
+        if colorizer:
+            self._set_colorizer_check_keywords(colorizer, cmap=cmap,
+                                               norm=norm, vmin=vmin,
+                                               vmax=vmax, colors=colors)
+            norm = colorizer.norm
+            cmap = colorizer.cmap
+        if (isinstance(norm, mcolors.LogNorm)
+                or isinstance(self.locator, ticker.LogLocator)):
+            self.logscale = True
+            if norm is None:
+                norm = mcolors.LogNorm()
+        else:
+            self.logscale = False
+
+        _api.check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
+        if self.extent is not None and len(self.extent) != 4:
+            raise ValueError(
+                "If given, 'extent' must be None or (x0, x1, y0, y1)")
+        if self.colors is not None and cmap is not None:
+            raise ValueError('Either colors or cmap must be None')
+        if self.origin == 'image':
+            self.origin = mpl.rcParams['image.origin']
+
+        self._orig_linestyles = linestyles  # Only kept for user access.
+        self.negative_linestyles = mpl._val_or_rc(negative_linestyles,
+                                                  'contour.negative_linestyle')
+
+        kwargs = self._process_args(*args, **kwargs)
+        self._process_levels()
+
+        self._extend_min = self.extend in ['min', 'both']
+        self._extend_max = self.extend in ['max', 'both']
+        if self.colors is not None:
+            if mcolors.is_color_like(self.colors):
+                color_sequence = [self.colors]
+            else:
+                color_sequence = self.colors
+
+            ncolors = len(self.levels)
+            if self.filled:
+                ncolors -= 1
+            i0 = 0
+
+            # Handle the case where colors are given for the extended
+            # parts of the contour.
+
+            use_set_under_over = False
+            # if we are extending the lower end, and we've been given enough
+            # colors then skip the first color in the resulting cmap. For the
+            # extend_max case we don't need to worry about passing more colors
+            # than ncolors as ListedColormap will clip.
+            total_levels = (ncolors +
+                            int(self._extend_min) +
+                            int(self._extend_max))
+            if (len(color_sequence) == total_levels and
+                    (self._extend_min or self._extend_max)):
+                use_set_under_over = True
+                if self._extend_min:
+                    i0 = 1
+
+            cmap = mcolors.ListedColormap(
+                cbook._resize_sequence(color_sequence[i0:], ncolors),
+                under=(color_sequence[0]
+                       if use_set_under_over and self._extend_min else None),
+                over=(color_sequence[-1]
+                      if use_set_under_over and self._extend_max else None),
+            )
+
+        # label lists must be initialized here
+        self.labelTexts = []
+        self.labelCValues = []
+
+        self.set_cmap(cmap)
+        if norm is not None:
+            self.set_norm(norm)
+        with self.norm.callbacks.blocked(signal="changed"):
+            if vmin is not None:
+                self.norm.vmin = vmin
+            if vmax is not None:
+                self.norm.vmax = vmax
+        self.norm._changed()
+        self._process_colors()
+
+        if self._paths is None:
+            self._paths = self._make_paths_from_contour_generator()
+
+        if self.filled:
+            if linewidths is not None:
+                _api.warn_external('linewidths is ignored by contourf')
+            # Lower and upper contour levels.
+            lowers, uppers = self._get_lowers_and_uppers()
+            self.set(edgecolor="none")
+        else:
+            self.set(
+                facecolor="none",
+                linewidths=self._process_linewidths(linewidths),
+                linestyle=self._process_linestyles(linestyles),
+                label="_nolegend_",
+                # Default zorder taken from LineCollection, which is higher
+                # than for filled contours so that lines are displayed on top.
+                zorder=2,
+            )
+        self.set(**kwargs)  # Let user-set values override defaults.
+
+        self.axes.add_collection(self, autolim=False)
+        self.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
+        self.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
+        self.axes.update_datalim([self._mins, self._maxs])
+        self.axes.autoscale_view(tight=True)
+
+        self.changed()  # set the colors
 
     def clabel(self, levels=None, *,
                fontsize=None, inline=True, inline_spacing=5, fmt=None,
@@ -66,8 +344,7 @@ class ContourLabeler:
         """
         Label a contour plot.
 
-        Adds labels to line contours in this `.ContourSet` (which inherits from
-        this mixin class).
+        Adds labels to line contours in this `.ContourSet`.
 
         Parameters
         ----------
@@ -529,288 +806,6 @@ class ContourLabeler:
                     "and recreate it.")
         self.labelTexts.clear()
 
-
-def _find_closest_point_on_path(xys, p):
-    """
-    Parameters
-    ----------
-    xys : (N, 2) array-like
-        Coordinates of vertices.
-    p : (float, float)
-        Coordinates of point.
-
-    Returns
-    -------
-    d2min : float
-        Minimum square distance of *p* to *xys*.
-    proj : (float, float)
-        Projection of *p* onto *xys*.
-    imin : (int, int)
-        Consecutive indices of vertices of segment in *xys* where *proj* is.
-        Segments are considered as including their end-points; i.e. if the
-        closest point on the path is a node in *xys* with index *i*, this
-        returns ``(i-1, i)``.  For the special case where *xys* is a single
-        point, this returns ``(0, 0)``.
-    """
-    if len(xys) == 1:
-        return (((p - xys[0]) ** 2).sum(), xys[0], (0, 0))
-    dxys = xys[1:] - xys[:-1]  # Individual segment vectors.
-    norms = (dxys ** 2).sum(axis=1)
-    norms[norms == 0] = 1  # For zero-length segment, replace 0/0 by 0/1.
-    rel_projs = np.clip(  # Project onto each segment in relative 0-1 coords.
-        ((p - xys[:-1]) * dxys).sum(axis=1) / norms,
-        0, 1)[:, None]
-    projs = xys[:-1] + rel_projs * dxys  # Projs. onto each segment, in (x, y).
-    d2s = ((projs - p) ** 2).sum(axis=1)  # Squared distances.
-    imin = np.argmin(d2s)
-    return (d2s[imin], projs[imin], (imin, imin+1))
-
-
-_docstring.interpd.register(contour_set_attributes=r"""
-Attributes
-----------
-levels : array
-    The values of the contour levels.
-
-layers : array
-    Same as levels for line contours; half-way between
-    levels for filled contours.  See ``ContourSet._process_colors``.
-""")
-
-
-@_docstring.interpd
-class ContourSet(ContourLabeler, mcoll.Collection):
-    """
-    Store a set of contour lines or filled regions.
-
-    User-callable method: `~.Axes.clabel`
-
-    Parameters
-    ----------
-    ax : `~matplotlib.axes.Axes`
-
-    levels : [level0, level1, ..., leveln]
-        A list of floating point numbers indicating the contour levels.
-
-    allsegs : [level0segs, level1segs, ...]
-        List of all the polygon segments for all the *levels*.
-        For contour lines ``len(allsegs) == len(levels)``, and for
-        filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-        should look like ::
-
-            level0segs = [polygon0, polygon1, ...]
-            polygon0 = [[x0, y0], [x1, y1], ...]
-
-    allkinds : ``None`` or [level0kinds, level1kinds, ...]
-        Optional list of all the polygon vertex kinds (code types), as
-        described and used in Path. This is used to allow multiply-
-        connected paths such as holes within filled polygons.
-        If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-        should look like ::
-
-            level0kinds = [polygon0kinds, ...]
-            polygon0kinds = [vertexcode0, vertexcode1, ...]
-
-        If *allkinds* is not ``None``, usually all polygons for a
-        particular contour level are grouped together so that
-        ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
-
-    **kwargs
-        Keyword arguments are as described in the docstring of
-        `~.Axes.contour`.
-
-    %(contour_set_attributes)s
-    """
-
-    def __init__(self, ax, *args,
-                 levels=None, filled=False, linewidths=None, linestyles=None,
-                 hatches=(None,), alpha=None, origin=None, extent=None,
-                 cmap=None, colors=None, norm=None, vmin=None, vmax=None,
-                 colorizer=None, extend='neither', antialiased=None, nchunk=0,
-                 locator=None, transform=None, negative_linestyles=None,
-                 **kwargs):
-        """
-        Draw contour lines or filled regions, depending on
-        whether keyword arg *filled* is ``False`` (default) or ``True``.
-
-        Call signature::
-
-            ContourSet(ax, levels, allsegs, [allkinds], **kwargs)
-
-        Parameters
-        ----------
-        ax : `~matplotlib.axes.Axes`
-            The `~.axes.Axes` object to draw on.
-
-        levels : [level0, level1, ..., leveln]
-            A list of floating point numbers indicating the contour
-            levels.
-
-        allsegs : [level0segs, level1segs, ...]
-            List of all the polygon segments for all the *levels*.
-            For contour lines ``len(allsegs) == len(levels)``, and for
-            filled contour regions ``len(allsegs) = len(levels)-1``. The lists
-            should look like ::
-
-                level0segs = [polygon0, polygon1, ...]
-                polygon0 = [[x0, y0], [x1, y1], ...]
-
-        allkinds : [level0kinds, level1kinds, ...], optional
-            Optional list of all the polygon vertex kinds (code types), as
-            described and used in Path. This is used to allow multiply-
-            connected paths such as holes within filled polygons.
-            If not ``None``, ``len(allkinds) == len(allsegs)``. The lists
-            should look like ::
-
-                level0kinds = [polygon0kinds, ...]
-                polygon0kinds = [vertexcode0, vertexcode1, ...]
-
-            If *allkinds* is not ``None``, usually all polygons for a
-            particular contour level are grouped together so that
-            ``level0segs = [polygon0]`` and ``level0kinds = [polygon0kinds]``.
-
-        **kwargs
-            Keyword arguments are as described in the docstring of
-            `~.Axes.contour`.
-        """
-        if antialiased is None and filled:
-            # Eliminate artifacts; we are not stroking the boundaries.
-            antialiased = False
-            # The default for line contours will be taken from the
-            # LineCollection default, which uses :rc:`lines.antialiased`.
-        super().__init__(
-            antialiaseds=antialiased,
-            alpha=alpha,
-            transform=transform,
-            colorizer=colorizer,
-        )
-        self.axes = ax
-        self.levels = levels
-        self.filled = filled
-        self.hatches = hatches
-        self.origin = origin
-        self.extent = extent
-        self.colors = colors
-        self.extend = extend
-
-        self.nchunk = nchunk
-        self.locator = locator
-
-        if "color" in kwargs:
-            raise _api.kwarg_error("ContourSet.__init__", "color")
-
-        if colorizer:
-            self._set_colorizer_check_keywords(colorizer, cmap=cmap,
-                                               norm=norm, vmin=vmin,
-                                               vmax=vmax, colors=colors)
-            norm = colorizer.norm
-            cmap = colorizer.cmap
-        if (isinstance(norm, mcolors.LogNorm)
-                or isinstance(self.locator, ticker.LogLocator)):
-            self.logscale = True
-            if norm is None:
-                norm = mcolors.LogNorm()
-        else:
-            self.logscale = False
-
-        _api.check_in_list([None, 'lower', 'upper', 'image'], origin=origin)
-        if self.extent is not None and len(self.extent) != 4:
-            raise ValueError(
-                "If given, 'extent' must be None or (x0, x1, y0, y1)")
-        if self.colors is not None and cmap is not None:
-            raise ValueError('Either colors or cmap must be None')
-        if self.origin == 'image':
-            self.origin = mpl.rcParams['image.origin']
-
-        self._orig_linestyles = linestyles  # Only kept for user access.
-        self.negative_linestyles = mpl._val_or_rc(negative_linestyles,
-                                                  'contour.negative_linestyle')
-
-        kwargs = self._process_args(*args, **kwargs)
-        self._process_levels()
-
-        self._extend_min = self.extend in ['min', 'both']
-        self._extend_max = self.extend in ['max', 'both']
-        if self.colors is not None:
-            if mcolors.is_color_like(self.colors):
-                color_sequence = [self.colors]
-            else:
-                color_sequence = self.colors
-
-            ncolors = len(self.levels)
-            if self.filled:
-                ncolors -= 1
-            i0 = 0
-
-            # Handle the case where colors are given for the extended
-            # parts of the contour.
-
-            use_set_under_over = False
-            # if we are extending the lower end, and we've been given enough
-            # colors then skip the first color in the resulting cmap. For the
-            # extend_max case we don't need to worry about passing more colors
-            # than ncolors as ListedColormap will clip.
-            total_levels = (ncolors +
-                            int(self._extend_min) +
-                            int(self._extend_max))
-            if (len(color_sequence) == total_levels and
-                    (self._extend_min or self._extend_max)):
-                use_set_under_over = True
-                if self._extend_min:
-                    i0 = 1
-
-            cmap = mcolors.ListedColormap(
-                cbook._resize_sequence(color_sequence[i0:], ncolors),
-                under=(color_sequence[0]
-                       if use_set_under_over and self._extend_min else None),
-                over=(color_sequence[-1]
-                      if use_set_under_over and self._extend_max else None),
-            )
-
-        # label lists must be initialized here
-        self.labelTexts = []
-        self.labelCValues = []
-
-        self.set_cmap(cmap)
-        if norm is not None:
-            self.set_norm(norm)
-        with self.norm.callbacks.blocked(signal="changed"):
-            if vmin is not None:
-                self.norm.vmin = vmin
-            if vmax is not None:
-                self.norm.vmax = vmax
-        self.norm._changed()
-        self._process_colors()
-
-        if self._paths is None:
-            self._paths = self._make_paths_from_contour_generator()
-
-        if self.filled:
-            if linewidths is not None:
-                _api.warn_external('linewidths is ignored by contourf')
-            # Lower and upper contour levels.
-            lowers, uppers = self._get_lowers_and_uppers()
-            self.set(edgecolor="none")
-        else:
-            self.set(
-                facecolor="none",
-                linewidths=self._process_linewidths(linewidths),
-                linestyle=self._process_linestyles(linestyles),
-                label="_nolegend_",
-                # Default zorder taken from LineCollection, which is higher
-                # than for filled contours so that lines are displayed on top.
-                zorder=2,
-            )
-        self.set(**kwargs)  # Let user-set values override defaults.
-
-        self.axes.add_collection(self, autolim=False)
-        self.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
-        self.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
-        self.axes.update_datalim([self._mins, self._maxs])
-        self.axes.autoscale_view(tight=True)
-
-        self.changed()  # set the colors
-
     allsegs = property(lambda self: [
         [subp.vertices for subp in p._iter_connected_components()]
         for p in self.get_paths()])
@@ -891,6 +886,67 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
         return artists, labels
 
+    def set_data(self, *args, **kwargs):
+        """
+        Set new data and recompute the contours.
+
+        Call signatures::
+
+            set_data(Z)
+            set_data(X, Y, Z)
+
+        This reuses the existing artist, which is faster than removing the
+        ``ContourSet`` and creating a new one, and keeps its styling and its
+        place in the draw tree.
+
+        .. versionadded:: 3.12
+
+        Parameters
+        ----------
+        *args
+            The new data, interpreted as by the function that created this
+            ``ContourSet``, i.e. `~.Axes.contour`, `~.Axes.contourf`,
+            `~.Axes.tricontour` or `~.Axes.tricontourf`.
+
+        **kwargs
+            Only the keywords of that function that control *how the contours are
+            computed* are accepted, and they keep their current values if not
+            given: *corner_mask*, *algorithm* and the *xunits*/*yunits* unit
+            keywords for `~.Axes.contour`, or *triangles* and *mask* for
+            `~.Axes.tricontour`. Keywords that control how the contours *look*
+            (*levels*, *colors*, *cmap*, *linewidths*, ...) raise `TypeError`; set
+            those with the corresponding `.Collection` setters, or create a new
+            ``ContourSet``.
+
+        Notes
+        -----
+        The *levels* are not recomputed; the new data is contoured at the
+        levels already in use, so that the colors and the colorbar stay
+        valid. Create a new ``ContourSet`` if you need different levels.
+
+        Existing contour labels are not moved. The Axes limits are not
+        rescaled, as for other artists' data setters.
+        """
+        # _process_args() both validates and mutates: by the time it can fail it has
+        # already rebound the levels, zmin/zmax and the contour generator, so a
+        # rejected call would otherwise leave the contour set half-updated.
+        with cbook._safe_state_update(self) as state:
+            kwargs = self._process_args(*args, **kwargs)
+            if kwargs:
+                raise TypeError(
+                    f"set_data() got unexpected keyword arguments {[*kwargs]}")
+            if not np.array_equal(state['levels'], self.levels):
+                # Only reachable through the ContourSet(ax, levels, allsegs)
+                # signature. Keeping the levels fixed is what lets us skip
+                # reprocessing the layers and the colors here, so enforce it rather
+                # than silently mismatching them.
+                raise ValueError("set_data() cannot change the contour levels")
+            if self._paths is state['_paths']:  # Not set by _process_args.
+                self._paths = self._make_paths_from_contour_generator()
+        self.sticky_edges.x[:] = [self._mins[0], self._maxs[0]]
+        self.sticky_edges.y[:] = [self._mins[1], self._maxs[1]]
+        self.stale = True
+
     def _process_args(self, *args, **kwargs):
         """
         Process *args* and *kwargs*; override in derived classes.
@@ -937,8 +993,6 @@ class ContourSet(ContourLabeler, mcoll.Collection):
 
     def _make_paths_from_contour_generator(self):
         """Compute ``paths`` using C extension."""
-        if self._paths is not None:
-            return self._paths
         cg = self._contour_generator
         empty_path = Path(np.empty((0, 2)))
         vertices_and_codes = (
@@ -1315,6 +1369,11 @@ class QuadContourSet(ContourSet):
     %(contour_set_attributes)s
     """
 
+    # Set on the first _process_args; a later call from set_data keeps these rather
+    # than falling back to the rcParams.
+    _algorithm = None
+    _corner_mask = None
+
     def _process_args(self, *args, corner_mask=None, algorithm=None, **kwargs):
         """
         Process args and kwargs.
@@ -1332,17 +1391,22 @@ class QuadContourSet(ContourSet):
         else:
             import contourpy
 
-            algorithm = mpl._val_or_rc(algorithm, 'contour.algorithm')
+            algorithm = mpl._val_or_rc(
+                algorithm or self._algorithm, 'contour.algorithm')
             mpl.rcParams.validate["contour.algorithm"](algorithm)
             self._algorithm = algorithm
 
             if corner_mask is None:
                 if self._algorithm == "mpl2005":
                     # mpl2005 does not support corner_mask=True so if not
-                    # specifically requested then disable it.
+                    # specifically requested then disable it, even when set_data
+                    # switches to it from an algorithm that had it enabled.
                     corner_mask = False
+                elif self._corner_mask is not None:
+                    corner_mask = self._corner_mask
                 else:
                     corner_mask = mpl.rcParams['contour.corner_mask']
+
             self._corner_mask = corner_mask
 
             x, y, z = self._contour_args(args, kwargs)
@@ -1530,6 +1594,7 @@ levels : int or array-like, optional
 Returns
 -------
 `~.contour.QuadContourSet`
+    Use `.ContourSet.set_data` to recontour new data with the same artist.
 
 Other Parameters
 ----------------

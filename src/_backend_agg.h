@@ -410,7 +410,7 @@ RendererAgg::_draw_path(path_t &path, bool has_clippath, const std::optional<agg
     if (gc.linewidth != 0.0) {
         double linewidth = points_to_pixels(gc.linewidth);
         if (!gc.isaa) {
-            linewidth = (linewidth < 0.5) ? 0.5 : mpl_round(linewidth);
+            linewidth = (linewidth < 0.5) ? 0.5 : mpl::round(linewidth);
         }
         if (gc.dashes.size() == 0) {
             auto stroke = agg::conv_stroke{path};
@@ -727,8 +727,8 @@ inline std::optional<agg::rect_i> RendererAgg::text_clip_rect(const agg::rect_d 
         return std::nullopt;
     }
     agg::rect_i clip;
-    clip.init(mpl_round_to_int(cliprect.x1), mpl_round_to_int(height - cliprect.y2),
-              mpl_round_to_int(cliprect.x2), mpl_round_to_int(height - cliprect.y1));
+    clip.init(mpl::round_to_int(cliprect.x1), mpl::round_to_int(height - cliprect.y2),
+              mpl::round_to_int(cliprect.x2), mpl::round_to_int(height - cliprect.y1));
     return clip;
 }
 

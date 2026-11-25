@@ -22,6 +22,7 @@ gradient_bar
 barh
 horizontal_barchart_distribution
 broken_barh
+pareto_chart
 
 # scatter
 scatter_demo2

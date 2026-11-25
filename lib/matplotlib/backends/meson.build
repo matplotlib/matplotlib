@@ -43,6 +43,9 @@ typing_sources = [
   '_backend_agg.pyi',
   '_macosx.pyi',
   '_tkagg.pyi',
+  # Pure Python types.
+  'backend_pdf.pyi',
+  'registry.pyi',
 ]
 
 py3.install_sources(python_sources, typing_sources,

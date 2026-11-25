@@ -1118,10 +1118,10 @@ def test_trirefiner_fortran_contiguous_triangles():
     # github issue 4180.  Test requires two arrays of triangles that are
     # identical except that one is C-contiguous and one is fortran-contiguous.
     triangles1 = np.array([[2, 0, 3], [2, 1, 0]])
-    assert not np.isfortran(triangles1)
+    assert not triangles1.flags.fnc
 
     triangles2 = np.array(triangles1, copy=True, order='F')
-    assert np.isfortran(triangles2)
+    assert triangles2.flags.fnc
 
     x = np.array([0.39, 0.59, 0.43, 0.32])
     y = np.array([33.99, 34.01, 34.19, 34.18])
@@ -1321,6 +1321,34 @@ def test_tricontourset_reuse():
     assert tcs2._contour_generator != tcs1._contour_generator
     tcs3 = ax.tricontour(tcs1, z)
     assert tcs3._contour_generator == tcs1._contour_generator
+
+
+@pytest.mark.parametrize("plotter", ["tricontour", "tricontourf"])
+@check_figures_equal()
+def test_tricontour_triangles_kwarg(fig_test, fig_ref, plotter):
+    # Passing triangles by keyword used to fall through to Collection.set().
+    x = [0.0, 1.0, 2.0, 0.0, 1.0, 0.0]
+    y = [0.0, 0.0, 0.0, 1.0, 1.0, 2.0]
+    z = [0.0, 1.0, 2.0, 1.0, 2.0, 3.0]
+    triangles = [[0, 1, 3], [1, 4, 3], [1, 2, 4], [3, 4, 5]]
+    levels = [0.5, 1.5, 2.5]
+    getattr(fig_test.subplots(), plotter)(x, y, z, triangles=triangles,
+                                          levels=levels)
+    getattr(fig_ref.subplots(), plotter)(x, y, triangles, z, levels=levels)
+
+
+@check_figures_equal()
+def test_tricontour_set_data(fig_test, fig_ref):
+    x = [0.0, 0.5, 1.0, 0.0, 0.5, 0.0]
+    y = [0.0, 0.0, 0.0, 0.5, 0.5, 1.0]
+    z1 = [0.0, 1.0, 2.0, 1.0, 2.0, 3.0]
+    z2 = [3.0, 2.0, 1.0, 2.0, 1.0, 0.0]
+    levels = [0.5, 1.5, 2.5]
+    triangles = [[0, 1, 3], [1, 4, 3], [1, 2, 4], [3, 4, 5]]
+    cs = fig_test.subplots().tricontour(x, y, z1, triangles=triangles,
+                                        levels=levels)
+    cs.set_data(x, y, z2, triangles=triangles)
+    fig_ref.subplots().tricontour(x, y, z2, triangles=triangles, levels=levels)
 
 
 @check_figures_equal()

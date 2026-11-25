@@ -182,6 +182,19 @@ class Test_boxplot_stats:
         assert bstats_true[0]['whishi'] == 25
         assert_array_almost_equal(bstats_true[0]['fliers'], [])
 
+    def test_boxplot_stats_all_masked(self):
+        data = np.ma.masked_array(
+            [10.0, 20.0],
+            mask=[True, True],
+        )
+
+        result = cbook.boxplot_stats(data)
+        expected = cbook.boxplot_stats([])
+
+        assert len(result) == 1
+        for key, value in expected[0].items():
+            np.testing.assert_equal(result[0][key], value)
+
 
 class Hashable:
     def dummy(self): pass

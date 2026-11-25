@@ -527,6 +527,21 @@ def test_LogNorm_inverse():
     assert_array_almost_equal([0.4], norm.inverse([0.30103]))
 
 
+def test_LogNorm_single_valid_value():
+    """
+    Test that non-positive values map to masked result when vmin and vmax are equal.
+    """
+    norm = mcolors.LogNorm()
+    result = norm([0, 1])
+
+    # vmin and vmax are autoscaled to 1, since that is the only valid value.
+    assert norm.vmin == 1
+    assert norm.vmax == 1
+
+    np.testing.assert_array_equal(result.mask, [True, False])
+    assert result[1] == 0
+
+
 def test_PowerNorm():
     # Check an exponent of 1 gives same results as a normal linear
     # normalization. Also implicitly checks that vmin/vmax are
@@ -2223,6 +2238,25 @@ def test_colorizer_multinorm_explicit():
     data = [0.1, 0.2]
     res = (0.098039, 0.374510, 0.65098, 1.)
     assert_array_almost_equal(ca.to_rgba(data), res)
+
+
+def test_colorizer_multinorm_instance():
+    # An existing MultiNorm is used as is, not wrapped in a new MultiNorm.
+    norm = mcolors.MultiNorm(['linear', 'log'])
+    ca = mcolorizer.Colorizer('BiOrangeBlue', norm)
+    assert ca.norm is norm
+
+
+def test_multi_norm_autoscale_none_only_signals_change():
+    norm = mcolors.MultiNorm(['linear', 'linear'])
+    calls = []
+    norm.callbacks.connect('changed', lambda: calls.append(True))
+    data = [[0, 1, 2], [3, 4, 5]]
+    norm.autoscale_None(data)
+    assert len(calls) == 1
+    # limits are already set, so nothing changes and no signal is emitted
+    norm.autoscale_None(data)
+    assert len(calls) == 1
 
 
 def test_get_set_clim_raises():

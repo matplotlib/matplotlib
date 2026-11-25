@@ -299,6 +299,8 @@ ax2.margins(0.2)
 # are not affected. Setting ``Axes.use_sticky_edges = False`` disables sticky
 # edge clamping on that Axes.
 #
+# .. _autoscaling-limit-rounding:
+#
 # Limit rounding
 # ~~~~~~~~~~~~~~
 #

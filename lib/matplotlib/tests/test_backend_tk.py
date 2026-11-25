@@ -36,8 +36,8 @@ def _isolated_tk_test(success_count, func=None):
         reason="missing tkinter"
     )
     @pytest.mark.skipif(
-        sys.platform == "linux" and not _c_internal_utils.xdisplay_is_valid(),
-        reason="$DISPLAY is unset"
+        not _c_internal_utils.display_is_valid(),
+        reason="Display is unavailable"
     )
     @functools.wraps(func)
     def test_func():
@@ -55,7 +55,7 @@ def _isolated_tk_test(success_count, func=None):
                         + str(e.stderr))
         else:
             # macOS may actually emit irrelevant errors about Accelerated
-            # OpenGL vs. software OpenGL, or some permission error on Azure, so
+            # OpenGL vs. software OpenGL, or some permission error on CI, so
             # suppress them.
             # Asserting stderr first (and printing it on failure) should be
             # more helpful for debugging that printing a failed success count.

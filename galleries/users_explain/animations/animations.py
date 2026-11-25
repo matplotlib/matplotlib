@@ -64,6 +64,9 @@ import matplotlib.animation as animation
 #    - `.Animation.to_jshtml` to create HTML code with interactive JavaScript animation
 #      controls
 #    - `.Animation.save` to save the animation to a file
+#    - Place the animation as the last statement in a Jupyter Notebook cell; this will
+#      automatically render the animation as video and display it as the cell output,
+#      unless :rc:`animation.html` is set to ``'none'``.
 #
 # The following table shows a few plotting methods, the artists they return and some
 # commonly used ``set_*`` methods that update the underlying data. While updating data

@@ -43,10 +43,10 @@ locate your :file:`matplotlib/` configuration directory, use
 >>> mpl.get_configdir()
 '/home/darren/.config/matplotlib'
 
-On Unix-like systems, this directory is generally located in your
+On Linux and FreeBSD, this directory is generally located in your
 :envvar:`HOME` directory under the :file:`.config/` directory.
 
-In addition, users have a cache directory. On Unix-like systems, this is
+In addition, users have a cache directory. On Linux and FreeBSD, this is
 separate from the configuration directory by default. To locate your
 :file:`.cache/` directory, use :func:`matplotlib.get_cachedir`:
 
@@ -54,15 +54,19 @@ separate from the configuration directory by default. To locate your
 >>> mpl.get_cachedir()
 '/home/darren/.cache/matplotlib'
 
+On macOS, both the config directory and the cache directory are
+:file:`{HOME}/.matplotlib` by default.
+
 On Windows, both the config directory and the cache directory are
-the same and are in your :file:`Documents and Settings` or :file:`Users`
-directory by default:
+:file:`%LOCALAPPDATA%\\matplotlib` by default. If
+:file:`%USERPROFILE%\\.matplotlib` already exists (for example, from an
+older Matplotlib version), that directory is used instead:
 
 >>> import matplotlib as mpl
 >>> mpl.get_configdir()
-'C:\\Documents and Settings\\jdhunter\\.matplotlib'
+'C:\\Users\\jdhunter\\AppData\\Local\\matplotlib'
 >>> mpl.get_cachedir()
-'C:\\Documents and Settings\\jdhunter\\.matplotlib'
+'C:\\Users\\jdhunter\\AppData\\Local\\matplotlib'
 
 If you would like to use a different configuration directory, you can
 do so by specifying the location in your :envvar:`MPLCONFIGDIR`

@@ -54,7 +54,7 @@ import logging
 import sys
 import threading
 import time
-from typing import IO, TYPE_CHECKING, cast, overload
+from typing import IO, TYPE_CHECKING, cast, overload, Literal
 
 from cycler import cycler  # noqa: F401
 import matplotlib
@@ -96,7 +96,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Hashable, Iterable, Sequence
     import pathlib
     import os
-    from typing import Any, BinaryIO, Literal
+    from typing import Any, BinaryIO
 
     import PIL.Image
     from numpy.typing import ArrayLike
@@ -1019,10 +1019,11 @@ default: None
     method or the `new_figure_manager` function provided by the current
     backend, which install a canvas and a manager on the figure.
 
-    Once this is done, :rc:`figure.hooks` are called, one at a time, on the
-    figure; these hooks allow arbitrary customization of the figure (e.g.,
-    attaching callbacks) or of associated elements (e.g., modifying the
-    toolbar).  See :doc:`/gallery/user_interfaces/mplcvd` for an example of
+    Once this is done, figure hooks are called in the order listed in
+    :rc:`figure.hooks`. Figure hooks are functions of the form
+    ``def hook(fig: Figure) -> None`` and can modify the created figure
+    (e.g. attach callbacks) or  associated figure elements (e.g., update the
+    toolbar). See :doc:`/gallery/user_interfaces/mplcvd` for an example of
     toolbar customization.
 
     If you are creating many figures, make sure you explicitly call
@@ -1483,15 +1484,15 @@ def cla() -> None:
 ## More ways of creating Axes ##
 
 @overload
-def subplot(nrows: int, ncols: int, index: int, /, **kwargs): ...
+def subplot(nrows: int, ncols: int, index: int, /, **kwargs) -> Axes: ...
 
 
 @overload
-def subplot(pos: int | SubplotSpec, /, **kwargs): ...
+def subplot(pos: int | SubplotSpec, /, **kwargs) -> Axes: ...
 
 
 @overload
-def subplot(**kwargs): ...
+def subplot(**kwargs) -> Axes: ...
 
 
 @_docstring.interpd
@@ -1896,8 +1897,8 @@ def subplots(
 def subplot_mosaic(
     mosaic: str,
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["all", "none", "row", "col"] = ...,
+    sharey: bool | Literal["all", "none", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: str = ...,
@@ -1912,8 +1913,8 @@ def subplot_mosaic(
 def subplot_mosaic[T](
     mosaic: list[HashableList[T]],
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["all", "none", "row", "col"] = ...,
+    sharey: bool | Literal["all", "none", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: T = ...,
@@ -1928,8 +1929,8 @@ def subplot_mosaic[T](
 def subplot_mosaic(
     mosaic: list[HashableList[Hashable]],
     *,
-    sharex: bool = ...,
-    sharey: bool = ...,
+    sharex: bool | Literal["all", "none", "row", "col"] = ...,
+    sharey: bool | Literal["all", "none", "row", "col"] = ...,
     width_ratios: ArrayLike | None = ...,
     height_ratios: ArrayLike | None = ...,
     empty_sentinel: Any = ...,
@@ -1943,8 +1944,8 @@ def subplot_mosaic(
 def subplot_mosaic[T](
     mosaic: str | list[HashableList[T]] | list[HashableList[Hashable]],
     *,
-    sharex: bool = False,
-    sharey: bool = False,
+    sharex: bool | Literal["all", "none", "row", "col"] = False,
+    sharey: bool | Literal["all", "none", "row", "col"] = False,
     width_ratios: ArrayLike | None = None,
     height_ratios: ArrayLike | None = None,
     empty_sentinel: Any = '.',
@@ -1996,11 +1997,14 @@ def subplot_mosaic[T](
         This only allows only single character Axes labels and does
         not allow nesting but is very terse.
 
-    sharex, sharey : bool, default: False
-        If True, the x-axis (*sharex*) or y-axis (*sharey*) will be shared
-        among all subplots.  In that case, tick label visibility and axis units
-        behave as for `subplots`.  If False, each subplot's x- or y-axis will
-        be independent.
+    sharex, sharey : bool or {'none', 'all', 'row', 'col'}, default: False
+        If True or 'all', the x-axis (*sharex*) or y-axis (*sharey*) will be shared
+        among all subplots. In that case, tick label visibility and axis units
+        behave as for `subplots`. If 'row', Axes that occupy the exact same row span
+        (the same vertical space in the grid) will share an x-axis (or y-axis).
+        If 'col', Axes that occupy the exact same column span (the same horizontal
+        space in the grid) will share an x-axis (or y-axis). If False or 'none',
+        each subplot's x- or y-axis will be independent.
 
     width_ratios : array-like of length *ncols*, optional
         Defines the relative widths of the columns. Each column gets a
