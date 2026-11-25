@@ -323,13 +323,13 @@ class Arc(Ellipse):
 
 def bbox_artist(
     artist: artist.Artist,
-    renderer: RendererBase,
+    renderer: RendererBase[Any],
     props: dict[str, Any] | None = ...,
     fill: bool = ...,
 ) -> None: ...
 def draw_bbox(
     bbox: Bbox,
-    renderer: RendererBase,
+    renderer: RendererBase[Any],
     color: ColorType = ...,
     trans: Transform | None = ...,
 ) -> None: ...

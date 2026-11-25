@@ -8,7 +8,8 @@ import pytest
 
 
 from matplotlib import (
-    collections, patheffects, pyplot as plt, transforms as mtransforms,
+    collections, colors as mcolors, patheffects, pyplot as plt,
+    transforms as mtransforms,
     rcParams, rc_context)
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
@@ -452,3 +453,201 @@ def test_draw_text_images_bounds():
 
     renderer._renderer.draw_text_images(
         buffer, np.array([[0, 2, 2, 1, 3]], dtype=np.intp), gc)
+
+
+@pytest.mark.parametrize("face", ["red", "C0", "0.5", "#ff0000", ("red", 0.5),
+                                  (1, 0, 0), (1, 0, 0, 0.5)])
+def test_draw_path_color_names(face):
+    # The renderer accepts anything `.colors.to_rgba` does, not just tuples.
+    renderer = RendererAgg(10, 10, 72)
+    path = Path([(1, 1), (9, 1), (9, 9), (1, 9), (1, 1)], closed=True)
+    renderer.draw_path(renderer.new_gc(), path, IdentityTransform(), face)
+    expected = RendererAgg(10, 10, 72)
+    expected.draw_path(expected.new_gc(), path, IdentityTransform(),
+                       mcolors.to_rgba(face))
+    assert np.asarray(renderer.buffer_rgba())[5, 5, 3] > 0
+    np.testing.assert_array_equal(renderer.buffer_rgba(), expected.buffer_rgba())
+
+
+@pytest.mark.parametrize("face", ["red", "C0", "0.5", "#ff0000", ("red", 0.5),
+                                  (1, 0, 0), (1, 0, 0, 0.5)])
+def test_draw_markers_color_names(face):
+    # The renderer accepts anything `.colors.to_rgba` does, not just tuples.
+    marker = Path([(-2, -2), (2, -2), (2, 2), (-2, 2), (-2, -2)], closed=True)
+    path = Path([(5, 5)])
+
+    def draw(face):
+        renderer = RendererAgg(10, 10, 72)
+        renderer.draw_markers(renderer.new_gc(), marker, IdentityTransform(),
+                              path, IdentityTransform(), face)
+        return renderer.buffer_rgba()
+
+    assert np.asarray(draw(face))[5, 5, 3] > 0
+    np.testing.assert_array_equal(draw(face), draw(mcolors.to_rgba(face)))
+
+
+_COLOR_ARRAY_INPUTS = [
+    ["red", "C0"], "red", ["#ff0000"], [(1, 0, 0), (0, 0, 1)],
+    [("red", 0.5)], np.array([[1, 0, 0]]), np.array([[1, 0, 0, 0.5]])]
+
+
+@pytest.mark.parametrize("colors", _COLOR_ARRAY_INPUTS)
+def test_draw_path_collection_color_names(colors):
+    # The renderer accepts anything `.colors.to_rgba_array` does.
+    path = Path([(-2, -2), (2, -2), (2, 2), (-2, 2), (-2, -2)], closed=True)
+
+    def draw(colors):
+        renderer = RendererAgg(10, 10, 72)
+        renderer.draw_path_collection(
+            renderer.new_gc(), IdentityTransform(), [path], [],
+            np.array([[3, 3], [7, 7]]), IdentityTransform(), colors, colors,
+            [1], [(0, None)], [True], [None], None, hatchcolors=colors)
+        return renderer.buffer_rgba()
+
+    # (3, 3) is at row 6 of the buffer, as y is flipped.
+    assert np.asarray(draw(colors))[6, 3, 3] > 0
+    np.testing.assert_array_equal(draw(colors),
+                                  draw(mcolors.to_rgba_array(colors)))
+
+
+@pytest.mark.parametrize("colors", _COLOR_ARRAY_INPUTS)
+@pytest.mark.parametrize("edgecolors", [None, "blue", ["blue"]])
+def test_draw_quad_mesh_color_names(colors, edgecolors):
+    coordinates = np.array([[[0, 0], [5, 0], [10, 0]],
+                            [[0, 5], [5, 5], [10, 5]],
+                            [[0, 10], [5, 10], [10, 10]]], float)
+
+    def draw(colors, edgecolors):
+        renderer = RendererAgg(10, 10, 72)
+        renderer.draw_quad_mesh(
+            renderer.new_gc(), IdentityTransform(), 2, 2, coordinates,
+            np.zeros((0, 2)), IdentityTransform(), colors, True, edgecolors)
+        return renderer.buffer_rgba()
+
+    ec = None if edgecolors is None else mcolors.to_rgba_array(edgecolors)
+    assert np.asarray(draw(colors, edgecolors))[2, 2, 3] > 0
+    np.testing.assert_array_equal(
+        draw(colors, edgecolors), draw(mcolors.to_rgba_array(colors), ec))
+
+
+def test_draw_path_collection_default_hatchcolors():
+    # *hatchcolors* defaults to None for third-party compatibility.
+    renderer = RendererAgg(10, 10, 72)
+    path = Path([(-2, -2), (2, -2), (2, 2), (-2, 2), (-2, -2)], closed=True)
+    renderer.draw_path_collection(
+        renderer.new_gc(), IdentityTransform(), [path], [],
+        np.array([[5, 5]]),
+        IdentityTransform(), ["red"], ["black"], [1], [(0, None)], [True],
+        [None], None)
+    assert np.asarray(renderer.buffer_rgba())[5, 5, 3] > 0
+
+
+def _draw_path_collection(*, gc_setup=None, **overrides):
+    # Draw a 60x60 square at (50, 50), passing the arguments that
+    # `.Collection.draw` would, overridden by *overrides*.
+    renderer = RendererAgg(100, 100, 72)
+    gc = renderer.new_gc()
+    if gc_setup is not None:
+        gc_setup(gc)
+    path = Path([(-30, -30), (30, -30), (30, 30), (-30, 30), (-30, -30)],
+                closed=True)
+    kwargs = dict(
+        master_transform=IdentityTransform(), paths=[path], all_transforms=[],
+        offsets=np.array([[50, 50]]), offset_trans=IdentityTransform(),
+        facecolors=["none"], edgecolors=["red"], linewidths=[4],
+        linestyles=[(0, None)], antialiaseds=[True], urls=[None],
+        offset_position=None)
+    kwargs.update(overrides)
+    renderer.draw_path_collection(gc, **kwargs)
+    return np.asarray(renderer.buffer_rgba()).copy()
+
+
+@pytest.mark.parametrize("name", ["facecolors", "edgecolors"])
+def test_draw_path_collection_none_colors(name):
+    # None is not a valid color array.  It must be a ValueError and not a
+    # TypeError, as `.Collection.draw` reads the latter as the renderer not
+    # supporting *hatchcolors*.
+    with pytest.raises(ValueError, match=f"{name} must not be None"):
+        _draw_path_collection(**{name: None})
+
+
+@pytest.mark.parametrize("name", ["all_transforms", "offsets", "linestyles"])
+def test_draw_path_collection_none_arrays(name):
+    with pytest.raises(ValueError, match=f"{name} must not be None"):
+        _draw_path_collection(**{name: None})
+
+
+@pytest.mark.parametrize("name", ["facecolors", "edgecolors", "hatchcolors"])
+@pytest.mark.parametrize("bad", [5, object(), ["red", None], "notacolor"])
+def test_draw_path_collection_bad_colors_are_value_errors(name, bad):
+    with pytest.raises(ValueError):
+        _draw_path_collection(**{name: bad})
+
+
+def test_draw_path_collection_empty_hatchcolors():
+    # Omitted, None, and empty all use the hatch color of the context.
+    def setup(gc):
+        gc.set_hatch("/")
+        gc.set_hatch_color((0, 1, 0, 1))
+
+    expected = _draw_path_collection(gc_setup=setup)
+    assert ((expected[..., 1] > expected[..., 0]) & (expected[..., 3] > 0)).any()
+    for hatchcolors in [None, [], np.zeros((0, 4))]:
+        np.testing.assert_array_equal(
+            _draw_path_collection(gc_setup=setup, hatchcolors=hatchcolors),
+            expected)
+    # A given hatch color overrides the one of the context.
+    blue = _draw_path_collection(gc_setup=setup, hatchcolors=["blue"])
+    assert not np.array_equal(blue, expected)
+    assert ((blue[..., 2] > blue[..., 0]) & (blue[..., 3] > 0)).any()
+
+
+@pytest.mark.parametrize("transforms", [[], np.zeros((0, 3, 3)),
+                                        [np.eye(3)], np.eye(3)[None]])
+def test_draw_path_collection_transforms(transforms):
+    expected = _draw_path_collection(all_transforms=np.zeros((0, 3, 3)))
+    np.testing.assert_array_equal(
+        _draw_path_collection(all_transforms=transforms), expected)
+
+
+@pytest.mark.parametrize("offsets", [[[50, 50]], ((50, 50),), np.array([[50, 50]])])
+def test_draw_path_collection_offsets(offsets):
+    expected = _draw_path_collection(offsets=np.array([[50., 50.]]))
+    np.testing.assert_array_equal(
+        _draw_path_collection(offsets=offsets), expected)
+
+
+def test_draw_path_collection_no_offsets():
+    # Empty offsets (as a list) draw the path once, untranslated.
+    np.testing.assert_array_equal(
+        _draw_path_collection(offsets=[]),
+        _draw_path_collection(offsets=np.zeros((0, 2))))
+
+
+@pytest.mark.parametrize("linestyles", ["--", "dashed", ["--"], [(0, (4, 2))],
+                                        (0, (4, 2)), [(0, [4, 2])]])
+def test_draw_path_collection_linestyles(linestyles):
+    with rc_context({"lines.dashed_pattern": [4, 2]}):
+        expected = _draw_path_collection(linestyles=[(0, (4, 2))])
+        solid = _draw_path_collection(linestyles=[(0, None)])
+        assert not np.array_equal(expected, solid)
+        np.testing.assert_array_equal(
+            _draw_path_collection(linestyles=linestyles), expected)
+
+
+@pytest.mark.parametrize("linestyles", ["bogus", 5, [(None, (1, 2))]])
+def test_draw_path_collection_bad_linestyles(linestyles):
+    with pytest.raises(ValueError):
+        _draw_path_collection(linestyles=linestyles)
+
+
+def test_draw_quad_mesh_none_colors():
+    renderer = RendererAgg(10, 10, 72)
+    coordinates = np.zeros((2, 2, 2))
+    kwargs = dict(gc=renderer.new_gc(), master_transform=IdentityTransform(),
+                  meshWidth=1, meshHeight=1, coordinates=coordinates,
+                  offsets=[], offsetTrans=IdentityTransform(), antialiased=True)
+    with pytest.raises(ValueError, match="facecolors must not be None"):
+        renderer.draw_quad_mesh(facecolors=None, edgecolors=None, **kwargs)
+    # None edgecolors mean to use the facecolors.
+    renderer.draw_quad_mesh(facecolors=["red"], edgecolors=None, **kwargs)

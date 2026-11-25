@@ -1,5 +1,7 @@
+from contextlib import AbstractContextManager
 from enum import Enum, IntEnum
 import os
+import socket
 from matplotlib import (
     cbook,
     transforms,
@@ -19,7 +21,8 @@ from matplotlib.text import Text, TextToPath
 from matplotlib.transforms import Bbox, BboxBase, Transform, TransformedPath
 
 from collections.abc import Callable, Iterable, Sequence
-from typing import Any, IO, Literal, NamedTuple, overload
+from typing import Any, Generic, IO, Literal, NamedTuple, Self, overload
+from typing_extensions import TypeVar
 from numpy.typing import ArrayLike
 from .typing import (
     BlendModeType,
@@ -36,12 +39,90 @@ from .typing import (
     ResizeEventType,
 )
 
-def register_backend(
-    format: str, backend: str | type[FigureCanvasBase], description: str | None = ...
-) -> None: ...
-def get_registered_canvas_class(format: str) -> type[FigureCanvasBase]: ...
+# Type parameters for narrowing cross-references between backend classes.
+#
+# A backend is a cooperating set of classes that reference each other:
+#
+#   FigureCanvasBase[ToolbarT, ManagerT, TimerT]
+#       .toolbar -> ToolbarT | None
+#       .manager -> ManagerT | None
+#       .new_timer() -> TimerT
+#   NavigationToolbar2[CanvasT]
+#       .canvas -> CanvasT
+#   FigureManagerBase[CanvasT, ToolbarT]
+#       .canvas -> CanvasT
+#       .toolbar -> ToolbarT | ToolContainerBase | None
+#
+# A backend declares its concrete set once, e.g.::
+#
+#   class FigureCanvasFoo(FigureCanvasBase["NavigationToolbar2Foo",
+#                                          "FigureManagerFoo", TimerFoo]): ...
+#   class NavigationToolbar2Foo(NavigationToolbar2[FigureCanvasFoo]): ...
+#   class FigureManagerFoo(FigureManagerBase[FigureCanvasFoo,
+#                                            NavigationToolbar2Foo]): ...
+#
+# and every cross-reference then resolves to the concrete type without
+# redeclaring the (invariant, mutable) attributes in the subclass.
+#
+# CanvasT intentionally has no default: its recursive invariant bound would
+# overconstrain concrete toolbar and manager subclasses.  The remaining type
+# variables default to ``Any`` specializations of their bounds so that bare
+# ``FigureCanvasBase`` / ``FigureManagerBase`` remain usable and accept any
+# concrete backend.  General-purpose consumers (``Figure.canvas``, events,
+# handlers) should spell this out as ``FigureCanvasBase[Any, Any, Any]``.
+# ``None`` is in the annotation, not the TypeVar.
+CanvasT = TypeVar("CanvasT", bound="FigureCanvasBase[Any, Any, Any]")
 
-class RendererBase:
+class _UntypedToolkitWidget:
+    """
+    Stand-in for an untyped native GUI base class (Qt, GTK, wx).
+
+    GUI backend classes inherit their toolkit widget at runtime
+    (``QtWidgets.QWidget``, ``Gtk.DrawingArea``, ``wx.Panel``, ...).  Those
+    toolkits ship no type information, so the backend stubs list this class
+    in place of the native base.  Any attribute not declared by Matplotlib
+    resolves to ``Any``, exactly as it would when type checking against the
+    runtime module, while Matplotlib-owned members stay precisely typed.
+
+    This is a typing-only construct and does not exist at runtime.
+    """
+
+    def __getattr__(self, name: str) -> Any: ...
+    def __setattr__(self, name: str, value: Any) -> None: ...
+ToolbarT = TypeVar(
+    "ToolbarT", bound="NavigationToolbar2[Any]", default="NavigationToolbar2[Any]"
+)
+ManagerT = TypeVar(
+    "ManagerT",
+    bound="FigureManagerBase[Any, Any]",
+    default="FigureManagerBase[Any, Any]",
+)
+# CanvasClassT is the concrete FigureCanvas *class* (not instance) stored on
+# a _Backend subclass.  default lets bare _Backend remain valid.
+CanvasClassT = TypeVar(
+    "CanvasClassT",
+    bound="type[FigureCanvasBase[Any, Any, Any]]",
+    default="type[FigureCanvasBase[Any, Any, Any]]",
+)
+# GCT lets RendererBase subclasses declare which GraphicsContext subclass they
+# produce/consume.  Covariant usage (new_gc return type) is always safe;
+# contravariant usage (gc: GCT parameters) is safe within a subclass because
+# the renderer always pairs with its own GC via self.new_gc().
+GCT = TypeVar("GCT", bound="GraphicsContextBase", default="GraphicsContextBase")
+# TimerT lets FigureCanvasBase subclasses declare the concrete TimerBase
+# subclass returned by new_timer().
+TimerT = TypeVar("TimerT", bound="TimerBase", default="TimerBase")
+
+def register_backend(
+    format: str,
+    backend: str | type[FigureCanvasBase[Any, Any, Any]],
+    description: str | None = ...,
+) -> None: ...
+def get_registered_canvas_class(
+    format: str,
+) -> type[FigureCanvasBase[Any, Any, Any]]: ...
+
+class RendererBase(Generic[GCT]):
     _text2path: TextToPath
     def __init__(self) -> None: ...
     def open_group(self, s: str, gid: str | None = ...) -> None: ...
@@ -56,14 +137,14 @@ class RendererBase:
     def close_blend_group(self) -> None: ...
     def draw_path(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         path: Path,
         transform: Transform,
         rgbFace: ColorType | None = ...,
     ) -> None: ...
     def draw_markers(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         marker_path: Path,
         marker_trans: Transform,
         path: Path,
@@ -72,7 +153,7 @@ class RendererBase:
     ) -> None: ...
     def draw_path_collection(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         master_transform: Transform,
         paths: Sequence[Path],
         all_transforms: Sequence[ArrayLike],
@@ -90,10 +171,10 @@ class RendererBase:
     ) -> None: ...
     def draw_quad_mesh(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         master_transform: Transform,
-        meshWidth,
-        meshHeight,
+        meshWidth: int,
+        meshHeight: int,
         coordinates: ArrayLike,
         offsets: Sequence[ArrayLike],
         offsetTrans: Transform,
@@ -103,7 +184,7 @@ class RendererBase:
     ) -> None: ...
     def draw_gouraud_triangles(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         triangles_array: ArrayLike,
         colors_array: ArrayLike,
         transform: Transform,
@@ -111,7 +192,7 @@ class RendererBase:
     def get_image_magnification(self) -> float: ...
     def draw_image(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         x: float,
         y: float,
         im: ArrayLike,
@@ -121,18 +202,18 @@ class RendererBase:
     def option_scale_image(self) -> bool: ...
     def draw_tex(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         x: float,
         y: float,
         s: str,
         prop: FontProperties,
         angle: float,
         *,
-        mtext: Text | None = ...
+        mtext: Text | None = ...,
     ) -> None: ...
     def draw_text(
         self,
-        gc: GraphicsContextBase,
+        gc: GCT,
         x: float,
         y: float,
         s: str,
@@ -147,12 +228,15 @@ class RendererBase:
     def flipy(self) -> bool: ...
     def get_canvas_width_height(self) -> tuple[float, float]: ...
     def get_texmanager(self) -> TexManager: ...
-    def new_gc(self) -> GraphicsContextBase: ...
+    def new_gc(self) -> GCT: ...
     def points_to_pixels(self, points: ArrayLike) -> ArrayLike: ...
     def start_rasterizing(self) -> None: ...
     def stop_rasterizing(self) -> None: ...
     def start_filter(self) -> None: ...
-    def stop_filter(self, filter_func) -> None: ...
+    def stop_filter(
+        self,
+        filter_func: Callable[[ArrayLike, float], tuple[ArrayLike, float, float]],
+    ) -> None: ...
 
 class GraphicsContextBase:
     def __init__(self) -> None: ...
@@ -222,27 +306,38 @@ class TimerBase:
     def single_shot(self) -> bool: ...
     @single_shot.setter
     def single_shot(self, ss: bool) -> None: ...
-    def add_callback(self, func: Callable, *args, **kwargs) -> Callable: ...
-    def remove_callback(self, func: Callable, *args, **kwargs) -> None: ...
+    def add_callback(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> Callable[..., Any]: ...
+    def remove_callback(
+        self, func: Callable[..., Any], *args: Any, **kwargs: Any
+    ) -> None: ...
 
 class Event:
     name: str
-    canvas: FigureCanvasBase
+    canvas: FigureCanvasBase[Any, Any, Any]
     guiEvent: Any
     def __init__(
-        self, name: str, canvas: FigureCanvasBase, guiEvent: Any | None = ...
+        self, name: str, canvas: FigureCanvasBase[Any, Any, Any], guiEvent: Any | None = ...
     ) -> None: ...
+    # Backend-authoring API: dispatch this event on ``self.canvas``.
+    def _process(self) -> None: ...
 
 class DrawEvent(Event):
-    renderer: RendererBase
+    renderer: RendererBase[Any]
     def __init__(
-        self, name: str, canvas: FigureCanvasBase, renderer: RendererBase
+        self,
+        name: str,
+        canvas: FigureCanvasBase[Any, Any, Any],
+        renderer: RendererBase[Any],
     ) -> None: ...
 
 class ResizeEvent(Event):
     width: int
     height: int
-    def __init__(self, name: str, canvas: FigureCanvasBase) -> None: ...
+    def __init__(
+        self, name: str, canvas: FigureCanvasBase[Any, Any, Any]
+    ) -> None: ...
 
 class CloseEvent(Event): ...
 
@@ -256,7 +351,7 @@ class LocationEvent(Event):
     def __init__(
         self,
         name: str,
-        canvas: FigureCanvasBase,
+        canvas: FigureCanvasBase[Any, Any, Any],
         x: int,
         y: int,
         guiEvent: Any | None = ...,
@@ -279,7 +374,7 @@ class MouseEvent(LocationEvent):
     def __init__(
         self,
         name: str,
-        canvas: FigureCanvasBase,
+        canvas: FigureCanvasBase[Any, Any, Any],
         x: int,
         y: int,
         button: MouseButton | Literal["up", "down"] | None = ...,
@@ -298,11 +393,11 @@ class PickEvent(Event):
     def __init__(
         self,
         name: str,
-        canvas: FigureCanvasBase,
+        canvas: FigureCanvasBase[Any, Any, Any],
         mouseevent: MouseEvent,
         artist: Artist,
         guiEvent: Any | None = ...,
-        **kwargs
+        **kwargs: Any,
     ) -> None: ...
 
 class KeyEvent(LocationEvent):
@@ -310,18 +405,18 @@ class KeyEvent(LocationEvent):
     def __init__(
         self,
         name: str,
-        canvas: FigureCanvasBase,
+        canvas: FigureCanvasBase[Any, Any, Any],
         key: str | None,
         x: int = ...,
         y: int = ...,
         guiEvent: Any | None = ...,
     ) -> None: ...
 
-class FigureCanvasBase:
+class FigureCanvasBase(Generic[ToolbarT, ManagerT, TimerT]):
     required_interactive_framework: str | None
 
     @_api.classproperty
-    def manager_class(cls) -> type[FigureManagerBase]: ...
+    def manager_class(cls) -> type[ManagerT]: ...
     events: list[str]
     fixed_dpi: None | float
     filetypes: dict[str, str]
@@ -330,10 +425,12 @@ class FigureCanvasBase:
     def supports_blit(cls) -> bool: ...
 
     figure: Figure
-    manager: None | FigureManagerBase
+    manager: ManagerT | None
+    # Backend-authoring API: the timer class instantiated by ``new_timer``.
+    _timer_cls: type[TimerT]
     widgetlock: widgets.LockDraw
     mouse_grabber: None | Axes
-    toolbar: None | NavigationToolbar2
+    toolbar: ToolbarT | None
     def __init__(self, figure: Figure | None = ...) -> None: ...
     @property
     def callbacks(self) -> cbook.CallbackRegistry: ...
@@ -342,17 +439,21 @@ class FigureCanvasBase:
     @property
     def scroll_pick_id(self) -> int: ...
     @classmethod
-    def new_manager(cls, figure: Figure, num: int | str) -> FigureManagerBase: ...
+    def new_manager(cls, figure: Figure, num: int | str) -> ManagerT: ...
     def is_saving(self) -> bool: ...
     def blit(self, bbox: BboxBase | None = ...) -> None: ...
     def inaxes(self, xy: tuple[float, float]) -> Axes | None: ...
     def grab_mouse(self, ax: Axes) -> None: ...
     def release_mouse(self, ax: Axes) -> None: ...
     def set_cursor(self, cursor: Cursors) -> None: ...
-    def draw(self, *args, **kwargs) -> None: ...
-    def draw_idle(self, *args, **kwargs) -> None: ...
+    # Runtime accepts and ignores ``*args, **kwargs``; every backend implements
+    # ``(self)``, which is the form declared here so that subclasses match.
+    def draw(self) -> None: ...
+    def draw_idle(self) -> None: ...
     @property
     def device_pixel_ratio(self) -> float: ...
+    # Backend-authoring API: record the physical/logical pixel ratio.
+    def _set_device_pixel_ratio(self, ratio: float) -> bool: ...
     def get_width_height(self, *, physical: bool = ...) -> tuple[int, int]: ...
     @classmethod
     def get_supported_filetypes(cls) -> dict[str, str]: ...
@@ -371,78 +472,82 @@ class FigureCanvasBase:
         pad_inches: float | None = ...,
         bbox_extra_artists: list[Artist] | None = ...,
         backend: str | None = ...,
-        **kwargs
+        **kwargs: Any,
     ) -> Any: ...
     @classmethod
     def get_default_filetype(cls) -> str: ...
     def get_default_filename(self) -> str: ...
-
     @overload
     def mpl_connect(
         self,
         s: MouseEventType,
         func: Callable[[MouseEvent], Any],
     ) -> int: ...
-
     @overload
     def mpl_connect(
         self,
         s: KeyEventType,
         func: Callable[[KeyEvent], Any],
     ) -> int: ...
-
     @overload
-    def mpl_connect(self, s: PickEventType, func: Callable[[PickEvent], Any]) -> int: ...
-
+    def mpl_connect(
+        self, s: PickEventType, func: Callable[[PickEvent], Any]
+    ) -> int: ...
     @overload
-    def mpl_connect(self, s: ResizeEventType, func: Callable[[ResizeEvent], Any]) -> int: ...
-
+    def mpl_connect(
+        self, s: ResizeEventType, func: Callable[[ResizeEvent], Any]
+    ) -> int: ...
     @overload
-    def mpl_connect(self, s: CloseEventType, func: Callable[[CloseEvent], Any]) -> int: ...
-
+    def mpl_connect(
+        self, s: CloseEventType, func: Callable[[CloseEvent], Any]
+    ) -> int: ...
     @overload
-    def mpl_connect(self, s: DrawEventType, func: Callable[[DrawEvent], Any]) -> int: ...
+    def mpl_connect(
+        self, s: DrawEventType, func: Callable[[DrawEvent], Any]
+    ) -> int: ...
     def mpl_disconnect(self, cid: int) -> None: ...
     def new_timer(
         self,
         interval: int | None = ...,
         callbacks: list[tuple[Callable, tuple, dict[str, Any]]] | None = ...,
-    ) -> TimerBase: ...
+    ) -> TimerT: ...
     def flush_events(self) -> None: ...
     def start_event_loop(self, timeout: float = ...) -> None: ...
     def stop_event_loop(self) -> None: ...
 
 def key_press_handler(
     event: KeyEvent,
-    canvas: FigureCanvasBase | None = ...,
-    toolbar: NavigationToolbar2 | None = ...,
+    canvas: FigureCanvasBase[Any, Any, Any] | None = ...,
+    toolbar: NavigationToolbar2[Any] | None = ...,
 ) -> None: ...
 def button_press_handler(
     event: MouseEvent,
-    canvas: FigureCanvasBase | None = ...,
-    toolbar: NavigationToolbar2 | None = ...,
+    canvas: FigureCanvasBase[Any, Any, Any] | None = ...,
+    toolbar: NavigationToolbar2[Any] | None = ...,
 ) -> None: ...
 def scroll_handler(
     event: MouseEvent,
-    canvas: FigureCanvasBase | None = ...,
-    toolbar: NavigationToolbar2 | None = ...,
+    canvas: FigureCanvasBase[Any, Any, Any] | None = ...,
+    toolbar: NavigationToolbar2[Any] | None = ...,
 ) -> None: ...
 
 class NonGuiException(Exception): ...
 
-class FigureManagerBase:
-    canvas: FigureCanvasBase
+class FigureManagerBase(Generic[CanvasT, ToolbarT]):
+    canvas: CanvasT
     num: int | str
     key_press_handler_id: int | None
     button_press_handler_id: int | None
     scroll_handler_id: int | None
     toolmanager: ToolManager | None
-    toolbar: NavigationToolbar2 | ToolContainerBase | None
-    def __init__(self, canvas: FigureCanvasBase, num: int | str) -> None: ...
+    toolbar: ToolbarT | ToolContainerBase | None
+    _toolbar2_class: type[ToolbarT] | None
+    _toolmanager_toolbar_class: type[ToolContainerBase] | None
+    def __init__(self, canvas: CanvasT, num: int | str) -> None: ...
     @classmethod
     def create_with_canvas(
-        cls, canvas_class: type[FigureCanvasBase], figure: Figure, num: int | str
-    ) -> FigureManagerBase: ...
+        cls, canvas_class: type[CanvasT], figure: Figure, num: int | str
+    ) -> Self: ...
     @classmethod
     def start_main_loop(cls) -> None: ...
     @classmethod
@@ -461,31 +566,32 @@ class _Mode(str, Enum):
     PAN = "pan/zoom"
     ZOOM = "zoom rect"
 
-class NavigationToolbar2:
-    toolitems: tuple[tuple[str, ...] | tuple[None, ...], ...]
+class NavigationToolbar2(Generic[CanvasT]):
+    toolitems: Sequence[tuple[str | None, ...]]
     UNKNOWN_SAVED_STATUS: object
-    canvas: FigureCanvasBase
+    canvas: CanvasT
     mode: _Mode
-    def __init__(self, canvas: FigureCanvasBase) -> None: ...
+    def __init__(self, canvas: CanvasT) -> None: ...
     def set_message(self, s: str) -> None: ...
     def draw_rubberband(
         self, event: Event, x0: float, y0: float, x1: float, y1: float
     ) -> None: ...
     def remove_rubberband(self) -> None: ...
-    def home(self, *args) -> None: ...
-    def back(self, *args) -> None: ...
-    def forward(self, *args) -> None: ...
+    def home(self, *args: Any) -> None: ...
+    def back(self, *args: Any) -> None: ...
+    def forward(self, *args: Any) -> None: ...
     def mouse_move(self, event: MouseEvent) -> None: ...
-    def pan(self, *args) -> None: ...
+    def pan(self, *args: Any) -> None: ...
 
     class _PanInfo(NamedTuple):
         button: MouseButton
         axes: list[Axes]
         cid: int
+
     def press_pan(self, event: Event) -> None: ...
     def drag_pan(self, event: Event) -> None: ...
     def release_pan(self, event: Event) -> None: ...
-    def zoom(self, *args) -> None: ...
+    def zoom(self, *args: Any) -> None: ...
 
     class _ZoomInfo(NamedTuple):
         button: MouseButton
@@ -493,13 +599,14 @@ class NavigationToolbar2:
         axes: list[Axes]
         cid: int
         cbar: Colorbar
+
     def press_zoom(self, event: Event) -> None: ...
     def drag_zoom(self, event: Event) -> None: ...
     def release_zoom(self, event: Event) -> None: ...
     def push_current(self) -> None: ...
     subplot_tool: widgets.SubplotTool
     def configure_subplots(self, *args: Any) -> widgets.SubplotTool: ...
-    def save_figure(self, *args) -> str | None | object: ...
+    def save_figure(self, *args: Any) -> str | None | object: ...
     def update(self) -> None: ...
     def set_history_buttons(self) -> None: ...
 
@@ -521,21 +628,32 @@ class ToolContainerBase:
     def remove_toolitem(self, name: str) -> None: ...
     def set_message(self, s: str) -> None: ...
 
-class _Backend:
-    backend_version: str
-    FigureCanvas: type[FigureCanvasBase] | None
-    FigureManager: type[FigureManagerBase]
+class _Backend(Generic[CanvasClassT]):
+    backend_version: str | float
+    FigureCanvas: CanvasClassT | None
+    FigureManager: type[FigureManagerBase[Any, Any]]
     mainloop: None | Callable[[], Any]
     @classmethod
-    def new_figure_manager(cls, num: int | str, *args, **kwargs) -> FigureManagerBase: ...
+    def new_figure_manager(
+        cls, num: int | str, *args: Any, **kwargs: Any
+    ) -> FigureManagerBase[Any, Any]: ...
     @classmethod
-    def new_figure_manager_given_figure(cls, num: int | str, figure: Figure) -> FigureManagerBase: ...
+    def new_figure_manager_given_figure(
+        cls, num: int | str, figure: Figure
+    ) -> FigureManagerBase[Any, Any]: ...
     @classmethod
     def draw_if_interactive(cls) -> None: ...
     @classmethod
     def show(cls, *, block: bool | None = ...) -> None: ...
+    # ``export`` is a ``staticmethod`` used as a class decorator; its single
+    # parameter is the class being decorated.
     @staticmethod
-    def export(cls) -> type[_Backend]: ...
+    def export(cls: type[_Backend[Any]]) -> type[_Backend[Any]]: ...
 
-class ShowBase(_Backend):
+class ShowBase(_Backend[type[FigureCanvasBase[Any, Any, Any]]]):
     def __call__(self, block: bool | None = ...) -> None: ...
+
+def _allow_interrupt(
+    prepare_notifier: Callable[[socket.socket], object],
+    handle_sigint: Callable[[object], object],
+) -> AbstractContextManager[None]: ...

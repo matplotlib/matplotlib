@@ -34,9 +34,11 @@ from matplotlib import _api, cbook
 from matplotlib.artist import BlendMode
 from matplotlib.backend_bases import (
     _Backend, FigureCanvasBase, FigureManagerBase, GraphicsContextBase, RendererBase)
+from matplotlib.colors import to_rgba, to_rgba_array
 from matplotlib.dviread import Dvi
 from matplotlib.font_manager import fontManager as _fontManager, get_font
 from matplotlib.ft2font import LoadFlags, RenderMode, _render_glyph_run
+from matplotlib.lines import _get_dash_patterns
 from matplotlib.mathtext import MathTextParser
 from matplotlib.path import Path
 from matplotlib.transforms import Bbox, BboxBase
@@ -66,6 +68,46 @@ def get_hinting_flag():
 _GroupState = namedtuple(
     '_GroupState', ['group_type', 'blend_mode', 'alpha', 'old_renderer', 'old_override']
 )
+
+
+# The helpers below normalize arguments for the C++ extension, which only
+# accepts arrays of a fixed shape.  ``None`` is never a valid value, and is
+# checked for explicitly (``np.asarray(None, dtype=float)`` would silently give
+# a NaN).  Problems are always reported as ``ValueError``, never ``TypeError``:
+# `.Collection.draw` takes a ``TypeError`` from ``draw_path_collection`` to mean
+# that the renderer does not support the *hatchcolors* argument.
+
+def _as_rgba_array(name, colors):
+    """Convert *colors* (color names, tuples, arrays) to an (N, 4) array."""
+    if colors is None:
+        raise ValueError(f"{name} must not be None")
+    try:
+        return to_rgba_array(colors)
+    except TypeError as err:
+        raise ValueError(f"Invalid {name}: {colors!r}") from err
+
+
+def _as_float_array(name, values, trailing_shape):
+    """Convert *values* to an (N, *trailing_shape) float array; [] gives N=0."""
+    if values is None:
+        raise ValueError(f"{name} must not be None")
+    try:
+        array = np.asarray(values, dtype=float)
+    except TypeError as err:
+        raise ValueError(f"Invalid {name}: {values!r}") from err
+    if array.shape == (0,):
+        array = array.reshape((0, *trailing_shape))
+    return array
+
+
+def _as_dash_patterns(linestyles):
+    """Convert linestyle(s) to a list of ``(offset, dashes)`` patterns."""
+    if linestyles is None:
+        raise ValueError("linestyles must not be None")
+    try:
+        return _get_dash_patterns(linestyles)
+    except TypeError as err:
+        raise ValueError(f"Invalid linestyles: {linestyles!r}") from err
 
 
 class RendererAgg(RendererBase):
@@ -100,16 +142,58 @@ class RendererAgg(RendererBase):
 
     def _update_methods(self):
         self.draw_image = self._renderer.draw_image
-        self.draw_markers = self._renderer.draw_markers
-        self.draw_path_collection = self._renderer.draw_path_collection
-        self.draw_quad_mesh = self._renderer.draw_quad_mesh
         self.copy_from_bbox = self._renderer.copy_from_bbox
 
     def new_gc(self):
         return GraphicsContextAgg(self)
 
+    def draw_markers(self, gc, marker_path, marker_trans, path, trans,
+                     rgbFace=None):
+        # docstring inherited
+        if rgbFace is not None:
+            # The extension only understands RGB(A) tuples, not color names.
+            rgbFace = to_rgba(rgbFace)
+        self._renderer.draw_markers(gc, marker_path, marker_trans, path, trans,
+                                    rgbFace)
+
+    def draw_path_collection(self, gc, master_transform, paths, all_transforms,
+                             offsets, offset_trans, facecolors, edgecolors,
+                             linewidths, linestyles, antialiaseds, urls,
+                             offset_position, *, hatchcolors=None):
+        # docstring inherited
+        # The extension only accepts arrays of a fixed shape.
+        if hatchcolors is None:
+            # Empty: use the hatch color of the graphics context.
+            hatchcolors = np.empty((0, 4))
+        else:
+            hatchcolors = _as_rgba_array("hatchcolors", hatchcolors)
+        self._renderer.draw_path_collection(
+            gc, master_transform, paths,
+            _as_float_array("all_transforms", all_transforms, (3, 3)),
+            _as_float_array("offsets", offsets, (2,)), offset_trans,
+            _as_rgba_array("facecolors", facecolors),
+            _as_rgba_array("edgecolors", edgecolors),
+            linewidths, _as_dash_patterns(linestyles), antialiaseds, urls,
+            offset_position, hatchcolors=hatchcolors)
+
+    def draw_quad_mesh(self, gc, master_transform, meshWidth, meshHeight,
+                       coordinates, offsets, offsetTrans, facecolors,
+                       antialiased, edgecolors):
+        # docstring inherited
+        if edgecolors is None:
+            edgecolors = facecolors
+        # The extension only accepts arrays of a fixed shape.
+        self._renderer.draw_quad_mesh(
+            gc, master_transform, meshWidth, meshHeight, coordinates,
+            _as_float_array("offsets", offsets, (2,)), offsetTrans,
+            _as_rgba_array("facecolors", facecolors), antialiased,
+            _as_rgba_array("edgecolors", edgecolors))
+
     def draw_path(self, gc, path, transform, rgbFace=None):
         # docstring inherited
+        if rgbFace is not None:
+            # The extension only understands RGB(A) tuples, not color names.
+            rgbFace = to_rgba(rgbFace)
         nmax = mpl.rcParams['agg.path.chunksize']  # here at least for testing
         npts = path.vertices.shape[0]
 

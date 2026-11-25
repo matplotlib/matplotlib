@@ -106,7 +106,7 @@ with tempfile.TemporaryDirectory() as d:
             v.visit(tree)
     proc = subprocess.run(
         [
-            "stubtest",
+            sys.executable, "-m", "mypy.stubtest",
             "--mypy-config-file=pyproject.toml",
             "--ignore-disjoint-bases",
             "--allowlist=ci/mypy-stubtest-allowlist.txt",
