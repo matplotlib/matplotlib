@@ -19,6 +19,7 @@ from matplotlib import (
 from matplotlib.collections import (
     Collection, LineCollection, PolyCollection, PatchCollection, PathCollection)
 from matplotlib.patches import Patch
+from matplotlib.transforms import IdentityTransform
 from . import proj3d
 
 
@@ -828,6 +829,11 @@ class Patch3DCollection(PatchCollection):
         self._sort_zpos = val
         self.stale = True
 
+    def set_offsets(self, offsets):
+        # docstring inherited
+        super().set_offsets(offsets)
+        self._offsets_explicit = True
+
     def set_3d_properties(self, zs, zdir, axlim_clip=False):
         """
         Set the *z* positions and direction of the patches.
@@ -846,6 +852,9 @@ class Patch3DCollection(PatchCollection):
 
             .. versionadded:: 3.10
         """
+        # Record the input before any legacy draw stores projected offsets.
+        if not hasattr(self, '_offsets_explicit'):
+            self._offsets_explicit = self._offsets is not None
         # Force the collection to initialize the face and edgecolors
         # just in case it is a scalarmappable with a colormap.
         self.update_scalarmappable()
@@ -855,13 +864,63 @@ class Patch3DCollection(PatchCollection):
         else:
             xs = []
             ys = []
-        self._offsets3d = juggle_axes(xs, ys, np.atleast_1d(zs), zdir)
+        self._path_zs = np.atleast_1d(zs)
+        self._path_zdir = zdir
+        self._projected_paths = None
+        self._offsets3d = juggle_axes(xs, ys, self._path_zs, zdir)
         self._z_markers_idx = slice(-1)
         self._vzs = None
         self._axlim_clip = axlim_clip
         self.stale = True
 
+    def _uses_path_projection(self):
+        # The (0, 0) returned by get_offsets() for omitted offsets is not geometry.
+        return not self._offsets_explicit and (
+            self._offset_transform is None
+            or isinstance(self._offset_transform, IdentityTransform))
+
+    def _project_paths(self):
+        paths = self.get_paths()
+        projected_paths = []
+        depth = np.inf
+        for path, z in zip(paths, np.broadcast_to(self._path_zs, len(paths))):
+            geometry = slice(None)
+            if path.codes is not None:
+                # CLOSEPOLY ignores its vertex, and STOP ends the path.
+                geometry = ((path.codes != mpath.Path.CLOSEPOLY)
+                            & np.logical_and.accumulate(path.codes != mpath.Path.STOP))
+            xs, ys = path.vertices[geometry].T
+            xyz = juggle_axes(xs, ys, np.full(len(xs), z), self._path_zdir)
+            # Keep ignored slots aligned with their codes.
+            vertices = np.zeros_like(path.vertices)
+            if self._axlim_clip and np.any(_viewlim_mask(*xyz, self.axes)):
+                # Keep the path slot so later paths keep their original styles.
+                vertices[geometry] = np.nan
+            else:
+                invalid = _scale_invalid_mask(*xyz, self.axes)
+                if np.any(invalid):
+                    xyz = np.where(invalid, np.nan, xyz)
+                px, py, pz, _ = proj3d._scale_proj_transform_clip(*xyz, self.axes)
+                vertices[geometry] = np.ma.column_stack([px, py]).filled(np.nan)
+                pz = pz.compressed()
+                depth = min(depth, pz[np.isfinite(pz)].min(initial=np.inf))
+            projected_paths.append(mpath.Path(vertices, path.codes))
+        self._projected_paths = projected_paths
+        return depth if np.isfinite(depth) else np.nan
+
+    def _prepare_points(self):
+        if self._projected_paths is None:
+            return super()._prepare_points()
+        # Drawing and hit testing use projected paths, but get_paths() retains
+        # the source geometry for the next projection.
+        with cbook._setattr_cm(self, _paths=self._projected_paths):
+            return super()._prepare_points()
+
     def do_3d_projection(self):
+        if self._uses_path_projection():
+            self._offsets = None
+            return self._project_paths()
+        self._projected_paths = None
         mask = _scale_invalid_mask(*self._offsets3d, self.axes)
         if self._axlim_clip:
             mask |= _viewlim_mask(*self._offsets3d, self.axes)
@@ -882,6 +941,9 @@ class Patch3DCollection(PatchCollection):
             return np.nan
 
     def _maybe_depth_shade_and_sort_colors(self, color_array):
+        if self._uses_path_projection():
+            # Path projection keeps collection order and has no offset-based depth.
+            return color_array
         # Adjust the color_array alpha values if point depths are defined
         # and depth shading is active
         alpha = self._alpha
