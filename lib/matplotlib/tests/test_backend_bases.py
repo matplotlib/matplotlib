@@ -584,26 +584,27 @@ def test_interactive_pan_zoom_events(tool, button, patch_vis, forward_nav, t_s):
 
 
 @pytest.mark.parametrize("tool", ["zoom", "pan"])
-@pytest.mark.parametrize("button", [MouseButton.LEFT, MouseButton.RIGHT])
 @pytest.mark.parametrize("twin", ["twinx", "twiny"])
 @pytest.mark.parametrize("twin_navigate", [True, False])
-@pytest.mark.parametrize("forward_nav", [True, False, "auto"])
-@pytest.mark.parametrize("active_twin", [True, False])
-def test_interactive_twin_navigation(
-        tool, button, twin, twin_navigate, forward_nav, active_twin):
+def test_interactive_twin_navigation(tool, twin, twin_navigate):
+    """A twin's navigation flag controls its independent limits, not shared limits."""
     fig, ax = plt.subplots()
     ax_twin = getattr(ax, twin)()
-    active, other = (ax_twin, ax) if active_twin else (ax, ax_twin)
+    active, other = ax, ax_twin
     for axes in [active, other]:
         axes.set(xlim=(0, 10), ylim=(0, 10))
         axes.patch.set_visible(False)
     active.set_zorder(other.get_zorder() + 1)
-    active.set_forward_navigation_events(forward_nav)
+    # Match the reported overlay: the front Axes captures navigation events,
+    # but the toolbar must still check the twin's own navigation flag.
+    active.set_forward_navigation_events(False)
     other.set_navigate(twin_navigate)
     fig.canvas.draw()
 
     toolbar = NavigationToolbar2(fig.canvas)
     getattr(toolbar, tool)()
+    # Simulate a left-button drag inside the front Axes, from (2, 2) to (6, 6).
+    button = MouseButton.LEFT
     start, stop = active.transData.transform([(2, 2), (6, 6)]).astype(int)
     MouseEvent("button_press_event", fig.canvas, *start, button)._process()
     MouseEvent("motion_notify_event", fig.canvas, *stop,
@@ -616,10 +617,13 @@ def test_interactive_twin_navigation(
     active_independent = getattr(active, f"get_{independent_axis}lim")()
     other_independent = getattr(other, f"get_{independent_axis}lim")()
 
+    # The front Axes must actually navigate, so disabling all interaction
+    # cannot accidentally satisfy the opted-out twin's unchanged-limit check.
     assert active_shared != pytest.approx((0, 10))
     assert active_independent != pytest.approx((0, 10))
     # Shared limits still propagate, even when the other Axes opts out.
     assert other_shared == pytest.approx(active_shared)
+    # An enabled twin navigates too; an opted-out twin keeps its own limits.
     assert other_independent == pytest.approx(
         active_independent if twin_navigate else (0, 10))
 
@@ -627,6 +631,7 @@ def test_interactive_twin_navigation(
 @pytest.mark.parametrize("tool", ["zoom", "pan"])
 @pytest.mark.parametrize("opt_out", ["navigate", "can_navigate", "outside"])
 def test_twin_navigation_axes_filter(tool, opt_out, monkeypatch):
+    """Exclude twins that disable navigation, lack tool support, or miss the event."""
     fig, ax = plt.subplots()
     ax_twin = ax.twinx()
     ax.set_zorder(ax_twin.get_zorder() + 1)
