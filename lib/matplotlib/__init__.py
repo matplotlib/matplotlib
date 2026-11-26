@@ -374,8 +374,8 @@ def _get_executable_info(name):
     ----------
     name : str
         The executable to query.  The following values are currently supported:
-        "dvipng", "gs", "magick", "pdftocairo", "pdftops".  This list is subject
-        to change without notice.
+        "dvipng", "gs", "magick", "pdftocairo", "pdftops", "python" (for a test).
+        This list is subject to change without notice.
 
     Returns
     -------
