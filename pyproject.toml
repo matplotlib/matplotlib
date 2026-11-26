@@ -132,6 +132,7 @@ test = [
     "pytest-timeout",
     "pytest-xdist",
     "pytest-xvfb",
+    "resvg-py",
     "tornado",
 ]
 
@@ -497,5 +498,5 @@ setup-args = [
 ]
 
 [[tool.cibuildwheel.overrides]]
-select = "cp314*"
+select = ["cp314*", "cp315*"]
 manylinux-x86_64-image = "manylinux_2_28"

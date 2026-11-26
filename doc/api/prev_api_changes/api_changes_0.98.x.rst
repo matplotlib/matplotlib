@@ -94,7 +94,7 @@ Changes for 0.98.x
   ``matplotlib.axes.Axes.get_frame``, which returns
   ``matplotlib.axes.Axes.patch``, is deprecated.
 
-* Changes in the :class:`matplotlib.contour.ContourLabeler` attributes
+* Changes in the ``matplotlib.contour.ContourLabeler`` attributes
   (:func:`matplotlib.pyplot.clabel` function) so that they all have a
   form like ``.labelAttribute``.  The three attributes that are most
   likely to be used by end users, ``.cl``, ``.cl_xy`` and

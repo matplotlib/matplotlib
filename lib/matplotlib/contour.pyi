@@ -16,55 +16,7 @@ from collections.abc import Callable, Iterable, Sequence
 from typing import Literal
 from .typing import ColorType
 
-class ContourLabeler:
-    labelFmt: str | Formatter | Callable[[float], str] | dict[float, str]
-    labelManual: bool | Iterable[tuple[float, float]]
-    rightside_up: bool
-    labelLevelList: list[float]
-    labelIndiceList: list[int]
-    labelMappable: cm.ScalarMappable | ColorizingArtist
-    labelCValueList: list[ColorType]
-    labelXYs: list[tuple[float, float]]
-    def clabel(
-        self,
-        levels: ArrayLike | None = ...,
-        *,
-        fontsize: str | float | None = ...,
-        inline: bool = ...,
-        inline_spacing: float = ...,
-        fmt: str | Formatter | Callable[[float], str] | dict[float, str] | None = ...,
-        colors: ColorType | Sequence[ColorType] | None = ...,
-        use_clabeltext: bool = ...,
-        manual: bool | Iterable[tuple[float, float]] = ...,
-        rightside_up: bool = ...,
-        zorder: float | None = ...
-    ) -> list[Text]: ...
-    def print_label(self, linecontour: ArrayLike, labelwidth: float) -> bool: ...
-    def too_close(self, x: float, y: float, lw: float) -> bool: ...
-    def get_text(
-        self,
-        lev: float,
-        fmt: str | Formatter | Callable[[float], str] | dict[float, str],
-    ) -> str: ...
-    def locate_label(
-        self, linecontour: ArrayLike, labelwidth: float
-    ) -> tuple[float, float, float]: ...
-    def add_label(
-        self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
-    ) -> None: ...
-    def add_label_near(
-        self,
-        x: float,
-        y: float,
-        inline: bool = ...,
-        inline_spacing: int = ...,
-        transform: Transform | Literal[False] | None = ...,
-    ) -> None: ...
-    def pop_label(self, index: int = ...) -> None: ...
-    def labels(self, inline: bool, inline_spacing: int) -> None: ...
-    def remove(self) -> None: ...
-
-class ContourSet(ContourLabeler, Collection):
+class ContourSet(Collection):
     axes: Axes
     levels: Iterable[float]
     filled: bool
@@ -81,6 +33,14 @@ class ContourSet(ContourLabeler, Collection):
         "solid", "dashed", "dashdot", "dotted"
     ] | Iterable[Literal["solid", "dashed", "dashdot", "dotted"]]
     clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None
+    labelFmt: str | Formatter | Callable[[float], str] | dict[float, str]
+    labelManual: bool | Iterable[tuple[float, float]]
+    rightside_up: bool
+    labelLevelList: list[float]
+    labelIndiceList: list[int]
+    labelMappable: cm.ScalarMappable | ColorizingArtist
+    labelCValueList: list[ColorType]
+    labelXYs: list[tuple[float, float]]
     labelTexts: list[Text]
     labelCValues: list[ColorType]
 
@@ -128,6 +88,44 @@ class ContourSet(ContourLabeler, Collection):
         clip_path: Patch | Path | TransformedPath | TransformedPatchPath | None = ...,
         **kwargs
     ) -> None: ...
+    def clabel(
+        self,
+        levels: ArrayLike | None = ...,
+        *,
+        fontsize: str | float | None = ...,
+        inline: bool = ...,
+        inline_spacing: float = ...,
+        fmt: str | Formatter | Callable[[float], str] | dict[float, str] | None = ...,
+        colors: ColorType | Sequence[ColorType] | None = ...,
+        use_clabeltext: bool = ...,
+        manual: bool | Iterable[tuple[float, float]] = ...,
+        rightside_up: bool = ...,
+        zorder: float | None = ...
+    ) -> list[Text]: ...
+    def print_label(self, linecontour: ArrayLike, labelwidth: float) -> bool: ...
+    def too_close(self, x: float, y: float, lw: float) -> bool: ...
+    def get_text(
+        self,
+        lev: float,
+        fmt: str | Formatter | Callable[[float], str] | dict[float, str],
+    ) -> str: ...
+    def locate_label(
+        self, linecontour: ArrayLike, labelwidth: float
+    ) -> tuple[float, float, float]: ...
+    def add_label(
+        self, x: float, y: float, rotation: float, lev: float, cvalue: ColorType
+    ) -> None: ...
+    def add_label_near(
+        self,
+        x: float,
+        y: float,
+        inline: bool = ...,
+        inline_spacing: int = ...,
+        transform: Transform | Literal[False] | None = ...,
+    ) -> None: ...
+    def pop_label(self, index: int = ...) -> None: ...
+    def labels(self, inline: bool, inline_spacing: int) -> None: ...
+    def remove(self) -> None: ...
     def legend_elements(
         self, variable_name: str = ..., str_format: Callable[[float], str] = ...
     ) -> tuple[list[Artist], list[str]]: ...

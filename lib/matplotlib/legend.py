@@ -1193,8 +1193,7 @@ class Legend(Artist):
             left, bottom = self._get_anchored_bbox(loc_code, bbox,
                                                    self.get_bbox_to_anchor(),
                                                    renderer)
-            candidate_boxes.append((loc_code,
-                                    Bbox.from_bounds(left, bottom, width, height)))
+            candidate_boxes.append(Bbox.from_bounds(left, bottom, width, height))
 
         # Every candidate box has the same width and height, with only a handful of
         # distinct left/bottom edges. For speed we compute each point's membership
@@ -1203,8 +1202,8 @@ class Legend(Artist):
         if offsets:
             pts.append(np.asarray(offsets, dtype=float))
         pts = np.concatenate(pts) if pts else np.empty((0, 2))
-        x_left = np.unique([box.x0 for _, box in candidate_boxes])
-        y_bottom = np.unique([box.y0 for _, box in candidate_boxes])
+        x_left = np.unique([box.x0 for box in candidate_boxes])
+        y_bottom = np.unique([box.y0 for box in candidate_boxes])
         x, y = pts[:, 0], pts[:, 1]
         with np.errstate(invalid='ignore'):
             # Broadcast the (n_edges, 1) edge positions against the (n_points,)
@@ -1214,23 +1213,27 @@ class Legend(Artist):
             in_y = ((y_bottom[:, np.newaxis] < y)
                     & (y < y_bottom[:, np.newaxis] + height))
 
-        candidates = []
-        for loc_code, legendBox in candidate_boxes:
+        best_badness = np.inf
+        for legendBox in candidate_boxes:
             contained_count = np.count_nonzero(
                 in_x[np.where(x_left == legendBox.x0)[0][0]]
                 & in_y[np.where(y_bottom == legendBox.y0)[0][0]])
             # XXX TODO: If markers are present, it would be good to take them
             # into account when checking vertex overlaps in the next line.
-            badness = (contained_count
-                       + legendBox.count_overlaps(bboxes)
-                       + sum(line.intersects_bbox(legendBox, filled=False)
-                             for line in lines))
-            # Include the loc code to favor lower codes in case of a tie.
-            candidates.append((badness, loc_code, (legendBox.x0, legendBox.y0)))
+            badness = contained_count + legendBox.count_overlaps(bboxes)
+            if badness >= best_badness:
+                continue
+            for line in lines:
+                badness += line.intersects_bbox(legendBox, filled=False)
+                if badness >= best_badness:
+                    break
+            if badness >= best_badness:
+                continue
+            best_badness = badness
+            # Candidates are evaluated in order, so ties favor lower codes.
+            left, bottom = legendBox.x0, legendBox.y0
             if badness == 0:
                 break
-
-        _, _, (left, bottom) = min(candidates)
 
         if self._loc_used_default and time.perf_counter() - start_time > 1:
             _api.warn_external(
