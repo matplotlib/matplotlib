@@ -94,7 +94,7 @@ def test_get_executable_info_timeout(mock_check_output):
     mock_check_output.side_effect = subprocess.TimeoutExpired(cmd=['mock'], timeout=30)
 
     with pytest.raises(matplotlib.ExecutableNotFoundError, match='Timed out'):
-        matplotlib._get_executable_info.__wrapped__('inkscape')
+        matplotlib._get_executable_info.__wrapped__('python')
 
 
 @pytest.mark.skipif(sys.platform != "win32", reason="Windows-specific test")

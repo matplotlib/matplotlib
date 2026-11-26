@@ -374,8 +374,8 @@ def _get_executable_info(name):
     ----------
     name : str
         The executable to query.  The following values are currently supported:
-        "dvipng", "gs", "inkscape", "magick", "pdftocairo", "pdftops".  This
-        list is subject to change without notice.
+        "dvipng", "gs", "magick", "pdftocairo", "pdftops".  This list is subject
+        to change without notice.
 
     Returns
     -------
@@ -445,16 +445,6 @@ def _get_executable_info(name):
                 pass
         message = "Failed to find a Ghostscript installation"
         raise ExecutableNotFoundError(message)
-    elif name == "inkscape":
-        try:
-            # Try headless option first (needed for Inkscape version < 1.0):
-            return impl(["inkscape", "--without-gui", "-V"],
-                        "Inkscape ([^ ]*)")
-        except ExecutableNotFoundError:
-            pass  # Suppress exception chaining.
-        # If --without-gui is not accepted, we may be using Inkscape >= 1.0 so
-        # try without it:
-        return impl(["inkscape", "-V"], "Inkscape ([^ ]*)")
     elif name == "magick":
         if sys.platform == "win32":
             # Check the registry to avoid confusing ImageMagick's convert with
@@ -502,6 +492,8 @@ def _get_executable_info(name):
                 f"You have pdftops version {info.version} but the minimum "
                 f"version supported by Matplotlib is 3.0")
         return info
+    elif name == "python":  # Used to test timeout
+        return impl([sys.executable, "--version"], "(?m)^Python(?: .*)? (.+)", "3")
     else:
         raise ValueError(f"Unknown executable: {name!r}")
 
