@@ -228,6 +228,23 @@ def test_chunksize():
     fig.canvas.draw()
 
 
+def test_chunksize_does_not_modify_path():
+    # Drawing a chunked path must not write into the codes of the input path.
+    n = 300
+    vertices = np.column_stack([np.linspace(0, 1, n),
+                                np.sin(np.linspace(0, 6 * np.pi, n))])
+    codes = np.full(n, Path.LINETO, dtype=Path.code_type)
+    codes[0] = Path.MOVETO
+    path = Path(vertices.copy(), codes.copy())
+    fig, ax = plt.subplots()
+    ax.add_patch(PathPatch(path, fill=False))
+    ax.set(xlim=(0, 1), ylim=(-1, 1))
+    with rc_context({'agg.path.chunksize': 120}):
+        fig.canvas.draw()
+    np.testing.assert_array_equal(path.codes, codes)
+    np.testing.assert_array_equal(path.vertices, vertices)
+
+
 @pytest.mark.backend('Agg')
 def test_jpeg_dpi():
     # Check that dpi is set correctly in jpg files.
