@@ -16,7 +16,7 @@ import matplotlib.units
 import matplotlib.testing
 from matplotlib import _api, _pylab_helpers, cbook, ft2font, pyplot as plt, ticker
 from matplotlib.figure import Figure
-from .compare import comparable_formats, compare_images, make_test_filename
+from .compare import _check_comparable_format, compare_images, make_test_filename
 from .exceptions import ImageComparisonFailure
 
 
@@ -205,14 +205,7 @@ def _pytest_image_comparison(baseline_images, extensions, tol,
             if 'request' in old_sig.parameters:
                 kwargs['request'] = request
 
-            if extension not in comparable_formats():
-                reason = {
-                    'gif': 'because ImageMagick is not installed',
-                    'pdf': 'because Ghostscript is not installed',
-                    'eps': 'because Ghostscript is not installed',
-                    'svg': 'because resvg-py is not installed',
-                }.get(extension, 'on this system')
-                pytest.skip(f"Cannot compare {extension} files {reason}")
+            _check_comparable_format(extension)
 
             img = _ImageComparisonBase(func, tol=tol, remove_text=remove_text,
                                        savefig_kwargs=savefig_kwargs)
