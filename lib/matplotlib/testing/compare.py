@@ -240,32 +240,40 @@ class _SVGWithMatplotlibFontsConverter(_SVGConverter):
         return super().__call__(orig, dest)
 
 
-def _update_converter():
+def _find_converter():
+    converter = {}
+
     try:
         mpl._get_executable_info("magick")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        converter['gif'] = _MagickConverter()
+        converter[('gif', '')] = _MagickConverter()
     try:
         mpl._get_executable_info("gs")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        converter['pdf'] = converter['eps'] = _GSConverter()
+        converter[('pdf', '')] = converter[('eps', '')] = _GSConverter()
     try:
         mpl._get_executable_info("inkscape")
     except mpl.ExecutableNotFoundError:
         pass
     else:
-        converter['svg'] = _SVGConverter()
+        converter[('svg', '')] = _SVGConverter()
+        converter[('svg', 'fonts')] = _SVGWithMatplotlibFontsConverter()
+
+    return converter
 
 
-#: A dictionary that maps filename extensions to functions which themselves
-#: convert between arguments `old` and `new` (filenames).
-converter = {}
-_update_converter()
-_svg_with_matplotlib_fonts_converter = _SVGWithMatplotlibFontsConverter()
+def _get_converter(extension, variant=""):
+    return _converter[(extension, variant)]
+
+
+# The _converter dictionary maps (extension, variant) tuples to
+# the converter classes.
+_converter = _find_converter()
+_converter_extensions = {extension for extension, _ in _converter}
 
 
 def comparable_formats():
@@ -279,7 +287,7 @@ def comparable_formats():
         E.g. ``['png', 'pdf', 'svg', 'eps']``.
 
     """
-    return ['png', *converter]
+    return ['png', *_converter_extensions]
 
 
 def convert(filename, cache):
@@ -295,7 +303,7 @@ def convert(filename, cache):
     path = Path(filename)
     if not path.exists():
         raise OSError(f"{path} does not exist")
-    if path.suffix[1:] not in converter:
+    if path.suffix[1:] not in _converter_extensions:
         import pytest
         pytest.skip(f"Don't know how to convert {path.suffix} files to png")
     newpath = path.parent / f"{path.stem}_{path.suffix[1:]}.png"
@@ -315,7 +323,7 @@ def convert(filename, cache):
                 return str(newpath)
 
         _log.debug("For %s: converting to png.", filename)
-        convert = converter[path.suffix[1:]]
+        convert = _get_converter(path.suffix[1:])
         if path.suffix == ".svg":
             contents = path.read_text(encoding="utf-8")
             # NOTE: This check should be kept in sync with font styling in
@@ -334,7 +342,7 @@ def convert(filename, cache):
                     ):
                 # for svg.fonttype = none, we explicitly patch the font search
                 # path so that fonts shipped by Matplotlib are found.
-                convert = _svg_with_matplotlib_fonts_converter
+                convert = _get_converter("svg", "fonts")
         convert(path, newpath)
 
         if cache_dir is not None:
@@ -418,9 +426,11 @@ def compare_images(expected, actual, tol, in_decorator=False):
     """
     Compare two "image" files checking differences within a tolerance.
 
-    The two given filenames may point to files which are convertible to
-    PNG via the `!converter` dictionary. The underlying RMS is calculated
-    in a similar way to the `.calculate_rms` function.
+    The two given filenames may point to files which are convertible to PNG via
+    an installed program or platform-native converter. Use the `.comparable_formats`
+    function for a list of convertible file formats.
+
+    The underlying RMS is calculated in a similar way to the `.calculate_rms` function.
 
     Parameters
     ----------
