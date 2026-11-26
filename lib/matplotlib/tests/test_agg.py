@@ -13,6 +13,7 @@ from matplotlib import (
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
+from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
