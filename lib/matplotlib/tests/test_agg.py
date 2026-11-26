@@ -452,3 +452,17 @@ def test_draw_text_images_bounds():
 
     renderer._renderer.draw_text_images(
         buffer, np.array([[0, 2, 2, 1, 3]], dtype=np.intp), gc)
+def test_chunksize_no_gap():
+    def render(chunksize):
+        with plt.rc_context({"agg.path.chunksize": chunksize}):
+            fig, ax = plt.subplots()
+            x = np.arange(200)
+            ax.plot(x, x % 2, lw=1, solid_joinstyle="round",
+                    solid_capstyle="round", antialiased=False, color="k")
+            ax.set_axis_off()
+            fig.canvas.draw()
+            img = np.asarray(fig.canvas.buffer_rgba()).copy()
+            plt.close(fig)
+            return img
+
+    np.testing.assert_array_equal(render(0), render(150))

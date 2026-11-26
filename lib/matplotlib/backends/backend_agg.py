@@ -119,7 +119,7 @@ class RendererAgg(RendererBase):
             chsize = int(np.ceil(npts / nch))
             i0 = np.arange(0, npts, chsize)
             i1 = np.zeros_like(i0)
-            i1[:-1] = i0[1:] - 1
+            i1[:-1] = i0[1:] + 1
             i1[-1] = npts
             for ii0, ii1 in zip(i0, i1):
                 v = path.vertices[ii0:ii1, :]
