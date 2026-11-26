@@ -4836,7 +4836,7 @@ class ConnectionPatch(FancyArrowPatch):
 
     def set_annotation_clip(self, b):
         """
-        Set whether the ConnectionPatch should be not drawn when at least one
+        Set whether the ConnectionPatch should not be drawn when at least one
         of the endpoints is outside its Axes.
 
         Note: The naming is historic. *clip* here means "not drawn" not
