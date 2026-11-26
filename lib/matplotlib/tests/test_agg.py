@@ -10,9 +10,11 @@ import pytest
 from matplotlib import (
     collections, patheffects, pyplot as plt, transforms as mtransforms,
     rcParams, rc_context)
-from matplotlib.backends.backend_agg import RendererAgg
+from matplotlib.backends.backend_agg import FigureCanvasAgg, RendererAgg
+from matplotlib.collections import LineCollection
 from matplotlib.figure import Figure
 from matplotlib.image import imread
+from matplotlib.lines import Line2D
 from matplotlib.patches import PathPatch, Polygon
 from matplotlib.path import Path
 from matplotlib.testing.decorators import check_figures_equal, image_comparison
@@ -452,3 +454,24 @@ def test_draw_text_images_bounds():
 
     renderer._renderer.draw_text_images(
         buffer, np.array([[0, 2, 2, 1, 3]], dtype=np.intp), gc)
+
+
+@pytest.mark.parametrize("collection", [False, True])
+def test_stroke_centered_outside_canvas(collection):
+    # Each line is centred 3 px outside the 100x100 px canvas, but its 20pt
+    # (~28 px) stroke overlaps the canvas, so the edge must still be painted.
+    fig = Figure(figsize=(1, 1), dpi=100)
+    lines = [[(103, 0), (103, 100)], [(-3, 0), (-3, 100)],
+             [(0, 103), (100, 103)], [(0, -3), (100, -3)]]
+    kw = dict(linewidth=20, color="k", antialiased=False,
+              transform=IdentityTransform())
+    if collection:
+        fig.add_artist(LineCollection(lines, **kw))
+    else:
+        for line in lines:
+            fig.add_artist(Line2D(*zip(*line), **kw))
+    canvas = FigureCanvasAgg(fig)
+    canvas.draw()
+    rgb = np.asarray(canvas.buffer_rgba())[..., :3]
+    for edge in [rgb[:, -5:], rgb[:, :5], rgb[-5:, :], rgb[:5, :]]:
+        assert (edge == 0).all()
