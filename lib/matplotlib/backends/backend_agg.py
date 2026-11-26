@@ -125,7 +125,7 @@ class RendererAgg(RendererBase):
                 v = path.vertices[ii0:ii1, :]
                 c = path.codes
                 if c is not None:
-                    c = c[ii0:ii1]
+                    c = c[ii0:ii1].copy()  # don't modify the input path
                     c[0] = Path.MOVETO  # move to end of last chunk
                 p = Path(v, c)
                 p.simplify_threshold = path.simplify_threshold
