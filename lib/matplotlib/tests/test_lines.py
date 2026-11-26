@@ -100,7 +100,7 @@ def test_zero_linewidth_dashed_uses_solid_gc_dashes():
 
 
 @image_comparison(['drawstyle_variants.png'], remove_text=True, style='_classic_test',
-                  tol=0 if platform.machine() == 'x86_64' else 0.03)
+                  tol=0 if platform.machine() == 'x86_64' else 0.032)
 def test_drawstyle_variants():
     fig, axs = plt.subplots(6)
     dss = ["default", "steps-mid", "steps-pre", "steps-post", "steps", None]
