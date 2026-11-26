@@ -66,6 +66,7 @@ dependencies:
   - pytest-rerunfailures
   - pytest-timeout
   - pytest-xdist
+  - resvg-py
   - tornado
   - pytz
   - ruff

@@ -198,7 +198,7 @@ jobs:
           MAMBA_ROOT_PREFIX: ${{ runner.temp }}\micromamba
         run: |
           micromamba create --yes --name mpl-dev --file environment.yml `
-            python=3.12 pywin32 codecov ffmpeg inkscape
+            python=3.12 pywin32 codecov ffmpeg
 
       - name: Build Matplotlib
         env:

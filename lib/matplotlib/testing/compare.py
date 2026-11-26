@@ -11,9 +11,6 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
-from tempfile import TemporaryDirectory, TemporaryFile
-import weakref
-import re
 
 import numpy as np
 from PIL import Image
@@ -57,7 +54,7 @@ def get_file_hash(path, block_size=2 ** 20):
     if Path(path).suffix == '.pdf':
         sha256.update(str(mpl._get_executable_info("gs").version).encode('utf-8'))
     elif Path(path).suffix == '.svg':
-        sha256.update(str(mpl._get_executable_info("inkscape").version).encode('utf-8'))
+        sha256.update(_resvg_version().encode('utf-8'))
 
     return sha256.hexdigest()
 
@@ -147,97 +144,32 @@ class _GSConverter(_Converter):
                 (err + stack).decode(sys.getfilesystemencoding(), "replace"))
 
 
-class _SVGConverter(_Converter):
-    def __call__(self, orig, dest):
-        old_inkscape = mpl._get_executable_info("inkscape").version.major < 1
-        terminator = b"\n>" if old_inkscape else b"> "
-        if not hasattr(self, "_tmpdir"):
-            self._tmpdir = TemporaryDirectory()
-            # On Windows, we must make sure that self._proc has terminated
-            # (which __del__ does) before clearing _tmpdir.
-            weakref.finalize(self._tmpdir, self.__del__)
-        if (not self._proc  # First run.
-                or self._proc.poll() is not None):  # Inkscape terminated.
-            if self._proc is not None and self._proc.poll() is not None:
-                for stream in filter(None, [self._proc.stdin,
-                                            self._proc.stdout,
-                                            self._proc.stderr]):
-                    stream.close()
-            env = {
-                **os.environ,
-                # If one passes e.g. a png file to Inkscape, it will try to
-                # query the user for conversion options via a GUI (even with
-                # `--without-gui`).  Unsetting `DISPLAY` prevents this (and
-                # causes GTK to crash and Inkscape to terminate, but that'll
-                # just be reported as a regular exception below).
-                "DISPLAY": "",
-                # Do not load any user options.
-                "INKSCAPE_PROFILE_DIR": self._tmpdir.name,
-            }
-            # Old versions of Inkscape (e.g. 0.48.3.1) seem to sometimes
-            # deadlock when stderr is redirected to a pipe, so we redirect it
-            # to a temporary file instead.  This is not necessary anymore as of
-            # Inkscape 0.92.1.
-            stderr = TemporaryFile()
-            self._proc = subprocess.Popen(
-                ["inkscape", "--without-gui", "--shell"] if old_inkscape else
-                ["inkscape", "--shell"],
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=stderr,
-                env=env, cwd=self._tmpdir.name)
-            # Slight abuse, but makes shutdown handling easier.
-            self._proc.stderr = stderr
-            try:
-                self._read_until(terminator)
-            except _ConverterError as err:
-                raise OSError(
-                    "Failed to start Inkscape in interactive mode:\n\n"
-                    + err.args[0]) from err
-
-        # Inkscape's shell mode does not support escaping metacharacters in the
-        # filename ("\n", and ":;" for inkscape>=1).  Avoid any problems by
-        # running from a temporary directory and using fixed filenames.
-        inkscape_orig = Path(self._tmpdir.name, os.fsdecode(b"f.svg"))
-        inkscape_dest = Path(self._tmpdir.name, os.fsdecode(b"f.png"))
-        try:
-            inkscape_orig.symlink_to(Path(orig).resolve())
-        except OSError:
-            shutil.copyfile(orig, inkscape_orig)
-        self._proc.stdin.write(
-            b"f.svg --export-png=f.png\n" if old_inkscape else
-            b"file-open:f.svg;export-filename:f.png;export-do;file-close\n")
-        self._proc.stdin.flush()
-        try:
-            self._read_until(terminator)
-        except _ConverterError as err:
-            # Inkscape's output is not localized but gtk's is, so the output
-            # stream probably has a mixed encoding.  Using the filesystem
-            # encoding should at least get the filenames right...
-            self._proc.stderr.seek(0)
-            raise ImageComparisonFailure(
-                self._proc.stderr.read().decode(
-                    sys.getfilesystemencoding(), "replace")) from err
-        os.remove(inkscape_orig)
-        shutil.move(inkscape_dest, dest)
-
-    def __del__(self):
-        super().__del__()
-        if hasattr(self, "_tmpdir"):
-            self._tmpdir.cleanup()
+def _resvg_version():
+    from importlib.metadata import version
+    return version("resvg-py")
 
 
-class _SVGWithMatplotlibFontsConverter(_SVGConverter):
+def _convert_svg(orig, dest):
     """
-    An SVG converter which explicitly adds the fonts shipped by Matplotlib to
-    Inkspace's font search path, to better support `svg.fonttype = "none"`
-    (which is in particular used by certain mathtext tests).
-    """
+    Render the SVG file *orig* to the PNG file *dest* using resvg.
 
-    def __call__(self, orig, dest):
-        if not hasattr(self, "_tmpdir"):
-            self._tmpdir = TemporaryDirectory()
-            shutil.copytree(cbook._get_data_path("fonts/ttf"),
-                            Path(self._tmpdir.name, "fonts"))
-        return super().__call__(orig, dest)
+    Matplotlib's bundled fonts are always made available, and system fonts are
+    never used, so that ``svg.fonttype = "none"`` output renders identically
+    on all machines.
+    """
+    import resvg_py
+
+    try:
+        png = resvg_py.svg_to_bytes(
+            svg_path=os.fspath(orig),
+            # Note that the default of dpi=0 fails with "invalid size" on
+            # Matplotlib's SVGs (which have sizes in pt).
+            dpi=96,
+            skip_system_fonts=True,
+            font_dirs=[str(cbook._get_data_path("fonts/ttf"))])
+    except ValueError as err:
+        raise ImageComparisonFailure(str(err)) from err
+    Path(dest).write_bytes(png)
 
 
 def _update_converter():
@@ -254,18 +186,17 @@ def _update_converter():
     else:
         converter['pdf'] = converter['eps'] = _GSConverter()
     try:
-        mpl._get_executable_info("inkscape")
-    except mpl.ExecutableNotFoundError:
+        import resvg_py  # noqa: F401
+    except ImportError:
         pass
     else:
-        converter['svg'] = _SVGConverter()
+        converter['svg'] = _convert_svg
 
 
 #: A dictionary that maps filename extensions to functions which themselves
 #: convert between arguments `old` and `new` (filenames).
 converter = {}
 _update_converter()
-_svg_with_matplotlib_fonts_converter = _SVGWithMatplotlibFontsConverter()
 
 
 def comparable_formats():
@@ -316,25 +247,6 @@ def convert(filename, cache):
 
         _log.debug("For %s: converting to png.", filename)
         convert = converter[path.suffix[1:]]
-        if path.suffix == ".svg":
-            contents = path.read_text(encoding="utf-8")
-            # NOTE: This check should be kept in sync with font styling in
-            # `lib/matplotlib/backends/backend_svg.py`. If it changes, then be sure to
-            # re-generate any SVG test files using this mode, or else such tests will
-            # fail to use the converter for the expected images (but will for the
-            # results), and the tests will fail strangely.
-            if re.search(
-                # searches for attributes :
-                #   style=[font|font-size|font-weight|
-                #          font-family|font-variant|font-style]
-                # taking care of the possibility of multiple style attributes
-                # before the font styling (i.e. opacity)
-                r'style="[^"]*font(|-size|-weight|-family|-variant|-style):',
-                contents  # raw contents of the svg file
-                    ):
-                # for svg.fonttype = none, we explicitly patch the font search
-                # path so that fonts shipped by Matplotlib are found.
-                convert = _svg_with_matplotlib_fonts_converter
         convert(path, newpath)
 
         if cache_dir is not None:
