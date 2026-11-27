@@ -128,8 +128,29 @@ plot_formats
     the command line through sphinx_build the list should be passed as
     suffix:dpi,suffix:dpi, ...
 
+    The value can also be a dict that gives each Sphinx builder its own
+    list, keyed by builder name or builder format, the same names that the
+    Sphinx :rst:dir:`only` directive matches::
+
+        {'html': ['png', 'hires.png'], 'latex': ['pdf']}
+
+    Builders missing from the dict use the default list, and an entry that
+    lists a format its builder cannot use produces a warning. On the command
+    line, a single entry is set with ``-D plot_formats.html=png``.
+
+    Formats that the Sphinx builder in use cannot use get skipped. HTML
+    pages embed the first entry of this list (PNG by default), and the
+    other entries only appear as download links under the figure, so they
+    are rendered only if *plot_html_show_formats* is True. Other builders
+    get whatever their `~sphinx.builders.Builder.supported_image_types`
+    allows, i.e., the LaTeX builder gets a PDF and the texinfo builder does
+    not.
+
 plot_html_show_formats
-    Whether to show links to the files in HTML (default: True).
+    Whether to show links to the files in HTML (default: True). If
+    False, only the first entry of *plot_formats* (PNG by default) is
+    rendered for HTML, since the other entries are only ever reachable
+    through those links.
 
 plot_rcparams
     A dictionary containing any non-standard rcParams that should
@@ -204,6 +225,7 @@ import jinja2  # Sphinx dependency.
 from sphinx.environment.collectors import EnvironmentCollector
 from sphinx.errors import ExtensionError
 from sphinx.util import logging
+from sphinx.util.images import guess_mimetype
 
 import matplotlib
 from matplotlib.backend_bases import FigureManagerBase
@@ -324,7 +346,8 @@ def setup(app):
     app.add_config_value('plot_pre_code', None, True)
     app.add_config_value('plot_include_source', False, True)
     app.add_config_value('plot_html_show_source_link', True, True)
-    app.add_config_value('plot_formats', ['png', 'hires.png', 'pdf'], True)
+    app.add_config_value('plot_formats', list(_DEFAULT_FORMATS), True,
+                         types=[list, dict])
     app.add_config_value('plot_basedir', None, True)
     app.add_config_value('plot_html_show_formats', True, True)
     app.add_config_value('plot_rcparams', {}, True)
@@ -337,7 +360,7 @@ def setup(app):
     app.add_css_file('plot_directive.css')
     app.connect('build-finished', _copy_css_file)
     metadata = {'parallel_read_safe': True, 'parallel_write_safe': True,
-                'version': matplotlib.__version__}
+                'version': matplotlib.__version__, 'env_version': 1}
     app.connect('builder-inited', init_filename_registry)
     app.add_env_collector(_FilenameCollector)
     return metadata
@@ -351,6 +374,13 @@ def init_filename_registry(app):
     env = app.builder.env
     if not hasattr(env, 'mpl_plot_image_basenames'):
         env.mpl_plot_image_basenames = defaultdict(set)
+    if not hasattr(env, 'mpl_plot_docnames'):
+        # Set of documents containing a plot directive
+        env.mpl_plot_docnames = set()
+    if not hasattr(env, 'mpl_plot_last_formats'):
+        # The formats written by the the previous build,
+        # based on the builder used for that build
+        env.mpl_plot_last_formats = None
 
 
 class _FilenameCollector(EnvironmentCollector):
@@ -360,11 +390,26 @@ class _FilenameCollector(EnvironmentCollector):
     def clear_doc(self, app, env, docname):
         if docname in env.mpl_plot_image_basenames:
             del env.mpl_plot_image_basenames[docname]
+        env.mpl_plot_docnames.discard(docname)
 
     def merge_other(self, app, env, docnames, other):
         for docname in other.mpl_plot_image_basenames:
             env.mpl_plot_image_basenames[docname].update(
                 other.mpl_plot_image_basenames[docname])
+        env.mpl_plot_docnames |= getattr(other, 'mpl_plot_docnames', set())
+
+    def get_outdated_docs(self, app, env, added, changed, removed):
+        # Doctrees are cached across builders, but the formats written for a
+        # document were chosen for the builder that read it. When the builder
+        # changes, every document with a plot must be read again.
+        builder = app.builder
+        formats = tuple(fmt for fmt, _ in _formats_for_builder(
+            get_plot_formats(app.config, builder), builder, app.config))
+        previous = env.mpl_plot_last_formats
+        env.mpl_plot_last_formats = formats
+        if previous is None or previous == formats:
+            return []
+        return sorted(env.mpl_plot_docnames & env.found_docs)
 
 
 # -----------------------------------------------------------------------------
@@ -619,10 +664,34 @@ def clear_state(plot_rcparams, close=True):
     matplotlib.rcParams.update(plot_rcparams)
 
 
-def get_plot_formats(config):
+_DEFAULT_FORMATS = ('png', 'hires.png', 'pdf')
+
+
+def _builder_key(plot_formats, builder):
+    """Return the key of a *plot_formats* dict that applies to *builder*."""
+    if isinstance(plot_formats, dict):
+        # check the builder name first, then the builder format
+        # see the behaviour for ``.. only::`` directive in Sphinx:
+        # https://github.com/sphinx-doc/sphinx/blob/7b2c103eaa4cabf0ac47224c444cf0cbc7c745e5/sphinx/builders/__init__.py#L121-L124
+        for key in (builder.name, builder.format):
+            if key in plot_formats:
+                return key
+    return None
+
+
+def get_plot_formats(config, builder=None):
     default_dpi = {'png': 80, 'hires.png': 200, 'pdf': 200}
     formats = []
     plot_formats = config.plot_formats
+    if isinstance(plot_formats, dict):
+        if builder is None:
+            builder = setup.app.builder
+        key = _builder_key(plot_formats, builder)
+        plot_formats = (plot_formats[key] if key is not None
+                        else _DEFAULT_FORMATS)
+    if isinstance(plot_formats, str):
+        # since ``-D plot_formats.html=png,pdf`` arrives as one string
+        plot_formats = plot_formats.split(',')
     for fmt in plot_formats:
         if isinstance(fmt, str):
             if ':' in fmt:
@@ -635,6 +704,32 @@ def get_plot_formats(config):
         else:
             raise PlotError('invalid image format "%r" in plot_formats' % fmt)
     return formats
+
+
+def _formats_for_builder(formats, builder, config):
+    """Return the subset of *formats* that *builder* can make use of."""
+    if builder.format == 'html':
+        # The figure uses the first format; the rest are only reachable
+        # through the download links.
+        return formats if config.plot_html_show_formats else formats[:1]
+    # The same test Sphinx's image collector applies to the candidates for a
+    # ``name.*`` reference, so the two always agree on which file gets used:
+    # https://github.com/sphinx-doc/sphinx/blob/7b2c103eaa4cabf0ac47224c444cf0cbc7c745e5/sphinx/environment/collectors/asset.py#L118
+    supported = getattr(builder, 'supported_image_types', ())
+    unsupported = [fmt for fmt, _ in formats
+                   if guess_mimetype(f'figure.{fmt}') not in supported]
+    key = _builder_key(config.plot_formats, builder)
+    if unsupported and key is not None:
+        # The default list is meant to carry formats for other builders,
+        # so only an entry written for this builder is worth a warning.
+        _log.warning('The %s builder cannot use %s listed in plot_formats[%r]',
+                     builder.name, ', '.join(unsupported), key, once=True)
+    kept = [fmt for fmt in formats if fmt[0] not in unsupported]
+    # The html branch of the template still references the first format,
+    # and Sphinx's image collector follows that reference.
+    if formats[0] not in kept:
+        kept.insert(0, formats[0])
+    return kept
 
 
 def _parse_srcset(entries):
@@ -684,7 +779,9 @@ def render_figures(code, code_path, output_dir, output_base, context,
 
     if function_name is not None:
         output_base = f'{output_base}_{function_name}'
-    formats = get_plot_formats(config)
+    builder = setup.app.builder
+    formats = _formats_for_builder(get_plot_formats(config, builder),
+                                   builder, config)
 
     # Try to determine if all images already exist
 
@@ -794,6 +891,7 @@ def render_figures(code, code_path, output_dir, output_base, context,
 def run(arguments, content, options, state_machine, state, lineno):
     document = state_machine.document
     env = document.settings.env
+    env.mpl_plot_docnames.add(env.docname)
     config = env.config
     nofigs = 'nofigs' in options
 
@@ -801,7 +899,7 @@ def run(arguments, content, options, state_machine, state, lineno):
         raise ExtensionError(
             'plot_srcset option not compatible with single HTML writer')
 
-    formats = get_plot_formats(config)
+    formats = get_plot_formats(config, setup.app.builder)
     default_fmt = formats[0][0]
 
     options.setdefault('include-source', config.plot_include_source)
