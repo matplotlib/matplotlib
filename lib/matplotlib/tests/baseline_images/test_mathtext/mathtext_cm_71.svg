@@ -6,11 +6,11 @@
   <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
    <cc:Work>
     <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
-    <dc:date>2026-03-12T19:45:20.304341</dc:date>
+    <dc:date>2026-09-11T11:57:04.486406</dc:date>
     <dc:format>image/svg+xml</dc:format>
     <dc:creator>
      <cc:Agent>
-      <dc:title>Matplotlib v3.11.0.dev2072+gb1cf5d4866.d20260312, https://matplotlib.org/</dc:title>
+      <dc:title>Matplotlib v0.1.0.dev55212+unknown.g25781de6a, https://matplotlib.org/</dc:title>
      </cc:Agent>
     </dc:creator>
    </cc:Work>
@@ -30,7 +30,7 @@ z
   </g>
   <g id="text_1">
    <!-- $\Cap$ $\Cup$ $\leftharpoonup$ $\barwedge$ $\rightharpoonup$ -->
-   <g transform="translate(153.36 30.117188) scale(0.12 -0.12)">
+   <g transform="translate(158.16 30.117188) scale(0.12 -0.12)">
     <defs>
      <path id="STIXGeneral-Regular-4e6" d="M 3661 -198 
 L 3238 -198 
@@ -159,11 +159,11 @@ z
     <use xlink:href="#DejaVuSans-3" transform="translate(61.999939 0.40625)"/>
     <use xlink:href="#STIXGeneral-Regular-4e5" transform="translate(93.787048 0.40625)"/>
     <use xlink:href="#DejaVuSans-3" transform="translate(155.786987 0.40625)"/>
-    <use xlink:href="#Cmmi10-6c" transform="translate(207.574154 0.40625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(327.574211 0.40625)"/>
-    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(359.36132 0.40625)"/>
-    <use xlink:href="#DejaVuSans-3" transform="translate(421.361259 0.40625)"/>
-    <use xlink:href="#Cmmi10-75" transform="translate(473.148426 0.40625)"/>
+    <use xlink:href="#Cmmi10-6c" transform="translate(187.574097 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(287.574097 0.40625)"/>
+    <use xlink:href="#STIXGeneral-Regular-4cf" transform="translate(319.361206 0.40625)"/>
+    <use xlink:href="#DejaVuSans-3" transform="translate(381.361145 0.40625)"/>
+    <use xlink:href="#Cmmi10-75" transform="translate(413.148254 0.40625)"/>
    </g>
   </g>
  </g>
