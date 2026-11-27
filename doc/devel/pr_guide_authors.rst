@@ -62,7 +62,7 @@ When opening a pull request on Github, please ensure that:
 * :ref:`prek <pre-commit-hooks>` checks for spelling, formatting, etc pass
 * The pull request targets the :ref:`main branch <pr-branch-selection>`
 * :ref:`pr-automated-tests` pass
-* You follow the Pull Request template, including the
+* You fill out the Pull Request template, including the
   :ref:`AI Disclosure <generative_ai>` section.
 
 For guidance on creating and managing a pull request, please see our
