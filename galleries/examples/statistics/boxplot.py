@@ -1,4 +1,6 @@
 """
+.. _boxplot_artists:
+
 =================================
 Artist customization in box plots
 =================================
