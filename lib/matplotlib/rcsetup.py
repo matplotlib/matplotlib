@@ -1111,7 +1111,7 @@ _validators = {
     # text props
     "text.color":          validate_color,
     "text.usetex":         validate_bool,
-    "text.latex.engine":   ["latex", "latex+dvipng"],
+    "text.latex.engine":   ["latex", "latex+dvipng", "xelatex", "lualatex"],
     "text.latex.preamble": validate_string,
     "text.hinting":        ["default", "no_autohint", "force_autohint",
                             "no_hinting", "auto", "native", "either", "none"],
