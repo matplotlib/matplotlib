@@ -128,3 +128,30 @@ def test_set_ticks_emits_lim_changed():
     ax2.callbacks.connect("ylim_changed", called_polar.append)
     ax2.set_rticks([1, 2, 3])
     assert called_polar
+
+
+def test_get_ticks_direction():
+    fig, ax = plt.subplots()
+    ax.minorticks_on()
+    ax.xaxis.set_tick_params(which="major", direction="in")
+    ax.xaxis.set_tick_params(which="minor", direction="inout")
+    directions = ax.xaxis.get_ticks_direction()
+    assert len(directions) == len(ax.xaxis.get_majorticklocs())
+    assert set(directions) == {"in"}
+    directions = ax.xaxis.get_ticks_direction(minor=True)
+    assert len(directions) == len(ax.xaxis.get_minorticklocs())
+    assert set(directions) == {"inout"}
+
+
+def test_get_tick_padding():
+    fig, ax = plt.subplots()
+    ax.xaxis.set_tick_params(which="major", length=10, direction="out")
+    ax.xaxis.set_tick_params(which="minor", length=4, direction="out")
+    assert ax.xaxis.get_tick_padding() == 10
+    ax.xaxis.set_tick_params(which="major", direction="inout")
+    assert ax.xaxis.get_tick_padding() == 5
+    ax.xaxis.set_tick_params(which="major", direction="in")
+    assert ax.xaxis.get_tick_padding() == 4
+    ax.xaxis.majorTicks.clear()
+    ax.xaxis.minorTicks.clear()
+    assert ax.xaxis.get_tick_padding() == 0
