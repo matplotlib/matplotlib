@@ -1750,13 +1750,17 @@ class _AnnotationBase:
         self._draggable = None
 
     def _get_xy(self, renderer, xy, coords):
+        xy = self._convert_xy_units(xy, coords)
+        return self._get_xy_transform(renderer, coords).transform(xy)
+
+    def _convert_xy_units(self, xy, coords):
         x, y = xy
         xcoord, ycoord = coords if isinstance(coords, tuple) else (coords, coords)
         if xcoord == 'data':
             x = float(self.convert_xunits(x))
         if ycoord == 'data':
             y = float(self.convert_yunits(y))
-        return self._get_xy_transform(renderer, coords).transform((x, y))
+        return x, y
 
     def _get_xy_transform(self, renderer, coords):
 
@@ -1859,15 +1863,16 @@ class _AnnotationBase:
         """Return the pixel position of the annotated point."""
         return self._get_xy(renderer, self.xy, self.xycoords)
 
+    def _should_clip_to_axes(self):
+        b = self.get_annotation_clip()
+        return b or (b is None and self.xycoords == "data")
+
     def _check_xy(self, renderer=None):
         """Check whether the annotation at *xy_pixel* should be drawn."""
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
-        b = self.get_annotation_clip()
-        if b or (b is None and self.xycoords == "data"):
-            # check if self.xy is inside the Axes.
-            xy_pixel = self._get_position_xy(renderer)
-            return self.axes.contains_point(xy_pixel)
+        if self._should_clip_to_axes():
+            return self.axes.contains_point(self._get_position_xy(renderer))
         return True
 
     def draggable(self, state=None, use_blit=False):
@@ -2196,6 +2201,29 @@ or callable, default: value of *xycoords*
             self.arrow_patch.set_figure(fig)
         Artist.set_figure(self, fig)
 
+    def _should_draw(self, renderer=None, *, warn=False):
+        if renderer is None:
+            renderer = self.get_figure(root=True)._get_renderer()
+        xy = self._convert_xy_units(self.xy, self.xycoords)
+        if not all(map(math.isfinite, xy)):
+            raise ValueError("Annotation xy must contain only finite values")
+        xytext = self.get_unitless_position()
+        if not all(map(math.isfinite, xytext)):
+            raise ValueError("Annotation xytext must contain only finite values")
+
+        xy_pixel = self._get_xy_transform(renderer, self.xycoords).transform(xy)
+        if not np.isfinite(xy_pixel).all():
+            return False
+        if self._should_clip_to_axes() and not self.axes.contains_point(xy_pixel):
+            return False
+        transform = self._get_xy_transform(renderer, self.anncoords)
+        if not np.isfinite(transform.transform(xytext)).all():
+            if warn:
+                _log.warning("Skipping annotation because xytext transforms to "
+                             "non-finite display coordinates")
+            return False
+        return True
+
     def update_positions(self, renderer):
         """
         Update the pixel positions of the annotation text and the arrow patch.
@@ -2266,7 +2294,7 @@ or callable, default: value of *xycoords*
         # docstring inherited
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer, warn=True):
             return
         # Update text positions before `Text.draw` would, so that the
         # FancyArrowPatch is correctly positioned.
@@ -2285,7 +2313,7 @@ or callable, default: value of *xycoords*
         # docstring inherited
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer):
             return Bbox.unit()
         if renderer is not None:
             self._renderer = renderer
@@ -2306,7 +2334,7 @@ or callable, default: value of *xycoords*
 
     def get_tightbbox(self, renderer=None):
         # docstring inherited
-        if not self._check_xy(renderer):
+        if not self._should_draw(renderer):
             return Bbox.null()
         return super().get_tightbbox(renderer)
 

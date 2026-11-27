@@ -122,7 +122,9 @@ def test_bbox_inches_tight_raster():
 
 def test_only_on_non_finite_bbox():
     fig, ax = plt.subplots()
-    ax.annotate("", xy=(0, float('nan')))
+    ax.set_ylim(0, 1)
+    annotation = ax.annotate("outside", xy=(.5, 2))
+    assert np.isinf(annotation.get_tightbbox().extents).all()
     ax.set_axis_off()
     # we only need to test that it does not error out on save
     fig.savefig(BytesIO(), bbox_inches='tight', format='png')
