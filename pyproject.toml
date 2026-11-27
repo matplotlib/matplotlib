@@ -42,6 +42,9 @@ dependencies = [
 # Also keep in sync with find_program of meson.build.
 requires-python = ">=3.12"
 
+[project.optional-dependencies]
+widget = ["jupyter-rfb >= 1.0.2"]
+
 [project.urls]
 "Homepage" = "https://matplotlib.org"
 "Download" = "https://matplotlib.org/stable/install/index.html"

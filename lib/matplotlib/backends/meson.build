@@ -1,6 +1,7 @@
 python_sources = [
   '__init__.py',
   'backend_agg.py',
+  'backend_anywidget.py',
   'backend_cairo.py',
   '_backend_gtk.py',
   'backend_gtk3.py',
