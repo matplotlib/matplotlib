@@ -4,17 +4,24 @@
 #include "mplutils.h"
 
 #include <algorithm>
+#include <array>
+#include <cmath>
+#include <cstdint>
 #include <cstdio>
-#include <iterator>
+#include <cstdlib>
+#include <cstring>
 #include <map>
+#include <memory>
+#include <optional>
 #include <set>
 #include <stdexcept>
 #include <string>
+#include <string_view>
+#include <tuple>
+#include <type_traits>
+#include <unordered_map>
+#include <utility>
 #include <vector>
-
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338328
-#endif
 
 FT2Image::FT2Image(unsigned long width, unsigned long height)
     : m_buffer((unsigned char *)calloc(width * height, 1)), m_width(width), m_height(height)
@@ -480,7 +487,7 @@ void FT2Font::set_text(
 {
     FT_Matrix matrix; /* transformation matrix */
 
-    angle = angle * (2 * M_PI / 360.0);
+    angle = angle * (2 * mpl::pi / 360.0);
 
     // this computes width and height in subpixels so we have to multiply by 64
     double cosangle = cos(angle) * 0x10000L;

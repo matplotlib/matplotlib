@@ -6,6 +6,15 @@
 #endif
 
 #include <algorithm>
+#include <cmath>
+#include <cstdint>
+#include <cstdlib>
+#include <stdexcept>
+#include <string>
+#include <utility>
+
+#include "agg_color_gray.h"
+#include "agg_color_rgba.h"
 
 #include "_image_resample.h"
 #include "py_converters.h"

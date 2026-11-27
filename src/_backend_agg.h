@@ -8,23 +8,32 @@
 
 #include <pybind11/pybind11.h>
 
-#include <cmath>
 #include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <cstring>
 #include <functional>
 #include <optional>
 #include <vector>
 
 #include "agg_alpha_mask_u8.h"
+#include "agg_basics.h"
+#include "agg_color_gray.h"
+#include "agg_color_rgba.h"
 #include "agg_conv_curve.h"
 #include "agg_conv_dash.h"
 #include "agg_conv_stroke.h"
 #include "agg_conv_transform.h"
 #include "agg_image_accessors.h"
+#include "agg_image_filters.h"
+#include "agg_math_stroke.h"
 #include "agg_path_storage.h"
 #include "agg_pixfmt_amask_adaptor.h"
 #include "agg_pixfmt_gray.h"
 #include "agg_pixfmt_rgba.h"
 #include "agg_rasterizer_scanline_aa.h"
+#include "agg_rasterizer_sl_clip.h"
 #include "agg_renderer_base.h"
 #include "agg_renderer_scanline.h"
 #include "agg_rendering_buffer.h"
@@ -39,6 +48,7 @@
 #include "agg_span_image_filter_rgba.h"
 #include "agg_span_interpolator_linear.h"
 #include "agg_span_pattern_rgba.h"
+#include "agg_trans_affine.h"
 
 #include "_backend_agg_basic_types.h"
 #include "path_converters.h"
