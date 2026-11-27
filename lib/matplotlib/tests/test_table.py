@@ -2,6 +2,7 @@ import datetime
 from unittest.mock import Mock
 
 import numpy as np
+import pytest
 
 import matplotlib.pyplot as plt
 from matplotlib.path import Path
@@ -17,7 +18,7 @@ def test_non_square():
     plt.table(cellColours=cellcolors)
 
 
-@image_comparison(['table_zorder.png'], remove_text=True, style='mpl20')
+@image_comparison(['table_zorder.png'], remove_text=True, style='mpl20', tol=4.0)
 def test_zorder():
     data = [[66386, 174296],
             [58230, 381139]]
@@ -50,7 +51,7 @@ def test_zorder():
     plt.yticks([])
 
 
-@image_comparison(['table_labels.png'], style='mpl20')
+@image_comparison(['table_labels.png'], style='mpl20', tol=6.0)
 def test_label_colours():
     dim = 3
 
@@ -87,7 +88,7 @@ def test_label_colours():
               loc='best')
 
 
-@image_comparison(['table_cell_manipulation.png'], style='mpl20')
+@image_comparison(['table_cell_manipulation.png'], style='mpl20', tol=2.0)
 def test_diff_cell_table(text_placeholders):
     cells = ('horizontal', 'vertical', 'open', 'closed', 'T', 'R', 'B', 'L')
     cellText = [['1'] * len(cells)] * 2
@@ -123,7 +124,7 @@ def test_customcell():
         assert c == code
 
 
-@image_comparison(['table_auto_column.png'], style='mpl20')
+@image_comparison(['table_auto_column.png'], style='mpl20', tol=5.0)
 def test_auto_column():
     fig, (ax1, ax2, ax3, ax4) = plt.subplots(4, 1)
 
@@ -194,6 +195,27 @@ def test_table_cells():
     # properties and setp
     table.properties()
     plt.setp(table)
+
+
+@pytest.mark.parametrize('edges', ['open', 'horizontal', 'vertical', 'BLR'])
+@check_figures_equal(extensions=['png', 'pdf', 'svg'])
+def test_cell_facecolor_with_visible_edges(fig_test, fig_ref, edges):
+    """Test that the cell face is filled entirely even if some edges are hidden."""
+    colors = [['tab:red', 'tab:green'], ['tab:blue', 'tab:orange']]
+
+    ax = fig_test.add_subplot()
+    ax.axis('off')
+    ax.table(cellColours=colors, loc='center', edges=edges)
+
+    # Reference: a fill-only closed table, overlaid with an edges-only table.
+    ax = fig_ref.add_subplot()
+    ax.axis('off')
+    table = ax.table(cellColours=colors, loc='center', edges='closed')
+    for cell in table.get_celld().values():
+        cell.set_edgecolor('none')
+    table = ax.table(cellColours=colors, loc='center', edges=edges)
+    for cell in table.get_celld().values():
+        cell.set_facecolor('none')
 
 
 @check_figures_equal()

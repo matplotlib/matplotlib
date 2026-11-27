@@ -26,7 +26,7 @@ Thanks to John Gill for providing the class and table.
 
 import numpy as np
 
-from . import _api, _docstring
+from . import _api, _docstring, cbook
 from .artist import Artist, allow_rasterization
 from .patches import Rectangle
 from .text import Text
@@ -140,14 +140,43 @@ substring of 'BRTL'
 
     @allow_rasterization
     def draw(self, renderer):
+        """
+        Draw the cell: its face, then its visible edges, then its text.
+
+        This is only used for standalone cells.  Cells in a `.Table` are not
+        drawn through this method; instead, `.Table.draw` runs each of the
+        passes over all its cells, so that the face of a cell does not paint
+        over the visible edges of its neighbors.
+
+        Notes
+        -----
+        `.Cell.get_path` describes only the `.Cell.visible_edges`, and
+        filling that path would leave the face (partially) unpainted if some
+        edges are hidden.  The face and the edges are therefore drawn in
+        separate passes.
+        """
         if not self.get_visible():
             return
-        # draw the rectangle
-        super().draw(renderer)
-        # position the text
+        self._draw_face(renderer)
+        self._draw_edges(renderer)
+        self._draw_text(renderer)
+        self.stale = False
+
+    def _draw_face(self, renderer):
+        """Draw the face (and hatch) over the full rectangle, without edges."""
+        with cbook._setattr_cm(self, get_path=super().get_path,
+                               _edgecolor=(0, 0, 0, 0)):
+            super().draw(renderer)
+
+    def _draw_edges(self, renderer):
+        """Draw the visible edges only, without face and hatch."""
+        with cbook._setattr_cm(self, _facecolor=(0, 0, 0, 0), _hatch=None):
+            super().draw(renderer)
+
+    def _draw_text(self, renderer):
+        """Position and draw the text."""
         self._set_text_position(renderer)
         self._text.draw(renderer)
-        self.stale = False
 
     def _set_text_position(self, renderer):
         """Set text up so it is drawn in the right place."""
@@ -416,8 +445,17 @@ class Table(Artist):
         renderer.open_group('table', gid=self.get_gid())
         self._update_positions(renderer)
 
-        for key in sorted(self._cells):
-            self._cells[key].draw(renderer)
+        # Draw all faces before all edges, so that the face of a cell does not
+        # paint over the visible edges of its neighbors, and all text last.
+        cells = [cell for key, cell in sorted(self._cells.items())
+                 if cell.get_visible()]
+        for cell in cells:
+            cell._draw_face(renderer)
+        for cell in cells:
+            cell._draw_edges(renderer)
+        for cell in cells:
+            cell._draw_text(renderer)
+            cell.stale = False
 
         renderer.close_group('table')
         self.stale = False
