@@ -1021,6 +1021,13 @@ def test_ft2font_get_path():
     np.testing.assert_array_equal(codes, expected_codes)
 
 
+@pytest.mark.skipif(sys.platform != "darwin", reason="macOS Helvetica only")
+def test_fallback_to_auto_hinter():
+    fig = plt.figure(figsize=(2, 1))
+    fig.text(0.1, 0.5, "yield", fontfamily="Helvetica", fontsize=5)
+    fig.savefig(io.BytesIO(), format="png")
+
+
 @pytest.mark.parametrize('fmt', ['pdf', 'png', 'ps', 'raw', 'svg'])
 def test_fallback_smoke(fmt):
     fonts, test_str = _gen_multi_font_text()
