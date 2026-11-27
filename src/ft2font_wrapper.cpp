@@ -618,7 +618,7 @@ const char *PyFT2Font_set_text__doc__ = R"""(
         A sequence of x,y glyph positions in 26.6 subpixels; divide by 64 for pixels.
 )""";
 
-static py::array_t<double>
+static auto
 PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0,
                    LoadFlags flags = LoadFlags::FORCE_AUTOHINT,
                    std::optional<std::vector<std::string>> features = std::nullopt,
@@ -637,10 +637,9 @@ PyFT2Font_set_text(PyFT2Font *self, std::u32string_view text, double angle = 0.0
 
     self->set_text(text, angle, static_cast<FT_Int32>(flags), features, languages, xys);
 
-    py::ssize_t dims[] = { static_cast<py::ssize_t>(xys.size()) / 2, 2 };
-    py::array_t<double> result(dims);
+    auto result = mpl::array<double, mpl::shape<-1, 2>>(xys.size() / 2);
     if (xys.size() > 0) {
-        memcpy(result.mutable_data(), xys.data(), result.nbytes());
+        memcpy(result.data(), xys.data(), result.nbytes());
     }
     return result;
 }
@@ -813,13 +812,14 @@ const char *PyFT2Font_draw_glyph_to_bitmap__doc__ = R"""(
 )""";
 
 static void
-PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self, py::buffer &image,
+PyFT2Font_draw_glyph_to_bitmap(PyFT2Font *self,
+                               const mpl::defer<FT2Font::ImageBuffer> &image_obj,
                                int xd, int yd,
                                PyGlyph *glyph, bool antialiased = true)
 {
-    self->draw_glyph_to_bitmap(
-        py::array_t<uint8_t, py::array::c_style>{image},
-        xd, yd, glyph->glyphInd, antialiased);
+    auto image = image_obj.value("image");
+
+    self->draw_glyph_to_bitmap(image, xd, yd, glyph->glyphInd, antialiased);
 }
 
 const char *PyFT2Font_get_glyph_name__doc__ = R"""(
@@ -1239,16 +1239,11 @@ PyFT2Font_get_path(PyFT2Font *self)
     self->get_path(vertices, codes);
 
     py::ssize_t length = codes.size();
-    py::ssize_t vertices_dims[2] = { length, 2 };
-    py::array_t<double> vertices_arr(vertices_dims);
-    if (length > 0) {
-        memcpy(vertices_arr.mutable_data(), vertices.data(), vertices_arr.nbytes());
-    }
-    py::ssize_t codes_dims[1] = { length };
-    py::array_t<unsigned char> codes_arr(codes_dims);
-    if (length > 0) {
-        memcpy(codes_arr.mutable_data(), codes.data(), codes_arr.nbytes());
-    }
+    auto vertices_arr = mpl::array<double, mpl::shape<-1, 2>>(length);
+    vertices_arr.assign(vertices);
+
+    auto codes_arr = mpl::array<unsigned char, mpl::ndim<1>>(length);
+    codes_arr.assign(codes);
 
     return py::make_tuple(vertices_arr, codes_arr);
 }
@@ -1497,10 +1492,14 @@ PyFT2Font_render_glyph_run(
         }
     }
 
-    auto n = static_cast<py::ssize_t>(positions.size() / 5);
-    return py::make_tuple(
-        py::array_t<uint8_t>{static_cast<py::ssize_t>(buffer.size()), buffer.data()},
-        py::array_t<py::ssize_t>{{n, static_cast<py::ssize_t>(5)}, positions.data()});
+    auto buffer_arr = mpl::array<uint8_t, mpl::ndim<1>>(buffer.size());
+    buffer_arr.assign(buffer);
+
+    auto n = positions.size() / 5;
+    auto positions_arr = mpl::array<py::ssize_t, mpl::shape<-1, 5>>(n);
+    positions_arr.assign(positions);
+
+    return py::make_tuple(buffer_arr, positions_arr);
 }
 
 /**********************************************************************
@@ -1844,7 +1843,7 @@ PYBIND11_MODULE(ft2font, m, py::mod_gil_not_used())
           "The original filename for this object.")
 
         .def_buffer([](PyFT2Font &self) -> py::buffer_info {
-            return self.get_image().request();
+            return self.get_image().pyarray().request();
         });
 
     m.def("_render_glyph_run",

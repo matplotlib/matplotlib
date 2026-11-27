@@ -12,13 +12,18 @@
 #include <pybind11/numpy.h>
 
 #include "agg_basics.h"
+#include "py_array.h"
+
+class PathIterator;
+
+namespace mpl {
+inline void convert(PathIterator &dst, const py::object &src, std::string arg_name);
+}
 
 namespace py = pybind11;
 
-namespace mpl {
-
 /************************************************************
- * mpl::PathIterator acts as a bridge between NumPy and Agg.  Given a
+ * PathIterator acts as a bridge between NumPy and Agg.  Given a
  * pair of NumPy arrays, vertices and codes, it iterates over
  * those vertices and codes, using the standard Agg vertex source
  * interface:
@@ -27,12 +32,15 @@ namespace mpl {
  */
 class PathIterator
 {
+    using VerticesArray = mpl::array<const double, mpl::shape<-1, 2>>;
+    using CodesArray = mpl::array<const uint8_t, mpl::ndim<1>>;
+
     /* We hold references to the Python objects, not just the
        underlying data arrays, so that Python reference counting
        can work.
     */
-    py::array_t<double> m_vertices;
-    py::array_t<uint8_t> m_codes;
+    VerticesArray m_vertices = VerticesArray::unmanaged_empty();
+    std::optional<CodesArray> m_codes;
 
     unsigned m_iterator;
     unsigned m_total_vertices;
@@ -84,18 +92,13 @@ class PathIterator
         m_should_simplify = should_simplify;
         m_simplify_threshold = simplify_threshold;
 
-        m_vertices = vertices.cast<py::array_t<double>>();
-        if (m_vertices.ndim() != 2 || m_vertices.shape(1) != 2) {
-            throw py::value_error("Invalid vertices array");
-        }
+        m_vertices = VerticesArray(vertices, "vertices");
         m_total_vertices = m_vertices.shape(0);
 
-        m_codes.release().dec_ref();
         if (!codes.is_none()) {
-            m_codes = codes.cast<py::array_t<uint8_t>>();
-            if (m_codes.ndim() != 1 || m_codes.shape(0) != m_total_vertices) {
-                throw py::value_error("Invalid codes array");
-            }
+            m_codes = CodesArray(codes, "codes");
+        } else {
+            m_codes = std::nullopt;
         }
 
         m_iterator = 0;
@@ -116,11 +119,12 @@ class PathIterator
 
         const size_t idx = m_iterator++;
 
-        *x = *m_vertices.data(idx, 0);
-        *y = *m_vertices.data(idx, 1);
+        auto data = m_vertices.data();
+        *x = data[idx*2];
+        *y = data[idx*2 + 1];
 
         if (m_codes) {
-            return *m_codes.data(idx);
+            return m_codes.value().data()[idx];
         } else {
             return idx == 0 ? agg::path_cmd_move_to : agg::path_cmd_line_to;
         }
@@ -153,14 +157,14 @@ class PathIterator
 
     inline void *get_id()
     {
-        return (void *)m_vertices.ptr();
+        return (void *)m_vertices.data();
     }
 };
 
 class PathGenerator
 {
     py::sequence m_paths;
-    Py_ssize_t m_npaths;
+    size_t m_npaths;
 
   public:
     typedef PathIterator path_iterator;
@@ -173,57 +177,46 @@ class PathGenerator
         m_npaths = m_paths.size();
     }
 
-    Py_ssize_t num_paths() const
+    size_t num_paths() const
     {
         return m_npaths;
     }
 
-    Py_ssize_t size() const
+    size_t size() const
     {
         return m_npaths;
     }
 
     path_iterator operator()(size_t i)
     {
-        path_iterator path;
-
-        auto item = m_paths[i % m_npaths];
-        path = item.cast<path_iterator>();
+        PathIterator path;
+        mpl::convert(path, m_paths[i % m_npaths], "PathGenerator::operator()");
         return path;
     }
 };
+
+namespace mpl {
+
+inline void convert(PathIterator &dst, const py::object &src, std::string arg_name)
+{
+    if (src.is_none()) {
+        return;
+    }
+
+    py::object vertices = src.attr("vertices");
+    py::object codes = src.attr("codes");
+    auto should_simplify = src.attr("should_simplify").cast<bool>();
+    auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
+
+    dst.set(vertices, codes, should_simplify, simplify_threshold);
 }
 
-namespace PYBIND11_NAMESPACE { namespace detail {
-    template <> struct type_caster<mpl::PathIterator> {
-    public:
-        PYBIND11_TYPE_CASTER(mpl::PathIterator, const_name("PathIterator"));
 
-        bool load(handle src, bool) {
-            if (src.is_none()) {
-                return true;
-            }
+inline void convert(PathGenerator &dst, const py::object &src, std::string arg_name)
+{
+    dst.set(py::reinterpret_borrow<py::object>(src));
+}
 
-            py::object vertices = src.attr("vertices");
-            py::object codes = src.attr("codes");
-            auto should_simplify = src.attr("should_simplify").cast<bool>();
-            auto simplify_threshold = src.attr("simplify_threshold").cast<double>();
-
-            value.set(vertices, codes, should_simplify, simplify_threshold);
-
-            return true;
-        }
-    };
-
-    template <> struct type_caster<mpl::PathGenerator> {
-    public:
-        PYBIND11_TYPE_CASTER(mpl::PathGenerator, const_name("PathGenerator"));
-
-        bool load(handle src, bool) {
-            value.set(py::reinterpret_borrow<py::object>(src));
-            return true;
-        }
-    };
-}} // namespace PYBIND11_NAMESPACE::detail
+} // namespace mpl
 
 #endif
