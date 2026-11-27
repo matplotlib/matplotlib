@@ -759,3 +759,33 @@ def test_hexbin_negative_offsets(fig_test, fig_ref):
     ax_ref.set_xlim(0.0, 4.0)
     ax_ref.set_ylim(0.0, 4.0)
     ax_ref.set_axis_off()
+
+
+def test_datetime_to_pdf():
+    from matplotlib.backends.backend_pdf import _datetime_to_pdf
+
+    # UTC
+    d_utc = datetime.datetime(2026, 1, 15, 12, 0, 0, tzinfo=datetime.timezone.utc)
+    assert _datetime_to_pdf(d_utc) == "D:20260115120000Z"
+
+    # Positive half-hour offset (+05:30)
+    tz_plus_530 = datetime.timezone(datetime.timedelta(hours=5, minutes=30))
+    d_plus_530 = datetime.datetime(2026, 1, 15, 12, 0, 0, tzinfo=tz_plus_530)
+    assert _datetime_to_pdf(d_plus_530) == "D:20260115120000+05'30'"
+
+    # Negative offset (-05:00)
+    tz_minus_5 = datetime.timezone(datetime.timedelta(hours=-5))
+    d_minus_5 = datetime.datetime(2026, 1, 15, 12, 0, 0, tzinfo=tz_minus_5)
+    assert _datetime_to_pdf(d_minus_5) == "D:20260115120000-05'00'"
+
+    # Naive datetime uses local timezone offset
+    d_naive = datetime.datetime(2026, 1, 15, 12, 0, 0)
+    expected_offset = d_naive.astimezone().utcoffset()
+    total_sec = int(expected_offset.total_seconds())
+    if total_sec == 0:
+        expected = "D:20260115120000Z"
+    else:
+        sign = '+' if total_sec > 0 else '-'
+        sec = abs(total_sec)
+        expected = f"D:20260115120000{sign}{sec // 3600:02d}'{(sec % 3600) // 60:02d}'"
+    assert _datetime_to_pdf(d_naive) == expected
