@@ -188,6 +188,21 @@ def test_multiline2():
     ax.text(1.2, 0.1, 'Bot align, rot20', color='C2')
 
 
+def test_top_aligned_text_has_consistent_baseline():
+    fig, ax = plt.subplots(figsize=(.5, .5), layout="constrained")
+    ax.set_yticks([])
+    ax.set_xlim(-2, 3)
+    ax.set_xticks([0, 1])
+    ax.xaxis.set_major_formatter(
+        lambda x, pos: "pol." if x == 0 else str(int(x)))
+
+    fig.canvas.draw()
+    bboxes = [label.get_window_extent() for label in ax.get_xticklabels()]
+
+    # Labels with different ascenders must still share a baseline.
+    assert_almost_equal(bboxes[0].y0, bboxes[1].y0)
+
+
 @image_comparison(['antialiased.png'], style='mpl20')
 def test_antialiasing():
     mpl.rcParams['text.antialiased'] = False  # Passed arguments should override.
