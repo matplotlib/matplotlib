@@ -86,7 +86,10 @@ def _get_text_metrics_with_cache(renderer, text, fontprop, ismath, dpi):
     # has a `__hash__` that depends on that mutable state.  This is not ideal
     # as it means the hash of an object is not stable over time which leads to
     # very confusing behavior when used as keys in dictionaries or hashes.
-    return get_text_metrics(text, fontprop.copy(), ismath, dpi)
+    # In usetex mode the metrics also depend on the LaTeX preamble, which must
+    # therefore participate in the cache key.
+    tex_preamble = mpl.rcParams['text.latex.preamble'] if ismath == 'TeX' else None
+    return get_text_metrics(text, fontprop.copy(), ismath, dpi, tex_preamble)
 
 
 def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary()):
@@ -142,8 +145,8 @@ def _get_text_metrics_function(input_renderer, _cache=weakref.WeakKeyDictionary(
 
         # define the function locally to get a new lru_cache per renderer
         @functools.lru_cache(4096)
-        # dpi is unused, but participates in cache invalidation (via the renderer).
-        def _text_metrics(text, fontprop, ismath, dpi):
+        # dpi and tex_preamble are unused, but participate in cache invalidation.
+        def _text_metrics(text, fontprop, ismath, dpi, tex_preamble):
             # this should never happen under normal use, but this is a better error to
             # raise than an AttributeError on `None`
             if (local_renderer := renderer_ref()) is None:
