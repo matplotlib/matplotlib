@@ -19,6 +19,23 @@ Matplotlib also provides an option to offload text rendering to a TeX engine
 (``usetex=True``), see :ref:`Text rendering with LaTeX
 <usetex>`.
 
+Using additional fonts
+----------------------
+
+Matplotlib searches for fonts in platform-specific system and user directories.
+On Linux, the user font directories include ``$XDG_DATA_HOME/fonts`` (which
+defaults to ``~/.local/share/fonts``) and ``~/.fonts``.
+
+Matplotlib caches the fonts it has discovered. If you add a font and Matplotlib
+does not find it, remove the ``fontlist-v*.json`` file from the directory
+returned by :func:`matplotlib.get_cachedir`. Matplotlib will recreate the font
+cache the next time it is imported.
+
+For a font that cannot be installed in a system or user font directory, use
+:meth:`matplotlib.font_manager.FontManager.addfont`. Fonts added this way are
+not persisted in the cache, so call ``addfont`` each time Matplotlib is
+imported. See the `.FontManager` documentation for an example.
+
 Fonts in PDF and PostScript
 ---------------------------
 
