@@ -1,0 +1,59 @@
+---
+name: Pixi
+
+on:
+  pull_request:
+    paths:
+      - "pixi.lock"
+      - "pyproject.toml"
+      - "src/**"
+      - "lib/**"
+      - ".github/workflows/pixi_tests.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pixi.lock"
+      - "pyproject.toml"
+      - "src/**"
+      - "lib/**"
+      - ".github/workflows/pixi_tests.yml"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  check-lockfile:
+    name: "${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    permissions:
+      contents: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+          - os: windows-latest
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Set up pixi
+        uses: prefix-dev/setup-pixi@a09b6247153796b190642a2b53fac4241043cf6f  # v0.10.0
+        with:
+          pixi-version: v0.85.0
+          run-install: false
+
+      - name: Check that pixi.lock is up to date
+        run: |
+          pixi install --locked --manifest-path pixi.toml
+
+      - name: Show pixi info
+        run: |
+          pixi info
+          pixi list
+
+      - name: Run tests
+        run: |
+          pixi run test-core

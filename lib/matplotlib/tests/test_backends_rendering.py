@@ -13,7 +13,7 @@ from matplotlib.backends.backend_svg import RendererSVG
 from matplotlib.figure import Figure
 from matplotlib.patches import Circle, PathPatch, Polygon, Rectangle
 from matplotlib.path import Path
-from matplotlib.testing._markers import needs_pgf_pdflatex
+from matplotlib.testing._markers import needs_pgf_pdflatex, needs_pgf_xelatex
 from matplotlib.testing.decorators import image_comparison
 
 try:
@@ -181,6 +181,7 @@ def test_blend_modes_pdf_rasterized():
 
 
 @needs_pgf_pdflatex
+@needs_pgf_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['blend_modes_pgf.pdf'], style='mpl20')
 def test_blend_modes_pgf():
@@ -230,6 +231,7 @@ def test_blend_groups_pdf():
 
 
 @needs_pgf_pdflatex
+@needs_pgf_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['blend_groups_pgf.pdf'], style='mpl20')
 def test_blend_groups_pgf():
@@ -339,6 +341,7 @@ def test_fill_rules_cairo():
 
 
 @needs_pgf_pdflatex
+@needs_pgf_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['fill_rules_pgf.pdf'], style='mpl20')
 def test_fill_rules_pgf():
@@ -382,6 +385,7 @@ def test_patch_blending_cairo():
 
 
 @needs_pgf_pdflatex
+@needs_pgf_xelatex
 @pytest.mark.backend('pgf')
 @image_comparison(['patch_blending_pgf.pdf'], style='mpl20')
 def test_patch_blending_pgf():

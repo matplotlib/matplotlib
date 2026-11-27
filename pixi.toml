@@ -1,0 +1,226 @@
+[workspace]
+channels = ["conda-forge"]
+platforms = ["linux-64", "osx-arm64", "osx-64", "win-64"]
+preview = ["pixi-build"]
+requires-pixi = ">=0.82.1"
+
+[workspace.build-variants]
+# Build the pixi-build package for each Python the environments below use.
+python = ["3.12.*", "3.13.*", "3.14.*", "3.15.*"]
+
+[dependencies]
+# Matplotlib itself, built from this source tree by pixi-build (see [package]).
+# Named matplotlib-base to match the conda-forge package.
+compilers = "*"
+contourpy = ">=1.2.1"
+cycler = ">=0.12"
+fonttools = ">=4.28.2"
+kiwisolver = ">=1.3.1"
+matplotlib-base = { path = "." }
+meson = "*"
+meson-python = ">=0.18.0"
+ninja = "*"
+numpy = ">=2.0"
+packaging = ">=23.2"
+pillow = ">=9"
+pkg-config = "*"
+pybind11 = ">=3"
+pyparsing = ">=3"
+python-dateutil = ">=2.7"
+setuptools = ">=64"
+setuptools_scm = ">=7,<10"
+
+
+[feature.doc.dependencies]
+PyStemmer = "*"
+accessible-pygments = ">=0.0.5"
+colour-science = "*"
+ffmpeg = ">=9.1.0"
+ipykernel = "*"
+ipython = '*'
+ipywidgets = "*"
+mpl-sphinx-theme = "*"
+numpydoc = ">=1.0"
+pyyaml = "*"
+sphinx-copybutton = "*"
+sphinx-design = "*"
+sphinx-gallery = ">=0.17.0"
+sphinx-tags = ">=0.4.0"
+sphinx= ">=5.1.0,!=6.1.2"
+sphinxcontrib-svg2pdfconverter = ">=1.1.0"
+sphinxcontrib-video = ">=0.2.1"
+
+[feature.test.dependencies]
+black = "<27"
+certifi = "*"
+coverage = "!=6.3"
+psutil = '*'
+pytest = "!=4.6.0,!=5.4.0,!=8.1.0"
+pytest-cov = "*"
+pytest-rerunfailures = "!=16.0"
+pytest-timeout = "*"
+pytest-xdist = "*"
+pytest-xvfb = "*"
+tornado = "*"
+resvg-py = "*"
+
+[feature.test-extra.dependencies]
+ipykernel = '*'
+# jupyter/nbconvert#1970 for the 7.3 series exclusions
+nbconvert = "!=6.0.0,!=6.0.1,!=7.3.0,!=7.3.1"
+nbformat = "!=5.0.0,!=5.0.1"
+pandas= "!=0.25.0"
+pikepdf = '*'
+pytz = '*'
+xarray = '*'
+
+[feature.typing.dependencies]
+mypy = ">=1.14"
+# Extra stubs distributed separately from the main pypi package
+pandas-stubs = '*'
+sphinx = '*'
+types-pillow = '*'
+types-psutil = '*'
+# stubtest type checks the installed tests, which need pytest to be importable
+pytest = "!=4.6.0,!=5.4.0,!=8.1.0"
+types-python-dateutil = '*'
+typing-extensions = ">=4.6"
+
+[feature.typing.tasks.stubtest]
+# Replacement for `tox -e stubtest`.  The environment must be installed with
+# Matplotlib built non-editable (stubtest can not see through the editable
+# loader), and pixi-build only does that with this variable set:
+#
+#     BUILD_EDITABLE_PYTHON=false pixi run -e typing stubtest
+#
+# pixi rebuilds and reinstalls Matplotlib whenever its sources change, so the
+# installed copy is always the current code.
+cmd = "python tools/stubtest.py"
+depends-on = ["_check-not-editable"]
+description = "Run mypy stubtest on the type stubs"
+
+[feature.typing.tasks._check-not-editable]
+cmd = """python -c "
+import importlib.util, sys
+spec = importlib.util.find_spec('matplotlib')
+if 'site-packages' not in (spec.origin or ''):
+    sys.exit('matplotlib is installed in editable mode; re-run as: BUILD_EDITABLE_PYTHON=false pixi run -e typing stubtest')
+"
+"""
+
+[tasks.build-doc]
+# for users: don't use for CI
+cmd = "make -C doc html"
+description = "Build the documentation"
+
+[tasks.test-core]
+# for users: don't use for CI
+cmd = "pytest -n logical --pyargs matplotlib"
+description = "Run Matplotlib tests (no toolboxes)"
+
+[tasks.test]
+# for users: don't use for CI
+cmd = "pytest -n logical --pyargs matplotlib mpl_toolkits.axes_grid1 mpl_toolkits.axisartist mpl_toolkits.mplot3d"
+description = "Run Matplotlib tests (including all toolboxes)"
+
+[feature.py312.dependencies]
+python = "3.12.*"
+
+[feature.py313.dependencies]
+python = "3.13.*"
+
+[feature.py314.dependencies]
+python = "3.14.*"
+
+[feature.py315.dependencies]
+python = "3.15.*"
+
+[feature.py315.target.win-64.dependencies]
+# TODO: drop once prefix-dev/parselmouth#100 is fixed.  conda-forge's Python
+# 3.15 on Windows moved site-packages to lib/python/site-packages/, which the
+# conda->PyPI mapping does not recognise, so the py315 win-64 conda packages
+# get no PyPI name and pixi also installs duplicate copies from PyPI.  Until
+# then the "py315" solve group uses Python 3.14 on Windows.
+python = "3.14.*"
+
+[environments]
+# pinned back to py315
+default = { features = ["test", "doc", "py315"], solve-group = "py315" }
+test = { features = ["test"], solve-group = "py315" }
+test-extra = { features = ["test", "test-extra"], solve-group = "py315" }
+doc = { features = ["doc"], solve-group = "py315" }
+typing = { features = ["typing"], solve-group = "py315" }
+
+# pinned back to py314
+default314 = { features = ["test", "doc", "py314"], solve-group = "py314" }
+test314 = { features = ["test"], solve-group = "py314" }
+test-extra314 = { features = ["test", "test-extra"], solve-group = "py314" }
+doc314 = { features = ["doc"], solve-group = "py314" }
+typing314 = { features = ["typing"], solve-group = "py314" }
+
+# pinned back to py313
+default313 = { features = ["test", "doc", "py313"], solve-group = "py313" }
+test313 = { features = ["test"], solve-group = "py313" }
+test-extra313 = { features = ["test", "test-extra"], solve-group = "py313" }
+doc313 = { features = ["doc"], solve-group = "py313" }
+typing313 = { features = ["typing"], solve-group = "py313" }
+
+# pinned back to py312
+default312 = { features = ["test", "doc", "py312"], solve-group = "py312" }
+test312 = { features = ["test"], solve-group = "py312" }
+test-extra312 = { features = ["test", "test-extra"], solve-group = "py312" }
+doc312 = { features = ["doc"], solve-group = "py312" }
+typing312 = { features = ["typing"], solve-group = "py312" }
+
+
+[package]
+# Name of the conda package, matching the core package on conda-forge.
+name = "matplotlib-base"
+# We need to set this by hand as pixi-build does not yet handle dynamic versioning
+version = "3.12.0.dev0"
+
+[package.build.backend]
+name = "pixi-build-python"
+
+[package.build.config]
+ignore-pypi-mapping = false
+# Matplotlib has compiled extensions, so this must be a platform package built with compilers.
+noarch = false
+compilers = ["c", "cxx"]
+# Not a git checkout inside the isolated build directory, so setuptools_scm can not infer a version.
+env = { SETUPTOOLS_SCM_PRETEND_VERSION_FOR_MATPLOTLIB = "3.12.0.dev0" }
+# Put the meson build directory inside pixi's per-build work directory
+# ($SRC_DIR = .pixi/bld/matplotlib-base/<hash>/work).  Meson caches absolute
+# paths into that build's host prefix (pybind11, Python.h, ...), so the build
+# directory must be created and deleted together with it; a build directory
+# that outlived its prefix would fail to compile.  The <hash> differs per
+# Python version, so environments do not clobber each other's build either.
+# pixi does not expand variables itself: bash expands $SRC_DIR, cmd.exe %SRC_DIR%.
+extra-args = ["-Csetup-args=-Db_lto=false", "-Cbuild-dir=${SRC_DIR}/meson-build"]
+# The backend only tracks *.py and C/C++ sources by default; the type stubs and
+# meson files also change what gets installed.  The meson build directories
+# hold generated sources that must not trigger a rebuild of this package.
+extra-input-globs = [
+    "lib/**/*.pyi",
+    "lib/**/py.typed",
+    "meson.options",
+    "**/meson.build",
+    "subprojects/*.wrap",
+    "subprojects/packagefiles/**",
+    "!build/**",
+    "!.pixi/**",
+]
+
+[package.build.target.win.config]
+extra-args = ["-Csetup-args=-Db_lto=false", "-Cbuild-dir=%SRC_DIR%\\meson-build"]
+
+[package.host-dependencies]
+python = "*"
+meson = "*"
+ninja = "*"
+pkg-config = "*"
+meson-python = ">=0.18.0"
+pybind11 = ">=3"
+setuptools_scm = ">=7,<10"
+setuptools = ">=64"
+numpy = ">=2.0"

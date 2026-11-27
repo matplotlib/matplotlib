@@ -141,6 +141,7 @@ setup.
 
 .. _venv: https://docs.python.org/3/library/venv.html
 .. _conda: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+.. _pixi: https://pixi.prefix.dev/
 
 .. tab-set::
 
@@ -198,6 +199,79 @@ setup.
         conda activate mpl-dev
 
       Remember to activate the environment whenever you start working on Matplotlib!
+
+   .. tab-item:: pixi environment
+
+      A `pixi`_ configuration is included in ``pyproject.toml`` that will
+      install the development dependencies and an editable version of
+      Matplotlib (built from your checkout)::
+
+        pixi install
+
+      Compiled extensions are rebuilt automatically when you import
+      Matplotlib after changing the C++ sources.  If you change the build
+      configuration (``pyproject.toml``, any ``meson.build`` file) ``pixi run``
+      will rebuild and reinstall Matplotlib for you.
+
+      You can test the installation with::
+
+         pixi run python -c "import matplotlib; print(matplotlib.__file__)"
+
+      We provide a number of tasks for common tasks (see ``pixi task list``)
+
+      test
+         run the test suite (in parallel).  Any additional command line flags
+         are passed through to ``pytest`` so ::
+
+           pixi run test --lf   # re-run only the tests that failed last time
+           pixi run test --pdb  # drop into pdb when a test fails
+           pixi run test -k XYZ # filter only tests with XYZ in the name
+
+      build-doc
+         Build the html documentation.
+
+      test-core
+          Test only the core Matplotlib library (skipping the toolkits)
+
+      stubtest
+          Runs the stubtest to verify that type stubs match the runtime.  This
+          requires a non-editable install of Matplotlib so must be run as::
+
+             BUILD_EDITABLE_PYTHON=false pixi run -e typing stubtest
+
+
+      In addition to the default environment, we include a number of specialized
+      environments and pinned to older versions of Python.  Use
+      ``pixi workspace environment list`` to see the full list.   For older Pythons
+      the environment names have ``3XX` appended.
+
+      default
+         Tests and documentation dependencies.
+
+      test
+         Tests dependencies only.
+
+      test-extra
+         Additional dependencies to reduce the number of skipped tests.
+
+      doc
+         The documentation dependencies (but no test dependencies)
+
+      typing
+         Dependencies for running various testing.
+
+
+      For example to run the tests with extra dependencies with Python 3.14 use::
+
+        pixi run -e test-extra314 test
+
+      .. tip::
+
+         If you do not want to use ``pixi run`` in front of every command, run::
+
+            pixi shell [-e ENVIRONMENT]
+
+         which gives the same behavior as ``conda activate``.
 
 
 Install external dependencies
