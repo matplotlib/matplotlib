@@ -56,7 +56,7 @@ Labels
   "Run cibuildwheel" label to enable testing wheels.
 * If the PR does not yet have the quality and clarity needed for an effective
   review, you can use the ``status: autoclose candidate`` label. This will
-  trigger a two-weeks countdown after which the PR will be automatically closed
+  trigger a two-week countdown after which the PR will be automatically closed
   if no further improvements have been made. See
   `the autoclose workflow <https://github.com/matplotlib/matplotlib/blob/main/.github/workflows/autoclose_comment.yml>`__
   for more details.
