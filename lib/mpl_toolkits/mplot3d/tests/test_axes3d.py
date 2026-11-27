@@ -13,7 +13,7 @@ from matplotlib.backend_bases import (MouseButton, MouseEvent,
 from matplotlib import cm
 from matplotlib import colors as mcolors, patches as mpatch
 from matplotlib.testing.decorators import image_comparison, check_figures_equal
-from matplotlib.collections import LineCollection, PolyCollection
+from matplotlib.collections import LineCollection, PatchCollection, PolyCollection
 from matplotlib.patches import Circle, PathPatch
 from matplotlib.path import Path
 from matplotlib.text import Text
@@ -1055,6 +1055,30 @@ def test_patch_collection_modification(fig_test, fig_ref):
 
     ax_ref = fig_ref.add_subplot(projection='3d')
     ax_ref.add_collection3d(c)
+
+
+@check_figures_equal()
+def test_patch_collection_2d_to_3d_matches_individual_patches(fig_test, fig_ref):
+    for fig in (fig_test, fig_ref):
+        fig.set_size_inches(4, 4)
+        ax = fig.add_subplot(projection='3d')
+        ax.set(xlim=(-0.25, 1.75), ylim=(-0.25, 1.75), zlim=(-1, 1))
+        ax.view_init(elev=28, azim=-60)
+        ax.set_axis_off()
+        rectangles = [
+            mpatch.Rectangle(xy, 0.5, 0.5, facecolor='black', edgecolor='none',
+                             antialiased=False)
+            for xy in [(0, 0), (0, 1), (1, 1), (1, 0)]
+        ]
+        if fig is fig_test:
+            collection = PatchCollection(rectangles, match_original=True)
+            ax.add_collection(collection)
+            art3d.patch_collection_2d_to_3d(
+                collection, zs=0, zdir='z', depthshade=False)
+        else:
+            for rectangle in rectangles:
+                ax.add_patch(rectangle)
+                art3d.pathpatch_2d_to_3d(rectangle, z=0, zdir='z')
 
 
 def test_poly3dcollection_verts_validation():
