@@ -213,6 +213,18 @@ def comparable_formats():
     return ['png', *converter]
 
 
+def _check_comparable_format(extension):
+    if extension not in comparable_formats():
+        import pytest
+        reason = {
+            'gif': 'because ImageMagick is not installed',
+            'pdf': 'because Ghostscript is not installed',
+            'eps': 'because Ghostscript is not installed',
+            'svg': 'because resvg-py is not installed',
+        }.get(extension, 'on this system')
+        pytest.skip(f"Cannot compare {extension} files {reason}")
+
+
 def convert(filename, cache, force=False):
     """
     Convert the named file to png; return the name of the created file.
@@ -226,9 +238,7 @@ def convert(filename, cache, force=False):
     path = Path(filename)
     if not path.exists():
         raise OSError(f"{path} does not exist")
-    if path.suffix[1:] not in converter:
-        import pytest
-        pytest.skip(f"Don't know how to convert {path.suffix} files to png")
+    _check_comparable_format(path.suffix[1:])
     newpath = path.parent / f"{path.stem}_{path.suffix[1:]}.png"
 
     # Only convert the file if the destination doesn't already exist or

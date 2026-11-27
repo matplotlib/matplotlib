@@ -1,3 +1,4 @@
+.. _document_style:
 
 =========================
 Documentation style guide
