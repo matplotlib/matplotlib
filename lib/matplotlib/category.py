@@ -212,7 +212,7 @@ class UnitData:
         data = np.atleast_1d(np.array(data, dtype=object))
         # check if convertible to number:
         convertible = True
-        for val in OrderedDict.fromkeys(data):
+        for val in OrderedDict.fromkeys(data.flat):
             # OrderedDict just iterates over unique values in data.
             _api.check_isinstance((str, bytes), value=val)
             if convertible:
