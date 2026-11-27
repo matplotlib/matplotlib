@@ -245,6 +245,7 @@ class Cursor(AxesWidget):
         horizOn: bool = ...,
         vertOn: bool = ...,
         useblit: bool = ...,
+        layer: str | None = ...,
         **lineprops
     ) -> None: ...
     def clear(self, event: Event) -> None: ...
