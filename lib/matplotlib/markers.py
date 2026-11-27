@@ -134,6 +134,7 @@ from collections.abc import Hashable, Sized
 import numpy as np
 
 import matplotlib as mpl
+from matplotlib._api import UNSET
 from . import _api, cbook
 from .path import Path
 from .transforms import IdentityTransform, Affine2D
@@ -262,6 +263,33 @@ class MarkerStyle:
         # markers.
         self._filled = self._fillstyle != 'none'
         self._marker_function()
+
+    def _with_attrs(self, *, fillstyle=UNSET):
+        """
+        Return a new MarkerStyle with updated attributes.
+
+        Parameters
+        ----------
+        fillstyle : str, optional
+            The fillstyle to apply. If not provided, the existing
+            fillstyle value is preserved.
+
+        Notes
+        -----
+        For markers such as '*', the fillstyle must be set during
+        initialization because it affects how the marker path is constructed.
+        Updating the fillstyle after initialization does not correctly
+        update half-filled markers.
+        """
+        marker = self.get_marker()
+
+        if fillstyle is UNSET:
+            fillstyle = self._fillstyle
+
+        new = MarkerStyle(marker, fillstyle=fillstyle)
+        new._user_transform = self._user_transform
+
+        return new
 
     def __bool__(self):
         return bool(len(self._path.vertices))
