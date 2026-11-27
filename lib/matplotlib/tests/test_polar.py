@@ -225,6 +225,89 @@ def test_polar_rlabel_position():
     ax.tick_params(rotation='auto')
 
 
+def _label_anchors(ax, locs):
+    # Anchors of the radial tick labels at the given tick locations.
+    return [t.get_transform().transform((0, loc))
+            for t, loc in zip(ax.yaxis.get_ticklabels(), locs)
+            if t.get_text()]
+
+
+@pytest.mark.parametrize('theta_direction', [1, -1])
+@pytest.mark.parametrize('rlabel_position', [90, 200])
+def test_polar_rlabel_position_wedge(rlabel_position, theta_direction):
+    # On a partial wedge, an explicitly set rlabel position must be honored
+    # (even outside the wedge), while the default keeps the labels on the
+    # wedge edge.
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='polar')
+    ax.set_thetamin(0)
+    ax.set_thetamax(180)
+    ax.set_theta_direction(theta_direction)
+    fig.canvas.draw()
+    locs = [t.get_position()[1] for t in ax.yaxis.get_ticklabels()
+            if t.get_text() and t.get_position()[1] > 0]
+
+    # Without a manually set position, labels sit on the theta=0 edge.
+    for got, loc in zip(_label_anchors(ax, locs), locs):
+        expected = ax.transData.transform((np.deg2rad(0), loc))
+        assert_allclose(got, expected, atol=15)
+
+    ax.set_rlabel_position(rlabel_position)
+    fig.canvas.draw()
+    # The labels are padded off the radial line at the rlabel position, to
+    # the side on which they are aligned: clockwise for counterclockwise
+    # theta and vice versa.  The whole text must end up on that side.
+    tick = ax.yaxis.get_major_ticks()[0]
+    pad = (tick.get_pad() + tick.get_tick_padding()) * fig.dpi / 72
+    angle = np.deg2rad(rlabel_position * theta_direction) + ax.get_theta_offset()
+    normal = theta_direction * np.array([np.sin(angle), -np.cos(angle)])
+    renderer = fig.canvas.get_renderer()
+    labels = [t for t in ax.yaxis.get_ticklabels() if t.get_text()]
+    for t, got, loc in zip(labels, _label_anchors(ax, locs), locs):
+        on_line = ax.transData.transform((np.deg2rad(rlabel_position), loc))
+        assert_allclose(got, on_line + pad * normal, atol=1e-6)
+        corners = t.get_window_extent(renderer).corners() - on_line
+        assert np.all(corners @ normal > 0)
+
+
+def test_polar_rlabel_position_wedge_moved():
+    # The label padding follows the rlabel position also for ticks that
+    # already exist when it is set: made for the default layout, or drawn
+    # at another position.
+    def label_positions(prepare):
+        fig = plt.figure()
+        ax = fig.add_subplot(projection='polar')
+        ax.set_thetamax(180)
+        prepare(ax)
+        ax.set_rlabel_position(200)
+        fig.canvas.draw()
+        return [t.get_transform().transform(t.get_position())
+                for t in ax.yaxis.get_ticklabels()]
+
+    def drawn_at_90(ax):
+        ax.set_rlabel_position(90)
+        ax.figure.canvas.draw()
+
+    expected = label_positions(lambda ax: None)
+    assert_allclose(
+        label_positions(lambda ax: ax.yaxis.get_major_ticks()), expected)
+    assert_allclose(label_positions(drawn_at_90), expected)
+
+
+@pytest.mark.parametrize('theta_direction', [1, -1])
+@check_figures_equal()
+def test_polar_rlabel_position_wedge_start(fig_test, fig_ref, theta_direction):
+    # Setting the rlabel position to thetamin gives the default wedge layout,
+    # including the tick marks and the labels on the other edge.
+    for fig in [fig_test, fig_ref]:
+        ax = fig.add_subplot(projection='polar')
+        ax.set_thetamin(30)
+        ax.set_thetamax(150)
+        ax.set_theta_direction(theta_direction)
+        ax.yaxis.set_tick_params(tick1On=True, tick2On=True, label2On=True)
+    fig_test.axes[0].set_rlabel_position(30)
+
+
 @image_comparison(['polar_title_position.png'], style='mpl20')
 def test_polar_title_position():
     fig = plt.figure()
