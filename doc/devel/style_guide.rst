@@ -337,51 +337,15 @@ It is useful to strive for consistency in the Matplotlib documentation. The
 following guidelines specify how to incorporate code and use appropriate
 formatting for Matplotlib documentation.
 
-Code examples
--------------
-Examples of Python code have comments before or on the same line.
+reStructuredText
+----------------
 
-.. table::
-   :width: 100%
-   :widths: 50, 50
+Matplotlib uses reStructuredText Markup for documentation. Sphinx helps to
+transform these documents into appropriate formats for accessibility and
+visibility.
 
-   +---------------------------------------+---------------------------------+
-   | Correct                               | Incorrect                       |
-   +=======================================+=================================+
-   | ::                                    | ::                              |
-   |                                       |                                 |
-   |    # Data                             |    years = [2006, 2007, 2008]   |
-   |    years = [2006, 2007, 2008]         |    # Data                       |
-   +---------------------------------------+                                 |
-   | ::                                    |                                 |
-   |                                       |                                 |
-   |    years = [2006, 2007, 2008]  # Data |                                 |
-   +---------------------------------------+---------------------------------+
-
-Outputs
--------
-When generating visuals with Matplotlib using ``.py`` files in examples,
-display the visual with `matplotlib.pyplot.show` to display the visual.
-Keep the documentation clear of Python output lines.
-
-.. table::
-   :width: 100%
-   :widths: 50, 50
-
-   +------------------------------------+------------------------------------+
-   | Correct                            | Incorrect                          |
-   +====================================+====================================+
-   | ::                                 | ::                                 |
-   |                                    |                                    |
-   |    plt.plot([1, 2, 3], [1, 2, 3])  |    plt.plot([1, 2, 3], [1, 2, 3])  |
-   |    plt.show()                      |                                    |
-   +------------------------------------+------------------------------------+
-   | ::                                 | ::                                 |
-   |                                    |                                    |
-   |    fig, ax = plt.subplots()        |    fig, ax = plt.subplots()        |
-   |    ax.plot([1, 2, 3], [1, 2, 3])   |    ax.plot([1, 2, 3], [1, 2, 3])   |
-   |    fig.show()                      |                                    |
-   +------------------------------------+------------------------------------+
+- `reStructuredText Specifications <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html>`_
+- `Quick Reference Document <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
 
 Mathematical expressions
 ------------------------
@@ -396,17 +360,6 @@ In rare cases we want the rendering of the mathematical text in the
 documentation html to exactly match with the rendering of the mathematical
 expression in the Matplotlib figure. In these cases, you can use the
 `matplotlib.sphinxext.mathmpl` Sphinx extension. Usage is described in :doc:`../users/explain/text/mathtext`.
-
-reStructuredText
-----------------
-
-Matplotlib uses reStructuredText Markup for documentation. Sphinx helps to
-transform these documents into appropriate formats for accessibility and
-visibility.
-
-- `reStructuredText Specifications <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html>`_
-- `Quick Reference Document <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
-
 
 Lists
 ^^^^^
