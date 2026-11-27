@@ -3040,10 +3040,12 @@ class ConnectionStyle(_Style):
             Parameters
             ----------
             angleA : float
-              Starting angle of the path.
+              Angle of the line crossing the start point (*posA*), measured
+              counterclockwise from the positive x-axis.
 
             angleB : float
-              Ending angle of the path.
+              Angle of the line crossing the end point (*posB*), measured
+              counterclockwise from the positive x-axis.
             """
 
             self.angleA = angleA
@@ -3081,10 +3083,12 @@ class ConnectionStyle(_Style):
             Parameters
             ----------
             angleA : float
-              Starting angle of the path.
+              Angle of the line crossing the start point (*posA*), measured
+              counterclockwise from the positive x-axis.
 
             angleB : float
-              Ending angle of the path.
+              Angle of the line crossing the end point (*posB*), measured
+              counterclockwise from the positive x-axis.
 
             rad : float
               Rounding radius of the edge.
