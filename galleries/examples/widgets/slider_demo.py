@@ -6,6 +6,10 @@ Slider
 In this example, sliders are used to control the frequency and amplitude of
 a sine wave.
 
+The frequency slider sets ``scroll=True``, so you can also adjust it by
+scrolling over it. Each scroll event changes the frequency by 1% of the
+slider's range.
+
 See :doc:`/gallery/widgets/slider_snap_demo` for an example of having
 the ``Slider`` snap to discrete values.
 
@@ -45,6 +49,7 @@ freq_slider = Slider(
     valmin=0.1,
     valmax=30,
     valinit=init_frequency,
+    scroll=True,
 )
 
 # Make a vertically oriented slider to control the amplitude
