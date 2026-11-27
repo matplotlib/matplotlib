@@ -4,7 +4,7 @@
 # Philosophy: enable checks that find real bugs (memory safety, undefined
 # behaviour, security) and suppress checks that are high-noise style rules
 # inappropriate for a C/C++ codebase that interfaces heavily with C APIs
-# (CPython, FreeType, libagg) via pybind11.
+# (CPython, FreeType, libagg) via nanobind.
 #
 # Run with:
 #   clang-tidy -p <build_dir> --config-file=src/.clang-tidy <file>
@@ -27,7 +27,7 @@ Checks: >
   -clang-analyzer-optin.cplusplus.UninitializedObject,
   -clang-analyzer-optin.performance.Padding,
 
-# Only report findings in matplotlib's own src/ headers, not in pybind11,
+# Only report findings in matplotlib's own src/ headers, not in nanobind,
 # Python.h, agg, or other vendored includes.
 HeaderFilterRegex: '.*/matplotlib/src/.*'
 

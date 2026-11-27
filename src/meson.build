@@ -43,14 +43,14 @@ extension_data = {
       '_backend_agg.cpp',
       '_backend_agg_wrapper.cpp',
     ),
-    'dependencies': [agg_dep, pybind11_dep],
+    'dependencies': [agg_dep, nanobind_dep],
   },
   '_c_internal_utils': {
     'subdir': 'matplotlib',
     'sources': files(
       '_c_internal_utils.cpp',
     ),
-    'dependencies': [pybind11_dep, dl, ole32, shell32, user32, appleframeworks],
+    'dependencies': [nanobind_dep, dl, ole32, shell32, user32, appleframeworks],
   },
   'ft2font': {
     'subdir': 'matplotlib',
@@ -59,7 +59,7 @@ extension_data = {
       'ft2font_wrapper.cpp',
     ),
     'dependencies': [
-      freetype_dep, libraqm_dep, pybind11_dep, agg_dep.partial_dependency(includes: true),
+      freetype_dep, libraqm_dep, nanobind_dep, agg_dep.partial_dependency(includes: true),
     ],
     'cpp_args': [
       '-DFREETYPE_BUILD_TYPE="@0@"'.format(
@@ -70,11 +70,10 @@ extension_data = {
   '_image': {
     'subdir': 'matplotlib',
     'sources': files(
-      '_image_wrapper.cpp',
-      'py_converters.cpp',
+      '_image_wrapper.cpp'
     ),
     'dependencies': [
-      pybind11_dep,
+      nanobind_dep,
       # Only need source code files agg_image_filters.cpp and agg_trans_affine.cpp
       agg_dep,
     ],
@@ -84,14 +83,14 @@ extension_data = {
     'sources': files(
       '_path_wrapper.cpp',
     ),
-    'dependencies': [agg_dep, pybind11_dep],
+    'dependencies': [agg_dep, nanobind_dep],
   },
   '_qhull': {
     'subdir': 'matplotlib',
     'sources': files(
       '_qhull_wrapper.cpp',
     ),
-    'dependencies': [pybind11_dep, qhull_dep],
+    'dependencies': [nanobind_dep, qhull_dep],
     'c_args': [f'-DMPL_DEVNULL=@devnull@'],
     'cpp_args': [f'-DMPL_DEVNULL=@devnull@'],
   },
@@ -103,7 +102,7 @@ extension_data = {
     'include_directories': include_directories('.'),
     # The dl/psapi libraries are needed for finding Tcl/Tk at run time.
     'dependencies': [
-      pybind11_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
+      nanobind_dep, agg_dep.partial_dependency(includes: true), dl, comctl32, psapi,
     ],
   },
   '_tri': {
@@ -112,7 +111,7 @@ extension_data = {
       'tri/_tri.cpp',
       'tri/_tri_wrapper.cpp',
     ),
-    'dependencies': [pybind11_dep],
+    'dependencies': [nanobind_dep],
   },
 }
 

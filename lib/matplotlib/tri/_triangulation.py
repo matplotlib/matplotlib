@@ -123,11 +123,10 @@ class Triangulation:
         from matplotlib import _tri
         if self._cpp_triangulation is None:
             self._cpp_triangulation = _tri.Triangulation(
-                # For unset arrays use empty tuple which has size of zero.
                 self.x, self.y, self.triangles,
-                self.mask if self.mask is not None else (),
-                self._edges if self._edges is not None else (),
-                self._neighbors if self._neighbors is not None else (),
+                self.mask,
+                self._edges,
+                self._neighbors,
                 not self.is_delaunay)
         return self._cpp_triangulation
 
@@ -236,8 +235,7 @@ class Triangulation:
 
         # Set mask in C++ Triangulation.
         if self._cpp_triangulation is not None:
-            self._cpp_triangulation.set_mask(
-                self.mask if self.mask is not None else ())
+            self._cpp_triangulation.set_mask(self.mask)
 
         # Clear derived fields so they are recalculated when needed.
         self._edges = None
