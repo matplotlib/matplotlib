@@ -192,7 +192,8 @@ class RendererAgg(RendererBase):
         # y is downwards.
         antialiased = gc.get_antialiased()
         buffer, positions = _render_glyph_run(
-            list(glyphs), self.dpi, x, y, angle, self.height, get_hinting_flag(),
+            list(glyphs), self.dpi, x, y, angle, self.height,
+            get_hinting_flag() | LoadFlags.NO_BITMAP,  # Bitmap strikes not supported.
             RenderMode.NORMAL if antialiased else RenderMode.MONO)
         self._renderer.draw_text_images(buffer, positions, gc)
 
@@ -236,7 +237,8 @@ class RendererAgg(RendererBase):
             return self.draw_mathtext(gc, x, y, s, prop, angle)
         font = self._prepare_font(prop)
         items = font._layout(
-            s, flags=get_hinting_flag(),
+            s,
+            flags=get_hinting_flag() | LoadFlags.NO_BITMAP,
             features=mtext.get_fontfeatures() if mtext is not None else None,
             language=mtext.get_language() if mtext is not None else None)
         size = prop.get_size_in_points()
@@ -258,7 +260,7 @@ class RendererAgg(RendererBase):
             return parse.width, parse.height, parse.depth
 
         font = self._prepare_font(prop)
-        font.set_text(s, 0.0, flags=get_hinting_flag())
+        font.set_text(s, 0.0, flags=get_hinting_flag() | LoadFlags.NO_BITMAP)
         w, h = font.get_width_height()  # width and height of unrotated string
         d = font.get_descent()
         w /= 64.0  # convert from subpixels

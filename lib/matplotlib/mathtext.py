@@ -81,7 +81,8 @@ class MathTextParser:
         from matplotlib.backends import backend_agg
         load_glyph_flags = {
             "vector": LoadFlags.NO_HINTING,
-            "raster": backend_agg.get_hinting_flag(),
+            # Bitmap strikes not supported yet.
+            "raster": backend_agg.get_hinting_flag() | LoadFlags.NO_BITMAP,
         }[self._output_type]
         return self._parse_cached(s, dpi, prop, antialiased, load_glyph_flags)
 
