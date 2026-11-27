@@ -57,7 +57,8 @@
 
 .mpl-widget.active img {
   /* Convert black to tab:blue, approximately */
-  filter: invert(34%) sepia(97%) saturate(468%) hue-rotate(162deg) brightness(96%) contrast(91%);
+  filter: invert(34%) sepia(97%) saturate(468%) hue-rotate(162deg)
+    brightness(96%) contrast(91%);
 }
 
 button.mpl-widget:focus,

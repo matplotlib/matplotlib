@@ -1,8 +1,10 @@
 {
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-prettier": "^6.10.1",
-    "prettier": "^2.0.2"
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.9.0",
+    "prettier": "^3.9.6"
   },
   "scripts": {
     "eslint": "eslint . --fix",
@@ -11,5 +13,6 @@
     "lint:check": "npm run prettier:check && npm run eslint:check",
     "prettier": "prettier --write \"**/*{.ts,.tsx,.js,.jsx,.css,.json}\"",
     "prettier:check": "prettier --check \"**/*{.ts,.tsx,.js,.jsx,.css,.json}\""
-  }
+  },
+  "type": "module"
 }
