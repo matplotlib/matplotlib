@@ -13,6 +13,7 @@ from matplotlib import (
 from matplotlib.backends.backend_agg import RendererAgg
 from matplotlib.figure import Figure
 from matplotlib.image import imread
+from matplotlib.patches import PathPatch
 from matplotlib.path import Path
 from matplotlib.testing.decorators import image_comparison
 from matplotlib.transforms import IdentityTransform
@@ -226,6 +227,23 @@ def test_chunksize():
     rcParams['agg.path.chunksize'] = 105
     ax.plot(x, np.sin(x))
     fig.canvas.draw()
+
+
+def test_chunksize_does_not_modify_path():
+    # Drawing a chunked path must not write into the codes of the input path.
+    n = 300
+    vertices = np.column_stack([np.linspace(0, 1, n),
+                                np.sin(np.linspace(0, 6 * np.pi, n))])
+    codes = np.full(n, Path.LINETO, dtype=Path.code_type)
+    codes[0] = Path.MOVETO
+    path = Path(vertices.copy(), codes.copy())
+    fig, ax = plt.subplots()
+    ax.add_patch(PathPatch(path, fill=False))
+    ax.set(xlim=(0, 1), ylim=(-1, 1))
+    with rc_context({'agg.path.chunksize': 120}):
+        fig.canvas.draw()
+    np.testing.assert_array_equal(path.codes, codes)
+    np.testing.assert_array_equal(path.vertices, vertices)
 
 
 @pytest.mark.backend('Agg')
