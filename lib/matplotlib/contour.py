@@ -1460,6 +1460,10 @@ class QuadContourSet(ContourSet):
             z = ma.masked_where(z <= 0, z)
             _api.warn_external('Log scale: values of z <= 0 have been masked')
             self.zmin = z.min().astype(float)
+        if self.levels is None and self.zmin == self.zmax:
+            _api.warn_external(
+                f"No contour levels can be computed: Z has no variation "
+                f"(min == max == {self.zmin}).")
         self._process_contour_level_args(args, z.dtype)
         return (x, y, z)
 
