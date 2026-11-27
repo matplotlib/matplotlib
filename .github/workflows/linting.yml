@@ -1,6 +1,6 @@
 ---
 name: Linting
-on: [pull_request]
+on: [workflow_dispatch]  #!ci-adventures - Experimental - Do Not Merge
 
 permissions: {}
 
