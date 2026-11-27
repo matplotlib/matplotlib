@@ -4769,7 +4769,7 @@ class ConnectionPatch(FancyArrowPatch):
                          mutation_aspect=mutation_aspect,
                          clip_on=clip_on,
                          **kwargs)
-        # if True, draw annotation only if self.xy is inside the Axes
+        # if True, draw annotation only if xyA and xyB are inside their Axes
         self._annotation_clip = None
 
     def _get_xy(self, xy, s, axes=None):
@@ -4836,16 +4836,24 @@ class ConnectionPatch(FancyArrowPatch):
 
     def set_annotation_clip(self, b):
         """
-        Set the annotation's clipping behavior.
+        Set whether the ConnectionPatch should not be drawn when at least one
+        of the endpoints is outside its Axes.
+
+        Note: The naming is historic. *clip* here means "not drawn" not
+        "partially drawn within the Axes", as *clip_on* does.
 
         Parameters
         ----------
         b : bool or None
-            - True: The annotation will be clipped when ``self.xy`` is
-              outside the Axes.
-            - False: The annotation will always be drawn.
-            - None: The annotation will be clipped when ``self.xy`` is
-              outside the Axes and ``self.xycoords == "data"``.
+            - True: The ConnectionPatch will not be drawn when at least one of the
+              endpoints is outside its Axes. More precisely, when *xyA* is
+              outside *axesA* or *xyB* is outside *axesB*.
+            - False: The ConnectionPatch will always be drawn.
+            - None: Like True, but each point is only checked if its
+              coordinate system (*coordsA* or *coordsB*) is "data".
+
+            If *axesA* or *axesB* is None, the Axes containing the patch is
+            used instead.
         """
         self._annotation_clip = b
         self.stale = True
@@ -4876,8 +4884,8 @@ class ConnectionPatch(FancyArrowPatch):
         )
         return path, fillable
 
-    def _check_xy(self, renderer):
-        """Check whether the annotation needs to be drawn."""
+    def _should_draw(self, renderer):
+        """Return whether the annotation should be drawn, given *annotation_clip*."""
 
         b = self.get_annotation_clip()
 
@@ -4902,6 +4910,6 @@ class ConnectionPatch(FancyArrowPatch):
         return True
 
     def draw(self, renderer):
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer):
             return
         super().draw(renderer)

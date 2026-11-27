@@ -1436,7 +1436,7 @@ or callable, default: value of *xycoords*
     def contains(self, mouseevent):
         if self._different_canvas(mouseevent):
             return False, {}
-        if not self._check_xy(None):
+        if not self._should_draw(None):
             return False, {}
         return self.offsetbox.contains(mouseevent)
         # self.arrow_patch is currently not checked as this can be a line - JJ
@@ -1521,7 +1521,7 @@ or callable, default: value of *xycoords*
 
     def draw(self, renderer):
         # docstring inherited
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer):
             return
         renderer.open_group(self.__class__.__name__, gid=self.get_gid())
         self.update_positions(renderer)

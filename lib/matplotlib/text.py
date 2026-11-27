@@ -1834,16 +1834,20 @@ class _AnnotationBase:
 
     def set_annotation_clip(self, b):
         """
-        Set the annotation's clipping behavior.
+        Set whether the annotation should not be drawn when the annotated
+        point is outside the Axes.
+
+        Note: The naming is historic. *clip* here means "not drawn" not
+        "partially drawn within the Axes", as *clip_on* does.
 
         Parameters
         ----------
         b : bool or None
-            - True: The annotation will be clipped when ``self.xy`` is
-              outside the Axes.
+            - True: The annotation will not be drawn when the annotated point
+              ``self.xy`` is outside the Axes.
             - False: The annotation will always be drawn.
-            - None: The annotation will be clipped when ``self.xy`` is
-              outside the Axes and ``self.xycoords == "data"``.
+            - None: The annotation will not be drawn when the annotated point
+              ``self.xy`` is outside the Axes and ``self.xycoords == "data"``.
         """
         self._annotation_clip = b
 
@@ -1859,8 +1863,8 @@ class _AnnotationBase:
         """Return the pixel position of the annotated point."""
         return self._get_xy(renderer, self.xy, self.xycoords)
 
-    def _check_xy(self, renderer=None):
-        """Check whether the annotation at *xy_pixel* should be drawn."""
+    def _should_draw(self, renderer=None):
+        """Return whether the annotation should be drawn, given *annotation_clip*."""
         if renderer is None:
             renderer = self.get_figure(root=True)._get_renderer()
         b = self.get_annotation_clip()
@@ -2266,7 +2270,7 @@ or callable, default: value of *xycoords*
         # docstring inherited
         if renderer is not None:
             self._renderer = renderer
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer):
             return
         # Update text positions before `Text.draw` would, so that the
         # FancyArrowPatch is correctly positioned.
@@ -2285,7 +2289,7 @@ or callable, default: value of *xycoords*
         # docstring inherited
         # This block is the same as in Text.get_window_extent, but we need to
         # set the renderer before calling update_positions().
-        if not self.get_visible() or not self._check_xy(renderer):
+        if not self.get_visible() or not self._should_draw(renderer):
             return Bbox.unit()
         if renderer is not None:
             self._renderer = renderer
@@ -2306,7 +2310,7 @@ or callable, default: value of *xycoords*
 
     def get_tightbbox(self, renderer=None):
         # docstring inherited
-        if not self._check_xy(renderer):
+        if not self._should_draw(renderer):
             return Bbox.null()
         return super().get_tightbbox(renderer)
 
