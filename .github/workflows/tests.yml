@@ -217,6 +217,16 @@ jobs:
           restore-keys: |
             6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-${{ github.ref }}-
             6-${{ matrix.os }}-py${{ matrix.python-version }}-mpl-
+      - name: Inspect Matplotlib cache
+        run: |
+          echo "Matplotlib cache directory:"
+          ls -lah ~/.cache/matplotlib
+
+          echo "All files recursively:"
+          find ~/.cache/matplotlib -type f -ls
+
+          echo "Directory tree:"
+          find ~/.cache/matplotlib -print
 
       - name: Install Python dependencies
         run: |
