@@ -240,3 +240,22 @@ def test_streamplot_inputs():  # test no exception occurs.
     # array-likes
     plt.streamplot(range(3), range(3),
                    np.random.rand(3, 3), np.random.rand(3, 3))
+
+
+def test_streamplot_masked_values_match_nan():
+    # A user mask on finite values must stop streamlines exactly where NaN does.
+    x = np.linspace(-3, 3, 50)
+    X, Y = np.meshgrid(x, x)
+    U = -1 - X**2 + Y
+    V = 1 + X - Y**2
+    hole = X**2 + Y**2 < 1
+    fig, (ax1, ax2) = plt.subplots(2)
+    masked = ax1.streamplot(X, Y, np.ma.array(U, mask=hole),
+                            np.ma.array(V, mask=hole))
+    nan = ax2.streamplot(X, Y, np.where(hole, np.nan, U),
+                         np.where(hole, np.nan, V))
+    masked_segs = masked.lines.get_segments()
+    nan_segs = nan.lines.get_segments()
+    assert len(masked_segs) == len(nan_segs) > 0
+    for a, b in zip(masked_segs, nan_segs):
+        np.testing.assert_array_equal(a, b)

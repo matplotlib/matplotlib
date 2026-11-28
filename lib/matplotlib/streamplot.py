@@ -493,11 +493,15 @@ def _get_integrator(u, v, dmap, minlength, maxlength, integration_direction):
 
     # rescale velocity onto grid-coordinates for integrations.
     u, v = dmap.data2grid(u, v)
+    # interpgrid indexes these arrays one scalar at a time at every
+    # integration step, and MaskedArray scalar indexing is slow.  Use plain
+    # arrays with masked cells set to NaN; interpgrid stops on NaN instead.
+    u, v = (np.ma.filled(arr, np.nan) for arr in (u, v))
 
     # speed (path length) will be in axes-coordinates
     u_ax = u / (dmap.grid.nx - 1)
     v_ax = v / (dmap.grid.ny - 1)
-    speed = np.ma.sqrt(u_ax ** 2 + v_ax ** 2)
+    speed = np.sqrt(u_ax ** 2 + v_ax ** 2)
 
     def forward_time(xi, yi):
         if not dmap.grid.within_grid(xi, yi):
@@ -721,7 +725,7 @@ def interpgrid(a, xi, yi):
     ai = a0 * (1 - yt) + a1 * yt
 
     if not isinstance(xi, np.ndarray):
-        if np.ma.is_masked(ai):
+        if np.isnan(ai):
             raise TerminateTrajectory
 
     return ai
