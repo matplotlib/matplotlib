@@ -419,6 +419,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
     extension = expected.split('.')[-1]
     should_convert = extension != 'png'
     if should_convert:
+        expected_original = expected
         actual = convert(actual, cache=True)
         expected = convert(expected, cache=True)
 
@@ -426,7 +427,7 @@ def compare_images(expected, actual, tol, in_decorator=False):
 
     # If the diff failed, force-convert the expected image and try again (#32675)
     if diff_result is not None and should_convert:
-        expected = convert(expected, cache=True, force=True)
+        expected = convert(expected_original, cache=True, force=True)
         diff_result = _load_and_diff_images(actual, expected, tol)
 
     if diff_result is None:
