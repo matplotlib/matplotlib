@@ -345,16 +345,19 @@ def _load_and_diff_images(expected_path, actual_path, tol):
     actual_image, expected_image = crop_to_same(
         actual_path, actual_image, expected_path, expected_image)
 
-    if tol <= 0:
-        if np.array_equal(expected_image, actual_image):
-            return None
-
-    rms, abs_diff = _image.calculate_rms_and_diff(expected_image, actual_image)
-
-    if rms <= tol:
+    if tol <= 0 and np.array_equal(expected_image, actual_image):
         return None
 
-    return (rms, abs_diff)
+    try:
+        rms, abs_diff = _image.calculate_rms_and_diff(expected_image, actual_image)
+
+        if rms <= tol:
+            return None
+        else:
+            return (rms, abs_diff, None)
+
+    except ImageComparisonFailure as exception:
+        return (None, None, exception)
 
 
 def compare_images(expected, actual, tol, in_decorator=False):
@@ -423,17 +426,19 @@ def compare_images(expected, actual, tol, in_decorator=False):
         actual = convert(actual, cache=True)
         expected = convert(expected, cache=True)
 
-    diff_result = _load_and_diff_images(actual, expected, tol)
+    diff_result = _load_and_diff_images(expected, actual, tol)
 
     # If the diff failed, force-convert the expected image and try again (#32675)
     if diff_result is not None and should_convert:
         expected = convert(expected_original, cache=True, force=True)
-        diff_result = _load_and_diff_images(actual, expected, tol)
+        diff_result = _load_and_diff_images(expected, actual, tol)
 
     if diff_result is None:
-        return diff_result
+        return None
 
-    rms, abs_diff = diff_result
+    rms, abs_diff, exception = diff_result
+    if exception is not None:
+        raise exception
 
     diff_image = make_test_filename(actual, 'failed-diff')
 
