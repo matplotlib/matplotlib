@@ -225,7 +225,7 @@ def _check_comparable_format(extension):
         pytest.skip(f"Cannot compare {extension} files {reason}")
 
 
-def convert(filename, cache):
+def convert(filename, cache, force=False):
     """
     Convert the named file to png; return the name of the created file.
 
@@ -243,7 +243,7 @@ def convert(filename, cache):
 
     # Only convert the file if the destination doesn't already exist or
     # is out of date.
-    if not newpath.exists() or newpath.stat().st_mtime < path.stat().st_mtime:
+    if force or not newpath.exists() or newpath.stat().st_mtime < path.stat().st_mtime:
         cache_dir = _get_cache_path() if cache else None
 
         if cache_dir is not None:
@@ -336,6 +336,30 @@ def _load_image(path):
     return np.asarray(img)
 
 
+def _load_and_diff_images(expected_path, actual_path, tol):
+    # Loads two "image" files and checks differences within a tolerance.
+    # May be called multiple times by the `.compare_images` function.
+    expected_image = _load_image(expected_path)
+    actual_image = _load_image(actual_path)
+
+    actual_image, expected_image = crop_to_same(
+        actual_path, actual_image, expected_path, expected_image)
+
+    if tol <= 0 and np.array_equal(expected_image, actual_image):
+        return None
+
+    try:
+        rms, abs_diff = _image.calculate_rms_and_diff(expected_image, actual_image)
+
+        if rms <= tol:
+            return None
+        else:
+            return (rms, abs_diff, None)
+
+    except ImageComparisonFailure as exception:
+        return (None, None, exception)
+
+
 def compare_images(expected, actual, tol, in_decorator=False):
     """
     Compare two "image" files checking differences within a tolerance.
@@ -396,27 +420,27 @@ def compare_images(expected, actual, tol, in_decorator=False):
     if not os.path.exists(expected):
         raise OSError(f'Baseline image {expected!r} does not exist.')
     extension = expected.split('.')[-1]
-    if extension != 'png':
+    should_convert = extension != 'png'
+    if should_convert:
+        expected_original = expected
         actual = convert(actual, cache=True)
         expected = convert(expected, cache=True)
 
-    # open the image files
-    expected_image = _load_image(expected)
-    actual_image = _load_image(actual)
+    diff_result = _load_and_diff_images(expected, actual, tol)
 
-    actual_image, expected_image = crop_to_same(
-        actual, actual_image, expected, expected_image)
+    # If the diff failed, force-convert the expected image and try again (#32675)
+    if diff_result is not None and should_convert:
+        expected = convert(expected_original, cache=True, force=True)
+        diff_result = _load_and_diff_images(expected, actual, tol)
+
+    if diff_result is None:
+        return None
+
+    rms, abs_diff, exception = diff_result
+    if exception is not None:
+        raise exception
 
     diff_image = make_test_filename(actual, 'failed-diff')
-
-    if tol <= 0:
-        if np.array_equal(expected_image, actual_image):
-            return None
-
-    rms, abs_diff = _image.calculate_rms_and_diff(expected_image, actual_image)
-
-    if rms <= tol:
-        return None
 
     Image.fromarray(abs_diff).save(diff_image, format="png")
 
